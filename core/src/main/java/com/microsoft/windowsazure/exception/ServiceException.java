@@ -32,8 +32,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
-import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -164,8 +162,7 @@ public class ServiceException extends Exception {
                 .equals("application/json")
                 || httpResponse.getEntity().getContentType().getValue()
                         .equals("text/json")) {
-            serviceException = createFromJson(httpRequest, requestContent,
-                    httpResponse, entity);
+        	throw new UnsupportedOperationException();
         } else if (httpResponse.getEntity().getContentType().getValue()
                 .equals("application/xml")
                 || httpResponse.getEntity().getContentType().getValue()
@@ -173,8 +170,7 @@ public class ServiceException extends Exception {
             serviceException = createFromXml(httpRequest, requestContent,
                     httpResponse, entity);
         } else if ("Json".equals(defaultTo)) {
-            serviceException = createFromJson(httpRequest, requestContent,
-                    httpResponse, entity);
+            throw new UnsupportedOperationException();
         } else {
             serviceException = createFromXml(httpRequest, requestContent,
                     httpResponse, entity);
@@ -251,50 +247,5 @@ public class ServiceException extends Exception {
                                                                 .getStatusLine()
                                                                 .getStatusCode())
                                                         : "Invalid operation";
-    }
-
-    public static ServiceException createFromJson(HttpRequest httpRequest,
-            String requestContent, HttpResponse httpResponse, HttpEntity entity) {
-        String content;
-        try {
-            content = EntityUtils.toString(entity);
-        } catch (IOException e) {
-            return new ServiceException(e);
-        }
-
-        ServiceException serviceException;
-
-        try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode responseDoc = objectMapper.readTree(content);
-
-            String code;
-            if (responseDoc.get("Code") != null) {
-                code = responseDoc.get("Code").getTextValue();
-            } else {
-                code = Integer.toString(httpResponse.getStatusLine().getStatusCode());
-            }
-            
-            String message;
-            if (responseDoc.get("Message") != null) {
-                message = responseDoc.get("Message").getTextValue();
-            } else {
-                message = httpResponse.getStatusLine().getReasonPhrase();
-            }
-
-            serviceException = new ServiceException(buildExceptionMessage(code,
-                    message, content, httpResponse));
-            serviceException.setErrorCode(code);
-            serviceException.setErrorMessage(message);
-        } catch (IOException e) {
-            return new ServiceException();
-        }
-
-        serviceException.setHttpStatusCode(httpResponse.getStatusLine()
-                .getStatusCode());
-        serviceException.setHttpReasonPhrase(httpResponse.getStatusLine()
-                .getReasonPhrase());
-
-        return serviceException;
     }
 }

@@ -17,9 +17,6 @@ package com.microsoft.windowsazure.exception;
 import java.net.SocketTimeoutException;
 
 import com.microsoft.windowsazure.core.ServiceTimeoutException;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.ClientResponse.Status;
-import com.sun.jersey.api.client.UniformInterfaceException;
 
 public abstract class ServiceExceptionFactory {
     public static ServiceException process(String serviceName,
@@ -30,10 +27,6 @@ public abstract class ServiceExceptionFactory {
             Class<?> scanClass = scan.getClass();
             if (ServiceException.class.isAssignableFrom(scanClass)) {
                 return populate(exception, serviceName, (ServiceException) scan);
-            } else if (UniformInterfaceException.class
-                    .isAssignableFrom(scanClass)) {
-                return populate(exception, serviceName,
-                        (UniformInterfaceException) scan);
             } else if (SocketTimeoutException.class.isAssignableFrom(scanClass)) {
                 return populate(exception, serviceName,
                         (SocketTimeoutException) scan);
@@ -42,40 +35,6 @@ public abstract class ServiceExceptionFactory {
 
         exception.setServiceName(serviceName);
 
-        return exception;
-    }
-
-    static ServiceException populate(ServiceException exception,
-            String serviceName, UniformInterfaceException cause) {
-        exception.setServiceName(serviceName);
-
-        if (cause != null) {
-            ClientResponse response = cause.getResponse();
-            if (response != null) {
-                // Set status
-                Status status = response.getClientResponseStatus();
-                if (status == null) {
-                    status = Status.fromStatusCode(response.getStatus());
-                }
-                if (status == null) {
-                    exception.setHttpStatusCode(response.getStatus());
-                } else {
-                    exception.setHttpStatusCode(status.getStatusCode());
-                    exception.setHttpReasonPhrase(status.getReasonPhrase());
-                }
-
-                // Set raw response body
-                if (response.hasEntity()) {
-                    try {
-                        String body = response.getEntity(String.class);
-                        exception.setRawResponseBody(body);
-                    } catch (Exception e) {
-                        // Skip exceptions as getting the response body as a
-                        // string is a best effort thing
-                    }
-                }
-            }
-        }
         return exception;
     }
 

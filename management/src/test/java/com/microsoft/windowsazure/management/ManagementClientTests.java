@@ -29,8 +29,6 @@ import com.microsoft.windowsazure.credentials.SubscriptionCloudCredentials;
 import com.microsoft.windowsazure.management.models.AffinityGroupListResponse;
 import com.microsoft.windowsazure.management.util.TestRequestFilter;
 import com.microsoft.windowsazure.management.util.TestResponseFilter;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.filter.LoggingFilter;
 
 public class ManagementClientTests extends ManagementIntegrationTestBase { 
     @Test
@@ -62,15 +60,6 @@ public class ManagementClientTests extends ManagementIntegrationTestBase {
         Configuration config = createConfiguration();
 
         // add LoggingFilter to any pipeline that is created
-        Builder.Registry builder = (Builder.Registry) config.getBuilder();
-        builder.alter(ManagementClient.class, Client.class, new Builder.Alteration<Client>() {
-            @Override
-            public Client alter(String profile, Client client, Builder builder, Map<String, Object> properties) {
-                client.addFilter(new LoggingFilter());
-                return client;
-            }
-        });
-
         managementClient = ManagementService.create(config);
         
         TestRequestFilter testFilter1 = new TestRequestFilter("filter1b");
@@ -97,17 +86,6 @@ public class ManagementClientTests extends ManagementIntegrationTestBase {
     public void createWithRequestFirstRespectsOrder() throws Exception {
         // reinitialize configuration from known state
         Configuration config = createConfiguration();
-
-        // add LoggingFilter to any pipeline that is created
-        Builder.Registry builder = (Builder.Registry) config.getBuilder();
-        builder.alter(ManagementClient.class, Client.class, new Builder.Alteration<Client>() {
-            @Override
-            public Client alter(String profile, Client client, Builder builder, Map<String, Object> properties) {
-                client.addFilter(new LoggingFilter());
-                return client;
-            }
-        });
-
         managementClient = ManagementService.create(config);
         
         TestRequestFilter testFilter1 = new TestRequestFilter("filter1c");
@@ -134,17 +112,6 @@ public class ManagementClientTests extends ManagementIntegrationTestBase {
     public void createWithResponseLastRespectsOrder() throws Exception {
         // reinitialize configuration from known state
         Configuration config = createConfiguration();
-
-        // add LoggingFilter to any pipeline that is created
-        Builder.Registry builder = (Builder.Registry) config.getBuilder();
-        builder.alter(ManagementClient.class, Client.class, new Builder.Alteration<Client>() {
-            @Override
-            public Client alter(String profile, Client client, Builder builder, Map<String, Object> properties) {
-                client.addFilter(new LoggingFilter());
-                return client;
-            }
-        });
-
         managementClient = ManagementService.create(config);
         
         TestResponseFilter testFilter1 = new TestResponseFilter("filter1b");
@@ -171,17 +138,6 @@ public class ManagementClientTests extends ManagementIntegrationTestBase {
     public void createWithResponseFirstRespectsOrder() throws Exception {
         // reinitialize configuration from known state
         Configuration config = createConfiguration();
-
-        // add LoggingFilter to any pipeline that is created
-        Builder.Registry builder = (Builder.Registry) config.getBuilder();
-        builder.alter(ManagementClient.class, Client.class, new Builder.Alteration<Client>() {
-            @Override
-            public Client alter(String profile, Client client, Builder builder, Map<String, Object> properties) {
-                client.addFilter(new LoggingFilter());
-                return client;
-            }
-        });
-
         managementClient = ManagementService.create(config);
         
         TestResponseFilter testFilter1 = new TestResponseFilter("filter1c");
@@ -208,17 +164,6 @@ public class ManagementClientTests extends ManagementIntegrationTestBase {
     public void getCredential() throws Exception {
         // reinitialize configuration from known state
         Configuration config = createConfiguration();
-
-        // add LoggingFilter to any pipeline that is created
-        Builder.Registry builder = (Builder.Registry) config.getBuilder();
-        builder.alter(ManagementClient.class, Client.class, new Builder.Alteration<Client>() {
-            @Override
-            public Client alter(String profile, Client client, Builder builder, Map<String, Object> properties) {
-                client.addFilter(new LoggingFilter());
-                return client;
-            }
-        });
-
         managementClient = ManagementService.create(config);
         
         SubscriptionCloudCredentials subscriptionCloudCredentials = managementClient.getCredentials();      
@@ -230,17 +175,6 @@ public class ManagementClientTests extends ManagementIntegrationTestBase {
     public void getUri() throws Exception {
         // reinitialize configuration from known state
         Configuration config = createConfiguration();
-
-        // add LoggingFilter to any pipeline that is created
-        Builder.Registry builder = (Builder.Registry) config.getBuilder();
-        builder.alter(ManagementClient.class, Client.class, new Builder.Alteration<Client>() {
-            @Override
-            public Client alter(String profile, Client client, Builder builder, Map<String, Object> properties) {
-                client.addFilter(new LoggingFilter());
-                return client;
-            }
-        });
-
         managementClient = ManagementService.create(config);
         
         URI uri = managementClient.getBaseUri(); 
