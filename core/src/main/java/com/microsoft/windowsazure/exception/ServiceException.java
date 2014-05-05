@@ -162,7 +162,7 @@ public class ServiceException extends Exception {
                 .equals("application/json")
                 || httpResponse.getEntity().getContentType().getValue()
                         .equals("text/json")) {
-        	throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException();
         } else if (httpResponse.getEntity().getContentType().getValue()
                 .equals("application/xml")
                 || httpResponse.getEntity().getContentType().getValue()
