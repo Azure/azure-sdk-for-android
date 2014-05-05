@@ -15,14 +15,10 @@
 package com.microsoft.windowsazure.management.website;
 
 import java.net.URI;
-import java.util.Map;
 
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 
 import com.microsoft.windowsazure.Configuration;
-import com.microsoft.windowsazure.core.Builder;
-import com.microsoft.windowsazure.core.Builder.Alteration;
-import com.microsoft.windowsazure.core.Builder.Registry;
 import com.microsoft.windowsazure.core.pipeline.apache.ApacheConfigurationProperties;
 import com.microsoft.windowsazure.core.utils.KeyStoreType;
 import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;

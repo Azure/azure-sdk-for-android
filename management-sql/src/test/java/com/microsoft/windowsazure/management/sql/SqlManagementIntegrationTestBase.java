@@ -42,9 +42,6 @@ import javax.xml.transform.TransformerException;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.xml.sax.SAXException;
 
-import com.microsoft.windowsazure.core.Builder;
-import com.microsoft.windowsazure.core.Builder.Alteration;
-import com.microsoft.windowsazure.core.Builder.Registry;
 import com.microsoft.windowsazure.core.pipeline.apache.ApacheConfigurationProperties;
 import com.microsoft.windowsazure.core.utils.KeyStoreType;
 import com.microsoft.windowsazure.exception.ServiceException;

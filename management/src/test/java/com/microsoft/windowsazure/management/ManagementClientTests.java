@@ -17,14 +17,12 @@
 package com.microsoft.windowsazure.management;
 
 import java.net.URI;
-import java.util.Map;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
 import com.microsoft.windowsazure.Configuration;
-import com.microsoft.windowsazure.core.Builder;
 import com.microsoft.windowsazure.credentials.SubscriptionCloudCredentials;
 import com.microsoft.windowsazure.management.models.AffinityGroupListResponse;
 import com.microsoft.windowsazure.management.util.TestRequestFilter;
