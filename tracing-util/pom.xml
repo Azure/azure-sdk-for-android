@@ -60,14 +60,6 @@
       <artifactId>microsoft-azure-api-core</artifactId>
       <version>0.5.0</version>
     </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>javax.inject</groupId>
-      <artifactId>javax.inject</artifactId>
-    </dependency>
 
     <!-- Test dependencies -->
     <dependency>

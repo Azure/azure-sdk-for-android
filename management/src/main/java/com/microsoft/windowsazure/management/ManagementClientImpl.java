@@ -32,19 +32,24 @@ import com.microsoft.windowsazure.credentials.SubscriptionCloudCredentials;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;
 import com.microsoft.windowsazure.tracing.CloudTracing;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -320,22 +325,34 @@ public class ManagementClientImpl extends ServiceClient<ManagementClient> implem
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        HttpURLConnection connection = null;
+        URL serverAddress = new URL(url);
+        connection = (HttpURLConnection)serverAddress.openConnection();
+        connection.setRequestMethod("GET");
+        
+        // Get so nothing to send. uncomment if there is 
+        // connection.setDoOutput(true);
+        // HttpGet httpRequest = new HttpGet(url);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2013-03-01");
+        // httpRequest.setHeader("x-ms-version", "2013-03-01");
+        connection.setRequestProperty("x-ms-version", "2013-03-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
+        // HttpResponse httpResponse = null;
         try {
             if (shouldTrace) {
                 CloudTracing.sendRequest(invocationId, httpRequest);
             }
-            httpResponse = this.getHttpClient().execute(httpRequest);
+            
+            connection.connect();
+            // HttpURLConnection connection = null;
+            
+            // httpResponse = this.getHttpClient().execute(httpRequest);
             if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
+                // CloudTracing.receiveResponse(invocationId, httpResponse);
             }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            int statusCode = connection.getResponseCode();
             if (statusCode != HttpStatus.SC_OK) {
                 ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
                 if (shouldTrace) {
