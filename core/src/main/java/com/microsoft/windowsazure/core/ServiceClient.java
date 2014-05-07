@@ -15,16 +15,9 @@
 package com.microsoft.windowsazure.core;
 
 import com.microsoft.windowsazure.core.pipeline.filter.ServiceRequestFilter;
-import com.microsoft.windowsazure.core.pipeline.apache.HttpRequestInterceptorAdapter;
 import com.microsoft.windowsazure.core.pipeline.filter.ServiceResponseFilter;
-import com.microsoft.windowsazure.core.pipeline.apache.HttpResponseInterceptorAdapter;
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.concurrent.ExecutorService;
-
-import org.apache.http.HttpHost;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 
 public abstract class ServiceClient<TClient> implements
         FilterableService<TClient>, Closeable {
@@ -34,75 +27,33 @@ public abstract class ServiceClient<TClient> implements
         return this.executorService;
     }
 
-    private CloseableHttpClient httpClient;
-
-    public CloseableHttpClient getHttpClient() {
-        if (this.httpClient == null) {
-            String proxyHost = System.getProperty("http.proxyHost");
-            String proxyPort = System.getProperty("http.proxyPort");
-            if ((proxyHost != null) && (proxyPort != null)) {
-                HttpHost proxy = new HttpHost(proxyHost, Integer.parseInt(proxyPort));
-                if (proxy != null) {
-                    httpClientBuilder.setProxy(proxy);
-                }
-            }
-
-            this.httpClient = httpClientBuilder.build();
-        }
-
-        return this.httpClient;
-    }
-
-    private final HttpClientBuilder httpClientBuilder;
-
-    protected ServiceClient(HttpClientBuilder httpClientBuilder,
-            ExecutorService executorService) {
-        this.httpClientBuilder = httpClientBuilder;
+    protected ServiceClient(ExecutorService executorService) {
         this.executorService = executorService;
     }
 
-    protected abstract TClient newInstance(HttpClientBuilder httpClientBuilder,
-            ExecutorService executorService);
+    protected abstract TClient newInstance(ExecutorService executorService);
 
     @Override
     public TClient withRequestFilterFirst(
             ServiceRequestFilter serviceRequestFilter) {
-        httpClientBuilder
-                .addInterceptorFirst(new HttpRequestInterceptorAdapter(
-                        serviceRequestFilter));
-        return this.newInstance(httpClientBuilder, executorService);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public TClient withRequestFilterLast(
             ServiceRequestFilter serviceRequestFilter) {
-        httpClientBuilder.addInterceptorLast(new HttpRequestInterceptorAdapter(
-                serviceRequestFilter));
-        return this.newInstance(httpClientBuilder, executorService);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public TClient withResponseFilterFirst(
             ServiceResponseFilter serviceResponseFilter) {
-        httpClientBuilder
-                .addInterceptorFirst(new HttpResponseInterceptorAdapter(
-                        serviceResponseFilter));
-        return this.newInstance(httpClientBuilder, executorService);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public TClient withResponseFilterLast(
             ServiceResponseFilter serviceResponseFilter) {
-        httpClientBuilder
-                .addInterceptorLast(new HttpResponseInterceptorAdapter(
-                        serviceResponseFilter));
-        return this.newInstance(httpClientBuilder, executorService);
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (httpClient != null) {
-            httpClient.close();
-        }
+        throw new UnsupportedOperationException();
     }
 }

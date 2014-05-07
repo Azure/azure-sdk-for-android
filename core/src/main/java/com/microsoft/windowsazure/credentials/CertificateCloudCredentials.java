@@ -15,7 +15,6 @@
 
 package com.microsoft.windowsazure.credentials;
 
-import com.microsoft.windowsazure.core.pipeline.apache.ApacheConfigurationProperties;
 import com.microsoft.windowsazure.core.utils.KeyStoreCredential;
 import com.microsoft.windowsazure.core.utils.SSLContextFactory;
 import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;
@@ -26,10 +25,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.net.ssl.SSLContext;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 
 /**
  * The Class CertificateCloudCredentials.
@@ -58,8 +54,7 @@ public class CertificateCloudCredentials extends SubscriptionCloudCredentials {
      * @param subscriptionId the subscription id
      * @param keyStoreCredential the key store credential
      */
-    @Inject
-    public CertificateCloudCredentials(@Named(ManagementConfiguration.URI) URI uri, @Named(ManagementConfiguration.SUBSCRIPTION_ID) String subscriptionId,
+    public CertificateCloudCredentials(URI uri, String subscriptionId,
             KeyStoreCredential keyStoreCredential) {
         this.uri = uri;
         this.subscriptionId = subscriptionId;

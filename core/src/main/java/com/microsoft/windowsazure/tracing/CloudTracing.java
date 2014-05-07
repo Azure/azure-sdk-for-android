@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
 
 /**
  * Provides tracing utilities that insight into all aspects of client operations
@@ -146,27 +144,6 @@ public abstract class CloudTracing {
             synchronized (interceptors) {
                 for (CloudTracingInterceptor writer : interceptors) {
                     writer.enter(invocationId, instance, method, parameters);
-                }
-            }
-        }
-    }
-
-    public static void sendRequest(String invocationId, HttpRequest request) {
-        if (isEnabled) {
-            synchronized (interceptors) {
-                for (CloudTracingInterceptor writer : interceptors) {
-                    writer.sendRequest(invocationId, request);
-                }
-            }
-        }
-    }
-
-    public static void receiveResponse(String invocationId,
-            HttpResponse response) {
-        if (isEnabled) {
-            synchronized (interceptors) {
-                for (CloudTracingInterceptor writer : interceptors) {
-                    writer.receiveResponse(invocationId, response);
                 }
             }
         }

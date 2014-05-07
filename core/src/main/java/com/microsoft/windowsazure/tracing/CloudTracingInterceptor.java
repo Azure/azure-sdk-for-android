@@ -16,8 +16,6 @@
 package com.microsoft.windowsazure.tracing;
 
 import java.util.HashMap;
-import org.apache.http.HttpRequest;
-import org.apache.http.HttpResponse;
 
 /**
  * The CloudTracingInterceptor provides useful information about cloud
@@ -59,26 +57,6 @@ public interface CloudTracingInterceptor {
      */
     void enter(String invocationId, Object instance, String method,
             HashMap<String, Object> parameters);
-
-    /**
-     * Send an HTTP request.
-     * 
-     * @param invocationId
-     *            Method invocation identifier.
-     * @param request
-     *            The request about to be sent.
-     */
-    void sendRequest(String invocationId, HttpRequest request);
-
-    /**
-     * Receive an HTTP response.
-     * 
-     * @param invocationId
-     *            Method invocation identifier.
-     * @param response
-     *            The response instance.
-     */
-    void receiveResponse(String invocationId, HttpResponse response);
 
     /**
      * Raise an error.

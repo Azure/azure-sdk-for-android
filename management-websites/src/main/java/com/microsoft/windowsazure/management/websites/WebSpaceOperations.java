@@ -58,13 +58,11 @@ public interface WebSpaceOperations {
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Thrown if there was an error parsing the response.
     * @return The Create Publishing User operation response.
     */
-    WebSpacesCreatePublishingUserResponse createPublishingUser(String username, String password, WebSpacesCreatePublishingUserParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    WebSpacesCreatePublishingUserResponse createPublishingUser(String username, String password, WebSpacesCreatePublishingUserParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * Creates a source control user with permissions to publish to this web
@@ -85,19 +83,17 @@ public interface WebSpaceOperations {
     * more information)
     *
     * @param webSpaceName Required. The name of the web space.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
+    * @throws IOException Thrown if there was an error parsing the response.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Get Web Space Details operation response.
     */
-    WebSpacesGetResponse get(String webSpaceName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    WebSpacesGetResponse get(String webSpaceName) throws ServiceException, ParserConfigurationException, SAXException, IOException, URISyntaxException;
     
     /**
     * You can retrieve details for a specified web space name by issuing an
@@ -113,17 +109,15 @@ public interface WebSpaceOperations {
     /**
     * Get the DNS Suffix for this subscription.
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
+    * @throws IOException Thrown if there was an error parsing the response.
     * @return The Get DNS Suffix operation response.
     */
-    WebSpacesGetDnsSuffixResponse getDnsSuffix() throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    WebSpacesGetDnsSuffixResponse getDnsSuffix() throws ServiceException, ParserConfigurationException, SAXException, IOException;
     
     /**
     * Get the DNS Suffix for this subscription.
@@ -138,17 +132,15 @@ public interface WebSpaceOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/dn166961.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
+    * @throws IOException Thrown if there was an error parsing the response.
     * @return The List Web Spaces operation response.
     */
-    WebSpacesListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    WebSpacesListResponse list() throws ServiceException, ParserConfigurationException, SAXException, IOException;
     
     /**
     * You can list the web spaces under the current subscription by issuing a
@@ -163,17 +155,15 @@ public interface WebSpaceOperations {
     /**
     * Get the available geo regions for this web space.
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
+    * @throws IOException Thrown if there was an error parsing the response.
     * @return The List Geo Regions operation response.
     */
-    WebSpacesListGeoRegionsResponse listGeoRegions() throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    WebSpacesListGeoRegionsResponse listGeoRegions() throws ServiceException, ParserConfigurationException, SAXException, IOException;
     
     /**
     * Get the available geo regions for this web space.
@@ -185,17 +175,15 @@ public interface WebSpaceOperations {
     /**
     * Get the source control users allowed to publish to this web space.
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
+    * @throws IOException Thrown if there was an error parsing the response.
     * @return The List Publishing Users operation response.
     */
-    WebSpacesListPublishingUsersResponse listPublishingUsers() throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    WebSpacesListPublishingUsersResponse listPublishingUsers() throws ServiceException, ParserConfigurationException, SAXException, IOException;
     
     /**
     * Get the source control users allowed to publish to this web space.
@@ -212,19 +200,17 @@ public interface WebSpaceOperations {
     *
     * @param webSpaceName Required. The name of the web space.
     * @param parameters Optional. Additional parameters.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
+    * @throws IOException Thrown if there was an error parsing the response.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The List Web Sites operation response.
     */
-    WebSpacesListWebSitesResponse listWebSites(String webSpaceName, WebSiteListParameters parameters) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    WebSpacesListWebSitesResponse listWebSites(String webSpaceName, WebSiteListParameters parameters) throws ServiceException, ParserConfigurationException, SAXException, IOException, URISyntaxException;
     
     /**
     * You can retrieve a list of all web sites in a web space by issuing an

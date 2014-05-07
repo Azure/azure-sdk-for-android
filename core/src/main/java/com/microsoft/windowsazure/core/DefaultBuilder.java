@@ -26,9 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 
-import javax.inject.Inject;
-import javax.inject.Named;
-
 public class DefaultBuilder implements Builder, Builder.Registry {
     private Map<Class<?>, Factory<?>> factories;
     private Map<Class<?>, Map<Class<?>, List<Alteration<?>>>> alterations;

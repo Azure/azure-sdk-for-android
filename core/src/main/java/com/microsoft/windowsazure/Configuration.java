@@ -23,9 +23,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public class Configuration {
     /**
      * Property name for socket connection timeout used by services created with
@@ -60,8 +57,6 @@ public class Configuration {
      */
     private final Builder builder;
 
-    private static Log log = LogFactory.getLog(Configuration.class);
-
     public Configuration() {
         this.properties = new HashMap<String, Object>();
         this.builder = DefaultBuilder.create();
@@ -77,9 +72,6 @@ public class Configuration {
             try {
                 instance = Configuration.load();
             } catch (IOException e) {
-                log.error(
-                    "Unable to load META-INF/com.microsoft.windowsazure.properties",
-                    e);
                 instance = new Configuration();
             }
         }
