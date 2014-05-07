@@ -14,21 +14,29 @@
  */
 package com.microsoft.windowsazure.core;
 
+import com.microsoft.windowsazure.Configuration;
 import com.microsoft.windowsazure.core.pipeline.filter.ServiceRequestFilter;
 import com.microsoft.windowsazure.core.pipeline.filter.ServiceResponseFilter;
+
 import java.io.Closeable;
 import java.util.concurrent.ExecutorService;
 
 public abstract class ServiceClient<TClient> implements
         FilterableService<TClient>, Closeable {
     private final ExecutorService executorService;
+    private final Configuration configuration;
 
     public ExecutorService getExecutorService() {
         return this.executorService;
     }
+    
+    public Configuration getConfiguration() {
+        return this.configuration;
+    }
 
-    protected ServiceClient(ExecutorService executorService) {
-        this.executorService = executorService;
+    protected ServiceClient(Configuration configuration, ExecutorService executorService) {
+        this.configuration = configuration;
+    	this.executorService = executorService;
     }
 
     protected abstract TClient newInstance(ExecutorService executorService);

@@ -15,8 +15,6 @@
 
 package com.microsoft.windowsazure;
 
-import com.microsoft.windowsazure.core.Builder;
-import com.microsoft.windowsazure.core.DefaultBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -52,19 +50,8 @@ public class Configuration {
      */
     private final Map<String, Object> properties;
 
-    /**
-     * The builder.
-     */
-    private final Builder builder;
-
     public Configuration() {
         this.properties = new HashMap<String, Object>();
-        this.builder = DefaultBuilder.create();
-    }
-
-    public Configuration(Builder builder) {
-        this.properties = new HashMap<String, Object>();
-        this.builder = builder;
     }
 
     public static Configuration getInstance() {
@@ -99,18 +86,6 @@ public class Configuration {
         }
 
         return config;
-    }
-
-    public <T> T create(Class<T> service) {
-        return builder.build("", service, service, properties);
-    }
-
-    public <T> T create(String profile, Class<T> service) {
-        return builder.build(profile, service, service, properties);
-    }
-
-    public Builder getBuilder() {
-        return builder;
     }
 
     public Object getProperty(String name) {

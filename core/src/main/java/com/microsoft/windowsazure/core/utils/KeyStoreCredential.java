@@ -15,11 +15,7 @@
 
 package com.microsoft.windowsazure.core.utils;
 
-import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;
 import java.io.IOException;
-
-import javax.inject.Inject;
-import javax.inject.Named;
 
 /**
  * The Class KeyStoreCredential.
@@ -47,9 +43,8 @@ public class KeyStoreCredential {
      * @throws IOException
      *             when a I/O exception has occurred.
      */
-    @Inject
-    public KeyStoreCredential(@Named(ManagementConfiguration.KEYSTORE_PATH) String keyStorePath, @Named(ManagementConfiguration.KEYSTORE_PASSWORD) String keyStorePassword,
-            @Named(ManagementConfiguration.KEYSTORE_TYPE) KeyStoreType keyStoreType) throws IOException {
+    public KeyStoreCredential(String keyStorePath, String keyStorePassword,
+            KeyStoreType keyStoreType) throws IOException {
         this.keystorePassword = keyStorePassword;
         this.keyStorePath = keyStorePath;
         this.keyStoreType = keyStoreType;

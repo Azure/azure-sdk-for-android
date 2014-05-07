@@ -58,8 +58,7 @@ public final class WebSiteManagementService {
      * @return The <code>WebSiteManagementClient</code>.
      */
     public static WebSiteManagementClient create(final String profile) {
-        return Configuration.getInstance().create(profile,
-                WebSiteManagementClient.class);
+        return new WebSiteManagementClientImpl(Configuration.getInstance());
     }
 
     /**

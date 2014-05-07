@@ -32,7 +32,6 @@ public abstract class WebSiteManagementIntegrationTestBase {
     protected static void createService() throws Exception {
         // reinitialize configuration from known state
         Configuration config = createConfiguration();
-        config.setProperty(ApacheConfigurationProperties.PROPERTY_RETRY_HANDLER, new DefaultHttpRequestRetryHandler());
         webSiteManagementClient = WebSiteManagementService.create(config);
     }
 
