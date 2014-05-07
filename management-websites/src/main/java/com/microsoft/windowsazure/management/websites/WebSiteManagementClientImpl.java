@@ -23,11 +23,11 @@
 
 package com.microsoft.windowsazure.management.websites;
 
+import com.microsoft.windowsazure.Configuration;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.ServiceClient;
 import com.microsoft.windowsazure.credentials.SubscriptionCloudCredentials;
 import com.microsoft.windowsazure.exception.ServiceException;
-import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -37,10 +37,7 @@ import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import javax.inject.Inject;
-import javax.inject.Named;
 import org.apache.http.HttpStatus;
-import org.apache.http.impl.client.HttpClientBuilder;
 
 /**
 * The Web Sites Management API provides a RESTful set of web services that
@@ -113,82 +110,41 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
     /**
     * Initializes a new instance of the WebSiteManagementClientImpl class.
     *
-    * @param httpBuilder The HTTP client builder.
+    * @param configuration The service configurations.
     * @param executorService The executor service.
     */
-    private WebSiteManagementClientImpl(HttpClientBuilder httpBuilder, ExecutorService executorService) {
-        super(httpBuilder, executorService);
+    public WebSiteManagementClientImpl(Configuration configuration, ExecutorService executorService) {
+        super(configuration, executorService);
         this.serverFarms = new ServerFarmOperationsImpl(this);
         this.webSites = new WebSiteOperationsImpl(this);
         this.webSpaces = new WebSpaceOperationsImpl(this);
-    }
-    
-    /**
-    * Initializes a new instance of the WebSiteManagementClientImpl class.
-    *
-    * @param httpBuilder The HTTP client builder.
-    * @param executorService The executor service.
-    * @param credentials Required. When you create an Azure subscription, it is
-    * uniquely identified by a subscription ID. The subscription ID forms part
-    * of the URI for every call that you make to the Service Management API.
-    * The Azure Service Management API uses mutual authentication of
-    * management certificates over SSL to ensure that a request made to the
-    * service is secure. No anonymous requests are allowed.
-    * @param baseUri Required. The URI used as the base for all Service
-    * Management requests.
-    */
-    @Inject
-    public WebSiteManagementClientImpl(HttpClientBuilder httpBuilder, ExecutorService executorService, @Named(ManagementConfiguration.SUBSCRIPTION_CLOUD_CREDENTIALS) SubscriptionCloudCredentials credentials, @Named(ManagementConfiguration.URI) URI baseUri) {
-        this(httpBuilder, executorService);
-        if (credentials == null) {
+        
+        if (configuration.getProperty("Credentials") == null) {
             throw new NullPointerException("credentials");
         } else {
-            this.credentials = credentials;
+            this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty("Credentials"));
         }
-        if (baseUri == null) {
+        if (configuration.getProperty("BaseUri") == null) {
             try {
                 this.baseUri = new URI("https://management.core.windows.net");
             }
             catch (URISyntaxException ex) {
             }
         } else {
-            this.baseUri = baseUri;
+            this.baseUri = ((URI) configuration.getProperty("BaseUri"));
         }
-        this.credentials = credentials;
-        this.baseUri = baseUri;
+        this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty("Credentials"));
+        this.baseUri = ((URI) configuration.getProperty("BaseUri"));
     }
     
     /**
     * Initializes a new instance of the WebSiteManagementClientImpl class.
     *
-    * @param httpBuilder The HTTP client builder.
-    * @param executorService The executor service.
-    * @param credentials Required. When you create an Azure subscription, it is
-    * uniquely identified by a subscription ID. The subscription ID forms part
-    * of the URI for every call that you make to the Service Management API.
-    * The Azure Service Management API uses mutual authentication of
-    * management certificates over SSL to ensure that a request made to the
-    * service is secure. No anonymous requests are allowed.
-    * @throws URISyntaxException Thrown if there was an error parsing a URI in
-    * the response.
-    */
-    public WebSiteManagementClientImpl(HttpClientBuilder httpBuilder, ExecutorService executorService, SubscriptionCloudCredentials credentials) throws URISyntaxException {
-        this(httpBuilder, executorService);
-        if (credentials == null) {
-            throw new NullPointerException("credentials");
-        }
-        this.credentials = credentials;
-        this.baseUri = new URI("https://management.core.windows.net");
-    }
-    
-    /**
-    * Initializes a new instance of the WebSiteManagementClientImpl class.
-    *
-    * @param httpBuilder The HTTP client builder.
+    * @param configuration The service configurations.
     * @param executorService The executor service.
     */
-    protected WebSiteManagementClientImpl newInstance(HttpClientBuilder httpBuilder, ExecutorService executorService) {
-        return new WebSiteManagementClientImpl(httpBuilder, executorService, this.getCredentials(), this.getBaseUri());
+    protected WebSiteManagementClientImpl newInstance(Configuration configuration, ExecutorService executorService) {
+        return new WebSiteManagementClientImpl(configuration, executorService);
     }
     
     /**
