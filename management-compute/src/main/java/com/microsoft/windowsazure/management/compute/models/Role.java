@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.compute.models;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 /**
@@ -124,6 +125,26 @@ public class Role {
     */
     public void setLabel(final String labelValue) {
         this.label = labelValue;
+    }
+    
+    private URI mediaLocation;
+    
+    /**
+    * Optional. Storage location where the VM Image VHDs should be copied, for
+    * published VM Images.
+    * @return The MediaLocation value.
+    */
+    public URI getMediaLocation() {
+        return this.mediaLocation;
+    }
+    
+    /**
+    * Optional. Storage location where the VM Image VHDs should be copied, for
+    * published VM Images.
+    * @param mediaLocationValue The MediaLocation value.
+    */
+    public void setMediaLocation(final URI mediaLocationValue) {
+        this.mediaLocation = mediaLocationValue;
     }
     
     private String oSVersion;

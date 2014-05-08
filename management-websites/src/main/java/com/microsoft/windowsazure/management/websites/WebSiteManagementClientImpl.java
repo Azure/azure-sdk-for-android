@@ -23,36 +23,34 @@
 
 package com.microsoft.windowsazure.management.websites;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
+import com.microsoft.windowsazure.Configuration;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.ServiceClient;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.credentials.SubscriptionCloudCredentials;
 import com.microsoft.windowsazure.exception.ServiceException;
-import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;
 import com.microsoft.windowsazure.management.websites.models.WebSiteOperationStatus;
 import com.microsoft.windowsazure.management.websites.models.WebSiteOperationStatusResponse;
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -129,80 +127,41 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
     /**
     * Initializes a new instance of the WebSiteManagementClientImpl class.
     *
-    * @param httpBuilder The HTTP client builder.
+    * @param configuration The service configurations.
     * @param executorService The executor service.
     */
-    private WebSiteManagementClientImpl(HttpClientBuilder httpBuilder, ExecutorService executorService) {
-        super(httpBuilder, executorService);
+    public WebSiteManagementClientImpl(Configuration configuration, ExecutorService executorService) {
+        super(configuration, executorService);
         this.serverFarms = new ServerFarmOperationsImpl(this);
         this.webSites = new WebSiteOperationsImpl(this);
         this.webSpaces = new WebSpaceOperationsImpl(this);
-    }
-    
-    /**
-    * Initializes a new instance of the WebSiteManagementClientImpl class.
-    *
-    * @param httpBuilder The HTTP client builder.
-    * @param executorService The executor service.
-    * @param credentials Required. When you create an Azure subscription, it is
-    * uniquely identified by a subscription ID. The subscription ID forms part
-    * of the URI for every call that you make to the Service Management API.
-    * The Azure Service Management API uses mutual authentication of
-    * management certificates over SSL to ensure that a request made to the
-    * service is secure. No anonymous requests are allowed.
-    * @param baseUri Required. The URI used as the base for all Service
-    * Management requests.
-    */
-    @Inject
-    public WebSiteManagementClientImpl(HttpClientBuilder httpBuilder, ExecutorService executorService, @Named(ManagementConfiguration.SUBSCRIPTION_CLOUD_CREDENTIALS) SubscriptionCloudCredentials credentials, @Named(ManagementConfiguration.URI) URI baseUri) {
-        this(httpBuilder, executorService);
-        if (credentials == null) {
+        
+        if (configuration.getProperty("Credentials") == null) {
             throw new NullPointerException("credentials");
         } else {
-            this.credentials = credentials;
+            this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty("Credentials"));
         }
-        if (baseUri == null) {
+        if (configuration.getProperty("BaseUri") == null) {
             try {
                 this.baseUri = new URI("https://management.core.windows.net");
             }
             catch (URISyntaxException ex) {
             }
         } else {
-            this.baseUri = baseUri;
+            this.baseUri = ((URI) configuration.getProperty("BaseUri"));
         }
+        this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty("Credentials"));
+        this.baseUri = ((URI) configuration.getProperty("BaseUri"));
     }
     
     /**
     * Initializes a new instance of the WebSiteManagementClientImpl class.
     *
-    * @param httpBuilder The HTTP client builder.
-    * @param executorService The executor service.
-    * @param credentials Required. When you create an Azure subscription, it is
-    * uniquely identified by a subscription ID. The subscription ID forms part
-    * of the URI for every call that you make to the Service Management API.
-    * The Azure Service Management API uses mutual authentication of
-    * management certificates over SSL to ensure that a request made to the
-    * service is secure. No anonymous requests are allowed.
-    * @throws URISyntaxException Thrown if there was an error parsing a URI in
-    * the response.
-    */
-    public WebSiteManagementClientImpl(HttpClientBuilder httpBuilder, ExecutorService executorService, SubscriptionCloudCredentials credentials) throws URISyntaxException {
-        this(httpBuilder, executorService);
-        if (credentials == null) {
-            throw new NullPointerException("credentials");
-        }
-        this.credentials = credentials;
-        this.baseUri = new URI("https://management.core.windows.net");
-    }
-    
-    /**
-    * Initializes a new instance of the WebSiteManagementClientImpl class.
-    *
-    * @param httpBuilder The HTTP client builder.
+    * @param configuration The service configurations.
     * @param executorService The executor service.
     */
-    protected WebSiteManagementClientImpl newInstance(HttpClientBuilder httpBuilder, ExecutorService executorService) {
-        return new WebSiteManagementClientImpl(httpBuilder, executorService, this.getCredentials(), this.getBaseUri());
+    protected WebSiteManagementClientImpl newInstance(Configuration configuration, ExecutorService executorService) {
+        return new WebSiteManagementClientImpl(configuration, executorService);
     }
     
     /**
@@ -252,10 +211,11 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
     * @param operationId Required. The operation ID for the operation you wish
     * to track. The operation ID is returned in the ID field in the body of
     * the response for long-running operations.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -268,7 +228,7 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
     * body includes error information regarding the failure.
     */
     @Override
-    public WebSiteOperationStatusResponse getOperationStatus(String webSpaceName, String siteName, String operationId) throws IOException, ServiceException, ParserConfigurationException, SAXException {
+    public WebSiteOperationStatusResponse getOperationStatus(String webSpaceName, String siteName, String operationId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -294,7 +254,7 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         
         // Construct URL
         String baseUrl = this.getBaseUri().toString();
-        String url = "/" + this.getCredentials().getSubscriptionId().trim() + "/services/WebSpaces/" + webSpaceName.trim() + "/sites/" + siteName.trim() + "/operations/" + operationId.trim();
+        String url = "/" + (this.getCredentials().getSubscriptionId() != null ? this.getCredentials().getSubscriptionId().trim() : "") + "/services/WebSpaces/" + webSpaceName.trim() + "/sites/" + siteName.trim() + "/operations/" + operationId.trim();
         // Trim '/' character from the end of baseUrl and beginning of url.
         if (baseUrl.charAt(baseUrl.length() - 1) == '/') {
             baseUrl = baseUrl.substring(0, (baseUrl.length() - 1) + 0);
@@ -305,24 +265,19 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2013-08-01");
+        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != AzureHttpStatus.OK) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -332,7 +287,7 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
             // Create Result
             WebSiteOperationStatusResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new WebSiteOperationStatusResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -514,17 +469,15 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -548,15 +501,16 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
     /**
     * Register your subscription to use Azure Web Sites.
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse registerSubscription() throws IOException, ServiceException {
+    public OperationResponse registerSubscription() throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         
         // Tracing
@@ -570,7 +524,7 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         
         // Construct URL
         String baseUrl = this.getBaseUri().toString();
-        String url = "/" + this.getCredentials().getSubscriptionId().trim() + "/services" + "?";
+        String url = "/" + (this.getCredentials().getSubscriptionId() != null ? this.getCredentials().getSubscriptionId().trim() : "") + "/services" + "?";
         url = url + "service=website";
         url = url + "&" + "action=register";
         // Trim '/' character from the end of baseUrl and beginning of url.
@@ -583,25 +537,20 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPut httpRequest = new HttpPut(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Put");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2013-08-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -612,17 +561,15 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -646,15 +593,16 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
     /**
     * Unregister your subscription to use Azure Web Sites.
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse unregisterSubscription() throws IOException, ServiceException {
+    public OperationResponse unregisterSubscription() throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         
         // Tracing
@@ -668,7 +616,7 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         
         // Construct URL
         String baseUrl = this.getBaseUri().toString();
-        String url = "/" + this.getCredentials().getSubscriptionId().trim() + "/services" + "?";
+        String url = "/" + (this.getCredentials().getSubscriptionId() != null ? this.getCredentials().getSubscriptionId().trim() : "") + "/services" + "?";
         url = url + "service=website";
         url = url + "&" + "action=unregister";
         // Trim '/' character from the end of baseUrl and beginning of url.
@@ -681,25 +629,20 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPut httpRequest = new HttpPut(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Put");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2013-08-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -710,17 +653,15 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }

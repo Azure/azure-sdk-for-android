@@ -24,13 +24,14 @@
 package com.microsoft.windowsazure.management.sql.models;
 
 /**
-* Parameters supplied to the Manage Administrator Password operation.
+* Contains all the necessary information to change the administrator password
+* for a server.
 */
 public class ServerChangeAdministratorPasswordParameters {
     private String newPassword;
     
     /**
-    * Required. Gets or sets new password for the administrator.
+    * Required. Gets or sets the new password for the administrator.
     * @return The NewPassword value.
     */
     public String getNewPassword() {
@@ -38,7 +39,7 @@ public class ServerChangeAdministratorPasswordParameters {
     }
     
     /**
-    * Required. Gets or sets new password for the administrator.
+    * Required. Gets or sets the new password for the administrator.
     * @param newPasswordValue The NewPassword value.
     */
     public void setNewPassword(final String newPasswordValue) {

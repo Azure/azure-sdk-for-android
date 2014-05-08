@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
@@ -156,7 +157,7 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -407,7 +408,7 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -617,7 +618,7 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200 && statusCode != 202) {
+            if (statusCode != AzureHttpStatus.OK && statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -715,7 +716,7 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200 && statusCode != 202) {
+            if (statusCode != AzureHttpStatus.OK && statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

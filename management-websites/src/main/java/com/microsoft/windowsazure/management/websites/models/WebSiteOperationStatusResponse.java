@@ -192,7 +192,7 @@ public class WebSiteOperationStatusResponse extends OperationResponse {
     }
     
     /**
-    * Information about an error that occured during the operation.
+    * Information about an error that occurred during the operation.
     */
     public static class Error {
         private String code;

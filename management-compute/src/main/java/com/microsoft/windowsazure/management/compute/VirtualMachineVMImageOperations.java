@@ -27,6 +27,7 @@ import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineVMImageListResponse;
+import com.microsoft.windowsazure.management.compute.models.VirtualMachineVMImageUpdateParameters;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -34,6 +35,7 @@ import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import org.xml.sax.SAXException;
 
 /**
@@ -151,4 +153,53 @@ public interface VirtualMachineVMImageOperations {
     * @return The List VM Images operation response.
     */
     Future<VirtualMachineVMImageListResponse> listAsync();
+    
+    /**
+    * The Update VM Image operation updates a VM image that in your image
+    * repository.
+    *
+    * @param imageName Required. The name of the virtual machine image to be
+    * updated.
+    * @param parameters Required. Parameters supplied to the Update Virtual
+    * Machine Image operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
+    * @throws ParserConfigurationException Thrown if there was an error
+    * configuring the parser for the response body.
+    * @throws SAXException Thrown if there was an error parsing the response
+    * body.
+    * @throws TransformerException Thrown if there was an error creating the
+    * DOM transformer.
+    * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
+    * @throws InterruptedException Thrown when a thread is waiting, sleeping,
+    * or otherwise occupied, and the thread is interrupted, either before or
+    * during the activity. Occasionally a method may wish to test whether the
+    * current thread has been interrupted, and if so, to immediately throw
+    * this exception. The following code can be used to achieve this effect:
+    * @throws ExecutionException Thrown when attempting to retrieve the result
+    * of a task that aborted by throwing an exception. This exception can be
+    * inspected using the Throwable.getCause() method.
+    * @throws ServiceException Thrown if the server returned an error for the
+    * request.
+    * @throws URISyntaxException Thrown if there was an error parsing a URI in
+    * the response.
+    * @return A standard service response including an HTTP status code and
+    * request ID.
+    */
+    OperationResponse update(String imageName, VirtualMachineVMImageUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, InterruptedException, ExecutionException, URISyntaxException;
+    
+    /**
+    * The Update VM Image operation updates a VM image that in your image
+    * repository.
+    *
+    * @param imageName Required. The name of the virtual machine image to be
+    * updated.
+    * @param parameters Required. Parameters supplied to the Update Virtual
+    * Machine Image operation.
+    * @return A standard service response including an HTTP status code and
+    * request ID.
+    */
+    Future<OperationResponse> updateAsync(String imageName, VirtualMachineVMImageUpdateParameters parameters);
 }

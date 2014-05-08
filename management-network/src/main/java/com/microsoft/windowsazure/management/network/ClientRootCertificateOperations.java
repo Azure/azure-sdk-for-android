@@ -72,7 +72,7 @@ public interface ClientRootCertificateOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     GatewayOperationResponse create(String networkName, ClientRootCertificateCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
@@ -87,7 +87,7 @@ public interface ClientRootCertificateOperations {
     * gateway.
     * @param parameters Required. Parameters supplied to the Upload Client Root
     * Certificate Virtual Network Gateway operation.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     Future<GatewayOperationResponse> createAsync(String networkName, ClientRootCertificateCreateParameters parameters);
@@ -120,7 +120,7 @@ public interface ClientRootCertificateOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     GatewayOperationResponse delete(String networkName, String certificateThumbprint) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
@@ -134,7 +134,7 @@ public interface ClientRootCertificateOperations {
     * @param networkName Required. The name of the virtual network for this
     * gateway.
     * @param certificateThumbprint Required. The X509 certificate thumbprint.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     Future<GatewayOperationResponse> deleteAsync(String networkName, String certificateThumbprint);

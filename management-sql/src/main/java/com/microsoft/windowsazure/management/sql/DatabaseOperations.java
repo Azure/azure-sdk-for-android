@@ -42,15 +42,16 @@ import javax.xml.transform.TransformerException;
 import org.xml.sax.SAXException;
 
 /**
-* The SQL Database Management API includes operations for managing SQL
-* Databases for a subscription.
+* Represents all the operations for operating on Azure SQL Databases.  Contains
+* operations to: Create, Retrieve, Update, and Delete databases, and also
+* includes the ability to get the event logs for a database.
 */
 public interface DatabaseOperations {
     /**
-    * Creates a database in a SQL Server database server.
+    * Creates a database in an Azure SQL Database Server.
     *
-    * @param serverName Required. The name of the SQL Server where the database
-    * will be created.
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * where the database will be created.
     * @param parameters Required. The parameters for the create database
     * operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
@@ -64,29 +65,30 @@ public interface DatabaseOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return Response containing the database create response.
+    * @return Represents the response to a create database request from the
+    * service.
     */
     DatabaseCreateResponse create(String serverName, DatabaseCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
-    * Creates a database in a SQL Server database server.
+    * Creates a database in an Azure SQL Database Server.
     *
-    * @param serverName Required. The name of the SQL Server where the database
-    * will be created.
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * where the database will be created.
     * @param parameters Required. The parameters for the create database
     * operation.
-    * @return Response containing the database create response.
+    * @return Represents the response to a create database request from the
+    * service.
     */
     Future<DatabaseCreateResponse> createAsync(String serverName, DatabaseCreateParameters parameters);
     
     /**
-    * Drops a SQL Database server from a subscription.  (see
-    * http://msdn.microsoft.com/en-us/library/windowsazure/gg715285.aspx for
-    * more information)
+    * Drops a database from an Azure SQL Database Server.
     *
-    * @param serverName Required. The name of the server on which the database
-    * is found.
-    * @param databaseName Required. The name of the database to be deleted.
+    * @param serverName Required. The name of the Azure SQL Database Server on
+    * which the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * deleted.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -98,25 +100,24 @@ public interface DatabaseOperations {
     OperationResponse delete(String serverName, String databaseName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
-    * Drops a SQL Database server from a subscription.  (see
-    * http://msdn.microsoft.com/en-us/library/windowsazure/gg715285.aspx for
-    * more information)
+    * Drops a database from an Azure SQL Database Server.
     *
-    * @param serverName Required. The name of the server on which the database
-    * is found.
-    * @param databaseName Required. The name of the database to be deleted.
+    * @param serverName Required. The name of the Azure SQL Database Server on
+    * which the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * deleted.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     Future<OperationResponse> deleteAsync(String serverName, String databaseName);
     
     /**
-    * Returns information about a SQL Server database.
+    * Returns information about an Azure SQL Database.
     *
-    * @param serverName Required. The name of the SQL Server on which the
-    * database is housed.
-    * @param databaseName Required. The name of the SQL Server database to be
-    * obtained.
+    * @param serverName Required. The name of the Azure SQL Database Server on
+    * which the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * retrieved.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -126,30 +127,30 @@ public interface DatabaseOperations {
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return Response containing the database get response.
+    * @return Contains the response to a Get Database request.
     */
     DatabaseGetResponse get(String serverName, String databaseName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
-    * Returns information about a SQL Server database.
+    * Returns information about an Azure SQL Database.
     *
-    * @param serverName Required. The name of the SQL Server on which the
-    * database is housed.
-    * @param databaseName Required. The name of the SQL Server database to be
-    * obtained.
-    * @return Response containing the database get response.
+    * @param serverName Required. The name of the Azure SQL Database Server on
+    * which the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * retrieved.
+    * @return Contains the response to a Get Database request.
     */
     Future<DatabaseGetResponse> getAsync(String serverName, String databaseName);
     
     /**
-    * Returns information about a SQL Server database event logs.
+    * Returns information about an Azure SQL Database event logs.
     *
-    * @param serverName Required. The name of the SQL Server on which the
-    * database is housed.
-    * @param databaseName Required. The name of the SQL Server database to be
-    * obtained.
-    * @param parameters Required. The parameters for the get event logs
-    * database operation.
+    * @param serverName Required. The name of the Azure SQL Database Server on
+    * which the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * retrieved.
+    * @param parameters Required. The parameters for the Get Database Event
+    * Logs operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -159,29 +160,28 @@ public interface DatabaseOperations {
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return A standard service response including an HTTP status code and
-    * request ID.
+    * @return Contains the response to a Get Database Event Logs request.
     */
     DatabaseGetEventLogsResponse getEventLogs(String serverName, String databaseName, DatabaseGetEventLogsParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
-    * Returns information about a SQL Server database event logs.
+    * Returns information about an Azure SQL Database event logs.
     *
-    * @param serverName Required. The name of the SQL Server on which the
-    * database is housed.
-    * @param databaseName Required. The name of the SQL Server database to be
-    * obtained.
-    * @param parameters Required. The parameters for the get event logs
-    * database operation.
-    * @return A standard service response including an HTTP status code and
-    * request ID.
+    * @param serverName Required. The name of the Azure SQL Database Server on
+    * which the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * retrieved.
+    * @param parameters Required. The parameters for the Get Database Event
+    * Logs operation.
+    * @return Contains the response to a Get Database Event Logs request.
     */
     Future<DatabaseGetEventLogsResponse> getEventLogsAsync(String serverName, String databaseName, DatabaseGetEventLogsParameters parameters);
     
     /**
-    * Returns the list SQL Server databases.
+    * Returns a collection of Azure SQL Databases.
     *
-    * @param serverName Required. The name of the database server to be queried.
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * from which to retrieve the database.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -191,26 +191,29 @@ public interface DatabaseOperations {
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return Response containing the list of databases for a given server.
+    * @return Contains a collection of databases for a given Azure SQL Database
+    * Server.
     */
     DatabaseListResponse list(String serverName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
-    * Returns the list SQL Server databases.
+    * Returns a collection of Azure SQL Databases.
     *
-    * @param serverName Required. The name of the database server to be queried.
-    * @return Response containing the list of databases for a given server.
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * from which to retrieve the database.
+    * @return Contains a collection of databases for a given Azure SQL Database
+    * Server.
     */
     Future<DatabaseListResponse> listAsync(String serverName);
     
     /**
-    * Updates SQL Server database information.
+    * Updates the properties of an Azure SQL Database.
     *
-    * @param serverName Required. The name of the SQL Server where the database
-    * is housed.
-    * @param databaseName Required. The name of the SQL Server database to be
-    * obtained.
-    * @param parameters Required. The parameters for the update database
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * where the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * updated.
+    * @param parameters Required. The parameters for the Update Database
     * operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
@@ -223,20 +226,20 @@ public interface DatabaseOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return Response containing the database update response.
+    * @return Contains the response from a request to Update Database.
     */
     DatabaseUpdateResponse update(String serverName, String databaseName, DatabaseUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
-    * Updates SQL Server database information.
+    * Updates the properties of an Azure SQL Database.
     *
-    * @param serverName Required. The name of the SQL Server where the database
-    * is housed.
-    * @param databaseName Required. The name of the SQL Server database to be
-    * obtained.
-    * @param parameters Required. The parameters for the update database
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * where the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * updated.
+    * @param parameters Required. The parameters for the Update Database
     * operation.
-    * @return Response containing the database update response.
+    * @return Contains the response from a request to Update Database.
     */
     Future<DatabaseUpdateResponse> updateAsync(String serverName, String databaseName, DatabaseUpdateParameters parameters);
 }

@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.XmlUtility;
@@ -139,7 +140,7 @@ public class RoleSizeOperationsImpl implements ServiceOperations<ManagementClien
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

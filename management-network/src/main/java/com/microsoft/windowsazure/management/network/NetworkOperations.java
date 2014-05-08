@@ -57,7 +57,7 @@ public interface NetworkOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     OperationResponse beginSettingConfiguration(NetworkSetConfigurationParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException;
@@ -70,7 +70,7 @@ public interface NetworkOperations {
     *
     * @param parameters Required. Parameters supplied to the Set Network
     * Configuration operation.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     Future<OperationResponse> beginSettingConfigurationAsync(NetworkSetConfigurationParameters parameters);

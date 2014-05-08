@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.storage;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.Configuration;
 import com.microsoft.windowsazure.core.OperationStatus;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
@@ -55,7 +56,7 @@ import org.xml.sax.SAXException;
 * The Service Management API provides programmatic access to much of the
 * functionality available through the Management Portal. The Service
 * Management API is a REST API. All API operations are performed over SSL and
-* mutually authenticated using X.509 v3 certificates.  (see
+* are mutually authenticated using X.509 v3 certificates.  (see
 * http://msdn.microsoft.com/en-us/library/windowsazure/ee460799.aspx for more
 * information)
 */
@@ -73,12 +74,12 @@ public class StorageManagementClientImpl extends ServiceClient<StorageManagement
     private SubscriptionCloudCredentials credentials;
     
     /**
-    * When you create a Windows Azure subscription, it is uniquely identified
-    * by a subscription ID. The subscription ID forms part of the URI for
-    * every call that you make to the Service Management API.  The Windows
-    * Azure Service ManagementAPI use mutual authentication of management
-    * certificates over SSL to ensure that a request made to the service is
-    * secure.  No anonymous requests are allowed.
+    * When you create an Azure subscription, it is uniquely identified by a
+    * subscription ID. The subscription ID forms part of the URI for every
+    * call that you make to the Service Management API. The Azure Service
+    * Management API uses mutual authentication of management certificates
+    * over SSL to ensure that a request made to the service is secure. No
+    * anonymous requests are allowed.
     * @return The Credentials value.
     */
     public SubscriptionCloudCredentials getCredentials() {
@@ -137,7 +138,7 @@ public class StorageManagementClientImpl extends ServiceClient<StorageManagement
     }
     
     /**
-    * The Get Operation Status operation returns the status of thespecified
+    * The Get Operation Status operation returns the status of the specified
     * operation. After calling an asynchronous operation, you can call Get
     * Operation Status to determine whether the operation has succeeded,
     * failed, or is still in progress.  (see
@@ -152,10 +153,9 @@ public class StorageManagementClientImpl extends ServiceClient<StorageManagement
     * inprogress, or has failed. Note that this status is distinct from the
     * HTTP status code returned for the Get Operation Status operation itself.
     * If the asynchronous operation succeeded, the response body includes the
-    * HTTP status code for the successful request.  If the asynchronous
+    * HTTP status code for the successful request. If the asynchronous
     * operation failed, the response body includes the HTTP status code for
-    * the failed request, and also includes error information regarding the
-    * failure.
+    * the failed request and error information regarding the failure.
     */
     @Override
     public Future<OperationStatusResponse> getOperationStatusAsync(final String requestId) {
@@ -168,7 +168,7 @@ public class StorageManagementClientImpl extends ServiceClient<StorageManagement
     }
     
     /**
-    * The Get Operation Status operation returns the status of thespecified
+    * The Get Operation Status operation returns the status of the specified
     * operation. After calling an asynchronous operation, you can call Get
     * Operation Status to determine whether the operation has succeeded,
     * failed, or is still in progress.  (see
@@ -192,10 +192,9 @@ public class StorageManagementClientImpl extends ServiceClient<StorageManagement
     * inprogress, or has failed. Note that this status is distinct from the
     * HTTP status code returned for the Get Operation Status operation itself.
     * If the asynchronous operation succeeded, the response body includes the
-    * HTTP status code for the successful request.  If the asynchronous
+    * HTTP status code for the successful request. If the asynchronous
     * operation failed, the response body includes the HTTP status code for
-    * the failed request, and also includes error information regarding the
-    * failure.
+    * the failed request and error information regarding the failure.
     */
     @Override
     public OperationStatusResponse getOperationStatus(String requestId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
@@ -238,7 +237,7 @@ public class StorageManagementClientImpl extends ServiceClient<StorageManagement
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

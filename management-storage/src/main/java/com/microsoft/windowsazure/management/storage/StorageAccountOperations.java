@@ -52,13 +52,13 @@ import org.xml.sax.SAXException;
 */
 public interface StorageAccountOperations {
     /**
-    * The Create Storage Account operation creates a new storage account in
-    * Windows Azure.  (see
+    * The Begin Creating Storage Account operation creates a new storage
+    * account in Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264518.aspx for
     * more information)
     *
-    * @param parameters Required. Parameters supplied to the Create Storage
-    * Account operation.
+    * @param parameters Required. Parameters supplied to the Begin Creating
+    * Storage Account operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
@@ -76,13 +76,13 @@ public interface StorageAccountOperations {
     OperationResponse beginCreating(StorageAccountCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
-    * The Create Storage Account operation creates a new storage account in
-    * Windows Azure.  (see
+    * The Begin Creating Storage Account operation creates a new storage
+    * account in Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264518.aspx for
     * more information)
     *
-    * @param parameters Required. Parameters supplied to the Create Storage
-    * Account operation.
+    * @param parameters Required. Parameters supplied to the Begin Creating
+    * Storage Account operation.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
@@ -90,7 +90,7 @@ public interface StorageAccountOperations {
     
     /**
     * The Check Name Availability operation checks if a storage account name is
-    * available for use in Windows Azure.  (see
+    * available for use in Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/jj154125.aspx for
     * more information)
     *
@@ -111,7 +111,7 @@ public interface StorageAccountOperations {
     
     /**
     * The Check Name Availability operation checks if a storage account name is
-    * available for use in Windows Azure.  (see
+    * available for use in Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/jj154125.aspx for
     * more information)
     *
@@ -123,7 +123,7 @@ public interface StorageAccountOperations {
     
     /**
     * The Create Storage Account operation creates a new storage account in
-    * Windows Azure.  (see
+    * Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264518.aspx for
     * more information)
     *
@@ -144,16 +144,15 @@ public interface StorageAccountOperations {
     * inprogress, or has failed. Note that this status is distinct from the
     * HTTP status code returned for the Get Operation Status operation itself.
     * If the asynchronous operation succeeded, the response body includes the
-    * HTTP status code for the successful request.  If the asynchronous
+    * HTTP status code for the successful request. If the asynchronous
     * operation failed, the response body includes the HTTP status code for
-    * the failed request, and also includes error information regarding the
-    * failure.
+    * the failed request and error information regarding the failure.
     */
     OperationStatusResponse create(StorageAccountCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Create Storage Account operation creates a new storage account in
-    * Windows Azure.  (see
+    * Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264518.aspx for
     * more information)
     *
@@ -164,20 +163,20 @@ public interface StorageAccountOperations {
     * inprogress, or has failed. Note that this status is distinct from the
     * HTTP status code returned for the Get Operation Status operation itself.
     * If the asynchronous operation succeeded, the response body includes the
-    * HTTP status code for the successful request.  If the asynchronous
+    * HTTP status code for the successful request. If the asynchronous
     * operation failed, the response body includes the HTTP status code for
-    * the failed request, and also includes error information regarding the
-    * failure.
+    * the failed request and error information regarding the failure.
     */
     Future<OperationStatusResponse> createAsync(StorageAccountCreateParameters parameters);
     
     /**
-    * The Delete Storage Account operation deletes the specifiedstorage account
-    * from Windows Azure.  (see
+    * The Delete Storage Account operation deletes the specified storage
+    * account from Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264517.aspx for
     * more information)
     *
-    * @param accountName Required. The name of the storage account.
+    * @param accountName Required. The name of the storage account to be
+    * deleted.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -189,12 +188,13 @@ public interface StorageAccountOperations {
     OperationResponse delete(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
-    * The Delete Storage Account operation deletes the specifiedstorage account
-    * from Windows Azure.  (see
+    * The Delete Storage Account operation deletes the specified storage
+    * account from Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264517.aspx for
     * more information)
     *
-    * @param accountName Required. The name of the storage account.
+    * @param accountName Required. The name of the storage account to be
+    * deleted.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
@@ -206,7 +206,8 @@ public interface StorageAccountOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/ee460802.aspx for
     * more information)
     *
-    * @param accountName Required. Name of the storage account to get.
+    * @param accountName Required. Name of the storage account to get
+    * properties for.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -228,7 +229,8 @@ public interface StorageAccountOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/ee460802.aspx for
     * more information)
     *
-    * @param accountName Required. Name of the storage account to get.
+    * @param accountName Required. Name of the storage account to get
+    * properties for.
     * @return The Get Storage Account Properties operation response.
     */
     Future<StorageAccountGetResponse> getAsync(String accountName);
@@ -335,9 +337,9 @@ public interface StorageAccountOperations {
     Future<StorageAccountRegenerateKeysResponse> regenerateKeysAsync(StorageAccountRegenerateKeysParameters parameters);
     
     /**
-    * The Update Storage Account operation updates the label, the description,
-    * and enables or disables the geo-replication status for a storage account
-    * in Windows Azure.  (see
+    * The Update Storage Account operation updates the label and the
+    * description, and enables or disables the geo-replication status for a
+    * storage account in Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264516.aspx for
     * more information)
     *
@@ -361,9 +363,9 @@ public interface StorageAccountOperations {
     OperationResponse update(String accountName, StorageAccountUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
-    * The Update Storage Account operation updates the label, the description,
-    * and enables or disables the geo-replication status for a storage account
-    * in Windows Azure.  (see
+    * The Update Storage Account operation updates the label and the
+    * description, and enables or disables the geo-replication status for a
+    * storage account in Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264516.aspx for
     * more information)
     *

@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
@@ -213,7 +214,7 @@ public class ManagementCertificateOperationsImpl implements ServiceOperations<Ma
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -320,7 +321,7 @@ public class ManagementCertificateOperationsImpl implements ServiceOperations<Ma
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200 && statusCode != 404) {
+            if (statusCode != AzureHttpStatus.OK && statusCode != AzureHttpStatus.NOT_FOUND) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -433,7 +434,7 @@ public class ManagementCertificateOperationsImpl implements ServiceOperations<Ma
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -574,7 +575,7 @@ public class ManagementCertificateOperationsImpl implements ServiceOperations<Ma
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
@@ -221,7 +222,7 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 201) {
+            if (statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -322,7 +323,7 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -429,7 +430,7 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -618,7 +619,7 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -824,7 +825,7 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

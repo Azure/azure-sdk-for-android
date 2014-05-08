@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.sql;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.XmlUtility;
@@ -62,8 +63,8 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
-* Includes operations for importing and exporting SQL Databases into and out of
-* Windows Azure blob storage.
+* Includes operations for importing and exporting Azure SQL Databases into and
+* out of Azure blob storage.
 */
 public class DacOperationsImpl implements ServiceOperations<SqlManagementClientImpl>, DacOperations {
     /**
@@ -87,11 +88,14 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     }
     
     /**
-    * Export DAC into Windows Azure blob storage.
+    * Exports an Azure SQL Database into a DACPAC file in Azure Blob Storage.
     *
-    * @param serverName Required. The name of the server being exported from.
-    * @param parameters Optional. Export parameters.
-    * @return Response for an DAC Import/Export request.
+    * @param serverName Required. The name of the Azure SQL Database Server in
+    * which the database to export resides.
+    * @param parameters Optional. The parameters needed to initiate the export
+    * request.
+    * @return Represents the response that the service returns once an import
+    * or export operation has been initiated.
     */
     @Override
     public Future<DacImportExportResponse> exportAsync(final String serverName, final DacExportParameters parameters) {
@@ -104,10 +108,12 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     }
     
     /**
-    * Export DAC into Windows Azure blob storage.
+    * Exports an Azure SQL Database into a DACPAC file in Azure Blob Storage.
     *
-    * @param serverName Required. The name of the server being exported from.
-    * @param parameters Optional. Export parameters.
+    * @param serverName Required. The name of the Azure SQL Database Server in
+    * which the database to export resides.
+    * @param parameters Optional. The parameters needed to initiate the export
+    * request.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
@@ -119,7 +125,8 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return Response for an DAC Import/Export request.
+    * @return Represents the response that the service returns once an import
+    * or export operation has been initiated.
     */
     @Override
     public DacImportExportResponse export(String serverName, DacExportParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
@@ -247,7 +254,7 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -285,15 +292,24 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     }
     
     /**
-    * Gets the status of the DAC.
+    * Gets the status of the import or export operation in the specified server
+    * with the corresponding request ID.  The request ID is provided in the
+    * responses of the import or export operation.
     *
-    * @param serverName Required. The name of the server.
-    * @param fullyQualifiedServerName Required. The fully qualified name of the
-    * server.
-    * @param username Required. The server's username.
-    * @param password Required. The server's password.
+    * @param serverName Required. The name of the server in which the import or
+    * export operation is taking place.
+    * @param fullyQualifiedServerName Required. The fully qualified domain name
+    * of the Azure SQL Database Server where the operation is taking place.
+    * Example: a9s7f7s9d3.database.windows.net
+    * @param username Required. The administrator username for the Azure SQL
+    * Database Server.
+    * @param password Required. The administrator password for the Azure SQL
+    * Database Server.
     * @param requestId Required. The request ID of the operation being queried.
-    * @return The response structure for the DAC GetStatus operation.
+    * The request ID is obtained from the responses of the import and export
+    * operations.
+    * @return Represents a list of import or export status values returned from
+    * GetStatus.
     */
     @Override
     public Future<DacGetStatusResponse> getStatusAsync(final String serverName, final String fullyQualifiedServerName, final String username, final String password, final String requestId) {
@@ -306,14 +322,22 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     }
     
     /**
-    * Gets the status of the DAC.
+    * Gets the status of the import or export operation in the specified server
+    * with the corresponding request ID.  The request ID is provided in the
+    * responses of the import or export operation.
     *
-    * @param serverName Required. The name of the server.
-    * @param fullyQualifiedServerName Required. The fully qualified name of the
-    * server.
-    * @param username Required. The server's username.
-    * @param password Required. The server's password.
+    * @param serverName Required. The name of the server in which the import or
+    * export operation is taking place.
+    * @param fullyQualifiedServerName Required. The fully qualified domain name
+    * of the Azure SQL Database Server where the operation is taking place.
+    * Example: a9s7f7s9d3.database.windows.net
+    * @param username Required. The administrator username for the Azure SQL
+    * Database Server.
+    * @param password Required. The administrator password for the Azure SQL
+    * Database Server.
     * @param requestId Required. The request ID of the operation being queried.
+    * The request ID is obtained from the responses of the import and export
+    * operations.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -325,7 +349,8 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     * response.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
-    * @return The response structure for the DAC GetStatus operation.
+    * @return Represents a list of import or export status values returned from
+    * GetStatus.
     */
     @Override
     public DacGetStatusResponse getStatus(String serverName, String fullyQualifiedServerName, String username, String password, String requestId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
@@ -388,7 +413,7 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -502,11 +527,15 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     }
     
     /**
-    * Import DAC from Windows Azure blob storage.
+    * Initiates an Import of a DACPAC file from Azure Blob Storage into a Azure
+    * SQL Database.
     *
-    * @param serverName Required. The name of the server being imported to.
-    * @param parameters Optional. Import parameters.
-    * @return Response for an DAC Import/Export request.
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * into which the database is being imported.
+    * @param parameters Optional. The parameters needed to initiated the Import
+    * request.
+    * @return Represents the response that the service returns once an import
+    * or export operation has been initiated.
     */
     @Override
     public Future<DacImportExportResponse> importAsync(final String serverName, final DacImportParameters parameters) {
@@ -519,10 +548,13 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     }
     
     /**
-    * Import DAC from Windows Azure blob storage.
+    * Initiates an Import of a DACPAC file from Azure Blob Storage into a Azure
+    * SQL Database.
     *
-    * @param serverName Required. The name of the server being imported to.
-    * @param parameters Optional. Import parameters.
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * into which the database is being imported.
+    * @param parameters Optional. The parameters needed to initiated the Import
+    * request.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
@@ -534,7 +566,8 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return Response for an DAC Import/Export request.
+    * @return Represents the response that the service returns once an import
+    * or export operation has been initiated.
     */
     @Override
     public DacImportExportResponse import(String serverName, DacImportParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
@@ -672,7 +705,7 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

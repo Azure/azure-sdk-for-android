@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.sql;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.XmlUtility;
@@ -49,8 +50,8 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
-* The SQL Database Management API includes operations for getting Service
-* Objective for a subscription.
+* This class provides methods to get a specific service objective by using its
+* ID or to List all of the service objectives on a server.
 */
 public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlManagementClientImpl>, ServiceObjectiveOperations {
     /**
@@ -74,13 +75,14 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
     }
     
     /**
-    * Returns information about a certain Service Objective on a given Id.
+    * Returns information about a certain Service Objective with a specific Id.
     *
-    * @param serverName Required. The name of the SQL Server to be queried.
+    * @param serverName Required. The name of the Azure SQL Database Server to
+    * be queried.
     * @param serviceObjectiveId Required. The Id of the Service Objective to be
     * obtained.
-    * @return Response containing the service objective for a given server and
-    * service objective Id.
+    * @return Response containing the service objective for a given Azure SQL
+    * Database Server with matching service objective Id.
     */
     @Override
     public Future<ServiceObjectiveGetResponse> getAsync(final String serverName, final String serviceObjectiveId) {
@@ -93,9 +95,10 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
     }
     
     /**
-    * Returns information about a certain Service Objective on a given Id.
+    * Returns information about a certain Service Objective with a specific Id.
     *
-    * @param serverName Required. The name of the SQL Server to be queried.
+    * @param serverName Required. The name of the Azure SQL Database Server to
+    * be queried.
     * @param serviceObjectiveId Required. The Id of the Service Objective to be
     * obtained.
     * @throws MalformedURLException Thrown in case of an invalid request URL
@@ -107,8 +110,8 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return Response containing the service objective for a given server and
-    * service objective Id.
+    * @return Response containing the service objective for a given Azure SQL
+    * Database Server with matching service objective Id.
     */
     @Override
     public ServiceObjectiveGetResponse get(String serverName, String serviceObjectiveId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
@@ -155,7 +158,7 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -177,41 +180,6 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
             if (serviceResourceElement != null) {
                 ServiceObjective serviceResourceInstance = new ServiceObjective();
                 result.setServiceObjective(serviceResourceInstance);
-                
-                Element nameElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                if (nameElement != null) {
-                    String nameInstance;
-                    nameInstance = nameElement.getTextContent();
-                    serviceResourceInstance.setName(nameInstance);
-                }
-                
-                Element typeElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "Type");
-                if (typeElement != null) {
-                    String typeInstance;
-                    typeInstance = typeElement.getTextContent();
-                    serviceResourceInstance.setType(typeInstance);
-                }
-                
-                Element stateElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "State");
-                if (stateElement != null) {
-                    String stateInstance;
-                    stateInstance = stateElement.getTextContent();
-                    serviceResourceInstance.setState(stateInstance);
-                }
-                
-                Element selfLinkElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "SelfLink");
-                if (selfLinkElement != null) {
-                    String selfLinkInstance;
-                    selfLinkInstance = selfLinkElement.getTextContent();
-                    serviceResourceInstance.setSelfLink(selfLinkInstance);
-                }
-                
-                Element parentLinkElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "ParentLink");
-                if (parentLinkElement != null) {
-                    String parentLinkInstance;
-                    parentLinkInstance = parentLinkElement.getTextContent();
-                    serviceResourceInstance.setParentLink(parentLinkInstance);
-                }
                 
                 Element idElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "Id");
                 if (idElement != null) {
@@ -255,41 +223,6 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
                         ServiceObjective.DimensionSettingResponse serviceResourceInstance2 = new ServiceObjective.DimensionSettingResponse();
                         serviceResourceInstance.getDimensionSettings().add(serviceResourceInstance2);
                         
-                        Element nameElement2 = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                        if (nameElement2 != null) {
-                            String nameInstance2;
-                            nameInstance2 = nameElement2.getTextContent();
-                            serviceResourceInstance2.setName(nameInstance2);
-                        }
-                        
-                        Element typeElement2 = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "Type");
-                        if (typeElement2 != null) {
-                            String typeInstance2;
-                            typeInstance2 = typeElement2.getTextContent();
-                            serviceResourceInstance2.setType(typeInstance2);
-                        }
-                        
-                        Element stateElement2 = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "State");
-                        if (stateElement2 != null) {
-                            String stateInstance2;
-                            stateInstance2 = stateElement2.getTextContent();
-                            serviceResourceInstance2.setState(stateInstance2);
-                        }
-                        
-                        Element selfLinkElement2 = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "SelfLink");
-                        if (selfLinkElement2 != null) {
-                            String selfLinkInstance2;
-                            selfLinkInstance2 = selfLinkElement2.getTextContent();
-                            serviceResourceInstance2.setSelfLink(selfLinkInstance2);
-                        }
-                        
-                        Element parentLinkElement2 = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "ParentLink");
-                        if (parentLinkElement2 != null) {
-                            String parentLinkInstance2;
-                            parentLinkInstance2 = parentLinkElement2.getTextContent();
-                            serviceResourceInstance2.setParentLink(parentLinkInstance2);
-                        }
-                        
                         Element idElement2 = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "Id");
                         if (idElement2 != null) {
                             String idInstance2;
@@ -317,7 +250,49 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
                             isDefaultInstance2 = DatatypeConverter.parseBoolean(isDefaultElement2.getTextContent().toLowerCase());
                             serviceResourceInstance2.setIsDefault(isDefaultInstance2);
                         }
+                        
+                        Element nameElement = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "Name");
+                        if (nameElement != null) {
+                            String nameInstance;
+                            nameInstance = nameElement.getTextContent();
+                            serviceResourceInstance2.setName(nameInstance);
+                        }
+                        
+                        Element typeElement = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "Type");
+                        if (typeElement != null) {
+                            String typeInstance;
+                            typeInstance = typeElement.getTextContent();
+                            serviceResourceInstance2.setType(typeInstance);
+                        }
+                        
+                        Element stateElement = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "State");
+                        if (stateElement != null) {
+                            String stateInstance;
+                            stateInstance = stateElement.getTextContent();
+                            serviceResourceInstance2.setState(stateInstance);
+                        }
                     }
+                }
+                
+                Element nameElement2 = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "Name");
+                if (nameElement2 != null) {
+                    String nameInstance2;
+                    nameInstance2 = nameElement2.getTextContent();
+                    serviceResourceInstance.setName(nameInstance2);
+                }
+                
+                Element typeElement2 = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "Type");
+                if (typeElement2 != null) {
+                    String typeInstance2;
+                    typeInstance2 = typeElement2.getTextContent();
+                    serviceResourceInstance.setType(typeInstance2);
+                }
+                
+                Element stateElement2 = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "State");
+                if (stateElement2 != null) {
+                    String stateInstance2;
+                    stateInstance2 = stateElement2.getTextContent();
+                    serviceResourceInstance.setState(stateInstance2);
                 }
             }
             
@@ -336,11 +311,13 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
     }
     
     /**
-    * Returns information about all Service Objectives on a database server.
+    * Returns information about all Service Objectives on an Azure SQL Database
+    * Server.
     *
-    * @param serverName Required. The name of the database server to be queried.
+    * @param serverName Required. The name of the Azure SQL Database Server to
+    * be queried.
     * @return Response containing the list of service objective for a given
-    * server.
+    * server.  This is returnedfrom a call to List Service Objectives.
     */
     @Override
     public Future<ServiceObjectiveListResponse> listAsync(final String serverName) {
@@ -353,9 +330,11 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
     }
     
     /**
-    * Returns information about all Service Objectives on a database server.
+    * Returns information about all Service Objectives on an Azure SQL Database
+    * Server.
     *
-    * @param serverName Required. The name of the database server to be queried.
+    * @param serverName Required. The name of the Azure SQL Database Server to
+    * be queried.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -366,7 +345,7 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return Response containing the list of service objective for a given
-    * server.
+    * server.  This is returnedfrom a call to List Service Objectives.
     */
     @Override
     public ServiceObjectiveListResponse list(String serverName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
@@ -409,7 +388,7 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -433,41 +412,6 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
                     org.w3c.dom.Element serviceResourcesElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(serviceResourcesSequenceElement, "http://schemas.microsoft.com/windowsazure", "ServiceResource").get(i1));
                     ServiceObjective serviceResourceInstance = new ServiceObjective();
                     result.getServiceObjectives().add(serviceResourceInstance);
-                    
-                    Element nameElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                    if (nameElement != null) {
-                        String nameInstance;
-                        nameInstance = nameElement.getTextContent();
-                        serviceResourceInstance.setName(nameInstance);
-                    }
-                    
-                    Element typeElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Type");
-                    if (typeElement != null) {
-                        String typeInstance;
-                        typeInstance = typeElement.getTextContent();
-                        serviceResourceInstance.setType(typeInstance);
-                    }
-                    
-                    Element stateElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "State");
-                    if (stateElement != null) {
-                        String stateInstance;
-                        stateInstance = stateElement.getTextContent();
-                        serviceResourceInstance.setState(stateInstance);
-                    }
-                    
-                    Element selfLinkElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "SelfLink");
-                    if (selfLinkElement != null) {
-                        String selfLinkInstance;
-                        selfLinkInstance = selfLinkElement.getTextContent();
-                        serviceResourceInstance.setSelfLink(selfLinkInstance);
-                    }
-                    
-                    Element parentLinkElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "ParentLink");
-                    if (parentLinkElement != null) {
-                        String parentLinkInstance;
-                        parentLinkInstance = parentLinkElement.getTextContent();
-                        serviceResourceInstance.setParentLink(parentLinkInstance);
-                    }
                     
                     Element idElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Id");
                     if (idElement != null) {
@@ -511,41 +455,6 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
                             ServiceObjective.DimensionSettingResponse serviceResourceInstance2 = new ServiceObjective.DimensionSettingResponse();
                             serviceResourceInstance.getDimensionSettings().add(serviceResourceInstance2);
                             
-                            Element nameElement2 = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                            if (nameElement2 != null) {
-                                String nameInstance2;
-                                nameInstance2 = nameElement2.getTextContent();
-                                serviceResourceInstance2.setName(nameInstance2);
-                            }
-                            
-                            Element typeElement2 = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "Type");
-                            if (typeElement2 != null) {
-                                String typeInstance2;
-                                typeInstance2 = typeElement2.getTextContent();
-                                serviceResourceInstance2.setType(typeInstance2);
-                            }
-                            
-                            Element stateElement2 = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "State");
-                            if (stateElement2 != null) {
-                                String stateInstance2;
-                                stateInstance2 = stateElement2.getTextContent();
-                                serviceResourceInstance2.setState(stateInstance2);
-                            }
-                            
-                            Element selfLinkElement2 = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "SelfLink");
-                            if (selfLinkElement2 != null) {
-                                String selfLinkInstance2;
-                                selfLinkInstance2 = selfLinkElement2.getTextContent();
-                                serviceResourceInstance2.setSelfLink(selfLinkInstance2);
-                            }
-                            
-                            Element parentLinkElement2 = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "ParentLink");
-                            if (parentLinkElement2 != null) {
-                                String parentLinkInstance2;
-                                parentLinkInstance2 = parentLinkElement2.getTextContent();
-                                serviceResourceInstance2.setParentLink(parentLinkInstance2);
-                            }
-                            
                             Element idElement2 = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "Id");
                             if (idElement2 != null) {
                                 String idInstance2;
@@ -573,7 +482,49 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
                                 isDefaultInstance2 = DatatypeConverter.parseBoolean(isDefaultElement2.getTextContent().toLowerCase());
                                 serviceResourceInstance2.setIsDefault(isDefaultInstance2);
                             }
+                            
+                            Element nameElement = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "Name");
+                            if (nameElement != null) {
+                                String nameInstance;
+                                nameInstance = nameElement.getTextContent();
+                                serviceResourceInstance2.setName(nameInstance);
+                            }
+                            
+                            Element typeElement = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "Type");
+                            if (typeElement != null) {
+                                String typeInstance;
+                                typeInstance = typeElement.getTextContent();
+                                serviceResourceInstance2.setType(typeInstance);
+                            }
+                            
+                            Element stateElement = XmlUtility.getElementByTagNameNS(dimensionSettingsElement, "http://schemas.microsoft.com/windowsazure", "State");
+                            if (stateElement != null) {
+                                String stateInstance;
+                                stateInstance = stateElement.getTextContent();
+                                serviceResourceInstance2.setState(stateInstance);
+                            }
                         }
+                    }
+                    
+                    Element nameElement2 = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Name");
+                    if (nameElement2 != null) {
+                        String nameInstance2;
+                        nameInstance2 = nameElement2.getTextContent();
+                        serviceResourceInstance.setName(nameInstance2);
+                    }
+                    
+                    Element typeElement2 = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Type");
+                    if (typeElement2 != null) {
+                        String typeInstance2;
+                        typeInstance2 = typeElement2.getTextContent();
+                        serviceResourceInstance.setType(typeInstance2);
+                    }
+                    
+                    Element stateElement2 = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "State");
+                    if (stateElement2 != null) {
+                        String stateInstance2;
+                        stateInstance2 = stateElement2.getTextContent();
+                        serviceResourceInstance.setState(stateInstance2);
                     }
                 }
             }

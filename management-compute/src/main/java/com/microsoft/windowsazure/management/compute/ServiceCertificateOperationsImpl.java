@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.compute;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.OperationStatus;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
@@ -183,7 +184,7 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -221,7 +222,7 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -335,12 +336,12 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -687,12 +688,12 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -810,12 +811,12 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

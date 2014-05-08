@@ -44,8 +44,8 @@ import org.xml.sax.SAXException;
 */
 public interface ReservedIPOperations {
     /**
-    * Preview Only. The Begin Creating Reserved IP operation creates a reserved
-    * IP from your the subscription.
+    * The Begin Creating Reserved IP operation creates a reserved IP from your
+    * the subscription.
     *
     * @param parameters Required. Parameters supplied to the Begin Creating
     * Reserved IP operation.
@@ -73,8 +73,8 @@ public interface ReservedIPOperations {
     OperationStatusResponse beginCreating(NetworkReservedIPCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
-    * Preview Only. The Begin Creating Reserved IP operation creates a reserved
-    * IP from your the subscription.
+    * The Begin Creating Reserved IP operation creates a reserved IP from your
+    * the subscription.
     *
     * @param parameters Required. Parameters supplied to the Begin Creating
     * Reserved IP operation.
@@ -91,8 +91,8 @@ public interface ReservedIPOperations {
     Future<OperationStatusResponse> beginCreatingAsync(NetworkReservedIPCreateParameters parameters);
     
     /**
-    * Preview Only. The Begin Deleting Reserved IP operation removes a reserved
-    * IP from your the subscription.
+    * The Begin Deleting Reserved IP operation removes a reserved IP from your
+    * the subscription.
     *
     * @param ipName Required. The name of the reserved IP.
     * @throws MalformedURLException Thrown in case of an invalid request URL
@@ -104,17 +104,17 @@ public interface ReservedIPOperations {
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     OperationResponse beginDeleting(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
-    * Preview Only. The Begin Deleting Reserved IP operation removes a reserved
-    * IP from your the subscription.
+    * The Begin Deleting Reserved IP operation removes a reserved IP from your
+    * the subscription.
     *
     * @param ipName Required. The name of the reserved IP.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     Future<OperationResponse> beginDeletingAsync(String ipName);
@@ -228,8 +228,8 @@ public interface ReservedIPOperations {
     Future<OperationStatusResponse> deleteAsync(String ipName);
     
     /**
-    * Preview Only. The Get Reserved IP operation retrieves the details for the
-    * virtual IP reserved for the subscription.
+    * The Get Reserved IP operation retrieves the details for the virtual IP
+    * reserved for the subscription.
     *
     * @param ipName Required. The name of the reserved IP to retrieve.
     * @throws MalformedURLException Thrown in case of an invalid request URL
@@ -241,22 +241,22 @@ public interface ReservedIPOperations {
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return Preview Only. A reserved IP associated with your subscription.
+    * @return A reserved IP associated with your subscription.
     */
     NetworkReservedIPGetResponse get(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
-    * Preview Only. The Get Reserved IP operation retrieves the details for the
-    * virtual IP reserved for the subscription.
+    * The Get Reserved IP operation retrieves the details for the virtual IP
+    * reserved for the subscription.
     *
     * @param ipName Required. The name of the reserved IP to retrieve.
-    * @return Preview Only. A reserved IP associated with your subscription.
+    * @return A reserved IP associated with your subscription.
     */
     Future<NetworkReservedIPGetResponse> getAsync(String ipName);
     
     /**
-    * Preview Only. The List Reserved IP operation retrieves all of the virtual
-    * IPs reserved for the subscription.
+    * The List Reserved IP operation retrieves all of the virtual IPs reserved
+    * for the subscription.
     *
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
@@ -267,17 +267,15 @@ public interface ReservedIPOperations {
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return Preview Only. The response structure for the Server List
-    * operation.
+    * @return The response structure for the Server List operation.
     */
     NetworkReservedIPListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
-    * Preview Only. The List Reserved IP operation retrieves all of the virtual
-    * IPs reserved for the subscription.
+    * The List Reserved IP operation retrieves all of the virtual IPs reserved
+    * for the subscription.
     *
-    * @return Preview Only. The response structure for the Server List
-    * operation.
+    * @return The response structure for the Server List operation.
     */
     Future<NetworkReservedIPListResponse> listAsync();
 }

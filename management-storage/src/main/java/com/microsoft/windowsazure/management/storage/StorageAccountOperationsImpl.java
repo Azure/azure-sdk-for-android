@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.storage;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.OperationStatus;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
@@ -102,13 +103,13 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     }
     
     /**
-    * The Create Storage Account operation creates a new storage account in
-    * Windows Azure.  (see
+    * The Begin Creating Storage Account operation creates a new storage
+    * account in Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264518.aspx for
     * more information)
     *
-    * @param parameters Required. Parameters supplied to the Create Storage
-    * Account operation.
+    * @param parameters Required. Parameters supplied to the Begin Creating
+    * Storage Account operation.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
@@ -123,13 +124,13 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     }
     
     /**
-    * The Create Storage Account operation creates a new storage account in
-    * Windows Azure.  (see
+    * The Begin Creating Storage Account operation creates a new storage
+    * account in Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264518.aspx for
     * more information)
     *
-    * @param parameters Required. Parameters supplied to the Create Storage
-    * Account operation.
+    * @param parameters Required. Parameters supplied to the Begin Creating
+    * Storage Account operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
@@ -288,7 +289,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -315,7 +316,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     
     /**
     * The Check Name Availability operation checks if a storage account name is
-    * available for use in Windows Azure.  (see
+    * available for use in Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/jj154125.aspx for
     * more information)
     *
@@ -335,7 +336,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     
     /**
     * The Check Name Availability operation checks if a storage account name is
-    * available for use in Windows Azure.  (see
+    * available for use in Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/jj154125.aspx for
     * more information)
     *
@@ -393,7 +394,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -451,7 +452,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     
     /**
     * The Create Storage Account operation creates a new storage account in
-    * Windows Azure.  (see
+    * Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264518.aspx for
     * more information)
     *
@@ -462,10 +463,9 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     * inprogress, or has failed. Note that this status is distinct from the
     * HTTP status code returned for the Get Operation Status operation itself.
     * If the asynchronous operation succeeded, the response body includes the
-    * HTTP status code for the successful request.  If the asynchronous
+    * HTTP status code for the successful request. If the asynchronous
     * operation failed, the response body includes the HTTP status code for
-    * the failed request, and also includes error information regarding the
-    * failure.
+    * the failed request and error information regarding the failure.
     */
     @Override
     public Future<OperationStatusResponse> createAsync(final StorageAccountCreateParameters parameters) {
@@ -479,7 +479,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     
     /**
     * The Create Storage Account operation creates a new storage account in
-    * Windows Azure.  (see
+    * Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264518.aspx for
     * more information)
     *
@@ -500,10 +500,9 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     * inprogress, or has failed. Note that this status is distinct from the
     * HTTP status code returned for the Get Operation Status operation itself.
     * If the asynchronous operation succeeded, the response body includes the
-    * HTTP status code for the successful request.  If the asynchronous
+    * HTTP status code for the successful request. If the asynchronous
     * operation failed, the response body includes the HTTP status code for
-    * the failed request, and also includes error information regarding the
-    * failure.
+    * the failed request and error information regarding the failure.
     */
     @Override
     public OperationStatusResponse create(StorageAccountCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException {
@@ -555,12 +554,13 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     }
     
     /**
-    * The Delete Storage Account operation deletes the specifiedstorage account
-    * from Windows Azure.  (see
+    * The Delete Storage Account operation deletes the specified storage
+    * account from Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264517.aspx for
     * more information)
     *
-    * @param accountName Required. The name of the storage account.
+    * @param accountName Required. The name of the storage account to be
+    * deleted.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
@@ -575,12 +575,13 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     }
     
     /**
-    * The Delete Storage Account operation deletes the specifiedstorage account
-    * from Windows Azure.  (see
+    * The Delete Storage Account operation deletes the specified storage
+    * account from Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264517.aspx for
     * more information)
     *
-    * @param accountName Required. The name of the storage account.
+    * @param accountName Required. The name of the storage account to be
+    * deleted.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -630,7 +631,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -661,7 +662,8 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     * http://msdn.microsoft.com/en-us/library/windowsazure/ee460802.aspx for
     * more information)
     *
-    * @param accountName Required. Name of the storage account to get.
+    * @param accountName Required. Name of the storage account to get
+    * properties for.
     * @return The Get Storage Account Properties operation response.
     */
     @Override
@@ -680,7 +682,8 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     * http://msdn.microsoft.com/en-us/library/windowsazure/ee460802.aspx for
     * more information)
     *
-    * @param accountName Required. Name of the storage account to get.
+    * @param accountName Required. Name of the storage account to get
+    * properties for.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -735,7 +738,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -975,7 +978,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1108,7 +1111,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1382,7 +1385,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1442,9 +1445,9 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     }
     
     /**
-    * The Update Storage Account operation updates the label, the description,
-    * and enables or disables the geo-replication status for a storage account
-    * in Windows Azure.  (see
+    * The Update Storage Account operation updates the label and the
+    * description, and enables or disables the geo-replication status for a
+    * storage account in Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264516.aspx for
     * more information)
     *
@@ -1465,9 +1468,9 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     }
     
     /**
-    * The Update Storage Account operation updates the label, the description,
-    * and enables or disables the geo-replication status for a storage account
-    * in Windows Azure.  (see
+    * The Update Storage Account operation updates the label and the
+    * description, and enables or disables the geo-replication status for a
+    * storage account in Azure.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh264516.aspx for
     * more information)
     *
@@ -1611,7 +1614,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

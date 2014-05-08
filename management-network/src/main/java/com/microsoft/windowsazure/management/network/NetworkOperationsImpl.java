@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.network;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.OperationStatus;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
@@ -91,7 +92,7 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
     *
     * @param parameters Required. Parameters supplied to the Set Network
     * Configuration operation.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -117,7 +118,7 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -160,7 +161,7 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/octet-stream");
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = parameters.getConfiguration();
@@ -170,7 +171,7 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -258,12 +259,12 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -359,12 +360,12 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

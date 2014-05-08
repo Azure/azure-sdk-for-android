@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.network;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.XmlUtility;
@@ -152,12 +153,12 @@ public class StaticIPOperationsImpl implements ServiceOperations<NetworkManageme
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

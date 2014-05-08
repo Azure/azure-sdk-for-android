@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.sql;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
@@ -52,15 +53,13 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
-* The SQL Database Management API includes operations for managing SQL Database
-* servers for a subscription.  (see
-* http://msdn.microsoft.com/en-us/library/windowsazure/gg715271.aspx for more
-* information)
+* Contains methods to allow various operations on Azure SQL Database Servers.
 */
 public class ServerOperationsImpl implements ServiceOperations<SqlManagementClientImpl>, ServerOperations {
     /**
@@ -84,15 +83,13 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
     }
     
     /**
-    * Sets the administrative password of a SQL Database server for a
-    * subscription.  (see
-    * http://msdn.microsoft.com/en-us/library/windowsazure/gg715272.aspx for
-    * more information)
+    * Changes the administrative password of an existing Azure SQL Database
+    * Server for a given subscription.
     *
-    * @param serverName Required. The server that will have the change made to
-    * the administrative user.
-    * @param parameters Required. Parameters for the Manage Administrator
-    * Password operation.
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * that will have the administrator password changed.
+    * @param parameters Required. The necessary parameters for modifying the
+    * adminstrator password for a server.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
@@ -107,15 +104,13 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
     }
     
     /**
-    * Sets the administrative password of a SQL Database server for a
-    * subscription.  (see
-    * http://msdn.microsoft.com/en-us/library/windowsazure/gg715272.aspx for
-    * more information)
+    * Changes the administrative password of an existing Azure SQL Database
+    * Server for a given subscription.
     *
-    * @param serverName Required. The server that will have the change made to
-    * the administrative user.
-    * @param parameters Required. Parameters for the Manage Administrator
-    * Password operation.
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * that will have the administrator password changed.
+    * @param parameters Required. The necessary parameters for modifying the
+    * adminstrator password for a server.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
@@ -200,7 +195,7 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -226,13 +221,12 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
     }
     
     /**
-    * Adds a new SQL Database server to a subscription.  (see
-    * http://msdn.microsoft.com/en-us/library/windowsazure/gg715274.aspx for
-    * more information)
+    * Provisions a new SQL Database server in a subscription.
     *
-    * @param parameters Required. Parameters supplied to the Create Server
-    * operation.
-    * @return The response returned from the Create Server operation.
+    * @param parameters Required. The parameters needed to provision a server.
+    * @return The response returned from the Create Server operation.  This
+    * contains all the information returned from the service when a server is
+    * created.
     */
     @Override
     public Future<ServerCreateResponse> createAsync(final ServerCreateParameters parameters) {
@@ -245,12 +239,9 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
     }
     
     /**
-    * Adds a new SQL Database server to a subscription.  (see
-    * http://msdn.microsoft.com/en-us/library/windowsazure/gg715274.aspx for
-    * more information)
+    * Provisions a new SQL Database server in a subscription.
     *
-    * @param parameters Required. Parameters supplied to the Create Server
-    * operation.
+    * @param parameters Required. The parameters needed to provision a server.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
@@ -262,7 +253,9 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return The response returned from the Create Server operation.
+    * @return The response returned from the Create Server operation.  This
+    * contains all the information returned from the service when a server is
+    * created.
     */
     @Override
     public ServerCreateResponse create(ServerCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
@@ -333,6 +326,12 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
         locationElement.appendChild(requestDoc.createTextNode(parameters.getLocation()));
         serverElement.appendChild(locationElement);
         
+        if (parameters.getVersion() != null) {
+            Element versionElement = requestDoc.createElementNS("http://schemas.microsoft.com/sqlazure/2010/12/", "Version");
+            versionElement.appendChild(requestDoc.createTextNode(parameters.getVersion()));
+            serverElement.appendChild(versionElement);
+        }
+        
         DOMSource domSource = new DOMSource(requestDoc);
         StringWriter stringWriter = new StringWriter();
         StreamResult streamResult = new StreamResult(stringWriter);
@@ -346,7 +345,7 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 201) {
+            if (statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -366,6 +365,11 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
             
             Element serverNameElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/sqlazure/2010/12/", "ServerName");
             if (serverNameElement != null) {
+                Attr fullyQualifiedDomainNameAttribute = serverNameElement.getAttributeNodeNS("http://schemas.microsoft.com/sqlazure/2010/12/", "FullyQualifiedDomainName");
+                if (fullyQualifiedDomainNameAttribute != null) {
+                    result.setFullyQualifiedDomainName(fullyQualifiedDomainNameAttribute.getValue());
+                }
+                
                 result.setServerName(serverNameElement.getTextContent());
             }
             
@@ -384,11 +388,10 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
     }
     
     /**
-    * Drops a SQL Database server from a subscription.  (see
-    * http://msdn.microsoft.com/en-us/library/windowsazure/gg715285.aspx for
-    * more information)
+    * Deletes the specified Azure SQL Database Server from a subscription.
     *
-    * @param serverName Required. The name of the server to be deleted.
+    * @param serverName Required. The name of the Azure SQL Database Server to
+    * be deleted.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
@@ -403,11 +406,10 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
     }
     
     /**
-    * Drops a SQL Database server from a subscription.  (see
-    * http://msdn.microsoft.com/en-us/library/windowsazure/gg715285.aspx for
-    * more information)
+    * Deletes the specified Azure SQL Database Server from a subscription.
     *
-    * @param serverName Required. The name of the server to be deleted.
+    * @param serverName Required. The name of the Azure SQL Database Server to
+    * be deleted.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -457,7 +459,7 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -483,11 +485,10 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
     }
     
     /**
-    * Returns all SQL Database servers that are provisioned for a subscription.
-    * (see http://msdn.microsoft.com/en-us/library/windowsazure/gg715269.aspx
-    * for more information)
+    * Returns all SQL Database Servers that are provisioned for a subscription.
     *
-    * @return The response structure for the Server List operation.
+    * @return The response structure for the Server List operation.  Contains a
+    * list of all the servers in a subscription.
     */
     @Override
     public Future<ServerListResponse> listAsync() {
@@ -500,9 +501,7 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
     }
     
     /**
-    * Returns all SQL Database servers that are provisioned for a subscription.
-    * (see http://msdn.microsoft.com/en-us/library/windowsazure/gg715269.aspx
-    * for more information)
+    * Returns all SQL Database Servers that are provisioned for a subscription.
     *
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
@@ -513,7 +512,8 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return The response structure for the Server List operation.
+    * @return The response structure for the Server List operation.  Contains a
+    * list of all the servers in a subscription.
     */
     @Override
     public ServerListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
@@ -552,7 +552,7 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -598,14 +598,25 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
                         serverInstance.setLocation(locationInstance);
                     }
                     
-                    Element featuresSequenceElement = XmlUtility.getElementByTagNameNS(serversElement, "http://schemas.microsoft.com/sqlazure/2010/12/", "Features");
-                    if (featuresSequenceElement != null) {
-                        for (int i2 = 0; i2 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(featuresSequenceElement, "http://schemas.microsoft.com/sqlazure/2010/12/", "Feature").size(); i2 = i2 + 1) {
-                            org.w3c.dom.Element featuresElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(featuresSequenceElement, "http://schemas.microsoft.com/sqlazure/2010/12/", "Feature").get(i2));
-                            String featuresKey = XmlUtility.getElementByTagNameNS(featuresElement, "http://schemas.microsoft.com/sqlazure/2010/12/", "Name").getTextContent();
-                            String featuresValue = XmlUtility.getElementByTagNameNS(featuresElement, "http://schemas.microsoft.com/sqlazure/2010/12/", "Value").getTextContent();
-                            serverInstance.getFeatures().put(featuresKey, featuresValue);
-                        }
+                    Element fullyQualifiedDomainNameElement = XmlUtility.getElementByTagNameNS(serversElement, "http://schemas.microsoft.com/sqlazure/2010/12/", "FullyQualifiedDomainName");
+                    if (fullyQualifiedDomainNameElement != null) {
+                        String fullyQualifiedDomainNameInstance;
+                        fullyQualifiedDomainNameInstance = fullyQualifiedDomainNameElement.getTextContent();
+                        serverInstance.setFullyQualifiedDomainName(fullyQualifiedDomainNameInstance);
+                    }
+                    
+                    Element stateElement = XmlUtility.getElementByTagNameNS(serversElement, "http://schemas.microsoft.com/sqlazure/2010/12/", "State");
+                    if (stateElement != null) {
+                        String stateInstance;
+                        stateInstance = stateElement.getTextContent();
+                        serverInstance.setState(stateInstance);
+                    }
+                    
+                    Element versionElement = XmlUtility.getElementByTagNameNS(serversElement, "http://schemas.microsoft.com/sqlazure/2010/12/", "Version");
+                    if (versionElement != null) {
+                        String versionInstance;
+                        versionInstance = versionElement.getTextContent();
+                        serverInstance.setVersion(versionInstance);
                     }
                 }
             }

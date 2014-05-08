@@ -34,16 +34,19 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
 /**
-* The SQL Database Management API includes operations for get/stop SQL
-* Databases' operations for a subscription.
+* The Azure SQL Database Management API includes operations for getting
+* database operations. Specifically, this API allows you to get a specific
+* operation, or to list all the operations that happened on a specific
+* database or on all databases in the Azure SQL Database Server.
 */
 public interface DatabaseOperationOperations {
     /**
-    * Returns information about one operation on a given operation Guid.
+    * Returns information about a specific operation by using the operation
+    * Guid.
     *
-    * @param serverName Required. The name of the SQL Server on which the
-    * operation was executed.
-    * @param operationGuid Required. The Guid of the SQL Server database
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * where the database is hosted.
+    * @param operationGuid Required. The Guid of the Azure SQL Database
     * operation to be obtained.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
@@ -54,28 +57,29 @@ public interface DatabaseOperationOperations {
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return Response containing the database operation for a given operation
-    * Guid.
+    * @return Represents the database operation for a given operation Guid.
     */
     DatabaseOperationGetResponse get(String serverName, String operationGuid) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
-    * Returns information about one operation on a given operation Guid.
-    *
-    * @param serverName Required. The name of the SQL Server on which the
-    * operation was executed.
-    * @param operationGuid Required. The Guid of the SQL Server database
-    * operation to be obtained.
-    * @return Response containing the database operation for a given operation
+    * Returns information about a specific operation by using the operation
     * Guid.
+    *
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * where the database is hosted.
+    * @param operationGuid Required. The Guid of the Azure SQL Database
+    * operation to be obtained.
+    * @return Represents the database operation for a given operation Guid.
     */
     Future<DatabaseOperationGetResponse> getAsync(String serverName, String operationGuid);
     
     /**
-    * Returns the list database operations for a given server and database.
+    * Retrieves all of the operations that took place on a specific database.
     *
-    * @param serverName Required. The name of the SQL Server to be queried.
-    * @param databaseName Required. The name of the Database to be queried.
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * that hosts the database.
+    * @param databaseName Required. The name of the database for which the
+    * operations should be retrieved.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -85,25 +89,29 @@ public interface DatabaseOperationOperations {
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return Response containing the list of database operations for a given
-    * server or database.
+    * @return Represents the response containing the list of database
+    * operations for a given server or database.
     */
     DatabaseOperationListResponse listByDatabase(String serverName, String databaseName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
-    * Returns the list database operations for a given server and database.
+    * Retrieves all of the operations that took place on a specific database.
     *
-    * @param serverName Required. The name of the SQL Server to be queried.
-    * @param databaseName Required. The name of the Database to be queried.
-    * @return Response containing the list of database operations for a given
-    * server or database.
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * that hosts the database.
+    * @param databaseName Required. The name of the database for which the
+    * operations should be retrieved.
+    * @return Represents the response containing the list of database
+    * operations for a given server or database.
     */
     Future<DatabaseOperationListResponse> listByDatabaseAsync(String serverName, String databaseName);
     
     /**
-    * Returns the list database operations for a given server.
+    * Retrieves all of the operations that occured on the Azure SQL Database
+    * Server.
     *
-    * @param serverName Required. The name of the SQL Server to be queried.
+    * @param serverName Required. The name of the Azure SQL Database Server to
+    * be queried.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -113,17 +121,19 @@ public interface DatabaseOperationOperations {
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return Response containing the list of database operations for a given
-    * server or database.
+    * @return Represents the response containing the list of database
+    * operations for a given server or database.
     */
     DatabaseOperationListResponse listByServer(String serverName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
-    * Returns the list database operations for a given server.
+    * Retrieves all of the operations that occured on the Azure SQL Database
+    * Server.
     *
-    * @param serverName Required. The name of the SQL Server to be queried.
-    * @return Response containing the list of database operations for a given
-    * server or database.
+    * @param serverName Required. The name of the Azure SQL Database Server to
+    * be queried.
+    * @return Represents the response containing the list of database
+    * operations for a given server or database.
     */
     Future<DatabaseOperationListResponse> listByServerAsync(String serverName);
 }

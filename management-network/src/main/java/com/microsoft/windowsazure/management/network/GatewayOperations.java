@@ -36,6 +36,7 @@ import com.microsoft.windowsazure.management.network.models.GatewayListConnectio
 import com.microsoft.windowsazure.management.network.models.GatewayListSupportedDevicesResponse;
 import com.microsoft.windowsazure.management.network.models.GatewayOperationResponse;
 import com.microsoft.windowsazure.management.network.models.GatewayResetSharedKeyParameters;
+import com.microsoft.windowsazure.management.network.models.GatewaySetSharedKeyParameters;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -76,7 +77,7 @@ public interface GatewayOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     GatewayOperationResponse beginConnectDisconnectOrTesting(String networkName, String localNetworkSiteName, GatewayConnectDisconnectOrTestParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
@@ -94,7 +95,7 @@ public interface GatewayOperations {
     * @param localNetworkSiteName Required. The name of the site to connect to.
     * @param parameters Required. Parameters supplied to the Begin Connect
     * Disconnect Or Testing Gateway operation.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     Future<GatewayOperationResponse> beginConnectDisconnectOrTestingAsync(String networkName, String localNetworkSiteName, GatewayConnectDisconnectOrTestParameters parameters);
@@ -120,7 +121,7 @@ public interface GatewayOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     GatewayOperationResponse beginCreating(String networkName, GatewayCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
@@ -135,7 +136,7 @@ public interface GatewayOperations {
     * gateway.
     * @param parameters Required. Parameters supplied to the Begin Creating
     * Virtual Network Gateway operation.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     Future<GatewayOperationResponse> beginCreatingAsync(String networkName, GatewayCreateParameters parameters);
@@ -156,7 +157,7 @@ public interface GatewayOperations {
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     GatewayOperationResponse beginDeleting(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
@@ -168,7 +169,7 @@ public interface GatewayOperations {
     * more information)
     *
     * @param networkName Required. The name of the virtual network.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     Future<GatewayOperationResponse> beginDeletingAsync(String networkName);
@@ -189,7 +190,7 @@ public interface GatewayOperations {
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     GatewayOperationResponse beginFailover(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
@@ -201,7 +202,7 @@ public interface GatewayOperations {
     * more information)
     *
     * @param networkName Required. The name of the virtual network in Azure.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     Future<GatewayOperationResponse> beginFailoverAsync(String networkName);
@@ -229,7 +230,7 @@ public interface GatewayOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     GatewayOperationResponse beginResetSharedKey(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
@@ -246,10 +247,55 @@ public interface GatewayOperations {
     * @param localNetworkName Required. The name of the local network.
     * @param parameters Required. Parameters supplied to the Begin Virtual
     * Network Gateway Reset Shared Key request.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     Future<GatewayOperationResponse> beginResetSharedKeyAsync(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters);
+    
+    /**
+    * The Begin Set Virtual Network Gateway Shared Key operation sets the
+    * shared key on the virtual network gateway for the specified virtual
+    * network connection to the specified local network in Azure.  (see
+    * http://msdn.microsoft.com/en-us/library/windowsazure/jj154114.aspx for
+    * more information)
+    *
+    * @param networkName Required. The name of the virtual network for this
+    * gateway.
+    * @param localNetworkName Required. The name of the local network.
+    * @param parameters Required. Parameters supplied to the Begin Virtual
+    * Network Gateway Set Shared Key request.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
+    * @throws ParserConfigurationException Thrown if there was an error
+    * configuring the parser for the response body.
+    * @throws SAXException Thrown if there was an error parsing the response
+    * body.
+    * @throws TransformerException Thrown if there was an error creating the
+    * DOM transformer.
+    * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
+    * @return A standard service response including an HTTP status code and
+    * request ID.
+    */
+    GatewayOperationResponse beginSetSharedKey(String networkName, String localNetworkName, GatewaySetSharedKeyParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    
+    /**
+    * The Begin Set Virtual Network Gateway Shared Key operation sets the
+    * shared key on the virtual network gateway for the specified virtual
+    * network connection to the specified local network in Azure.  (see
+    * http://msdn.microsoft.com/en-us/library/windowsazure/jj154114.aspx for
+    * more information)
+    *
+    * @param networkName Required. The name of the virtual network for this
+    * gateway.
+    * @param localNetworkName Required. The name of the local network.
+    * @param parameters Required. Parameters supplied to the Begin Virtual
+    * Network Gateway Set Shared Key request.
+    * @return A standard service response including an HTTP status code and
+    * request ID.
+    */
+    Future<GatewayOperationResponse> beginSetSharedKeyAsync(String networkName, String localNetworkName, GatewaySetSharedKeyParameters parameters);
     
     /**
     * To connect to, disconnect from, or test your connection to a local
@@ -500,7 +546,7 @@ public interface GatewayOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     GatewayOperationResponse generateVpnClientPackage(String networkName, GatewayGenerateVpnClientPackageParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
@@ -515,7 +561,7 @@ public interface GatewayOperations {
     * gateway.
     * @param parameters Required. Parameters supplied to the Generate VPN
     * Client Package operation.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     Future<GatewayOperationResponse> generateVpnClientPackageAsync(String networkName, GatewayGenerateVpnClientPackageParameters parameters);
@@ -537,7 +583,7 @@ public interface GatewayOperations {
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     GatewayGetResponse get(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
@@ -550,7 +596,7 @@ public interface GatewayOperations {
     *
     * @param networkName Required. The name of the virtual network for this
     * gateway.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     Future<GatewayGetResponse> getAsync(String networkName);
@@ -795,4 +841,62 @@ public interface GatewayOperations {
     * failure.
     */
     Future<GatewayGetOperationStatusResponse> resetSharedKeyAsync(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters);
+    
+    /**
+    * The Set Virtual Network Gateway Shared Key operation sets the shared key
+    * on the virtual network gateway for the specified virtual network
+    * connection to the specified local network in Azure.  (see
+    * http://msdn.microsoft.com/en-us/library/windowsazure/jj154114.aspx for
+    * more information)
+    *
+    * @param networkName Required. The name of the virtual network for this
+    * gateway.
+    * @param localNetworkName Required. The name of the local network.
+    * @param parameters Required. The parameters to the Virtual Network Gateway
+    * Set Shared Key request.
+    * @throws InterruptedException Thrown when a thread is waiting, sleeping,
+    * or otherwise occupied, and the thread is interrupted, either before or
+    * during the activity. Occasionally a method may wish to test whether the
+    * current thread has been interrupted, and if so, to immediately throw
+    * this exception. The following code can be used to achieve this effect:
+    * @throws ExecutionException Thrown when attempting to retrieve the result
+    * of a task that aborted by throwing an exception. This exception can be
+    * inspected using the Throwable.getCause() method.
+    * @throws ServiceException Thrown if the server returned an error for the
+    * request.
+    * @return The response body contains the status of the specified
+    * asynchronous operation, indicating whether it has succeeded, is in
+    * progress, or has failed. Note that this status is distinct from the HTTP
+    * status code returned for the Get Operation Status operation itself. If
+    * the asynchronous operation succeeded, the response body includes the
+    * HTTP status code for the successful request. If the asynchronous
+    * operation failed, the response body includes the HTTP status code for
+    * the failed request, and also includes error information regarding the
+    * failure.
+    */
+    GatewayGetOperationStatusResponse setSharedKey(String networkName, String localNetworkName, GatewaySetSharedKeyParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
+    
+    /**
+    * The Set Virtual Network Gateway Shared Key operation sets the shared key
+    * on the virtual network gateway for the specified virtual network
+    * connection to the specified local network in Azure.  (see
+    * http://msdn.microsoft.com/en-us/library/windowsazure/jj154114.aspx for
+    * more information)
+    *
+    * @param networkName Required. The name of the virtual network for this
+    * gateway.
+    * @param localNetworkName Required. The name of the local network.
+    * @param parameters Required. The parameters to the Virtual Network Gateway
+    * Set Shared Key request.
+    * @return The response body contains the status of the specified
+    * asynchronous operation, indicating whether it has succeeded, is in
+    * progress, or has failed. Note that this status is distinct from the HTTP
+    * status code returned for the Get Operation Status operation itself. If
+    * the asynchronous operation succeeded, the response body includes the
+    * HTTP status code for the successful request. If the asynchronous
+    * operation failed, the response body includes the HTTP status code for
+    * the failed request, and also includes error information regarding the
+    * failure.
+    */
+    Future<GatewayGetOperationStatusResponse> setSharedKeyAsync(String networkName, String localNetworkName, GatewaySetSharedKeyParameters parameters);
 }

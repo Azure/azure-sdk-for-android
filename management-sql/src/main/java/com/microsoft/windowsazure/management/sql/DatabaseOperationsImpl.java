@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.sql;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
@@ -68,8 +69,9 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 /**
-* The SQL Database Management API includes operations for managing SQL
-* Databases for a subscription.
+* Represents all the operations for operating on Azure SQL Databases.  Contains
+* operations to: Create, Retrieve, Update, and Delete databases, and also
+* includes the ability to get the event logs for a database.
 */
 public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementClientImpl>, DatabaseOperations {
     /**
@@ -93,13 +95,14 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     }
     
     /**
-    * Creates a database in a SQL Server database server.
+    * Creates a database in an Azure SQL Database Server.
     *
-    * @param serverName Required. The name of the SQL Server where the database
-    * will be created.
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * where the database will be created.
     * @param parameters Required. The parameters for the create database
     * operation.
-    * @return Response containing the database create response.
+    * @return Represents the response to a create database request from the
+    * service.
     */
     @Override
     public Future<DatabaseCreateResponse> createAsync(final String serverName, final DatabaseCreateParameters parameters) {
@@ -112,10 +115,10 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     }
     
     /**
-    * Creates a database in a SQL Server database server.
+    * Creates a database in an Azure SQL Database Server.
     *
-    * @param serverName Required. The name of the SQL Server where the database
-    * will be created.
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * where the database will be created.
     * @param parameters Required. The parameters for the create database
     * operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
@@ -129,7 +132,8 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return Response containing the database create response.
+    * @return Represents the response to a create database request from the
+    * service.
     */
     @Override
     public DatabaseCreateResponse create(String serverName, DatabaseCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
@@ -139,9 +143,6 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         }
         if (parameters == null) {
             throw new NullPointerException("parameters");
-        }
-        if (parameters.getEdition() == null) {
-            throw new NullPointerException("parameters.Edition");
         }
         if (parameters.getName() == null) {
             throw new NullPointerException("parameters.Name");
@@ -193,18 +194,28 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         nameElement.appendChild(requestDoc.createTextNode(parameters.getName()));
         serviceResourceElement.appendChild(nameElement);
         
-        Element editionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Edition");
-        editionElement.appendChild(requestDoc.createTextNode(parameters.getEdition()));
-        serviceResourceElement.appendChild(editionElement);
+        if (parameters.getEdition() != null) {
+            Element editionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Edition");
+            editionElement.appendChild(requestDoc.createTextNode(parameters.getEdition()));
+            serviceResourceElement.appendChild(editionElement);
+        }
         
-        Element maxSizeGBElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MaxSizeGB");
-        maxSizeGBElement.appendChild(requestDoc.createTextNode(Integer.toString(parameters.getMaximumDatabaseSizeInGB())));
-        serviceResourceElement.appendChild(maxSizeGBElement);
+        if (parameters.getMaximumDatabaseSizeInGB() != null) {
+            Element maxSizeGBElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MaxSizeGB");
+            maxSizeGBElement.appendChild(requestDoc.createTextNode(Integer.toString(parameters.getMaximumDatabaseSizeInGB())));
+            serviceResourceElement.appendChild(maxSizeGBElement);
+        }
         
         if (parameters.getCollationName() != null) {
             Element collationNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CollationName");
             collationNameElement.appendChild(requestDoc.createTextNode(parameters.getCollationName()));
             serviceResourceElement.appendChild(collationNameElement);
+        }
+        
+        if (parameters.getMaximumDatabaseSizeInBytes() != null) {
+            Element maxSizeBytesElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MaxSizeBytes");
+            maxSizeBytesElement.appendChild(requestDoc.createTextNode(Long.toString(parameters.getMaximumDatabaseSizeInBytes())));
+            serviceResourceElement.appendChild(maxSizeBytesElement);
         }
         
         if (parameters.getServiceObjectiveId() != null) {
@@ -226,7 +237,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 201) {
+            if (statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -249,32 +260,11 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                 Database serviceResourceInstance = new Database();
                 result.setDatabase(serviceResourceInstance);
                 
-                Element nameElement2 = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "Name");
-                if (nameElement2 != null) {
-                    String nameInstance;
-                    nameInstance = nameElement2.getTextContent();
-                    serviceResourceInstance.setName(nameInstance);
-                }
-                
                 Element idElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "Id");
                 if (idElement != null) {
                     int idInstance;
                     idInstance = DatatypeConverter.parseInt(idElement.getTextContent());
                     serviceResourceInstance.setId(idInstance);
-                }
-                
-                Element typeElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "Type");
-                if (typeElement != null) {
-                    String typeInstance;
-                    typeInstance = typeElement.getTextContent();
-                    serviceResourceInstance.setType(typeInstance);
-                }
-                
-                Element stateElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "State");
-                if (stateElement != null) {
-                    String stateInstance;
-                    stateInstance = stateElement.getTextContent();
-                    serviceResourceInstance.setState(stateInstance);
                 }
                 
                 Element editionElement2 = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "Edition");
@@ -289,6 +279,13 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                     int maxSizeGBInstance;
                     maxSizeGBInstance = DatatypeConverter.parseInt(maxSizeGBElement2.getTextContent());
                     serviceResourceInstance.setMaximumDatabaseSizeInGB(maxSizeGBInstance);
+                }
+                
+                Element maxSizeBytesElement2 = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "MaxSizeBytes");
+                if (maxSizeBytesElement2 != null) {
+                    long maxSizeBytesInstance;
+                    maxSizeBytesInstance = DatatypeConverter.parseLong(maxSizeBytesElement2.getTextContent());
+                    serviceResourceInstance.setMaximumDatabaseSizeInBytes(maxSizeBytesInstance);
                 }
                 
                 Element collationNameElement2 = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "CollationName");
@@ -367,6 +364,41 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                     serviceObjectiveIdInstance = serviceObjectiveIdElement2.getTextContent();
                     serviceResourceInstance.setServiceObjectiveId(serviceObjectiveIdInstance);
                 }
+                
+                Element assignedServiceObjectiveIdElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "AssignedServiceObjectiveId");
+                if (assignedServiceObjectiveIdElement != null) {
+                    String assignedServiceObjectiveIdInstance;
+                    assignedServiceObjectiveIdInstance = assignedServiceObjectiveIdElement.getTextContent();
+                    serviceResourceInstance.setAssignedServiceObjectiveId(assignedServiceObjectiveIdInstance);
+                }
+                
+                Element recoveryPeriodStartDateElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "RecoveryPeriodStartDate");
+                if (recoveryPeriodStartDateElement != null && (recoveryPeriodStartDateElement.getTextContent() == null || recoveryPeriodStartDateElement.getTextContent().isEmpty() == true) == false) {
+                    Calendar recoveryPeriodStartDateInstance;
+                    recoveryPeriodStartDateInstance = DatatypeConverter.parseDateTime(recoveryPeriodStartDateElement.getTextContent());
+                    serviceResourceInstance.setRecoveryPeriodStartDate(recoveryPeriodStartDateInstance);
+                }
+                
+                Element nameElement2 = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "Name");
+                if (nameElement2 != null) {
+                    String nameInstance;
+                    nameInstance = nameElement2.getTextContent();
+                    serviceResourceInstance.setName(nameInstance);
+                }
+                
+                Element typeElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "Type");
+                if (typeElement != null) {
+                    String typeInstance;
+                    typeInstance = typeElement.getTextContent();
+                    serviceResourceInstance.setType(typeInstance);
+                }
+                
+                Element stateElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "State");
+                if (stateElement != null) {
+                    String stateInstance;
+                    stateInstance = stateElement.getTextContent();
+                    serviceResourceInstance.setState(stateInstance);
+                }
             }
             
             result.setStatusCode(statusCode);
@@ -384,13 +416,12 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     }
     
     /**
-    * Drops a SQL Database server from a subscription.  (see
-    * http://msdn.microsoft.com/en-us/library/windowsazure/gg715285.aspx for
-    * more information)
+    * Drops a database from an Azure SQL Database Server.
     *
-    * @param serverName Required. The name of the server on which the database
-    * is found.
-    * @param databaseName Required. The name of the database to be deleted.
+    * @param serverName Required. The name of the Azure SQL Database Server on
+    * which the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * deleted.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
@@ -405,13 +436,12 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     }
     
     /**
-    * Drops a SQL Database server from a subscription.  (see
-    * http://msdn.microsoft.com/en-us/library/windowsazure/gg715285.aspx for
-    * more information)
+    * Drops a database from an Azure SQL Database Server.
     *
-    * @param serverName Required. The name of the server on which the database
-    * is found.
-    * @param databaseName Required. The name of the database to be deleted.
+    * @param serverName Required. The name of the Azure SQL Database Server on
+    * which the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * deleted.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -465,7 +495,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -491,13 +521,13 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     }
     
     /**
-    * Returns information about a SQL Server database.
+    * Returns information about an Azure SQL Database.
     *
-    * @param serverName Required. The name of the SQL Server on which the
-    * database is housed.
-    * @param databaseName Required. The name of the SQL Server database to be
-    * obtained.
-    * @return Response containing the database get response.
+    * @param serverName Required. The name of the Azure SQL Database Server on
+    * which the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * retrieved.
+    * @return Contains the response to a Get Database request.
     */
     @Override
     public Future<DatabaseGetResponse> getAsync(final String serverName, final String databaseName) {
@@ -510,12 +540,12 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     }
     
     /**
-    * Returns information about a SQL Server database.
+    * Returns information about an Azure SQL Database.
     *
-    * @param serverName Required. The name of the SQL Server on which the
-    * database is housed.
-    * @param databaseName Required. The name of the SQL Server database to be
-    * obtained.
+    * @param serverName Required. The name of the Azure SQL Database Server on
+    * which the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * retrieved.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -525,7 +555,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return Response containing the database get response.
+    * @return Contains the response to a Get Database request.
     */
     @Override
     public DatabaseGetResponse get(String serverName, String databaseName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
@@ -572,7 +602,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -595,32 +625,11 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                 Database serviceResourceInstance = new Database();
                 result.setDatabase(serviceResourceInstance);
                 
-                Element nameElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                if (nameElement != null) {
-                    String nameInstance;
-                    nameInstance = nameElement.getTextContent();
-                    serviceResourceInstance.setName(nameInstance);
-                }
-                
                 Element idElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "Id");
                 if (idElement != null) {
                     int idInstance;
                     idInstance = DatatypeConverter.parseInt(idElement.getTextContent());
                     serviceResourceInstance.setId(idInstance);
-                }
-                
-                Element typeElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "Type");
-                if (typeElement != null) {
-                    String typeInstance;
-                    typeInstance = typeElement.getTextContent();
-                    serviceResourceInstance.setType(typeInstance);
-                }
-                
-                Element stateElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "State");
-                if (stateElement != null) {
-                    String stateInstance;
-                    stateInstance = stateElement.getTextContent();
-                    serviceResourceInstance.setState(stateInstance);
                 }
                 
                 Element editionElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "Edition");
@@ -635,6 +644,13 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                     int maxSizeGBInstance;
                     maxSizeGBInstance = DatatypeConverter.parseInt(maxSizeGBElement.getTextContent());
                     serviceResourceInstance.setMaximumDatabaseSizeInGB(maxSizeGBInstance);
+                }
+                
+                Element maxSizeBytesElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "MaxSizeBytes");
+                if (maxSizeBytesElement != null) {
+                    long maxSizeBytesInstance;
+                    maxSizeBytesInstance = DatatypeConverter.parseLong(maxSizeBytesElement.getTextContent());
+                    serviceResourceInstance.setMaximumDatabaseSizeInBytes(maxSizeBytesInstance);
                 }
                 
                 Element collationNameElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "CollationName");
@@ -713,6 +729,41 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                     serviceObjectiveIdInstance = serviceObjectiveIdElement.getTextContent();
                     serviceResourceInstance.setServiceObjectiveId(serviceObjectiveIdInstance);
                 }
+                
+                Element assignedServiceObjectiveIdElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "AssignedServiceObjectiveId");
+                if (assignedServiceObjectiveIdElement != null) {
+                    String assignedServiceObjectiveIdInstance;
+                    assignedServiceObjectiveIdInstance = assignedServiceObjectiveIdElement.getTextContent();
+                    serviceResourceInstance.setAssignedServiceObjectiveId(assignedServiceObjectiveIdInstance);
+                }
+                
+                Element recoveryPeriodStartDateElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "RecoveryPeriodStartDate");
+                if (recoveryPeriodStartDateElement != null && (recoveryPeriodStartDateElement.getTextContent() == null || recoveryPeriodStartDateElement.getTextContent().isEmpty() == true) == false) {
+                    Calendar recoveryPeriodStartDateInstance;
+                    recoveryPeriodStartDateInstance = DatatypeConverter.parseDateTime(recoveryPeriodStartDateElement.getTextContent());
+                    serviceResourceInstance.setRecoveryPeriodStartDate(recoveryPeriodStartDateInstance);
+                }
+                
+                Element nameElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "Name");
+                if (nameElement != null) {
+                    String nameInstance;
+                    nameInstance = nameElement.getTextContent();
+                    serviceResourceInstance.setName(nameInstance);
+                }
+                
+                Element typeElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "Type");
+                if (typeElement != null) {
+                    String typeInstance;
+                    typeInstance = typeElement.getTextContent();
+                    serviceResourceInstance.setType(typeInstance);
+                }
+                
+                Element stateElement = XmlUtility.getElementByTagNameNS(serviceResourceElement, "http://schemas.microsoft.com/windowsazure", "State");
+                if (stateElement != null) {
+                    String stateInstance;
+                    stateInstance = stateElement.getTextContent();
+                    serviceResourceInstance.setState(stateInstance);
+                }
             }
             
             result.setStatusCode(statusCode);
@@ -730,16 +781,15 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     }
     
     /**
-    * Returns information about a SQL Server database event logs.
+    * Returns information about an Azure SQL Database event logs.
     *
-    * @param serverName Required. The name of the SQL Server on which the
-    * database is housed.
-    * @param databaseName Required. The name of the SQL Server database to be
-    * obtained.
-    * @param parameters Required. The parameters for the get event logs
-    * database operation.
-    * @return A standard service response including an HTTP status code and
-    * request ID.
+    * @param serverName Required. The name of the Azure SQL Database Server on
+    * which the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * retrieved.
+    * @param parameters Required. The parameters for the Get Database Event
+    * Logs operation.
+    * @return Contains the response to a Get Database Event Logs request.
     */
     @Override
     public Future<DatabaseGetEventLogsResponse> getEventLogsAsync(final String serverName, final String databaseName, final DatabaseGetEventLogsParameters parameters) {
@@ -752,14 +802,14 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     }
     
     /**
-    * Returns information about a SQL Server database event logs.
+    * Returns information about an Azure SQL Database event logs.
     *
-    * @param serverName Required. The name of the SQL Server on which the
-    * database is housed.
-    * @param databaseName Required. The name of the SQL Server database to be
-    * obtained.
-    * @param parameters Required. The parameters for the get event logs
-    * database operation.
+    * @param serverName Required. The name of the Azure SQL Database Server on
+    * which the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * retrieved.
+    * @param parameters Required. The parameters for the Get Database Event
+    * Logs operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -769,8 +819,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return A standard service response including an HTTP status code and
-    * request ID.
+    * @return Contains the response to a Get Database Event Logs request.
     */
     @Override
     public DatabaseGetEventLogsResponse getEventLogs(String serverName, String databaseName, DatabaseGetEventLogsParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
@@ -829,7 +878,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -853,41 +902,6 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                     org.w3c.dom.Element serviceResourcesElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(serviceResourcesSequenceElement, "http://schemas.microsoft.com/windowsazure", "ServiceResource").get(i1));
                     DatabaseEventLog serviceResourceInstance = new DatabaseEventLog();
                     result.getEventLogs().add(serviceResourceInstance);
-                    
-                    Element nameElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                    if (nameElement != null) {
-                        String nameInstance;
-                        nameInstance = nameElement.getTextContent();
-                        serviceResourceInstance.setName(nameInstance);
-                    }
-                    
-                    Element typeElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Type");
-                    if (typeElement != null) {
-                        String typeInstance;
-                        typeInstance = typeElement.getTextContent();
-                        serviceResourceInstance.setType(typeInstance);
-                    }
-                    
-                    Element stateElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "State");
-                    if (stateElement != null) {
-                        String stateInstance;
-                        stateInstance = stateElement.getTextContent();
-                        serviceResourceInstance.setState(stateInstance);
-                    }
-                    
-                    Element selfLinkElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "SelfLink");
-                    if (selfLinkElement != null) {
-                        String selfLinkInstance;
-                        selfLinkInstance = selfLinkElement.getTextContent();
-                        serviceResourceInstance.setSelfLink(selfLinkInstance);
-                    }
-                    
-                    Element parentLinkElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "ParentLink");
-                    if (parentLinkElement != null) {
-                        String parentLinkInstance;
-                        parentLinkInstance = parentLinkElement.getTextContent();
-                        serviceResourceInstance.setParentLink(parentLinkInstance);
-                    }
                     
                     Element databaseNameElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "DatabaseName");
                     if (databaseNameElement != null) {
@@ -972,6 +986,27 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                             serviceResourceInstance.setAdditionalData(additionalDataInstance);
                         }
                     }
+                    
+                    Element nameElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Name");
+                    if (nameElement != null) {
+                        String nameInstance;
+                        nameInstance = nameElement.getTextContent();
+                        serviceResourceInstance.setName(nameInstance);
+                    }
+                    
+                    Element typeElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Type");
+                    if (typeElement != null) {
+                        String typeInstance;
+                        typeInstance = typeElement.getTextContent();
+                        serviceResourceInstance.setType(typeInstance);
+                    }
+                    
+                    Element stateElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "State");
+                    if (stateElement != null) {
+                        String stateInstance;
+                        stateInstance = stateElement.getTextContent();
+                        serviceResourceInstance.setState(stateInstance);
+                    }
                 }
             }
             
@@ -990,10 +1025,12 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     }
     
     /**
-    * Returns the list SQL Server databases.
+    * Returns a collection of Azure SQL Databases.
     *
-    * @param serverName Required. The name of the database server to be queried.
-    * @return Response containing the list of databases for a given server.
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * from which to retrieve the database.
+    * @return Contains a collection of databases for a given Azure SQL Database
+    * Server.
     */
     @Override
     public Future<DatabaseListResponse> listAsync(final String serverName) {
@@ -1006,9 +1043,10 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     }
     
     /**
-    * Returns the list SQL Server databases.
+    * Returns a collection of Azure SQL Databases.
     *
-    * @param serverName Required. The name of the database server to be queried.
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * from which to retrieve the database.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
@@ -1018,7 +1056,8 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return Response containing the list of databases for a given server.
+    * @return Contains a collection of databases for a given Azure SQL Database
+    * Server.
     */
     @Override
     public DatabaseListResponse list(String serverName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
@@ -1061,7 +1100,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1086,32 +1125,11 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                     Database serviceResourceInstance = new Database();
                     result.getDatabases().add(serviceResourceInstance);
                     
-                    Element nameElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                    if (nameElement != null) {
-                        String nameInstance;
-                        nameInstance = nameElement.getTextContent();
-                        serviceResourceInstance.setName(nameInstance);
-                    }
-                    
                     Element idElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Id");
                     if (idElement != null) {
                         int idInstance;
                         idInstance = DatatypeConverter.parseInt(idElement.getTextContent());
                         serviceResourceInstance.setId(idInstance);
-                    }
-                    
-                    Element typeElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Type");
-                    if (typeElement != null) {
-                        String typeInstance;
-                        typeInstance = typeElement.getTextContent();
-                        serviceResourceInstance.setType(typeInstance);
-                    }
-                    
-                    Element stateElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "State");
-                    if (stateElement != null) {
-                        String stateInstance;
-                        stateInstance = stateElement.getTextContent();
-                        serviceResourceInstance.setState(stateInstance);
                     }
                     
                     Element editionElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Edition");
@@ -1126,6 +1144,13 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                         int maxSizeGBInstance;
                         maxSizeGBInstance = DatatypeConverter.parseInt(maxSizeGBElement.getTextContent());
                         serviceResourceInstance.setMaximumDatabaseSizeInGB(maxSizeGBInstance);
+                    }
+                    
+                    Element maxSizeBytesElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "MaxSizeBytes");
+                    if (maxSizeBytesElement != null) {
+                        long maxSizeBytesInstance;
+                        maxSizeBytesInstance = DatatypeConverter.parseLong(maxSizeBytesElement.getTextContent());
+                        serviceResourceInstance.setMaximumDatabaseSizeInBytes(maxSizeBytesInstance);
                     }
                     
                     Element collationNameElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "CollationName");
@@ -1204,6 +1229,41 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                         serviceObjectiveIdInstance = serviceObjectiveIdElement.getTextContent();
                         serviceResourceInstance.setServiceObjectiveId(serviceObjectiveIdInstance);
                     }
+                    
+                    Element assignedServiceObjectiveIdElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "AssignedServiceObjectiveId");
+                    if (assignedServiceObjectiveIdElement != null) {
+                        String assignedServiceObjectiveIdInstance;
+                        assignedServiceObjectiveIdInstance = assignedServiceObjectiveIdElement.getTextContent();
+                        serviceResourceInstance.setAssignedServiceObjectiveId(assignedServiceObjectiveIdInstance);
+                    }
+                    
+                    Element recoveryPeriodStartDateElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "RecoveryPeriodStartDate");
+                    if (recoveryPeriodStartDateElement != null && (recoveryPeriodStartDateElement.getTextContent() == null || recoveryPeriodStartDateElement.getTextContent().isEmpty() == true) == false) {
+                        Calendar recoveryPeriodStartDateInstance;
+                        recoveryPeriodStartDateInstance = DatatypeConverter.parseDateTime(recoveryPeriodStartDateElement.getTextContent());
+                        serviceResourceInstance.setRecoveryPeriodStartDate(recoveryPeriodStartDateInstance);
+                    }
+                    
+                    Element nameElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Name");
+                    if (nameElement != null) {
+                        String nameInstance;
+                        nameInstance = nameElement.getTextContent();
+                        serviceResourceInstance.setName(nameInstance);
+                    }
+                    
+                    Element typeElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "Type");
+                    if (typeElement != null) {
+                        String typeInstance;
+                        typeInstance = typeElement.getTextContent();
+                        serviceResourceInstance.setType(typeInstance);
+                    }
+                    
+                    Element stateElement = XmlUtility.getElementByTagNameNS(serviceResourcesElement, "http://schemas.microsoft.com/windowsazure", "State");
+                    if (stateElement != null) {
+                        String stateInstance;
+                        stateInstance = stateElement.getTextContent();
+                        serviceResourceInstance.setState(stateInstance);
+                    }
                 }
             }
             
@@ -1222,15 +1282,15 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     }
     
     /**
-    * Updates SQL Server database information.
+    * Updates the properties of an Azure SQL Database.
     *
-    * @param serverName Required. The name of the SQL Server where the database
-    * is housed.
-    * @param databaseName Required. The name of the SQL Server database to be
-    * obtained.
-    * @param parameters Required. The parameters for the update database
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * where the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * updated.
+    * @param parameters Required. The parameters for the Update Database
     * operation.
-    * @return Response containing the database update response.
+    * @return Contains the response from a request to Update Database.
     */
     @Override
     public Future<DatabaseUpdateResponse> updateAsync(final String serverName, final String databaseName, final DatabaseUpdateParameters parameters) {
@@ -1243,13 +1303,13 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     }
     
     /**
-    * Updates SQL Server database information.
+    * Updates the properties of an Azure SQL Database.
     *
-    * @param serverName Required. The name of the SQL Server where the database
-    * is housed.
-    * @param databaseName Required. The name of the SQL Server database to be
-    * obtained.
-    * @param parameters Required. The parameters for the update database
+    * @param serverName Required. The name of the Azure SQL Database Server
+    * where the database is hosted.
+    * @param databaseName Required. The name of the Azure SQL Database to be
+    * updated.
+    * @param parameters Required. The parameters for the Update Database
     * operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
@@ -1262,7 +1322,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return Response containing the database update response.
+    * @return Contains the response from a request to Update Database.
     */
     @Override
     public DatabaseUpdateResponse update(String serverName, String databaseName, DatabaseUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
@@ -1275,9 +1335,6 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         }
         if (parameters == null) {
             throw new NullPointerException("parameters");
-        }
-        if (parameters.getCollationName() == null) {
-            throw new NullPointerException("parameters.CollationName");
         }
         if (parameters.getEdition() == null) {
             throw new NullPointerException("parameters.Edition");
@@ -1332,21 +1389,21 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             serviceResourceElement.appendChild(nameElement);
         }
         
-        Element idElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Id");
-        idElement.appendChild(requestDoc.createTextNode(Integer.toString(parameters.getId())));
-        serviceResourceElement.appendChild(idElement);
-        
         Element editionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Edition");
         editionElement.appendChild(requestDoc.createTextNode(parameters.getEdition()));
         serviceResourceElement.appendChild(editionElement);
         
-        Element maxSizeGBElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MaxSizeGB");
-        maxSizeGBElement.appendChild(requestDoc.createTextNode(Integer.toString(parameters.getMaximumDatabaseSizeInGB())));
-        serviceResourceElement.appendChild(maxSizeGBElement);
+        if (parameters.getMaximumDatabaseSizeInGB() != null) {
+            Element maxSizeGBElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MaxSizeGB");
+            maxSizeGBElement.appendChild(requestDoc.createTextNode(Integer.toString(parameters.getMaximumDatabaseSizeInGB())));
+            serviceResourceElement.appendChild(maxSizeGBElement);
+        }
         
-        Element collationNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CollationName");
-        collationNameElement.appendChild(requestDoc.createTextNode(parameters.getCollationName()));
-        serviceResourceElement.appendChild(collationNameElement);
+        if (parameters.getMaximumDatabaseSizeInBytes() != null) {
+            Element maxSizeBytesElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MaxSizeBytes");
+            maxSizeBytesElement.appendChild(requestDoc.createTextNode(Long.toString(parameters.getMaximumDatabaseSizeInBytes())));
+            serviceResourceElement.appendChild(maxSizeBytesElement);
+        }
         
         if (parameters.getServiceObjectiveId() != null) {
             Element serviceObjectiveIdElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ServiceObjectiveId");
@@ -1367,7 +1424,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1390,32 +1447,11 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                 Database serviceResourceInstance = new Database();
                 result.setDatabase(serviceResourceInstance);
                 
-                Element nameElement2 = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "Name");
-                if (nameElement2 != null) {
-                    String nameInstance;
-                    nameInstance = nameElement2.getTextContent();
-                    serviceResourceInstance.setName(nameInstance);
-                }
-                
-                Element idElement2 = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "Id");
-                if (idElement2 != null) {
+                Element idElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "Id");
+                if (idElement != null) {
                     int idInstance;
-                    idInstance = DatatypeConverter.parseInt(idElement2.getTextContent());
+                    idInstance = DatatypeConverter.parseInt(idElement.getTextContent());
                     serviceResourceInstance.setId(idInstance);
-                }
-                
-                Element typeElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "Type");
-                if (typeElement != null) {
-                    String typeInstance;
-                    typeInstance = typeElement.getTextContent();
-                    serviceResourceInstance.setType(typeInstance);
-                }
-                
-                Element stateElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "State");
-                if (stateElement != null) {
-                    String stateInstance;
-                    stateInstance = stateElement.getTextContent();
-                    serviceResourceInstance.setState(stateInstance);
                 }
                 
                 Element editionElement2 = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "Edition");
@@ -1432,10 +1468,17 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                     serviceResourceInstance.setMaximumDatabaseSizeInGB(maxSizeGBInstance);
                 }
                 
-                Element collationNameElement2 = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "CollationName");
-                if (collationNameElement2 != null) {
+                Element maxSizeBytesElement2 = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "MaxSizeBytes");
+                if (maxSizeBytesElement2 != null) {
+                    long maxSizeBytesInstance;
+                    maxSizeBytesInstance = DatatypeConverter.parseLong(maxSizeBytesElement2.getTextContent());
+                    serviceResourceInstance.setMaximumDatabaseSizeInBytes(maxSizeBytesInstance);
+                }
+                
+                Element collationNameElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "CollationName");
+                if (collationNameElement != null) {
                     String collationNameInstance;
-                    collationNameInstance = collationNameElement2.getTextContent();
+                    collationNameInstance = collationNameElement.getTextContent();
                     serviceResourceInstance.setCollationName(collationNameInstance);
                 }
                 
@@ -1507,6 +1550,41 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                     String serviceObjectiveIdInstance;
                     serviceObjectiveIdInstance = serviceObjectiveIdElement2.getTextContent();
                     serviceResourceInstance.setServiceObjectiveId(serviceObjectiveIdInstance);
+                }
+                
+                Element assignedServiceObjectiveIdElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "AssignedServiceObjectiveId");
+                if (assignedServiceObjectiveIdElement != null) {
+                    String assignedServiceObjectiveIdInstance;
+                    assignedServiceObjectiveIdInstance = assignedServiceObjectiveIdElement.getTextContent();
+                    serviceResourceInstance.setAssignedServiceObjectiveId(assignedServiceObjectiveIdInstance);
+                }
+                
+                Element recoveryPeriodStartDateElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "RecoveryPeriodStartDate");
+                if (recoveryPeriodStartDateElement != null && (recoveryPeriodStartDateElement.getTextContent() == null || recoveryPeriodStartDateElement.getTextContent().isEmpty() == true) == false) {
+                    Calendar recoveryPeriodStartDateInstance;
+                    recoveryPeriodStartDateInstance = DatatypeConverter.parseDateTime(recoveryPeriodStartDateElement.getTextContent());
+                    serviceResourceInstance.setRecoveryPeriodStartDate(recoveryPeriodStartDateInstance);
+                }
+                
+                Element nameElement2 = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "Name");
+                if (nameElement2 != null) {
+                    String nameInstance;
+                    nameInstance = nameElement2.getTextContent();
+                    serviceResourceInstance.setName(nameInstance);
+                }
+                
+                Element typeElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "Type");
+                if (typeElement != null) {
+                    String typeInstance;
+                    typeInstance = typeElement.getTextContent();
+                    serviceResourceInstance.setType(typeInstance);
+                }
+                
+                Element stateElement = XmlUtility.getElementByTagNameNS(serviceResourceElement2, "http://schemas.microsoft.com/windowsazure", "State");
+                if (stateElement != null) {
+                    String stateInstance;
+                    stateInstance = stateElement.getTextContent();
+                    serviceResourceInstance.setState(stateInstance);
                 }
             }
             

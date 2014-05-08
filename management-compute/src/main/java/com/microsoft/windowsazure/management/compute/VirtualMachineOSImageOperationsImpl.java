@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.compute;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
@@ -196,7 +197,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -300,7 +301,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -557,12 +558,12 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -662,12 +663,12 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -911,12 +912,12 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1193,7 +1194,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -1226,6 +1227,12 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
             oSImageElement.appendChild(imageFamilyElement);
         }
         
+        if (parameters.isShowInGui() != null) {
+            Element showInGuiElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ShowInGui");
+            showInGuiElement.appendChild(requestDoc.createTextNode(Boolean.toString(parameters.isShowInGui()).toLowerCase()));
+            oSImageElement.appendChild(showInGuiElement);
+        }
+        
         if (parameters.getPublishedDate() != null) {
             Element publishedDateElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublishedDate");
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSS'Z'");
@@ -1234,9 +1241,11 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
             oSImageElement.appendChild(publishedDateElement);
         }
         
-        Element isPremiumElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "IsPremium");
-        isPremiumElement.appendChild(requestDoc.createTextNode(Boolean.toString(parameters.isPremium()).toLowerCase()));
-        oSImageElement.appendChild(isPremiumElement);
+        if (parameters.isPremium() != null) {
+            Element isPremiumElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "IsPremium");
+            isPremiumElement.appendChild(requestDoc.createTextNode(Boolean.toString(parameters.isPremium()).toLowerCase()));
+            oSImageElement.appendChild(isPremiumElement);
+        }
         
         if (parameters.getPrivacyUri() != null) {
             Element privacyUriElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PrivacyUri");
@@ -1281,7 +1290,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1392,10 +1401,10 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                     result.setIsPremium(isPremiumInstance);
                 }
                 
-                Element showInGuiElement = XmlUtility.getElementByTagNameNS(oSImageElement2, "http://schemas.microsoft.com/windowsazure", "ShowInGui");
-                if (showInGuiElement != null && (showInGuiElement.getTextContent() == null || showInGuiElement.getTextContent().isEmpty() == true) == false) {
+                Element showInGuiElement2 = XmlUtility.getElementByTagNameNS(oSImageElement2, "http://schemas.microsoft.com/windowsazure", "ShowInGui");
+                if (showInGuiElement2 != null && (showInGuiElement2.getTextContent() == null || showInGuiElement2.getTextContent().isEmpty() == true) == false) {
                     boolean showInGuiInstance;
-                    showInGuiInstance = DatatypeConverter.parseBoolean(showInGuiElement.getTextContent().toLowerCase());
+                    showInGuiInstance = DatatypeConverter.parseBoolean(showInGuiElement2.getTextContent().toLowerCase());
                     result.setShowInGui(showInGuiInstance);
                 }
                 

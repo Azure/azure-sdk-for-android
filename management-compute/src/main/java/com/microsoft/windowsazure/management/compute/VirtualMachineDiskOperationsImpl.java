@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.compute;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.OperationStatus;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
@@ -30,7 +31,6 @@ import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.exception.ServiceException;
-import com.microsoft.windowsazure.management.compute.models.VirtualHardDiskHostCaching;
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineDataDiskCreateParameters;
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineDataDiskGetResponse;
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineDataDiskUpdateParameters;
@@ -191,12 +191,12 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -313,6 +313,9 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         if (parameters == null) {
             throw new NullPointerException("parameters");
         }
+        if (parameters.getHostCaching() == null) {
+            throw new NullPointerException("parameters.HostCaching");
+        }
         if (parameters.getMediaLinkUri() == null) {
             throw new NullPointerException("parameters.MediaLinkUri");
         }
@@ -350,7 +353,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -362,7 +365,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         requestDoc.appendChild(dataVirtualHardDiskElement);
         
         Element hostCachingElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-        hostCachingElement.appendChild(requestDoc.createTextNode(parameters.getHostCaching().toString()));
+        hostCachingElement.appendChild(requestDoc.createTextNode(parameters.getHostCaching()));
         dataVirtualHardDiskElement.appendChild(hostCachingElement);
         
         if (parameters.getLabel() != null) {
@@ -410,7 +413,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 201) {
+            if (statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -524,7 +527,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -566,7 +569,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -887,12 +890,12 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1007,12 +1010,12 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1034,8 +1037,8 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
             if (dataVirtualHardDiskElement != null) {
                 Element hostCachingElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDiskElement, "http://schemas.microsoft.com/windowsazure", "HostCaching");
                 if (hostCachingElement != null) {
-                    VirtualHardDiskHostCaching hostCachingInstance;
-                    hostCachingInstance = VirtualHardDiskHostCaching.valueOf(hostCachingElement.getTextContent());
+                    String hostCachingInstance;
+                    hostCachingInstance = hostCachingElement.getTextContent();
                     result.setHostCaching(hostCachingInstance);
                 }
                 
@@ -1164,12 +1167,12 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1370,12 +1373,12 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1579,6 +1582,9 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         if (parameters == null) {
             throw new NullPointerException("parameters");
         }
+        if (parameters.getHostCaching() == null) {
+            throw new NullPointerException("parameters.HostCaching");
+        }
         if (parameters.getMediaLinkUri() == null) {
             throw new NullPointerException("parameters.MediaLinkUri");
         }
@@ -1617,7 +1623,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -1629,7 +1635,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         requestDoc.appendChild(dataVirtualHardDiskElement);
         
         Element hostCachingElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-        hostCachingElement.appendChild(requestDoc.createTextNode(parameters.getHostCaching().toString()));
+        hostCachingElement.appendChild(requestDoc.createTextNode(parameters.getHostCaching()));
         dataVirtualHardDiskElement.appendChild(hostCachingElement);
         
         if (parameters.getLabel() != null) {
@@ -1671,7 +1677,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1788,7 +1794,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -1838,7 +1844,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

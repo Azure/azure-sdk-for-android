@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.compute;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.OperationStatus;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
@@ -41,6 +42,7 @@ import com.microsoft.windowsazure.management.compute.models.DomainJoinProvisioni
 import com.microsoft.windowsazure.management.compute.models.DomainJoinSettings;
 import com.microsoft.windowsazure.management.compute.models.EndpointAcl;
 import com.microsoft.windowsazure.management.compute.models.InputEndpoint;
+import com.microsoft.windowsazure.management.compute.models.LoadBalancer;
 import com.microsoft.windowsazure.management.compute.models.LoadBalancerProbe;
 import com.microsoft.windowsazure.management.compute.models.LoadBalancerProbeTransportProtocol;
 import com.microsoft.windowsazure.management.compute.models.OSVirtualHardDisk;
@@ -51,7 +53,6 @@ import com.microsoft.windowsazure.management.compute.models.SshSettingKeyPair;
 import com.microsoft.windowsazure.management.compute.models.SshSettingPublicKey;
 import com.microsoft.windowsazure.management.compute.models.SshSettings;
 import com.microsoft.windowsazure.management.compute.models.StoredCertificateSettings;
-import com.microsoft.windowsazure.management.compute.models.VirtualHardDiskHostCaching;
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineCaptureOSImageParameters;
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineCaptureVMImageParameters;
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineCreateDeploymentParameters;
@@ -311,7 +312,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -419,6 +420,12 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                         inputEndpointElement.appendChild(enableDirectServerReturnElement);
                     }
                     
+                    if (inputEndpointsItem.getLoadBalancerName() != null) {
+                        Element loadBalancerNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
+                        loadBalancerNameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancerName()));
+                        inputEndpointElement.appendChild(loadBalancerNameElement);
+                    }
+                    
                     if (inputEndpointsItem.getEndpointAcl() != null) {
                         Element endpointAclElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                         inputEndpointElement.appendChild(endpointAclElement);
@@ -474,6 +481,21 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                 Element staticVirtualNetworkIPAddressElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
                 staticVirtualNetworkIPAddressElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getStaticVirtualNetworkIPAddress()));
                 provisioningConfigurationElement.appendChild(staticVirtualNetworkIPAddressElement);
+            }
+            
+            if (parameters.getProvisioningConfiguration().getPublicIPs() != null) {
+                Element publicIPsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIPs");
+                for (ConfigurationSet.PublicIP publicIPsItem : parameters.getProvisioningConfiguration().getPublicIPs()) {
+                    Element publicIPElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIP");
+                    publicIPsSequenceElement.appendChild(publicIPElement);
+                    
+                    if (publicIPsItem.getName() != null) {
+                        Element nameElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
+                        nameElement2.appendChild(requestDoc.createTextNode(publicIPsItem.getName()));
+                        publicIPElement.appendChild(nameElement2);
+                    }
+                }
+                provisioningConfigurationElement.appendChild(publicIPsSequenceElement);
             }
             
             if (parameters.getProvisioningConfiguration().getComputerName() != null) {
@@ -695,7 +717,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -814,7 +836,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -860,7 +882,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1062,7 +1084,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -1172,6 +1194,12 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                             inputEndpointElement.appendChild(enableDirectServerReturnElement);
                         }
                         
+                        if (inputEndpointsItem.getLoadBalancerName() != null) {
+                            Element loadBalancerNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
+                            loadBalancerNameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancerName()));
+                            inputEndpointElement.appendChild(loadBalancerNameElement);
+                        }
+                        
                         if (inputEndpointsItem.getEndpointAcl() != null) {
                             Element endpointAclElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                             inputEndpointElement.appendChild(endpointAclElement);
@@ -1227,6 +1255,21 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                     Element staticVirtualNetworkIPAddressElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
                     staticVirtualNetworkIPAddressElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getStaticVirtualNetworkIPAddress()));
                     configurationSetElement.appendChild(staticVirtualNetworkIPAddressElement);
+                }
+                
+                if (configurationSetsItem.getPublicIPs() != null) {
+                    Element publicIPsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIPs");
+                    for (ConfigurationSet.PublicIP publicIPsItem : configurationSetsItem.getPublicIPs()) {
+                        Element publicIPElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIP");
+                        publicIPsSequenceElement.appendChild(publicIPElement);
+                        
+                        if (publicIPsItem.getName() != null) {
+                            Element nameElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
+                            nameElement2.appendChild(requestDoc.createTextNode(publicIPsItem.getName()));
+                            publicIPElement.appendChild(nameElement2);
+                        }
+                    }
+                    configurationSetElement.appendChild(publicIPsSequenceElement);
                 }
                 
                 if (configurationSetsItem.getComputerName() != null) {
@@ -1429,12 +1472,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             persistentVMRoleElement.appendChild(configurationSetsSequenceElement);
         }
         
-        if (parameters.getAvailabilitySetName() != null) {
-            Element availabilitySetNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AvailabilitySetName");
-            availabilitySetNameElement.appendChild(requestDoc.createTextNode(parameters.getAvailabilitySetName()));
-            persistentVMRoleElement.appendChild(availabilitySetNameElement);
-        }
-        
         if (parameters.getResourceExtensionReferences() != null) {
             Element resourceExtensionReferencesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReferences");
             for (ResourceExtensionReference resourceExtensionReferencesItem : parameters.getResourceExtensionReferences()) {
@@ -1454,9 +1491,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                 }
                 
                 if (resourceExtensionReferencesItem.getName() != null) {
-                    Element nameElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                    nameElement2.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getName()));
-                    resourceExtensionReferenceElement.appendChild(nameElement2);
+                    Element nameElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
+                    nameElement3.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getName()));
+                    resourceExtensionReferenceElement.appendChild(nameElement3);
                 }
                 
                 if (resourceExtensionReferencesItem.getVersion() != null) {
@@ -1507,6 +1544,18 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             persistentVMRoleElement.appendChild(vMImageNameElement);
         }
         
+        if (parameters.getMediaLocation() != null) {
+            Element mediaLocationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MediaLocation");
+            mediaLocationElement.appendChild(requestDoc.createTextNode(parameters.getMediaLocation().toString()));
+            persistentVMRoleElement.appendChild(mediaLocationElement);
+        }
+        
+        if (parameters.getAvailabilitySetName() != null) {
+            Element availabilitySetNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AvailabilitySetName");
+            availabilitySetNameElement.appendChild(requestDoc.createTextNode(parameters.getAvailabilitySetName()));
+            persistentVMRoleElement.appendChild(availabilitySetNameElement);
+        }
+        
         if (parameters.getDataVirtualHardDisks() != null) {
             Element dataVirtualHardDisksSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisks");
             for (DataVirtualHardDisk dataVirtualHardDisksItem : parameters.getDataVirtualHardDisks()) {
@@ -1515,7 +1564,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                 
                 if (dataVirtualHardDisksItem.getHostCaching() != null) {
                     Element hostCachingElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-                    hostCachingElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getHostCaching().toString()));
+                    hostCachingElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getHostCaching()));
                     dataVirtualHardDiskElement.appendChild(hostCachingElement);
                 }
                 
@@ -1564,7 +1613,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             
             if (parameters.getOSVirtualHardDisk().getHostCaching() != null) {
                 Element hostCachingElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-                hostCachingElement2.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getHostCaching().toString()));
+                hostCachingElement2.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getHostCaching()));
                 oSVirtualHardDiskElement.appendChild(hostCachingElement2);
             }
             
@@ -1624,7 +1673,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1825,7 +1874,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -1962,6 +2011,12 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                                 inputEndpointElement.appendChild(enableDirectServerReturnElement);
                             }
                             
+                            if (inputEndpointsItem.getLoadBalancerName() != null) {
+                                Element loadBalancerNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
+                                loadBalancerNameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancerName()));
+                                inputEndpointElement.appendChild(loadBalancerNameElement);
+                            }
+                            
                             if (inputEndpointsItem.getEndpointAcl() != null) {
                                 Element endpointAclElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                                 inputEndpointElement.appendChild(endpointAclElement);
@@ -2017,6 +2072,21 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                         Element staticVirtualNetworkIPAddressElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
                         staticVirtualNetworkIPAddressElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getStaticVirtualNetworkIPAddress()));
                         configurationSetElement.appendChild(staticVirtualNetworkIPAddressElement);
+                    }
+                    
+                    if (configurationSetsItem.getPublicIPs() != null) {
+                        Element publicIPsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIPs");
+                        for (ConfigurationSet.PublicIP publicIPsItem : configurationSetsItem.getPublicIPs()) {
+                            Element publicIPElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIP");
+                            publicIPsSequenceElement.appendChild(publicIPElement);
+                            
+                            if (publicIPsItem.getName() != null) {
+                                Element nameElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
+                                nameElement3.appendChild(requestDoc.createTextNode(publicIPsItem.getName()));
+                                publicIPElement.appendChild(nameElement3);
+                            }
+                        }
+                        configurationSetElement.appendChild(publicIPsSequenceElement);
                     }
                     
                     if (configurationSetsItem.getComputerName() != null) {
@@ -2238,9 +2308,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                     }
                     
                     if (resourceExtensionReferencesItem.getName() != null) {
-                        Element nameElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                        nameElement3.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getName()));
-                        resourceExtensionReferenceElement.appendChild(nameElement3);
+                        Element nameElement4 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
+                        nameElement4.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getName()));
+                        resourceExtensionReferenceElement.appendChild(nameElement4);
                     }
                     
                     if (resourceExtensionReferencesItem.getVersion() != null) {
@@ -2291,6 +2361,12 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                 roleElement.appendChild(vMImageNameElement);
             }
             
+            if (roleListItem.getMediaLocation() != null) {
+                Element mediaLocationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MediaLocation");
+                mediaLocationElement.appendChild(requestDoc.createTextNode(roleListItem.getMediaLocation().toString()));
+                roleElement.appendChild(mediaLocationElement);
+            }
+            
             if (roleListItem.getAvailabilitySetName() != null) {
                 Element availabilitySetNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AvailabilitySetName");
                 availabilitySetNameElement.appendChild(requestDoc.createTextNode(roleListItem.getAvailabilitySetName()));
@@ -2305,7 +2381,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                     
                     if (dataVirtualHardDisksItem.getHostCaching() != null) {
                         Element hostCachingElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-                        hostCachingElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getHostCaching().toString()));
+                        hostCachingElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getHostCaching()));
                         dataVirtualHardDiskElement.appendChild(hostCachingElement);
                     }
                     
@@ -2360,7 +2436,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                 
                 if (roleListItem.getOSVirtualHardDisk().getHostCaching() != null) {
                     Element hostCachingElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-                    hostCachingElement2.appendChild(requestDoc.createTextNode(roleListItem.getOSVirtualHardDisk().getHostCaching().toString()));
+                    hostCachingElement2.appendChild(requestDoc.createTextNode(roleListItem.getOSVirtualHardDisk().getHostCaching()));
                     oSVirtualHardDiskElement.appendChild(hostCachingElement2);
                 }
                 
@@ -2401,16 +2477,16 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                 roleElement.appendChild(roleSizeElement);
             }
             
-            if (roleListItem.isProvisionGuestAgent() != null) {
-                Element provisionGuestAgentElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ProvisionGuestAgent");
-                provisionGuestAgentElement.appendChild(requestDoc.createTextNode(Boolean.toString(roleListItem.isProvisionGuestAgent()).toLowerCase()));
-                roleElement.appendChild(provisionGuestAgentElement);
-            }
-            
             if (roleListItem.getDefaultWinRmCertificateThumbprint() != null) {
                 Element defaultWinRmCertificateThumbprintElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DefaultWinRmCertificateThumbprint");
                 defaultWinRmCertificateThumbprintElement.appendChild(requestDoc.createTextNode(roleListItem.getDefaultWinRmCertificateThumbprint()));
                 roleElement.appendChild(defaultWinRmCertificateThumbprintElement);
+            }
+            
+            if (roleListItem.isProvisionGuestAgent() != null) {
+                Element provisionGuestAgentElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ProvisionGuestAgent");
+                provisionGuestAgentElement.appendChild(requestDoc.createTextNode(Boolean.toString(roleListItem.isProvisionGuestAgent()).toLowerCase()));
+                roleElement.appendChild(provisionGuestAgentElement);
             }
         }
         deploymentElement.appendChild(roleListSequenceElement);
@@ -2432,9 +2508,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                     dnsServersSequenceElement.appendChild(dnsServerElement);
                     
                     if (dnsServersItem.getName() != null) {
-                        Element nameElement4 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                        nameElement4.appendChild(requestDoc.createTextNode(dnsServersItem.getName()));
-                        dnsServerElement.appendChild(nameElement4);
+                        Element nameElement5 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
+                        nameElement5.appendChild(requestDoc.createTextNode(dnsServersItem.getName()));
+                        dnsServerElement.appendChild(nameElement5);
                     }
                     
                     if (dnsServersItem.getAddress() != null) {
@@ -2453,6 +2529,44 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             deploymentElement.appendChild(reservedIPNameElement);
         }
         
+        if (parameters.getLoadBalancers() != null) {
+            Element loadBalancersSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancers");
+            for (LoadBalancer loadBalancersItem : parameters.getLoadBalancers()) {
+                Element loadBalancerElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancer");
+                loadBalancersSequenceElement.appendChild(loadBalancerElement);
+                
+                if (loadBalancersItem.getName() != null) {
+                    Element nameElement6 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
+                    nameElement6.appendChild(requestDoc.createTextNode(loadBalancersItem.getName()));
+                    loadBalancerElement.appendChild(nameElement6);
+                }
+                
+                if (loadBalancersItem.getFrontendIPConfiguration() != null) {
+                    Element frontendIpConfigurationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "FrontendIpConfiguration");
+                    loadBalancerElement.appendChild(frontendIpConfigurationElement);
+                    
+                    if (loadBalancersItem.getFrontendIPConfiguration().getType() != null) {
+                        Element typeElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Type");
+                        typeElement2.appendChild(requestDoc.createTextNode(loadBalancersItem.getFrontendIPConfiguration().getType()));
+                        frontendIpConfigurationElement.appendChild(typeElement2);
+                    }
+                    
+                    if (loadBalancersItem.getFrontendIPConfiguration().getSubnetName() != null) {
+                        Element subnetNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SubnetName");
+                        subnetNameElement.appendChild(requestDoc.createTextNode(loadBalancersItem.getFrontendIPConfiguration().getSubnetName()));
+                        frontendIpConfigurationElement.appendChild(subnetNameElement);
+                    }
+                    
+                    if (loadBalancersItem.getFrontendIPConfiguration().getStaticVirtualNetworkIPAddress() != null) {
+                        Element staticVirtualNetworkIPAddressElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
+                        staticVirtualNetworkIPAddressElement2.appendChild(requestDoc.createTextNode(loadBalancersItem.getFrontendIPConfiguration().getStaticVirtualNetworkIPAddress().getHostAddress()));
+                        frontendIpConfigurationElement.appendChild(staticVirtualNetworkIPAddressElement2);
+                    }
+                }
+            }
+            deploymentElement.appendChild(loadBalancersSequenceElement);
+        }
+        
         DOMSource domSource = new DOMSource(requestDoc);
         StringWriter stringWriter = new StringWriter();
         StreamResult streamResult = new StreamResult(stringWriter);
@@ -2466,7 +2580,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -2582,12 +2696,12 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -2698,7 +2812,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = "<RestartRoleOperation xmlns=\"http://schemas.microsoft.com/windowsazure\"><OperationType>RestartRoleOperation</OperationType></RestartRoleOperation>";
@@ -2708,7 +2822,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -2829,7 +2943,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -2861,7 +2975,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -2978,7 +3092,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -3022,7 +3136,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -3131,7 +3245,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = "<StartRoleOperation xmlns=\"http://schemas.microsoft.com/windowsazure\"><OperationType>StartRoleOperation</OperationType></StartRoleOperation>";
@@ -3141,7 +3255,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -3258,7 +3372,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -3296,7 +3410,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -3489,7 +3603,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -3599,6 +3713,12 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                             inputEndpointElement.appendChild(enableDirectServerReturnElement);
                         }
                         
+                        if (inputEndpointsItem.getLoadBalancerName() != null) {
+                            Element loadBalancerNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
+                            loadBalancerNameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancerName()));
+                            inputEndpointElement.appendChild(loadBalancerNameElement);
+                        }
+                        
                         if (inputEndpointsItem.getEndpointAcl() != null) {
                             Element endpointAclElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                             inputEndpointElement.appendChild(endpointAclElement);
@@ -3654,6 +3774,21 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                     Element staticVirtualNetworkIPAddressElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
                     staticVirtualNetworkIPAddressElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getStaticVirtualNetworkIPAddress()));
                     configurationSetElement.appendChild(staticVirtualNetworkIPAddressElement);
+                }
+                
+                if (configurationSetsItem.getPublicIPs() != null) {
+                    Element publicIPsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIPs");
+                    for (ConfigurationSet.PublicIP publicIPsItem : configurationSetsItem.getPublicIPs()) {
+                        Element publicIPElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIP");
+                        publicIPsSequenceElement.appendChild(publicIPElement);
+                        
+                        if (publicIPsItem.getName() != null) {
+                            Element nameElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
+                            nameElement2.appendChild(requestDoc.createTextNode(publicIPsItem.getName()));
+                            publicIPElement.appendChild(nameElement2);
+                        }
+                    }
+                    configurationSetElement.appendChild(publicIPsSequenceElement);
                 }
                 
                 if (configurationSetsItem.getComputerName() != null) {
@@ -3881,9 +4016,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                 }
                 
                 if (resourceExtensionReferencesItem.getName() != null) {
-                    Element nameElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                    nameElement2.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getName()));
-                    resourceExtensionReferenceElement.appendChild(nameElement2);
+                    Element nameElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
+                    nameElement3.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getName()));
+                    resourceExtensionReferenceElement.appendChild(nameElement3);
                 }
                 
                 if (resourceExtensionReferencesItem.getVersion() != null) {
@@ -3936,7 +4071,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                 
                 if (dataVirtualHardDisksItem.getHostCaching() != null) {
                     Element hostCachingElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-                    hostCachingElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getHostCaching().toString()));
+                    hostCachingElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getHostCaching()));
                     dataVirtualHardDiskElement.appendChild(hostCachingElement);
                 }
                 
@@ -3984,7 +4119,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         if (parameters.getOSVirtualHardDisk().getHostCaching() != null) {
             Element hostCachingElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-            hostCachingElement2.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getHostCaching().toString()));
+            hostCachingElement2.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getHostCaching()));
             oSVirtualHardDiskElement.appendChild(hostCachingElement2);
         }
         
@@ -4043,7 +4178,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -4171,7 +4306,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -4258,6 +4393,12 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                     inputEndpointElement.appendChild(enableDirectServerReturnElement);
                 }
                 
+                if (loadBalancedEndpointsItem.getLoadBalancerName() != null) {
+                    Element loadBalancerNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
+                    loadBalancerNameElement.appendChild(requestDoc.createTextNode(loadBalancedEndpointsItem.getLoadBalancerName()));
+                    inputEndpointElement.appendChild(loadBalancerNameElement);
+                }
+                
                 Element endpointAclElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                 inputEndpointElement.appendChild(endpointAclElement);
                 
@@ -4309,7 +4450,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -5036,12 +5177,12 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -5214,6 +5355,13 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                                     inputEndpointInstance.setEnableDirectServerReturn(enableDirectServerReturnInstance);
                                 }
                                 
+                                Element loadBalancerNameElement = XmlUtility.getElementByTagNameNS(inputEndpointsElement, "http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
+                                if (loadBalancerNameElement != null) {
+                                    String loadBalancerNameInstance;
+                                    loadBalancerNameInstance = loadBalancerNameElement.getTextContent();
+                                    inputEndpointInstance.setLoadBalancerName(loadBalancerNameInstance);
+                                }
+                                
                                 Element endpointAclElement = XmlUtility.getElementByTagNameNS(inputEndpointsElement, "http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                                 if (endpointAclElement != null) {
                                     EndpointAcl endpointAclInstance = new EndpointAcl();
@@ -5272,6 +5420,22 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                             String staticVirtualNetworkIPAddressInstance;
                             staticVirtualNetworkIPAddressInstance = staticVirtualNetworkIPAddressElement.getTextContent();
                             configurationSetInstance.setStaticVirtualNetworkIPAddress(staticVirtualNetworkIPAddressInstance);
+                        }
+                        
+                        Element publicIPsSequenceElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "PublicIPs");
+                        if (publicIPsSequenceElement != null) {
+                            for (int i5 = 0; i5 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(publicIPsSequenceElement, "http://schemas.microsoft.com/windowsazure", "PublicIP").size(); i5 = i5 + 1) {
+                                org.w3c.dom.Element publicIPsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(publicIPsSequenceElement, "http://schemas.microsoft.com/windowsazure", "PublicIP").get(i5));
+                                ConfigurationSet.PublicIP publicIPInstance = new ConfigurationSet.PublicIP();
+                                configurationSetInstance.getPublicIPs().add(publicIPInstance);
+                                
+                                Element nameElement2 = XmlUtility.getElementByTagNameNS(publicIPsElement, "http://schemas.microsoft.com/windowsazure", "Name");
+                                if (nameElement2 != null) {
+                                    String nameInstance2;
+                                    nameInstance2 = nameElement2.getTextContent();
+                                    publicIPInstance.setName(nameInstance2);
+                                }
+                            }
                         }
                         
                         Element computerNameElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "ComputerName");
@@ -5371,8 +5535,8 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                         
                         Element storedCertificateSettingsSequenceElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "StoredCertificateSettings");
                         if (storedCertificateSettingsSequenceElement != null) {
-                            for (int i5 = 0; i5 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(storedCertificateSettingsSequenceElement, "http://schemas.microsoft.com/windowsazure", "CertificateSetting").size(); i5 = i5 + 1) {
-                                org.w3c.dom.Element storedCertificateSettingsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(storedCertificateSettingsSequenceElement, "http://schemas.microsoft.com/windowsazure", "CertificateSetting").get(i5));
+                            for (int i6 = 0; i6 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(storedCertificateSettingsSequenceElement, "http://schemas.microsoft.com/windowsazure", "CertificateSetting").size(); i6 = i6 + 1) {
+                                org.w3c.dom.Element storedCertificateSettingsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(storedCertificateSettingsSequenceElement, "http://schemas.microsoft.com/windowsazure", "CertificateSetting").get(i6));
                                 StoredCertificateSettings certificateSettingInstance = new StoredCertificateSettings();
                                 configurationSetInstance.getStoredCertificateSettings().add(certificateSettingInstance);
                                 
@@ -5403,8 +5567,8 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                             
                             Element listenersSequenceElement = XmlUtility.getElementByTagNameNS(winRMElement, "http://schemas.microsoft.com/windowsazure", "Listeners");
                             if (listenersSequenceElement != null) {
-                                for (int i6 = 0; i6 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(listenersSequenceElement, "http://schemas.microsoft.com/windowsazure", "Listener").size(); i6 = i6 + 1) {
-                                    org.w3c.dom.Element listenersElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(listenersSequenceElement, "http://schemas.microsoft.com/windowsazure", "Listener").get(i6));
+                                for (int i7 = 0; i7 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(listenersSequenceElement, "http://schemas.microsoft.com/windowsazure", "Listener").size(); i7 = i7 + 1) {
+                                    org.w3c.dom.Element listenersElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(listenersSequenceElement, "http://schemas.microsoft.com/windowsazure", "Listener").get(i7));
                                     WindowsRemoteManagementListener listenerInstance = new WindowsRemoteManagementListener();
                                     winRMInstance.getListeners().add(listenerInstance);
                                     
@@ -5467,8 +5631,8 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                             
                             Element publicKeysSequenceElement = XmlUtility.getElementByTagNameNS(sSHElement, "http://schemas.microsoft.com/windowsazure", "PublicKeys");
                             if (publicKeysSequenceElement != null) {
-                                for (int i7 = 0; i7 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(publicKeysSequenceElement, "http://schemas.microsoft.com/windowsazure", "PublicKey").size(); i7 = i7 + 1) {
-                                    org.w3c.dom.Element publicKeysElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(publicKeysSequenceElement, "http://schemas.microsoft.com/windowsazure", "PublicKey").get(i7));
+                                for (int i8 = 0; i8 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(publicKeysSequenceElement, "http://schemas.microsoft.com/windowsazure", "PublicKey").size(); i8 = i8 + 1) {
+                                    org.w3c.dom.Element publicKeysElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(publicKeysSequenceElement, "http://schemas.microsoft.com/windowsazure", "PublicKey").get(i8));
                                     SshSettingPublicKey publicKeyInstance = new SshSettingPublicKey();
                                     sSHInstance.getPublicKeys().add(publicKeyInstance);
                                     
@@ -5490,8 +5654,8 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                             
                             Element keyPairsSequenceElement = XmlUtility.getElementByTagNameNS(sSHElement, "http://schemas.microsoft.com/windowsazure", "KeyPairs");
                             if (keyPairsSequenceElement != null) {
-                                for (int i8 = 0; i8 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(keyPairsSequenceElement, "http://schemas.microsoft.com/windowsazure", "KeyPair").size(); i8 = i8 + 1) {
-                                    org.w3c.dom.Element keyPairsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(keyPairsSequenceElement, "http://schemas.microsoft.com/windowsazure", "KeyPair").get(i8));
+                                for (int i9 = 0; i9 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(keyPairsSequenceElement, "http://schemas.microsoft.com/windowsazure", "KeyPair").size(); i9 = i9 + 1) {
+                                    org.w3c.dom.Element keyPairsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(keyPairsSequenceElement, "http://schemas.microsoft.com/windowsazure", "KeyPair").get(i9));
                                     SshSettingKeyPair keyPairInstance = new SshSettingKeyPair();
                                     sSHInstance.getKeyPairs().add(keyPairInstance);
                                     
@@ -5523,15 +5687,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                 
                 Element dataVirtualHardDisksSequenceElement = XmlUtility.getElementByTagNameNS(persistentVMRoleElement, "http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisks");
                 if (dataVirtualHardDisksSequenceElement != null) {
-                    for (int i9 = 0; i9 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(dataVirtualHardDisksSequenceElement, "http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk").size(); i9 = i9 + 1) {
-                        org.w3c.dom.Element dataVirtualHardDisksElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(dataVirtualHardDisksSequenceElement, "http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk").get(i9));
+                    for (int i10 = 0; i10 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(dataVirtualHardDisksSequenceElement, "http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk").size(); i10 = i10 + 1) {
+                        org.w3c.dom.Element dataVirtualHardDisksElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(dataVirtualHardDisksSequenceElement, "http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk").get(i10));
                         DataVirtualHardDisk dataVirtualHardDiskInstance = new DataVirtualHardDisk();
                         result.getDataVirtualHardDisks().add(dataVirtualHardDiskInstance);
                         
                         Element hostCachingElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDisksElement, "http://schemas.microsoft.com/windowsazure", "HostCaching");
-                        if (hostCachingElement != null && (hostCachingElement.getTextContent() == null || hostCachingElement.getTextContent().isEmpty() == true) == false) {
-                            VirtualHardDiskHostCaching hostCachingInstance;
-                            hostCachingInstance = VirtualHardDiskHostCaching.valueOf(hostCachingElement.getTextContent());
+                        if (hostCachingElement != null) {
+                            String hostCachingInstance;
+                            hostCachingInstance = hostCachingElement.getTextContent();
                             dataVirtualHardDiskInstance.setHostCaching(hostCachingInstance);
                         }
                         
@@ -5585,9 +5749,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                     result.setOSVirtualHardDisk(oSVirtualHardDiskInstance);
                     
                     Element hostCachingElement2 = XmlUtility.getElementByTagNameNS(oSVirtualHardDiskElement, "http://schemas.microsoft.com/windowsazure", "HostCaching");
-                    if (hostCachingElement2 != null && (hostCachingElement2.getTextContent() == null || hostCachingElement2.getTextContent().isEmpty() == true) == false) {
-                        VirtualHardDiskHostCaching hostCachingInstance2;
-                        hostCachingInstance2 = VirtualHardDiskHostCaching.valueOf(hostCachingElement2.getTextContent());
+                    if (hostCachingElement2 != null) {
+                        String hostCachingInstance2;
+                        hostCachingInstance2 = hostCachingElement2.getTextContent();
                         oSVirtualHardDiskInstance.setHostCaching(hostCachingInstance2);
                     }
                     
@@ -5723,12 +5887,12 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

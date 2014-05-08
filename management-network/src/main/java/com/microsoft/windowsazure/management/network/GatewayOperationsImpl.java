@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.network;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.StreamUtils;
@@ -43,6 +44,7 @@ import com.microsoft.windowsazure.management.network.models.GatewayListSupported
 import com.microsoft.windowsazure.management.network.models.GatewayOperationResponse;
 import com.microsoft.windowsazure.management.network.models.GatewayOperationStatus;
 import com.microsoft.windowsazure.management.network.models.GatewayResetSharedKeyParameters;
+import com.microsoft.windowsazure.management.network.models.GatewaySetSharedKeyParameters;
 import com.microsoft.windowsazure.management.network.models.GatewayType;
 import com.microsoft.windowsazure.tracing.ClientRequestTrackingHandler;
 import com.microsoft.windowsazure.tracing.CloudTracing;
@@ -114,7 +116,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @param localNetworkSiteName Required. The name of the site to connect to.
     * @param parameters Required. Parameters supplied to the Begin Connect
     * Disconnect Or Testing Gateway operation.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -151,7 +153,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -199,7 +201,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -233,7 +235,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -285,7 +287,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * gateway.
     * @param parameters Required. Parameters supplied to the Begin Creating
     * Virtual Network Gateway operation.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -319,7 +321,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -363,7 +365,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -391,7 +393,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 201) {
+            if (statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -440,7 +442,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * more information)
     *
     * @param networkName Required. The name of the virtual network.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -469,7 +471,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -509,12 +511,12 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -563,7 +565,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * more information)
     *
     * @param networkName Required. The name of the virtual network in Azure.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -592,7 +594,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -632,7 +634,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = "<" + "?" + "xml version=\"1.0\" encoding=\"utf-8\"" + "?" + "><UpdateGateway xmlns=\"http://schemas.microsoft.com/windowsazure\"><UpdateGatewayOperation>Failover</UpdateGatewayOperation></UpdateGateway>";
@@ -642,7 +644,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -696,7 +698,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @param localNetworkName Required. The name of the local network.
     * @param parameters Required. Parameters supplied to the Begin Virtual
     * Network Gateway Reset Shared Key request.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -732,7 +734,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -780,7 +782,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -808,7 +810,175 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 202) {
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
+            }
+            
+            // Create Result
+            GatewayOperationResponse result = null;
+            // Deserialize Response
+            InputStream responseContent = httpRequest.getInputStream();
+            result = new GatewayOperationResponse();
+            DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
+            documentBuilderFactory2.setNamespaceAware(true);
+            DocumentBuilder documentBuilder2 = documentBuilderFactory2.newDocumentBuilder();
+            Document responseDoc = documentBuilder2.parse(new BOMInputStream(responseContent));
+            
+            Element gatewayOperationAsyncResponseElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "GatewayOperationAsyncResponse");
+            if (gatewayOperationAsyncResponseElement != null) {
+                Element idElement = XmlUtility.getElementByTagNameNS(gatewayOperationAsyncResponseElement, "http://schemas.microsoft.com/windowsazure", "ID");
+                if (idElement != null) {
+                    String idInstance;
+                    idInstance = idElement.getTextContent();
+                    result.setOperationId(idInstance);
+                }
+            }
+            
+            result.setStatusCode(statusCode);
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
+            
+            if (shouldTrace) {
+                CloudTracing.exit(invocationId, result);
+            }
+            return result;
+        } finally {
+            if (httpRequest != null) {
+                httpRequest.disconnect();
+            }
+        }
+    }
+    
+    /**
+    * The Begin Set Virtual Network Gateway Shared Key operation sets the
+    * shared key on the virtual network gateway for the specified virtual
+    * network connection to the specified local network in Azure.  (see
+    * http://msdn.microsoft.com/en-us/library/windowsazure/jj154114.aspx for
+    * more information)
+    *
+    * @param networkName Required. The name of the virtual network for this
+    * gateway.
+    * @param localNetworkName Required. The name of the local network.
+    * @param parameters Required. Parameters supplied to the Begin Virtual
+    * Network Gateway Set Shared Key request.
+    * @return A standard service response including an HTTP status code and
+    * request ID.
+    */
+    @Override
+    public Future<GatewayOperationResponse> beginSetSharedKeyAsync(final String networkName, final String localNetworkName, final GatewaySetSharedKeyParameters parameters) {
+        return this.getClient().getExecutorService().submit(new Callable<GatewayOperationResponse>() { 
+            @Override
+            public GatewayOperationResponse call() throws Exception {
+                return beginSetSharedKey(networkName, localNetworkName, parameters);
+            }
+         });
+    }
+    
+    /**
+    * The Begin Set Virtual Network Gateway Shared Key operation sets the
+    * shared key on the virtual network gateway for the specified virtual
+    * network connection to the specified local network in Azure.  (see
+    * http://msdn.microsoft.com/en-us/library/windowsazure/jj154114.aspx for
+    * more information)
+    *
+    * @param networkName Required. The name of the virtual network for this
+    * gateway.
+    * @param localNetworkName Required. The name of the local network.
+    * @param parameters Required. Parameters supplied to the Begin Virtual
+    * Network Gateway Set Shared Key request.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
+    * @throws ParserConfigurationException Thrown if there was an error
+    * configuring the parser for the response body.
+    * @throws SAXException Thrown if there was an error parsing the response
+    * body.
+    * @throws TransformerException Thrown if there was an error creating the
+    * DOM transformer.
+    * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
+    * @return A standard service response including an HTTP status code and
+    * request ID.
+    */
+    @Override
+    public GatewayOperationResponse beginSetSharedKey(String networkName, String localNetworkName, GatewaySetSharedKeyParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+        // Validate
+        if (networkName == null) {
+            throw new NullPointerException("networkName");
+        }
+        if (localNetworkName == null) {
+            throw new NullPointerException("localNetworkName");
+        }
+        if (parameters == null) {
+            throw new NullPointerException("parameters");
+        }
+        
+        // Tracing
+        boolean shouldTrace = CloudTracing.getIsEnabled();
+        String invocationId = null;
+        if (shouldTrace) {
+            invocationId = Long.toString(CloudTracing.getNextInvocationId());
+            HashMap<String, Object> tracingParameters = new HashMap<String, Object>();
+            tracingParameters.put("networkName", networkName);
+            tracingParameters.put("localNetworkName", localNetworkName);
+            tracingParameters.put("parameters", parameters);
+            CloudTracing.enter(invocationId, this, "beginSetSharedKeyAsync", tracingParameters);
+        }
+        
+        // Construct URL
+        String baseUrl = this.getClient().getBaseUri().toString();
+        String url = "/" + (this.getClient().getCredentials().getSubscriptionId() != null ? this.getClient().getCredentials().getSubscriptionId().trim() : "") + "/services/networking/" + networkName.trim() + "/gateway/connection/" + localNetworkName.trim() + "/sharedkey";
+        // Trim '/' character from the end of baseUrl and beginning of url.
+        if (baseUrl.charAt(baseUrl.length() - 1) == '/') {
+            baseUrl = baseUrl.substring(0, (baseUrl.length() - 1) + 0);
+        }
+        if (url.charAt(0) == '/') {
+            url = url.substring(1);
+        }
+        url = baseUrl + "/" + url;
+        
+        // Create HTTP transport objects
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
+        
+        // Set Headers
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
+        
+        // Serialize Request
+        String requestContent = null;
+        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
+        Document requestDoc = documentBuilder.newDocument();
+        
+        Element sharedKeyElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SharedKey");
+        requestDoc.appendChild(sharedKeyElement);
+        
+        if (parameters.getValue() != null) {
+            Element valueElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Value");
+            valueElement.appendChild(requestDoc.createTextNode(parameters.getValue()));
+            sharedKeyElement.appendChild(valueElement);
+        }
+        
+        DOMSource domSource = new DOMSource(requestDoc);
+        StringWriter stringWriter = new StringWriter();
+        StreamResult streamResult = new StreamResult(stringWriter);
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+        transformer.transform(domSource, streamResult);
+        requestContent = stringWriter.toString();
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        
+        // Send Request
+        try {
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1311,7 +1481,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * gateway.
     * @param parameters Required. Parameters supplied to the Generate VPN
     * Client Package operation.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -1345,7 +1515,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -1389,7 +1559,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Serialize Request
         String requestContent = null;
@@ -1417,7 +1587,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 201) {
+            if (statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1467,7 +1637,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     *
     * @param networkName Required. The name of the virtual network for this
     * gateway.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -1497,7 +1667,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @return A standard storage response including an HTTP status code and
+    * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
@@ -1536,12 +1706,12 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1721,12 +1891,12 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1844,12 +2014,12 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -2008,12 +2178,12 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -2132,12 +2302,12 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -2322,12 +2492,12 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -2488,6 +2658,121 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         }
         
         GatewayOperationResponse response = client2.getGatewaysOperations().beginResetSharedKeyAsync(networkName, localNetworkName, parameters).get();
+        GatewayGetOperationStatusResponse result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != GatewayOperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != GatewayOperationStatus.Successful) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+    * The Set Virtual Network Gateway Shared Key operation sets the shared key
+    * on the virtual network gateway for the specified virtual network
+    * connection to the specified local network in Azure.  (see
+    * http://msdn.microsoft.com/en-us/library/windowsazure/jj154114.aspx for
+    * more information)
+    *
+    * @param networkName Required. The name of the virtual network for this
+    * gateway.
+    * @param localNetworkName Required. The name of the local network.
+    * @param parameters Required. The parameters to the Virtual Network Gateway
+    * Set Shared Key request.
+    * @return The response body contains the status of the specified
+    * asynchronous operation, indicating whether it has succeeded, is in
+    * progress, or has failed. Note that this status is distinct from the HTTP
+    * status code returned for the Get Operation Status operation itself. If
+    * the asynchronous operation succeeded, the response body includes the
+    * HTTP status code for the successful request. If the asynchronous
+    * operation failed, the response body includes the HTTP status code for
+    * the failed request, and also includes error information regarding the
+    * failure.
+    */
+    @Override
+    public Future<GatewayGetOperationStatusResponse> setSharedKeyAsync(final String networkName, final String localNetworkName, final GatewaySetSharedKeyParameters parameters) {
+        return this.getClient().getExecutorService().submit(new Callable<GatewayGetOperationStatusResponse>() { 
+            @Override
+            public GatewayGetOperationStatusResponse call() throws Exception {
+                return setSharedKey(networkName, localNetworkName, parameters);
+            }
+         });
+    }
+    
+    /**
+    * The Set Virtual Network Gateway Shared Key operation sets the shared key
+    * on the virtual network gateway for the specified virtual network
+    * connection to the specified local network in Azure.  (see
+    * http://msdn.microsoft.com/en-us/library/windowsazure/jj154114.aspx for
+    * more information)
+    *
+    * @param networkName Required. The name of the virtual network for this
+    * gateway.
+    * @param localNetworkName Required. The name of the local network.
+    * @param parameters Required. The parameters to the Virtual Network Gateway
+    * Set Shared Key request.
+    * @throws InterruptedException Thrown when a thread is waiting, sleeping,
+    * or otherwise occupied, and the thread is interrupted, either before or
+    * during the activity. Occasionally a method may wish to test whether the
+    * current thread has been interrupted, and if so, to immediately throw
+    * this exception. The following code can be used to achieve this effect:
+    * @throws ExecutionException Thrown when attempting to retrieve the result
+    * of a task that aborted by throwing an exception. This exception can be
+    * inspected using the Throwable.getCause() method.
+    * @throws ServiceException Thrown if the server returned an error for the
+    * request.
+    * @return The response body contains the status of the specified
+    * asynchronous operation, indicating whether it has succeeded, is in
+    * progress, or has failed. Note that this status is distinct from the HTTP
+    * status code returned for the Get Operation Status operation itself. If
+    * the asynchronous operation succeeded, the response body includes the
+    * HTTP status code for the successful request. If the asynchronous
+    * operation failed, the response body includes the HTTP status code for
+    * the failed request, and also includes error information regarding the
+    * failure.
+    */
+    @Override
+    public GatewayGetOperationStatusResponse setSharedKey(String networkName, String localNetworkName, GatewaySetSharedKeyParameters parameters) throws InterruptedException, ExecutionException, ServiceException {
+        NetworkManagementClient client2 = this.getClient();
+        boolean shouldTrace = CloudTracing.getIsEnabled();
+        String invocationId = null;
+        if (shouldTrace) {
+            invocationId = Long.toString(CloudTracing.getNextInvocationId());
+            HashMap<String, Object> tracingParameters = new HashMap<String, Object>();
+            tracingParameters.put("networkName", networkName);
+            tracingParameters.put("localNetworkName", localNetworkName);
+            tracingParameters.put("parameters", parameters);
+            CloudTracing.enter(invocationId, this, "setSharedKeyAsync", tracingParameters);
+        }
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        GatewayOperationResponse response = client2.getGatewaysOperations().beginSetSharedKeyAsync(networkName, localNetworkName, parameters).get();
         GatewayGetOperationStatusResponse result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
         int delayInSeconds = 30;
         while ((result.getStatus() != GatewayOperationStatus.InProgress) == false) {

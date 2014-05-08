@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.compute;
 
+import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.Configuration;
 import com.microsoft.windowsazure.core.OperationStatus;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
@@ -111,6 +112,17 @@ public class ComputeManagementClientImpl extends ServiceClient<ComputeManagement
     */
     public HostedServiceOperations getHostedServicesOperations() {
         return this.hostedServices;
+    }
+    
+    private LoadBalancerOperations loadBalancers;
+    
+    /**
+    * The Compute Management API includes operations for managing the load
+    * balancers for your subscription.
+    * @return The LoadBalancersOperations value.
+    */
+    public LoadBalancerOperations getLoadBalancersOperations() {
+        return this.loadBalancers;
     }
     
     private OperatingSystemOperations operatingSystems;
@@ -211,6 +223,7 @@ public class ComputeManagementClientImpl extends ServiceClient<ComputeManagement
         super(configuration, executorService);
         this.deployments = new DeploymentOperationsImpl(this);
         this.hostedServices = new HostedServiceOperationsImpl(this);
+        this.loadBalancers = new LoadBalancerOperationsImpl(this);
         this.operatingSystems = new OperatingSystemOperationsImpl(this);
         this.serviceCertificates = new ServiceCertificateOperationsImpl(this);
         this.virtualMachineDisks = new VirtualMachineDiskOperationsImpl(this);
@@ -342,12 +355,12 @@ public class ComputeManagementClientImpl extends ServiceClient<ComputeManagement
         httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
         
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
+            if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

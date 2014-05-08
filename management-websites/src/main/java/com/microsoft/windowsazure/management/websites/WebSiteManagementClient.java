@@ -28,8 +28,9 @@ import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.credentials.SubscriptionCloudCredentials;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.websites.models.WebSiteOperationStatusResponse;
-import java.io.Closeable;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URI;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,7 +44,7 @@ import org.xml.sax.SAXException;
 * http://msdn.microsoft.com/en-us/library/windowsazure/dn166981.aspx for more
 * information)
 */
-public interface WebSiteManagementClient extends Closeable, FilterableService<WebSiteManagementClient> {
+public interface WebSiteManagementClient extends FilterableService<WebSiteManagementClient> {
     /**
     * The URI used as the base for all Service Management requests.
     * @return The BaseUri value.
@@ -98,10 +99,11 @@ public interface WebSiteManagementClient extends Closeable, FilterableService<We
     * @param operationId Required. The operation ID for the operation you wish
     * to track. The operation ID is returned in the ID field in the body of
     * the response for long-running operations.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -113,7 +115,7 @@ public interface WebSiteManagementClient extends Closeable, FilterableService<We
     * operation itself. If the long-running operation failed, the response
     * body includes error information regarding the failure.
     */
-    WebSiteOperationStatusResponse getOperationStatus(String webSpaceName, String siteName, String operationId) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    WebSiteOperationStatusResponse getOperationStatus(String webSpaceName, String siteName, String operationId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The Get Operation Status operation returns the status of the specified
@@ -142,14 +144,15 @@ public interface WebSiteManagementClient extends Closeable, FilterableService<We
     /**
     * Register your subscription to use Azure Web Sites.
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse registerSubscription() throws IOException, ServiceException;
+    OperationResponse registerSubscription() throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * Register your subscription to use Azure Web Sites.
@@ -162,14 +165,15 @@ public interface WebSiteManagementClient extends Closeable, FilterableService<We
     /**
     * Unregister your subscription to use Azure Web Sites.
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse unregisterSubscription() throws IOException, ServiceException;
+    OperationResponse unregisterSubscription() throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * Unregister your subscription to use Azure Web Sites.
