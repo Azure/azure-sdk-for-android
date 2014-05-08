@@ -30,6 +30,8 @@ import com.microsoft.windowsazure.management.models.AffinityGroupGetResponse;
 import com.microsoft.windowsazure.management.models.AffinityGroupListResponse;
 import com.microsoft.windowsazure.management.models.AffinityGroupUpdateParameters;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
@@ -50,20 +52,21 @@ public interface AffinityGroupOperations {
     *
     * @param parameters Required. Parameters supplied to the Create Affinity
     * Group operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse create(AffinityGroupCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse create(AffinityGroupCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Create Affinity Group operation creates a new affinity group for the
@@ -85,14 +88,15 @@ public interface AffinityGroupOperations {
     * more information)
     *
     * @param affinityGroupName Required. The name of the affinity group.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse delete(String affinityGroupName) throws IOException, ServiceException;
+    OperationResponse delete(String affinityGroupName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Delete Affinity Group operation deletes an affinity group in the
@@ -114,10 +118,11 @@ public interface AffinityGroupOperations {
     *
     * @param affinityGroupName Required. The name of the desired affinity group
     * as returned by the name element of the List Affinity Groups operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -126,7 +131,7 @@ public interface AffinityGroupOperations {
     * the response.
     * @return The Get Affinity Group operation response.
     */
-    AffinityGroupGetResponse get(String affinityGroupName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    AffinityGroupGetResponse get(String affinityGroupName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The Get Affinity Group Properties operation returns the system properties
@@ -146,17 +151,18 @@ public interface AffinityGroupOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/ee460797.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The List Affinity Groups operation response.
     */
-    AffinityGroupListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    AffinityGroupListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The List Affinity Groups operation lists the affinity groups associated
@@ -177,20 +183,21 @@ public interface AffinityGroupOperations {
     * @param affinityGroupName Required. The name of the affinity group.
     * @param parameters Required. Parameters supplied to the Update Affinity
     * Group operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse update(String affinityGroupName, AffinityGroupUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse update(String affinityGroupName, AffinityGroupUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Update Affinity Group operation updates the label and/or the

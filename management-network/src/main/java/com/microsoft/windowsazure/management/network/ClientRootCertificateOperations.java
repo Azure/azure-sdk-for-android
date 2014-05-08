@@ -29,6 +29,8 @@ import com.microsoft.windowsazure.management.network.models.ClientRootCertificat
 import com.microsoft.windowsazure.management.network.models.ClientRootCertificateListResponse;
 import com.microsoft.windowsazure.management.network.models.GatewayOperationResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
@@ -51,10 +53,11 @@ public interface ClientRootCertificateOperations {
     * gateway.
     * @param parameters Required. Parameters supplied to the Upload Client Root
     * Certificate Virtual Network Gateway operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -72,7 +75,7 @@ public interface ClientRootCertificateOperations {
     * @return A standard storage response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse create(String networkName, ClientRootCertificateCreateParameters parameters) throws IOException, ServiceException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
+    GatewayOperationResponse create(String networkName, ClientRootCertificateCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
     
     /**
     * The Upload Client Root Certificate operation is used to upload a new
@@ -98,10 +101,11 @@ public interface ClientRootCertificateOperations {
     * @param networkName Required. The name of the virtual network for this
     * gateway.
     * @param certificateThumbprint Required. The X509 certificate thumbprint.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -119,7 +123,7 @@ public interface ClientRootCertificateOperations {
     * @return A standard storage response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse delete(String networkName, String certificateThumbprint) throws IOException, ServiceException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
+    GatewayOperationResponse delete(String networkName, String certificateThumbprint) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
     
     /**
     * The Delete Client Root Certificate operation deletes a previously
@@ -145,17 +149,18 @@ public interface ClientRootCertificateOperations {
     * @param networkName Required. The name of the virtual network for this
     * gateway.
     * @param certificateThumbprint Required. The X509 certificate thumbprint.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return Response to the Get Client Root Certificate operation.
     */
-    ClientRootCertificateGetResponse get(String networkName, String certificateThumbprint) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    ClientRootCertificateGetResponse get(String networkName, String certificateThumbprint) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The Get Client Root Certificate operation returns the public portion of a
@@ -180,17 +185,18 @@ public interface ClientRootCertificateOperations {
     *
     * @param networkName Required. The name of the virtual network for this
     * gateway.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The response for the List Client Root Certificates operation.
     */
-    ClientRootCertificateListResponse list(String networkName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    ClientRootCertificateListResponse list(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The List Client Root Certificates operation returns a list of all the

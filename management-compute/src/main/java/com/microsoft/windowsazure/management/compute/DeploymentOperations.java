@@ -38,6 +38,8 @@ import com.microsoft.windowsazure.management.compute.models.DeploymentUpdateStat
 import com.microsoft.windowsazure.management.compute.models.DeploymentUpgradeParameters;
 import com.microsoft.windowsazure.management.compute.models.DeploymentWalkUpgradeDomainParameters;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -69,20 +71,21 @@ public interface DeploymentOperations {
     * for.
     * @param parameters Required. Parameters supplied to the Begin Changing
     * Configuration Deployment By Name operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginChangingConfigurationByName(String serviceName, String deploymentName, DeploymentChangeConfigurationParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginChangingConfigurationByName(String serviceName, String deploymentName, DeploymentChangeConfigurationParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Begin Changing Deployment Configuration By Name operation initiates a
@@ -123,20 +126,21 @@ public interface DeploymentOperations {
     * configuration for.
     * @param parameters Required. Parameters supplied to the Begin Changing
     * Configuration Deployment By Slot operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginChangingConfigurationBySlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentChangeConfigurationParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginChangingConfigurationBySlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentChangeConfigurationParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Begin Changing Deployment Configuration By Slot operation initiates a
@@ -175,20 +179,21 @@ public interface DeploymentOperations {
     * @param deploymentSlot Required. The slot to create a deployment for.
     * @param parameters Required. Parameters supplied to the Begin Creating
     * Deployment operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginCreating(String serviceName, DeploymentSlot deploymentSlot, DeploymentCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginCreating(String serviceName, DeploymentSlot deploymentSlot, DeploymentCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Begin Creating Deployment operation uploads a new service package and
@@ -224,14 +229,15 @@ public interface DeploymentOperations {
     * @param deploymentName Required. The name of your deployment.
     * @param deleteFromStorage Required. Specifies that the source blob for the
     * disk should also be deleted from storage.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginDeletingByName(String serviceName, String deploymentName, boolean deleteFromStorage) throws IOException, ServiceException;
+    OperationResponse beginDeletingByName(String serviceName, String deploymentName, boolean deleteFromStorage) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Begin Deleting Deployment By Name operation deletes the specified
@@ -264,14 +270,15 @@ public interface DeploymentOperations {
     *
     * @param serviceName Required. The name of the cloud service.
     * @param deploymentSlot Required. The deployment slot.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginDeletingBySlot(String serviceName, DeploymentSlot deploymentSlot) throws IOException, ServiceException;
+    OperationResponse beginDeletingBySlot(String serviceName, DeploymentSlot deploymentSlot) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Begin Deleting Deployment By Slot operation deletes the specified
@@ -299,20 +306,21 @@ public interface DeploymentOperations {
     * @param serviceName Required. The name of the cloud service.
     * @param deploymentSlot Required. The name of the deployment slot.
     * @param parameters Required. The parameters to delete the role.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginDeletingRoleInstanceByBeploymentSlot(String serviceName, String deploymentSlot, DeploymentDeleteRoleInstanceParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginDeletingRoleInstanceByBeploymentSlot(String serviceName, String deploymentSlot, DeploymentDeleteRoleInstanceParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Delete Role Instances operation deletes a role instance from a
@@ -337,20 +345,21 @@ public interface DeploymentOperations {
     * @param serviceName Required. The name of the cloud service.
     * @param deploymentName Required. The name of the deployment.
     * @param parameters Required. The parameters to delete the role.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginDeletingRoleInstanceByDeploymentName(String serviceName, String deploymentName, DeploymentDeleteRoleInstanceParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginDeletingRoleInstanceByDeploymentName(String serviceName, String deploymentName, DeploymentDeleteRoleInstanceParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Delete Role Instances operation deletes a role instance from a
@@ -380,14 +389,15 @@ public interface DeploymentOperations {
     * @param serviceName Required. The name of the cloud service.
     * @param deploymentName Required. The name of your deployment.
     * @param roleInstanceName Required. The name of your role instance.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginRebootingRoleInstanceByDeploymentName(String serviceName, String deploymentName, String roleInstanceName) throws IOException, ServiceException;
+    OperationResponse beginRebootingRoleInstanceByDeploymentName(String serviceName, String deploymentName, String roleInstanceName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Begin Rebooting Role Instance By Deployment Name operation requests a
@@ -422,14 +432,15 @@ public interface DeploymentOperations {
     * @param serviceName Required. The name of the cloud service.
     * @param deploymentSlot Required. The deployment slot.
     * @param roleInstanceName Required. The name of your role instance.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginRebootingRoleInstanceByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, String roleInstanceName) throws IOException, ServiceException;
+    OperationResponse beginRebootingRoleInstanceByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, String roleInstanceName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Begin Rebooting Role Instance By Deployment Slot operation requests a
@@ -464,14 +475,15 @@ public interface DeploymentOperations {
     * @param serviceName Required. The name of the cloud service.
     * @param deploymentName Required. The name of your deployment.
     * @param roleInstanceName Required. The name of your role instance.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginReimagingRoleInstanceByDeploymentName(String serviceName, String deploymentName, String roleInstanceName) throws IOException, ServiceException;
+    OperationResponse beginReimagingRoleInstanceByDeploymentName(String serviceName, String deploymentName, String roleInstanceName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Begin Reimaging Role Instance By Deployment Name operation requests a
@@ -506,14 +518,15 @@ public interface DeploymentOperations {
     * @param serviceName Required. The name of the cloud service.
     * @param deploymentSlot Required. The deployment slot.
     * @param roleInstanceName Required. The name of your role instance.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginReimagingRoleInstanceByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, String roleInstanceName) throws IOException, ServiceException;
+    OperationResponse beginReimagingRoleInstanceByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, String roleInstanceName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Begin Reimaging Role Instance By Deployment Slot operation requests a
@@ -549,20 +562,21 @@ public interface DeploymentOperations {
     * @param serviceName Required. The cloud service to swap deployments for.
     * @param parameters Required. Parameters supplied to the Begin Swapping
     * Deployment operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginSwapping(String serviceName, DeploymentSwapParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginSwapping(String serviceName, DeploymentSwapParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Begin Swapping Deployment operation initiates a virtual IP address
@@ -600,20 +614,21 @@ public interface DeploymentOperations {
     * @param deploymentName Required. The name of your deployment.
     * @param parameters Required. Parameters supplied to the Begin Updating
     * Deployment Status By Deployment Name operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginUpdatingStatusByDeploymentName(String serviceName, String deploymentName, DeploymentUpdateStatusParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginUpdatingStatusByDeploymentName(String serviceName, String deploymentName, DeploymentUpdateStatusParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Begin Updating Deployment Status By Deployment Name operation
@@ -652,20 +667,21 @@ public interface DeploymentOperations {
     * @param deploymentSlot Required. The deployment slot.
     * @param parameters Required. Parameters supplied to the Begin Updating
     * Deployment Status By Deployment Slot operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginUpdatingStatusByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentUpdateStatusParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginUpdatingStatusByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentUpdateStatusParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Begin Updating Deployment Status By Deployment Slot operation
@@ -728,20 +744,21 @@ public interface DeploymentOperations {
     * @param deploymentName Required. The deployment to upgrade.
     * @param parameters Required. Parameters supplied to the Begin Upgrading
     * Deployment By Name operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginUpgradingByName(String serviceName, String deploymentName, DeploymentUpgradeParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginUpgradingByName(String serviceName, String deploymentName, DeploymentUpgradeParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Begin Upgrading Deployment By Name operation initiates an update of
@@ -828,20 +845,21 @@ public interface DeploymentOperations {
     * @param deploymentSlot Required. The slot to upgrade.
     * @param parameters Required. Parameters supplied to the Begin Upgrading
     * Deployment By Slot operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginUpgradingBySlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentUpgradeParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginUpgradingBySlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentUpgradeParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Begin Upgrading Deployment By Slot operation initiates an update of
@@ -924,20 +942,21 @@ public interface DeploymentOperations {
     * @param deploymentName Required. The name of your deployment.
     * @param parameters Required. Parameters supplied to the Begin Walking
     * Upgrade Domain By Deployment Name operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginWalkingUpgradeDomainByDeploymentName(String serviceName, String deploymentName, DeploymentWalkUpgradeDomainParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginWalkingUpgradeDomainByDeploymentName(String serviceName, String deploymentName, DeploymentWalkUpgradeDomainParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Begin Walking Upgrade Domain By Deployment Name operation specifies
@@ -1016,20 +1035,21 @@ public interface DeploymentOperations {
     * @param deploymentSlot Required. The deployment slot.
     * @param parameters Required. Parameters supplied to the Begin Walking
     * Upgrade Domain By Deployment Slot operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginWalkingUpgradeDomainByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentWalkUpgradeDomainParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginWalkingUpgradeDomainByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentWalkUpgradeDomainParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Begin Walking Upgrade Domain By Deployment Slot operation specifies
@@ -1099,8 +1119,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1110,7 +1128,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse changeConfigurationByName(String serviceName, String deploymentName, DeploymentChangeConfigurationParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse changeConfigurationByName(String serviceName, String deploymentName, DeploymentChangeConfigurationParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Change Deployment Configuration By Name operation initiates a change
@@ -1167,8 +1185,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1178,7 +1194,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse changeConfigurationBySlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentChangeConfigurationParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse changeConfigurationBySlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentChangeConfigurationParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Change Deployment Configuration By Slot operation initiates a change
@@ -1233,8 +1249,8 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
@@ -1242,6 +1258,8 @@ public interface DeploymentOperations {
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The response body contains the status of the specified
@@ -1253,7 +1271,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse create(String serviceName, DeploymentSlot deploymentSlot, DeploymentCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException, ParserConfigurationException, SAXException, TransformerException, URISyntaxException;
+    OperationStatusResponse create(String serviceName, DeploymentSlot deploymentSlot, DeploymentCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, IOException, URISyntaxException;
     
     /**
     * The Create Deployment operation uploads a new service package and creates
@@ -1305,8 +1323,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1316,7 +1332,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse deleteByName(String serviceName, String deploymentName, boolean deleteFromStorage) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse deleteByName(String serviceName, String deploymentName, boolean deleteFromStorage) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Delete Deployment By Name operation deletes the specified deployment.
@@ -1364,8 +1380,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1375,7 +1389,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse deleteBySlot(String serviceName, DeploymentSlot deploymentSlot) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse deleteBySlot(String serviceName, DeploymentSlot deploymentSlot) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Delete Deployment By Slot operation deletes the specified deployment.
@@ -1418,8 +1432,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1429,7 +1441,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse deleteRoleInstanceByDeploymentName(String serviceName, String deploymentName, DeploymentDeleteRoleInstanceParameters roleInstanceName) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse deleteRoleInstanceByDeploymentName(String serviceName, String deploymentName, DeploymentDeleteRoleInstanceParameters roleInstanceName) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Delete Role Instances operation deletes a role instance from a
@@ -1470,8 +1482,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1481,7 +1491,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse deleteRoleInstanceByDeploymentSlot(String serviceName, String deploymentSlot, DeploymentDeleteRoleInstanceParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse deleteRoleInstanceByDeploymentSlot(String serviceName, String deploymentSlot, DeploymentDeleteRoleInstanceParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Delete Role Instances operation deletes the role instances from a
@@ -1511,10 +1521,11 @@ public interface DeploymentOperations {
     *
     * @param serviceName Required. The name of the cloud service.
     * @param deploymentName Required. The name of the deployment.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -1523,7 +1534,7 @@ public interface DeploymentOperations {
     * the response.
     * @return A deployment that exists in the cloud service.
     */
-    DeploymentGetResponse getByName(String serviceName, String deploymentName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    DeploymentGetResponse getByName(String serviceName, String deploymentName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The Get Deployment By Name operation returns configuration information,
@@ -1545,10 +1556,11 @@ public interface DeploymentOperations {
     *
     * @param serviceName Required. The name of the cloud service.
     * @param deploymentSlot Required. The deployment slot.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -1557,7 +1569,7 @@ public interface DeploymentOperations {
     * the response.
     * @return A deployment that exists in the cloud service.
     */
-    DeploymentGetResponse getBySlot(String serviceName, DeploymentSlot deploymentSlot) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    DeploymentGetResponse getBySlot(String serviceName, DeploymentSlot deploymentSlot) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The Get Deployment By Slot operation returns configuration information,
@@ -1586,14 +1598,15 @@ public interface DeploymentOperations {
     * @param deploymentName Required. The name of your deployment.
     * @param parameters Required. Parameters supplied to the Get Package By
     * Name operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse getPackageByName(String serviceName, String deploymentName, DeploymentGetPackageParameters parameters) throws IOException, ServiceException;
+    OperationResponse getPackageByName(String serviceName, String deploymentName, DeploymentGetPackageParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Get Package By Name operation retrieves a cloud service package for a
@@ -1630,14 +1643,15 @@ public interface DeploymentOperations {
     * @param deploymentSlot Required. The deployment slot.
     * @param parameters Required. Parameters supplied to the Get Package By
     * Slot operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse getPackageBySlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentGetPackageParameters parameters) throws IOException, ServiceException;
+    OperationResponse getPackageBySlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentGetPackageParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Get Package By Slot operation retrieves a cloud service package for a
@@ -1683,8 +1697,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1694,7 +1706,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse rebootRoleInstanceByDeploymentName(String serviceName, String deploymentName, String roleInstanceName) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse rebootRoleInstanceByDeploymentName(String serviceName, String deploymentName, String roleInstanceName) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Reboot Role Instance By Deployment Name operation requests a reboot
@@ -1745,8 +1757,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1756,7 +1766,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse rebootRoleInstanceByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, String roleInstanceName) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse rebootRoleInstanceByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, String roleInstanceName) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Reboot Role Instance By Deployment Slot operation requests a reboot
@@ -1807,8 +1817,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1818,7 +1826,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse reimageRoleInstanceByDeploymentName(String serviceName, String deploymentName, String roleInstanceName) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse reimageRoleInstanceByDeploymentName(String serviceName, String deploymentName, String roleInstanceName) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Reimage Role Instance By Deployment Name operation requests a reimage
@@ -1869,8 +1877,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1880,7 +1886,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse reimageRoleInstanceByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, String roleInstanceName) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse reimageRoleInstanceByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, String roleInstanceName) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Reimage Role Instance By Deployment Slot operation requests a reimage
@@ -1922,20 +1928,21 @@ public interface DeploymentOperations {
     * @param deploymentName Required. The name of your deployment.
     * @param parameters Required. Parameters supplied to the Rollback Update Or
     * Upgrade By Deployment Name operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse rollbackUpdateOrUpgradeByDeploymentName(String serviceName, String deploymentName, DeploymentRollbackUpdateOrUpgradeParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse rollbackUpdateOrUpgradeByDeploymentName(String serviceName, String deploymentName, DeploymentRollbackUpdateOrUpgradeParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Rollback Update Or Upgrade By Deployment Name operation cancels an
@@ -1972,20 +1979,21 @@ public interface DeploymentOperations {
     * @param deploymentSlot Required. The deployment slot.
     * @param parameters Required. Parameters supplied to the Rollback Update Or
     * Upgrade By Deployment Slot operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse rollbackUpdateOrUpgradeByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentRollbackUpdateOrUpgradeParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse rollbackUpdateOrUpgradeByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentRollbackUpdateOrUpgradeParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Rollback Update Or Upgrade By Deployment Slot operation cancels an
@@ -2032,8 +2040,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -2043,7 +2049,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse swap(String serviceName, DeploymentSwapParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse swap(String serviceName, DeploymentSwapParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Swap Deployment operation initiates a virtual IP address swap between
@@ -2097,8 +2103,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -2108,7 +2112,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse updateStatusByDeploymentName(String serviceName, String deploymentName, DeploymentUpdateStatusParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse updateStatusByDeploymentName(String serviceName, String deploymentName, DeploymentUpdateStatusParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Update Deployment Status By Deployment Name operation initiates a
@@ -2163,8 +2167,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -2174,7 +2176,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse updateStatusByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentUpdateStatusParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse updateStatusByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentUpdateStatusParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Update Deployment Status By Deployment Slot operation initiates a
@@ -2253,8 +2255,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -2264,7 +2264,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse upgradeByName(String serviceName, String deploymentName, DeploymentUpgradeParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse upgradeByName(String serviceName, String deploymentName, DeploymentUpgradeParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Upgrade Deployment By Name operation initiates an update of role
@@ -2367,8 +2367,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -2378,7 +2376,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse upgradeBySlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentUpgradeParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse upgradeBySlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentUpgradeParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Upgrade Deployment By Slot operation initiates an update of role
@@ -2477,8 +2475,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -2488,7 +2484,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse walkUpgradeDomainByDeploymentName(String serviceName, String deploymentName, DeploymentWalkUpgradeDomainParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse walkUpgradeDomainByDeploymentName(String serviceName, String deploymentName, DeploymentWalkUpgradeDomainParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Walk Upgrade Domain By Deployment Name operation specifies an update
@@ -2583,8 +2579,6 @@ public interface DeploymentOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -2594,7 +2588,7 @@ public interface DeploymentOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse walkUpgradeDomainByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentWalkUpgradeDomainParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse walkUpgradeDomainByDeploymentSlot(String serviceName, DeploymentSlot deploymentSlot, DeploymentWalkUpgradeDomainParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Walk Upgrade Domain By Deployment Slot operation specifies an update

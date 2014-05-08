@@ -27,7 +27,6 @@ import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.OperationStatus;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
-import com.microsoft.windowsazure.core.pipeline.apache.CustomHttpDelete;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.Base64;
 import com.microsoft.windowsazure.core.utils.StreamUtils;
@@ -73,9 +72,13 @@ import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -89,12 +92,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -183,21 +180,22 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * restart.
     * @param parameters Required. Parameters supplied to the Begin Capturing
     * Virtual Machine operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginCapturingOSImage(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineCaptureOSImageParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
+    public OperationResponse beginCapturingOSImage(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineCaptureOSImageParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -306,11 +304,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Serialize Request
         String requestContent = null;
@@ -688,23 +689,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -715,17 +707,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -761,21 +751,22 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * restart.
     * @param parameters Required. Parameters supplied to the Capture Virtual
     * Machine operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginCapturingVMImage(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineCaptureVMImageParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
+    public OperationResponse beginCapturingVMImage(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineCaptureVMImageParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -816,11 +807,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Serialize Request
         String requestContent = null;
@@ -860,23 +854,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -887,17 +872,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -953,21 +936,22 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @param deploymentName Required. The name of your deployment.
     * @param parameters Required. Parameters supplied to the Begin Creating
     * Virtual Machine operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginCreating(String serviceName, String deploymentName, VirtualMachineCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
+    public OperationResponse beginCreating(String serviceName, String deploymentName, VirtualMachineCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -1071,11 +1055,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Serialize Request
         String requestContent = null;
@@ -1631,23 +1618,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1658,17 +1636,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -1714,21 +1690,22 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @param serviceName Required. The name of your service.
     * @param parameters Required. Parameters supplied to the Begin Creating
     * Virtual Machine Deployment operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginCreatingDeployment(String serviceName, VirtualMachineCreateDeploymentParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
+    public OperationResponse beginCreatingDeployment(String serviceName, VirtualMachineCreateDeploymentParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -1841,11 +1818,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Serialize Request
         String requestContent = null;
@@ -2480,23 +2460,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -2507,17 +2478,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -2557,15 +2526,16 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * delete.
     * @param deleteFromStorage Required. Specifies that the source blob(s) for
     * the virtual machine should also be deleted from storage.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginDeleting(String serviceName, String deploymentName, String virtualMachineName, boolean deleteFromStorage) throws IOException, ServiceException {
+    public OperationResponse beginDeleting(String serviceName, String deploymentName, String virtualMachineName, boolean deleteFromStorage) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -2606,24 +2576,19 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        CustomHttpDelete httpRequest = new CustomHttpDelete(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Delete");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -2634,17 +2599,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -2682,15 +2645,16 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @param deploymentName Required. The name of your deployment.
     * @param virtualMachineName Required. The name of the virtual machine to
     * restart.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginRestarting(String serviceName, String deploymentName, String virtualMachineName) throws IOException, ServiceException {
+    public OperationResponse beginRestarting(String serviceName, String deploymentName, String virtualMachineName) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -2727,31 +2691,25 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Serialize Request
         String requestContent = "<RestartRoleOperation xmlns=\"http://schemas.microsoft.com/windowsazure\"><OperationType>RestartRoleOperation</OperationType></RestartRoleOperation>";
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -2762,17 +2720,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -2810,21 +2766,22 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @param virtualMachineName Required. The name of the virtual machine to
     * shutdown.
     * @param parameters Required. The parameters for the shutdown vm operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginShutdown(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineShutdownParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
+    public OperationResponse beginShutdown(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineShutdownParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -2865,11 +2822,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Serialize Request
         String requestContent = null;
@@ -2895,23 +2855,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -2922,17 +2873,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -2970,21 +2919,22 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @param deploymentName Required. The name of your deployment.
     * @param parameters Required. Parameters to pass to the Begin Shutting Down
     * Roles operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginShuttingDownRoles(String serviceName, String deploymentName, VirtualMachineShutdownRolesParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
+    public OperationResponse beginShuttingDownRoles(String serviceName, String deploymentName, VirtualMachineShutdownRolesParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -3021,11 +2971,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Serialize Request
         String requestContent = null;
@@ -3063,23 +3016,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -3090,17 +3034,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -3136,15 +3078,16 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @param deploymentName Required. The name of your deployment.
     * @param virtualMachineName Required. The name of the virtual machine to
     * start.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginStarting(String serviceName, String deploymentName, String virtualMachineName) throws IOException, ServiceException {
+    public OperationResponse beginStarting(String serviceName, String deploymentName, String virtualMachineName) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -3181,31 +3124,25 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Serialize Request
         String requestContent = "<StartRoleOperation xmlns=\"http://schemas.microsoft.com/windowsazure\"><OperationType>StartRoleOperation</OperationType></StartRoleOperation>";
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -3216,17 +3153,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -3264,21 +3199,22 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @param deploymentName Required. The name of your deployment.
     * @param parameters Required. Parameters to pass to the Begin Starting
     * Roles operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginStartingRoles(String serviceName, String deploymentName, VirtualMachineStartRolesParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
+    public OperationResponse beginStartingRoles(String serviceName, String deploymentName, VirtualMachineStartRolesParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -3315,11 +3251,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Serialize Request
         String requestContent = null;
@@ -3351,23 +3290,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -3378,17 +3308,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -3428,21 +3356,22 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @param virtualMachineName Required. The name of your virtual machine.
     * @param parameters Required. Parameters supplied to the Begin Updating
     * Virtual Machine operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginUpdating(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
+    public OperationResponse beginUpdating(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -3553,11 +3482,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPut httpRequest = new HttpPut(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Put");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Serialize Request
         String requestContent = null;
@@ -4105,23 +4037,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -4132,17 +4055,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -4184,21 +4105,22 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @param deploymentName Required. The name of your deployment.
     * @param parameters Required. Parameters supplied to the Begin Updating
     * Load Balanced Endpoint Set operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginUpdatingLoadBalancedEndpointSet(String serviceName, String deploymentName, VirtualMachineUpdateLoadBalancedSetParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
+    public OperationResponse beginUpdatingLoadBalancedEndpointSet(String serviceName, String deploymentName, VirtualMachineUpdateLoadBalancedSetParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -4242,11 +4164,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Serialize Request
         String requestContent = null;
@@ -4378,23 +4303,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -4405,17 +4321,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -4493,8 +4407,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -4505,7 +4417,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse captureOSImage(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineCaptureOSImageParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException {
+    public OperationStatusResponse captureOSImage(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineCaptureOSImageParameters parameters) throws InterruptedException, ExecutionException, ServiceException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -4518,48 +4430,42 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "captureOSImageAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getVirtualMachinesOperations().beginCapturingOSImageAsync(serviceName, deploymentName, virtualMachineName, parameters).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getVirtualMachinesOperations().beginCapturingOSImageAsync(serviceName, deploymentName, virtualMachineName, parameters).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
     
     /**
@@ -4609,8 +4515,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -4621,7 +4525,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse captureVMImage(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineCaptureVMImageParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException {
+    public OperationStatusResponse captureVMImage(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineCaptureVMImageParameters parameters) throws InterruptedException, ExecutionException, ServiceException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -4634,48 +4538,42 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "captureVMImageAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getVirtualMachinesOperations().beginCapturingVMImageAsync(serviceName, deploymentName, virtualMachineName, parameters).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getVirtualMachinesOperations().beginCapturingVMImageAsync(serviceName, deploymentName, virtualMachineName, parameters).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
     
     /**
@@ -4745,8 +4643,8 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
@@ -4754,6 +4652,8 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The response body contains the status of the specified
@@ -4766,7 +4666,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse create(String serviceName, String deploymentName, VirtualMachineCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException, ParserConfigurationException, SAXException, TransformerException, URISyntaxException {
+    public OperationStatusResponse create(String serviceName, String deploymentName, VirtualMachineCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, IOException, URISyntaxException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -4778,48 +4678,42 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "createAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getVirtualMachinesOperations().beginCreatingAsync(serviceName, deploymentName, parameters).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getVirtualMachinesOperations().beginCreatingAsync(serviceName, deploymentName, parameters).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
     
     /**
@@ -4879,8 +4773,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -4891,7 +4783,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse createDeployment(String serviceName, VirtualMachineCreateDeploymentParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException {
+    public OperationStatusResponse createDeployment(String serviceName, VirtualMachineCreateDeploymentParameters parameters) throws InterruptedException, ExecutionException, ServiceException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -4902,48 +4794,42 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "createDeploymentAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getVirtualMachinesOperations().beginCreatingDeploymentAsync(serviceName, parameters).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getVirtualMachinesOperations().beginCreatingDeploymentAsync(serviceName, parameters).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
     
     /**
@@ -4987,10 +4873,11 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * delete.
     * @param deleteFromStorage Required. Specifies that the source blob(s) for
     * the virtual machine should also be deleted from storage.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -5011,7 +4898,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse delete(String serviceName, String deploymentName, String virtualMachineName, boolean deleteFromStorage) throws IOException, ServiceException, InterruptedException, ExecutionException {
+    public OperationStatusResponse delete(String serviceName, String deploymentName, String virtualMachineName, boolean deleteFromStorage) throws MalformedURLException, ProtocolException, ServiceException, IOException, InterruptedException, ExecutionException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -5024,48 +4911,42 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             tracingParameters.put("deleteFromStorage", deleteFromStorage);
             CloudTracing.enter(invocationId, this, "deleteAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getVirtualMachinesOperations().beginDeletingAsync(serviceName, deploymentName, virtualMachineName, deleteFromStorage).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getVirtualMachinesOperations().beginDeletingAsync(serviceName, deploymentName, virtualMachineName, deleteFromStorage).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
     
     /**
@@ -5098,10 +4979,11 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @param serviceName Required. The name of your service.
     * @param deploymentName Required. The name of your deployment.
     * @param virtualMachineName Required. The name of the virtual machine.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -5111,7 +4993,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @return The Get Virtual Machine operation response.
     */
     @Override
-    public VirtualMachineGetResponse get(String serviceName, String deploymentName, String virtualMachineName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException {
+    public VirtualMachineGetResponse get(String serviceName, String deploymentName, String virtualMachineName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -5148,24 +5030,19 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -5175,7 +5052,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             // Create Result
             VirtualMachineGetResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new VirtualMachineGetResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -5752,17 +5629,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -5797,14 +5672,15 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @param serviceName Required. The name of your service.
     * @param deploymentName Required. The name of your deployment.
     * @param virtualMachineName Required. The name of the virtual machine.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return The Download RDP file operation response.
     */
     @Override
-    public VirtualMachineGetRemoteDesktopFileResponse getRemoteDesktopFile(String serviceName, String deploymentName, String virtualMachineName) throws IOException, ServiceException {
+    public VirtualMachineGetRemoteDesktopFileResponse getRemoteDesktopFile(String serviceName, String deploymentName, String virtualMachineName) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -5841,24 +5717,19 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -5868,22 +5739,20 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             // Create Result
             VirtualMachineGetRemoteDesktopFileResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new VirtualMachineGetRemoteDesktopFileResponse();
             result.setRemoteDesktopFile(StreamUtils.toString(responseContent).getBytes("UTF-8"));
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -5935,8 +5804,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -5947,7 +5814,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse restart(String serviceName, String deploymentName, String virtualMachineName) throws InterruptedException, ExecutionException, ServiceException, IOException {
+    public OperationStatusResponse restart(String serviceName, String deploymentName, String virtualMachineName) throws InterruptedException, ExecutionException, ServiceException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -5959,48 +5826,42 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             tracingParameters.put("virtualMachineName", virtualMachineName);
             CloudTracing.enter(invocationId, this, "restartAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getVirtualMachinesOperations().beginRestartingAsync(serviceName, deploymentName, virtualMachineName).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getVirtualMachinesOperations().beginRestartingAsync(serviceName, deploymentName, virtualMachineName).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
     
     /**
@@ -6054,8 +5915,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -6066,7 +5925,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse shutdown(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineShutdownParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException {
+    public OperationStatusResponse shutdown(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineShutdownParameters parameters) throws InterruptedException, ExecutionException, ServiceException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -6079,48 +5938,42 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "shutdownAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getVirtualMachinesOperations().beginShutdownAsync(serviceName, deploymentName, virtualMachineName, parameters).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getVirtualMachinesOperations().beginShutdownAsync(serviceName, deploymentName, virtualMachineName, parameters).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
     
     /**
@@ -6166,8 +6019,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -6178,7 +6029,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse shutdownRoles(String serviceName, String deploymentName, VirtualMachineShutdownRolesParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException {
+    public OperationStatusResponse shutdownRoles(String serviceName, String deploymentName, VirtualMachineShutdownRolesParameters parameters) throws InterruptedException, ExecutionException, ServiceException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -6190,48 +6041,42 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "shutdownRolesAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getVirtualMachinesOperations().beginShuttingDownRolesAsync(serviceName, deploymentName, parameters).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getVirtualMachinesOperations().beginShuttingDownRolesAsync(serviceName, deploymentName, parameters).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
     
     /**
@@ -6281,8 +6126,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -6293,7 +6136,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse start(String serviceName, String deploymentName, String virtualMachineName) throws InterruptedException, ExecutionException, ServiceException, IOException {
+    public OperationStatusResponse start(String serviceName, String deploymentName, String virtualMachineName) throws InterruptedException, ExecutionException, ServiceException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -6305,48 +6148,42 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             tracingParameters.put("virtualMachineName", virtualMachineName);
             CloudTracing.enter(invocationId, this, "startAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getVirtualMachinesOperations().beginStartingAsync(serviceName, deploymentName, virtualMachineName).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getVirtualMachinesOperations().beginStartingAsync(serviceName, deploymentName, virtualMachineName).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
     
     /**
@@ -6392,8 +6229,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -6404,7 +6239,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse startRoles(String serviceName, String deploymentName, VirtualMachineStartRolesParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException {
+    public OperationStatusResponse startRoles(String serviceName, String deploymentName, VirtualMachineStartRolesParameters parameters) throws InterruptedException, ExecutionException, ServiceException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -6416,48 +6251,42 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "startRolesAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getVirtualMachinesOperations().beginStartingRolesAsync(serviceName, deploymentName, parameters).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getVirtualMachinesOperations().beginStartingRolesAsync(serviceName, deploymentName, parameters).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
     
     /**
@@ -6501,16 +6330,17 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @param virtualMachineName Required. The name of your virtual machine.
     * @param parameters Required. Parameters supplied to the Update Virtual
     * Machine operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -6533,7 +6363,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse update(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, InterruptedException, ExecutionException, URISyntaxException {
+    public OperationStatusResponse update(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, InterruptedException, ExecutionException, URISyntaxException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -6546,48 +6376,42 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "updateAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getVirtualMachinesOperations().beginUpdatingAsync(serviceName, deploymentName, virtualMachineName, parameters).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getVirtualMachinesOperations().beginUpdatingAsync(serviceName, deploymentName, virtualMachineName, parameters).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
     
     /**
@@ -6639,8 +6463,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -6651,7 +6473,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse updateLoadBalancedEndpointSet(String serviceName, String deploymentName, VirtualMachineUpdateLoadBalancedSetParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException {
+    public OperationStatusResponse updateLoadBalancedEndpointSet(String serviceName, String deploymentName, VirtualMachineUpdateLoadBalancedSetParameters parameters) throws InterruptedException, ExecutionException, ServiceException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -6663,47 +6485,41 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "updateLoadBalancedEndpointSetAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getVirtualMachinesOperations().beginUpdatingLoadBalancedEndpointSetAsync(serviceName, deploymentName, parameters).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getVirtualMachinesOperations().beginUpdatingLoadBalancedEndpointSetAsync(serviceName, deploymentName, parameters).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
 }

@@ -32,6 +32,8 @@ import com.microsoft.windowsazure.management.compute.models.ServiceCertificateGe
 import com.microsoft.windowsazure.management.compute.models.ServiceCertificateGetResponse;
 import com.microsoft.windowsazure.management.compute.models.ServiceCertificateListResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -56,20 +58,21 @@ public interface ServiceCertificateOperations {
     * @param serviceName Required. The DNS prefix name of your service.
     * @param parameters Required. Parameters supplied to the Begin Creating
     * Service Certificate operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginCreating(String serviceName, ServiceCertificateCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginCreating(String serviceName, ServiceCertificateCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Begin Creating Service Certificate operation adds a certificate to a
@@ -98,14 +101,15 @@ public interface ServiceCertificateOperations {
     *
     * @param parameters Required. Parameters supplied to the Begin Deleting
     * Service Certificate operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginDeleting(ServiceCertificateDeleteParameters parameters) throws IOException, ServiceException;
+    OperationResponse beginDeleting(ServiceCertificateDeleteParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Begin Deleting Service Certificate operation deletes a service
@@ -144,8 +148,8 @@ public interface ServiceCertificateOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
@@ -153,6 +157,8 @@ public interface ServiceCertificateOperations {
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The response body contains the status of the specified
@@ -164,7 +170,7 @@ public interface ServiceCertificateOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse create(String serviceName, ServiceCertificateCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException, ParserConfigurationException, SAXException, TransformerException, URISyntaxException;
+    OperationStatusResponse create(String serviceName, ServiceCertificateCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, IOException, URISyntaxException;
     
     /**
     * The Create Service Certificate operation adds a certificate to a hosted
@@ -198,10 +204,11 @@ public interface ServiceCertificateOperations {
     *
     * @param parameters Required. Parameters supplied to the Delete Service
     * Certificate operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -221,7 +228,7 @@ public interface ServiceCertificateOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse delete(ServiceCertificateDeleteParameters parameters) throws IOException, ServiceException, InterruptedException, ExecutionException;
+    OperationStatusResponse delete(ServiceCertificateDeleteParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, InterruptedException, ExecutionException;
     
     /**
     * The Delete Service Certificate operation deletes a service certificate
@@ -252,10 +259,11 @@ public interface ServiceCertificateOperations {
     *
     * @param parameters Required. Parameters supplied to the Get Service
     * Certificate operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -264,7 +272,7 @@ public interface ServiceCertificateOperations {
     * the response.
     * @return The Get Service Certificate operation response.
     */
-    ServiceCertificateGetResponse get(ServiceCertificateGetParameters parameters) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    ServiceCertificateGetResponse get(ServiceCertificateGetParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The Get Service Certificate operation returns the public data for the
@@ -285,10 +293,11 @@ public interface ServiceCertificateOperations {
     * more information)
     *
     * @param serviceName Required. The DNS prefix name of your hosted service.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -297,7 +306,7 @@ public interface ServiceCertificateOperations {
     * the response.
     * @return The List Service Certificates operation response.
     */
-    ServiceCertificateListResponse list(String serviceName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    ServiceCertificateListResponse list(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The List Service Certificates operation lists all of the service

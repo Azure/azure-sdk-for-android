@@ -26,6 +26,8 @@ package com.microsoft.windowsazure.management.compute;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineExtensionListResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
@@ -47,10 +49,11 @@ public interface VirtualMachineExtensionOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/dn495441.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -59,7 +62,7 @@ public interface VirtualMachineExtensionOperations {
     * the response.
     * @return The List Resource Extensions operation response.
     */
-    VirtualMachineExtensionListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    VirtualMachineExtensionListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The List Resource Extensions operation lists the resource extensions that
@@ -85,10 +88,11 @@ public interface VirtualMachineExtensionOperations {
     *
     * @param publisherName Required. The name of the publisher.
     * @param extensionName Required. The name of the extension.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -97,7 +101,7 @@ public interface VirtualMachineExtensionOperations {
     * the response.
     * @return The List Resource Extensions operation response.
     */
-    VirtualMachineExtensionListResponse listVersions(String publisherName, String extensionName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    VirtualMachineExtensionListResponse listVersions(String publisherName, String extensionName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The List Resource Extension Versions operation lists the versions of a

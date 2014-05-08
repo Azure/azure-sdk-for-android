@@ -24,7 +24,6 @@
 package com.microsoft.windowsazure.management.network;
 
 import com.microsoft.windowsazure.core.ServiceOperations;
-import com.microsoft.windowsazure.core.pipeline.apache.CustomHttpDelete;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.StreamUtils;
 import com.microsoft.windowsazure.core.utils.XmlUtility;
@@ -36,6 +35,10 @@ import com.microsoft.windowsazure.management.network.models.GatewayOperationResp
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
@@ -45,11 +48,6 @@ import javax.xml.bind.DatatypeConverter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -115,10 +113,11 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
     * gateway.
     * @param parameters Required. Parameters supplied to the Upload Client Root
     * Certificate Virtual Network Gateway operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -137,7 +136,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
     * request ID.
     */
     @Override
-    public GatewayOperationResponse create(String networkName, ClientRootCertificateCreateParameters parameters) throws IOException, ServiceException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException {
+    public GatewayOperationResponse create(String networkName, ClientRootCertificateCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -173,31 +172,25 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
         
         // Serialize Request
         String requestContent = parameters.getCertificate();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -207,7 +200,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
             // Create Result
             GatewayOperationResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayOperationResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -225,17 +218,15 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -271,10 +262,11 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
     * @param networkName Required. The name of the virtual network for this
     * gateway.
     * @param certificateThumbprint Required. The X509 certificate thumbprint.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -293,7 +285,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
     * request ID.
     */
     @Override
-    public GatewayOperationResponse delete(String networkName, String certificateThumbprint) throws IOException, ServiceException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException {
+    public GatewayOperationResponse delete(String networkName, String certificateThumbprint) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -326,25 +318,20 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        CustomHttpDelete httpRequest = new CustomHttpDelete(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Delete");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -354,7 +341,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
             // Create Result
             GatewayOperationResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayOperationResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -372,17 +359,15 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -419,10 +404,11 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
     * @param networkName Required. The name of the virtual network for this
     * gateway.
     * @param certificateThumbprint Required. The X509 certificate thumbprint.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -430,7 +416,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
     * @return Response to the Get Client Root Certificate operation.
     */
     @Override
-    public ClientRootCertificateGetResponse get(String networkName, String certificateThumbprint) throws IOException, ServiceException, ParserConfigurationException, SAXException {
+    public ClientRootCertificateGetResponse get(String networkName, String certificateThumbprint) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -463,24 +449,19 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -490,22 +471,20 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
             // Create Result
             ClientRootCertificateGetResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new ClientRootCertificateGetResponse();
             result.setCertificate(StreamUtils.toString(responseContent));
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -540,10 +519,11 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
     *
     * @param networkName Required. The name of the virtual network for this
     * gateway.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -551,7 +531,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
     * @return The response for the List Client Root Certificates operation.
     */
     @Override
-    public ClientRootCertificateListResponse list(String networkName) throws IOException, ServiceException, ParserConfigurationException, SAXException {
+    public ClientRootCertificateListResponse list(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -580,25 +560,20 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -608,7 +583,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
             // Create Result
             ClientRootCertificateListResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new ClientRootCertificateListResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -646,17 +621,15 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }

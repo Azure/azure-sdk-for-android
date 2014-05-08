@@ -14,6 +14,8 @@
  */
 package com.microsoft.windowsazure.management.compute;
 
+import java.util.concurrent.Executors;
+
 import com.microsoft.windowsazure.Configuration;
 
 /**
@@ -31,8 +33,7 @@ public final class ComputeManagementService {
      * @return An instance of the <code>ComputeManagementClient</code> API.
      */
     public static ComputeManagementClient create() {
-        return Configuration.getInstance().create(
-                ComputeManagementClient.class);
+        return new ComputeManagementClientImpl(Configuration.getInstance(), Executors.newCachedThreadPool());
     }
 
     /**
@@ -44,31 +45,6 @@ public final class ComputeManagementService {
      * @return An instance of the <code>ComputeManagementClient</code> API.
      */
     public static ComputeManagementClient create(final Configuration config) {
-        return config.create(ComputeManagementClient.class);
-    }
-
-    /**
-     * Creates an instance of the <code>ComputeManagementClient</code> API.
-     *
-     * @param profile A <code>String</code> object that representing the profile
-     * of the service management service.
-     * @return An instance of the <code>ComputeManagementClient</code> API.
-     */
-    public static ComputeManagementClient create(final String profile) {
-        return Configuration.getInstance().create(profile,
-                ComputeManagementClient.class);
-    }
-
-    /**
-     * Creates an instance of the <code>ComputeManagementClient</code> API using
-     * the specified configuration.
-     *
-     * @param config A <code>Configuration</code> object that represents the
-     * configuration for the service management.
-     * @return An instance of the <code>ComputeManagementClient</code> API.
-     */
-    public static ComputeManagementClient create(final String profile,
-            final Configuration config) {
-        return config.create(profile, ComputeManagementClient.class);
+    	return new ComputeManagementClientImpl(config, Executors.newCachedThreadPool());
     }
 }

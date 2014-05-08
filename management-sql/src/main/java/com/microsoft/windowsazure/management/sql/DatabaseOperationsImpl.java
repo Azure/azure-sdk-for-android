@@ -25,7 +25,6 @@ package com.microsoft.windowsazure.management.sql;
 
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
-import com.microsoft.windowsazure.core.pipeline.apache.CustomHttpDelete;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.exception.ServiceException;
@@ -43,6 +42,10 @@ import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -59,12 +62,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -121,20 +118,21 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     * will be created.
     * @param parameters Required. The parameters for the create database
     * operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return Response containing the database create response.
     */
     @Override
-    public DatabaseCreateResponse create(String serverName, DatabaseCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
+    public DatabaseCreateResponse create(String serverName, DatabaseCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (serverName == null) {
             throw new NullPointerException("serverName");
@@ -173,11 +171,14 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2012-03-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
         
         // Serialize Request
         String requestContent = null;
@@ -219,23 +220,14 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_CREATED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 201) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -245,7 +237,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             // Create Result
             DatabaseCreateResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new DatabaseCreateResponse();
             DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
             documentBuilderFactory2.setNamespaceAware(true);
@@ -378,17 +370,15 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -422,15 +412,16 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     * @param serverName Required. The name of the server on which the database
     * is found.
     * @param databaseName Required. The name of the database to be deleted.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse delete(String serverName, String databaseName) throws IOException, ServiceException {
+    public OperationResponse delete(String serverName, String databaseName) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serverName == null) {
             throw new NullPointerException("serverName");
@@ -463,24 +454,19 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        CustomHttpDelete httpRequest = new CustomHttpDelete(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Delete");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2012-03-01");
+        httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -491,17 +477,15 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -532,10 +516,11 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     * database is housed.
     * @param databaseName Required. The name of the SQL Server database to be
     * obtained.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -543,7 +528,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     * @return Response containing the database get response.
     */
     @Override
-    public DatabaseGetResponse get(String serverName, String databaseName) throws IOException, ServiceException, ParserConfigurationException, SAXException {
+    public DatabaseGetResponse get(String serverName, String databaseName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         if (serverName == null) {
             throw new NullPointerException("serverName");
@@ -576,24 +561,19 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2012-03-01");
+        httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -603,7 +583,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             // Create Result
             DatabaseGetResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new DatabaseGetResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -736,17 +716,15 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -782,10 +760,11 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     * obtained.
     * @param parameters Required. The parameters for the get event logs
     * database operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -794,7 +773,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     * request ID.
     */
     @Override
-    public DatabaseGetEventLogsResponse getEventLogs(String serverName, String databaseName, DatabaseGetEventLogsParameters parameters) throws IOException, ServiceException, ParserConfigurationException, SAXException {
+    public DatabaseGetEventLogsResponse getEventLogs(String serverName, String databaseName, DatabaseGetEventLogsParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         if (serverName == null) {
             throw new NullPointerException("serverName");
@@ -839,24 +818,19 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2012-03-01");
+        httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -866,7 +840,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             // Create Result
             DatabaseGetEventLogsResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new DatabaseGetEventLogsResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -1002,17 +976,15 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -1037,10 +1009,11 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     * Returns the list SQL Server databases.
     *
     * @param serverName Required. The name of the database server to be queried.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -1048,7 +1021,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     * @return Response containing the list of databases for a given server.
     */
     @Override
-    public DatabaseListResponse list(String serverName) throws IOException, ServiceException, ParserConfigurationException, SAXException {
+    public DatabaseListResponse list(String serverName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         if (serverName == null) {
             throw new NullPointerException("serverName");
@@ -1077,24 +1050,19 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2012-03-01");
+        httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1104,7 +1072,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             // Create Result
             DatabaseListResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new DatabaseListResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -1240,17 +1208,15 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -1285,20 +1251,21 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
     * obtained.
     * @param parameters Required. The parameters for the update database
     * operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return Response containing the database update response.
     */
     @Override
-    public DatabaseUpdateResponse update(String serverName, String databaseName, DatabaseUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
+    public DatabaseUpdateResponse update(String serverName, String databaseName, DatabaseUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (serverName == null) {
             throw new NullPointerException("serverName");
@@ -1341,11 +1308,14 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPut httpRequest = new HttpPut(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Put");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2012-03-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
         
         // Serialize Request
         String requestContent = null;
@@ -1391,23 +1361,14 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1417,7 +1378,7 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             // Create Result
             DatabaseUpdateResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new DatabaseUpdateResponse();
             DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
             documentBuilderFactory2.setNamespaceAware(true);
@@ -1550,17 +1511,15 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }

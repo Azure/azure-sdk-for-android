@@ -36,6 +36,8 @@ import com.microsoft.windowsazure.management.compute.models.VirtualMachineDiskLi
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineDiskUpdateParameters;
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineDiskUpdateResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -63,14 +65,15 @@ public interface VirtualMachineDiskOperations {
     * @param logicalUnitNumber Required. The logical unit number of the disk.
     * @param deleteFromStorage Required. Specifies that the source blob for the
     * disk should also be deleted from storage.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginDeletingDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber, boolean deleteFromStorage) throws IOException, ServiceException;
+    OperationResponse beginDeletingDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber, boolean deleteFromStorage) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Begin Deleting Data Disk operation removes the specified data disk
@@ -115,20 +118,21 @@ public interface VirtualMachineDiskOperations {
     * @param roleName Required. The name of the role to add the data disk to.
     * @param parameters Required. Parameters supplied to the Create Virtual
     * Machine Data Disk operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse createDataDisk(String serviceName, String deploymentName, String roleName, VirtualMachineDataDiskCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse createDataDisk(String serviceName, String deploymentName, String roleName, VirtualMachineDataDiskCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Create Data Disk operation adds a data disk to a virtual machine.
@@ -168,21 +172,22 @@ public interface VirtualMachineDiskOperations {
     *
     * @param parameters Required. Parameters supplied to the Create Virtual
     * Machine Disk operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return A virtual machine disk associated with your subscription.
     */
-    VirtualMachineDiskCreateResponse createDisk(VirtualMachineDiskCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, URISyntaxException;
+    VirtualMachineDiskCreateResponse createDisk(VirtualMachineDiskCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException;
     
     /**
     * The Create Disk operation adds a disk to the user image repository. The
@@ -219,8 +224,6 @@ public interface VirtualMachineDiskOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -230,7 +233,7 @@ public interface VirtualMachineDiskOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse deleteDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber, boolean deleteFromStorage) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse deleteDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber, boolean deleteFromStorage) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Delete Data Disk operation removes the specified data disk from a
@@ -265,14 +268,15 @@ public interface VirtualMachineDiskOperations {
     * @param name Required. The name of the disk to delete.
     * @param deleteFromStorage Required. Specifies that the source blob for the
     * disk should also be deleted from storage.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse deleteDisk(String name, boolean deleteFromStorage) throws IOException, ServiceException;
+    OperationResponse deleteDisk(String name, boolean deleteFromStorage) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Delete Disk operation deletes the specified data or operating system
@@ -298,10 +302,11 @@ public interface VirtualMachineDiskOperations {
     * @param deploymentName Required. The name of the deployment.
     * @param roleName Required. The name of the role.
     * @param logicalUnitNumber Required. The logical unit number of the disk.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -310,7 +315,7 @@ public interface VirtualMachineDiskOperations {
     * the response.
     * @return The Get Data Disk operation response.
     */
-    VirtualMachineDataDiskGetResponse getDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    VirtualMachineDataDiskGetResponse getDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The Get Data Disk operation retrieves the specified data disk from a
@@ -333,10 +338,11 @@ public interface VirtualMachineDiskOperations {
     * more information)
     *
     * @param name Required. The name of the disk.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -345,7 +351,7 @@ public interface VirtualMachineDiskOperations {
     * the response.
     * @return A virtual machine disk associated with your subscription.
     */
-    VirtualMachineDiskGetResponse getDisk(String name) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    VirtualMachineDiskGetResponse getDisk(String name) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The Get Disk operation retrieves a disk from the user image repository.
@@ -364,10 +370,11 @@ public interface VirtualMachineDiskOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/jj157176.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -376,7 +383,7 @@ public interface VirtualMachineDiskOperations {
     * the response.
     * @return The List Disks operation response.
     */
-    VirtualMachineDiskListResponse listDisks() throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    VirtualMachineDiskListResponse listDisks() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The List Disks operation retrieves a list of the disks in your image
@@ -400,20 +407,21 @@ public interface VirtualMachineDiskOperations {
     * @param logicalUnitNumber Required. The logical unit number of the disk.
     * @param parameters Required. Parameters supplied to the Update Virtual
     * Machine Data Disk operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse updateDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber, VirtualMachineDataDiskUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse updateDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber, VirtualMachineDataDiskUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Update Data Disk operation updates the specified data disk attached
@@ -441,21 +449,22 @@ public interface VirtualMachineDiskOperations {
     * @param name Required. The name of the disk being updated.
     * @param parameters Required. Parameters supplied to the Update Virtual
     * Machine Disk operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return A virtual machine disk associated with your subscription.
     */
-    VirtualMachineDiskUpdateResponse updateDisk(String name, VirtualMachineDiskUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, URISyntaxException;
+    VirtualMachineDiskUpdateResponse updateDisk(String name, VirtualMachineDiskUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException;
     
     /**
     * The Add Disk operation adds a disk to the user image repository. The disk

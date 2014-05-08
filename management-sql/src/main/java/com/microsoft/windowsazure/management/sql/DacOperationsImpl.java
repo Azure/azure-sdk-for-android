@@ -36,8 +36,12 @@ import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -52,11 +56,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -95,11 +94,11 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     * @return Response for an DAC Import/Export request.
     */
     @Override
-    public Future<DacImportExportResponse> exportDatabaseAsync(final String serverName, final DacExportParameters parameters) {
+    public Future<DacImportExportResponse> exportAsync(final String serverName, final DacExportParameters parameters) {
         return this.getClient().getExecutorService().submit(new Callable<DacImportExportResponse>() { 
             @Override
             public DacImportExportResponse call() throws Exception {
-                return exportDatabase(serverName, parameters);
+                return export(serverName, parameters);
             }
          });
     }
@@ -109,20 +108,21 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     *
     * @param serverName Required. The name of the server being exported from.
     * @param parameters Optional. Export parameters.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return Response for an DAC Import/Export request.
     */
     @Override
-    public DacImportExportResponse exportDatabase(String serverName, DacExportParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
+    public DacImportExportResponse export(String serverName, DacExportParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (serverName == null) {
             throw new NullPointerException("serverName");
@@ -160,7 +160,7 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
             HashMap<String, Object> tracingParameters = new HashMap<String, Object>();
             tracingParameters.put("serverName", serverName);
             tracingParameters.put("parameters", parameters);
-            CloudTracing.enter(invocationId, this, "exportDatabaseAsync", tracingParameters);
+            CloudTracing.enter(invocationId, this, "exportAsync", tracingParameters);
         }
         
         // Construct URL
@@ -176,11 +176,14 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2012-03-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
         
         // Serialize Request
         String requestContent = null;
@@ -238,23 +241,14 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -264,7 +258,7 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
             // Create Result
             DacImportExportResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new DacImportExportResponse();
             DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
             documentBuilderFactory2.setNamespaceAware(true);
@@ -277,17 +271,15 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -322,10 +314,11 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     * @param username Required. The server's username.
     * @param password Required. The server's password.
     * @param requestId Required. The request ID of the operation being queried.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -335,7 +328,7 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     * @return The response structure for the DAC GetStatus operation.
     */
     @Override
-    public DacGetStatusResponse getStatus(String serverName, String fullyQualifiedServerName, String username, String password, String requestId) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException {
+    public DacGetStatusResponse getStatus(String serverName, String fullyQualifiedServerName, String username, String password, String requestId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         if (serverName == null) {
             throw new NullPointerException("serverName");
@@ -384,24 +377,19 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2012-03-01");
+        httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -411,7 +399,7 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
             // Create Result
             DacGetStatusResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new DacGetStatusResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -500,17 +488,15 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -523,11 +509,11 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     * @return Response for an DAC Import/Export request.
     */
     @Override
-    public Future<DacImportExportResponse> importDatabaseAsync(final String serverName, final DacImportParameters parameters) {
+    public Future<DacImportExportResponse> importAsync(final String serverName, final DacImportParameters parameters) {
         return this.getClient().getExecutorService().submit(new Callable<DacImportExportResponse>() { 
             @Override
             public DacImportExportResponse call() throws Exception {
-                return importDatabase(serverName, parameters);
+                return import(serverName, parameters);
             }
          });
     }
@@ -537,20 +523,21 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     *
     * @param serverName Required. The name of the server being imported to.
     * @param parameters Optional. Import parameters.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return Response for an DAC Import/Export request.
     */
     @Override
-    public DacImportExportResponse importDatabase(String serverName, DacImportParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
+    public DacImportExportResponse import(String serverName, DacImportParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (serverName == null) {
             throw new NullPointerException("serverName");
@@ -588,7 +575,7 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
             HashMap<String, Object> tracingParameters = new HashMap<String, Object>();
             tracingParameters.put("serverName", serverName);
             tracingParameters.put("parameters", parameters);
-            CloudTracing.enter(invocationId, this, "importDatabaseAsync", tracingParameters);
+            CloudTracing.enter(invocationId, this, "importAsync", tracingParameters);
         }
         
         // Construct URL
@@ -604,11 +591,14 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2012-03-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
         
         // Serialize Request
         String requestContent = null;
@@ -676,23 +666,14 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -702,7 +683,7 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
             // Create Result
             DacImportExportResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new DacImportExportResponse();
             DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
             documentBuilderFactory2.setNamespaceAware(true);
@@ -715,17 +696,15 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }

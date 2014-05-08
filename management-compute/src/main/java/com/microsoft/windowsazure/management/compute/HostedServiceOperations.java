@@ -37,6 +37,8 @@ import com.microsoft.windowsazure.management.compute.models.HostedServiceListExt
 import com.microsoft.windowsazure.management.compute.models.HostedServiceListResponse;
 import com.microsoft.windowsazure.management.compute.models.HostedServiceUpdateParameters;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -73,8 +75,6 @@ public interface HostedServiceOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -84,7 +84,7 @@ public interface HostedServiceOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse addExtension(String serviceName, HostedServiceAddExtensionParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse addExtension(String serviceName, HostedServiceAddExtensionParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Add Extension operation adds an available extension to your cloud
@@ -121,20 +121,21 @@ public interface HostedServiceOperations {
     * @param serviceName Required. The name of the cloud service.
     * @param parameters Required. Parameters supplied to the Begin Adding
     * Extension operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginAddingExtension(String serviceName, HostedServiceAddExtensionParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginAddingExtension(String serviceName, HostedServiceAddExtensionParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Begin Adding Extension operation adds an available extension to your
@@ -160,14 +161,15 @@ public interface HostedServiceOperations {
     * more information)
     *
     * @param serviceName Required. The name of the cloud service.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginDeletingAll(String serviceName) throws IOException, ServiceException;
+    OperationResponse beginDeletingAll(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Begin Deleting All Hosted Service operation deletes the specified
@@ -190,14 +192,15 @@ public interface HostedServiceOperations {
     * @param serviceName Required. The name of the cloud service.
     * @param extensionId Required. The identifier that was assigned to the
     * extension when it was added to the cloud service
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginDeletingExtension(String serviceName, String extensionId) throws IOException, ServiceException;
+    OperationResponse beginDeletingExtension(String serviceName, String extensionId) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Begin Deleting Extension operation deletes the specified extension
@@ -221,17 +224,18 @@ public interface HostedServiceOperations {
     *
     * @param serviceName Required. The cloud service name that you would like
     * to use.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The Check Hosted Service Name Availability operation response.
     */
-    HostedServiceCheckNameAvailabilityResponse checkNameAvailability(String serviceName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    HostedServiceCheckNameAvailabilityResponse checkNameAvailability(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The Check Hosted Service Name Availability operation checks for the
@@ -262,8 +266,8 @@ public interface HostedServiceOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
@@ -271,12 +275,14 @@ public interface HostedServiceOperations {
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse create(HostedServiceCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException, ParserConfigurationException, SAXException, TransformerException, URISyntaxException;
+    OperationResponse create(HostedServiceCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, IOException, URISyntaxException;
     
     /**
     * The Create Hosted Service operation creates a new cloud service in Azure.
@@ -297,10 +303,11 @@ public interface HostedServiceOperations {
     * more information)
     *
     * @param serviceName Required. The name of the cloud service.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -314,7 +321,7 @@ public interface HostedServiceOperations {
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse delete(String serviceName) throws IOException, ServiceException, InterruptedException, ExecutionException;
+    OperationResponse delete(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, InterruptedException, ExecutionException;
     
     /**
     * The Delete Hosted Service operation deletes the specified cloud service
@@ -345,8 +352,6 @@ public interface HostedServiceOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -356,7 +361,7 @@ public interface HostedServiceOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse deleteAll(String serviceName) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse deleteAll(String serviceName) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Delete All Hosted Service operation deletes the specified cloud
@@ -395,8 +400,6 @@ public interface HostedServiceOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -406,7 +409,7 @@ public interface HostedServiceOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse deleteExtension(String serviceName, String extensionId) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse deleteExtension(String serviceName, String extensionId) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Delete Extension operation deletes the specified extension from a
@@ -437,10 +440,11 @@ public interface HostedServiceOperations {
     * for more information)
     *
     * @param serviceName Required. The name of the cloud service.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -449,7 +453,7 @@ public interface HostedServiceOperations {
     * the response.
     * @return The Get Hosted Service operation response.
     */
-    HostedServiceGetResponse get(String serviceName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    HostedServiceGetResponse get(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The Get Hosted Service Properties operation retrieves system properties
@@ -474,10 +478,11 @@ public interface HostedServiceOperations {
     * more information)
     *
     * @param serviceName Required. The name of the cloud service.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -486,7 +491,7 @@ public interface HostedServiceOperations {
     * the response.
     * @return The detailed Get Hosted Service operation response.
     */
-    HostedServiceGetDetailedResponse getDetailed(String serviceName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    HostedServiceGetDetailedResponse getDetailed(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The Get Detailed Hosted Service Properties operation retrieves system
@@ -511,17 +516,18 @@ public interface HostedServiceOperations {
     * @param serviceName Required. The name of the cloud service.
     * @param extensionId Required. The identifier that was assigned to the
     * extension when it was added to the cloud service
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The Get Extension operation response.
     */
-    HostedServiceGetExtensionResponse getExtension(String serviceName, String extensionId) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    HostedServiceGetExtensionResponse getExtension(String serviceName, String extensionId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The Get Extension operation retrieves information about a specified
@@ -542,10 +548,11 @@ public interface HostedServiceOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/ee460781.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -554,7 +561,7 @@ public interface HostedServiceOperations {
     * the response.
     * @return The List Hosted Service operation response.
     */
-    HostedServiceListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    HostedServiceListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The List Hosted Services operation lists the cloud services available
@@ -575,10 +582,11 @@ public interface HostedServiceOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/dn169559.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -587,7 +595,7 @@ public interface HostedServiceOperations {
     * the response.
     * @return The List Available Extensions operation response.
     */
-    HostedServiceListAvailableExtensionsResponse listAvailableExtensions() throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    HostedServiceListAvailableExtensionsResponse listAvailableExtensions() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The List Available Extensions operation lists the extensions that are
@@ -609,17 +617,18 @@ public interface HostedServiceOperations {
     * more information)
     *
     * @param serviceName Required. The name of the cloud service.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The List Extensions operation response.
     */
-    HostedServiceListExtensionsResponse listExtensions(String serviceName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    HostedServiceListExtensionsResponse listExtensions(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The List Extensions operation lists all of the extensions that were added
@@ -643,10 +652,11 @@ public interface HostedServiceOperations {
     *
     * @param providerNamespace Required. The provider namespace.
     * @param extensionType Required. The extension type name.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -655,7 +665,7 @@ public interface HostedServiceOperations {
     * the response.
     * @return The List Available Extensions operation response.
     */
-    HostedServiceListAvailableExtensionsResponse listExtensionVersions(String providerNamespace, String extensionType) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    HostedServiceListAvailableExtensionsResponse listExtensionVersions(String providerNamespace, String extensionType) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The List Extension Versions operation lists the versions of an extension
@@ -681,16 +691,17 @@ public interface HostedServiceOperations {
     * @param serviceName Required. The name of the cloud service.
     * @param parameters Required. Parameters supplied to the Update Hosted
     * Service operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -706,7 +717,7 @@ public interface HostedServiceOperations {
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse update(String serviceName, HostedServiceUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, InterruptedException, ExecutionException, URISyntaxException;
+    OperationResponse update(String serviceName, HostedServiceUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, InterruptedException, ExecutionException, URISyntaxException;
     
     /**
     * The Update Hosted Service operation can update the label or description

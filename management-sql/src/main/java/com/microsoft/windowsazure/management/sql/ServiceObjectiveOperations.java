@@ -27,6 +27,8 @@ import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.sql.models.ServiceObjectiveGetResponse;
 import com.microsoft.windowsazure.management.sql.models.ServiceObjectiveListResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
@@ -42,10 +44,11 @@ public interface ServiceObjectiveOperations {
     * @param serverName Required. The name of the SQL Server to be queried.
     * @param serviceObjectiveId Required. The Id of the Service Objective to be
     * obtained.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -53,7 +56,7 @@ public interface ServiceObjectiveOperations {
     * @return Response containing the service objective for a given server and
     * service objective Id.
     */
-    ServiceObjectiveGetResponse get(String serverName, String serviceObjectiveId) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    ServiceObjectiveGetResponse get(String serverName, String serviceObjectiveId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * Returns information about a certain Service Objective on a given Id.
@@ -70,10 +73,11 @@ public interface ServiceObjectiveOperations {
     * Returns information about all Service Objectives on a database server.
     *
     * @param serverName Required. The name of the database server to be queried.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -81,7 +85,7 @@ public interface ServiceObjectiveOperations {
     * @return Response containing the list of service objective for a given
     * server.
     */
-    ServiceObjectiveListResponse list(String serverName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    ServiceObjectiveListResponse list(String serverName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * Returns information about all Service Objectives on a database server.

@@ -27,7 +27,6 @@ import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.OperationStatus;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
-import com.microsoft.windowsazure.core.pipeline.apache.CustomHttpDelete;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.Base64;
 import com.microsoft.windowsazure.core.utils.XmlUtility;
@@ -89,9 +88,13 @@ import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -107,12 +110,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -197,8 +194,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -209,7 +204,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse addExtension(String serviceName, HostedServiceAddExtensionParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException {
+    public OperationStatusResponse addExtension(String serviceName, HostedServiceAddExtensionParameters parameters) throws InterruptedException, ExecutionException, ServiceException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -220,48 +215,42 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "addExtensionAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getHostedServicesOperations().beginAddingExtensionAsync(serviceName, parameters).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getHostedServicesOperations().beginAddingExtensionAsync(serviceName, parameters).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
     
     /**
@@ -301,21 +290,22 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * @param serviceName Required. The name of the cloud service.
     * @param parameters Required. Parameters supplied to the Begin Adding
     * Extension operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginAddingExtension(String serviceName, HostedServiceAddExtensionParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
+    public OperationResponse beginAddingExtension(String serviceName, HostedServiceAddExtensionParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -355,11 +345,14 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Serialize Request
         String requestContent = null;
@@ -421,23 +414,14 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -448,17 +432,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -490,15 +472,16 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * more information)
     *
     * @param serviceName Required. The name of the cloud service.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginDeletingAll(String serviceName) throws IOException, ServiceException {
+    public OperationResponse beginDeletingAll(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -527,24 +510,19 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        CustomHttpDelete httpRequest = new CustomHttpDelete(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Delete");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -555,17 +533,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -601,15 +577,16 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * @param serviceName Required. The name of the cloud service.
     * @param extensionId Required. The identifier that was assigned to the
     * extension when it was added to the cloud service
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginDeletingExtension(String serviceName, String extensionId) throws IOException, ServiceException {
+    public OperationResponse beginDeletingExtension(String serviceName, String extensionId) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -643,24 +620,19 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        CustomHttpDelete httpRequest = new CustomHttpDelete(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Delete");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200 && statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -671,17 +643,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -714,10 +684,11 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     *
     * @param serviceName Required. The cloud service name that you would like
     * to use.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -725,7 +696,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * @return The Check Hosted Service Name Availability operation response.
     */
     @Override
-    public HostedServiceCheckNameAvailabilityResponse checkNameAvailability(String serviceName) throws IOException, ServiceException, ParserConfigurationException, SAXException {
+    public HostedServiceCheckNameAvailabilityResponse checkNameAvailability(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -755,24 +726,19 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -782,7 +748,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             // Create Result
             HostedServiceCheckNameAvailabilityResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new HostedServiceCheckNameAvailabilityResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -807,17 +773,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -859,8 +823,8 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
@@ -868,13 +832,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse create(HostedServiceCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException, ParserConfigurationException, SAXException, TransformerException, URISyntaxException {
+    public OperationResponse create(HostedServiceCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, IOException, URISyntaxException {
         // Validate
         if (parameters == null) {
             throw new NullPointerException("parameters");
@@ -917,11 +883,14 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPost httpRequest = new HttpPost(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Post");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Serialize Request
         String requestContent = null;
@@ -984,23 +953,14 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_CREATED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 201) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1011,17 +971,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -1053,10 +1011,11 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * more information)
     *
     * @param serviceName Required. The name of the cloud service.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -1071,7 +1030,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * request ID.
     */
     @Override
-    public OperationResponse delete(String serviceName) throws IOException, ServiceException, InterruptedException, ExecutionException {
+    public OperationResponse delete(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, InterruptedException, ExecutionException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -1100,24 +1059,19 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        CustomHttpDelete httpRequest = new CustomHttpDelete(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Delete");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1128,17 +1082,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -1186,8 +1138,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1198,7 +1148,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse deleteAll(String serviceName) throws InterruptedException, ExecutionException, ServiceException, IOException {
+    public OperationStatusResponse deleteAll(String serviceName) throws InterruptedException, ExecutionException, ServiceException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -1208,48 +1158,42 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             tracingParameters.put("serviceName", serviceName);
             CloudTracing.enter(invocationId, this, "deleteAllAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getHostedServicesOperations().beginDeletingAllAsync(serviceName).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getHostedServicesOperations().beginDeletingAllAsync(serviceName).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
     
     /**
@@ -1299,8 +1243,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1311,7 +1253,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse deleteExtension(String serviceName, String extensionId) throws InterruptedException, ExecutionException, ServiceException, IOException {
+    public OperationStatusResponse deleteExtension(String serviceName, String extensionId) throws InterruptedException, ExecutionException, ServiceException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -1322,48 +1264,42 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             tracingParameters.put("extensionId", extensionId);
             CloudTracing.enter(invocationId, this, "deleteExtensionAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getHostedServicesOperations().beginDeletingExtensionAsync(serviceName, extensionId).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getHostedServicesOperations().beginDeletingExtensionAsync(serviceName, extensionId).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
     
     /**
@@ -1396,10 +1332,11 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * for more information)
     *
     * @param serviceName Required. The name of the cloud service.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -1409,7 +1346,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * @return The Get Hosted Service operation response.
     */
     @Override
-    public HostedServiceGetResponse get(String serviceName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException {
+    public HostedServiceGetResponse get(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -1438,24 +1375,19 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1465,7 +1397,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             // Create Result
             HostedServiceGetResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new HostedServiceGetResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -1555,17 +1487,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -1602,10 +1532,11 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * more information)
     *
     * @param serviceName Required. The name of the cloud service.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -1615,7 +1546,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * @return The detailed Get Hosted Service operation response.
     */
     @Override
-    public HostedServiceGetDetailedResponse getDetailed(String serviceName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException {
+    public HostedServiceGetDetailedResponse getDetailed(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -1644,24 +1575,19 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1671,7 +1597,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             // Create Result
             HostedServiceGetDetailedResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new HostedServiceGetDetailedResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -3118,17 +3044,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -3163,10 +3087,11 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * @param serviceName Required. The name of the cloud service.
     * @param extensionId Required. The identifier that was assigned to the
     * extension when it was added to the cloud service
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -3174,7 +3099,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * @return The Get Extension operation response.
     */
     @Override
-    public HostedServiceGetExtensionResponse getExtension(String serviceName, String extensionId) throws IOException, ServiceException, ParserConfigurationException, SAXException {
+    public HostedServiceGetExtensionResponse getExtension(String serviceName, String extensionId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -3208,24 +3133,19 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -3235,7 +3155,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             // Create Result
             HostedServiceGetExtensionResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new HostedServiceGetExtensionResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -3295,17 +3215,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -3334,10 +3252,11 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * http://msdn.microsoft.com/en-us/library/windowsazure/ee460781.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -3347,7 +3266,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * @return The List Hosted Service operation response.
     */
     @Override
-    public HostedServiceListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException {
+    public HostedServiceListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         
         // Tracing
@@ -3372,24 +3291,19 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -3399,7 +3313,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             // Create Result
             HostedServiceListResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new HostedServiceListResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -3495,17 +3409,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -3540,10 +3452,11 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * http://msdn.microsoft.com/en-us/library/windowsazure/dn169559.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -3553,7 +3466,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * @return The List Available Extensions operation response.
     */
     @Override
-    public HostedServiceListAvailableExtensionsResponse listAvailableExtensions() throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException {
+    public HostedServiceListAvailableExtensionsResponse listAvailableExtensions() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         
         // Tracing
@@ -3578,24 +3491,19 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -3605,7 +3513,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             // Create Result
             HostedServiceListAvailableExtensionsResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new HostedServiceListAvailableExtensionsResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -3734,17 +3642,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -3775,10 +3681,11 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * more information)
     *
     * @param serviceName Required. The name of the cloud service.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -3786,7 +3693,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * @return The List Extensions operation response.
     */
     @Override
-    public HostedServiceListExtensionsResponse listExtensions(String serviceName) throws IOException, ServiceException, ParserConfigurationException, SAXException {
+    public HostedServiceListExtensionsResponse listExtensions(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -3816,24 +3723,19 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -3843,7 +3745,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             // Create Result
             HostedServiceListExtensionsResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new HostedServiceListExtensionsResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -3909,17 +3811,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -3958,10 +3858,11 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     *
     * @param providerNamespace Required. The provider namespace.
     * @param extensionType Required. The extension type name.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -3971,7 +3872,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * @return The List Available Extensions operation response.
     */
     @Override
-    public HostedServiceListAvailableExtensionsResponse listExtensionVersions(String providerNamespace, String extensionType) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException {
+    public HostedServiceListAvailableExtensionsResponse listExtensionVersions(String providerNamespace, String extensionType) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         if (providerNamespace == null) {
             throw new NullPointerException("providerNamespace");
@@ -4004,24 +3905,19 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -4031,7 +3927,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             // Create Result
             HostedServiceListAvailableExtensionsResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new HostedServiceListAvailableExtensionsResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -4160,17 +4056,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -4206,16 +4100,17 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * @param serviceName Required. The name of the cloud service.
     * @param parameters Required. Parameters supplied to the Update Hosted
     * Service operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -4232,7 +4127,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * request ID.
     */
     @Override
-    public OperationResponse update(String serviceName, HostedServiceUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, InterruptedException, ExecutionException, URISyntaxException {
+    public OperationResponse update(String serviceName, HostedServiceUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, InterruptedException, ExecutionException, URISyntaxException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -4273,11 +4168,14 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPut httpRequest = new HttpPut(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Put");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/xml");
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Serialize Request
         String requestContent = null;
@@ -4326,23 +4224,14 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setRequestProperty("Content-Type", "application/xml");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -4353,17 +4242,15 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }

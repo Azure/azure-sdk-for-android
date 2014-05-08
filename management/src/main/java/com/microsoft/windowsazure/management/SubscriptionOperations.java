@@ -29,6 +29,8 @@ import com.microsoft.windowsazure.management.models.SubscriptionGetResponse;
 import com.microsoft.windowsazure.management.models.SubscriptionListOperationsParameters;
 import com.microsoft.windowsazure.management.models.SubscriptionListOperationsResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
@@ -46,10 +48,11 @@ public interface SubscriptionOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/hh403995.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -58,7 +61,7 @@ public interface SubscriptionOperations {
     * the response.
     * @return The Get Subscription operation response.
     */
-    SubscriptionGetResponse get() throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    SubscriptionGetResponse get() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The Get Subscription operation returns account and resource allocation
@@ -79,17 +82,18 @@ public interface SubscriptionOperations {
     *
     * @param parameters Required. Parameters supplied to the List Subscription
     * Operations operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The List Subscription Operations operation response.
     */
-    SubscriptionListOperationsResponse listOperations(SubscriptionListOperationsParameters parameters) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    SubscriptionListOperationsResponse listOperations(SubscriptionListOperationsParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The List Subscription Operations operation returns a list of create,
@@ -108,14 +112,15 @@ public interface SubscriptionOperations {
     * Register a resource with your subscription.
     *
     * @param resourceName Required. Name of the resource to register.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse registerResource(String resourceName) throws IOException, ServiceException;
+    OperationResponse registerResource(String resourceName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * Register a resource with your subscription.
@@ -130,14 +135,15 @@ public interface SubscriptionOperations {
     * Unregister a resource with your subscription.
     *
     * @param resourceName Required. Name of the resource to unregister.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse unregisterResource(String resourceName) throws IOException, ServiceException;
+    OperationResponse unregisterResource(String resourceName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * Unregister a resource with your subscription.

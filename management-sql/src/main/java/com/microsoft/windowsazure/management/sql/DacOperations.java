@@ -29,6 +29,8 @@ import com.microsoft.windowsazure.management.sql.models.DacGetStatusResponse;
 import com.microsoft.windowsazure.management.sql.models.DacImportExportResponse;
 import com.microsoft.windowsazure.management.sql.models.DacImportParameters;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
@@ -45,19 +47,20 @@ public interface DacOperations {
     *
     * @param serverName Required. The name of the server being exported from.
     * @param parameters Optional. Export parameters.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return Response for an DAC Import/Export request.
     */
-    DacImportExportResponse exportDatabase(String serverName, DacExportParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    DacImportExportResponse export(String serverName, DacExportParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * Export DAC into Windows Azure blob storage.
@@ -66,7 +69,7 @@ public interface DacOperations {
     * @param parameters Optional. Export parameters.
     * @return Response for an DAC Import/Export request.
     */
-    Future<DacImportExportResponse> exportDatabaseAsync(String serverName, DacExportParameters parameters);
+    Future<DacImportExportResponse> exportAsync(String serverName, DacExportParameters parameters);
     
     /**
     * Gets the status of the DAC.
@@ -77,10 +80,11 @@ public interface DacOperations {
     * @param username Required. The server's username.
     * @param password Required. The server's password.
     * @param requestId Required. The request ID of the operation being queried.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -89,7 +93,7 @@ public interface DacOperations {
     * the response.
     * @return The response structure for the DAC GetStatus operation.
     */
-    DacGetStatusResponse getStatus(String serverName, String fullyQualifiedServerName, String username, String password, String requestId) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    DacGetStatusResponse getStatus(String serverName, String fullyQualifiedServerName, String username, String password, String requestId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * Gets the status of the DAC.
@@ -109,19 +113,20 @@ public interface DacOperations {
     *
     * @param serverName Required. The name of the server being imported to.
     * @param parameters Optional. Import parameters.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return Response for an DAC Import/Export request.
     */
-    DacImportExportResponse importDatabase(String serverName, DacImportParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    DacImportExportResponse import(String serverName, DacImportParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * Import DAC from Windows Azure blob storage.
@@ -130,5 +135,5 @@ public interface DacOperations {
     * @param parameters Optional. Import parameters.
     * @return Response for an DAC Import/Export request.
     */
-    Future<DacImportExportResponse> importDatabaseAsync(String serverName, DacImportParameters parameters);
+    Future<DacImportExportResponse> importAsync(String serverName, DacImportParameters parameters);
 }

@@ -26,6 +26,8 @@ package com.microsoft.windowsazure.management;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.models.LocationsListResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
@@ -43,17 +45,18 @@ public interface LocationOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/gg441293.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The List Locations operation response.
     */
-    LocationsListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    LocationsListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The List Locations operation lists all of the data center locations that

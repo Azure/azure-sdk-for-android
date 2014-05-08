@@ -29,6 +29,8 @@ import com.microsoft.windowsazure.management.models.ManagementCertificateCreateP
 import com.microsoft.windowsazure.management.models.ManagementCertificateGetResponse;
 import com.microsoft.windowsazure.management.models.ManagementCertificateListResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
@@ -53,20 +55,21 @@ public interface ManagementCertificateOperations {
     *
     * @param parameters Required. Parameters supplied to the Create Management
     * Certificate operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse create(ManagementCertificateCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse create(ManagementCertificateCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Create Management Certificate operation adds a certificate to the
@@ -93,14 +96,15 @@ public interface ManagementCertificateOperations {
     *
     * @param thumbprint Required. The thumbprint value of the certificate to
     * delete.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse delete(String thumbprint) throws IOException, ServiceException;
+    OperationResponse delete(String thumbprint) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Delete Management Certificate operation deletes a certificate from
@@ -128,10 +132,11 @@ public interface ManagementCertificateOperations {
     *
     * @param thumbprint Required. The thumbprint value of the certificate to
     * retrieve information about.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -140,7 +145,7 @@ public interface ManagementCertificateOperations {
     * the response.
     * @return The Get Management Certificate operation response.
     */
-    ManagementCertificateGetResponse get(String thumbprint) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    ManagementCertificateGetResponse get(String thumbprint) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The Get Management Certificate operation retrieves information about the
@@ -166,17 +171,18 @@ public interface ManagementCertificateOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/jj154105.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The List Management Certificates operation response.
     */
-    ManagementCertificateListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    ManagementCertificateListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The List Management Certificates operation lists and returns basic

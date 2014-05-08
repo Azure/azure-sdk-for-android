@@ -40,7 +40,11 @@ import com.microsoft.windowsazure.tracing.ClientRequestTrackingHandler;
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -48,11 +52,6 @@ import java.util.concurrent.Future;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.StringEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -113,15 +112,16 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
     *
     * @param parameters Required. Parameters supplied to the Set Network
     * Configuration operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard storage response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginSettingConfiguration(NetworkSetConfigurationParameters parameters) throws IOException, ServiceException {
+    public OperationResponse beginSettingConfiguration(NetworkSetConfigurationParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (parameters == null) {
             throw new NullPointerException("parameters");
@@ -153,31 +153,25 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpPut httpRequest = new HttpPut(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Put");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("Content-Type", "application/octet-stream");
-        httpRequest.setHeader("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("Content-Type", "application/octet-stream");
+        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
         
         // Serialize Request
         String requestContent = parameters.getConfiguration();
-        StringEntity entity = new StringEntity(requestContent);
-        httpRequest.setEntity(entity);
-        httpRequest.setHeader("Content-Type", "application/octet-stream");
+        httpRequest.setRequestProperty("Content-Type", "application/octet-stream");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
+            httpRequest.getOutputStream().write(requestContent.getBytes());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 202) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -188,17 +182,15 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -227,14 +219,15 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
     * http://msdn.microsoft.com/en-us/library/windowsazure/jj157196.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return The Get Network Configuration operation response.
     */
     @Override
-    public NetworkGetConfigurationResponse getConfiguration() throws IOException, ServiceException {
+    public NetworkGetConfigurationResponse getConfiguration() throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         
         // Tracing
@@ -259,24 +252,19 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -286,22 +274,20 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
             // Create Result
             NetworkGetConfigurationResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new NetworkGetConfigurationResponse();
             result.setConfiguration(StreamUtils.toString(responseContent));
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -330,10 +316,11 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
     * http://msdn.microsoft.com/en-us/library/windowsazure/jj157185.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -341,7 +328,7 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
     * @return The response structure for the Network Operations List operation.
     */
     @Override
-    public NetworkListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException {
+    public NetworkListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         
         // Tracing
@@ -366,24 +353,19 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2013-11-01");
+        httpRequest.setRequestProperty("x-ms-version", "2013-11-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -393,7 +375,7 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
             // Create Result
             NetworkListResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new NetworkListResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -588,17 +570,15 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }
@@ -649,8 +629,6 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -662,7 +640,7 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
     * failure.
     */
     @Override
-    public OperationStatusResponse setConfiguration(NetworkSetConfigurationParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException {
+    public OperationStatusResponse setConfiguration(NetworkSetConfigurationParameters parameters) throws InterruptedException, ExecutionException, ServiceException {
         NetworkManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -672,47 +650,41 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "setConfigurationAsync", tracingParameters);
         }
-        try {
-            if (shouldTrace) {
-                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-            }
-            
-            OperationResponse response = client2.getNetworksOperations().beginSettingConfigurationAsync(parameters).get();
-            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            int delayInSeconds = 30;
-            while ((result.getStatus() != OperationStatus.InProgress) == false) {
-                Thread.sleep(delayInSeconds * 1000);
-                result = client2.getOperationStatusAsync(response.getRequestId()).get();
-                delayInSeconds = 30;
-            }
-            
-            if (shouldTrace) {
-                CloudTracing.exit(invocationId, result);
-            }
-            
-            if (result.getStatus() != OperationStatus.Succeeded) {
-                if (result.getError() != null) {
-                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                    ex.setErrorCode(result.getError().getCode());
-                    ex.setErrorMessage(result.getError().getMessage());
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
-                } else {
-                    ServiceException ex = new ServiceException("");
-                    if (shouldTrace) {
-                        CloudTracing.error(invocationId, ex);
-                    }
-                    throw ex;
+        if (shouldTrace) {
+            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+        }
+        
+        OperationResponse response = client2.getNetworksOperations().beginSettingConfigurationAsync(parameters).get();
+        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+        int delayInSeconds = 30;
+        while ((result.getStatus() != OperationStatus.InProgress) == false) {
+            Thread.sleep(delayInSeconds * 1000);
+            result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            delayInSeconds = 30;
+        }
+        
+        if (shouldTrace) {
+            CloudTracing.exit(invocationId, result);
+        }
+        
+        if (result.getStatus() != OperationStatus.Succeeded) {
+            if (result.getError() != null) {
+                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                ex.setErrorCode(result.getError().getCode());
+                ex.setErrorMessage(result.getError().getMessage());
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
                 }
-            }
-            
-            return result;
-        } finally {
-            if (client2 != null && shouldTrace) {
-                client2.close();
+                throw ex;
+            } else {
+                ServiceException ex = new ServiceException("");
+                if (shouldTrace) {
+                    CloudTracing.error(invocationId, ex);
+                }
+                throw ex;
             }
         }
+        
+        return result;
     }
 }

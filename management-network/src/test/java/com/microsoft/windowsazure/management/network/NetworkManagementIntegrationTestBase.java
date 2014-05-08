@@ -193,7 +193,6 @@ public abstract class NetworkManagementIntegrationTestBase {
                 } catch (InterruptedException e) {
                 } catch (ExecutionException e) {
                 } catch (ServiceException e) {
-                } catch (IOException e) {
                 }
             }
         }

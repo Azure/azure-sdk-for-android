@@ -14,6 +14,8 @@
  */
 package com.microsoft.windowsazure.management.network;
 
+import java.util.concurrent.Executors;
+
 import com.microsoft.windowsazure.Configuration;
 
 /**
@@ -33,8 +35,7 @@ public final class NetworkManagementService {
      * API.
      */
     public static NetworkManagementClient create() {
-        return Configuration.getInstance().create(
-            NetworkManagementClient.class);
+        return new NetworkManagementClientImpl(Configuration.getInstance(), Executors.newCachedThreadPool());
     }
 
     /**
@@ -46,37 +47,7 @@ public final class NetworkManagementService {
      * @return An instance of the <code>VirtualNetworkManagementClient</code>
      * API.
      */
-    public static NetworkManagementClient create(
-            final Configuration config) {
-        return config.create(NetworkManagementClient.class);
-    }
-
-    /**
-     * Creates an instance of the <code>VirtualNetworkManagementClient</code>
-     * API.
-     * 
-     * @param profile A <code>String</code> object that representing the profile
-     * of the service management service.
-     * @return An instance of the <code>VirtualNetworkManagementClient</code>
-     * API.
-     */
-    public static NetworkManagementClient create(final String profile) {
-        return Configuration.getInstance().create(profile,
-            NetworkManagementClient.class);
-    }
-
-    /**
-     * Creates an instance of the <code>VirtualNetworkManagementClient</code>
-     * API using the specified configuration.
-     * 
-     * @param profile The profile.
-     * @param config A <code>Configuration</code> object that represents the
-     * configuration for the service management.
-     * @return An instance of the <code>VirtualNetworkManagementClient</code>
-     * API.
-     */
-    public static NetworkManagementClient create(final String profile,
-            final Configuration config) {
-        return config.create(profile, NetworkManagementClient.class);
+    public static NetworkManagementClient create(final Configuration config) {
+        return new NetworkManagementClientImpl(config, Executors.newCachedThreadPool());
     }
 }

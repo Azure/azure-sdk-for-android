@@ -30,6 +30,8 @@ import com.microsoft.windowsazure.management.network.models.NetworkReservedIPCre
 import com.microsoft.windowsazure.management.network.models.NetworkReservedIPGetResponse;
 import com.microsoft.windowsazure.management.network.models.NetworkReservedIPListResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
@@ -47,16 +49,17 @@ public interface ReservedIPOperations {
     *
     * @param parameters Required. Parameters supplied to the Begin Creating
     * Reserved IP operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -67,7 +70,7 @@ public interface ReservedIPOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    OperationStatusResponse beginCreating(NetworkReservedIPCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationStatusResponse beginCreating(NetworkReservedIPCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * Preview Only. The Begin Creating Reserved IP operation creates a reserved
@@ -92,10 +95,11 @@ public interface ReservedIPOperations {
     * IP from your the subscription.
     *
     * @param ipName Required. The name of the reserved IP.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -103,7 +107,7 @@ public interface ReservedIPOperations {
     * @return A standard storage response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginDeleting(String ipName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    OperationResponse beginDeleting(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * Preview Only. The Begin Deleting Reserved IP operation removes a reserved
@@ -121,10 +125,11 @@ public interface ReservedIPOperations {
     *
     * @param parameters Required. Parameters supplied to the Create Reserved IP
     * operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -149,7 +154,7 @@ public interface ReservedIPOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    OperationStatusResponse create(NetworkReservedIPCreateParameters parameters) throws IOException, ServiceException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
+    OperationStatusResponse create(NetworkReservedIPCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
     
     /**
     * The Create Reserved IP operation creates a reserved IP from your the
@@ -174,10 +179,11 @@ public interface ReservedIPOperations {
     * subscription.
     *
     * @param ipName Required. The name of the reserved IP.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -202,7 +208,7 @@ public interface ReservedIPOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    OperationStatusResponse delete(String ipName) throws IOException, ServiceException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
+    OperationStatusResponse delete(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
     
     /**
     * The Delete Reserved IP operation removes a reserved IP from your the
@@ -226,17 +232,18 @@ public interface ReservedIPOperations {
     * virtual IP reserved for the subscription.
     *
     * @param ipName Required. The name of the reserved IP to retrieve.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return Preview Only. A reserved IP associated with your subscription.
     */
-    NetworkReservedIPGetResponse get(String ipName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    NetworkReservedIPGetResponse get(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * Preview Only. The Get Reserved IP operation retrieves the details for the
@@ -251,10 +258,11 @@ public interface ReservedIPOperations {
     * Preview Only. The List Reserved IP operation retrieves all of the virtual
     * IPs reserved for the subscription.
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -262,7 +270,7 @@ public interface ReservedIPOperations {
     * @return Preview Only. The response structure for the Server List
     * operation.
     */
-    NetworkReservedIPListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    NetworkReservedIPListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * Preview Only. The List Reserved IP operation retrieves all of the virtual

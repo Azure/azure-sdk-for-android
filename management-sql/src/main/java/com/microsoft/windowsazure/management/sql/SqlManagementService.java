@@ -14,6 +14,9 @@
  */
 package com.microsoft.windowsazure.management.sql;
 
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 import com.microsoft.windowsazure.Configuration;
 
 /**
@@ -31,7 +34,7 @@ public final class SqlManagementService {
      * @return An instance of the <code>SqlManagementClient</code> API.
      */
     public static SqlManagementClient create() {
-        return Configuration.getInstance().create(SqlManagementClient.class);
+        return new SqlManagementClientImpl(Configuration.getInstance(), Executors.newCachedThreadPool());
     }
 
     /**
@@ -43,32 +46,6 @@ public final class SqlManagementService {
      * @return An instance of the <code>SqlManagementClient</code> API.
      */
     public static SqlManagementClient create(final Configuration config) {
-        return config.create(SqlManagementClient.class);
-    }
-
-    /**
-     * Creates an instance of the <code>SqlManagementClient</code> API.
-     *
-     * @param profile A <code>String</code> object that representing the profile
-     * of the service management service.
-     * @return An instance of the <code>SqlManagementClient</code> API.
-     */
-    public static SqlManagementClient create(final String profile) {
-        return Configuration.getInstance().create(profile,
-                SqlManagementClient.class);
-    }
-
-    /**
-     * Creates an instance of the <code>ManagementClient</code> API using the
-     * specified configuration.
-     *
-     * @param profile The profile.
-     * @param config A <code>Configuration</code> object that represents the
-     * configuration for the service management.
-     * @return An instance of the <code>SqlManagementClient</code> API.
-     */
-    public static SqlManagementClient create(final String profile,
-            final Configuration config) {
-        return config.create(profile, SqlManagementClient.class);
+        return new SqlManagementClientImpl(config, Executors.newCachedThreadPool());
     }
 }

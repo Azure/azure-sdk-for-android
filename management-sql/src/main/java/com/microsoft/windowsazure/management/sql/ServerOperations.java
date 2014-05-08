@@ -30,6 +30,8 @@ import com.microsoft.windowsazure.management.sql.models.ServerCreateParameters;
 import com.microsoft.windowsazure.management.sql.models.ServerCreateResponse;
 import com.microsoft.windowsazure.management.sql.models.ServerListResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -52,20 +54,21 @@ public interface ServerOperations {
     * the administrative user.
     * @param parameters Required. Parameters for the Manage Administrator
     * Password operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse changeAdministratorPassword(String serverName, ServerChangeAdministratorPasswordParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse changeAdministratorPassword(String serverName, ServerChangeAdministratorPasswordParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * Sets the administrative password of a SQL Database server for a
@@ -89,19 +92,20 @@ public interface ServerOperations {
     *
     * @param parameters Required. Parameters supplied to the Create Server
     * operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return The response returned from the Create Server operation.
     */
-    ServerCreateResponse create(ServerCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    ServerCreateResponse create(ServerCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * Adds a new SQL Database server to a subscription.  (see
@@ -120,14 +124,15 @@ public interface ServerOperations {
     * more information)
     *
     * @param serverName Required. The name of the server to be deleted.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse delete(String serverName) throws IOException, ServiceException;
+    OperationResponse delete(String serverName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * Drops a SQL Database server from a subscription.  (see
@@ -145,17 +150,18 @@ public interface ServerOperations {
     * (see http://msdn.microsoft.com/en-us/library/windowsazure/gg715269.aspx
     * for more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The response structure for the Server List operation.
     */
-    ServerListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    ServerListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * Returns all SQL Database servers that are provisioned for a subscription.

@@ -27,6 +27,8 @@ import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.network.models.NetworkStaticIPAvailabilityResponse;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
@@ -42,10 +44,11 @@ public interface StaticIPOperations {
     *
     * @param networkName Required. The name of the virtual network.
     * @param ipAddress Required. The address of the static IP.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -53,7 +56,7 @@ public interface StaticIPOperations {
     * @return A response that indicates the availability of a static IP
     * address, and if not, provides a list of suggestions.
     */
-    NetworkStaticIPAvailabilityResponse check(String networkName, InetAddress ipAddress) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    NetworkStaticIPAvailabilityResponse check(String networkName, InetAddress ipAddress) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The Check Static IP operation retrieves the details for the availability

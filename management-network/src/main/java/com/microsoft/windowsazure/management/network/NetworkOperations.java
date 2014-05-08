@@ -30,6 +30,8 @@ import com.microsoft.windowsazure.management.network.models.NetworkGetConfigurat
 import com.microsoft.windowsazure.management.network.models.NetworkListResponse;
 import com.microsoft.windowsazure.management.network.models.NetworkSetConfigurationParameters;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
@@ -50,14 +52,15 @@ public interface NetworkOperations {
     *
     * @param parameters Required. Parameters supplied to the Set Network
     * Configuration operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard storage response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginSettingConfiguration(NetworkSetConfigurationParameters parameters) throws IOException, ServiceException;
+    OperationResponse beginSettingConfiguration(NetworkSetConfigurationParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Begin Setting Network Configuration operation asynchronously
@@ -78,13 +81,14 @@ public interface NetworkOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/jj157196.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return The Get Network Configuration operation response.
     */
-    NetworkGetConfigurationResponse getConfiguration() throws IOException, ServiceException;
+    NetworkGetConfigurationResponse getConfiguration() throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Get Network Configuration operation retrieves the network
@@ -102,17 +106,18 @@ public interface NetworkOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/jj157185.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The response structure for the Network Operations List operation.
     */
-    NetworkListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    NetworkListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The List Virtual network sites operation retrieves the virtual networks
@@ -142,8 +147,6 @@ public interface NetworkOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -154,7 +157,7 @@ public interface NetworkOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    OperationStatusResponse setConfiguration(NetworkSetConfigurationParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse setConfiguration(NetworkSetConfigurationParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Set Network Configuration operation asynchronously configures the

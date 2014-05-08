@@ -35,6 +35,8 @@ import com.microsoft.windowsazure.management.storage.models.StorageAccountRegene
 import com.microsoft.windowsazure.management.storage.models.StorageAccountRegenerateKeysResponse;
 import com.microsoft.windowsazure.management.storage.models.StorageAccountUpdateParameters;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -57,20 +59,21 @@ public interface StorageAccountOperations {
     *
     * @param parameters Required. Parameters supplied to the Create Storage
     * Account operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginCreating(StorageAccountCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse beginCreating(StorageAccountCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Create Storage Account operation creates a new storage account in
@@ -93,17 +96,18 @@ public interface StorageAccountOperations {
     *
     * @param accountName Required. The desired storage account name to check
     * for availability.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The response to a storage account check name availability request.
     */
-    CheckNameAvailabilityResponse checkNameAvailability(String accountName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    CheckNameAvailabilityResponse checkNameAvailability(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The Check Name Availability operation checks if a storage account name is
@@ -135,8 +139,6 @@ public interface StorageAccountOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -147,7 +149,7 @@ public interface StorageAccountOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    OperationStatusResponse create(StorageAccountCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    OperationStatusResponse create(StorageAccountCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Create Storage Account operation creates a new storage account in
@@ -176,14 +178,15 @@ public interface StorageAccountOperations {
     * more information)
     *
     * @param accountName Required. The name of the storage account.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse delete(String accountName) throws IOException, ServiceException;
+    OperationResponse delete(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Delete Storage Account operation deletes the specifiedstorage account
@@ -204,10 +207,11 @@ public interface StorageAccountOperations {
     * more information)
     *
     * @param accountName Required. Name of the storage account to get.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -216,7 +220,7 @@ public interface StorageAccountOperations {
     * the response.
     * @return The Get Storage Account Properties operation response.
     */
-    StorageAccountGetResponse get(String accountName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    StorageAccountGetResponse get(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The Get Storage Account Properties operation returns system properties
@@ -236,10 +240,11 @@ public interface StorageAccountOperations {
     * more information)
     *
     * @param accountName Required. The name of the desired storage account.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -248,7 +253,7 @@ public interface StorageAccountOperations {
     * the response.
     * @return The primary and secondary access keys for a storage account.
     */
-    StorageAccountGetKeysResponse getKeys(String accountName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    StorageAccountGetKeysResponse getKeys(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The Get Storage Keys operation returns the primary and secondary access
@@ -267,10 +272,11 @@ public interface StorageAccountOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/ee460787.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -279,7 +285,7 @@ public interface StorageAccountOperations {
     * the response.
     * @return The List Storage Accounts operation response.
     */
-    StorageAccountListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    StorageAccountListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The List Storage Accounts operation lists the storage accounts available
@@ -299,21 +305,22 @@ public interface StorageAccountOperations {
     *
     * @param parameters Required. Parameters supplied to the Regenerate Keys
     * operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The primary and secondary access keys for a storage account.
     */
-    StorageAccountRegenerateKeysResponse regenerateKeys(StorageAccountRegenerateKeysParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, URISyntaxException;
+    StorageAccountRegenerateKeysResponse regenerateKeys(StorageAccountRegenerateKeysParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException;
     
     /**
     * The Regenerate Keys operation regenerates the primary or secondary access
@@ -337,20 +344,21 @@ public interface StorageAccountOperations {
     * @param accountName Required. Name of the storage account to update.
     * @param parameters Required. Parameters supplied to the Update Storage
     * Account operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse update(String accountName, StorageAccountUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    OperationResponse update(String accountName, StorageAccountUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Update Storage Account operation updates the label, the description,

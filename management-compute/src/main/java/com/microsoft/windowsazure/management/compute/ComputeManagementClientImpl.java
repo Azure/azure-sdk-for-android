@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.compute;
 
+import com.microsoft.windowsazure.Configuration;
 import com.microsoft.windowsazure.core.OperationStatus;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
 import com.microsoft.windowsazure.core.ServiceClient;
@@ -32,25 +33,22 @@ import com.microsoft.windowsazure.credentials.SubscriptionCloudCredentials;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.compute.models.CertificateFormat;
 import com.microsoft.windowsazure.management.compute.models.LoadBalancerProbeTransportProtocol;
-import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import javax.inject.Inject;
-import javax.inject.Named;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -206,11 +204,11 @@ public class ComputeManagementClientImpl extends ServiceClient<ComputeManagement
     /**
     * Initializes a new instance of the ComputeManagementClientImpl class.
     *
-    * @param httpBuilder The HTTP client builder.
+    * @param configuration The service configurations.
     * @param executorService The executor service.
     */
-    private ComputeManagementClientImpl(HttpClientBuilder httpBuilder, ExecutorService executorService) {
-        super(httpBuilder, executorService);
+    public ComputeManagementClientImpl(Configuration configuration, ExecutorService executorService) {
+        super(configuration, executorService);
         this.deployments = new DeploymentOperationsImpl(this);
         this.hostedServices = new HostedServiceOperationsImpl(this);
         this.operatingSystems = new OperatingSystemOperationsImpl(this);
@@ -220,74 +218,33 @@ public class ComputeManagementClientImpl extends ServiceClient<ComputeManagement
         this.virtualMachines = new VirtualMachineOperationsImpl(this);
         this.virtualMachineOSImages = new VirtualMachineOSImageOperationsImpl(this);
         this.virtualMachineVMImages = new VirtualMachineVMImageOperationsImpl(this);
-    }
-    
-    /**
-    * Initializes a new instance of the ComputeManagementClientImpl class.
-    *
-    * @param httpBuilder The HTTP client builder.
-    * @param executorService The executor service.
-    * @param credentials Required. When you create an Azure subscription, it is
-    * uniquely identified by a subscription ID. The subscription ID forms part
-    * of the URI for every call that you make to the Service Management API.
-    * The Azure Service Management API uses mutual authentication of
-    * management certificates over SSL to ensure that a request made to the
-    * service is secure. No anonymous requests are allowed.
-    * @param baseUri Required. The URI used as the base for all Service
-    * Management requests.
-    */
-    @Inject
-    public ComputeManagementClientImpl(HttpClientBuilder httpBuilder, ExecutorService executorService, @Named(ManagementConfiguration.SUBSCRIPTION_CLOUD_CREDENTIALS) SubscriptionCloudCredentials credentials, @Named(ManagementConfiguration.URI) URI baseUri) {
-        this(httpBuilder, executorService);
-        if (credentials == null) {
+        
+        if (configuration.getProperty("Credentials") == null) {
             throw new NullPointerException("credentials");
         } else {
-            this.credentials = credentials;
+            this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty("Credentials"));
         }
-        if (baseUri == null) {
+        if (configuration.getProperty("BaseUri") == null) {
             try {
                 this.baseUri = new URI("https://management.core.windows.net");
             }
             catch (URISyntaxException ex) {
             }
         } else {
-            this.baseUri = baseUri;
+            this.baseUri = ((URI) configuration.getProperty("BaseUri"));
         }
-        this.credentials = credentials;
-        this.baseUri = baseUri;
+        this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty("Credentials"));
+        this.baseUri = ((URI) configuration.getProperty("BaseUri"));
     }
     
     /**
     * Initializes a new instance of the ComputeManagementClientImpl class.
     *
-    * @param httpBuilder The HTTP client builder.
-    * @param executorService The executor service.
-    * @param credentials Required. When you create an Azure subscription, it is
-    * uniquely identified by a subscription ID. The subscription ID forms part
-    * of the URI for every call that you make to the Service Management API.
-    * The Azure Service Management API uses mutual authentication of
-    * management certificates over SSL to ensure that a request made to the
-    * service is secure. No anonymous requests are allowed.
-    * @throws URISyntaxException Thrown if there was an error parsing a URI in
-    * the response.
-    */
-    public ComputeManagementClientImpl(HttpClientBuilder httpBuilder, ExecutorService executorService, SubscriptionCloudCredentials credentials) throws URISyntaxException {
-        this(httpBuilder, executorService);
-        if (credentials == null) {
-            throw new NullPointerException("credentials");
-        }
-        this.credentials = credentials;
-        this.baseUri = new URI("https://management.core.windows.net");
-    }
-    
-    /**
-    * Initializes a new instance of the ComputeManagementClientImpl class.
-    *
-    * @param httpBuilder The HTTP client builder.
+    * @param configuration The service configurations.
     * @param executorService The executor service.
     */
-    protected ComputeManagementClientImpl newInstance(HttpClientBuilder httpBuilder, ExecutorService executorService) {
-        return new ComputeManagementClientImpl(httpBuilder, executorService, this.getCredentials(), this.getBaseUri());
+    protected ComputeManagementClientImpl newInstance(Configuration configuration, ExecutorService executorService) {
+        return new ComputeManagementClientImpl(configuration, executorService);
     }
     
     /**
@@ -331,10 +288,11 @@ public class ComputeManagementClientImpl extends ServiceClient<ComputeManagement
     * @param requestId Required. The request ID for the request you wish to
     * track. The request ID is returned in the x-ms-request-id response header
     * for every request.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -349,7 +307,7 @@ public class ComputeManagementClientImpl extends ServiceClient<ComputeManagement
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse getOperationStatus(String requestId) throws IOException, ServiceException, ParserConfigurationException, SAXException {
+    public OperationStatusResponse getOperationStatus(String requestId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         if (requestId == null) {
             throw new NullPointerException("requestId");
@@ -378,24 +336,19 @@ public class ComputeManagementClientImpl extends ServiceClient<ComputeManagement
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        HttpGet httpRequest = new HttpGet(url);
+        URL serverAddress = new URL(url);
+        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
+        httpRequest.setRequestMethod("Get");
+        httpRequest.setDoOutput(true);
         
         // Set Headers
-        httpRequest.setHeader("x-ms-version", "2014-04-01");
+        httpRequest.setRequestProperty("x-ms-version", "2014-04-01");
         
         // Send Request
-        HttpResponse httpResponse = null;
         try {
-            if (shouldTrace) {
-                CloudTracing.sendRequest(invocationId, httpRequest);
-            }
-            httpResponse = this.getHttpClient().execute(httpRequest);
-            if (shouldTrace) {
-                CloudTracing.receiveResponse(invocationId, httpResponse);
-            }
-            int statusCode = httpResponse.getStatusLine().getStatusCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
+            int statusCode = httpRequest.getResponseCode();
+            if (statusCode != 200) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -405,7 +358,7 @@ public class ComputeManagementClientImpl extends ServiceClient<ComputeManagement
             // Create Result
             OperationStatusResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpResponse.getEntity().getContent();
+            InputStream responseContent = httpRequest.getInputStream();
             result = new OperationStatusResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -457,17 +410,15 @@ public class ComputeManagementClientImpl extends ServiceClient<ComputeManagement
             }
             
             result.setStatusCode(statusCode);
-            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
-                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
-            }
+            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpResponse != null && httpResponse.getEntity() != null) {
-                httpResponse.getEntity().getContent().close();
+            if (httpRequest != null) {
+                httpRequest.disconnect();
             }
         }
     }

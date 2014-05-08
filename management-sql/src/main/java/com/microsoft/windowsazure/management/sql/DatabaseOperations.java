@@ -34,6 +34,8 @@ import com.microsoft.windowsazure.management.sql.models.DatabaseListResponse;
 import com.microsoft.windowsazure.management.sql.models.DatabaseUpdateParameters;
 import com.microsoft.windowsazure.management.sql.models.DatabaseUpdateResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -51,19 +53,20 @@ public interface DatabaseOperations {
     * will be created.
     * @param parameters Required. The parameters for the create database
     * operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return Response containing the database create response.
     */
-    DatabaseCreateResponse create(String serverName, DatabaseCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    DatabaseCreateResponse create(String serverName, DatabaseCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * Creates a database in a SQL Server database server.
@@ -84,14 +87,15 @@ public interface DatabaseOperations {
     * @param serverName Required. The name of the server on which the database
     * is found.
     * @param databaseName Required. The name of the database to be deleted.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse delete(String serverName, String databaseName) throws IOException, ServiceException;
+    OperationResponse delete(String serverName, String databaseName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * Drops a SQL Database server from a subscription.  (see
@@ -113,17 +117,18 @@ public interface DatabaseOperations {
     * database is housed.
     * @param databaseName Required. The name of the SQL Server database to be
     * obtained.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return Response containing the database get response.
     */
-    DatabaseGetResponse get(String serverName, String databaseName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    DatabaseGetResponse get(String serverName, String databaseName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * Returns information about a SQL Server database.
@@ -145,10 +150,11 @@ public interface DatabaseOperations {
     * obtained.
     * @param parameters Required. The parameters for the get event logs
     * database operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -156,7 +162,7 @@ public interface DatabaseOperations {
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    DatabaseGetEventLogsResponse getEventLogs(String serverName, String databaseName, DatabaseGetEventLogsParameters parameters) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    DatabaseGetEventLogsResponse getEventLogs(String serverName, String databaseName, DatabaseGetEventLogsParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * Returns information about a SQL Server database event logs.
@@ -176,17 +182,18 @@ public interface DatabaseOperations {
     * Returns the list SQL Server databases.
     *
     * @param serverName Required. The name of the database server to be queried.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return Response containing the list of databases for a given server.
     */
-    DatabaseListResponse list(String serverName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    DatabaseListResponse list(String serverName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * Returns the list SQL Server databases.
@@ -205,19 +212,20 @@ public interface DatabaseOperations {
     * obtained.
     * @param parameters Required. The parameters for the update database
     * operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return Response containing the database update response.
     */
-    DatabaseUpdateResponse update(String serverName, String databaseName, DatabaseUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    DatabaseUpdateResponse update(String serverName, String databaseName, DatabaseUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * Updates SQL Server database information.

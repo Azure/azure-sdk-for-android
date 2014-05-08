@@ -27,6 +27,8 @@ import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.sql.models.DatabaseOperationGetResponse;
 import com.microsoft.windowsazure.management.sql.models.DatabaseOperationListResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
@@ -43,10 +45,11 @@ public interface DatabaseOperationOperations {
     * operation was executed.
     * @param operationGuid Required. The Guid of the SQL Server database
     * operation to be obtained.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -54,7 +57,7 @@ public interface DatabaseOperationOperations {
     * @return Response containing the database operation for a given operation
     * Guid.
     */
-    DatabaseOperationGetResponse get(String serverName, String operationGuid) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    DatabaseOperationGetResponse get(String serverName, String operationGuid) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * Returns information about one operation on a given operation Guid.
@@ -73,10 +76,11 @@ public interface DatabaseOperationOperations {
     *
     * @param serverName Required. The name of the SQL Server to be queried.
     * @param databaseName Required. The name of the Database to be queried.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -84,7 +88,7 @@ public interface DatabaseOperationOperations {
     * @return Response containing the list of database operations for a given
     * server or database.
     */
-    DatabaseOperationListResponse listByDatabase(String serverName, String databaseName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    DatabaseOperationListResponse listByDatabase(String serverName, String databaseName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * Returns the list database operations for a given server and database.
@@ -100,10 +104,11 @@ public interface DatabaseOperationOperations {
     * Returns the list database operations for a given server.
     *
     * @param serverName Required. The name of the SQL Server to be queried.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -111,7 +116,7 @@ public interface DatabaseOperationOperations {
     * @return Response containing the list of database operations for a given
     * server or database.
     */
-    DatabaseOperationListResponse listByServer(String serverName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    DatabaseOperationListResponse listByServer(String serverName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * Returns the list database operations for a given server.

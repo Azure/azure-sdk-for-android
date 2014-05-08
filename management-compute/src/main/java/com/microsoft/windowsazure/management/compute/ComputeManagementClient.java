@@ -27,8 +27,9 @@ import com.microsoft.windowsazure.core.FilterableService;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
 import com.microsoft.windowsazure.credentials.SubscriptionCloudCredentials;
 import com.microsoft.windowsazure.exception.ServiceException;
-import java.io.Closeable;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URI;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,7 +43,7 @@ import org.xml.sax.SAXException;
 * http://msdn.microsoft.com/en-us/library/windowsazure/ee460799.aspx for more
 * information)
 */
-public interface ComputeManagementClient extends Closeable, FilterableService<ComputeManagementClient> {
+public interface ComputeManagementClient extends FilterableService<ComputeManagementClient> {
     /**
     * The URI used as the base for all Service Management requests.
     * @return The BaseUri value.
@@ -149,10 +150,11 @@ public interface ComputeManagementClient extends Closeable, FilterableService<Co
     * @param requestId Required. The request ID for the request you wish to
     * track. The request ID is returned in the x-ms-request-id response header
     * for every request.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -166,7 +168,7 @@ public interface ComputeManagementClient extends Closeable, FilterableService<Co
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse getOperationStatus(String requestId) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    OperationStatusResponse getOperationStatus(String requestId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The Get Operation Status operation returns the status of the specified

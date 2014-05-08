@@ -27,6 +27,8 @@ import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.compute.models.OperatingSystemListFamiliesResponse;
 import com.microsoft.windowsazure.management.compute.models.OperatingSystemListResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
@@ -51,10 +53,11 @@ public interface OperatingSystemOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/ff684168.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -63,7 +66,7 @@ public interface OperatingSystemOperations {
     * the response.
     * @return The List Operating Systems operation response.
     */
-    OperatingSystemListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    OperatingSystemListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The List Operating Systems operation lists the versions of the guest
@@ -91,17 +94,18 @@ public interface OperatingSystemOperations {
     * (see http://msdn.microsoft.com/en-us/library/windowsazure/gg441291.aspx
     * for more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The List Operating System Families operation response.
     */
-    OperatingSystemListFamiliesResponse listFamilies() throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    OperatingSystemListFamiliesResponse listFamilies() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The List OS Families operation lists the guest operating system families

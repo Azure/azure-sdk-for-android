@@ -32,6 +32,8 @@ import com.microsoft.windowsazure.management.compute.models.VirtualMachineOSImag
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineOSImageUpdateParameters;
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineOSImageUpdateResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -64,8 +66,8 @@ public interface VirtualMachineOSImageOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
@@ -73,12 +75,14 @@ public interface VirtualMachineOSImageOperations {
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return Parameters returned from the Create Virtual Machine Image
     * operation.
     */
-    VirtualMachineOSImageCreateResponse create(VirtualMachineOSImageCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException, ParserConfigurationException, SAXException, TransformerException, URISyntaxException;
+    VirtualMachineOSImageCreateResponse create(VirtualMachineOSImageCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, IOException, URISyntaxException;
     
     /**
     * The Create OS Image operation adds an operating system image that is
@@ -102,10 +106,11 @@ public interface VirtualMachineOSImageOperations {
     * @param imageName Required. The name of the image to delete.
     * @param deleteFromStorage Required. Specifies that the source blob for the
     * image should also be deleted from storage.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -119,7 +124,7 @@ public interface VirtualMachineOSImageOperations {
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse delete(String imageName, boolean deleteFromStorage) throws IOException, ServiceException, InterruptedException, ExecutionException;
+    OperationResponse delete(String imageName, boolean deleteFromStorage) throws MalformedURLException, ProtocolException, ServiceException, IOException, InterruptedException, ExecutionException;
     
     /**
     * The Delete OS Image operation deletes the specified OS image from your
@@ -142,10 +147,11 @@ public interface VirtualMachineOSImageOperations {
     * more information)
     *
     * @param imageName Required. The name of the OS image to retrieve.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -154,7 +160,7 @@ public interface VirtualMachineOSImageOperations {
     * the response.
     * @return A virtual machine image associated with your subscription.
     */
-    VirtualMachineOSImageGetResponse get(String imageName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    VirtualMachineOSImageGetResponse get(String imageName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The Get OS Image operation retrieves the details for an operating system
@@ -173,10 +179,11 @@ public interface VirtualMachineOSImageOperations {
     * http://msdn.microsoft.com/en-us/library/windowsazure/jj157191.aspx for
     * more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -185,7 +192,7 @@ public interface VirtualMachineOSImageOperations {
     * the response.
     * @return The List OS Images operation response.
     */
-    VirtualMachineOSImageListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    VirtualMachineOSImageListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The List OS Images operation retrieves a list of the operating system
@@ -207,16 +214,17 @@ public interface VirtualMachineOSImageOperations {
     * updated.
     * @param parameters Required. Parameters supplied to the Update Virtual
     * Machine Image operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -232,7 +240,7 @@ public interface VirtualMachineOSImageOperations {
     * @return Parameters returned from the Create Virtual Machine Image
     * operation.
     */
-    VirtualMachineOSImageUpdateResponse update(String imageName, VirtualMachineOSImageUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, InterruptedException, ExecutionException, URISyntaxException;
+    VirtualMachineOSImageUpdateResponse update(String imageName, VirtualMachineOSImageUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, InterruptedException, ExecutionException, URISyntaxException;
     
     /**
     * The Update OS Image operation updates an OS image that in your image

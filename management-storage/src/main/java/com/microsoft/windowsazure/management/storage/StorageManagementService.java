@@ -14,6 +14,8 @@
  */
 package com.microsoft.windowsazure.management.storage;
 
+import java.util.concurrent.Executors;
+
 import com.microsoft.windowsazure.Configuration;
 
 /**
@@ -31,8 +33,7 @@ public final class StorageManagementService {
      * @return An instance of the <code>StorageManagementClient</code> API.
      */
     public static StorageManagementClient create() {
-        return Configuration.getInstance().create(
-                StorageManagementClient.class);
+        return new StorageManagementClientImpl(Configuration.getInstance(), Executors.newCachedThreadPool());
     }
 
     /**
@@ -44,32 +45,6 @@ public final class StorageManagementService {
      * @return An instance of the <code>StorageManagementClient</code> API.
      */
     public static StorageManagementClient create(final Configuration config) {
-        return config.create(StorageManagementClient.class);
-    }
-
-    /**
-     * Creates an instance of the <code>StorageManagementClient</code> API.
-     * 
-     * @param profile A <code>String</code> object that representing the profile
-     * of the service management service.
-     * @return An instance of the <code>StorageManagementClient</code> API.
-     */
-    public static StorageManagementClient create(final String profile) {
-        return Configuration.getInstance().create(profile,
-                StorageManagementClient.class);
-    }
-
-    /**
-     * Creates an instance of the <code>ManagementClient</code> API using the
-     * specified configuration.
-     * 
-     * @param profile The profile.
-     * @param config A <code>Configuration</code> object that represents the
-     * configuration for the service management.
-     * @return An instance of the <code>StorageManagementClient</code> API.
-     */
-    public static StorageManagementClient create(final String profile,
-            final Configuration config) {
-        return config.create(profile, StorageManagementClient.class);
+    	return new StorageManagementClientImpl(config, Executors.newCachedThreadPool());
     }
 }

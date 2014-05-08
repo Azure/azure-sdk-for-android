@@ -28,6 +28,8 @@ import com.microsoft.windowsazure.core.OperationStatusResponse;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineVMImageListResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -47,14 +49,15 @@ public interface VirtualMachineVMImageOperations {
     * delete.
     * @param deleteFromStorage Required. Specifies that the source blob for the
     * image should also be deleted from storage.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginDeleting(String vmImageName, boolean deleteFromStorage) throws IOException, ServiceException;
+    OperationResponse beginDeleting(String vmImageName, boolean deleteFromStorage) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Begin Deleting Virtual Machine Image operation deletes the specified
@@ -77,10 +80,11 @@ public interface VirtualMachineVMImageOperations {
     * delete.
     * @param deleteFromStorage Required. Specifies that the source blob for the
     * image should also be deleted from storage.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -100,7 +104,7 @@ public interface VirtualMachineVMImageOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse delete(String vmImageName, boolean deleteFromStorage) throws IOException, ServiceException, InterruptedException, ExecutionException;
+    OperationStatusResponse delete(String vmImageName, boolean deleteFromStorage) throws MalformedURLException, ProtocolException, ServiceException, IOException, InterruptedException, ExecutionException;
     
     /**
     * The Delete Virtual Machine Image operation deletes the specified virtual
@@ -125,10 +129,11 @@ public interface VirtualMachineVMImageOperations {
     * The List Virtual Machine Images operation retrieves a list of the virtual
     * machine images.
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -137,7 +142,7 @@ public interface VirtualMachineVMImageOperations {
     * the response.
     * @return The List VM Images operation response.
     */
-    VirtualMachineVMImageListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
+    VirtualMachineVMImageListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * The List Virtual Machine Images operation retrieves a list of the virtual

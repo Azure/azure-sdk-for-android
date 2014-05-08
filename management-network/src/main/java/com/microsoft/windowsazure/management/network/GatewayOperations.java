@@ -37,6 +37,8 @@ import com.microsoft.windowsazure.management.network.models.GatewayListSupported
 import com.microsoft.windowsazure.management.network.models.GatewayOperationResponse;
 import com.microsoft.windowsazure.management.network.models.GatewayResetSharedKeyParameters;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
@@ -63,20 +65,21 @@ public interface GatewayOperations {
     * @param localNetworkSiteName Required. The name of the site to connect to.
     * @param parameters Required. Parameters supplied to the Begin Connect
     * Disconnect Or Testing Gateway operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard storage response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse beginConnectDisconnectOrTesting(String networkName, String localNetworkSiteName, GatewayConnectDisconnectOrTestParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    GatewayOperationResponse beginConnectDisconnectOrTesting(String networkName, String localNetworkSiteName, GatewayConnectDisconnectOrTestParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * To connect to, disconnect from, or test your connection to a local
@@ -106,20 +109,21 @@ public interface GatewayOperations {
     * gateway.
     * @param parameters Required. Parameters supplied to the Begin Creating
     * Virtual Network Gateway operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard storage response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse beginCreating(String networkName, GatewayCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    GatewayOperationResponse beginCreating(String networkName, GatewayCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Begin Creating Virtual network Gateway operation creates a new
@@ -143,10 +147,11 @@ public interface GatewayOperations {
     * more information)
     *
     * @param networkName Required. The name of the virtual network.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -154,7 +159,7 @@ public interface GatewayOperations {
     * @return A standard storage response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse beginDeleting(String networkName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    GatewayOperationResponse beginDeleting(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The Begin Deleting Virtual Network Gateway operation deletes a network
@@ -175,10 +180,11 @@ public interface GatewayOperations {
     * more information)
     *
     * @param networkName Required. The name of the virtual network in Azure.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -186,7 +192,7 @@ public interface GatewayOperations {
     * @return A standard storage response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse beginFailover(String networkName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    GatewayOperationResponse beginFailover(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The Begin Failover Virtual Network Gateway operation causes a network
@@ -212,20 +218,21 @@ public interface GatewayOperations {
     * @param localNetworkName Required. The name of the local network.
     * @param parameters Required. Parameters supplied to the Begin Virtual
     * Network Gateway Reset Shared Key request.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard storage response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse beginResetSharedKey(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    GatewayOperationResponse beginResetSharedKey(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Begin Reset Virtual Network Gateway Shared Key operation resets the
@@ -267,8 +274,6 @@ public interface GatewayOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is in
     * progress, or has failed. Note that this status is distinct from the HTTP
@@ -279,7 +284,7 @@ public interface GatewayOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    GatewayGetOperationStatusResponse connectDisconnectOrTest(String networkName, String localNetworkSiteName, GatewayConnectDisconnectOrTestParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    GatewayGetOperationStatusResponse connectDisconnectOrTest(String networkName, String localNetworkSiteName, GatewayConnectDisconnectOrTestParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * To connect to, disconnect from, or test your connection to a local
@@ -316,10 +321,11 @@ public interface GatewayOperations {
     * gateway.
     * @param parameters Required. Parameters supplied to the Create Virtual
     * Network Gateway operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -344,7 +350,7 @@ public interface GatewayOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    GatewayGetOperationStatusResponse create(String networkName, GatewayCreateParameters parameters) throws IOException, ServiceException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
+    GatewayGetOperationStatusResponse create(String networkName, GatewayCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
     
     /**
     * The Create Virtual network Gateway operation creates a new network
@@ -375,10 +381,11 @@ public interface GatewayOperations {
     * more information)
     *
     * @param networkName Required. The name of the virtual network.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -403,7 +410,7 @@ public interface GatewayOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    GatewayGetOperationStatusResponse delete(String networkName) throws IOException, ServiceException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
+    GatewayGetOperationStatusResponse delete(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
     
     /**
     * The Delete Virtual Network Gateway operation deletes a network gateway
@@ -441,8 +448,6 @@ public interface GatewayOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is in
     * progress, or has failed. Note that this status is distinct from the HTTP
@@ -453,7 +458,7 @@ public interface GatewayOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    GatewayGetOperationStatusResponse failover(String networkName) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    GatewayGetOperationStatusResponse failover(String networkName) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Failover Virtual Network Gateway operation causes a network gateway
@@ -484,20 +489,21 @@ public interface GatewayOperations {
     * gateway.
     * @param parameters Required. Parameters supplied to the Generate VPN
     * Client Package operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard storage response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse generateVpnClientPackage(String networkName, GatewayGenerateVpnClientPackageParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    GatewayOperationResponse generateVpnClientPackage(String networkName, GatewayGenerateVpnClientPackageParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * The Generate VPN Client Package operation creates a VPN client package
@@ -522,10 +528,11 @@ public interface GatewayOperations {
     *
     * @param networkName Required. The name of the virtual network for this
     * gateway.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -533,7 +540,7 @@ public interface GatewayOperations {
     * @return A standard storage response including an HTTP status code and
     * request ID.
     */
-    GatewayGetResponse get(String networkName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    GatewayGetResponse get(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The Get Virtual Network Gateway operation gets information about the
@@ -558,14 +565,15 @@ public interface GatewayOperations {
     * gateway.
     * @param parameters Required. The parameters for the Get Device
     * Configuration Script operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return The configuration script returned from the get device
     * configuration script operation.
     */
-    GatewayGetDeviceConfigurationScriptResponse getDeviceConfigurationScript(String networkName, GatewayGetDeviceConfigurationScriptParameters parameters) throws IOException, ServiceException;
+    GatewayGetDeviceConfigurationScriptResponse getDeviceConfigurationScript(String networkName, GatewayGetDeviceConfigurationScriptParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Get Device Configuration Script operation returns a script that you
@@ -589,10 +597,11 @@ public interface GatewayOperations {
     * more information)
     *
     * @param operationId Required. The ID of the network operation.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -607,7 +616,7 @@ public interface GatewayOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    GatewayGetOperationStatusResponse getOperationStatus(String operationId) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    GatewayGetOperationStatusResponse getOperationStatus(String operationId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The Get Virtual Network Gateway Operation Status gets information on the
@@ -638,17 +647,18 @@ public interface GatewayOperations {
     * @param networkName Required. The name of the virtual network for this
     * gateway.
     * @param localNetworkName Required. The name of the local network.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The response to the get shared key request.
     */
-    GatewayGetSharedKeyResponse getSharedKey(String networkName, String localNetworkName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    GatewayGetSharedKeyResponse getSharedKey(String networkName, String localNetworkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The Get Virtual Network Gateway Shared Key operation gets the shared key
@@ -672,10 +682,11 @@ public interface GatewayOperations {
     *
     * @param networkName Required. The name of the virtual network for this
     * gateway.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -683,7 +694,7 @@ public interface GatewayOperations {
     * @return The response to a ListConnections request to a Virtual Network
     * Gateway.
     */
-    GatewayListConnectionsResponse listConnections(String networkName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    GatewayListConnectionsResponse listConnections(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The List Connections operation returns a list of the local network
@@ -704,17 +715,18 @@ public interface GatewayOperations {
     * (see http://msdn.microsoft.com/en-us/library/windowsazure/jj154102.aspx
     * for more information)
     *
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The response to the list supported devices request.
     */
-    GatewayListSupportedDevicesResponse listSupportedDevices() throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    GatewayListSupportedDevicesResponse listSupportedDevices() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * The List Virtual Network Gateway Supported Devices operation lists the
@@ -748,8 +760,6 @@ public interface GatewayOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
-    * @throws IOException Thrown if there was an error setting up tracing for
-    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is in
     * progress, or has failed. Note that this status is distinct from the HTTP
@@ -760,7 +770,7 @@ public interface GatewayOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    GatewayGetOperationStatusResponse resetSharedKey(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    GatewayGetOperationStatusResponse resetSharedKey(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
     
     /**
     * The Reset Virtual Network Gateway Shared Key operation resets the shared

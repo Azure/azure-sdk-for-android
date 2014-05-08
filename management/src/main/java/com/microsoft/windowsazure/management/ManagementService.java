@@ -14,6 +14,8 @@
  */
 package com.microsoft.windowsazure.management;
 
+import java.util.concurrent.Executors;
+
 import com.microsoft.windowsazure.Configuration;
 
 /**
@@ -31,7 +33,7 @@ public final class ManagementService {
      * @return An instance of the <code>ManagementClient</code> API.
      */
     public static ManagementClient create() {
-        return Configuration.getInstance().create(ManagementClient.class);
+        return new ManagementClientImpl(Configuration.getInstance(), Executors.newCachedThreadPool());
     }
 
     /**
@@ -43,32 +45,6 @@ public final class ManagementService {
      * @return An instance of the <code>ManagementClient</code> API.
      */
     public static ManagementClient create(final Configuration config) {
-        return config.create(ManagementClient.class);
-    }
-
-    /**
-     * Creates an instance of the <code>ManagementClient</code> API.
-     *
-     * @param profile A <code>String</code> object that representing the profile
-     * of the service management service.
-     * @return An instance of the <code>ManagementClient</code> API.
-     */
-    public static ManagementClient create(final String profile) {
-        return Configuration.getInstance().create(profile,
-                ManagementClient.class);
-    }
-
-    /**
-     * Creates an instance of the <code>ManagementClient</code> API using the
-     * specified configuration.
-     *
-     * @param profile The profile.
-     * @param config A <code>Configuration</code> object that represents the
-     * configuration for the service management.
-     * @return An instance of the <code>ManagementClient</code> API.
-     */
-    public static ManagementClient create(final String profile,
-            final Configuration config) {
-        return config.create(profile, ManagementClient.class);
+        return new ManagementClientImpl(config, Executors.newCachedThreadPool());
     }
 }

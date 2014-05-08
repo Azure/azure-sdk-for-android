@@ -23,15 +23,12 @@
 
 package com.microsoft.windowsazure.management.sql;
 
+import com.microsoft.windowsazure.Configuration;
 import com.microsoft.windowsazure.core.ServiceClient;
 import com.microsoft.windowsazure.credentials.SubscriptionCloudCredentials;
-import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutorService;
-import javax.inject.Inject;
-import javax.inject.Named;
-import org.apache.http.impl.client.HttpClientBuilder;
 
 /**
 * The SQL Database Management API is a REST API for managing SQL Database
@@ -142,85 +139,43 @@ public class SqlManagementClientImpl extends ServiceClient<SqlManagementClient> 
     /**
     * Initializes a new instance of the SqlManagementClientImpl class.
     *
-    * @param httpBuilder The HTTP client builder.
+    * @param configuration The service configurations.
     * @param executorService The executor service.
     */
-    private SqlManagementClientImpl(HttpClientBuilder httpBuilder, ExecutorService executorService) {
-        super(httpBuilder, executorService);
+    public SqlManagementClientImpl(Configuration configuration, ExecutorService executorService) {
+        super(configuration, executorService);
         this.dac = new DacOperationsImpl(this);
         this.databaseOperations = new DatabaseOperationOperationsImpl(this);
         this.databases = new DatabaseOperationsImpl(this);
         this.firewallRules = new FirewallRuleOperationsImpl(this);
         this.servers = new ServerOperationsImpl(this);
         this.serviceObjectives = new ServiceObjectiveOperationsImpl(this);
-    }
-    
-    /**
-    * Initializes a new instance of the SqlManagementClientImpl class.
-    *
-    * @param httpBuilder The HTTP client builder.
-    * @param executorService The executor service.
-    * @param credentials Required. When you create a Windows Azure
-    * subscription, it is uniquely identified by a subscription ID. The
-    * subscription ID forms part of the URI for every call that you make to
-    * the Service Management API.  The Windows Azure Service ManagementAPI use
-    * mutual authentication of management certificates over SSL to ensure that
-    * a request made to the service is secure.  No anonymous requests are
-    * allowed.
-    * @param baseUri Required. The URI used as the base for all SQL requests.
-    */
-    @Inject
-    public SqlManagementClientImpl(HttpClientBuilder httpBuilder, ExecutorService executorService, @Named(ManagementConfiguration.SUBSCRIPTION_CLOUD_CREDENTIALS) SubscriptionCloudCredentials credentials, @Named(ManagementConfiguration.URI) URI baseUri) {
-        this(httpBuilder, executorService);
-        if (credentials == null) {
+        
+        if (configuration.getProperty("Credentials") == null) {
             throw new NullPointerException("credentials");
         } else {
-            this.credentials = credentials;
+            this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty("Credentials"));
         }
-        if (baseUri == null) {
+        if (configuration.getProperty("BaseUri") == null) {
             try {
                 this.baseUri = new URI("https://management.core.windows.net");
             }
             catch (URISyntaxException ex) {
             }
         } else {
-            this.baseUri = baseUri;
+            this.baseUri = ((URI) configuration.getProperty("BaseUri"));
         }
-        this.credentials = credentials;
-        this.baseUri = baseUri;
+        this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty("Credentials"));
+        this.baseUri = ((URI) configuration.getProperty("BaseUri"));
     }
     
     /**
     * Initializes a new instance of the SqlManagementClientImpl class.
     *
-    * @param httpBuilder The HTTP client builder.
-    * @param executorService The executor service.
-    * @param credentials Required. When you create a Windows Azure
-    * subscription, it is uniquely identified by a subscription ID. The
-    * subscription ID forms part of the URI for every call that you make to
-    * the Service Management API.  The Windows Azure Service ManagementAPI use
-    * mutual authentication of management certificates over SSL to ensure that
-    * a request made to the service is secure.  No anonymous requests are
-    * allowed.
-    * @throws URISyntaxException Thrown if there was an error parsing a URI in
-    * the response.
-    */
-    public SqlManagementClientImpl(HttpClientBuilder httpBuilder, ExecutorService executorService, SubscriptionCloudCredentials credentials) throws URISyntaxException {
-        this(httpBuilder, executorService);
-        if (credentials == null) {
-            throw new NullPointerException("credentials");
-        }
-        this.credentials = credentials;
-        this.baseUri = new URI("https://management.core.windows.net");
-    }
-    
-    /**
-    * Initializes a new instance of the SqlManagementClientImpl class.
-    *
-    * @param httpBuilder The HTTP client builder.
+    * @param configuration The service configurations.
     * @param executorService The executor service.
     */
-    protected SqlManagementClientImpl newInstance(HttpClientBuilder httpBuilder, ExecutorService executorService) {
-        return new SqlManagementClientImpl(httpBuilder, executorService, this.getCredentials(), this.getBaseUri());
+    protected SqlManagementClientImpl newInstance(Configuration configuration, ExecutorService executorService) {
+        return new SqlManagementClientImpl(configuration, executorService);
     }
 }

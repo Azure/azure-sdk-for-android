@@ -32,6 +32,8 @@ import com.microsoft.windowsazure.management.sql.models.FirewallRuleListResponse
 import com.microsoft.windowsazure.management.sql.models.FirewallRuleUpdateParameters;
 import com.microsoft.windowsazure.management.sql.models.FirewallRuleUpdateResponse;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -57,19 +59,20 @@ public interface FirewallRuleOperations {
     * this rule will be applied.
     * @param parameters Required. Parameters for the Create Firewall Rule
     * operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return Response containing the firewall rule create response.
     */
-    FirewallRuleCreateResponse create(String serverName, FirewallRuleCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    FirewallRuleCreateResponse create(String serverName, FirewallRuleCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * Adds a new server-level firewall rule for a SQL Database server that
@@ -94,14 +97,15 @@ public interface FirewallRuleOperations {
     * @param serverName Required. The name of the server that will be have new
     * firewall rule applied to it.
     * @param ruleName Required. The name of the new firewall rule.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse delete(String serverName, String ruleName) throws IOException, ServiceException;
+    OperationResponse delete(String serverName, String ruleName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * Deletes a server-level firewall rule from a SQL Database server that
@@ -127,10 +131,11 @@ public interface FirewallRuleOperations {
     * being made.
     * @param ruleName Required. The name of the rule for which the call is
     * being made.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -138,7 +143,7 @@ public interface FirewallRuleOperations {
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    FirewallRuleGetResponse get(String serverName, String ruleName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    FirewallRuleGetResponse get(String serverName, String ruleName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * Returns a list of all the server-level firewall rules for a SQL Database
@@ -163,10 +168,11 @@ public interface FirewallRuleOperations {
     *
     * @param serverName Required. The name of the server for which the call is
     * being made.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -174,7 +180,7 @@ public interface FirewallRuleOperations {
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    FirewallRuleListResponse list(String serverName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    FirewallRuleListResponse list(String serverName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
     
     /**
     * Returns a list of all the server-level firewall rules for a SQL Database
@@ -200,19 +206,20 @@ public interface FirewallRuleOperations {
     * @param ruleName Required. The name of the firewall rule to be updated.
     * @param parameters Required. Parameters for the Update Firewall Rule
     * operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return Response containing the firewall rule update response.
     */
-    FirewallRuleUpdateResponse update(String serverName, String ruleName, FirewallRuleUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
+    FirewallRuleUpdateResponse update(String serverName, String ruleName, FirewallRuleUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * Updates an existing server-level firewall rule for a SQL Database server
