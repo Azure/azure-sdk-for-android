@@ -15,9 +15,10 @@
 
 package com.microsoft.windowsazure.credentials;
 
+import com.microsoft.windowsazure.ConfigurationProperties;
 import com.microsoft.windowsazure.core.utils.KeyStoreCredential;
 import com.microsoft.windowsazure.core.utils.SSLContextFactory;
-import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;
+
 import java.io.IOException;
 import java.net.URI;
 import java.security.GeneralSecurityException;
@@ -123,8 +124,8 @@ public class CertificateCloudCredentials extends SubscriptionCloudCredentials {
             sslContext = SSLContextFactory.create(this.getKeyStoreCredential());
             properties
                     .put(profile
-                            + ApacheConfigurationProperties.PROPERTY_SSL_CONNECTION_SOCKET_FACTORY,
-                            new SSLConnectionSocketFactory(sslContext));
+							+ ConfigurationProperties.PROPERTY_SSL_CONNECTION_SOCKET_FACTORY,
+							sslContext.getSocketFactory());
         } catch (GeneralSecurityException ex) {
             Logger.getLogger(CertificateCloudCredentials.class.getName()).log(
                     Level.SEVERE, null, ex);
@@ -133,5 +134,4 @@ public class CertificateCloudCredentials extends SubscriptionCloudCredentials {
                     Level.SEVERE, null, ex);
         }
     }
-
 }

@@ -15,9 +15,11 @@
 package com.microsoft.windowsazure.exception;
 
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
+import com.microsoft.windowsazure.core.utils.StreamUtils;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -149,38 +151,41 @@ public class ServiceException extends Exception {
         return rawResponseBody;
     }
 
-    public static ServiceException create(final HttpRequest httpRequest,
-            final String requestContent, final HttpResponse httpResponse,
-            final HttpEntity entity, final String defaultTo) {
+    public static ServiceException create(
+    		final String requestContent,
+    		final int responseStatusCode,
+    		final String responseContentType,
+            final InputStream responseStream,
+            final String defaultTo) {
+    	
         ServiceException serviceException;
 
-        if (httpResponse.getEntity().getContentType().getValue()
-                .equals("application/json")
-                || httpResponse.getEntity().getContentType().getValue()
-                        .equals("text/json")) {
+        if (responseContentType.equals("application/json")
+                || responseContentType.equals("text/json")) {
             throw new UnsupportedOperationException();
-        } else if (httpResponse.getEntity().getContentType().getValue()
-                .equals("application/xml")
-                || httpResponse.getEntity().getContentType().getValue()
-                        .equals("text/xml")) {
-            serviceException = createFromXml(httpRequest, requestContent,
-                    httpResponse, entity);
+        } else if (responseContentType.equals("application/xml")
+                || responseContentType.equals("text/xml")) {
+            serviceException = createFromXml(requestContent,
+                    responseStatusCode, responseContentType, responseStream);
         } else if ("Json".equals(defaultTo)) {
             throw new UnsupportedOperationException();
         } else {
-            serviceException = createFromXml(httpRequest, requestContent,
-                    httpResponse, entity);
+            serviceException = createFromXml(requestContent,
+                    responseStatusCode, responseContentType, responseStream);
         }
 
         return serviceException;
     }
 
-    public static ServiceException createFromXml(final HttpRequest httpRequest,
-            final String requestContent, final HttpResponse httpResponse,
-            final HttpEntity entity) {
+    public static ServiceException createFromXml(
+    		final String requestContent,
+    		final int responseStatusCode,
+    		final String responseContentType,
+            final InputStream responseStream) {
+    	
         String content;
         try {
-            content = EntityUtils.toString(entity);
+        	content = StreamUtils.toString(responseStream);
         } catch (IOException e) {
             return new ServiceException(e);
         }
@@ -203,7 +208,7 @@ public class ServiceException extends Exception {
                     responseDoc);
 
             serviceException = new ServiceException(buildExceptionMessage(code,
-                    message, content, httpResponse));
+                    message));
 
             serviceException.setErrorCode(code);
             serviceException.setErrorMessage(message);
@@ -217,31 +222,17 @@ public class ServiceException extends Exception {
             return new ServiceException(content);
         }
 
-        serviceException.setHttpStatusCode(httpResponse.getStatusLine()
-                .getStatusCode());
-        serviceException.setHttpReasonPhrase(httpResponse.getStatusLine()
-                .getReasonPhrase());
+        serviceException.setHttpStatusCode(responseStatusCode);
 
         return serviceException;
     }
 
-    private static String buildExceptionMessage(String code, String message,
-            String responseContent, HttpResponse httpResponse) {
+    private static String buildExceptionMessage(
+    		final String code,
+    		final String message) {
         return (code != null && message != null) ? code + ": " + message
                 : (message != null) ? message
-                        : (code != null) ? code
-                                : (responseContent != null) ? responseContent
-                                        : (httpResponse != null
-                                                && httpResponse.getStatusLine() != null && httpResponse
-                                                .getStatusLine()
-                                                .getReasonPhrase() != null) ? httpResponse
-                                                .getStatusLine()
-                                                .getReasonPhrase()
-                                                : (httpResponse != null && httpResponse
-                                                        .getStatusLine() != null) ? Integer
-                                                        .toString(httpResponse
-                                                                .getStatusLine()
-                                                                .getStatusCode())
-                                                        : "Invalid operation";
+                    : (code != null) ? code
+                        : "Invalid operation";
     }
 }
