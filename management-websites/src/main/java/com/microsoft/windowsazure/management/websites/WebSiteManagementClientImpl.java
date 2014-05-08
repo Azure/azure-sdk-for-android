@@ -29,7 +29,10 @@ import com.microsoft.windowsazure.core.ServiceClient;
 import com.microsoft.windowsazure.credentials.SubscriptionCloudCredentials;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.tracing.CloudTracing;
+import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -165,12 +168,16 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
     /**
     * Register your subscription to use Azure Web Sites.
     *
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse registerSubscription() throws ServiceException {
+    public OperationResponse registerSubscription() throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         
         // Tracing
@@ -209,7 +216,7 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != accepted) {
+            if (statusCode != 202) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -253,12 +260,16 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
     /**
     * Unregister your subscription to use Azure Web Sites.
     *
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse unregisterSubscription() throws ServiceException {
+    public OperationResponse unregisterSubscription() throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         
         // Tracing
@@ -297,7 +308,7 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != accepted) {
+            if (statusCode != 202) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

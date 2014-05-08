@@ -41,6 +41,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashMap;
@@ -129,6 +131,8 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
     * @param webSpaceName Required. The name of the web space.
     * @param parameters Required. Parameters supplied to the Create Server Farm
     * operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
@@ -136,13 +140,14 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
-    * @throws IOException Thrown if there was an error parsing the response.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Create Server Farm operation response.
     */
     @Override
-    public ServerFarmCreateResponse create(String webSpaceName, ServerFarmCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException {
+    public ServerFarmCreateResponse create(String webSpaceName, ServerFarmCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -236,7 +241,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -354,12 +359,16 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
     * more information)
     *
     * @param webSpaceName Required. The name of the web space.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse delete(String webSpaceName) throws ServiceException {
+    public OperationResponse delete(String webSpaceName) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -399,7 +408,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -466,18 +475,21 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
     *
     * @param webSpaceName Required. The name of the web space.
     * @param serverFarmName Required. The name of the server farm.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @throws IOException Thrown if there was an error parsing the response.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Get Server Farm operation response.
     */
     @Override
-    public ServerFarmGetResponse get(String webSpaceName, String serverFarmName) throws ServiceException, ParserConfigurationException, SAXException, IOException, URISyntaxException {
+    public ServerFarmGetResponse get(String webSpaceName, String serverFarmName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -521,7 +533,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -638,16 +650,19 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
     * more information)
     *
     * @param webSpaceName Required. The name of the web space.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @throws IOException Thrown if there was an error parsing the response.
     * @return The List Server Farm operation response.
     */
     @Override
-    public ServerFarmListResponse list(String webSpaceName) throws ServiceException, ParserConfigurationException, SAXException, IOException {
+    public ServerFarmListResponse list(String webSpaceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -687,7 +702,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -814,6 +829,8 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
     * @param webSpaceName Required. The name of the web space.
     * @param parameters Required. Parameters supplied to the Update Server Farm
     * operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
@@ -821,13 +838,14 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
-    * @throws IOException Thrown if there was an error parsing the response.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Update Server Farm operation response.
     */
     @Override
-    public ServerFarmUpdateResponse update(String webSpaceName, ServerFarmUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException {
+    public ServerFarmUpdateResponse update(String webSpaceName, ServerFarmUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -921,7 +939,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);

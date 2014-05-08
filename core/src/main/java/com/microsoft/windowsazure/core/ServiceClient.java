@@ -18,11 +18,10 @@ import com.microsoft.windowsazure.Configuration;
 import com.microsoft.windowsazure.core.pipeline.filter.ServiceRequestFilter;
 import com.microsoft.windowsazure.core.pipeline.filter.ServiceResponseFilter;
 
-import java.io.Closeable;
 import java.util.concurrent.ExecutorService;
 
 public abstract class ServiceClient<TClient> implements
-        FilterableService<TClient>, Closeable {
+        FilterableService<TClient> {
     private final ExecutorService executorService;
     private final Configuration configuration;
 
@@ -39,7 +38,7 @@ public abstract class ServiceClient<TClient> implements
     	this.executorService = executorService;
     }
 
-    protected abstract TClient newInstance(ExecutorService executorService);
+    protected abstract TClient newInstance(Configuration configuration, ExecutorService executorService);
 
     @Override
     public TClient withRequestFilterFirst(

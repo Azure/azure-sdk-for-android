@@ -60,6 +60,8 @@ import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -141,6 +143,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     * @param webSpaceName Required. The name of the web space.
     * @param parameters Required. Parameters supplied to the Create Web Site
     * operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
@@ -148,13 +152,14 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
-    * @throws IOException Thrown if there was an error parsing the response.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Create Web Site operation response.
     */
     @Override
-    public WebSiteCreateResponse create(String webSpaceName, WebSiteCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException {
+    public WebSiteCreateResponse create(String webSpaceName, WebSiteCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -288,7 +293,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok && statusCode != created) {
+            if (statusCode != 200 && statusCode != 201) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -773,12 +778,16 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse createRepository(String webSpaceName, String webSiteName) throws ServiceException {
+    public OperationResponse createRepository(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -822,7 +831,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -884,12 +893,16 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     * @param webSiteName Required. The name of the web site.
     * @param parameters Required. Parameters supplied to the Delete Web Site
     * operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse delete(String webSpaceName, String webSiteName, WebSiteDeleteParameters parameters) throws ServiceException {
+    public OperationResponse delete(String webSpaceName, String webSiteName, WebSiteDeleteParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -940,7 +953,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -997,18 +1010,21 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @throws IOException Thrown if there was an error parsing the response.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Delete Repository Web Site operation response.
     */
     @Override
-    public WebSiteDeleteRepositoryResponse deleteRepository(String webSpaceName, String webSiteName) throws ServiceException, ParserConfigurationException, SAXException, IOException, URISyntaxException {
+    public WebSiteDeleteRepositoryResponse deleteRepository(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -1052,7 +1068,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1128,12 +1144,16 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse generatePassword(String webSpaceName, String webSiteName) throws ServiceException {
+    public OperationResponse generatePassword(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -1177,7 +1197,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1232,18 +1252,21 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     * @param webSiteName Required. The name of the web site.
     * @param parameters Optional. Parameters supplied to the Get Web Site
     * Operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @throws IOException Thrown if there was an error parsing the response.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Get Web Site operation response.
     */
     @Override
-    public WebSiteGetResponse get(String webSpaceName, String webSiteName, WebSiteGetParameters parameters) throws ServiceException, ParserConfigurationException, SAXException, IOException, URISyntaxException {
+    public WebSiteGetResponse get(String webSpaceName, String webSiteName, WebSiteGetParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -1291,7 +1314,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -1771,16 +1794,19 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @throws IOException Thrown if there was an error parsing the response.
     * @return The Get Configuration Web Site operation response.
     */
     @Override
-    public WebSiteGetConfigurationResponse getConfiguration(String webSpaceName, String webSiteName) throws ServiceException, ParserConfigurationException, SAXException, IOException {
+    public WebSiteGetConfigurationResponse getConfiguration(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -1824,7 +1850,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -2112,16 +2138,19 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     * @param webSiteName Required. The name of the web site.
     * @param parameters Required. Parameters supplied to the Get Historical
     * Usage Metrics Web Site operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @throws IOException Thrown if there was an error parsing the response.
     * @return The Get Historical Usage Metrics Web Site operation response.
     */
     @Override
-    public WebSiteGetHistoricalUsageMetricsResponse getHistoricalUsageMetrics(String webSpaceName, String webSiteName, WebSiteGetHistoricalUsageMetricsParameters parameters) throws ServiceException, ParserConfigurationException, SAXException, IOException {
+    public WebSiteGetHistoricalUsageMetricsResponse getHistoricalUsageMetrics(String webSpaceName, String webSiteName, WebSiteGetHistoricalUsageMetricsParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -2182,7 +2211,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -2380,18 +2409,21 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @throws IOException Thrown if there was an error parsing the response.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Get Publish Profile Web Site operation response.
     */
     @Override
-    public WebSiteGetPublishProfileResponse getPublishProfile(String webSpaceName, String webSiteName) throws ServiceException, ParserConfigurationException, SAXException, IOException, URISyntaxException {
+    public WebSiteGetPublishProfileResponse getPublishProfile(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -2435,7 +2467,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -2599,18 +2631,21 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @throws IOException Thrown if there was an error parsing the response.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Get Repository Web Site operation response.
     */
     @Override
-    public WebSiteGetRepositoryResponse getRepository(String webSpaceName, String webSiteName) throws ServiceException, ParserConfigurationException, SAXException, IOException, URISyntaxException {
+    public WebSiteGetRepositoryResponse getRepository(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -2654,7 +2689,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -2725,16 +2760,19 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
-    * @throws IOException Thrown if there was an error parsing the response.
     * @return The Get Usage Metrics Web Site operation response.
     */
     @Override
-    public WebSiteGetUsageMetricsResponse getUsageMetrics(String webSpaceName, String webSiteName) throws ServiceException, ParserConfigurationException, SAXException, IOException {
+    public WebSiteGetUsageMetricsResponse getUsageMetrics(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -2778,7 +2816,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -2911,12 +2949,16 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse restart(String webSpaceName, String webSiteName) throws ServiceException {
+    public OperationResponse restart(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -2960,7 +3002,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -3017,6 +3059,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     * @param webSiteName Required. The name of the web site.
     * @param parameters Required. Parameters supplied to the Update Web Site
     * operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
@@ -3024,13 +3068,14 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
-    * @throws IOException Thrown if there was an error parsing the response.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Update Web Site operation response.
     */
     @Override
-    public WebSiteUpdateResponse update(String webSpaceName, String webSiteName, WebSiteUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException {
+    public WebSiteUpdateResponse update(String webSpaceName, String webSiteName, WebSiteUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -3216,7 +3261,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
@@ -3701,6 +3746,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     * @param webSiteName Required. The name of the web site.
     * @param parameters Required. Parameters supplied to the Update
     * Configuration Web Site operation.
+    * @throws MalformedURLException Thrown in case of an invalid request URL
+    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
@@ -3708,11 +3755,13 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse updateConfiguration(String webSpaceName, String webSiteName, WebSiteUpdateConfigurationParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, ServiceException {
+    public OperationResponse updateConfiguration(String webSpaceName, String webSiteName, WebSiteUpdateConfigurationParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -3984,7 +4033,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != ok) {
+            if (statusCode != 200) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
