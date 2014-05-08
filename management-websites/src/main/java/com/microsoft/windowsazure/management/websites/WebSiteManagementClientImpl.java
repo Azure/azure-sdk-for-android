@@ -37,7 +37,6 @@ import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import org.apache.http.HttpStatus;
 
 /**
 * The Web Sites Management API provides a RESTful set of web services that
@@ -210,8 +209,8 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, , .getEntity());
+            if (statusCode != accepted) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -298,8 +297,8 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, , .getEntity());
+            if (statusCode != accepted) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }

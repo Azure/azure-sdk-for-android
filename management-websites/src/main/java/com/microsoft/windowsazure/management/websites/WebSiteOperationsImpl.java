@@ -80,7 +80,6 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.apache.http.HttpStatus;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -289,8 +288,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_OK && statusCode != HttpStatus.SC_CREATED) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, , .getEntity());
+            if (statusCode != ok && statusCode != created) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -823,8 +822,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, , .getEntity());
+            if (statusCode != ok) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -941,8 +940,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, , .getEntity());
+            if (statusCode != ok) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1053,8 +1052,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, , .getEntity());
+            if (statusCode != ok) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1178,8 +1177,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, , .getEntity());
+            if (statusCode != ok) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1292,8 +1291,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, , .getEntity());
+            if (statusCode != ok) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1825,8 +1824,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, , .getEntity());
+            if (statusCode != ok) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -2183,8 +2182,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, , .getEntity());
+            if (statusCode != ok) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -2436,8 +2435,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, , .getEntity());
+            if (statusCode != ok) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -2655,8 +2654,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, , .getEntity());
+            if (statusCode != ok) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -2779,8 +2778,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, , .getEntity());
+            if (statusCode != ok) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -2961,8 +2960,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, null, , .getEntity());
+            if (statusCode != ok) {
+                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -3217,8 +3216,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, , .getEntity());
+            if (statusCode != ok) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -3985,8 +3984,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
-            if (statusCode != HttpStatus.SC_OK) {
-                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, , .getEntity());
+            if (statusCode != ok) {
+                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }

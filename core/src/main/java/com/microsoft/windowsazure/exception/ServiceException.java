@@ -154,6 +154,7 @@ public class ServiceException extends Exception {
     public static ServiceException create(
     		final String requestContent,
     		final int responseStatusCode,
+    		final String responseMessage,
     		final String responseContentType,
             final InputStream responseStream,
             final String defaultTo) {
@@ -166,12 +167,12 @@ public class ServiceException extends Exception {
         } else if (responseContentType.equals("application/xml")
                 || responseContentType.equals("text/xml")) {
             serviceException = createFromXml(requestContent,
-                    responseStatusCode, responseContentType, responseStream);
+                    responseMessage, responseStatusCode, responseContentType, responseStream);
         } else if ("Json".equals(defaultTo)) {
             throw new UnsupportedOperationException();
         } else {
             serviceException = createFromXml(requestContent,
-                    responseStatusCode, responseContentType, responseStream);
+                    responseMessage, responseStatusCode, responseContentType, responseStream);
         }
 
         return serviceException;
@@ -179,6 +180,7 @@ public class ServiceException extends Exception {
 
     public static ServiceException createFromXml(
     		final String requestContent,
+    		final String responseMessage,
     		final int responseStatusCode,
     		final String responseContentType,
             final InputStream responseStream) {
@@ -223,6 +225,7 @@ public class ServiceException extends Exception {
         }
 
         serviceException.setHttpStatusCode(responseStatusCode);
+        serviceException.setHttpReasonPhrase(responseMessage);
 
         return serviceException;
     }
