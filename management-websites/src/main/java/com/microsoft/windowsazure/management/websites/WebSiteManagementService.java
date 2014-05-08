@@ -14,8 +14,6 @@
  */
 package com.microsoft.windowsazure.management.websites;
 
-import java.util.concurrent.Executors;
-
 import com.microsoft.windowsazure.Configuration;
 
 /**
@@ -36,7 +34,8 @@ public final class WebSiteManagementService {
      * @return The <code>WebSiteManagementClient</code>.
      */
     public static WebSiteManagementClient create() {
-        return new WebSiteManagementClientImpl(Configuration.getInstance(), Executors.newCachedThreadPool());
+        return Configuration.getInstance()
+                .create(WebSiteManagementClient.class);
     }
 
     /**
@@ -48,6 +47,32 @@ public final class WebSiteManagementService {
      * @return The <code>WebSiteManagementClient</code>.
      */
     public static WebSiteManagementClient create(final Configuration config) {
-        return new WebSiteManagementClientImpl(config, Executors.newCachedThreadPool());
+        return config.create(WebSiteManagementClient.class);
+    }
+
+    /**
+     * Creates an instance of the <code>WebSiteManagementClient</code> API.
+     *
+     * @param profile A <code>String</code> object that representing the profile
+     * of the service management service.
+     * @return The <code>WebSiteManagementClient</code>.
+     */
+    public static WebSiteManagementClient create(final String profile) {
+        return Configuration.getInstance().create(profile,
+                WebSiteManagementClient.class);
+    }
+
+    /**
+     * Creates an instance of the <code>WebSiteManagementClient</code> API
+     * using the specified configuration.
+     *
+     * @param profile The profile.
+     * @param config A <code>Configuration</code> object that represents the
+     * configuration for the service management.
+     * @return The <code>WebSiteManagementClient</code>.
+     */
+    public static WebSiteManagementClient create(final String profile,
+            final Configuration config) {
+        return config.create(profile, WebSiteManagementClient.class);
     }
 }

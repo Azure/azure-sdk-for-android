@@ -106,13 +106,13 @@ public class WebSpacesListGeoRegionsResponse extends OperationResponse implement
             this.name = nameValue;
         }
         
-        private Integer sortOrder;
+        private int sortOrder;
         
         /**
         * Optional. Sort order for the geo region.
         * @return The SortOrder value.
         */
-        public Integer getSortOrder() {
+        public int getSortOrder() {
             return this.sortOrder;
         }
         
@@ -120,7 +120,7 @@ public class WebSpacesListGeoRegionsResponse extends OperationResponse implement
         * Optional. Sort order for the geo region.
         * @param sortOrderValue The SortOrder value.
         */
-        public void setSortOrder(final Integer sortOrderValue) {
+        public void setSortOrder(final int sortOrderValue) {
             this.sortOrder = sortOrderValue;
         }
     }

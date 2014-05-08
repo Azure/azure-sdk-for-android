@@ -37,13 +37,15 @@ import com.microsoft.windowsazure.management.websites.models.WebSiteGetPublishPr
 import com.microsoft.windowsazure.management.websites.models.WebSiteGetRepositoryResponse;
 import com.microsoft.windowsazure.management.websites.models.WebSiteGetResponse;
 import com.microsoft.windowsazure.management.websites.models.WebSiteGetUsageMetricsResponse;
+import com.microsoft.windowsazure.management.websites.models.WebSiteInstanceIdsResponse;
+import com.microsoft.windowsazure.management.websites.models.WebSiteIsHostnameAvailableResponse;
+import com.microsoft.windowsazure.management.websites.models.WebSiteOperationStatusResponse;
 import com.microsoft.windowsazure.management.websites.models.WebSiteUpdateConfigurationParameters;
 import com.microsoft.windowsazure.management.websites.models.WebSiteUpdateParameters;
 import com.microsoft.windowsazure.management.websites.models.WebSiteUpdateResponse;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URISyntaxException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -56,6 +58,50 @@ import org.xml.sax.SAXException;
 */
 public interface WebSiteOperations {
     /**
+    * You can swap a web site from one slot to another slot.
+    *
+    * @param webSpaceName Required. The name of the web space.
+    * @param webSiteName Required. The name of the web site.
+    * @param sourceSlotName Required. The name of the first web site slot to
+    * swap (source).
+    * @param targetSlotName Required. The name of the second web site slot to
+    * swap with (target).
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws ParserConfigurationException Thrown if there was a serious
+    * configuration error with the document parser.
+    * @throws SAXException Thrown if there was an error parsing the XML
+    * response.
+    * @return The response body contains the status of the specified
+    * long-running operation, indicating whether it has succeeded, is
+    * inprogress, has timed out, or has failed. Note that this status is
+    * distinct from the HTTP status code returned for the Get Operation Status
+    * operation itself. If the long-running operation failed, the response
+    * body includes error information regarding the failure.
+    */
+    WebSiteOperationStatusResponse beginSwapingSlots(String webSpaceName, String webSiteName, String sourceSlotName, String targetSlotName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    
+    /**
+    * You can swap a web site from one slot to another slot.
+    *
+    * @param webSpaceName Required. The name of the web space.
+    * @param webSiteName Required. The name of the web site.
+    * @param sourceSlotName Required. The name of the first web site slot to
+    * swap (source).
+    * @param targetSlotName Required. The name of the second web site slot to
+    * swap with (target).
+    * @return The response body contains the status of the specified
+    * long-running operation, indicating whether it has succeeded, is
+    * inprogress, has timed out, or has failed. Note that this status is
+    * distinct from the HTTP status code returned for the Get Operation Status
+    * operation itself. If the long-running operation failed, the response
+    * body includes error information regarding the failure.
+    */
+    Future<WebSiteOperationStatusResponse> beginSwapingSlotsAsync(String webSpaceName, String webSiteName, String sourceSlotName, String targetSlotName);
+    
+    /**
     * You can create a web site by using a POST request that includes the name
     * of the web site and other information in the request body.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/dn166986.aspx for
@@ -64,22 +110,21 @@ public interface WebSiteOperations {
     * @param webSpaceName Required. The name of the web space.
     * @param parameters Required. Parameters supplied to the Create Web Site
     * operation.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Create Web Site operation response.
     */
-    WebSiteCreateResponse create(String webSpaceName, WebSiteCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException;
+    WebSiteCreateResponse create(String webSpaceName, WebSiteCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, URISyntaxException;
     
     /**
     * You can create a web site by using a POST request that includes the name
@@ -104,15 +149,14 @@ public interface WebSiteOperations {
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse createRepository(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
+    OperationResponse createRepository(String webSpaceName, String webSiteName) throws IOException, ServiceException;
     
     /**
     * A web site repository is essentially a Git repository that you can use to
@@ -141,15 +185,14 @@ public interface WebSiteOperations {
     * @param webSiteName Required. The name of the web site.
     * @param parameters Required. Parameters supplied to the Delete Web Site
     * operation.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse delete(String webSpaceName, String webSiteName, WebSiteDeleteParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException;
+    OperationResponse delete(String webSpaceName, String webSiteName, WebSiteDeleteParameters parameters) throws IOException, ServiceException;
     
     /**
     * You can delete a web site by issuing an HTTP DELETE request. If the web
@@ -178,11 +221,10 @@ public interface WebSiteOperations {
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -191,7 +233,7 @@ public interface WebSiteOperations {
     * the response.
     * @return The Delete Repository Web Site operation response.
     */
-    WebSiteDeleteRepositoryResponse deleteRepository(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
+    WebSiteDeleteRepositoryResponse deleteRepository(String webSpaceName, String webSiteName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * A web site repository is essentially a Git repository that you can use to
@@ -220,15 +262,14 @@ public interface WebSiteOperations {
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse generatePassword(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
+    OperationResponse generatePassword(String webSpaceName, String webSiteName) throws IOException, ServiceException;
     
     /**
     * You can generate a new random password for publishing a site by issuing
@@ -257,11 +298,10 @@ public interface WebSiteOperations {
     * @param webSiteName Required. The name of the web site.
     * @param parameters Optional. Parameters supplied to the Get Web Site
     * Operation.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -270,7 +310,7 @@ public interface WebSiteOperations {
     * the response.
     * @return The Get Web Site operation response.
     */
-    WebSiteGetResponse get(String webSpaceName, String webSiteName, WebSiteGetParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
+    WebSiteGetResponse get(String webSpaceName, String webSiteName, WebSiteGetParameters parameters) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * You can retrieve details for a web site by issuing an HTTP GET request.
@@ -293,18 +333,17 @@ public interface WebSiteOperations {
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The Get Configuration Web Site operation response.
     */
-    WebSiteGetConfigurationResponse getConfiguration(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    WebSiteGetConfigurationResponse getConfiguration(String webSpaceName, String webSiteName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
     
     /**
     * You can retrieve the config settings for a web site by issuing an HTTP
@@ -328,18 +367,17 @@ public interface WebSiteOperations {
     * @param webSiteName Required. The name of the web site.
     * @param parameters Required. Parameters supplied to the Get Historical
     * Usage Metrics Web Site operation.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The Get Historical Usage Metrics Web Site operation response.
     */
-    WebSiteGetHistoricalUsageMetricsResponse getHistoricalUsageMetrics(String webSpaceName, String webSiteName, WebSiteGetHistoricalUsageMetricsParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    WebSiteGetHistoricalUsageMetricsResponse getHistoricalUsageMetrics(String webSpaceName, String webSiteName, WebSiteGetHistoricalUsageMetricsParameters parameters) throws IOException, ServiceException, ParserConfigurationException, SAXException;
     
     /**
     * You can retrieve historical usage metrics for a site by issuing an HTTP
@@ -356,6 +394,38 @@ public interface WebSiteOperations {
     Future<WebSiteGetHistoricalUsageMetricsResponse> getHistoricalUsageMetricsAsync(String webSpaceName, String webSiteName, WebSiteGetHistoricalUsageMetricsParameters parameters);
     
     /**
+    * You can retrieve the list of active instances by ids for a web site by
+    * issuing an HTTP GET request.  (see
+    * http://msdn.microsoft.com/en-us/library/windowsazure/dn166981.aspx for
+    * more information)
+    *
+    * @param webSpaceName Required. The name of the web space.
+    * @param webSiteName Required. The name of the web site.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws ParserConfigurationException Thrown if there was a serious
+    * configuration error with the document parser.
+    * @throws SAXException Thrown if there was an error parsing the XML
+    * response.
+    * @return The web site instance ids reponse.
+    */
+    WebSiteInstanceIdsResponse getInstanceIds(String webSpaceName, String webSiteName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    
+    /**
+    * You can retrieve the list of active instances by ids for a web site by
+    * issuing an HTTP GET request.  (see
+    * http://msdn.microsoft.com/en-us/library/windowsazure/dn166981.aspx for
+    * more information)
+    *
+    * @param webSpaceName Required. The name of the web space.
+    * @param webSiteName Required. The name of the web site.
+    * @return The web site instance ids reponse.
+    */
+    Future<WebSiteInstanceIdsResponse> getInstanceIdsAsync(String webSpaceName, String webSiteName);
+    
+    /**
     * You can retrieve the publish settings information for a web site by
     * issuing an HTTP GET request.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/dn166996.aspx for
@@ -363,11 +433,10 @@ public interface WebSiteOperations {
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -376,7 +445,7 @@ public interface WebSiteOperations {
     * the response.
     * @return The Get Publish Profile Web Site operation response.
     */
-    WebSiteGetPublishProfileResponse getPublishProfile(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
+    WebSiteGetPublishProfileResponse getPublishProfile(String webSpaceName, String webSiteName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * You can retrieve the publish settings information for a web site by
@@ -400,11 +469,10 @@ public interface WebSiteOperations {
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -413,7 +481,7 @@ public interface WebSiteOperations {
     * the response.
     * @return The Get Repository Web Site operation response.
     */
-    WebSiteGetRepositoryResponse getRepository(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
+    WebSiteGetRepositoryResponse getRepository(String webSpaceName, String webSiteName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * A web site repository is essentially a Git repository that you can use to
@@ -440,18 +508,17 @@ public interface WebSiteOperations {
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The Get Usage Metrics Web Site operation response.
     */
-    WebSiteGetUsageMetricsResponse getUsageMetrics(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    WebSiteGetUsageMetricsResponse getUsageMetrics(String webSpaceName, String webSiteName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
     
     /**
     * You can retrieve current usage metrics for a site by issuing an HTTP GET
@@ -469,21 +536,44 @@ public interface WebSiteOperations {
     Future<WebSiteGetUsageMetricsResponse> getUsageMetricsAsync(String webSpaceName, String webSiteName);
     
     /**
+    * Determines if a host name is available.
+    *
+    * @param webSiteName Required. The name of the web site.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
+    * @throws ParserConfigurationException Thrown if there was a serious
+    * configuration error with the document parser.
+    * @throws SAXException Thrown if there was an error parsing the XML
+    * response.
+    * @return The Is Hostname Available Web Site operation response.
+    */
+    WebSiteIsHostnameAvailableResponse isHostnameAvailable(String webSiteName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
+    
+    /**
+    * Determines if a host name is available.
+    *
+    * @param webSiteName Required. The name of the web site.
+    * @return The Is Hostname Available Web Site operation response.
+    */
+    Future<WebSiteIsHostnameAvailableResponse> isHostnameAvailableAsync(String webSiteName);
+    
+    /**
     * You can restart a web site by issuing an HTTP POST request.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/dn236425.aspx for
     * more information)
     *
     * @param webSpaceName Required. The name of the web space.
     * @param webSiteName Required. The name of the web site.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse restart(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
+    OperationResponse restart(String webSpaceName, String webSiteName) throws IOException, ServiceException;
     
     /**
     * You can restart a web site by issuing an HTTP POST request.  (see
@@ -498,6 +588,88 @@ public interface WebSiteOperations {
     Future<OperationResponse> restartAsync(String webSpaceName, String webSiteName);
     
     /**
+    * You can swap a web site from one slot to another slot.
+    *
+    * @param webSpaceName Required. The name of the web space.
+    * @param webSiteName Required. The name of the web site.
+    * @param sourceSlotName Required. The name of the first web site slot to
+    * swap (source).
+    * @param targetSlotName Required. The name of the second web site slot to
+    * swap with (target).
+    * @throws InterruptedException Thrown when a thread is waiting, sleeping,
+    * or otherwise occupied, and the thread is interrupted, either before or
+    * during the activity. Occasionally a method may wish to test whether the
+    * current thread has been interrupted, and if so, to immediately throw
+    * this exception. The following code can be used to achieve this effect:
+    * @throws ExecutionException Thrown when attempting to retrieve the result
+    * of a task that aborted by throwing an exception. This exception can be
+    * inspected using the Throwable.getCause() method.
+    * @throws ServiceException Thrown if the server returned an error for the
+    * request.
+    * @throws IOException Thrown if there was an error setting up tracing for
+    * the request.
+    * @return The response body contains the status of the specified
+    * long-running operation, indicating whether it has succeeded, is
+    * inprogress, has timed out, or has failed. Note that this status is
+    * distinct from the HTTP status code returned for the Get Operation Status
+    * operation itself. If the long-running operation failed, the response
+    * body includes error information regarding the failure.
+    */
+    WebSiteOperationStatusResponse swapSlots(String webSpaceName, String webSiteName, String sourceSlotName, String targetSlotName) throws InterruptedException, ExecutionException, ServiceException, IOException;
+    
+    /**
+    * You can swap a web site from one slot to another slot.
+    *
+    * @param webSpaceName Required. The name of the web space.
+    * @param webSiteName Required. The name of the web site.
+    * @param sourceSlotName Required. The name of the first web site slot to
+    * swap (source).
+    * @param targetSlotName Required. The name of the second web site slot to
+    * swap with (target).
+    * @return The response body contains the status of the specified
+    * long-running operation, indicating whether it has succeeded, is
+    * inprogress, has timed out, or has failed. Note that this status is
+    * distinct from the HTTP status code returned for the Get Operation Status
+    * operation itself. If the long-running operation failed, the response
+    * body includes error information regarding the failure.
+    */
+    Future<WebSiteOperationStatusResponse> swapSlotsAsync(String webSpaceName, String webSiteName, String sourceSlotName, String targetSlotName);
+    
+    /**
+    * A web site repository is essentially a Git repository that you can use to
+    * manage your web site content. By using Git source control tools, you can
+    * push or pull version-controlled changes to your site. This API executes
+    * a repository sync operation.  (see
+    * http://msdn.microsoft.com/en-us/library/windowsazure/dn166967.aspx for
+    * more information)
+    *
+    * @param webSpaceName Required. The name of the web space.
+    * @param webSiteName Required. The name of the web site.
+    * @throws IOException Signals that an I/O exception of some sort has
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
+    * @return A standard service response including an HTTP status code and
+    * request ID.
+    */
+    OperationResponse syncRepository(String webSpaceName, String webSiteName) throws IOException, ServiceException;
+    
+    /**
+    * A web site repository is essentially a Git repository that you can use to
+    * manage your web site content. By using Git source control tools, you can
+    * push or pull version-controlled changes to your site. This API executes
+    * a repository sync operation.  (see
+    * http://msdn.microsoft.com/en-us/library/windowsazure/dn166967.aspx for
+    * more information)
+    *
+    * @param webSpaceName Required. The name of the web space.
+    * @param webSiteName Required. The name of the web site.
+    * @return A standard service response including an HTTP status code and
+    * request ID.
+    */
+    Future<OperationResponse> syncRepositoryAsync(String webSpaceName, String webSiteName);
+    
+    /**
     * You can update the settings for a web site by using the HTTP PUT method
     * and by specifying the settings in the request body.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/dn167005.aspx for
@@ -507,22 +679,21 @@ public interface WebSiteOperations {
     * @param webSiteName Required. The name of the web site.
     * @param parameters Required. Parameters supplied to the Update Web Site
     * operation.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Update Web Site operation response.
     */
-    WebSiteUpdateResponse update(String webSpaceName, String webSiteName, WebSiteUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException;
+    WebSiteUpdateResponse update(String webSpaceName, String webSiteName, WebSiteUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, URISyntaxException;
     
     /**
     * You can update the settings for a web site by using the HTTP PUT method
@@ -548,21 +719,20 @@ public interface WebSiteOperations {
     * @param webSiteName Required. The name of the web site.
     * @param parameters Required. Parameters supplied to the Update
     * Configuration Web Site operation.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse updateConfiguration(String webSpaceName, String webSiteName, WebSiteUpdateConfigurationParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    OperationResponse updateConfiguration(String webSpaceName, String webSiteName, WebSiteUpdateConfigurationParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException;
     
     /**
     * You can update the config settings for a web site by issuing an HTTP PUT

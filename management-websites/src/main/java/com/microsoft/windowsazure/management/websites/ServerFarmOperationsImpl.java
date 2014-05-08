@@ -25,6 +25,7 @@ package com.microsoft.windowsazure.management.websites;
 
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
+import com.microsoft.windowsazure.core.pipeline.apache.CustomHttpDelete;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.exception.ServiceException;
@@ -40,11 +41,7 @@ import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
@@ -57,6 +54,12 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -131,23 +134,22 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
     * @param webSpaceName Required. The name of the web space.
     * @param parameters Required. Parameters supplied to the Create Server Farm
     * operation.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Create Server Farm operation response.
     */
     @Override
-    public ServerFarmCreateResponse create(String webSpaceName, ServerFarmCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException {
+    public ServerFarmCreateResponse create(String webSpaceName, ServerFarmCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, URISyntaxException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -169,7 +171,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         
         // Construct URL
         String baseUrl = this.getClient().getBaseUri().toString();
-        String url = "/" + (this.getClient().getCredentials().getSubscriptionId() != null ? this.getClient().getCredentials().getSubscriptionId().trim() : "") + "/services/WebSpaces/" + webSpaceName.trim() + "/ServerFarms";
+        String url = "/" + this.getClient().getCredentials().getSubscriptionId().trim() + "/services/WebSpaces/" + webSpaceName.trim() + "/ServerFarms";
         // Trim '/' character from the end of baseUrl and beginning of url.
         if (baseUrl.charAt(baseUrl.length() - 1) == '/') {
             baseUrl = baseUrl.substring(0, (baseUrl.length() - 1) + 0);
@@ -180,14 +182,11 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        URL serverAddress = new URL(url);
-        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Post");
-        httpRequest.setDoOutput(true);
+        HttpPost httpRequest = new HttpPost(url);
         
         // Set Headers
-        httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setHeader("x-ms-version", "2013-08-01");
         
         // Serialize Request
         String requestContent = null;
@@ -235,14 +234,23 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        StringEntity entity = new StringEntity(requestContent);
+        httpRequest.setEntity(entity);
+        httpRequest.setHeader("Content-Type", "application/xml");
         
         // Send Request
+        HttpResponse httpResponse = null;
         try {
-            httpRequest.getOutputStream().write(requestContent.getBytes());
-            int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
-                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+            if (shouldTrace) {
+                CloudTracing.sendRequest(invocationId, httpRequest);
+            }
+            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
+            if (shouldTrace) {
+                CloudTracing.receiveResponse(invocationId, httpResponse);
+            }
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -252,7 +260,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
             // Create Result
             ServerFarmCreateResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpRequest.getInputStream();
+            InputStream responseContent = httpResponse.getEntity().getContent();
             result = new ServerFarmCreateResponse();
             DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
             documentBuilderFactory2.setNamespaceAware(true);
@@ -305,15 +313,17 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
             }
             
             result.setStatusCode(statusCode);
-            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
+            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
+                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
+            }
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpRequest != null) {
-                httpRequest.disconnect();
+            if (httpResponse != null && httpResponse.getEntity() != null) {
+                httpResponse.getEntity().getContent().close();
             }
         }
     }
@@ -359,16 +369,15 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
     * more information)
     *
     * @param webSpaceName Required. The name of the web space.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse delete(String webSpaceName) throws MalformedURLException, ProtocolException, ServiceException, IOException {
+    public OperationResponse delete(String webSpaceName) throws IOException, ServiceException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -386,7 +395,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         
         // Construct URL
         String baseUrl = this.getClient().getBaseUri().toString();
-        String url = "/" + (this.getClient().getCredentials().getSubscriptionId() != null ? this.getClient().getCredentials().getSubscriptionId().trim() : "") + "/services/WebSpaces/" + webSpaceName.trim() + "/ServerFarms/DefaultServerFarm";
+        String url = "/" + this.getClient().getCredentials().getSubscriptionId().trim() + "/services/WebSpaces/" + webSpaceName.trim() + "/ServerFarms/DefaultServerFarm";
         // Trim '/' character from the end of baseUrl and beginning of url.
         if (baseUrl.charAt(baseUrl.length() - 1) == '/') {
             baseUrl = baseUrl.substring(0, (baseUrl.length() - 1) + 0);
@@ -397,19 +406,24 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        URL serverAddress = new URL(url);
-        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Delete");
-        httpRequest.setDoOutput(true);
+        CustomHttpDelete httpRequest = new CustomHttpDelete(url);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        httpRequest.setHeader("x-ms-version", "2013-08-01");
         
         // Send Request
+        HttpResponse httpResponse = null;
         try {
-            int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+            if (shouldTrace) {
+                CloudTracing.sendRequest(invocationId, httpRequest);
+            }
+            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
+            if (shouldTrace) {
+                CloudTracing.receiveResponse(invocationId, httpResponse);
+            }
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -420,15 +434,17 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
             OperationResponse result = null;
             result = new OperationResponse();
             result.setStatusCode(statusCode);
-            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
+            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
+                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
+            }
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpRequest != null) {
-                httpRequest.disconnect();
+            if (httpResponse != null && httpResponse.getEntity() != null) {
+                httpResponse.getEntity().getContent().close();
             }
         }
     }
@@ -475,11 +491,10 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
     *
     * @param webSpaceName Required. The name of the web space.
     * @param serverFarmName Required. The name of the server farm.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -489,7 +504,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
     * @return The Get Server Farm operation response.
     */
     @Override
-    public ServerFarmGetResponse get(String webSpaceName, String serverFarmName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
+    public ServerFarmGetResponse get(String webSpaceName, String serverFarmName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -511,7 +526,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         
         // Construct URL
         String baseUrl = this.getClient().getBaseUri().toString();
-        String url = "/" + (this.getClient().getCredentials().getSubscriptionId() != null ? this.getClient().getCredentials().getSubscriptionId().trim() : "") + "/services/WebSpaces/" + webSpaceName.trim() + "/ServerFarms/" + serverFarmName.trim();
+        String url = "/" + this.getClient().getCredentials().getSubscriptionId().trim() + "/services/WebSpaces/" + webSpaceName.trim() + "/ServerFarms/" + serverFarmName.trim();
         // Trim '/' character from the end of baseUrl and beginning of url.
         if (baseUrl.charAt(baseUrl.length() - 1) == '/') {
             baseUrl = baseUrl.substring(0, (baseUrl.length() - 1) + 0);
@@ -522,19 +537,24 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        URL serverAddress = new URL(url);
-        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
-        httpRequest.setDoOutput(true);
+        HttpGet httpRequest = new HttpGet(url);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        httpRequest.setHeader("x-ms-version", "2013-08-01");
         
         // Send Request
+        HttpResponse httpResponse = null;
         try {
-            int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+            if (shouldTrace) {
+                CloudTracing.sendRequest(invocationId, httpRequest);
+            }
+            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
+            if (shouldTrace) {
+                CloudTracing.receiveResponse(invocationId, httpResponse);
+            }
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -544,7 +564,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
             // Create Result
             ServerFarmGetResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpRequest.getInputStream();
+            InputStream responseContent = httpResponse.getEntity().getContent();
             result = new ServerFarmGetResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -597,15 +617,17 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
             }
             
             result.setStatusCode(statusCode);
-            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
+            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
+                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
+            }
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpRequest != null) {
-                httpRequest.disconnect();
+            if (httpResponse != null && httpResponse.getEntity() != null) {
+                httpResponse.getEntity().getContent().close();
             }
         }
     }
@@ -650,11 +672,10 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
     * more information)
     *
     * @param webSpaceName Required. The name of the web space.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -662,7 +683,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
     * @return The List Server Farm operation response.
     */
     @Override
-    public ServerFarmListResponse list(String webSpaceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public ServerFarmListResponse list(String webSpaceName) throws IOException, ServiceException, ParserConfigurationException, SAXException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -680,7 +701,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         
         // Construct URL
         String baseUrl = this.getClient().getBaseUri().toString();
-        String url = "/" + (this.getClient().getCredentials().getSubscriptionId() != null ? this.getClient().getCredentials().getSubscriptionId().trim() : "") + "/services/WebSpaces/" + webSpaceName.trim() + "/ServerFarms";
+        String url = "/" + this.getClient().getCredentials().getSubscriptionId().trim() + "/services/WebSpaces/" + webSpaceName.trim() + "/ServerFarms";
         // Trim '/' character from the end of baseUrl and beginning of url.
         if (baseUrl.charAt(baseUrl.length() - 1) == '/') {
             baseUrl = baseUrl.substring(0, (baseUrl.length() - 1) + 0);
@@ -691,19 +712,24 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        URL serverAddress = new URL(url);
-        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
-        httpRequest.setDoOutput(true);
+        HttpGet httpRequest = new HttpGet(url);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        httpRequest.setHeader("x-ms-version", "2013-08-01");
         
         // Send Request
+        HttpResponse httpResponse = null;
         try {
-            int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+            if (shouldTrace) {
+                CloudTracing.sendRequest(invocationId, httpRequest);
+            }
+            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
+            if (shouldTrace) {
+                CloudTracing.receiveResponse(invocationId, httpResponse);
+            }
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -713,7 +739,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
             // Create Result
             ServerFarmListResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpRequest.getInputStream();
+            InputStream responseContent = httpResponse.getEntity().getContent();
             result = new ServerFarmListResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -772,15 +798,17 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
             }
             
             result.setStatusCode(statusCode);
-            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
+            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
+                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
+            }
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpRequest != null) {
-                httpRequest.disconnect();
+            if (httpResponse != null && httpResponse.getEntity() != null) {
+                httpResponse.getEntity().getContent().close();
             }
         }
     }
@@ -829,23 +857,22 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
     * @param webSpaceName Required. The name of the web space.
     * @param parameters Required. Parameters supplied to the Update Server Farm
     * operation.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Update Server Farm operation response.
     */
     @Override
-    public ServerFarmUpdateResponse update(String webSpaceName, ServerFarmUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException {
+    public ServerFarmUpdateResponse update(String webSpaceName, ServerFarmUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, URISyntaxException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -867,7 +894,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         
         // Construct URL
         String baseUrl = this.getClient().getBaseUri().toString();
-        String url = "/" + (this.getClient().getCredentials().getSubscriptionId() != null ? this.getClient().getCredentials().getSubscriptionId().trim() : "") + "/services/WebSpaces/" + webSpaceName.trim() + "/ServerFarms/DefaultServerFarm";
+        String url = "/" + this.getClient().getCredentials().getSubscriptionId().trim() + "/services/WebSpaces/" + webSpaceName.trim() + "/ServerFarms/DefaultServerFarm";
         // Trim '/' character from the end of baseUrl and beginning of url.
         if (baseUrl.charAt(baseUrl.length() - 1) == '/') {
             baseUrl = baseUrl.substring(0, (baseUrl.length() - 1) + 0);
@@ -878,14 +905,11 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        URL serverAddress = new URL(url);
-        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Put");
-        httpRequest.setDoOutput(true);
+        HttpPut httpRequest = new HttpPut(url);
         
         // Set Headers
-        httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setHeader("x-ms-version", "2013-08-01");
         
         // Serialize Request
         String requestContent = null;
@@ -933,14 +957,23 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        StringEntity entity = new StringEntity(requestContent);
+        httpRequest.setEntity(entity);
+        httpRequest.setHeader("Content-Type", "application/xml");
         
         // Send Request
+        HttpResponse httpResponse = null;
         try {
-            httpRequest.getOutputStream().write(requestContent.getBytes());
-            int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
-                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+            if (shouldTrace) {
+                CloudTracing.sendRequest(invocationId, httpRequest);
+            }
+            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
+            if (shouldTrace) {
+                CloudTracing.receiveResponse(invocationId, httpResponse);
+            }
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -950,7 +983,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
             // Create Result
             ServerFarmUpdateResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpRequest.getInputStream();
+            InputStream responseContent = httpResponse.getEntity().getContent();
             result = new ServerFarmUpdateResponse();
             DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
             documentBuilderFactory2.setNamespaceAware(true);
@@ -1003,15 +1036,17 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
             }
             
             result.setStatusCode(statusCode);
-            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
+            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
+                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
+            }
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpRequest != null) {
-                httpRequest.disconnect();
+            if (httpResponse != null && httpResponse.getEntity() != null) {
+                httpResponse.getEntity().getContent().close();
             }
         }
     }

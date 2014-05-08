@@ -51,13 +51,9 @@ import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.net.HttpURLConnection;
 import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -72,6 +68,11 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPut;
+import org.apache.http.entity.StringEntity;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -129,21 +130,20 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
     * @param password Required. The user password.
     * @param parameters Optional. Parameters supplied to the Create Publishing
     * User operation.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @return The Create Publishing User operation response.
     */
     @Override
-    public WebSpacesCreatePublishingUserResponse createPublishingUser(String username, String password, WebSpacesCreatePublishingUserParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public WebSpacesCreatePublishingUserResponse createPublishingUser(String username, String password, WebSpacesCreatePublishingUserParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException {
         // Validate
         if (username == null) {
             throw new NullPointerException("username");
@@ -174,7 +174,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         
         // Construct URL
         String baseUrl = this.getClient().getBaseUri().toString();
-        String url = "/" + (this.getClient().getCredentials().getSubscriptionId() != null ? this.getClient().getCredentials().getSubscriptionId().trim() : "") + "/services/WebSpaces" + "?" + "properties=publishingCredentials";
+        String url = "/" + this.getClient().getCredentials().getSubscriptionId().trim() + "/services/WebSpaces" + "?" + "properties=publishingCredentials";
         // Trim '/' character from the end of baseUrl and beginning of url.
         if (baseUrl.charAt(baseUrl.length() - 1) == '/') {
             baseUrl = baseUrl.substring(0, (baseUrl.length() - 1) + 0);
@@ -185,14 +185,11 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        URL serverAddress = new URL(url);
-        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Put");
-        httpRequest.setDoOutput(true);
+        HttpPut httpRequest = new HttpPut(url);
         
         // Set Headers
-        httpRequest.setRequestProperty("Content-Type", "application/xml");
-        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        httpRequest.setHeader("Content-Type", "application/xml");
+        httpRequest.setHeader("x-ms-version", "2013-08-01");
         
         // Serialize Request
         String requestContent = null;
@@ -226,14 +223,23 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         Transformer transformer = transformerFactory.newTransformer();
         transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
-        httpRequest.setRequestProperty("Content-Type", "application/xml");
+        StringEntity entity = new StringEntity(requestContent);
+        httpRequest.setEntity(entity);
+        httpRequest.setHeader("Content-Type", "application/xml");
         
         // Send Request
+        HttpResponse httpResponse = null;
         try {
-            httpRequest.getOutputStream().write(requestContent.getBytes());
-            int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 201) {
-                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+            if (shouldTrace) {
+                CloudTracing.sendRequest(invocationId, httpRequest);
+            }
+            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
+            if (shouldTrace) {
+                CloudTracing.receiveResponse(invocationId, httpResponse);
+            }
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_CREATED) {
+                ServiceException ex = ServiceException.createFromXml(httpRequest, requestContent, httpResponse, httpResponse.getEntity());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -243,7 +249,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             // Create Result
             WebSpacesCreatePublishingUserResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpRequest.getInputStream();
+            InputStream responseContent = httpResponse.getEntity().getContent();
             result = new WebSpacesCreatePublishingUserResponse();
             DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
             documentBuilderFactory2.setNamespaceAware(true);
@@ -275,15 +281,17 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             }
             
             result.setStatusCode(statusCode);
-            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
+            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
+                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
+            }
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpRequest != null) {
-                httpRequest.disconnect();
+            if (httpResponse != null && httpResponse.getEntity() != null) {
+                httpResponse.getEntity().getContent().close();
             }
         }
     }
@@ -314,11 +322,10 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
     * more information)
     *
     * @param webSpaceName Required. The name of the web space.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -328,7 +335,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
     * @return The Get Web Space Details operation response.
     */
     @Override
-    public WebSpacesGetResponse get(String webSpaceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
+    public WebSpacesGetResponse get(String webSpaceName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -346,7 +353,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         
         // Construct URL
         String baseUrl = this.getClient().getBaseUri().toString();
-        String url = "/" + (this.getClient().getCredentials().getSubscriptionId() != null ? this.getClient().getCredentials().getSubscriptionId().trim() : "") + "/services/WebSpaces/" + webSpaceName.trim();
+        String url = "/" + this.getClient().getCredentials().getSubscriptionId().trim() + "/services/WebSpaces/" + webSpaceName.trim();
         // Trim '/' character from the end of baseUrl and beginning of url.
         if (baseUrl.charAt(baseUrl.length() - 1) == '/') {
             baseUrl = baseUrl.substring(0, (baseUrl.length() - 1) + 0);
@@ -357,19 +364,24 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        URL serverAddress = new URL(url);
-        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
-        httpRequest.setDoOutput(true);
+        HttpGet httpRequest = new HttpGet(url);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        httpRequest.setHeader("x-ms-version", "2013-08-01");
         
         // Send Request
+        HttpResponse httpResponse = null;
         try {
-            int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+            if (shouldTrace) {
+                CloudTracing.sendRequest(invocationId, httpRequest);
+            }
+            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
+            if (shouldTrace) {
+                CloudTracing.receiveResponse(invocationId, httpResponse);
+            }
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -379,7 +391,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             // Create Result
             WebSpacesGetResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpRequest.getInputStream();
+            InputStream responseContent = httpResponse.getEntity().getContent();
             result = new WebSpacesGetResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -474,15 +486,17 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             }
             
             result.setStatusCode(statusCode);
-            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
+            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
+                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
+            }
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpRequest != null) {
-                httpRequest.disconnect();
+            if (httpResponse != null && httpResponse.getEntity() != null) {
+                httpResponse.getEntity().getContent().close();
             }
         }
     }
@@ -505,11 +519,10 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
     /**
     * Get the DNS Suffix for this subscription.
     *
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -517,7 +530,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
     * @return The Get DNS Suffix operation response.
     */
     @Override
-    public WebSpacesGetDnsSuffixResponse getDnsSuffix() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public WebSpacesGetDnsSuffixResponse getDnsSuffix() throws IOException, ServiceException, ParserConfigurationException, SAXException {
         // Validate
         
         // Tracing
@@ -531,7 +544,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         
         // Construct URL
         String baseUrl = this.getClient().getBaseUri().toString();
-        String url = "/" + (this.getClient().getCredentials().getSubscriptionId() != null ? this.getClient().getCredentials().getSubscriptionId().trim() : "") + "/services/WebSpaces" + "?" + "properties=dnssuffix";
+        String url = "/" + this.getClient().getCredentials().getSubscriptionId().trim() + "/services/WebSpaces" + "?" + "properties=dnssuffix";
         // Trim '/' character from the end of baseUrl and beginning of url.
         if (baseUrl.charAt(baseUrl.length() - 1) == '/') {
             baseUrl = baseUrl.substring(0, (baseUrl.length() - 1) + 0);
@@ -542,19 +555,24 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        URL serverAddress = new URL(url);
-        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
-        httpRequest.setDoOutput(true);
+        HttpGet httpRequest = new HttpGet(url);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        httpRequest.setHeader("x-ms-version", "2013-08-01");
         
         // Send Request
+        HttpResponse httpResponse = null;
         try {
-            int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+            if (shouldTrace) {
+                CloudTracing.sendRequest(invocationId, httpRequest);
+            }
+            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
+            if (shouldTrace) {
+                CloudTracing.receiveResponse(invocationId, httpResponse);
+            }
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -564,7 +582,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             // Create Result
             WebSpacesGetDnsSuffixResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpRequest.getInputStream();
+            InputStream responseContent = httpResponse.getEntity().getContent();
             result = new WebSpacesGetDnsSuffixResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -577,15 +595,17 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             }
             
             result.setStatusCode(statusCode);
-            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
+            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
+                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
+            }
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpRequest != null) {
-                httpRequest.disconnect();
+            if (httpResponse != null && httpResponse.getEntity() != null) {
+                httpResponse.getEntity().getContent().close();
             }
         }
     }
@@ -614,11 +634,10 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
     * http://msdn.microsoft.com/en-us/library/windowsazure/dn166961.aspx for
     * more information)
     *
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -626,7 +645,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
     * @return The List Web Spaces operation response.
     */
     @Override
-    public WebSpacesListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public WebSpacesListResponse list() throws IOException, ServiceException, ParserConfigurationException, SAXException {
         // Validate
         
         // Tracing
@@ -640,7 +659,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         
         // Construct URL
         String baseUrl = this.getClient().getBaseUri().toString();
-        String url = "/" + (this.getClient().getCredentials().getSubscriptionId() != null ? this.getClient().getCredentials().getSubscriptionId().trim() : "") + "/services/WebSpaces";
+        String url = "/" + this.getClient().getCredentials().getSubscriptionId().trim() + "/services/WebSpaces";
         // Trim '/' character from the end of baseUrl and beginning of url.
         if (baseUrl.charAt(baseUrl.length() - 1) == '/') {
             baseUrl = baseUrl.substring(0, (baseUrl.length() - 1) + 0);
@@ -651,19 +670,24 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        URL serverAddress = new URL(url);
-        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
-        httpRequest.setDoOutput(true);
+        HttpGet httpRequest = new HttpGet(url);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        httpRequest.setHeader("x-ms-version", "2013-08-01");
         
         // Send Request
+        HttpResponse httpResponse = null;
         try {
-            int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+            if (shouldTrace) {
+                CloudTracing.sendRequest(invocationId, httpRequest);
+            }
+            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
+            if (shouldTrace) {
+                CloudTracing.receiveResponse(invocationId, httpResponse);
+            }
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -673,7 +697,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             // Create Result
             WebSpacesListResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpRequest.getInputStream();
+            InputStream responseContent = httpResponse.getEntity().getContent();
             result = new WebSpacesListResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -774,15 +798,17 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             }
             
             result.setStatusCode(statusCode);
-            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
+            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
+                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
+            }
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpRequest != null) {
-                httpRequest.disconnect();
+            if (httpResponse != null && httpResponse.getEntity() != null) {
+                httpResponse.getEntity().getContent().close();
             }
         }
     }
@@ -805,11 +831,10 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
     /**
     * Get the available geo regions for this web space.
     *
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -817,7 +842,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
     * @return The List Geo Regions operation response.
     */
     @Override
-    public WebSpacesListGeoRegionsResponse listGeoRegions() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public WebSpacesListGeoRegionsResponse listGeoRegions() throws IOException, ServiceException, ParserConfigurationException, SAXException {
         // Validate
         
         // Tracing
@@ -831,7 +856,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         
         // Construct URL
         String baseUrl = this.getClient().getBaseUri().toString();
-        String url = "/" + (this.getClient().getCredentials().getSubscriptionId() != null ? this.getClient().getCredentials().getSubscriptionId().trim() : "") + "/services/WebSpaces" + "?" + "properties=georegions";
+        String url = "/" + this.getClient().getCredentials().getSubscriptionId().trim() + "/services/WebSpaces" + "?" + "properties=georegions";
         // Trim '/' character from the end of baseUrl and beginning of url.
         if (baseUrl.charAt(baseUrl.length() - 1) == '/') {
             baseUrl = baseUrl.substring(0, (baseUrl.length() - 1) + 0);
@@ -842,19 +867,24 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        URL serverAddress = new URL(url);
-        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
-        httpRequest.setDoOutput(true);
+        HttpGet httpRequest = new HttpGet(url);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        httpRequest.setHeader("x-ms-version", "2013-08-01");
         
         // Send Request
+        HttpResponse httpResponse = null;
         try {
-            int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+            if (shouldTrace) {
+                CloudTracing.sendRequest(invocationId, httpRequest);
+            }
+            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
+            if (shouldTrace) {
+                CloudTracing.receiveResponse(invocationId, httpResponse);
+            }
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -864,7 +894,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             // Create Result
             WebSpacesListGeoRegionsResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpRequest.getInputStream();
+            InputStream responseContent = httpResponse.getEntity().getContent();
             result = new WebSpacesListGeoRegionsResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -893,7 +923,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                     }
                     
                     Element sortOrderElement = XmlUtility.getElementByTagNameNS(geoRegionsElement, "http://schemas.microsoft.com/windowsazure", "SortOrder");
-                    if (sortOrderElement != null && (sortOrderElement.getTextContent() == null || sortOrderElement.getTextContent().isEmpty() == true) == false) {
+                    if (sortOrderElement != null) {
                         boolean isNil = false;
                         Attr nilAttribute = sortOrderElement.getAttributeNodeNS("http://www.w3.org/2001/XMLSchema-instance", "nil");
                         if (nilAttribute != null) {
@@ -909,15 +939,17 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             }
             
             result.setStatusCode(statusCode);
-            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
+            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
+                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
+            }
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpRequest != null) {
-                httpRequest.disconnect();
+            if (httpResponse != null && httpResponse.getEntity() != null) {
+                httpResponse.getEntity().getContent().close();
             }
         }
     }
@@ -940,11 +972,10 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
     /**
     * Get the source control users allowed to publish to this web space.
     *
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -952,7 +983,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
     * @return The List Publishing Users operation response.
     */
     @Override
-    public WebSpacesListPublishingUsersResponse listPublishingUsers() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public WebSpacesListPublishingUsersResponse listPublishingUsers() throws IOException, ServiceException, ParserConfigurationException, SAXException {
         // Validate
         
         // Tracing
@@ -966,7 +997,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         
         // Construct URL
         String baseUrl = this.getClient().getBaseUri().toString();
-        String url = "/" + (this.getClient().getCredentials().getSubscriptionId() != null ? this.getClient().getCredentials().getSubscriptionId().trim() : "") + "/services/WebSpaces" + "?" + "properties=publishingUsers";
+        String url = "/" + this.getClient().getCredentials().getSubscriptionId().trim() + "/services/WebSpaces" + "?" + "properties=publishingUsers";
         // Trim '/' character from the end of baseUrl and beginning of url.
         if (baseUrl.charAt(baseUrl.length() - 1) == '/') {
             baseUrl = baseUrl.substring(0, (baseUrl.length() - 1) + 0);
@@ -977,19 +1008,24 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        URL serverAddress = new URL(url);
-        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
-        httpRequest.setDoOutput(true);
+        HttpGet httpRequest = new HttpGet(url);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        httpRequest.setHeader("x-ms-version", "2013-08-01");
         
         // Send Request
+        HttpResponse httpResponse = null;
         try {
-            int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+            if (shouldTrace) {
+                CloudTracing.sendRequest(invocationId, httpRequest);
+            }
+            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
+            if (shouldTrace) {
+                CloudTracing.receiveResponse(invocationId, httpResponse);
+            }
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -999,7 +1035,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             // Create Result
             WebSpacesListPublishingUsersResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpRequest.getInputStream();
+            InputStream responseContent = httpResponse.getEntity().getContent();
             result = new WebSpacesListPublishingUsersResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -1020,15 +1056,17 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             }
             
             result.setStatusCode(statusCode);
-            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
+            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
+                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
+            }
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpRequest != null) {
-                httpRequest.disconnect();
+            if (httpResponse != null && httpResponse.getEntity() != null) {
+                httpResponse.getEntity().getContent().close();
             }
         }
     }
@@ -1061,11 +1099,10 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
     *
     * @param webSpaceName Required. The name of the web space.
     * @param parameters Optional. Additional parameters.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -1075,7 +1112,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
     * @return The List Web Sites operation response.
     */
     @Override
-    public WebSpacesListWebSitesResponse listWebSites(String webSpaceName, WebSiteListParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
+    public WebSpacesListWebSitesResponse listWebSites(String webSpaceName, WebSiteListParameters parameters) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException {
         // Validate
         if (webSpaceName == null) {
             throw new NullPointerException("webSpaceName");
@@ -1094,7 +1131,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         
         // Construct URL
         String baseUrl = this.getClient().getBaseUri().toString();
-        String url = "/" + (this.getClient().getCredentials().getSubscriptionId() != null ? this.getClient().getCredentials().getSubscriptionId().trim() : "") + "/services/WebSpaces/" + webSpaceName.trim() + "/sites" + "?";
+        String url = "/" + this.getClient().getCredentials().getSubscriptionId().trim() + "/services/WebSpaces/" + webSpaceName.trim() + "/sites" + "?";
         if (parameters != null && parameters.getPropertiesToInclude() != null && parameters.getPropertiesToInclude().size() > 0) {
             url = url + "&" + "propertiesToInclude=" + URLEncoder.encode(CommaStringBuilder.join(parameters.getPropertiesToInclude()), "UTF-8");
         }
@@ -1108,19 +1145,24 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         url = baseUrl + "/" + url;
         
         // Create HTTP transport objects
-        URL serverAddress = new URL(url);
-        HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
-        httpRequest.setDoOutput(true);
+        HttpGet httpRequest = new HttpGet(url);
         
         // Set Headers
-        httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        httpRequest.setHeader("x-ms-version", "2013-08-01");
         
         // Send Request
+        HttpResponse httpResponse = null;
         try {
-            int statusCode = httpRequest.getResponseCode();
-            if (statusCode != 200) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+            if (shouldTrace) {
+                CloudTracing.sendRequest(invocationId, httpRequest);
+            }
+            httpResponse = this.getClient().getHttpClient().execute(httpRequest);
+            if (shouldTrace) {
+                CloudTracing.receiveResponse(invocationId, httpResponse);
+            }
+            int statusCode = httpResponse.getStatusLine().getStatusCode();
+            if (statusCode != HttpStatus.SC_OK) {
+                ServiceException ex = ServiceException.createFromXml(httpRequest, null, httpResponse, httpResponse.getEntity());
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1130,7 +1172,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             // Create Result
             WebSpacesListWebSitesResponse result = null;
             // Deserialize Response
-            InputStream responseContent = httpRequest.getInputStream();
+            InputStream responseContent = httpResponse.getEntity().getContent();
             result = new WebSpacesListWebSitesResponse();
             DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
             documentBuilderFactory.setNamespaceAware(true);
@@ -1561,15 +1603,17 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             }
             
             result.setStatusCode(statusCode);
-            result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
+            if (httpResponse.getHeaders("x-ms-request-id").length > 0) {
+                result.setRequestId(httpResponse.getFirstHeader("x-ms-request-id").getValue());
+            }
             
             if (shouldTrace) {
                 CloudTracing.exit(invocationId, result);
             }
             return result;
         } finally {
-            if (httpRequest != null) {
-                httpRequest.disconnect();
+            if (httpResponse != null && httpResponse.getEntity() != null) {
+                httpResponse.getEntity().getContent().close();
             }
         }
     }

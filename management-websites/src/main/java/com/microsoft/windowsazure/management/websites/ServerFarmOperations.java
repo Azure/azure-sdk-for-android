@@ -32,8 +32,6 @@ import com.microsoft.windowsazure.management.websites.models.ServerFarmListRespo
 import com.microsoft.windowsazure.management.websites.models.ServerFarmUpdateParameters;
 import com.microsoft.windowsazure.management.websites.models.ServerFarmUpdateResponse;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.Future;
 import javax.xml.parsers.ParserConfigurationException;
@@ -62,22 +60,21 @@ public interface ServerFarmOperations {
     * @param webSpaceName Required. The name of the web space.
     * @param parameters Required. Parameters supplied to the Create Server Farm
     * operation.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Create Server Farm operation response.
     */
-    ServerFarmCreateResponse create(String webSpaceName, ServerFarmCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException;
+    ServerFarmCreateResponse create(String webSpaceName, ServerFarmCreateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, URISyntaxException;
     
     /**
     * You can create a server farm by issuing an HTTP POST request. Only one
@@ -113,15 +110,14 @@ public interface ServerFarmOperations {
     * more information)
     *
     * @param webSpaceName Required. The name of the web space.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse delete(String webSpaceName) throws MalformedURLException, ProtocolException, ServiceException, IOException;
+    OperationResponse delete(String webSpaceName) throws IOException, ServiceException;
     
     /**
     * You can create a server farm by issuing an HTTP POST request. Only one
@@ -157,11 +153,10 @@ public interface ServerFarmOperations {
     *
     * @param webSpaceName Required. The name of the web space.
     * @param serverFarmName Required. The name of the server farm.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
@@ -170,7 +165,7 @@ public interface ServerFarmOperations {
     * the response.
     * @return The Get Server Farm operation response.
     */
-    ServerFarmGetResponse get(String webSpaceName, String serverFarmName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
+    ServerFarmGetResponse get(String webSpaceName, String serverFarmName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException;
     
     /**
     * You can create a server farm by issuing an HTTP POST request. Only one
@@ -205,18 +200,17 @@ public interface ServerFarmOperations {
     * more information)
     *
     * @param webSpaceName Required. The name of the web space.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws ParserConfigurationException Thrown if there was a serious
     * configuration error with the document parser.
     * @throws SAXException Thrown if there was an error parsing the XML
     * response.
     * @return The List Server Farm operation response.
     */
-    ServerFarmListResponse list(String webSpaceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    ServerFarmListResponse list(String webSpaceName) throws IOException, ServiceException, ParserConfigurationException, SAXException;
     
     /**
     * You can create a server farm by issuing an HTTP POST request. Only one
@@ -252,22 +246,21 @@ public interface ServerFarmOperations {
     * @param webSpaceName Required. The name of the web space.
     * @param parameters Required. Parameters supplied to the Update Server Farm
     * operation.
-    * @throws MalformedURLException Thrown in case of an invalid request URL
-    * @throws ProtocolException Thrown if invalid request method
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
-    * occurred
+    * occurred. This class is the general class of exceptions produced by
+    * failed or interrupted I/O operations.
+    * @throws ServiceException Thrown if an unexpected response is found.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Update Server Farm operation response.
     */
-    ServerFarmUpdateResponse update(String webSpaceName, ServerFarmUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException;
+    ServerFarmUpdateResponse update(String webSpaceName, ServerFarmUpdateParameters parameters) throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, URISyntaxException;
     
     /**
     * You can create a server farm by issuing an HTTP POST request. Only one
