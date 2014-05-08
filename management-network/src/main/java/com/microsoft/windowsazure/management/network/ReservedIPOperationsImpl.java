@@ -442,45 +442,51 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "createAsync", tracingParameters);
         }
-        if (shouldTrace) {
-            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-        }
-        
-        OperationStatusResponse response = client2.getReservedIPsOperations().beginCreatingAsync(parameters).get();
-        if (response.getStatus() == OperationStatus.Succeeded) {
-            return response;
-        }
-        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-        int delayInSeconds = 30;
-        while ((result.getStatus() != OperationStatus.InProgress) == false) {
-            Thread.sleep(delayInSeconds * 1000);
-            result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            delayInSeconds = 30;
-        }
-        
-        if (shouldTrace) {
-            CloudTracing.exit(invocationId, result);
-        }
-        
-        if (result.getStatus() != OperationStatus.Succeeded) {
-            if (result.getError() != null) {
-                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                ex.setErrorCode(result.getError().getCode());
-                ex.setErrorMessage(result.getError().getMessage());
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
+        try {
+            if (shouldTrace) {
+                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+            }
+            
+            OperationStatusResponse response = client2.getReservedIPsOperations().beginCreatingAsync(parameters).get();
+            if (response.getStatus() == OperationStatus.Succeeded) {
+                return response;
+            }
+            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            int delayInSeconds = 30;
+            while ((result.getStatus() != OperationStatus.InProgress) == false) {
+                Thread.sleep(delayInSeconds * 1000);
+                result = client2.getOperationStatusAsync(response.getRequestId()).get();
+                delayInSeconds = 30;
+            }
+            
+            if (shouldTrace) {
+                CloudTracing.exit(invocationId, result);
+            }
+            
+            if (result.getStatus() != OperationStatus.Succeeded) {
+                if (result.getError() != null) {
+                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                    ex.setErrorCode(result.getError().getCode());
+                    ex.setErrorMessage(result.getError().getMessage());
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
+                } else {
+                    ServiceException ex = new ServiceException("");
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
                 }
-                throw ex;
-            } else {
-                ServiceException ex = new ServiceException("");
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
-                }
-                throw ex;
+            }
+            
+            return result;
+        } finally {
+            if (client2 != null && shouldTrace) {
+                client2.close();
             }
         }
-        
-        return result;
     }
     
     /**
@@ -552,42 +558,48 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
             tracingParameters.put("ipName", ipName);
             CloudTracing.enter(invocationId, this, "deleteAsync", tracingParameters);
         }
-        if (shouldTrace) {
-            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-        }
-        
-        OperationResponse response = client2.getReservedIPsOperations().beginDeletingAsync(ipName).get();
-        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-        int delayInSeconds = 30;
-        while ((result.getStatus() != OperationStatus.InProgress) == false) {
-            Thread.sleep(delayInSeconds * 1000);
-            result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            delayInSeconds = 30;
-        }
-        
-        if (shouldTrace) {
-            CloudTracing.exit(invocationId, result);
-        }
-        
-        if (result.getStatus() != OperationStatus.Succeeded) {
-            if (result.getError() != null) {
-                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                ex.setErrorCode(result.getError().getCode());
-                ex.setErrorMessage(result.getError().getMessage());
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
+        try {
+            if (shouldTrace) {
+                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+            }
+            
+            OperationResponse response = client2.getReservedIPsOperations().beginDeletingAsync(ipName).get();
+            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            int delayInSeconds = 30;
+            while ((result.getStatus() != OperationStatus.InProgress) == false) {
+                Thread.sleep(delayInSeconds * 1000);
+                result = client2.getOperationStatusAsync(response.getRequestId()).get();
+                delayInSeconds = 30;
+            }
+            
+            if (shouldTrace) {
+                CloudTracing.exit(invocationId, result);
+            }
+            
+            if (result.getStatus() != OperationStatus.Succeeded) {
+                if (result.getError() != null) {
+                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                    ex.setErrorCode(result.getError().getCode());
+                    ex.setErrorMessage(result.getError().getMessage());
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
+                } else {
+                    ServiceException ex = new ServiceException("");
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
                 }
-                throw ex;
-            } else {
-                ServiceException ex = new ServiceException("");
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
-                }
-                throw ex;
+            }
+            
+            return result;
+        } finally {
+            if (client2 != null && shouldTrace) {
+                client2.close();
             }
         }
-        
-        return result;
     }
     
     /**

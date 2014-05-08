@@ -197,6 +197,8 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
+    * @throws IOException Thrown if there was an error setting up tracing for
+    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -207,7 +209,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse addExtension(String serviceName, HostedServiceAddExtensionParameters parameters) throws InterruptedException, ExecutionException, ServiceException {
+    public OperationStatusResponse addExtension(String serviceName, HostedServiceAddExtensionParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -218,42 +220,48 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "addExtensionAsync", tracingParameters);
         }
-        if (shouldTrace) {
-            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-        }
-        
-        OperationResponse response = client2.getHostedServicesOperations().beginAddingExtensionAsync(serviceName, parameters).get();
-        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-        int delayInSeconds = 30;
-        while ((result.getStatus() != OperationStatus.InProgress) == false) {
-            Thread.sleep(delayInSeconds * 1000);
-            result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            delayInSeconds = 30;
-        }
-        
-        if (shouldTrace) {
-            CloudTracing.exit(invocationId, result);
-        }
-        
-        if (result.getStatus() != OperationStatus.Succeeded) {
-            if (result.getError() != null) {
-                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                ex.setErrorCode(result.getError().getCode());
-                ex.setErrorMessage(result.getError().getMessage());
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
+        try {
+            if (shouldTrace) {
+                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+            }
+            
+            OperationResponse response = client2.getHostedServicesOperations().beginAddingExtensionAsync(serviceName, parameters).get();
+            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            int delayInSeconds = 30;
+            while ((result.getStatus() != OperationStatus.InProgress) == false) {
+                Thread.sleep(delayInSeconds * 1000);
+                result = client2.getOperationStatusAsync(response.getRequestId()).get();
+                delayInSeconds = 30;
+            }
+            
+            if (shouldTrace) {
+                CloudTracing.exit(invocationId, result);
+            }
+            
+            if (result.getStatus() != OperationStatus.Succeeded) {
+                if (result.getError() != null) {
+                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                    ex.setErrorCode(result.getError().getCode());
+                    ex.setErrorMessage(result.getError().getMessage());
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
+                } else {
+                    ServiceException ex = new ServiceException("");
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
                 }
-                throw ex;
-            } else {
-                ServiceException ex = new ServiceException("");
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
-                }
-                throw ex;
+            }
+            
+            return result;
+        } finally {
+            if (client2 != null && shouldTrace) {
+                client2.close();
             }
         }
-        
-        return result;
     }
     
     /**
@@ -851,15 +859,14 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
+    * @throws IOException Thrown if there was an error setting up tracing for
+    * the request.
     * @throws ParserConfigurationException Thrown if there was an error
     * configuring the parser for the response body.
     * @throws SAXException Thrown if there was an error parsing the response
     * body.
     * @throws TransformerException Thrown if there was an error creating the
     * DOM transformer.
-    * @throws IOException Signals that an I/O exception of some sort has
-    * occurred. This class is the general class of exceptions produced by
-    * failed or interrupted I/O operations.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
@@ -867,7 +874,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * request ID.
     */
     @Override
-    public OperationResponse create(HostedServiceCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, ParserConfigurationException, SAXException, TransformerException, IOException, URISyntaxException {
+    public OperationResponse create(HostedServiceCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException, ParserConfigurationException, SAXException, TransformerException, URISyntaxException {
         // Validate
         if (parameters == null) {
             throw new NullPointerException("parameters");
@@ -1179,6 +1186,8 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
+    * @throws IOException Thrown if there was an error setting up tracing for
+    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1189,7 +1198,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse deleteAll(String serviceName) throws InterruptedException, ExecutionException, ServiceException {
+    public OperationStatusResponse deleteAll(String serviceName) throws InterruptedException, ExecutionException, ServiceException, IOException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -1199,42 +1208,48 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             tracingParameters.put("serviceName", serviceName);
             CloudTracing.enter(invocationId, this, "deleteAllAsync", tracingParameters);
         }
-        if (shouldTrace) {
-            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-        }
-        
-        OperationResponse response = client2.getHostedServicesOperations().beginDeletingAllAsync(serviceName).get();
-        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-        int delayInSeconds = 30;
-        while ((result.getStatus() != OperationStatus.InProgress) == false) {
-            Thread.sleep(delayInSeconds * 1000);
-            result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            delayInSeconds = 30;
-        }
-        
-        if (shouldTrace) {
-            CloudTracing.exit(invocationId, result);
-        }
-        
-        if (result.getStatus() != OperationStatus.Succeeded) {
-            if (result.getError() != null) {
-                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                ex.setErrorCode(result.getError().getCode());
-                ex.setErrorMessage(result.getError().getMessage());
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
+        try {
+            if (shouldTrace) {
+                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+            }
+            
+            OperationResponse response = client2.getHostedServicesOperations().beginDeletingAllAsync(serviceName).get();
+            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            int delayInSeconds = 30;
+            while ((result.getStatus() != OperationStatus.InProgress) == false) {
+                Thread.sleep(delayInSeconds * 1000);
+                result = client2.getOperationStatusAsync(response.getRequestId()).get();
+                delayInSeconds = 30;
+            }
+            
+            if (shouldTrace) {
+                CloudTracing.exit(invocationId, result);
+            }
+            
+            if (result.getStatus() != OperationStatus.Succeeded) {
+                if (result.getError() != null) {
+                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                    ex.setErrorCode(result.getError().getCode());
+                    ex.setErrorMessage(result.getError().getMessage());
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
+                } else {
+                    ServiceException ex = new ServiceException("");
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
                 }
-                throw ex;
-            } else {
-                ServiceException ex = new ServiceException("");
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
-                }
-                throw ex;
+            }
+            
+            return result;
+        } finally {
+            if (client2 != null && shouldTrace) {
+                client2.close();
             }
         }
-        
-        return result;
     }
     
     /**
@@ -1284,6 +1299,8 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
+    * @throws IOException Thrown if there was an error setting up tracing for
+    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1294,7 +1311,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse deleteExtension(String serviceName, String extensionId) throws InterruptedException, ExecutionException, ServiceException {
+    public OperationStatusResponse deleteExtension(String serviceName, String extensionId) throws InterruptedException, ExecutionException, ServiceException, IOException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -1305,42 +1322,48 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             tracingParameters.put("extensionId", extensionId);
             CloudTracing.enter(invocationId, this, "deleteExtensionAsync", tracingParameters);
         }
-        if (shouldTrace) {
-            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-        }
-        
-        OperationResponse response = client2.getHostedServicesOperations().beginDeletingExtensionAsync(serviceName, extensionId).get();
-        OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
-        int delayInSeconds = 30;
-        while ((result.getStatus() != OperationStatus.InProgress) == false) {
-            Thread.sleep(delayInSeconds * 1000);
-            result = client2.getOperationStatusAsync(response.getRequestId()).get();
-            delayInSeconds = 30;
-        }
-        
-        if (shouldTrace) {
-            CloudTracing.exit(invocationId, result);
-        }
-        
-        if (result.getStatus() != OperationStatus.Succeeded) {
-            if (result.getError() != null) {
-                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                ex.setErrorCode(result.getError().getCode());
-                ex.setErrorMessage(result.getError().getMessage());
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
+        try {
+            if (shouldTrace) {
+                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+            }
+            
+            OperationResponse response = client2.getHostedServicesOperations().beginDeletingExtensionAsync(serviceName, extensionId).get();
+            OperationStatusResponse result = client2.getOperationStatusAsync(response.getRequestId()).get();
+            int delayInSeconds = 30;
+            while ((result.getStatus() != OperationStatus.InProgress) == false) {
+                Thread.sleep(delayInSeconds * 1000);
+                result = client2.getOperationStatusAsync(response.getRequestId()).get();
+                delayInSeconds = 30;
+            }
+            
+            if (shouldTrace) {
+                CloudTracing.exit(invocationId, result);
+            }
+            
+            if (result.getStatus() != OperationStatus.Succeeded) {
+                if (result.getError() != null) {
+                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                    ex.setErrorCode(result.getError().getCode());
+                    ex.setErrorMessage(result.getError().getMessage());
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
+                } else {
+                    ServiceException ex = new ServiceException("");
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
                 }
-                throw ex;
-            } else {
-                ServiceException ex = new ServiceException("");
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
-                }
-                throw ex;
+            }
+            
+            return result;
+        } finally {
+            if (client2 != null && shouldTrace) {
+                client2.close();
             }
         }
-        
-        return result;
     }
     
     /**

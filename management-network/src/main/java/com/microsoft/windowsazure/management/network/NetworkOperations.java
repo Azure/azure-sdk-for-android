@@ -142,6 +142,8 @@ public interface NetworkOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
+    * @throws IOException Thrown if there was an error setting up tracing for
+    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -152,7 +154,7 @@ public interface NetworkOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    OperationStatusResponse setConfiguration(NetworkSetConfigurationParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
+    OperationStatusResponse setConfiguration(NetworkSetConfigurationParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
     
     /**
     * The Set Network Configuration operation asynchronously configures the

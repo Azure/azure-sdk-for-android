@@ -943,6 +943,8 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
+    * @throws IOException Thrown if there was an error setting up tracing for
+    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is in
     * progress, or has failed. Note that this status is distinct from the HTTP
@@ -954,7 +956,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * failure.
     */
     @Override
-    public GatewayGetOperationStatusResponse connectDisconnectOrTest(String networkName, String localNetworkSiteName, GatewayConnectDisconnectOrTestParameters parameters) throws InterruptedException, ExecutionException, ServiceException {
+    public GatewayGetOperationStatusResponse connectDisconnectOrTest(String networkName, String localNetworkSiteName, GatewayConnectDisconnectOrTestParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException {
         NetworkManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -966,42 +968,48 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "connectDisconnectOrTestAsync", tracingParameters);
         }
-        if (shouldTrace) {
-            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-        }
-        
-        GatewayOperationResponse response = client2.getGatewaysOperations().beginConnectDisconnectOrTestingAsync(networkName, localNetworkSiteName, parameters).get();
-        GatewayGetOperationStatusResponse result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
-        int delayInSeconds = 30;
-        while ((result.getStatus() != GatewayOperationStatus.InProgress) == false) {
-            Thread.sleep(delayInSeconds * 1000);
-            result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
-            delayInSeconds = 30;
-        }
-        
-        if (shouldTrace) {
-            CloudTracing.exit(invocationId, result);
-        }
-        
-        if (result.getStatus() != GatewayOperationStatus.Successful) {
-            if (result.getError() != null) {
-                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                ex.setErrorCode(result.getError().getCode());
-                ex.setErrorMessage(result.getError().getMessage());
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
+        try {
+            if (shouldTrace) {
+                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+            }
+            
+            GatewayOperationResponse response = client2.getGatewaysOperations().beginConnectDisconnectOrTestingAsync(networkName, localNetworkSiteName, parameters).get();
+            GatewayGetOperationStatusResponse result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
+            int delayInSeconds = 30;
+            while ((result.getStatus() != GatewayOperationStatus.InProgress) == false) {
+                Thread.sleep(delayInSeconds * 1000);
+                result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
+                delayInSeconds = 30;
+            }
+            
+            if (shouldTrace) {
+                CloudTracing.exit(invocationId, result);
+            }
+            
+            if (result.getStatus() != GatewayOperationStatus.Successful) {
+                if (result.getError() != null) {
+                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                    ex.setErrorCode(result.getError().getCode());
+                    ex.setErrorMessage(result.getError().getMessage());
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
+                } else {
+                    ServiceException ex = new ServiceException("");
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
                 }
-                throw ex;
-            } else {
-                ServiceException ex = new ServiceException("");
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
-                }
-                throw ex;
+            }
+            
+            return result;
+        } finally {
+            if (client2 != null && shouldTrace) {
+                client2.close();
             }
         }
-        
-        return result;
     }
     
     /**
@@ -1084,42 +1092,48 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "createAsync", tracingParameters);
         }
-        if (shouldTrace) {
-            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-        }
-        
-        GatewayOperationResponse response = client2.getGatewaysOperations().beginCreatingAsync(networkName, parameters).get();
-        GatewayGetOperationStatusResponse result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
-        int delayInSeconds = 30;
-        while ((result.getStatus() != GatewayOperationStatus.InProgress) == false) {
-            Thread.sleep(delayInSeconds * 1000);
-            result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
-            delayInSeconds = 30;
-        }
-        
-        if (shouldTrace) {
-            CloudTracing.exit(invocationId, result);
-        }
-        
-        if (result.getStatus() != GatewayOperationStatus.Successful) {
-            if (result.getError() != null) {
-                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                ex.setErrorCode(result.getError().getCode());
-                ex.setErrorMessage(result.getError().getMessage());
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
+        try {
+            if (shouldTrace) {
+                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+            }
+            
+            GatewayOperationResponse response = client2.getGatewaysOperations().beginCreatingAsync(networkName, parameters).get();
+            GatewayGetOperationStatusResponse result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
+            int delayInSeconds = 30;
+            while ((result.getStatus() != GatewayOperationStatus.InProgress) == false) {
+                Thread.sleep(delayInSeconds * 1000);
+                result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
+                delayInSeconds = 30;
+            }
+            
+            if (shouldTrace) {
+                CloudTracing.exit(invocationId, result);
+            }
+            
+            if (result.getStatus() != GatewayOperationStatus.Successful) {
+                if (result.getError() != null) {
+                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                    ex.setErrorCode(result.getError().getCode());
+                    ex.setErrorMessage(result.getError().getMessage());
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
+                } else {
+                    ServiceException ex = new ServiceException("");
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
                 }
-                throw ex;
-            } else {
-                ServiceException ex = new ServiceException("");
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
-                }
-                throw ex;
+            }
+            
+            return result;
+        } finally {
+            if (client2 != null && shouldTrace) {
+                client2.close();
             }
         }
-        
-        return result;
     }
     
     /**
@@ -1195,42 +1209,48 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             tracingParameters.put("networkName", networkName);
             CloudTracing.enter(invocationId, this, "deleteAsync", tracingParameters);
         }
-        if (shouldTrace) {
-            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-        }
-        
-        GatewayOperationResponse response = client2.getGatewaysOperations().beginDeletingAsync(networkName).get();
-        GatewayGetOperationStatusResponse result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
-        int delayInSeconds = 30;
-        while ((result.getStatus() != GatewayOperationStatus.InProgress) == false) {
-            Thread.sleep(delayInSeconds * 1000);
-            result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
-            delayInSeconds = 30;
-        }
-        
-        if (shouldTrace) {
-            CloudTracing.exit(invocationId, result);
-        }
-        
-        if (result.getStatus() != GatewayOperationStatus.Successful) {
-            if (result.getError() != null) {
-                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                ex.setErrorCode(result.getError().getCode());
-                ex.setErrorMessage(result.getError().getMessage());
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
+        try {
+            if (shouldTrace) {
+                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+            }
+            
+            GatewayOperationResponse response = client2.getGatewaysOperations().beginDeletingAsync(networkName).get();
+            GatewayGetOperationStatusResponse result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
+            int delayInSeconds = 30;
+            while ((result.getStatus() != GatewayOperationStatus.InProgress) == false) {
+                Thread.sleep(delayInSeconds * 1000);
+                result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
+                delayInSeconds = 30;
+            }
+            
+            if (shouldTrace) {
+                CloudTracing.exit(invocationId, result);
+            }
+            
+            if (result.getStatus() != GatewayOperationStatus.Successful) {
+                if (result.getError() != null) {
+                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                    ex.setErrorCode(result.getError().getCode());
+                    ex.setErrorMessage(result.getError().getMessage());
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
+                } else {
+                    ServiceException ex = new ServiceException("");
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
                 }
-                throw ex;
-            } else {
-                ServiceException ex = new ServiceException("");
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
-                }
-                throw ex;
+            }
+            
+            return result;
+        } finally {
+            if (client2 != null && shouldTrace) {
+                client2.close();
             }
         }
-        
-        return result;
     }
     
     /**
@@ -1277,6 +1297,8 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
+    * @throws IOException Thrown if there was an error setting up tracing for
+    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is in
     * progress, or has failed. Note that this status is distinct from the HTTP
@@ -1288,7 +1310,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * failure.
     */
     @Override
-    public GatewayGetOperationStatusResponse failover(String networkName) throws InterruptedException, ExecutionException, ServiceException {
+    public GatewayGetOperationStatusResponse failover(String networkName) throws InterruptedException, ExecutionException, ServiceException, IOException {
         NetworkManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -1298,42 +1320,48 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             tracingParameters.put("networkName", networkName);
             CloudTracing.enter(invocationId, this, "failoverAsync", tracingParameters);
         }
-        if (shouldTrace) {
-            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-        }
-        
-        GatewayOperationResponse response = client2.getGatewaysOperations().beginFailoverAsync(networkName).get();
-        GatewayGetOperationStatusResponse result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
-        int delayInSeconds = 30;
-        while ((result.getStatus() != GatewayOperationStatus.InProgress) == false) {
-            Thread.sleep(delayInSeconds * 1000);
-            result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
-            delayInSeconds = 30;
-        }
-        
-        if (shouldTrace) {
-            CloudTracing.exit(invocationId, result);
-        }
-        
-        if (result.getStatus() != GatewayOperationStatus.Successful) {
-            if (result.getError() != null) {
-                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                ex.setErrorCode(result.getError().getCode());
-                ex.setErrorMessage(result.getError().getMessage());
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
+        try {
+            if (shouldTrace) {
+                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+            }
+            
+            GatewayOperationResponse response = client2.getGatewaysOperations().beginFailoverAsync(networkName).get();
+            GatewayGetOperationStatusResponse result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
+            int delayInSeconds = 30;
+            while ((result.getStatus() != GatewayOperationStatus.InProgress) == false) {
+                Thread.sleep(delayInSeconds * 1000);
+                result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
+                delayInSeconds = 30;
+            }
+            
+            if (shouldTrace) {
+                CloudTracing.exit(invocationId, result);
+            }
+            
+            if (result.getStatus() != GatewayOperationStatus.Successful) {
+                if (result.getError() != null) {
+                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                    ex.setErrorCode(result.getError().getCode());
+                    ex.setErrorMessage(result.getError().getMessage());
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
+                } else {
+                    ServiceException ex = new ServiceException("");
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
                 }
-                throw ex;
-            } else {
-                ServiceException ex = new ServiceException("");
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
-                }
-                throw ex;
+            }
+            
+            return result;
+        } finally {
+            if (client2 != null && shouldTrace) {
+                client2.close();
             }
         }
-        
-        return result;
     }
     
     /**
@@ -2538,6 +2566,8 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
+    * @throws IOException Thrown if there was an error setting up tracing for
+    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is in
     * progress, or has failed. Note that this status is distinct from the HTTP
@@ -2549,7 +2579,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * failure.
     */
     @Override
-    public GatewayGetOperationStatusResponse resetSharedKey(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters) throws InterruptedException, ExecutionException, ServiceException {
+    public GatewayGetOperationStatusResponse resetSharedKey(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException {
         NetworkManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -2561,41 +2591,47 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             tracingParameters.put("parameters", parameters);
             CloudTracing.enter(invocationId, this, "resetSharedKeyAsync", tracingParameters);
         }
-        if (shouldTrace) {
-            client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
-        }
-        
-        GatewayOperationResponse response = client2.getGatewaysOperations().beginResetSharedKeyAsync(networkName, localNetworkName, parameters).get();
-        GatewayGetOperationStatusResponse result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
-        int delayInSeconds = 30;
-        while ((result.getStatus() != GatewayOperationStatus.InProgress) == false) {
-            Thread.sleep(delayInSeconds * 1000);
-            result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
-            delayInSeconds = 30;
-        }
-        
-        if (shouldTrace) {
-            CloudTracing.exit(invocationId, result);
-        }
-        
-        if (result.getStatus() != GatewayOperationStatus.Successful) {
-            if (result.getError() != null) {
-                ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
-                ex.setErrorCode(result.getError().getCode());
-                ex.setErrorMessage(result.getError().getMessage());
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
+        try {
+            if (shouldTrace) {
+                client2 = this.getClient().withRequestFilterLast(new ClientRequestTrackingHandler(invocationId)).withResponseFilterLast(new ClientRequestTrackingHandler(invocationId));
+            }
+            
+            GatewayOperationResponse response = client2.getGatewaysOperations().beginResetSharedKeyAsync(networkName, localNetworkName, parameters).get();
+            GatewayGetOperationStatusResponse result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
+            int delayInSeconds = 30;
+            while ((result.getStatus() != GatewayOperationStatus.InProgress) == false) {
+                Thread.sleep(delayInSeconds * 1000);
+                result = client2.getGatewaysOperations().getOperationStatusAsync(response.getOperationId()).get();
+                delayInSeconds = 30;
+            }
+            
+            if (shouldTrace) {
+                CloudTracing.exit(invocationId, result);
+            }
+            
+            if (result.getStatus() != GatewayOperationStatus.Successful) {
+                if (result.getError() != null) {
+                    ServiceException ex = new ServiceException(result.getError().getCode() + " : " + result.getError().getMessage());
+                    ex.setErrorCode(result.getError().getCode());
+                    ex.setErrorMessage(result.getError().getMessage());
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
+                } else {
+                    ServiceException ex = new ServiceException("");
+                    if (shouldTrace) {
+                        CloudTracing.error(invocationId, ex);
+                    }
+                    throw ex;
                 }
-                throw ex;
-            } else {
-                ServiceException ex = new ServiceException("");
-                if (shouldTrace) {
-                    CloudTracing.error(invocationId, ex);
-                }
-                throw ex;
+            }
+            
+            return result;
+        } finally {
+            if (client2 != null && shouldTrace) {
+                client2.close();
             }
         }
-        
-        return result;
     }
 }

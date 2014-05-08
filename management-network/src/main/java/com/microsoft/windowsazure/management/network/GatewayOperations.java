@@ -267,6 +267,8 @@ public interface GatewayOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
+    * @throws IOException Thrown if there was an error setting up tracing for
+    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is in
     * progress, or has failed. Note that this status is distinct from the HTTP
@@ -277,7 +279,7 @@ public interface GatewayOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    GatewayGetOperationStatusResponse connectDisconnectOrTest(String networkName, String localNetworkSiteName, GatewayConnectDisconnectOrTestParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
+    GatewayGetOperationStatusResponse connectDisconnectOrTest(String networkName, String localNetworkSiteName, GatewayConnectDisconnectOrTestParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
     
     /**
     * To connect to, disconnect from, or test your connection to a local
@@ -439,6 +441,8 @@ public interface GatewayOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
+    * @throws IOException Thrown if there was an error setting up tracing for
+    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is in
     * progress, or has failed. Note that this status is distinct from the HTTP
@@ -449,7 +453,7 @@ public interface GatewayOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    GatewayGetOperationStatusResponse failover(String networkName) throws InterruptedException, ExecutionException, ServiceException;
+    GatewayGetOperationStatusResponse failover(String networkName) throws InterruptedException, ExecutionException, ServiceException, IOException;
     
     /**
     * The Failover Virtual Network Gateway operation causes a network gateway
@@ -744,6 +748,8 @@ public interface GatewayOperations {
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
+    * @throws IOException Thrown if there was an error setting up tracing for
+    * the request.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is in
     * progress, or has failed. Note that this status is distinct from the HTTP
@@ -754,7 +760,7 @@ public interface GatewayOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    GatewayGetOperationStatusResponse resetSharedKey(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters) throws InterruptedException, ExecutionException, ServiceException;
+    GatewayGetOperationStatusResponse resetSharedKey(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters) throws InterruptedException, ExecutionException, ServiceException, IOException;
     
     /**
     * The Reset Virtual Network Gateway Shared Key operation resets the shared
