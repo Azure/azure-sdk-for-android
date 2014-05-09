@@ -63,7 +63,7 @@ public interface DacOperations {
     * @return Represents the response that the service returns once an import
     * or export operation has been initiated.
     */
-    DacImportExportResponse export(String serverName, DacExportParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    DacImportExportResponse exportDatabase(String serverName, DacExportParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * Exports an Azure SQL Database into a DACPAC file in Azure Blob Storage.
@@ -75,7 +75,7 @@ public interface DacOperations {
     * @return Represents the response that the service returns once an import
     * or export operation has been initiated.
     */
-    Future<DacImportExportResponse> exportAsync(String serverName, DacExportParameters parameters);
+    Future<DacImportExportResponse> exportDatabaseAsync(String serverName, DacExportParameters parameters);
     
     /**
     * Gets the status of the import or export operation in the specified server
@@ -154,7 +154,7 @@ public interface DacOperations {
     * @return Represents the response that the service returns once an import
     * or export operation has been initiated.
     */
-    DacImportExportResponse import(String serverName, DacImportParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    DacImportExportResponse importDatabase(String serverName, DacImportParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
     
     /**
     * Initiates an Import of a DACPAC file from Azure Blob Storage into a Azure
@@ -167,5 +167,5 @@ public interface DacOperations {
     * @return Represents the response that the service returns once an import
     * or export operation has been initiated.
     */
-    Future<DacImportExportResponse> importAsync(String serverName, DacImportParameters parameters);
+    Future<DacImportExportResponse> importDatabaseAsync(String serverName, DacImportParameters parameters);
 }

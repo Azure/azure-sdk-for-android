@@ -164,7 +164,6 @@ public class DatabaseOperationsIntegrationTest extends SqlManagementIntegrationT
         DatabaseUpdateParameters databaseUpdateParameters = new DatabaseUpdateParameters();
         databaseUpdateParameters.setName(expectedDatabaseName);
         databaseUpdateParameters.setMaximumDatabaseSizeInGB(updatedMaxSizeInGB);
-        databaseUpdateParameters.setCollationName(expectedCollationName);
         databaseUpdateParameters.setEdition(updatedEdition);
         DatabaseUpdateResponse databaseUpdateResponse = databaseOperations.update(serverName, expectedDatabaseName, databaseUpdateParameters);
 
