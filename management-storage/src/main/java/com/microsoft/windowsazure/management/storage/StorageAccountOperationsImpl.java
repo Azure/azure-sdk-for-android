@@ -290,6 +290,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
@@ -1404,6 +1405,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
@@ -1636,6 +1638,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {

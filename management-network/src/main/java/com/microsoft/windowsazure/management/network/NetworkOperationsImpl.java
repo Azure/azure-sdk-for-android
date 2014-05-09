@@ -172,6 +172,7 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {

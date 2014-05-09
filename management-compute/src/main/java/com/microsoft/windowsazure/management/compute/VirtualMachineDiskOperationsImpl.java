@@ -417,6 +417,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.CREATED) {
@@ -576,6 +577,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
@@ -1699,6 +1701,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
@@ -1869,6 +1872,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {

@@ -898,6 +898,7 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {

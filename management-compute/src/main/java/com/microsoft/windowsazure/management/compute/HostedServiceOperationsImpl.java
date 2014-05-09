@@ -421,6 +421,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
@@ -972,6 +973,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.CREATED) {
@@ -4323,6 +4325,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {

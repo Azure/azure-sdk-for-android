@@ -228,6 +228,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(0);
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -616,6 +617,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK && statusCode != AzureHttpStatus.CREATED) {
@@ -1158,6 +1160,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(0);
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -1533,6 +1536,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(0);
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -3601,6 +3605,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(0);
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -3822,6 +3827,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(0);
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -4083,6 +4089,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
@@ -4858,6 +4865,7 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         
         // Send Request
         try {
+            httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
             httpRequest.getOutputStream().write(requestContent.getBytes());
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
