@@ -120,7 +120,7 @@ public class CertificateCloudCredentials extends SubscriptionCloudCredentials {
         try {
             sslContext = SSLContextFactory.create(this.getKeyStoreCredential());
             if (connection instanceof HttpsURLConnection) {
-                ((HttpsURLConnection)connection)
+                ((HttpsURLConnection) connection)
                      .setSSLSocketFactory(sslContext.getSocketFactory());
             }
         } catch (GeneralSecurityException ex) {

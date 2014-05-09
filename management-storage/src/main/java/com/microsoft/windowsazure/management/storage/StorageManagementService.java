@@ -45,6 +45,6 @@ public final class StorageManagementService {
      * @return An instance of the <code>StorageManagementClient</code> API.
      */
     public static StorageManagementClient create(final Configuration config) {
-    	return new StorageManagementClientImpl(config, Executors.newCachedThreadPool());
+        return new StorageManagementClientImpl(config, Executors.newCachedThreadPool());
     }
 }

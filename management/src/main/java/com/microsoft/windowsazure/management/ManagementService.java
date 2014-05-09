@@ -17,8 +17,6 @@ package com.microsoft.windowsazure.management;
 import java.util.concurrent.Executors;
 
 import com.microsoft.windowsazure.Configuration;
-import com.microsoft.windowsazure.credentials.CertificateCloudCredentials;
-import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;
 
 /**
  *

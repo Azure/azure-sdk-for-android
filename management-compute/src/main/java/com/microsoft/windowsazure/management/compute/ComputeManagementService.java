@@ -45,6 +45,6 @@ public final class ComputeManagementService {
      * @return An instance of the <code>ComputeManagementClient</code> API.
      */
     public static ComputeManagementClient create(final Configuration config) {
-    	return new ComputeManagementClientImpl(config, Executors.newCachedThreadPool());
+        return new ComputeManagementClientImpl(config, Executors.newCachedThreadPool());
     }
 }

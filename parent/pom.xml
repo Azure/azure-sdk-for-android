@@ -255,6 +255,5 @@
     <module>../management-storage</module>
     <module>../management-network</module>
     <module>../management-websites</module>
-    <module>../tracing-util</module>
   </modules>
 </project>

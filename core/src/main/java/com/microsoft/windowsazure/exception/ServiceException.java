@@ -152,13 +152,13 @@ public class ServiceException extends Exception {
     }
 
     public static ServiceException create(
-    		final String requestContent,
-    		final int responseStatusCode,
-    		final String responseMessage,
-    		final String responseContentType,
+            final String requestContent,
+            final int responseStatusCode,
+            final String responseMessage,
+            final String responseContentType,
             final InputStream responseStream,
             final String defaultTo) {
-    	
+        
         ServiceException serviceException;
 
         if (responseContentType.equals("application/json")
@@ -179,15 +179,15 @@ public class ServiceException extends Exception {
     }
 
     public static ServiceException createFromXml(
-    		final String requestContent,
-    		final String responseMessage,
-    		final int responseStatusCode,
-    		final String responseContentType,
+            final String requestContent,
+            final String responseMessage,
+            final int responseStatusCode,
+            final String responseContentType,
             final InputStream responseStream) {
-    	
+        
         String content;
         try {
-        	content = StreamUtils.toString(responseStream);
+            content = StreamUtils.toString(responseStream);
         } catch (IOException e) {
             return new ServiceException(e);
         }
@@ -231,8 +231,8 @@ public class ServiceException extends Exception {
     }
 
     private static String buildExceptionMessage(
-    		final String code,
-    		final String message) {
+            final String code,
+            final String message) {
         return (code != null && message != null) ? code + ": " + message
                 : (message != null) ? message
                     : (code != null) ? code

@@ -14,7 +14,6 @@
  */
 package com.microsoft.windowsazure.management.sql;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import com.microsoft.windowsazure.Configuration;

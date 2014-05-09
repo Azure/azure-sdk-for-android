@@ -35,7 +35,7 @@ public abstract class ServiceClient<TClient> implements
 
     protected ServiceClient(Configuration configuration, ExecutorService executorService) {
         this.configuration = configuration;
-    	this.executorService = executorService;
+        this.executorService = executorService;
     }
 
     protected abstract TClient newInstance(Configuration configuration, ExecutorService executorService);
