@@ -145,11 +145,14 @@ public class QuotaOperationsImpl implements ServiceOperations<SqlManagementClien
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
+        httpRequest.setRequestMethod("GET");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {
@@ -288,11 +291,14 @@ public class QuotaOperationsImpl implements ServiceOperations<SqlManagementClien
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
+        httpRequest.setRequestMethod("GET");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {

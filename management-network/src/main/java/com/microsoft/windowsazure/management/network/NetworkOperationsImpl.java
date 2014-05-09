@@ -156,12 +156,15 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Put");
+        httpRequest.setRequestMethod("PUT");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/octet-stream");
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Serialize Request
         String requestContent = parameters.getConfiguration();
@@ -255,11 +258,14 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
+        httpRequest.setRequestMethod("GET");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {
@@ -356,11 +362,14 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
+        httpRequest.setRequestMethod("GET");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {

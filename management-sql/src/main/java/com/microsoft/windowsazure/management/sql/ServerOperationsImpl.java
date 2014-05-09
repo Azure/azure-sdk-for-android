@@ -164,12 +164,15 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Post");
+        httpRequest.setRequestMethod("POST");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Serialize Request
         String requestContent = null;
@@ -298,12 +301,15 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Post");
+        httpRequest.setRequestMethod("POST");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Serialize Request
         String requestContent = null;
@@ -450,11 +456,14 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Delete");
+        httpRequest.setRequestMethod("DELETE");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {
@@ -543,11 +552,14 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
+        httpRequest.setRequestMethod("GET");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2012-03-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {

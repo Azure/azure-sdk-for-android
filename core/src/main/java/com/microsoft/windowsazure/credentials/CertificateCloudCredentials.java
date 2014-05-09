@@ -15,17 +15,17 @@
 
 package com.microsoft.windowsazure.credentials;
 
-import com.microsoft.windowsazure.ConfigurationProperties;
 import com.microsoft.windowsazure.core.utils.KeyStoreCredential;
 import com.microsoft.windowsazure.core.utils.SSLContextFactory;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.security.GeneralSecurityException;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 
 /**
@@ -114,18 +114,15 @@ public class CertificateCloudCredentials extends SubscriptionCloudCredentials {
         this.uri = uri;
     }
 
-    /* (non-Javadoc)
-     * @see com.microsoft.windowsazure.credentials.CloudCredentials#applyConfig(java.lang.String, java.util.Map)
-     */
     @Override
-    public <T> void applyConfig(String profile, Map<String, Object> properties) {
+    public void processRequest(HttpURLConnection connection) {
         SSLContext sslContext;
         try {
             sslContext = SSLContextFactory.create(this.getKeyStoreCredential());
-            properties
-                    .put(profile
-							+ ConfigurationProperties.PROPERTY_SSL_CONNECTION_SOCKET_FACTORY,
-							sslContext.getSocketFactory());
+            if (connection instanceof HttpsURLConnection) {
+                ((HttpsURLConnection)connection)
+                     .setSSLSocketFactory(sslContext.getSocketFactory());
+            }
         } catch (GeneralSecurityException ex) {
             Logger.getLogger(CertificateCloudCredentials.class.getName()).log(
                     Level.SEVERE, null, ex);

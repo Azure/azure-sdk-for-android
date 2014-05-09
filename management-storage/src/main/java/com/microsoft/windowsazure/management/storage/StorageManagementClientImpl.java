@@ -32,6 +32,7 @@ import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.credentials.SubscriptionCloudCredentials;
 import com.microsoft.windowsazure.exception.ServiceException;
+import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
@@ -109,10 +110,10 @@ public class StorageManagementClientImpl extends ServiceClient<StorageManagement
         super(configuration, executorService);
         this.storageAccounts = new StorageAccountOperationsImpl(this);
         
-        if (configuration.getProperty("Credentials") == null) {
+        if (configuration.getProperty(ManagementConfiguration.SUBSCRIPTION_CLOUD_CREDENTIALS) == null) {
             throw new NullPointerException("credentials");
         } else {
-            this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty("Credentials"));
+            this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty(ManagementConfiguration.SUBSCRIPTION_CLOUD_CREDENTIALS));
         }
         if (configuration.getProperty("BaseUri") == null) {
             try {
@@ -123,8 +124,6 @@ public class StorageManagementClientImpl extends ServiceClient<StorageManagement
         } else {
             this.baseUri = ((URI) configuration.getProperty("BaseUri"));
         }
-        this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty("Credentials"));
-        this.baseUri = ((URI) configuration.getProperty("BaseUri"));
     }
     
     /**
@@ -228,11 +227,14 @@ public class StorageManagementClientImpl extends ServiceClient<StorageManagement
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
+        httpRequest.setRequestMethod("GET");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2013-03-01");
+        
+        // Set Credentials
+        this.getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {

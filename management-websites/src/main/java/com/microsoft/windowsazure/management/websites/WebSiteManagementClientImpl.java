@@ -31,6 +31,7 @@ import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.credentials.SubscriptionCloudCredentials;
 import com.microsoft.windowsazure.exception.ServiceException;
+import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;
 import com.microsoft.windowsazure.management.websites.models.WebSiteOperationStatus;
 import com.microsoft.windowsazure.management.websites.models.WebSiteOperationStatusResponse;
 import com.microsoft.windowsazure.tracing.CloudTracing;
@@ -136,10 +137,10 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         this.webSites = new WebSiteOperationsImpl(this);
         this.webSpaces = new WebSpaceOperationsImpl(this);
         
-        if (configuration.getProperty("Credentials") == null) {
+        if (configuration.getProperty(ManagementConfiguration.SUBSCRIPTION_CLOUD_CREDENTIALS) == null) {
             throw new NullPointerException("credentials");
         } else {
-            this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty("Credentials"));
+            this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty(ManagementConfiguration.SUBSCRIPTION_CLOUD_CREDENTIALS));
         }
         if (configuration.getProperty("BaseUri") == null) {
             try {
@@ -150,8 +151,6 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         } else {
             this.baseUri = ((URI) configuration.getProperty("BaseUri"));
         }
-        this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty("Credentials"));
-        this.baseUri = ((URI) configuration.getProperty("BaseUri"));
     }
     
     /**
@@ -267,11 +266,14 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
+        httpRequest.setRequestMethod("GET");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        
+        // Set Credentials
+        this.getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {
@@ -539,12 +541,15 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Put");
+        httpRequest.setRequestMethod("PUT");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        
+        // Set Credentials
+        this.getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {
@@ -631,12 +636,15 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Put");
+        httpRequest.setRequestMethod("PUT");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
+        
+        // Set Credentials
+        this.getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {

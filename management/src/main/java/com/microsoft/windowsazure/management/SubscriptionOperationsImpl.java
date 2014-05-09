@@ -148,11 +148,14 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
+        httpRequest.setRequestMethod("GET");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2013-03-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {
@@ -399,11 +402,14 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
+        httpRequest.setRequestMethod("GET");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2013-03-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {
@@ -608,12 +614,15 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Put");
+        httpRequest.setRequestMethod("PUT");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         httpRequest.setRequestProperty("x-ms-version", "2013-03-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {
@@ -706,12 +715,15 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Put");
+        httpRequest.setRequestMethod("PUT");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         httpRequest.setRequestProperty("x-ms-version", "2013-03-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {

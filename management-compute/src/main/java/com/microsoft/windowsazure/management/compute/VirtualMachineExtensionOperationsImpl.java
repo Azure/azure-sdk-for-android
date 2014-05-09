@@ -149,11 +149,14 @@ public class VirtualMachineExtensionOperationsImpl implements ServiceOperations<
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
+        httpRequest.setRequestMethod("GET");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {
@@ -373,11 +376,14 @@ public class VirtualMachineExtensionOperationsImpl implements ServiceOperations<
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
-        httpRequest.setRequestMethod("Get");
+        httpRequest.setRequestMethod("GET");
         httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
+        
+        // Set Credentials
+        this.getClient().getCredentials().processRequest(httpRequest);
         
         // Send Request
         try {

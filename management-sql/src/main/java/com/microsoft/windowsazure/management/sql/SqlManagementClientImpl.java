@@ -26,6 +26,7 @@ package com.microsoft.windowsazure.management.sql;
 import com.microsoft.windowsazure.Configuration;
 import com.microsoft.windowsazure.core.ServiceClient;
 import com.microsoft.windowsazure.credentials.SubscriptionCloudCredentials;
+import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutorService;
@@ -219,10 +220,10 @@ public class SqlManagementClientImpl extends ServiceClient<SqlManagementClient> 
         this.servers = new ServerOperationsImpl(this);
         this.serviceObjectives = new ServiceObjectiveOperationsImpl(this);
         
-        if (configuration.getProperty("Credentials") == null) {
+        if (configuration.getProperty(ManagementConfiguration.SUBSCRIPTION_CLOUD_CREDENTIALS) == null) {
             throw new NullPointerException("credentials");
         } else {
-            this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty("Credentials"));
+            this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty(ManagementConfiguration.SUBSCRIPTION_CLOUD_CREDENTIALS));
         }
         if (configuration.getProperty("BaseUri") == null) {
             try {
@@ -233,8 +234,6 @@ public class SqlManagementClientImpl extends ServiceClient<SqlManagementClient> 
         } else {
             this.baseUri = ((URI) configuration.getProperty("BaseUri"));
         }
-        this.credentials = ((SubscriptionCloudCredentials) configuration.getProperty("Credentials"));
-        this.baseUri = ((URI) configuration.getProperty("BaseUri"));
     }
     
     /**
