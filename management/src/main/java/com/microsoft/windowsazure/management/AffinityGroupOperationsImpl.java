@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.microsoft.windowsazure.AzureHttpStatus;
@@ -461,6 +462,7 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
             AffinityGroupGetResponse result = null;
 
             ObjectMapper xmlMapper = new XmlMapper();
+            xmlMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             result = xmlMapper.readValue(httpRequest.getInputStream(), AffinityGroupGetResponse.class);
             
             /*
