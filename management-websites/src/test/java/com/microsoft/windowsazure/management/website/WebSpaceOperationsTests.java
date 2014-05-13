@@ -24,7 +24,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.microsoft.windowsazure.exception.ServiceException;
-import com.microsoft.windowsazure.management.websites.models.ServerFarmListResponse;
 import com.microsoft.windowsazure.management.websites.models.WebSite;
 import com.microsoft.windowsazure.management.websites.models.WebSiteListParameters;
 import com.microsoft.windowsazure.management.websites.models.WebSpaceAvailabilityState;

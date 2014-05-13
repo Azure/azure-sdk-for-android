@@ -15,14 +15,12 @@
 package com.microsoft.windowsazure.management;
 
 import java.net.URI;
-import java.util.Map;
 
 import com.microsoft.windowsazure.core.utils.KeyStoreType;
 import com.microsoft.windowsazure.Configuration;
 import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;
 
 public abstract class ManagementIntegrationTestBase {
-
     protected static ManagementClient managementClient;
 
     protected static void createService() throws Exception {
@@ -35,10 +33,10 @@ public abstract class ManagementIntegrationTestBase {
         String baseUri = System.getenv(ManagementConfiguration.URI);
         return ManagementConfiguration.configure(
             baseUri != null ? new URI(baseUri) : null,
-            System.getenv(ManagementConfiguration.SUBSCRIPTION_ID),
-            System.getenv(ManagementConfiguration.KEYSTORE_PATH),
-            System.getenv(ManagementConfiguration.KEYSTORE_PASSWORD),
-            KeyStoreType.fromString(System.getenv(ManagementConfiguration.KEYSTORE_TYPE))
+            "db1ab6f0-4769-4b27-930e-01e2ef9c123c",
+            "C:\\sources\\certificates\\WindowsAzureKeyStore.jks",
+            "test123",
+            KeyStoreType.fromString("jks")
         );
     }
 }

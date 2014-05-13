@@ -23,6 +23,8 @@
 
 package com.microsoft.windowsazure.management;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
@@ -35,8 +37,10 @@ import com.microsoft.windowsazure.management.models.AffinityGroupGetResponse;
 import com.microsoft.windowsazure.management.models.AffinityGroupListResponse;
 import com.microsoft.windowsazure.management.models.AffinityGroupUpdateParameters;
 import com.microsoft.windowsazure.tracing.CloudTracing;
+
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -47,6 +51,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -55,9 +60,13 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 /**
 * Operations for managing affinity groups in your subscription.  (see
@@ -450,6 +459,63 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
             
             // Create Result
             AffinityGroupGetResponse result = null;
+
+            ObjectMapper xmlMapper = new XmlMapper();
+            result = xmlMapper.readValue(httpRequest.getInputStream(), AffinityGroupGetResponse.class);
+            
+            /*
+            try {
+            	XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+                factory.setNamespaceAware(true);
+                XmlPullParser xpp = factory.newPullParser();
+                
+                xpp.setInput(new InputStreamReader(httpRequest.getInputStream()));
+                result = new AffinityGroupGetResponse();
+                
+                for (int eventType = xpp.getEventType();
+                		eventType != XmlPullParser.END_DOCUMENT;
+                		eventType = xpp.next()) {
+                	
+                	if (eventType == XmlPullParser.START_TAG) {
+                		if ("AffinityGroup".equals(xpp.getName())) {
+                			for (; 
+            					eventType != XmlPullParser.END_TAG && "AffinityGroup".equals(xpp.getName());
+            					eventType = xpp.next())
+                			{
+                				if ("Name".equals(xpp.getName())) {
+                					
+                				}
+                			}
+                		}
+                	}
+                }
+            }
+            catch (Exception e)
+            {
+            }*/
+            
+            /*
+            XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+            factory.setNamespaceAware(true);
+            XmlPullParser xpp = factory.newPullParser();
+            
+            xpp.setInput( new StringReader ( "<foo>Hello World!</foo>" ) );
+            int eventType = xpp.getEventType();
+            while (eventType != XmlPullParser.END_DOCUMENT) {
+				if(eventType == XmlPullParser.START_DOCUMENT) {
+				    System.out.println("Start document");
+				} else if(eventType == XmlPullParser.START_TAG) {
+				    System.out.println("Start tag "+xpp.getName());
+				} else if(eventType == XmlPullParser.END_TAG) {
+				    System.out.println("End tag "+xpp.getName());
+				} else if(eventType == XmlPullParser.TEXT) {
+				    System.out.println("Text "+xpp.getText());
+				}
+				eventType = xpp.next();
+            }
+            */
+            
+            /*
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new AffinityGroupGetResponse();
@@ -542,7 +608,7 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
                     }
                 }
             }
-            
+            */
             result.setStatusCode(statusCode);
             result.setRequestId(httpRequest.getHeaderField("x-ms-request-id"));
             
