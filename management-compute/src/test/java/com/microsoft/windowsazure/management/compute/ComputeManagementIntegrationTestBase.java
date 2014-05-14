@@ -16,7 +16,6 @@
 package com.microsoft.windowsazure.management.compute;
 
 import java.io.*;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
@@ -27,6 +26,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.junit.Assert;
 import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.utils.KeyStoreType;
@@ -42,9 +42,6 @@ import com.microsoft.windowsazure.management.storage.models.StorageAccountGetKey
 import com.microsoft.windowsazure.management.storage.models.StorageAccountGetResponse;
 import com.microsoft.windowsazure.storage.CloudStorageAccount;
 import com.microsoft.windowsazure.storage.StorageException;
-import com.microsoft.windowsazure.storage.blob.CloudBlobClient;
-import com.microsoft.windowsazure.storage.blob.CloudBlobContainer;
-import com.microsoft.windowsazure.storage.blob.CloudPageBlob;
 import com.microsoft.windowsazure.storage.blob.*;
 import com.microsoft.windowsazure.*;
 
@@ -231,8 +228,7 @@ public abstract class ComputeManagementIntegrationTestBase {
             storageAccountGetResponse = storageManagementClient.getStorageAccountsOperations().get(storageAccountName); 
         } catch (ServiceException e) {
         } catch (IOException e) {
-        } catch (ParserConfigurationException e) {
-        } catch (SAXException e) {
+        } catch (XmlPullParserException e) {
         } catch (URISyntaxException e) {
         }
 

@@ -33,9 +33,7 @@ import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
 * The Compute Management API includes operations for managing the load
@@ -54,12 +52,6 @@ public interface LoadBalancerOperations {
     * Balancer operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -72,7 +64,7 @@ public interface LoadBalancerOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse beginCreating(String serviceName, String deploymentName, LoadBalancerCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    OperationStatusResponse beginCreating(String serviceName, String deploymentName, LoadBalancerCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * Add an internal load balancer to a an existing deployment. When used by
@@ -156,15 +148,11 @@ public interface LoadBalancerOperations {
     * request.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The response body contains the status of the specified
@@ -176,7 +164,7 @@ public interface LoadBalancerOperations {
     * operation failed, the response body includes the HTTP status code for
     * the failed request and error information regarding the failure.
     */
-    OperationStatusResponse create(String serviceName, String deploymentName, LoadBalancerCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, IOException, URISyntaxException;
+    OperationStatusResponse create(String serviceName, String deploymentName, LoadBalancerCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException;
     
     /**
     * Add an internal load balancer to a an existing deployment. When used by

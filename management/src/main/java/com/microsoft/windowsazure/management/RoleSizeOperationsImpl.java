@@ -26,12 +26,12 @@ package com.microsoft.windowsazure.management;
 import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
-import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.models.RoleSizeListResponse;
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -40,12 +40,9 @@ import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import javax.xml.bind.DatatypeConverter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 /**
 * The Service Management API includes operations for listing the available role
@@ -97,14 +94,12 @@ public class RoleSizeOperationsImpl implements ServiceOperations<ManagementClien
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The List Role Sizes operation response.
     */
     @Override
-    public RoleSizeListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public RoleSizeListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         
         // Tracing
@@ -132,7 +127,7 @@ public class RoleSizeOperationsImpl implements ServiceOperations<ManagementClien
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2013-03-01");
@@ -156,60 +151,99 @@ public class RoleSizeOperationsImpl implements ServiceOperations<ManagementClien
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new RoleSizeListResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element roleSizesSequenceElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "RoleSizes");
-            if (roleSizesSequenceElement != null) {
-                for (int i1 = 0; i1 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(roleSizesSequenceElement, "http://schemas.microsoft.com/windowsazure", "RoleSize").size(); i1 = i1 + 1) {
-                    org.w3c.dom.Element roleSizesElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(roleSizesSequenceElement, "http://schemas.microsoft.com/windowsazure", "RoleSize").get(i1));
-                    RoleSizeListResponse.RoleSize roleSizeInstance = new RoleSizeListResponse.RoleSize();
-                    result.getRoleSizes().add(roleSizeInstance);
-                    
-                    Element nameElement = XmlUtility.getElementByTagNameNS(roleSizesElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                    if (nameElement != null) {
-                        String nameInstance;
-                        nameInstance = nameElement.getTextContent();
-                        roleSizeInstance.setName(nameInstance);
-                    }
-                    
-                    Element labelElement = XmlUtility.getElementByTagNameNS(roleSizesElement, "http://schemas.microsoft.com/windowsazure", "Label");
-                    if (labelElement != null) {
-                        String labelInstance;
-                        labelInstance = labelElement.getTextContent();
-                        roleSizeInstance.setLabel(labelInstance);
-                    }
-                    
-                    Element coresElement = XmlUtility.getElementByTagNameNS(roleSizesElement, "http://schemas.microsoft.com/windowsazure", "Cores");
-                    if (coresElement != null) {
-                        int coresInstance;
-                        coresInstance = DatatypeConverter.parseInt(coresElement.getTextContent());
-                        roleSizeInstance.setCores(coresInstance);
-                    }
-                    
-                    Element memoryInMbElement = XmlUtility.getElementByTagNameNS(roleSizesElement, "http://schemas.microsoft.com/windowsazure", "MemoryInMb");
-                    if (memoryInMbElement != null) {
-                        int memoryInMbInstance;
-                        memoryInMbInstance = DatatypeConverter.parseInt(memoryInMbElement.getTextContent());
-                        roleSizeInstance.setMemoryInMb(memoryInMbInstance);
-                    }
-                    
-                    Element supportedByWebWorkerRolesElement = XmlUtility.getElementByTagNameNS(roleSizesElement, "http://schemas.microsoft.com/windowsazure", "SupportedByWebWorkerRoles");
-                    if (supportedByWebWorkerRolesElement != null) {
-                        boolean supportedByWebWorkerRolesInstance;
-                        supportedByWebWorkerRolesInstance = DatatypeConverter.parseBoolean(supportedByWebWorkerRolesElement.getTextContent().toLowerCase());
-                        roleSizeInstance.setSupportedByWebWorkerRoles(supportedByWebWorkerRolesInstance);
-                    }
-                    
-                    Element supportedByVirtualMachinesElement = XmlUtility.getElementByTagNameNS(roleSizesElement, "http://schemas.microsoft.com/windowsazure", "SupportedByVirtualMachines");
-                    if (supportedByVirtualMachinesElement != null) {
-                        boolean supportedByVirtualMachinesInstance;
-                        supportedByVirtualMachinesInstance = DatatypeConverter.parseBoolean(supportedByVirtualMachinesElement.getTextContent().toLowerCase());
-                        roleSizeInstance.setSupportedByVirtualMachines(supportedByVirtualMachinesInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "RoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "RoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "RoleSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            RoleSizeListResponse.RoleSize roleSizeInstance = new RoleSizeListResponse.RoleSize();
+                            result.getRoleSizes().add(roleSizeInstance);
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String nameInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        nameInstance = xmlPullParser.getText();
+                                        roleSizeInstance.setName(nameInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String labelInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        labelInstance = xmlPullParser.getText();
+                                        roleSizeInstance.setLabel(labelInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Cores".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Cores".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    int coresInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        coresInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                        roleSizeInstance.setCores(coresInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "MemoryInMb".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "MemoryInMb".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    int memoryInMbInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        memoryInMbInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                        roleSizeInstance.setMemoryInMb(memoryInMbInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "SupportedByWebWorkerRoles".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "SupportedByWebWorkerRoles".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    boolean supportedByWebWorkerRolesInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        supportedByWebWorkerRolesInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                        roleSizeInstance.setSupportedByWebWorkerRoles(supportedByWebWorkerRolesInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "SupportedByVirtualMachines".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "SupportedByVirtualMachines".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    boolean supportedByVirtualMachinesInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        supportedByVirtualMachinesInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                        roleSizeInstance.setSupportedByVirtualMachines(supportedByVirtualMachinesInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            eventType = xmlPullParser.next();
+                        }
+                        
+                        eventType = xmlPullParser.next();
                     }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);

@@ -63,6 +63,11 @@
       <artifactId>microsoft-azure-api-core</artifactId>
       <version>0.5.0</version>
     </dependency>
+    <dependency>
+      <groupId>com.google.android</groupId>
+      <artifactId>android</artifactId>
+      <scope>provided</scope>
+    </dependency>
 
     <!-- Test dependencies -->
     <dependency> 

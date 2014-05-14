@@ -365,7 +365,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
@@ -553,7 +553,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
@@ -665,7 +665,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
@@ -859,7 +859,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
@@ -997,7 +997,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2013-08-01");
@@ -1131,7 +1131,7 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2013-08-01");

@@ -27,7 +27,6 @@ import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.StreamUtils;
-import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.network.models.ClientRootCertificateCreateParameters;
 import com.microsoft.windowsazure.management.network.models.ClientRootCertificateGetResponse;
@@ -36,6 +35,7 @@ import com.microsoft.windowsazure.management.network.models.GatewayOperationResp
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -46,12 +46,9 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.xml.bind.DatatypeConverter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 /**
 * The Network Management API includes operations for managing the client root
@@ -119,10 +116,8 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -137,7 +132,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
     * request ID.
     */
     @Override
-    public GatewayOperationResponse create(String networkName, ClientRootCertificateCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException {
+    public GatewayOperationResponse create(String networkName, ClientRootCertificateCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, InterruptedException, ExecutionException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -207,19 +202,32 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayOperationResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element gatewayOperationAsyncResponseElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "GatewayOperationAsyncResponse");
-            if (gatewayOperationAsyncResponseElement != null) {
-                Element idElement = XmlUtility.getElementByTagNameNS(gatewayOperationAsyncResponseElement, "http://schemas.microsoft.com/windowsazure", "ID");
-                if (idElement != null) {
-                    String idInstance;
-                    idInstance = idElement.getTextContent();
-                    result.setOperationId(idInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String idInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    idInstance = xmlPullParser.getText();
+                                    result.setOperationId(idInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -272,10 +280,8 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -290,7 +296,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
     * request ID.
     */
     @Override
-    public GatewayOperationResponse delete(String networkName, String certificateThumbprint) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException {
+    public GatewayOperationResponse delete(String networkName, String certificateThumbprint) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, InterruptedException, ExecutionException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -326,7 +332,6 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("DELETE");
-        httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
@@ -351,19 +356,32 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayOperationResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element gatewayOperationAsyncResponseElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "GatewayOperationAsyncResponse");
-            if (gatewayOperationAsyncResponseElement != null) {
-                Element idElement = XmlUtility.getElementByTagNameNS(gatewayOperationAsyncResponseElement, "http://schemas.microsoft.com/windowsazure", "ID");
-                if (idElement != null) {
-                    String idInstance;
-                    idInstance = idElement.getTextContent();
-                    result.setOperationId(idInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String idInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    idInstance = xmlPullParser.getText();
+                                    result.setOperationId(idInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -417,14 +435,12 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return Response to the Get Client Root Certificate operation.
     */
     @Override
-    public ClientRootCertificateGetResponse get(String networkName, String certificateThumbprint) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public ClientRootCertificateGetResponse get(String networkName, String certificateThumbprint) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -460,7 +476,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -535,14 +551,12 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response for the List Client Root Certificates operation.
     */
     @Override
-    public ClientRootCertificateListResponse list(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public ClientRootCertificateListResponse list(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -574,7 +588,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
@@ -599,39 +613,63 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new ClientRootCertificateListResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element clientRootCertificatesSequenceElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "ClientRootCertificates");
-            if (clientRootCertificatesSequenceElement != null) {
-                for (int i1 = 0; i1 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(clientRootCertificatesSequenceElement, "http://schemas.microsoft.com/windowsazure", "ClientRootCertificate").size(); i1 = i1 + 1) {
-                    org.w3c.dom.Element clientRootCertificatesElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(clientRootCertificatesSequenceElement, "http://schemas.microsoft.com/windowsazure", "ClientRootCertificate").get(i1));
-                    ClientRootCertificateListResponse.ClientRootCertificate clientRootCertificateInstance = new ClientRootCertificateListResponse.ClientRootCertificate();
-                    result.getClientRootCertificates().add(clientRootCertificateInstance);
-                    
-                    Element expirationTimeElement = XmlUtility.getElementByTagNameNS(clientRootCertificatesElement, "http://schemas.microsoft.com/windowsazure", "ExpirationTime");
-                    if (expirationTimeElement != null) {
-                        Calendar expirationTimeInstance;
-                        expirationTimeInstance = DatatypeConverter.parseDateTime(expirationTimeElement.getTextContent());
-                        clientRootCertificateInstance.setExpirationTime(expirationTimeInstance);
-                    }
-                    
-                    Element subjectElement = XmlUtility.getElementByTagNameNS(clientRootCertificatesElement, "http://schemas.microsoft.com/windowsazure", "Subject");
-                    if (subjectElement != null) {
-                        String subjectInstance;
-                        subjectInstance = subjectElement.getTextContent();
-                        clientRootCertificateInstance.setSubject(subjectInstance);
-                    }
-                    
-                    Element thumbprintElement = XmlUtility.getElementByTagNameNS(clientRootCertificatesElement, "http://schemas.microsoft.com/windowsazure", "Thumbprint");
-                    if (thumbprintElement != null) {
-                        String thumbprintInstance;
-                        thumbprintInstance = thumbprintElement.getTextContent();
-                        clientRootCertificateInstance.setThumbprint(thumbprintInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "ClientRootCertificates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "ClientRootCertificates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "ClientRootCertificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            ClientRootCertificateListResponse.ClientRootCertificate clientRootCertificateInstance = new ClientRootCertificateListResponse.ClientRootCertificate();
+                            result.getClientRootCertificates().add(clientRootCertificateInstance);
+                            
+                            if (eventType == XmlPullParser.START_TAG && "ExpirationTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "ExpirationTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    Calendar expirationTimeInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        expirationTimeInstance = DatatypeConverter.parseDateTime(xmlPullParser.getText());
+                                        clientRootCertificateInstance.setExpirationTime(expirationTimeInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Subject".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Subject".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String subjectInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        subjectInstance = xmlPullParser.getText();
+                                        clientRootCertificateInstance.setSubject(subjectInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Thumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Thumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String thumbprintInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        thumbprintInstance = xmlPullParser.getText();
+                                        clientRootCertificateInstance.setThumbprint(thumbprintInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            eventType = xmlPullParser.next();
+                        }
+                        
+                        eventType = xmlPullParser.next();
                     }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);

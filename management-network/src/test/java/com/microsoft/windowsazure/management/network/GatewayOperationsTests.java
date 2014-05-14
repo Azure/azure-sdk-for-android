@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.management.network.models.*;
 import com.microsoft.windowsazure.exception.ServiceException;
+
 import java.util.concurrent.ExecutionException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -32,6 +33,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 public class GatewayOperationsTests extends NetworkManagementIntegrationTestBase {
     
@@ -52,17 +54,10 @@ public class GatewayOperationsTests extends NetworkManagementIntegrationTestBase
         try {
             gatewayOperations.delete(testNetworkName);
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (SAXException e) {
-            e.printStackTrace();
+        } catch (XmlPullParserException e) {
         } catch (InterruptedException e) {
-            e.printStackTrace();
         } catch (ExecutionException e) {
-            e.printStackTrace();
         } catch (ServiceException e) {
-            e.printStackTrace();
         }
     }
     

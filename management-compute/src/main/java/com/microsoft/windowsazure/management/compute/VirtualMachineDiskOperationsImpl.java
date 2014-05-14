@@ -23,13 +23,13 @@
 
 package com.microsoft.windowsazure.management.compute;
 
+import android.util.Xml;
 import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.OperationStatus;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
-import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineDataDiskCreateParameters;
 import com.microsoft.windowsazure.management.compute.models.VirtualMachineDataDiskGetResponse;
@@ -44,6 +44,7 @@ import com.microsoft.windowsazure.tracing.ClientRequestTrackingHandler;
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -56,17 +57,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.xml.bind.DatatypeConverter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+import org.xmlpull.v1.XmlSerializer;
 
 /**
 * The Service Management API includes operations for managing the disks in your
@@ -188,7 +182,6 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("DELETE");
-        httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -289,12 +282,6 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
     * Machine Data Disk operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -302,7 +289,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
     * request ID.
     */
     @Override
-    public OperationResponse createDataDisk(String serviceName, String deploymentName, String roleName, VirtualMachineDataDiskCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public OperationResponse createDataDisk(String serviceName, String deploymentName, String roleName, VirtualMachineDataDiskCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -363,55 +350,51 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element dataVirtualHardDiskElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
-        requestDoc.appendChild(dataVirtualHardDiskElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
         
-        Element hostCachingElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-        hostCachingElement.appendChild(requestDoc.createTextNode(parameters.getHostCaching()));
-        dataVirtualHardDiskElement.appendChild(hostCachingElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
+        xmlSerializer.text(parameters.getHostCaching());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
         
         if (parameters.getLabel() != null) {
-            Element diskLabelElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskLabel");
-            diskLabelElement.appendChild(requestDoc.createTextNode(parameters.getLabel()));
-            dataVirtualHardDiskElement.appendChild(diskLabelElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
+            xmlSerializer.text(parameters.getLabel());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
         }
         
         if (parameters.getName() != null) {
-            Element diskNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskName");
-            diskNameElement.appendChild(requestDoc.createTextNode(parameters.getName()));
-            dataVirtualHardDiskElement.appendChild(diskNameElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskName");
+            xmlSerializer.text(parameters.getName());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskName");
         }
         
         if (parameters.getLogicalUnitNumber() != null) {
-            Element lunElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Lun");
-            lunElement.appendChild(requestDoc.createTextNode(Integer.toString(parameters.getLogicalUnitNumber())));
-            dataVirtualHardDiskElement.appendChild(lunElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Lun");
+            xmlSerializer.text(Integer.toString(parameters.getLogicalUnitNumber()));
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Lun");
         }
         
-        Element logicalDiskSizeInGBElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
-        logicalDiskSizeInGBElement.appendChild(requestDoc.createTextNode(Integer.toString(parameters.getLogicalDiskSizeInGB())));
-        dataVirtualHardDiskElement.appendChild(logicalDiskSizeInGBElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
+        xmlSerializer.text(Integer.toString(parameters.getLogicalDiskSizeInGB()));
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
         
-        Element mediaLinkElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MediaLink");
-        mediaLinkElement.appendChild(requestDoc.createTextNode(parameters.getMediaLinkUri().toString()));
-        dataVirtualHardDiskElement.appendChild(mediaLinkElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
+        xmlSerializer.text(parameters.getMediaLinkUri().toString());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
         
         if (parameters.getSourceMediaLinkUri() != null) {
-            Element sourceMediaLinkElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SourceMediaLink");
-            sourceMediaLinkElement.appendChild(requestDoc.createTextNode(parameters.getSourceMediaLinkUri().toString()));
-            dataVirtualHardDiskElement.appendChild(sourceMediaLinkElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SourceMediaLink");
+            xmlSerializer.text(parameters.getSourceMediaLinkUri().toString());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SourceMediaLink");
         }
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -475,21 +458,17 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
     * Machine Disk operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return A virtual machine disk associated with your subscription.
     */
     @Override
-    public VirtualMachineDiskCreateResponse createDisk(VirtualMachineDiskCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException {
+    public VirtualMachineDiskCreateResponse createDisk(VirtualMachineDiskCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException {
         // Validate
         if (parameters == null) {
             throw new NullPointerException("parameters");
@@ -541,37 +520,33 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element diskElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Disk");
-        requestDoc.appendChild(diskElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Disk");
         
         if (parameters.getOperatingSystemType() != null) {
-            Element osElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OS");
-            osElement.appendChild(requestDoc.createTextNode(parameters.getOperatingSystemType()));
-            diskElement.appendChild(osElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OS");
+            xmlSerializer.text(parameters.getOperatingSystemType());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OS");
         }
         
-        Element labelElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Label");
-        labelElement.appendChild(requestDoc.createTextNode(parameters.getLabel()));
-        diskElement.appendChild(labelElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Label");
+        xmlSerializer.text(parameters.getLabel());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Label");
         
-        Element mediaLinkElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MediaLink");
-        mediaLinkElement.appendChild(requestDoc.createTextNode(parameters.getMediaLinkUri().toString()));
-        diskElement.appendChild(mediaLinkElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
+        xmlSerializer.text(parameters.getMediaLinkUri().toString());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
         
-        Element nameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-        nameElement.appendChild(requestDoc.createTextNode(parameters.getName()));
-        diskElement.appendChild(nameElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+        xmlSerializer.text(parameters.getName());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Disk");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -593,102 +568,173 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new VirtualMachineDiskCreateResponse();
-            DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory2.setNamespaceAware(true);
-            DocumentBuilder documentBuilder2 = documentBuilderFactory2.newDocumentBuilder();
-            Document responseDoc = documentBuilder2.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element diskElement2 = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "Disk");
-            if (diskElement2 != null) {
-                Element osElement2 = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "OS");
-                if (osElement2 != null) {
-                    String osInstance;
-                    osInstance = osElement2.getTextContent();
-                    result.setOperatingSystem(osInstance);
-                }
-                
-                Element labelElement2 = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "Label");
-                if (labelElement2 != null) {
-                    String labelInstance;
-                    labelInstance = labelElement2.getTextContent();
-                    result.setLabel(labelInstance);
-                }
-                
-                Element affinityGroupElement = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "AffinityGroup");
-                if (affinityGroupElement != null) {
-                    String affinityGroupInstance;
-                    affinityGroupInstance = affinityGroupElement.getTextContent();
-                    result.setAffinityGroup(affinityGroupInstance);
-                }
-                
-                Element locationElement = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "Location");
-                if (locationElement != null) {
-                    String locationInstance;
-                    locationInstance = locationElement.getTextContent();
-                    result.setLocation(locationInstance);
-                }
-                
-                Element logicalDiskSizeInGBElement = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
-                if (logicalDiskSizeInGBElement != null) {
-                    int logicalDiskSizeInGBInstance;
-                    logicalDiskSizeInGBInstance = DatatypeConverter.parseInt(logicalDiskSizeInGBElement.getTextContent());
-                    result.setLogicalSizeInGB(logicalDiskSizeInGBInstance);
-                }
-                
-                Element mediaLinkElement2 = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "MediaLink");
-                if (mediaLinkElement2 != null) {
-                    URI mediaLinkInstance;
-                    mediaLinkInstance = new URI(mediaLinkElement2.getTextContent());
-                    result.setMediaLinkUri(mediaLinkInstance);
-                }
-                
-                Element nameElement2 = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "Name");
-                if (nameElement2 != null) {
-                    String nameInstance;
-                    nameInstance = nameElement2.getTextContent();
-                    result.setName(nameInstance);
-                }
-                
-                Element sourceImageNameElement = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "SourceImageName");
-                if (sourceImageNameElement != null) {
-                    String sourceImageNameInstance;
-                    sourceImageNameInstance = sourceImageNameElement.getTextContent();
-                    result.setSourceImageName(sourceImageNameInstance);
-                }
-                
-                Element attachedToElement = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "AttachedTo");
-                if (attachedToElement != null) {
-                    VirtualMachineDiskCreateResponse.VirtualMachineDiskUsageDetails attachedToInstance = new VirtualMachineDiskCreateResponse.VirtualMachineDiskUsageDetails();
-                    result.setUsageDetails(attachedToInstance);
-                    
-                    Element hostedServiceNameElement = XmlUtility.getElementByTagNameNS(attachedToElement, "http://schemas.microsoft.com/windowsazure", "HostedServiceName");
-                    if (hostedServiceNameElement != null) {
-                        String hostedServiceNameInstance;
-                        hostedServiceNameInstance = hostedServiceNameElement.getTextContent();
-                        attachedToInstance.setHostedServiceName(hostedServiceNameInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "Disk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "Disk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "OS".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "OS".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String osInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    osInstance = xmlPullParser.getText();
+                                    result.setOperatingSystem(osInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String labelInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    labelInstance = xmlPullParser.getText();
+                                    result.setLabel(labelInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String affinityGroupInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    affinityGroupInstance = xmlPullParser.getText();
+                                    result.setAffinityGroup(affinityGroupInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String locationInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    locationInstance = xmlPullParser.getText();
+                                    result.setLocation(locationInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "LogicalDiskSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "LogicalDiskSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int logicalDiskSizeInGBInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    logicalDiskSizeInGBInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setLogicalSizeInGB(logicalDiskSizeInGBInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                URI mediaLinkInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    mediaLinkInstance = new URI(xmlPullParser.getText());
+                                    result.setMediaLinkUri(mediaLinkInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String nameInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    nameInstance = xmlPullParser.getText();
+                                    result.setName(nameInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "SourceImageName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "SourceImageName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String sourceImageNameInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    sourceImageNameInstance = xmlPullParser.getText();
+                                    result.setSourceImageName(sourceImageNameInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "AttachedTo".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "AttachedTo".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                VirtualMachineDiskCreateResponse.VirtualMachineDiskUsageDetails attachedToInstance = new VirtualMachineDiskCreateResponse.VirtualMachineDiskUsageDetails();
+                                result.setUsageDetails(attachedToInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "HostedServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "HostedServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String hostedServiceNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            hostedServiceNameInstance = xmlPullParser.getText();
+                                            attachedToInstance.setHostedServiceName(hostedServiceNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "DeploymentName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "DeploymentName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String deploymentNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            deploymentNameInstance = xmlPullParser.getText();
+                                            attachedToInstance.setDeploymentName(deploymentNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "RoleName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "RoleName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String roleNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            roleNameInstance = xmlPullParser.getText();
+                                            attachedToInstance.setRoleName(roleNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean isPremiumInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    isPremiumInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setIsPremium(isPremiumInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
                     }
-                    
-                    Element deploymentNameElement = XmlUtility.getElementByTagNameNS(attachedToElement, "http://schemas.microsoft.com/windowsazure", "DeploymentName");
-                    if (deploymentNameElement != null) {
-                        String deploymentNameInstance;
-                        deploymentNameInstance = deploymentNameElement.getTextContent();
-                        attachedToInstance.setDeploymentName(deploymentNameInstance);
-                    }
-                    
-                    Element roleNameElement = XmlUtility.getElementByTagNameNS(attachedToElement, "http://schemas.microsoft.com/windowsazure", "RoleName");
-                    if (roleNameElement != null) {
-                        String roleNameInstance;
-                        roleNameInstance = roleNameElement.getTextContent();
-                        attachedToInstance.setRoleName(roleNameInstance);
-                    }
                 }
                 
-                Element isPremiumElement = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "IsPremium");
-                if (isPremiumElement != null && (isPremiumElement.getTextContent() == null || isPremiumElement.getTextContent().isEmpty() == true) == false) {
-                    boolean isPremiumInstance;
-                    isPremiumInstance = DatatypeConverter.parseBoolean(isPremiumElement.getTextContent().toLowerCase());
-                    result.setIsPremium(isPremiumInstance);
-                }
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -898,7 +944,6 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("DELETE");
-        httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -971,16 +1016,14 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Get Data Disk operation response.
     */
     @Override
-    public VirtualMachineDataDiskGetResponse getDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
+    public VirtualMachineDataDiskGetResponse getDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -1021,7 +1064,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -1045,54 +1088,92 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new VirtualMachineDataDiskGetResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element dataVirtualHardDiskElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
-            if (dataVirtualHardDiskElement != null) {
-                Element hostCachingElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDiskElement, "http://schemas.microsoft.com/windowsazure", "HostCaching");
-                if (hostCachingElement != null) {
-                    String hostCachingInstance;
-                    hostCachingInstance = hostCachingElement.getTextContent();
-                    result.setHostCaching(hostCachingInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "DataVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "DataVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "HostCaching".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "HostCaching".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String hostCachingInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    hostCachingInstance = xmlPullParser.getText();
+                                    result.setHostCaching(hostCachingInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "DiskLabel".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "DiskLabel".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String diskLabelInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    diskLabelInstance = xmlPullParser.getText();
+                                    result.setLabel(diskLabelInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "DiskName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "DiskName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String diskNameInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    diskNameInstance = xmlPullParser.getText();
+                                    result.setName(diskNameInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Lun".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Lun".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int lunInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    lunInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setLogicalUnitNumber(lunInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "LogicalDiskSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "LogicalDiskSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int logicalDiskSizeInGBInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    logicalDiskSizeInGBInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setLogicalDiskSizeInGB(logicalDiskSizeInGBInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                URI mediaLinkInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    mediaLinkInstance = new URI(xmlPullParser.getText());
+                                    result.setMediaLinkUri(mediaLinkInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
                 
-                Element diskLabelElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDiskElement, "http://schemas.microsoft.com/windowsazure", "DiskLabel");
-                if (diskLabelElement != null) {
-                    String diskLabelInstance;
-                    diskLabelInstance = diskLabelElement.getTextContent();
-                    result.setLabel(diskLabelInstance);
-                }
-                
-                Element diskNameElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDiskElement, "http://schemas.microsoft.com/windowsazure", "DiskName");
-                if (diskNameElement != null) {
-                    String diskNameInstance;
-                    diskNameInstance = diskNameElement.getTextContent();
-                    result.setName(diskNameInstance);
-                }
-                
-                Element lunElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDiskElement, "http://schemas.microsoft.com/windowsazure", "Lun");
-                if (lunElement != null && (lunElement.getTextContent() == null || lunElement.getTextContent().isEmpty() == true) == false) {
-                    int lunInstance;
-                    lunInstance = DatatypeConverter.parseInt(lunElement.getTextContent());
-                    result.setLogicalUnitNumber(lunInstance);
-                }
-                
-                Element logicalDiskSizeInGBElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDiskElement, "http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
-                if (logicalDiskSizeInGBElement != null) {
-                    int logicalDiskSizeInGBInstance;
-                    logicalDiskSizeInGBInstance = DatatypeConverter.parseInt(logicalDiskSizeInGBElement.getTextContent());
-                    result.setLogicalDiskSizeInGB(logicalDiskSizeInGBInstance);
-                }
-                
-                Element mediaLinkElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDiskElement, "http://schemas.microsoft.com/windowsazure", "MediaLink");
-                if (mediaLinkElement != null) {
-                    URI mediaLinkInstance;
-                    mediaLinkInstance = new URI(mediaLinkElement.getTextContent());
-                    result.setMediaLinkUri(mediaLinkInstance);
-                }
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -1140,16 +1221,14 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return A virtual machine disk associated with your subscription.
     */
     @Override
-    public VirtualMachineDiskGetResponse getDisk(String name) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
+    public VirtualMachineDiskGetResponse getDisk(String name) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException {
         // Validate
         if (name == null) {
             throw new NullPointerException("name");
@@ -1181,7 +1260,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -1205,109 +1284,185 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new VirtualMachineDiskGetResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element diskElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "Disk");
-            if (diskElement != null) {
-                Element affinityGroupElement = XmlUtility.getElementByTagNameNS(diskElement, "http://schemas.microsoft.com/windowsazure", "AffinityGroup");
-                if (affinityGroupElement != null) {
-                    String affinityGroupInstance;
-                    affinityGroupInstance = affinityGroupElement.getTextContent();
-                    result.setAffinityGroup(affinityGroupInstance);
-                }
-                
-                Element locationElement = XmlUtility.getElementByTagNameNS(diskElement, "http://schemas.microsoft.com/windowsazure", "Location");
-                if (locationElement != null) {
-                    String locationInstance;
-                    locationInstance = locationElement.getTextContent();
-                    result.setLocation(locationInstance);
-                }
-                
-                Element labelElement = XmlUtility.getElementByTagNameNS(diskElement, "http://schemas.microsoft.com/windowsazure", "Label");
-                if (labelElement != null) {
-                    String labelInstance;
-                    labelInstance = labelElement.getTextContent();
-                    result.setLabel(labelInstance);
-                }
-                
-                Element logicalDiskSizeInGBElement = XmlUtility.getElementByTagNameNS(diskElement, "http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
-                if (logicalDiskSizeInGBElement != null) {
-                    int logicalDiskSizeInGBInstance;
-                    logicalDiskSizeInGBInstance = DatatypeConverter.parseInt(logicalDiskSizeInGBElement.getTextContent());
-                    result.setLogicalSizeInGB(logicalDiskSizeInGBInstance);
-                }
-                
-                Element mediaLinkElement = XmlUtility.getElementByTagNameNS(diskElement, "http://schemas.microsoft.com/windowsazure", "MediaLink");
-                if (mediaLinkElement != null) {
-                    URI mediaLinkInstance;
-                    mediaLinkInstance = new URI(mediaLinkElement.getTextContent());
-                    result.setMediaLinkUri(mediaLinkInstance);
-                }
-                
-                Element nameElement = XmlUtility.getElementByTagNameNS(diskElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                if (nameElement != null) {
-                    String nameInstance;
-                    nameInstance = nameElement.getTextContent();
-                    result.setName(nameInstance);
-                }
-                
-                Element osElement = XmlUtility.getElementByTagNameNS(diskElement, "http://schemas.microsoft.com/windowsazure", "OS");
-                if (osElement != null) {
-                    String osInstance;
-                    osInstance = osElement.getTextContent();
-                    result.setOperatingSystemType(osInstance);
-                }
-                
-                Element sourceImageNameElement = XmlUtility.getElementByTagNameNS(diskElement, "http://schemas.microsoft.com/windowsazure", "SourceImageName");
-                if (sourceImageNameElement != null) {
-                    String sourceImageNameInstance;
-                    sourceImageNameInstance = sourceImageNameElement.getTextContent();
-                    result.setSourceImageName(sourceImageNameInstance);
-                }
-                
-                Element attachedToElement = XmlUtility.getElementByTagNameNS(diskElement, "http://schemas.microsoft.com/windowsazure", "AttachedTo");
-                if (attachedToElement != null) {
-                    VirtualMachineDiskGetResponse.VirtualMachineDiskUsageDetails attachedToInstance = new VirtualMachineDiskGetResponse.VirtualMachineDiskUsageDetails();
-                    result.setUsageDetails(attachedToInstance);
-                    
-                    Element hostedServiceNameElement = XmlUtility.getElementByTagNameNS(attachedToElement, "http://schemas.microsoft.com/windowsazure", "HostedServiceName");
-                    if (hostedServiceNameElement != null) {
-                        String hostedServiceNameInstance;
-                        hostedServiceNameInstance = hostedServiceNameElement.getTextContent();
-                        attachedToInstance.setHostedServiceName(hostedServiceNameInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "Disk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "Disk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String affinityGroupInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    affinityGroupInstance = xmlPullParser.getText();
+                                    result.setAffinityGroup(affinityGroupInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String locationInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    locationInstance = xmlPullParser.getText();
+                                    result.setLocation(locationInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String labelInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    labelInstance = xmlPullParser.getText();
+                                    result.setLabel(labelInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "LogicalDiskSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "LogicalDiskSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int logicalDiskSizeInGBInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    logicalDiskSizeInGBInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setLogicalSizeInGB(logicalDiskSizeInGBInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                URI mediaLinkInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    mediaLinkInstance = new URI(xmlPullParser.getText());
+                                    result.setMediaLinkUri(mediaLinkInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String nameInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    nameInstance = xmlPullParser.getText();
+                                    result.setName(nameInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "OS".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "OS".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String osInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    osInstance = xmlPullParser.getText();
+                                    result.setOperatingSystemType(osInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "SourceImageName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "SourceImageName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String sourceImageNameInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    sourceImageNameInstance = xmlPullParser.getText();
+                                    result.setSourceImageName(sourceImageNameInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "AttachedTo".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "AttachedTo".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                VirtualMachineDiskGetResponse.VirtualMachineDiskUsageDetails attachedToInstance = new VirtualMachineDiskGetResponse.VirtualMachineDiskUsageDetails();
+                                result.setUsageDetails(attachedToInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "HostedServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "HostedServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String hostedServiceNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            hostedServiceNameInstance = xmlPullParser.getText();
+                                            attachedToInstance.setHostedServiceName(hostedServiceNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "DeploymentName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "DeploymentName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String deploymentNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            deploymentNameInstance = xmlPullParser.getText();
+                                            attachedToInstance.setDeploymentName(deploymentNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "RoleName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "RoleName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String roleNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            roleNameInstance = xmlPullParser.getText();
+                                            attachedToInstance.setRoleName(roleNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "IsCorrupted".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "IsCorrupted".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean isCorruptedInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    isCorruptedInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setIsCorrupted(isCorruptedInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean isPremiumInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    isPremiumInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setIsPremium(isPremiumInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
                     }
-                    
-                    Element deploymentNameElement = XmlUtility.getElementByTagNameNS(attachedToElement, "http://schemas.microsoft.com/windowsazure", "DeploymentName");
-                    if (deploymentNameElement != null) {
-                        String deploymentNameInstance;
-                        deploymentNameInstance = deploymentNameElement.getTextContent();
-                        attachedToInstance.setDeploymentName(deploymentNameInstance);
-                    }
-                    
-                    Element roleNameElement = XmlUtility.getElementByTagNameNS(attachedToElement, "http://schemas.microsoft.com/windowsazure", "RoleName");
-                    if (roleNameElement != null) {
-                        String roleNameInstance;
-                        roleNameInstance = roleNameElement.getTextContent();
-                        attachedToInstance.setRoleName(roleNameInstance);
-                    }
                 }
                 
-                Element isCorruptedElement = XmlUtility.getElementByTagNameNS(diskElement, "http://schemas.microsoft.com/windowsazure", "IsCorrupted");
-                if (isCorruptedElement != null && (isCorruptedElement.getTextContent() == null || isCorruptedElement.getTextContent().isEmpty() == true) == false) {
-                    boolean isCorruptedInstance;
-                    isCorruptedInstance = DatatypeConverter.parseBoolean(isCorruptedElement.getTextContent().toLowerCase());
-                    result.setIsCorrupted(isCorruptedInstance);
-                }
-                
-                Element isPremiumElement = XmlUtility.getElementByTagNameNS(diskElement, "http://schemas.microsoft.com/windowsazure", "IsPremium");
-                if (isPremiumElement != null && (isPremiumElement.getTextContent() == null || isPremiumElement.getTextContent().isEmpty() == true) == false) {
-                    boolean isPremiumInstance;
-                    isPremiumInstance = DatatypeConverter.parseBoolean(isPremiumElement.getTextContent().toLowerCase());
-                    result.setIsPremium(isPremiumInstance);
-                }
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -1353,16 +1508,14 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The List Disks operation response.
     */
     @Override
-    public VirtualMachineDiskListResponse listDisks() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
+    public VirtualMachineDiskListResponse listDisks() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException {
         // Validate
         
         // Tracing
@@ -1390,7 +1543,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -1414,115 +1567,192 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new VirtualMachineDiskListResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element disksSequenceElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "Disks");
-            if (disksSequenceElement != null) {
-                for (int i1 = 0; i1 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(disksSequenceElement, "http://schemas.microsoft.com/windowsazure", "Disk").size(); i1 = i1 + 1) {
-                    org.w3c.dom.Element disksElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(disksSequenceElement, "http://schemas.microsoft.com/windowsazure", "Disk").get(i1));
-                    VirtualMachineDiskListResponse.VirtualMachineDisk diskInstance = new VirtualMachineDiskListResponse.VirtualMachineDisk();
-                    result.getDisks().add(diskInstance);
-                    
-                    Element affinityGroupElement = XmlUtility.getElementByTagNameNS(disksElement, "http://schemas.microsoft.com/windowsazure", "AffinityGroup");
-                    if (affinityGroupElement != null) {
-                        String affinityGroupInstance;
-                        affinityGroupInstance = affinityGroupElement.getTextContent();
-                        diskInstance.setAffinityGroup(affinityGroupInstance);
-                    }
-                    
-                    Element locationElement = XmlUtility.getElementByTagNameNS(disksElement, "http://schemas.microsoft.com/windowsazure", "Location");
-                    if (locationElement != null) {
-                        String locationInstance;
-                        locationInstance = locationElement.getTextContent();
-                        diskInstance.setLocation(locationInstance);
-                    }
-                    
-                    Element labelElement = XmlUtility.getElementByTagNameNS(disksElement, "http://schemas.microsoft.com/windowsazure", "Label");
-                    if (labelElement != null) {
-                        String labelInstance;
-                        labelInstance = labelElement.getTextContent();
-                        diskInstance.setLabel(labelInstance);
-                    }
-                    
-                    Element logicalDiskSizeInGBElement = XmlUtility.getElementByTagNameNS(disksElement, "http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
-                    if (logicalDiskSizeInGBElement != null) {
-                        int logicalDiskSizeInGBInstance;
-                        logicalDiskSizeInGBInstance = DatatypeConverter.parseInt(logicalDiskSizeInGBElement.getTextContent());
-                        diskInstance.setLogicalSizeInGB(logicalDiskSizeInGBInstance);
-                    }
-                    
-                    Element mediaLinkElement = XmlUtility.getElementByTagNameNS(disksElement, "http://schemas.microsoft.com/windowsazure", "MediaLink");
-                    if (mediaLinkElement != null) {
-                        URI mediaLinkInstance;
-                        mediaLinkInstance = new URI(mediaLinkElement.getTextContent());
-                        diskInstance.setMediaLinkUri(mediaLinkInstance);
-                    }
-                    
-                    Element nameElement = XmlUtility.getElementByTagNameNS(disksElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                    if (nameElement != null) {
-                        String nameInstance;
-                        nameInstance = nameElement.getTextContent();
-                        diskInstance.setName(nameInstance);
-                    }
-                    
-                    Element osElement = XmlUtility.getElementByTagNameNS(disksElement, "http://schemas.microsoft.com/windowsazure", "OS");
-                    if (osElement != null) {
-                        String osInstance;
-                        osInstance = osElement.getTextContent();
-                        diskInstance.setOperatingSystemType(osInstance);
-                    }
-                    
-                    Element sourceImageNameElement = XmlUtility.getElementByTagNameNS(disksElement, "http://schemas.microsoft.com/windowsazure", "SourceImageName");
-                    if (sourceImageNameElement != null) {
-                        String sourceImageNameInstance;
-                        sourceImageNameInstance = sourceImageNameElement.getTextContent();
-                        diskInstance.setSourceImageName(sourceImageNameInstance);
-                    }
-                    
-                    Element attachedToElement = XmlUtility.getElementByTagNameNS(disksElement, "http://schemas.microsoft.com/windowsazure", "AttachedTo");
-                    if (attachedToElement != null) {
-                        VirtualMachineDiskListResponse.VirtualMachineDiskUsageDetails attachedToInstance = new VirtualMachineDiskListResponse.VirtualMachineDiskUsageDetails();
-                        diskInstance.setUsageDetails(attachedToInstance);
-                        
-                        Element hostedServiceNameElement = XmlUtility.getElementByTagNameNS(attachedToElement, "http://schemas.microsoft.com/windowsazure", "HostedServiceName");
-                        if (hostedServiceNameElement != null) {
-                            String hostedServiceNameInstance;
-                            hostedServiceNameInstance = hostedServiceNameElement.getTextContent();
-                            attachedToInstance.setHostedServiceName(hostedServiceNameInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "Disks".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "Disks".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "Disk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            VirtualMachineDiskListResponse.VirtualMachineDisk diskInstance = new VirtualMachineDiskListResponse.VirtualMachineDisk();
+                            result.getDisks().add(diskInstance);
+                            
+                            if (eventType == XmlPullParser.START_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String affinityGroupInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        affinityGroupInstance = xmlPullParser.getText();
+                                        diskInstance.setAffinityGroup(affinityGroupInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String locationInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        locationInstance = xmlPullParser.getText();
+                                        diskInstance.setLocation(locationInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String labelInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        labelInstance = xmlPullParser.getText();
+                                        diskInstance.setLabel(labelInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "LogicalDiskSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "LogicalDiskSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    int logicalDiskSizeInGBInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        logicalDiskSizeInGBInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                        diskInstance.setLogicalSizeInGB(logicalDiskSizeInGBInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    URI mediaLinkInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        mediaLinkInstance = new URI(xmlPullParser.getText());
+                                        diskInstance.setMediaLinkUri(mediaLinkInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String nameInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        nameInstance = xmlPullParser.getText();
+                                        diskInstance.setName(nameInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "OS".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "OS".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String osInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        osInstance = xmlPullParser.getText();
+                                        diskInstance.setOperatingSystemType(osInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "SourceImageName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "SourceImageName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String sourceImageNameInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        sourceImageNameInstance = xmlPullParser.getText();
+                                        diskInstance.setSourceImageName(sourceImageNameInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "AttachedTo".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "AttachedTo".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    VirtualMachineDiskListResponse.VirtualMachineDiskUsageDetails attachedToInstance = new VirtualMachineDiskListResponse.VirtualMachineDiskUsageDetails();
+                                    diskInstance.setUsageDetails(attachedToInstance);
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "HostedServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "HostedServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String hostedServiceNameInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                hostedServiceNameInstance = xmlPullParser.getText();
+                                                attachedToInstance.setHostedServiceName(hostedServiceNameInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "DeploymentName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "DeploymentName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String deploymentNameInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                deploymentNameInstance = xmlPullParser.getText();
+                                                attachedToInstance.setDeploymentName(deploymentNameInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "RoleName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "RoleName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String roleNameInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                roleNameInstance = xmlPullParser.getText();
+                                                attachedToInstance.setRoleName(roleNameInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "IsCorrupted".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "IsCorrupted".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    boolean isCorruptedInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        isCorruptedInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                        diskInstance.setIsCorrupted(isCorruptedInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    boolean isPremiumInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        isPremiumInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                        diskInstance.setIsPremium(isPremiumInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            eventType = xmlPullParser.next();
                         }
                         
-                        Element deploymentNameElement = XmlUtility.getElementByTagNameNS(attachedToElement, "http://schemas.microsoft.com/windowsazure", "DeploymentName");
-                        if (deploymentNameElement != null) {
-                            String deploymentNameInstance;
-                            deploymentNameInstance = deploymentNameElement.getTextContent();
-                            attachedToInstance.setDeploymentName(deploymentNameInstance);
-                        }
-                        
-                        Element roleNameElement = XmlUtility.getElementByTagNameNS(attachedToElement, "http://schemas.microsoft.com/windowsazure", "RoleName");
-                        if (roleNameElement != null) {
-                            String roleNameInstance;
-                            roleNameInstance = roleNameElement.getTextContent();
-                            attachedToInstance.setRoleName(roleNameInstance);
-                        }
-                    }
-                    
-                    Element isCorruptedElement = XmlUtility.getElementByTagNameNS(disksElement, "http://schemas.microsoft.com/windowsazure", "IsCorrupted");
-                    if (isCorruptedElement != null && (isCorruptedElement.getTextContent() == null || isCorruptedElement.getTextContent().isEmpty() == true) == false) {
-                        boolean isCorruptedInstance;
-                        isCorruptedInstance = DatatypeConverter.parseBoolean(isCorruptedElement.getTextContent().toLowerCase());
-                        diskInstance.setIsCorrupted(isCorruptedInstance);
-                    }
-                    
-                    Element isPremiumElement = XmlUtility.getElementByTagNameNS(disksElement, "http://schemas.microsoft.com/windowsazure", "IsPremium");
-                    if (isPremiumElement != null && (isPremiumElement.getTextContent() == null || isPremiumElement.getTextContent().isEmpty() == true) == false) {
-                        boolean isPremiumInstance;
-                        isPremiumInstance = DatatypeConverter.parseBoolean(isPremiumElement.getTextContent().toLowerCase());
-                        diskInstance.setIsPremium(isPremiumInstance);
+                        eventType = xmlPullParser.next();
                     }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -1578,12 +1808,6 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
     * Machine Data Disk operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -1591,7 +1815,7 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
     * request ID.
     */
     @Override
-    public OperationResponse updateDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber, VirtualMachineDataDiskUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public OperationResponse updateDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber, VirtualMachineDataDiskUpdateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -1653,49 +1877,45 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element dataVirtualHardDiskElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
-        requestDoc.appendChild(dataVirtualHardDiskElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
         
-        Element hostCachingElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-        hostCachingElement.appendChild(requestDoc.createTextNode(parameters.getHostCaching()));
-        dataVirtualHardDiskElement.appendChild(hostCachingElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
+        xmlSerializer.text(parameters.getHostCaching());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
         
         if (parameters.getLabel() != null) {
-            Element diskLabelElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskLabel");
-            diskLabelElement.appendChild(requestDoc.createTextNode(parameters.getLabel()));
-            dataVirtualHardDiskElement.appendChild(diskLabelElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
+            xmlSerializer.text(parameters.getLabel());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
         }
         
         if (parameters.getName() != null) {
-            Element diskNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskName");
-            diskNameElement.appendChild(requestDoc.createTextNode(parameters.getName()));
-            dataVirtualHardDiskElement.appendChild(diskNameElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskName");
+            xmlSerializer.text(parameters.getName());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskName");
         }
         
         if (parameters.getLogicalUnitNumber() != null) {
-            Element lunElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Lun");
-            lunElement.appendChild(requestDoc.createTextNode(Integer.toString(parameters.getLogicalUnitNumber())));
-            dataVirtualHardDiskElement.appendChild(lunElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Lun");
+            xmlSerializer.text(Integer.toString(parameters.getLogicalUnitNumber()));
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Lun");
         }
         
-        Element logicalDiskSizeInGBElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
-        logicalDiskSizeInGBElement.appendChild(requestDoc.createTextNode(Integer.toString(parameters.getLogicalDiskSizeInGB())));
-        dataVirtualHardDiskElement.appendChild(logicalDiskSizeInGBElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
+        xmlSerializer.text(Integer.toString(parameters.getLogicalDiskSizeInGB()));
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
         
-        Element mediaLinkElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MediaLink");
-        mediaLinkElement.appendChild(requestDoc.createTextNode(parameters.getMediaLinkUri().toString()));
-        dataVirtualHardDiskElement.appendChild(mediaLinkElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
+        xmlSerializer.text(parameters.getMediaLinkUri().toString());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -1761,21 +1981,17 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
     * Machine Disk operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return A virtual machine disk associated with your subscription.
     */
     @Override
-    public VirtualMachineDiskUpdateResponse updateDisk(String name, VirtualMachineDiskUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException {
+    public VirtualMachineDiskUpdateResponse updateDisk(String name, VirtualMachineDiskUpdateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException {
         // Validate
         if (name == null) {
             throw new NullPointerException("name");
@@ -1828,45 +2044,41 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element diskElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Disk");
-        requestDoc.appendChild(diskElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Disk");
         
         if (parameters.isHasOperatingSystem() != null) {
-            Element hasOperatingSystemElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HasOperatingSystem");
-            hasOperatingSystemElement.appendChild(requestDoc.createTextNode(Boolean.toString(parameters.isHasOperatingSystem()).toLowerCase()));
-            diskElement.appendChild(hasOperatingSystemElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "HasOperatingSystem");
+            xmlSerializer.text(Boolean.toString(parameters.isHasOperatingSystem()).toLowerCase());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "HasOperatingSystem");
         }
         
         if (parameters.getOperatingSystemType() != null) {
-            Element osElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OS");
-            osElement.appendChild(requestDoc.createTextNode(parameters.getOperatingSystemType()));
-            diskElement.appendChild(osElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OS");
+            xmlSerializer.text(parameters.getOperatingSystemType());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OS");
         }
         
-        Element labelElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Label");
-        labelElement.appendChild(requestDoc.createTextNode(parameters.getLabel()));
-        diskElement.appendChild(labelElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Label");
+        xmlSerializer.text(parameters.getLabel());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Label");
         
         if (parameters.getMediaLinkUri() != null) {
-            Element mediaLinkElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MediaLink");
-            mediaLinkElement.appendChild(requestDoc.createTextNode(parameters.getMediaLinkUri().toString()));
-            diskElement.appendChild(mediaLinkElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
+            xmlSerializer.text(parameters.getMediaLinkUri().toString());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
         }
         
-        Element nameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-        nameElement.appendChild(requestDoc.createTextNode(parameters.getName()));
-        diskElement.appendChild(nameElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+        xmlSerializer.text(parameters.getName());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Disk");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -1888,68 +2100,116 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new VirtualMachineDiskUpdateResponse();
-            DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory2.setNamespaceAware(true);
-            DocumentBuilder documentBuilder2 = documentBuilderFactory2.newDocumentBuilder();
-            Document responseDoc = documentBuilder2.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element diskElement2 = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "Disk");
-            if (diskElement2 != null) {
-                Element osElement2 = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "OS");
-                if (osElement2 != null) {
-                    String osInstance;
-                    osInstance = osElement2.getTextContent();
-                    result.setOperatingSystem(osInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "Disk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "Disk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "OS".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "OS".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String osInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    osInstance = xmlPullParser.getText();
+                                    result.setOperatingSystem(osInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String labelInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    labelInstance = xmlPullParser.getText();
+                                    result.setLabel(labelInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String affinityGroupInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    affinityGroupInstance = xmlPullParser.getText();
+                                    result.setAffinityGroup(affinityGroupInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String locationInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    locationInstance = xmlPullParser.getText();
+                                    result.setLocation(locationInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "LogicalDiskSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "LogicalDiskSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int logicalDiskSizeInGBInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    logicalDiskSizeInGBInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setLogicalSizeInGB(logicalDiskSizeInGBInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                URI mediaLinkInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    mediaLinkInstance = new URI(xmlPullParser.getText());
+                                    result.setMediaLinkUri(mediaLinkInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String nameInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    nameInstance = xmlPullParser.getText();
+                                    result.setName(nameInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean isPremiumInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    isPremiumInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setIsPremium(isPremiumInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
                 
-                Element labelElement2 = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "Label");
-                if (labelElement2 != null) {
-                    String labelInstance;
-                    labelInstance = labelElement2.getTextContent();
-                    result.setLabel(labelInstance);
-                }
-                
-                Element affinityGroupElement = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "AffinityGroup");
-                if (affinityGroupElement != null) {
-                    String affinityGroupInstance;
-                    affinityGroupInstance = affinityGroupElement.getTextContent();
-                    result.setAffinityGroup(affinityGroupInstance);
-                }
-                
-                Element locationElement = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "Location");
-                if (locationElement != null) {
-                    String locationInstance;
-                    locationInstance = locationElement.getTextContent();
-                    result.setLocation(locationInstance);
-                }
-                
-                Element logicalDiskSizeInGBElement = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
-                if (logicalDiskSizeInGBElement != null) {
-                    int logicalDiskSizeInGBInstance;
-                    logicalDiskSizeInGBInstance = DatatypeConverter.parseInt(logicalDiskSizeInGBElement.getTextContent());
-                    result.setLogicalSizeInGB(logicalDiskSizeInGBInstance);
-                }
-                
-                Element mediaLinkElement2 = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "MediaLink");
-                if (mediaLinkElement2 != null) {
-                    URI mediaLinkInstance;
-                    mediaLinkInstance = new URI(mediaLinkElement2.getTextContent());
-                    result.setMediaLinkUri(mediaLinkInstance);
-                }
-                
-                Element nameElement2 = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "Name");
-                if (nameElement2 != null) {
-                    String nameInstance;
-                    nameInstance = nameElement2.getTextContent();
-                    result.setName(nameInstance);
-                }
-                
-                Element isPremiumElement = XmlUtility.getElementByTagNameNS(diskElement2, "http://schemas.microsoft.com/windowsazure", "IsPremium");
-                if (isPremiumElement != null && (isPremiumElement.getTextContent() == null || isPremiumElement.getTextContent().isEmpty() == true) == false) {
-                    boolean isPremiumInstance;
-                    isPremiumInstance = DatatypeConverter.parseBoolean(isPremiumElement.getTextContent().toLowerCase());
-                    result.setIsPremium(isPremiumInstance);
-                }
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);

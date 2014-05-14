@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.compute;
 
+import android.util.Xml;
 import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.OperationStatus;
@@ -30,7 +31,6 @@ import com.microsoft.windowsazure.core.OperationStatusResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.Base64;
-import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.compute.models.ServiceCertificateCreateParameters;
 import com.microsoft.windowsazure.management.compute.models.ServiceCertificateDeleteParameters;
@@ -41,6 +41,7 @@ import com.microsoft.windowsazure.tracing.ClientRequestTrackingHandler;
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -52,17 +53,10 @@ import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+import org.xmlpull.v1.XmlSerializer;
 
 /**
 * Operations for managing service certificates for your subscription.  (see
@@ -127,12 +121,6 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
     * Service Certificate operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -140,7 +128,7 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
     * request ID.
     */
     @Override
-    public OperationResponse beginCreating(String serviceName, ServiceCertificateCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public OperationResponse beginCreating(String serviceName, ServiceCertificateCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -191,33 +179,29 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element certificateFileElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CertificateFile");
-        requestDoc.appendChild(certificateFileElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CertificateFile");
         
-        Element dataElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Data");
-        dataElement.appendChild(requestDoc.createTextNode(Base64.encode(parameters.getData())));
-        certificateFileElement.appendChild(dataElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Data");
+        xmlSerializer.text(Base64.encode(parameters.getData()));
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Data");
         
-        Element certificateFormatElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CertificateFormat");
-        certificateFormatElement.appendChild(requestDoc.createTextNode(ComputeManagementClientImpl.certificateFormatToString(parameters.getCertificateFormat())));
-        certificateFileElement.appendChild(certificateFormatElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CertificateFormat");
+        xmlSerializer.text(ComputeManagementClientImpl.certificateFormatToString(parameters.getCertificateFormat()));
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CertificateFormat");
         
         if (parameters.getPassword() != null) {
-            Element passwordElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Password");
-            passwordElement.appendChild(requestDoc.createTextNode(parameters.getPassword()));
-            certificateFileElement.appendChild(passwordElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Password");
+            xmlSerializer.text(parameters.getPassword());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Password");
         }
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CertificateFile");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -337,7 +321,6 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("DELETE");
-        httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -426,15 +409,11 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
     * request.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The response body contains the status of the specified
@@ -447,7 +426,7 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse create(String serviceName, ServiceCertificateCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, IOException, URISyntaxException {
+    public OperationStatusResponse create(String serviceName, ServiceCertificateCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -641,16 +620,14 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Get Service Certificate operation response.
     */
     @Override
-    public ServiceCertificateGetResponse get(ServiceCertificateGetParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
+    public ServiceCertificateGetResponse get(ServiceCertificateGetParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException {
         // Validate
         if (parameters == null) {
             throw new NullPointerException("parameters");
@@ -692,7 +669,7 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -716,19 +693,32 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new ServiceCertificateGetResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element certificateElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "Certificate");
-            if (certificateElement != null) {
-                Element dataElement = XmlUtility.getElementByTagNameNS(certificateElement, "http://schemas.microsoft.com/windowsazure", "Data");
-                if (dataElement != null) {
-                    byte[] dataInstance;
-                    dataInstance = dataElement.getTextContent() != null ? Base64.decode(dataElement.getTextContent()) : null;
-                    result.setData(dataInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "Certificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "Certificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                byte[] dataInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    dataInstance = xmlPullParser.getText() != null ? Base64.decode(xmlPullParser.getText()) : null;
+                                    result.setData(dataInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -776,16 +766,14 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The List Service Certificates operation response.
     */
     @Override
-    public ServiceCertificateListResponse list(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
+    public ServiceCertificateListResponse list(String serviceName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -818,7 +806,7 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -842,46 +830,75 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new ServiceCertificateListResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element certificatesSequenceElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "Certificates");
-            if (certificatesSequenceElement != null) {
-                for (int i1 = 0; i1 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(certificatesSequenceElement, "http://schemas.microsoft.com/windowsazure", "Certificate").size(); i1 = i1 + 1) {
-                    org.w3c.dom.Element certificatesElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(certificatesSequenceElement, "http://schemas.microsoft.com/windowsazure", "Certificate").get(i1));
-                    ServiceCertificateListResponse.Certificate certificateInstance = new ServiceCertificateListResponse.Certificate();
-                    result.getCertificates().add(certificateInstance);
-                    
-                    Element certificateUrlElement = XmlUtility.getElementByTagNameNS(certificatesElement, "http://schemas.microsoft.com/windowsazure", "CertificateUrl");
-                    if (certificateUrlElement != null) {
-                        URI certificateUrlInstance;
-                        certificateUrlInstance = new URI(certificateUrlElement.getTextContent());
-                        certificateInstance.setCertificateUri(certificateUrlInstance);
-                    }
-                    
-                    Element thumbprintElement = XmlUtility.getElementByTagNameNS(certificatesElement, "http://schemas.microsoft.com/windowsazure", "Thumbprint");
-                    if (thumbprintElement != null) {
-                        String thumbprintInstance;
-                        thumbprintInstance = thumbprintElement.getTextContent();
-                        certificateInstance.setThumbprint(thumbprintInstance);
-                    }
-                    
-                    Element thumbprintAlgorithmElement = XmlUtility.getElementByTagNameNS(certificatesElement, "http://schemas.microsoft.com/windowsazure", "ThumbprintAlgorithm");
-                    if (thumbprintAlgorithmElement != null) {
-                        String thumbprintAlgorithmInstance;
-                        thumbprintAlgorithmInstance = thumbprintAlgorithmElement.getTextContent();
-                        certificateInstance.setThumbprintAlgorithm(thumbprintAlgorithmInstance);
-                    }
-                    
-                    Element dataElement = XmlUtility.getElementByTagNameNS(certificatesElement, "http://schemas.microsoft.com/windowsazure", "Data");
-                    if (dataElement != null) {
-                        byte[] dataInstance;
-                        dataInstance = dataElement.getTextContent() != null ? Base64.decode(dataElement.getTextContent()) : null;
-                        certificateInstance.setData(dataInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "Certificates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "Certificates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "Certificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            ServiceCertificateListResponse.Certificate certificateInstance = new ServiceCertificateListResponse.Certificate();
+                            result.getCertificates().add(certificateInstance);
+                            
+                            if (eventType == XmlPullParser.START_TAG && "CertificateUrl".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "CertificateUrl".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    URI certificateUrlInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        certificateUrlInstance = new URI(xmlPullParser.getText());
+                                        certificateInstance.setCertificateUri(certificateUrlInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Thumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Thumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String thumbprintInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        thumbprintInstance = xmlPullParser.getText();
+                                        certificateInstance.setThumbprint(thumbprintInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "ThumbprintAlgorithm".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "ThumbprintAlgorithm".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String thumbprintAlgorithmInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        thumbprintAlgorithmInstance = xmlPullParser.getText();
+                                        certificateInstance.setThumbprintAlgorithm(thumbprintAlgorithmInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    byte[] dataInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        dataInstance = xmlPullParser.getText() != null ? Base64.decode(xmlPullParser.getText()) : null;
+                                        certificateInstance.setData(dataInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            eventType = xmlPullParser.next();
+                        }
+                        
+                        eventType = xmlPullParser.next();
                     }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);

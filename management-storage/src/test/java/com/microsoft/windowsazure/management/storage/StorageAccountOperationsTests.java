@@ -24,11 +24,13 @@ import javax.xml.parsers.ParserConfigurationException;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.storage.models.*;
+
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 public class StorageAccountOperationsTests extends StorageManagementIntegrationTestBase {
     //lower case only for storage account name, this is existed storage account with vhd-store container, 
@@ -49,8 +51,7 @@ public class StorageAccountOperationsTests extends StorageManagementIntegrationT
             storageServiceListResponse = storageManagementClient.getStorageAccountsOperations().list();
         } catch (IOException e) {
         } catch (ServiceException e) {
-        } catch (ParserConfigurationException e) {
-        } catch (SAXException e) {
+        } catch (XmlPullParserException e) {
         } catch (URISyntaxException e) {
         }
 

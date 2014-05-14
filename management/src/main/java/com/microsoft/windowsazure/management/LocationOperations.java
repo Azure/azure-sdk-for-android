@@ -29,8 +29,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.util.concurrent.Future;
-import javax.xml.parsers.ParserConfigurationException;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
 * The Service Management API includes operations for listing the available data
@@ -50,13 +49,11 @@ public interface LocationOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The List Locations operation response.
     */
-    LocationsListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    LocationsListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The List Locations operation lists all of the data center locations that

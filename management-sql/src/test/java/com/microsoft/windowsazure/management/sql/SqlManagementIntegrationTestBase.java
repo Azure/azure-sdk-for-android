@@ -40,6 +40,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import com.microsoft.windowsazure.core.utils.KeyStoreType;
 import com.microsoft.windowsazure.exception.ServiceException;
@@ -86,7 +87,7 @@ public abstract class SqlManagementIntegrationTestBase {
         return storageAccount;
      }
     
-    protected static String getStorageKey(String storageAccountName) throws IOException, ServiceException, ParserConfigurationException, SAXException, URISyntaxException {
+    protected static String getStorageKey(String storageAccountName) throws IOException, ServiceException, ParserConfigurationException, SAXException, XmlPullParserException, URISyntaxException {
         StorageAccountGetKeysResponse storageAccountGetKeyResponse = storageManagementClient.getStorageAccountsOperations().getKeys(storageAccountName);
         return storageAccountGetKeyResponse.getPrimaryKey();
     }

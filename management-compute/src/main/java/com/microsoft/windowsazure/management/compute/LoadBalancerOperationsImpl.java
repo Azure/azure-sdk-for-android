@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.compute;
 
+import android.util.Xml;
 import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.OperationStatus;
@@ -43,17 +44,8 @@ import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlSerializer;
 
 /**
 * The Compute Management API includes operations for managing the load
@@ -121,12 +113,6 @@ public class LoadBalancerOperationsImpl implements ServiceOperations<ComputeMana
     * Balancer operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -140,7 +126,7 @@ public class LoadBalancerOperationsImpl implements ServiceOperations<ComputeMana
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse beginCreating(String serviceName, String deploymentName, LoadBalancerCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public OperationStatusResponse beginCreating(String serviceName, String deploymentName, LoadBalancerCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -191,48 +177,44 @@ public class LoadBalancerOperationsImpl implements ServiceOperations<ComputeMana
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element loadBalancerElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancer");
-        requestDoc.appendChild(loadBalancerElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancer");
         
         if (parameters.getName() != null) {
-            Element nameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-            nameElement.appendChild(requestDoc.createTextNode(parameters.getName()));
-            loadBalancerElement.appendChild(nameElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+            xmlSerializer.text(parameters.getName());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
         }
         
         if (parameters.getFrontendIPConfiguration() != null) {
-            Element frontendIpConfigurationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "FrontendIpConfiguration");
-            loadBalancerElement.appendChild(frontendIpConfigurationElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "FrontendIpConfiguration");
             
             if (parameters.getFrontendIPConfiguration().getType() != null) {
-                Element typeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Type");
-                typeElement.appendChild(requestDoc.createTextNode(parameters.getFrontendIPConfiguration().getType()));
-                frontendIpConfigurationElement.appendChild(typeElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Type");
+                xmlSerializer.text(parameters.getFrontendIPConfiguration().getType());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Type");
             }
             
             if (parameters.getFrontendIPConfiguration().getSubnetName() != null) {
-                Element subnetNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SubnetName");
-                subnetNameElement.appendChild(requestDoc.createTextNode(parameters.getFrontendIPConfiguration().getSubnetName()));
-                frontendIpConfigurationElement.appendChild(subnetNameElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SubnetName");
+                xmlSerializer.text(parameters.getFrontendIPConfiguration().getSubnetName());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SubnetName");
             }
             
             if (parameters.getFrontendIPConfiguration().getStaticVirtualNetworkIPAddress() != null) {
-                Element staticVirtualNetworkIPAddressElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
-                staticVirtualNetworkIPAddressElement.appendChild(requestDoc.createTextNode(parameters.getFrontendIPConfiguration().getStaticVirtualNetworkIPAddress().getHostAddress()));
-                frontendIpConfigurationElement.appendChild(staticVirtualNetworkIPAddressElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
+                xmlSerializer.text(parameters.getFrontendIPConfiguration().getStaticVirtualNetworkIPAddress().getHostAddress());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
             }
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "FrontendIpConfiguration");
         }
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancer");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -352,7 +334,6 @@ public class LoadBalancerOperationsImpl implements ServiceOperations<ComputeMana
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("DELETE");
-        httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -439,15 +420,11 @@ public class LoadBalancerOperationsImpl implements ServiceOperations<ComputeMana
     * request.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The response body contains the status of the specified
@@ -460,7 +437,7 @@ public class LoadBalancerOperationsImpl implements ServiceOperations<ComputeMana
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse create(String serviceName, String deploymentName, LoadBalancerCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, IOException, URISyntaxException {
+    public OperationStatusResponse create(String serviceName, String deploymentName, LoadBalancerCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;

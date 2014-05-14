@@ -42,9 +42,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
 * The Network Management API includes operations for managing the gateways for
@@ -68,19 +66,15 @@ public interface GatewayOperations {
     * Disconnect Or Testing Gateway operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse beginConnectDisconnectOrTesting(String networkName, String localNetworkSiteName, GatewayConnectDisconnectOrTestParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    GatewayOperationResponse beginConnectDisconnectOrTesting(String networkName, String localNetworkSiteName, GatewayConnectDisconnectOrTestParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * To connect to, disconnect from, or test your connection to a local
@@ -112,19 +106,15 @@ public interface GatewayOperations {
     * Virtual Network Gateway operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse beginCreating(String networkName, GatewayCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    GatewayOperationResponse beginCreating(String networkName, GatewayCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The Begin Creating Virtual network Gateway operation creates a new
@@ -153,14 +143,12 @@ public interface GatewayOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse beginDeleting(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    GatewayOperationResponse beginDeleting(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The Begin Deleting Virtual Network Gateway operation deletes a network
@@ -186,14 +174,12 @@ public interface GatewayOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse beginFailover(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    GatewayOperationResponse beginFailover(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The Begin Failover Virtual Network Gateway operation causes a network
@@ -221,19 +207,15 @@ public interface GatewayOperations {
     * Network Gateway Reset Shared Key request.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse beginResetSharedKey(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    GatewayOperationResponse beginResetSharedKey(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The Begin Reset Virtual Network Gateway Shared Key operation resets the
@@ -266,19 +248,15 @@ public interface GatewayOperations {
     * Network Gateway Set Shared Key request.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse beginSetSharedKey(String networkName, String localNetworkName, GatewaySetSharedKeyParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    GatewayOperationResponse beginSetSharedKey(String networkName, String localNetworkName, GatewaySetSharedKeyParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The Begin Set Virtual Network Gateway Shared Key operation sets the
@@ -372,10 +350,8 @@ public interface GatewayOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -396,7 +372,7 @@ public interface GatewayOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    GatewayGetOperationStatusResponse create(String networkName, GatewayCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
+    GatewayGetOperationStatusResponse create(String networkName, GatewayCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, InterruptedException, ExecutionException;
     
     /**
     * The Create Virtual network Gateway operation creates a new network
@@ -432,10 +408,8 @@ public interface GatewayOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -456,7 +430,7 @@ public interface GatewayOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    GatewayGetOperationStatusResponse delete(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
+    GatewayGetOperationStatusResponse delete(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, InterruptedException, ExecutionException;
     
     /**
     * The Delete Virtual Network Gateway operation deletes a network gateway
@@ -537,19 +511,15 @@ public interface GatewayOperations {
     * Client Package operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    GatewayOperationResponse generateVpnClientPackage(String networkName, GatewayGenerateVpnClientPackageParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    GatewayOperationResponse generateVpnClientPackage(String networkName, GatewayGenerateVpnClientPackageParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The Generate VPN Client Package operation creates a VPN client package
@@ -579,14 +549,12 @@ public interface GatewayOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    GatewayGetResponse get(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    GatewayGetResponse get(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The Get Virtual Network Gateway operation gets information about the
@@ -648,10 +616,8 @@ public interface GatewayOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is in
     * progress, or has failed. Note that this status is distinct from the HTTP
@@ -662,7 +628,7 @@ public interface GatewayOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    GatewayGetOperationStatusResponse getOperationStatus(String operationId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    GatewayGetOperationStatusResponse getOperationStatus(String operationId) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The Get Virtual Network Gateway Operation Status gets information on the
@@ -698,13 +664,11 @@ public interface GatewayOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response to the get shared key request.
     */
-    GatewayGetSharedKeyResponse getSharedKey(String networkName, String localNetworkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    GatewayGetSharedKeyResponse getSharedKey(String networkName, String localNetworkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The Get Virtual Network Gateway Shared Key operation gets the shared key
@@ -733,14 +697,12 @@ public interface GatewayOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response to a ListConnections request to a Virtual Network
     * Gateway.
     */
-    GatewayListConnectionsResponse listConnections(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    GatewayListConnectionsResponse listConnections(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The List Connections operation returns a list of the local network
@@ -766,13 +728,11 @@ public interface GatewayOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response to the list supported devices request.
     */
-    GatewayListSupportedDevicesResponse listSupportedDevices() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    GatewayListSupportedDevicesResponse listSupportedDevices() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The List Virtual Network Gateway Supported Devices operation lists the

@@ -39,6 +39,11 @@ public interface SqlManagementClient extends FilterableService<SqlManagementClie
     URI getBaseUri();
     
     /**
+    * The URI used as the base for all SQL requests.
+    * @param baseUriValue The BaseUri value.
+    */
+    void setBaseUri(final URI baseUriValue);
+    /**
     * When you create an Azure subscription, it is uniquely identified by a
     * subscription ID. The subscription ID forms part of the URI for every
     * call that you make to the Service Management API.  The Azure Service
@@ -49,6 +54,16 @@ public interface SqlManagementClient extends FilterableService<SqlManagementClie
     */
     SubscriptionCloudCredentials getCredentials();
     
+    /**
+    * When you create an Azure subscription, it is uniquely identified by a
+    * subscription ID. The subscription ID forms part of the URI for every
+    * call that you make to the Service Management API.  The Azure Service
+    * ManagementAPIs use mutual authentication of management certificates over
+    * SSL to ensure that a request made to the service is secure.  No
+    * anonymous requests are allowed.
+    * @param credentialsValue The Credentials value.
+    */
+    void setCredentials(final SubscriptionCloudCredentials credentialsValue);
     /**
     * Includes operations for importing and exporting Azure SQL Databases into
     * and out of Azure blob storage.

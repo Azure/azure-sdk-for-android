@@ -26,12 +26,12 @@ package com.microsoft.windowsazure.management.network;
 import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
-import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.network.models.NetworkStaticIPAvailabilityResponse;
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -42,12 +42,9 @@ import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import javax.xml.bind.DatatypeConverter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 /**
 * The Network Management API includes operations for managing the static IPs
@@ -104,15 +101,13 @@ public class StaticIPOperationsImpl implements ServiceOperations<NetworkManageme
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A response that indicates the availability of a static IP
     * address, and if not, provides a list of suggestions.
     */
     @Override
-    public NetworkStaticIPAvailabilityResponse check(String networkName, InetAddress ipAddress) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public NetworkStaticIPAvailabilityResponse check(String networkName, InetAddress ipAddress) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -150,7 +145,7 @@ public class StaticIPOperationsImpl implements ServiceOperations<NetworkManageme
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -174,27 +169,42 @@ public class StaticIPOperationsImpl implements ServiceOperations<NetworkManageme
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new NetworkStaticIPAvailabilityResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element addressAvailabilityResponseElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "AddressAvailabilityResponse");
-            if (addressAvailabilityResponseElement != null) {
-                Element isAvailableElement = XmlUtility.getElementByTagNameNS(addressAvailabilityResponseElement, "http://schemas.microsoft.com/windowsazure", "IsAvailable");
-                if (isAvailableElement != null) {
-                    boolean isAvailableInstance;
-                    isAvailableInstance = DatatypeConverter.parseBoolean(isAvailableElement.getTextContent().toLowerCase());
-                    result.setIsAvailable(isAvailableInstance);
-                }
-                
-                Element availableAddressesSequenceElement = XmlUtility.getElementByTagNameNS(addressAvailabilityResponseElement, "http://schemas.microsoft.com/windowsazure", "AvailableAddresses");
-                if (availableAddressesSequenceElement != null) {
-                    for (int i1 = 0; i1 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(availableAddressesSequenceElement, "http://schemas.microsoft.com/windowsazure", "AvailableAddress").size(); i1 = i1 + 1) {
-                        org.w3c.dom.Element availableAddressesElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(availableAddressesSequenceElement, "http://schemas.microsoft.com/windowsazure", "AvailableAddress").get(i1));
-                        result.getAvailableAddresses().add(InetAddress.getByName(availableAddressesElement.getTextContent()));
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "AddressAvailabilityResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "AddressAvailabilityResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "IsAvailable".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "IsAvailable".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean isAvailableInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    isAvailableInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setIsAvailable(isAvailableInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "AvailableAddresses".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "AvailableAddresses".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.TEXT) {
+                                    result.getAvailableAddresses().add(InetAddress.getByName(xmlPullParser.getText()));
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
                     }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);

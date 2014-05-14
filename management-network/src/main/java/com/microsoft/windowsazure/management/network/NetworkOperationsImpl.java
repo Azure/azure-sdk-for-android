@@ -30,7 +30,6 @@ import com.microsoft.windowsazure.core.OperationStatusResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.StreamUtils;
-import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.network.models.GatewayProfile;
 import com.microsoft.windowsazure.management.network.models.LocalNetworkConnectionType;
@@ -41,6 +40,7 @@ import com.microsoft.windowsazure.tracing.ClientRequestTrackingHandler;
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -50,12 +50,9 @@ import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 /**
 * The Network Management API includes operations for managing the virtual
@@ -260,7 +257,7 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -329,14 +326,12 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response structure for the Network Operations List operation.
     */
     @Override
-    public NetworkListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public NetworkListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         
         // Tracing
@@ -364,7 +359,7 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -388,196 +383,305 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new NetworkListResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element virtualNetworkSitesSequenceElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "VirtualNetworkSites");
-            if (virtualNetworkSitesSequenceElement != null) {
-                for (int i1 = 0; i1 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(virtualNetworkSitesSequenceElement, "http://schemas.microsoft.com/windowsazure", "VirtualNetworkSite").size(); i1 = i1 + 1) {
-                    org.w3c.dom.Element virtualNetworkSitesElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(virtualNetworkSitesSequenceElement, "http://schemas.microsoft.com/windowsazure", "VirtualNetworkSite").get(i1));
-                    NetworkListResponse.VirtualNetworkSite virtualNetworkSiteInstance = new NetworkListResponse.VirtualNetworkSite();
-                    result.getVirtualNetworkSites().add(virtualNetworkSiteInstance);
-                    
-                    Element nameElement = XmlUtility.getElementByTagNameNS(virtualNetworkSitesElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                    if (nameElement != null) {
-                        String nameInstance;
-                        nameInstance = nameElement.getTextContent();
-                        virtualNetworkSiteInstance.setName(nameInstance);
-                    }
-                    
-                    Element labelElement = XmlUtility.getElementByTagNameNS(virtualNetworkSitesElement, "http://schemas.microsoft.com/windowsazure", "Label");
-                    if (labelElement != null) {
-                        String labelInstance;
-                        labelInstance = labelElement.getTextContent();
-                        virtualNetworkSiteInstance.setLabel(labelInstance);
-                    }
-                    
-                    Element idElement = XmlUtility.getElementByTagNameNS(virtualNetworkSitesElement, "http://schemas.microsoft.com/windowsazure", "Id");
-                    if (idElement != null) {
-                        String idInstance;
-                        idInstance = idElement.getTextContent();
-                        virtualNetworkSiteInstance.setId(idInstance);
-                    }
-                    
-                    Element affinityGroupElement = XmlUtility.getElementByTagNameNS(virtualNetworkSitesElement, "http://schemas.microsoft.com/windowsazure", "AffinityGroup");
-                    if (affinityGroupElement != null) {
-                        String affinityGroupInstance;
-                        affinityGroupInstance = affinityGroupElement.getTextContent();
-                        virtualNetworkSiteInstance.setAffinityGroup(affinityGroupInstance);
-                    }
-                    
-                    Element stateElement = XmlUtility.getElementByTagNameNS(virtualNetworkSitesElement, "http://schemas.microsoft.com/windowsazure", "State");
-                    if (stateElement != null) {
-                        String stateInstance;
-                        stateInstance = stateElement.getTextContent();
-                        virtualNetworkSiteInstance.setState(stateInstance);
-                    }
-                    
-                    Element addressSpaceElement = XmlUtility.getElementByTagNameNS(virtualNetworkSitesElement, "http://schemas.microsoft.com/windowsazure", "AddressSpace");
-                    if (addressSpaceElement != null) {
-                        NetworkListResponse.AddressSpace addressSpaceInstance = new NetworkListResponse.AddressSpace();
-                        virtualNetworkSiteInstance.setAddressSpace(addressSpaceInstance);
-                        
-                        Element addressPrefixesSequenceElement = XmlUtility.getElementByTagNameNS(addressSpaceElement, "http://schemas.microsoft.com/windowsazure", "AddressPrefixes");
-                        if (addressPrefixesSequenceElement != null) {
-                            for (int i2 = 0; i2 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(addressPrefixesSequenceElement, "http://schemas.microsoft.com/windowsazure", "AddressPrefix").size(); i2 = i2 + 1) {
-                                org.w3c.dom.Element addressPrefixesElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(addressPrefixesSequenceElement, "http://schemas.microsoft.com/windowsazure", "AddressPrefix").get(i2));
-                                addressSpaceInstance.getAddressPrefixes().add(addressPrefixesElement.getTextContent());
-                            }
-                        }
-                    }
-                    
-                    Element subnetsSequenceElement = XmlUtility.getElementByTagNameNS(virtualNetworkSitesElement, "http://schemas.microsoft.com/windowsazure", "Subnets");
-                    if (subnetsSequenceElement != null) {
-                        for (int i3 = 0; i3 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(subnetsSequenceElement, "http://schemas.microsoft.com/windowsazure", "Subnet").size(); i3 = i3 + 1) {
-                            org.w3c.dom.Element subnetsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(subnetsSequenceElement, "http://schemas.microsoft.com/windowsazure", "Subnet").get(i3));
-                            NetworkListResponse.Subnet subnetInstance = new NetworkListResponse.Subnet();
-                            virtualNetworkSiteInstance.getSubnets().add(subnetInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "VirtualNetworkSites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "VirtualNetworkSites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "VirtualNetworkSite".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            NetworkListResponse.VirtualNetworkSite virtualNetworkSiteInstance = new NetworkListResponse.VirtualNetworkSite();
+                            result.getVirtualNetworkSites().add(virtualNetworkSiteInstance);
                             
-                            Element nameElement2 = XmlUtility.getElementByTagNameNS(subnetsElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                            if (nameElement2 != null) {
-                                String nameInstance2;
-                                nameInstance2 = nameElement2.getTextContent();
-                                subnetInstance.setName(nameInstance2);
-                            }
-                            
-                            Element addressPrefixElement = XmlUtility.getElementByTagNameNS(subnetsElement, "http://schemas.microsoft.com/windowsazure", "AddressPrefix");
-                            if (addressPrefixElement != null) {
-                                String addressPrefixInstance;
-                                addressPrefixInstance = addressPrefixElement.getTextContent();
-                                subnetInstance.setAddressPrefix(addressPrefixInstance);
-                            }
-                        }
-                    }
-                    
-                    Element dnsElement = XmlUtility.getElementByTagNameNS(virtualNetworkSitesElement, "http://schemas.microsoft.com/windowsazure", "Dns");
-                    if (dnsElement != null) {
-                        Element dnsServersSequenceElement = XmlUtility.getElementByTagNameNS(dnsElement, "http://schemas.microsoft.com/windowsazure", "DnsServers");
-                        if (dnsServersSequenceElement != null) {
-                            for (int i4 = 0; i4 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(dnsServersSequenceElement, "http://schemas.microsoft.com/windowsazure", "DnsServer").size(); i4 = i4 + 1) {
-                                org.w3c.dom.Element dnsServersElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(dnsServersSequenceElement, "http://schemas.microsoft.com/windowsazure", "DnsServer").get(i4));
-                                NetworkListResponse.DnsServer dnsServerInstance = new NetworkListResponse.DnsServer();
-                                virtualNetworkSiteInstance.getDnsServers().add(dnsServerInstance);
-                                
-                                Element nameElement3 = XmlUtility.getElementByTagNameNS(dnsServersElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                                if (nameElement3 != null) {
-                                    String nameInstance3;
-                                    nameInstance3 = nameElement3.getTextContent();
-                                    dnsServerInstance.setName(nameInstance3);
-                                }
-                                
-                                Element addressElement = XmlUtility.getElementByTagNameNS(dnsServersElement, "http://schemas.microsoft.com/windowsazure", "Address");
-                                if (addressElement != null) {
-                                    InetAddress addressInstance;
-                                    addressInstance = InetAddress.getByName(addressElement.getTextContent());
-                                    dnsServerInstance.setAddress(addressInstance);
-                                }
-                            }
-                        }
-                    }
-                    
-                    Element gatewayElement = XmlUtility.getElementByTagNameNS(virtualNetworkSitesElement, "http://schemas.microsoft.com/windowsazure", "Gateway");
-                    if (gatewayElement != null) {
-                        NetworkListResponse.Gateway gatewayInstance = new NetworkListResponse.Gateway();
-                        virtualNetworkSiteInstance.setGateway(gatewayInstance);
-                        
-                        Element profileElement = XmlUtility.getElementByTagNameNS(gatewayElement, "http://schemas.microsoft.com/windowsazure", "Profile");
-                        if (profileElement != null) {
-                            GatewayProfile profileInstance;
-                            profileInstance = GatewayProfile.valueOf(profileElement.getTextContent());
-                            gatewayInstance.setProfile(profileInstance);
-                        }
-                        
-                        Element sitesSequenceElement = XmlUtility.getElementByTagNameNS(gatewayElement, "http://schemas.microsoft.com/windowsazure", "Sites");
-                        if (sitesSequenceElement != null) {
-                            for (int i5 = 0; i5 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(sitesSequenceElement, "http://schemas.microsoft.com/windowsazure", "LocalNetworkSite").size(); i5 = i5 + 1) {
-                                org.w3c.dom.Element sitesElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(sitesSequenceElement, "http://schemas.microsoft.com/windowsazure", "LocalNetworkSite").get(i5));
-                                NetworkListResponse.LocalNetworkSite localNetworkSiteInstance = new NetworkListResponse.LocalNetworkSite();
-                                gatewayInstance.getSites().add(localNetworkSiteInstance);
-                                
-                                Element nameElement4 = XmlUtility.getElementByTagNameNS(sitesElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                                if (nameElement4 != null) {
-                                    String nameInstance4;
-                                    nameInstance4 = nameElement4.getTextContent();
-                                    localNetworkSiteInstance.setName(nameInstance4);
-                                }
-                                
-                                Element vpnGatewayAddressElement = XmlUtility.getElementByTagNameNS(sitesElement, "http://schemas.microsoft.com/windowsazure", "VpnGatewayAddress");
-                                if (vpnGatewayAddressElement != null) {
-                                    InetAddress vpnGatewayAddressInstance;
-                                    vpnGatewayAddressInstance = InetAddress.getByName(vpnGatewayAddressElement.getTextContent());
-                                    localNetworkSiteInstance.setVpnGatewayAddress(vpnGatewayAddressInstance);
-                                }
-                                
-                                Element addressSpaceElement2 = XmlUtility.getElementByTagNameNS(sitesElement, "http://schemas.microsoft.com/windowsazure", "AddressSpace");
-                                if (addressSpaceElement2 != null) {
-                                    NetworkListResponse.AddressSpace addressSpaceInstance2 = new NetworkListResponse.AddressSpace();
-                                    localNetworkSiteInstance.setAddressSpace(addressSpaceInstance2);
+                            if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String nameInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        nameInstance = xmlPullParser.getText();
+                                        virtualNetworkSiteInstance.setName(nameInstance);
+                                    }
                                     
-                                    Element addressPrefixesSequenceElement2 = XmlUtility.getElementByTagNameNS(addressSpaceElement2, "http://schemas.microsoft.com/windowsazure", "AddressPrefixes");
-                                    if (addressPrefixesSequenceElement2 != null) {
-                                        for (int i6 = 0; i6 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(addressPrefixesSequenceElement2, "http://schemas.microsoft.com/windowsazure", "AddressPrefix").size(); i6 = i6 + 1) {
-                                            org.w3c.dom.Element addressPrefixesElement2 = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(addressPrefixesSequenceElement2, "http://schemas.microsoft.com/windowsazure", "AddressPrefix").get(i6));
-                                            addressSpaceInstance2.getAddressPrefixes().add(addressPrefixesElement2.getTextContent());
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String labelInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        labelInstance = xmlPullParser.getText();
+                                        virtualNetworkSiteInstance.setLabel(labelInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String idInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        idInstance = xmlPullParser.getText();
+                                        virtualNetworkSiteInstance.setId(idInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String affinityGroupInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        affinityGroupInstance = xmlPullParser.getText();
+                                        virtualNetworkSiteInstance.setAffinityGroup(affinityGroupInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String stateInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        stateInstance = xmlPullParser.getText();
+                                        virtualNetworkSiteInstance.setState(stateInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "AddressSpace".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "AddressSpace".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    NetworkListResponse.AddressSpace addressSpaceInstance = new NetworkListResponse.AddressSpace();
+                                    virtualNetworkSiteInstance.setAddressSpace(addressSpaceInstance);
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "AddressPrefixes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "AddressPrefixes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                addressSpaceInstance.getAddressPrefixes().add(xmlPullParser.getText());
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
                                         }
                                     }
+                                    
+                                    eventType = xmlPullParser.next();
                                 }
-                                
-                                Element connectionsSequenceElement = XmlUtility.getElementByTagNameNS(sitesElement, "http://schemas.microsoft.com/windowsazure", "Connections");
-                                if (connectionsSequenceElement != null) {
-                                    for (int i7 = 0; i7 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(connectionsSequenceElement, "http://schemas.microsoft.com/windowsazure", "Connection").size(); i7 = i7 + 1) {
-                                        org.w3c.dom.Element connectionsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(connectionsSequenceElement, "http://schemas.microsoft.com/windowsazure", "Connection").get(i7));
-                                        NetworkListResponse.Connection connectionInstance = new NetworkListResponse.Connection();
-                                        localNetworkSiteInstance.getConnections().add(connectionInstance);
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Subnets".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Subnets".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    if (eventType == XmlPullParser.START_TAG && "Subnet".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        NetworkListResponse.Subnet subnetInstance = new NetworkListResponse.Subnet();
+                                        virtualNetworkSiteInstance.getSubnets().add(subnetInstance);
                                         
-                                        Element typeElement = XmlUtility.getElementByTagNameNS(connectionsElement, "http://schemas.microsoft.com/windowsazure", "Type");
-                                        if (typeElement != null) {
-                                            LocalNetworkConnectionType typeInstance;
-                                            typeInstance = NetworkManagementClientImpl.parseLocalNetworkConnectionType(typeElement.getTextContent());
-                                            connectionInstance.setType(typeInstance);
+                                        if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                String nameInstance2;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    nameInstance2 = xmlPullParser.getText();
+                                                    subnetInstance.setName(nameInstance2);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "AddressPrefix".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "AddressPrefix".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                String addressPrefixInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    addressPrefixInstance = xmlPullParser.getText();
+                                                    subnetInstance.setAddressPrefix(addressPrefixInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Dns".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Dns".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    if (eventType == XmlPullParser.START_TAG && "DnsServers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "DnsServers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            if (eventType == XmlPullParser.START_TAG && "DnsServer".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                NetworkListResponse.DnsServer dnsServerInstance = new NetworkListResponse.DnsServer();
+                                                virtualNetworkSiteInstance.getDnsServers().add(dnsServerInstance);
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        String nameInstance3;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            nameInstance3 = xmlPullParser.getText();
+                                                            dnsServerInstance.setName(nameInstance3);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "Address".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "Address".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        InetAddress addressInstance;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            addressInstance = InetAddress.getByName(xmlPullParser.getText());
+                                                            dnsServerInstance.setAddress(addressInstance);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
                                         }
                                     }
                                 }
                             }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Gateway".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Gateway".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    NetworkListResponse.Gateway gatewayInstance = new NetworkListResponse.Gateway();
+                                    virtualNetworkSiteInstance.setGateway(gatewayInstance);
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "Profile".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "Profile".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            GatewayProfile profileInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                profileInstance = GatewayProfile.valueOf(xmlPullParser.getText());
+                                                gatewayInstance.setProfile(profileInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "Sites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "Sites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            if (eventType == XmlPullParser.START_TAG && "LocalNetworkSite".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                NetworkListResponse.LocalNetworkSite localNetworkSiteInstance = new NetworkListResponse.LocalNetworkSite();
+                                                gatewayInstance.getSites().add(localNetworkSiteInstance);
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        String nameInstance4;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            nameInstance4 = xmlPullParser.getText();
+                                                            localNetworkSiteInstance.setName(nameInstance4);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "VpnGatewayAddress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "VpnGatewayAddress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        InetAddress vpnGatewayAddressInstance;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            vpnGatewayAddressInstance = InetAddress.getByName(xmlPullParser.getText());
+                                                            localNetworkSiteInstance.setVpnGatewayAddress(vpnGatewayAddressInstance);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "AddressSpace".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "AddressSpace".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        NetworkListResponse.AddressSpace addressSpaceInstance2 = new NetworkListResponse.AddressSpace();
+                                                        localNetworkSiteInstance.setAddressSpace(addressSpaceInstance2);
+                                                        
+                                                        if (eventType == XmlPullParser.START_TAG && "AddressPrefixes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                            while ((eventType == XmlPullParser.END_TAG && "AddressPrefixes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                if (eventType == XmlPullParser.TEXT) {
+                                                                    addressSpaceInstance2.getAddressPrefixes().add(xmlPullParser.getText());
+                                                                }
+                                                                
+                                                                eventType = xmlPullParser.next();
+                                                            }
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "Connections".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "Connections".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        if (eventType == XmlPullParser.START_TAG && "Connection".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                            NetworkListResponse.Connection connectionInstance = new NetworkListResponse.Connection();
+                                                            localNetworkSiteInstance.getConnections().add(connectionInstance);
+                                                            
+                                                            if (eventType == XmlPullParser.START_TAG && "Type".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                                while ((eventType == XmlPullParser.END_TAG && "Type".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                    LocalNetworkConnectionType typeInstance;
+                                                                    if (eventType == XmlPullParser.TEXT) {
+                                                                        typeInstance = NetworkManagementClientImpl.parseLocalNetworkConnectionType(xmlPullParser.getText());
+                                                                        connectionInstance.setType(typeInstance);
+                                                                    }
+                                                                    
+                                                                    eventType = xmlPullParser.next();
+                                                                }
+                                                            }
+                                                            
+                                                            eventType = xmlPullParser.next();
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "VPNClientAddressPool".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "VPNClientAddressPool".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            NetworkListResponse.VPNClientAddressPool vPNClientAddressPoolInstance = new NetworkListResponse.VPNClientAddressPool();
+                                            gatewayInstance.setVPNClientAddressPool(vPNClientAddressPoolInstance);
+                                            
+                                            if (eventType == XmlPullParser.START_TAG && "AddressPrefixes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                while ((eventType == XmlPullParser.END_TAG && "AddressPrefixes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                    if (eventType == XmlPullParser.TEXT) {
+                                                        vPNClientAddressPoolInstance.getAddressPrefixes().add(xmlPullParser.getText());
+                                                    }
+                                                    
+                                                    eventType = xmlPullParser.next();
+                                                }
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            eventType = xmlPullParser.next();
                         }
                         
-                        Element vPNClientAddressPoolElement = XmlUtility.getElementByTagNameNS(gatewayElement, "http://schemas.microsoft.com/windowsazure", "VPNClientAddressPool");
-                        if (vPNClientAddressPoolElement != null) {
-                            NetworkListResponse.VPNClientAddressPool vPNClientAddressPoolInstance = new NetworkListResponse.VPNClientAddressPool();
-                            gatewayInstance.setVPNClientAddressPool(vPNClientAddressPoolInstance);
-                            
-                            Element addressPrefixesSequenceElement3 = XmlUtility.getElementByTagNameNS(vPNClientAddressPoolElement, "http://schemas.microsoft.com/windowsazure", "AddressPrefixes");
-                            if (addressPrefixesSequenceElement3 != null) {
-                                for (int i8 = 0; i8 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(addressPrefixesSequenceElement3, "http://schemas.microsoft.com/windowsazure", "AddressPrefix").size(); i8 = i8 + 1) {
-                                    org.w3c.dom.Element addressPrefixesElement3 = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(addressPrefixesSequenceElement3, "http://schemas.microsoft.com/windowsazure", "AddressPrefix").get(i8));
-                                    vPNClientAddressPoolInstance.getAddressPrefixes().add(addressPrefixesElement3.getTextContent());
-                                }
-                            }
-                        }
+                        eventType = xmlPullParser.next();
                     }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);

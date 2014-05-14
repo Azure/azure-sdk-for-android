@@ -23,11 +23,11 @@
 
 package com.microsoft.windowsazure.management.network;
 
+import android.util.Xml;
 import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.StreamUtils;
-import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.network.models.GatewayConnectDisconnectOrTestParameters;
 import com.microsoft.windowsazure.management.network.models.GatewayConnectivityState;
@@ -50,6 +50,7 @@ import com.microsoft.windowsazure.tracing.ClientRequestTrackingHandler;
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -63,18 +64,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.xml.bind.DatatypeConverter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+import org.xmlpull.v1.XmlSerializer;
 
 /**
 * The Network Management API includes operations for managing the gateways for
@@ -144,20 +137,16 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * Disconnect Or Testing Gateway operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public GatewayOperationResponse beginConnectDisconnectOrTesting(String networkName, String localNetworkSiteName, GatewayConnectDisconnectOrTestParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public GatewayOperationResponse beginConnectDisconnectOrTesting(String networkName, String localNetworkSiteName, GatewayConnectDisconnectOrTestParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -208,29 +197,25 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element updateConnectionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "UpdateConnection");
-        requestDoc.appendChild(updateConnectionElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "UpdateConnection");
         
-        Element operationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Operation");
-        operationElement.appendChild(requestDoc.createTextNode(parameters.getOperation().toString()));
-        updateConnectionElement.appendChild(operationElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Operation");
+        xmlSerializer.text(parameters.getOperation().toString());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Operation");
         
         if (parameters.getIPAddress() != null) {
-            Element iPAddressElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "IPAddress");
-            iPAddressElement.appendChild(requestDoc.createTextNode(parameters.getIPAddress().getHostAddress()));
-            updateConnectionElement.appendChild(iPAddressElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "IPAddress");
+            xmlSerializer.text(parameters.getIPAddress().getHostAddress());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "IPAddress");
         }
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "UpdateConnection");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -252,19 +237,32 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayOperationResponse();
-            DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory2.setNamespaceAware(true);
-            DocumentBuilder documentBuilder2 = documentBuilderFactory2.newDocumentBuilder();
-            Document responseDoc = documentBuilder2.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element gatewayOperationAsyncResponseElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "GatewayOperationAsyncResponse");
-            if (gatewayOperationAsyncResponseElement != null) {
-                Element idElement = XmlUtility.getElementByTagNameNS(gatewayOperationAsyncResponseElement, "http://schemas.microsoft.com/windowsazure", "ID");
-                if (idElement != null) {
-                    String idInstance;
-                    idInstance = idElement.getTextContent();
-                    result.setOperationId(idInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String idInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    idInstance = xmlPullParser.getText();
+                                    result.setOperationId(idInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -316,20 +314,16 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * Virtual Network Gateway operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public GatewayOperationResponse beginCreating(String networkName, GatewayCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public GatewayOperationResponse beginCreating(String networkName, GatewayCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -376,23 +370,19 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
-        
-        Element createGatewayParametersElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CreateGatewayParameters");
-        requestDoc.appendChild(createGatewayParametersElement);
-        
-        Element gatewayTypeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "GatewayType");
-        gatewayTypeElement.appendChild(requestDoc.createTextNode(parameters.getGatewayType().toString()));
-        createGatewayParametersElement.appendChild(gatewayTypeElement);
-        
-        DOMSource domSource = new DOMSource(requestDoc);
+        XmlSerializer xmlSerializer = Xml.newSerializer();
         StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
+        
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CreateGatewayParameters");
+        
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "GatewayType");
+        xmlSerializer.text(parameters.getGatewayType().toString());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "GatewayType");
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CreateGatewayParameters");
+        xmlSerializer.endDocument();
+        
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -414,19 +404,32 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayOperationResponse();
-            DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory2.setNamespaceAware(true);
-            DocumentBuilder documentBuilder2 = documentBuilderFactory2.newDocumentBuilder();
-            Document responseDoc = documentBuilder2.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element gatewayOperationAsyncResponseElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "GatewayOperationAsyncResponse");
-            if (gatewayOperationAsyncResponseElement != null) {
-                Element idElement = XmlUtility.getElementByTagNameNS(gatewayOperationAsyncResponseElement, "http://schemas.microsoft.com/windowsazure", "ID");
-                if (idElement != null) {
-                    String idInstance;
-                    idInstance = idElement.getTextContent();
-                    result.setOperationId(idInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String idInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    idInstance = xmlPullParser.getText();
+                                    result.setOperationId(idInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -475,15 +478,13 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public GatewayOperationResponse beginDeleting(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public GatewayOperationResponse beginDeleting(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -515,7 +516,6 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("DELETE");
-        httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
@@ -540,19 +540,32 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayOperationResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element gatewayOperationAsyncResponseElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "GatewayOperationAsyncResponse");
-            if (gatewayOperationAsyncResponseElement != null) {
-                Element idElement = XmlUtility.getElementByTagNameNS(gatewayOperationAsyncResponseElement, "http://schemas.microsoft.com/windowsazure", "ID");
-                if (idElement != null) {
-                    String idInstance;
-                    idInstance = idElement.getTextContent();
-                    result.setOperationId(idInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String idInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    idInstance = xmlPullParser.getText();
+                                    result.setOperationId(idInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -601,15 +614,13 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public GatewayOperationResponse beginFailover(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public GatewayOperationResponse beginFailover(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -641,7 +652,6 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("DELETE");
-        httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
@@ -672,19 +682,32 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayOperationResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element gatewayOperationAsyncResponseElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "GatewayOperationAsyncResponse");
-            if (gatewayOperationAsyncResponseElement != null) {
-                Element idElement = XmlUtility.getElementByTagNameNS(gatewayOperationAsyncResponseElement, "http://schemas.microsoft.com/windowsazure", "ID");
-                if (idElement != null) {
-                    String idInstance;
-                    idInstance = idElement.getTextContent();
-                    result.setOperationId(idInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String idInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    idInstance = xmlPullParser.getText();
+                                    result.setOperationId(idInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -740,20 +763,16 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * Network Gateway Reset Shared Key request.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public GatewayOperationResponse beginResetSharedKey(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public GatewayOperationResponse beginResetSharedKey(String networkName, String localNetworkName, GatewayResetSharedKeyParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -804,23 +823,19 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
-        
-        Element resetSharedKeyElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResetSharedKey");
-        requestDoc.appendChild(resetSharedKeyElement);
-        
-        Element keyLengthElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "KeyLength");
-        keyLengthElement.appendChild(requestDoc.createTextNode(Integer.toString(parameters.getKeyLength())));
-        resetSharedKeyElement.appendChild(keyLengthElement);
-        
-        DOMSource domSource = new DOMSource(requestDoc);
+        XmlSerializer xmlSerializer = Xml.newSerializer();
         StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
+        
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResetSharedKey");
+        
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "KeyLength");
+        xmlSerializer.text(Integer.toString(parameters.getKeyLength()));
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "KeyLength");
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResetSharedKey");
+        xmlSerializer.endDocument();
+        
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -842,19 +857,32 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayOperationResponse();
-            DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory2.setNamespaceAware(true);
-            DocumentBuilder documentBuilder2 = documentBuilderFactory2.newDocumentBuilder();
-            Document responseDoc = documentBuilder2.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element gatewayOperationAsyncResponseElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "GatewayOperationAsyncResponse");
-            if (gatewayOperationAsyncResponseElement != null) {
-                Element idElement = XmlUtility.getElementByTagNameNS(gatewayOperationAsyncResponseElement, "http://schemas.microsoft.com/windowsazure", "ID");
-                if (idElement != null) {
-                    String idInstance;
-                    idInstance = idElement.getTextContent();
-                    result.setOperationId(idInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String idInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    idInstance = xmlPullParser.getText();
+                                    result.setOperationId(idInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -910,20 +938,16 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * Network Gateway Set Shared Key request.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public GatewayOperationResponse beginSetSharedKey(String networkName, String localNetworkName, GatewaySetSharedKeyParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public GatewayOperationResponse beginSetSharedKey(String networkName, String localNetworkName, GatewaySetSharedKeyParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -974,25 +998,21 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element sharedKeyElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SharedKey");
-        requestDoc.appendChild(sharedKeyElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SharedKey");
         
         if (parameters.getValue() != null) {
-            Element valueElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Value");
-            valueElement.appendChild(requestDoc.createTextNode(parameters.getValue()));
-            sharedKeyElement.appendChild(valueElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Value");
+            xmlSerializer.text(parameters.getValue());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Value");
         }
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SharedKey");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -1014,19 +1034,32 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayOperationResponse();
-            DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory2.setNamespaceAware(true);
-            DocumentBuilder documentBuilder2 = documentBuilderFactory2.newDocumentBuilder();
-            Document responseDoc = documentBuilder2.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element gatewayOperationAsyncResponseElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "GatewayOperationAsyncResponse");
-            if (gatewayOperationAsyncResponseElement != null) {
-                Element idElement = XmlUtility.getElementByTagNameNS(gatewayOperationAsyncResponseElement, "http://schemas.microsoft.com/windowsazure", "ID");
-                if (idElement != null) {
-                    String idInstance;
-                    idInstance = idElement.getTextContent();
-                    result.setOperationId(idInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String idInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    idInstance = xmlPullParser.getText();
+                                    result.setOperationId(idInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -1205,10 +1238,8 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -1230,7 +1261,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * failure.
     */
     @Override
-    public GatewayGetOperationStatusResponse create(String networkName, GatewayCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException {
+    public GatewayGetOperationStatusResponse create(String networkName, GatewayCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, InterruptedException, ExecutionException {
         NetworkManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -1318,10 +1349,8 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -1343,7 +1372,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * failure.
     */
     @Override
-    public GatewayGetOperationStatusResponse delete(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException {
+    public GatewayGetOperationStatusResponse delete(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, InterruptedException, ExecutionException {
         NetworkManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -1529,20 +1558,16 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * Client Package operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public GatewayOperationResponse generateVpnClientPackage(String networkName, GatewayGenerateVpnClientPackageParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public GatewayOperationResponse generateVpnClientPackage(String networkName, GatewayGenerateVpnClientPackageParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -1589,23 +1614,19 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
-        
-        Element vpnClientParametersElement = requestDoc.createElementNS("", "VpnClientParameters");
-        requestDoc.appendChild(vpnClientParametersElement);
-        
-        Element processorArchitectureElement = requestDoc.createElementNS("", "ProcessorArchitecture");
-        processorArchitectureElement.appendChild(requestDoc.createTextNode(parameters.getProcessorArchitecture().toString()));
-        vpnClientParametersElement.appendChild(processorArchitectureElement);
-        
-        DOMSource domSource = new DOMSource(requestDoc);
+        XmlSerializer xmlSerializer = Xml.newSerializer();
         StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
+        
+        xmlSerializer.startTag("", "VpnClientParameters");
+        
+        xmlSerializer.startTag("", "ProcessorArchitecture");
+        xmlSerializer.text(parameters.getProcessorArchitecture().toString());
+        xmlSerializer.endTag("", "ProcessorArchitecture");
+        xmlSerializer.endTag("", "VpnClientParameters");
+        xmlSerializer.endDocument();
+        
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -1627,19 +1648,32 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayOperationResponse();
-            DocumentBuilderFactory documentBuilderFactory2 = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory2.setNamespaceAware(true);
-            DocumentBuilder documentBuilder2 = documentBuilderFactory2.newDocumentBuilder();
-            Document responseDoc = documentBuilder2.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element gatewayOperationAsyncResponseElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "GatewayOperationAsyncResponse");
-            if (gatewayOperationAsyncResponseElement != null) {
-                Element idElement = XmlUtility.getElementByTagNameNS(gatewayOperationAsyncResponseElement, "http://schemas.microsoft.com/windowsazure", "ID");
-                if (idElement != null) {
-                    String idInstance;
-                    idInstance = idElement.getTextContent();
-                    result.setOperationId(idInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "GatewayOperationAsyncResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String idInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    idInstance = xmlPullParser.getText();
+                                    result.setOperationId(idInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -1690,15 +1724,13 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public GatewayGetResponse get(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public GatewayGetResponse get(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -1730,7 +1762,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -1754,67 +1786,113 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayGetResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element gatewayElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "Gateway");
-            if (gatewayElement != null) {
-                Element stateElement = XmlUtility.getElementByTagNameNS(gatewayElement, "http://schemas.microsoft.com/windowsazure", "State");
-                if (stateElement != null) {
-                    String stateInstance;
-                    stateInstance = stateElement.getTextContent();
-                    result.setState(stateInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "Gateway".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "Gateway".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String stateInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    stateInstance = xmlPullParser.getText();
+                                    result.setState(stateInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "VIPAddress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "VIPAddress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                InetAddress vIPAddressInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    vIPAddressInstance = InetAddress.getByName(xmlPullParser.getText());
+                                    result.setVipAddress(vIPAddressInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "LastEvent".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "LastEvent".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                GatewayEvent lastEventInstance = new GatewayEvent();
+                                result.setLastEvent(lastEventInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        Calendar timestampInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            timestampInstance = DatatypeConverter.parseDateTime(xmlPullParser.getText());
+                                            lastEventInstance.setTimestamp(timestampInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String idInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            idInstance = xmlPullParser.getText();
+                                            lastEventInstance.setId(idInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String messageInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            messageInstance = xmlPullParser.getText();
+                                            lastEventInstance.setMessage(messageInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String dataInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            dataInstance = xmlPullParser.getText();
+                                            lastEventInstance.setData(dataInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "GatewayType".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "GatewayType".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                GatewayType gatewayTypeInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    gatewayTypeInstance = GatewayType.valueOf(xmlPullParser.getText());
+                                    result.setGatewayType(gatewayTypeInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
                 
-                Element vIPAddressElement = XmlUtility.getElementByTagNameNS(gatewayElement, "http://schemas.microsoft.com/windowsazure", "VIPAddress");
-                if (vIPAddressElement != null) {
-                    InetAddress vIPAddressInstance;
-                    vIPAddressInstance = InetAddress.getByName(vIPAddressElement.getTextContent());
-                    result.setVipAddress(vIPAddressInstance);
-                }
-                
-                Element lastEventElement = XmlUtility.getElementByTagNameNS(gatewayElement, "http://schemas.microsoft.com/windowsazure", "LastEvent");
-                if (lastEventElement != null) {
-                    GatewayEvent lastEventInstance = new GatewayEvent();
-                    result.setLastEvent(lastEventInstance);
-                    
-                    Element timestampElement = XmlUtility.getElementByTagNameNS(lastEventElement, "http://schemas.microsoft.com/windowsazure", "Timestamp");
-                    if (timestampElement != null) {
-                        Calendar timestampInstance;
-                        timestampInstance = DatatypeConverter.parseDateTime(timestampElement.getTextContent());
-                        lastEventInstance.setTimestamp(timestampInstance);
-                    }
-                    
-                    Element idElement = XmlUtility.getElementByTagNameNS(lastEventElement, "http://schemas.microsoft.com/windowsazure", "Id");
-                    if (idElement != null) {
-                        String idInstance;
-                        idInstance = idElement.getTextContent();
-                        lastEventInstance.setId(idInstance);
-                    }
-                    
-                    Element messageElement = XmlUtility.getElementByTagNameNS(lastEventElement, "http://schemas.microsoft.com/windowsazure", "Message");
-                    if (messageElement != null) {
-                        String messageInstance;
-                        messageInstance = messageElement.getTextContent();
-                        lastEventInstance.setMessage(messageInstance);
-                    }
-                    
-                    Element dataElement = XmlUtility.getElementByTagNameNS(lastEventElement, "http://schemas.microsoft.com/windowsazure", "Data");
-                    if (dataElement != null) {
-                        String dataInstance;
-                        dataInstance = dataElement.getTextContent();
-                        lastEventInstance.setData(dataInstance);
-                    }
-                }
-                
-                Element gatewayTypeElement = XmlUtility.getElementByTagNameNS(gatewayElement, "http://schemas.microsoft.com/windowsazure", "GatewayType");
-                if (gatewayTypeElement != null) {
-                    GatewayType gatewayTypeInstance;
-                    gatewayTypeInstance = GatewayType.valueOf(gatewayTypeElement.getTextContent());
-                    result.setGatewayType(gatewayTypeInstance);
-                }
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -1918,7 +1996,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -1997,10 +2075,8 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is in
     * progress, or has failed. Note that this status is distinct from the HTTP
@@ -2012,7 +2088,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * failure.
     */
     @Override
-    public GatewayGetOperationStatusResponse getOperationStatus(String operationId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public GatewayGetOperationStatusResponse getOperationStatus(String operationId) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (operationId == null) {
             throw new NullPointerException("operationId");
@@ -2044,7 +2120,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -2068,53 +2144,89 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayGetOperationStatusResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element gatewayOperationElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "GatewayOperation");
-            if (gatewayOperationElement != null) {
-                Element idElement = XmlUtility.getElementByTagNameNS(gatewayOperationElement, "http://schemas.microsoft.com/windowsazure", "ID");
-                if (idElement != null) {
-                    String idInstance;
-                    idInstance = idElement.getTextContent();
-                    result.setId(idInstance);
-                }
-                
-                Element statusElement = XmlUtility.getElementByTagNameNS(gatewayOperationElement, "http://schemas.microsoft.com/windowsazure", "Status");
-                if (statusElement != null) {
-                    GatewayOperationStatus statusInstance;
-                    statusInstance = GatewayOperationStatus.valueOf(statusElement.getTextContent());
-                    result.setStatus(statusInstance);
-                }
-                
-                Element httpStatusCodeElement = XmlUtility.getElementByTagNameNS(gatewayOperationElement, "http://schemas.microsoft.com/windowsazure", "HttpStatusCode");
-                if (httpStatusCodeElement != null) {
-                    Integer httpStatusCodeInstance;
-                    httpStatusCodeInstance = Integer.valueOf(httpStatusCodeElement.getTextContent());
-                    result.setHttpStatusCode(httpStatusCodeInstance);
-                }
-                
-                Element errorElement = XmlUtility.getElementByTagNameNS(gatewayOperationElement, "http://schemas.microsoft.com/windowsazure", "Error");
-                if (errorElement != null) {
-                    GatewayGetOperationStatusResponse.ErrorDetails errorInstance = new GatewayGetOperationStatusResponse.ErrorDetails();
-                    result.setError(errorInstance);
-                    
-                    Element codeElement = XmlUtility.getElementByTagNameNS(errorElement, "http://schemas.microsoft.com/windowsazure", "Code");
-                    if (codeElement != null) {
-                        String codeInstance;
-                        codeInstance = codeElement.getTextContent();
-                        errorInstance.setCode(codeInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "GatewayOperation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "GatewayOperation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String idInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    idInstance = xmlPullParser.getText();
+                                    result.setId(idInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                GatewayOperationStatus statusInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    statusInstance = GatewayOperationStatus.valueOf(xmlPullParser.getText());
+                                    result.setStatus(statusInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "HttpStatusCode".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "HttpStatusCode".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                Integer httpStatusCodeInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    httpStatusCodeInstance = Integer.valueOf(xmlPullParser.getText());
+                                    result.setHttpStatusCode(httpStatusCodeInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Error".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Error".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                GatewayGetOperationStatusResponse.ErrorDetails errorInstance = new GatewayGetOperationStatusResponse.ErrorDetails();
+                                result.setError(errorInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Code".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Code".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String codeInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            codeInstance = xmlPullParser.getText();
+                                            errorInstance.setCode(codeInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String messageInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            messageInstance = xmlPullParser.getText();
+                                            errorInstance.setMessage(messageInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
                     }
-                    
-                    Element messageElement = XmlUtility.getElementByTagNameNS(errorElement, "http://schemas.microsoft.com/windowsazure", "Message");
-                    if (messageElement != null) {
-                        String messageInstance;
-                        messageInstance = messageElement.getTextContent();
-                        errorInstance.setMessage(messageInstance);
-                    }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -2168,14 +2280,12 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response to the get shared key request.
     */
     @Override
-    public GatewayGetSharedKeyResponse getSharedKey(String networkName, String localNetworkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public GatewayGetSharedKeyResponse getSharedKey(String networkName, String localNetworkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -2211,7 +2321,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -2235,19 +2345,32 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayGetSharedKeyResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element sharedKeyElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "SharedKey");
-            if (sharedKeyElement != null) {
-                Element valueElement = XmlUtility.getElementByTagNameNS(sharedKeyElement, "http://schemas.microsoft.com/windowsazure", "Value");
-                if (valueElement != null) {
-                    String valueInstance;
-                    valueInstance = valueElement.getTextContent();
-                    result.setSharedKey(valueInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "SharedKey".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "SharedKey".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "Value".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Value".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String valueInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    valueInstance = xmlPullParser.getText();
+                                    result.setSharedKey(valueInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -2298,15 +2421,13 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response to a ListConnections request to a Virtual Network
     * Gateway.
     */
     @Override
-    public GatewayListConnectionsResponse listConnections(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public GatewayListConnectionsResponse listConnections(String networkName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (networkName == null) {
             throw new NullPointerException("networkName");
@@ -2338,7 +2459,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -2362,95 +2483,154 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayListConnectionsResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element connectionsSequenceElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "Connections");
-            if (connectionsSequenceElement != null) {
-                for (int i1 = 0; i1 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(connectionsSequenceElement, "http://schemas.microsoft.com/windowsazure", "Connection").size(); i1 = i1 + 1) {
-                    org.w3c.dom.Element connectionsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(connectionsSequenceElement, "http://schemas.microsoft.com/windowsazure", "Connection").get(i1));
-                    GatewayListConnectionsResponse.GatewayConnection connectionInstance = new GatewayListConnectionsResponse.GatewayConnection();
-                    result.getConnections().add(connectionInstance);
-                    
-                    Element localNetworkSiteNameElement = XmlUtility.getElementByTagNameNS(connectionsElement, "http://schemas.microsoft.com/windowsazure", "LocalNetworkSiteName");
-                    if (localNetworkSiteNameElement != null) {
-                        String localNetworkSiteNameInstance;
-                        localNetworkSiteNameInstance = localNetworkSiteNameElement.getTextContent();
-                        connectionInstance.setLocalNetworkSiteName(localNetworkSiteNameInstance);
-                    }
-                    
-                    Element connectivityStateElement = XmlUtility.getElementByTagNameNS(connectionsElement, "http://schemas.microsoft.com/windowsazure", "ConnectivityState");
-                    if (connectivityStateElement != null) {
-                        GatewayConnectivityState connectivityStateInstance;
-                        connectivityStateInstance = GatewayConnectivityState.valueOf(connectivityStateElement.getTextContent());
-                        connectionInstance.setConnectivityState(connectivityStateInstance);
-                    }
-                    
-                    Element lastEventElement = XmlUtility.getElementByTagNameNS(connectionsElement, "http://schemas.microsoft.com/windowsazure", "LastEvent");
-                    if (lastEventElement != null) {
-                        GatewayEvent lastEventInstance = new GatewayEvent();
-                        connectionInstance.setLastEvent(lastEventInstance);
-                        
-                        Element timestampElement = XmlUtility.getElementByTagNameNS(lastEventElement, "http://schemas.microsoft.com/windowsazure", "Timestamp");
-                        if (timestampElement != null) {
-                            Calendar timestampInstance;
-                            timestampInstance = DatatypeConverter.parseDateTime(timestampElement.getTextContent());
-                            lastEventInstance.setTimestamp(timestampInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "Connections".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "Connections".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "Connection".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            GatewayListConnectionsResponse.GatewayConnection connectionInstance = new GatewayListConnectionsResponse.GatewayConnection();
+                            result.getConnections().add(connectionInstance);
+                            
+                            if (eventType == XmlPullParser.START_TAG && "LocalNetworkSiteName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "LocalNetworkSiteName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String localNetworkSiteNameInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        localNetworkSiteNameInstance = xmlPullParser.getText();
+                                        connectionInstance.setLocalNetworkSiteName(localNetworkSiteNameInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "ConnectivityState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "ConnectivityState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    GatewayConnectivityState connectivityStateInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        connectivityStateInstance = GatewayConnectivityState.valueOf(xmlPullParser.getText());
+                                        connectionInstance.setConnectivityState(connectivityStateInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "LastEvent".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "LastEvent".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    GatewayEvent lastEventInstance = new GatewayEvent();
+                                    connectionInstance.setLastEvent(lastEventInstance);
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            Calendar timestampInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                timestampInstance = DatatypeConverter.parseDateTime(xmlPullParser.getText());
+                                                lastEventInstance.setTimestamp(timestampInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String idInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                idInstance = xmlPullParser.getText();
+                                                lastEventInstance.setId(idInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String messageInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                messageInstance = xmlPullParser.getText();
+                                                lastEventInstance.setMessage(messageInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String dataInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                dataInstance = xmlPullParser.getText();
+                                                lastEventInstance.setData(dataInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "IngressBytesTransferred".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "IngressBytesTransferred".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    long ingressBytesTransferredInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        ingressBytesTransferredInstance = DatatypeConverter.parseLong(xmlPullParser.getText());
+                                        connectionInstance.setIngressBytesTransferred(ingressBytesTransferredInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "EgressBytesTransferred".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "EgressBytesTransferred".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    long egressBytesTransferredInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        egressBytesTransferredInstance = DatatypeConverter.parseLong(xmlPullParser.getText());
+                                        connectionInstance.setEgressBytesTransferred(egressBytesTransferredInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "LastConnectionEstablished".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "LastConnectionEstablished".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    Calendar lastConnectionEstablishedInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        lastConnectionEstablishedInstance = DatatypeConverter.parseDateTime(xmlPullParser.getText());
+                                        connectionInstance.setLastConnectionEstablished(lastConnectionEstablishedInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "AllocatedIPAddresses".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "AllocatedIPAddresses".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        connectionInstance.getAllocatedIPAddresses().add(xmlPullParser.getText());
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            eventType = xmlPullParser.next();
                         }
                         
-                        Element idElement = XmlUtility.getElementByTagNameNS(lastEventElement, "http://schemas.microsoft.com/windowsazure", "Id");
-                        if (idElement != null) {
-                            String idInstance;
-                            idInstance = idElement.getTextContent();
-                            lastEventInstance.setId(idInstance);
-                        }
-                        
-                        Element messageElement = XmlUtility.getElementByTagNameNS(lastEventElement, "http://schemas.microsoft.com/windowsazure", "Message");
-                        if (messageElement != null) {
-                            String messageInstance;
-                            messageInstance = messageElement.getTextContent();
-                            lastEventInstance.setMessage(messageInstance);
-                        }
-                        
-                        Element dataElement = XmlUtility.getElementByTagNameNS(lastEventElement, "http://schemas.microsoft.com/windowsazure", "Data");
-                        if (dataElement != null) {
-                            String dataInstance;
-                            dataInstance = dataElement.getTextContent();
-                            lastEventInstance.setData(dataInstance);
-                        }
-                    }
-                    
-                    Element ingressBytesTransferredElement = XmlUtility.getElementByTagNameNS(connectionsElement, "http://schemas.microsoft.com/windowsazure", "IngressBytesTransferred");
-                    if (ingressBytesTransferredElement != null) {
-                        long ingressBytesTransferredInstance;
-                        ingressBytesTransferredInstance = DatatypeConverter.parseLong(ingressBytesTransferredElement.getTextContent());
-                        connectionInstance.setIngressBytesTransferred(ingressBytesTransferredInstance);
-                    }
-                    
-                    Element egressBytesTransferredElement = XmlUtility.getElementByTagNameNS(connectionsElement, "http://schemas.microsoft.com/windowsazure", "EgressBytesTransferred");
-                    if (egressBytesTransferredElement != null) {
-                        long egressBytesTransferredInstance;
-                        egressBytesTransferredInstance = DatatypeConverter.parseLong(egressBytesTransferredElement.getTextContent());
-                        connectionInstance.setEgressBytesTransferred(egressBytesTransferredInstance);
-                    }
-                    
-                    Element lastConnectionEstablishedElement = XmlUtility.getElementByTagNameNS(connectionsElement, "http://schemas.microsoft.com/windowsazure", "LastConnectionEstablished");
-                    if (lastConnectionEstablishedElement != null) {
-                        Calendar lastConnectionEstablishedInstance;
-                        lastConnectionEstablishedInstance = DatatypeConverter.parseDateTime(lastConnectionEstablishedElement.getTextContent());
-                        connectionInstance.setLastConnectionEstablished(lastConnectionEstablishedInstance);
-                    }
-                    
-                    Element allocatedIPAddressesSequenceElement = XmlUtility.getElementByTagNameNS(connectionsElement, "http://schemas.microsoft.com/windowsazure", "AllocatedIPAddresses");
-                    if (allocatedIPAddressesSequenceElement != null) {
-                        for (int i2 = 0; i2 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(allocatedIPAddressesSequenceElement, "http://schemas.microsoft.com/windowsazure", "string").size(); i2 = i2 + 1) {
-                            org.w3c.dom.Element allocatedIPAddressesElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(allocatedIPAddressesSequenceElement, "http://schemas.microsoft.com/windowsazure", "string").get(i2));
-                            connectionInstance.getAllocatedIPAddresses().add(allocatedIPAddressesElement.getTextContent());
-                        }
+                        eventType = xmlPullParser.next();
                     }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -2496,14 +2676,12 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response to the list supported devices request.
     */
     @Override
-    public GatewayListSupportedDevicesResponse listSupportedDevices() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public GatewayListSupportedDevicesResponse listSupportedDevices() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         
         // Tracing
@@ -2531,7 +2709,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -2555,56 +2733,80 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new GatewayListSupportedDevicesResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element vpnDeviceListElement = XmlUtility.getElementByTagNameNS(responseDoc, "", "VpnDeviceList");
-            if (vpnDeviceListElement != null) {
-                Attr versionAttribute = vpnDeviceListElement.getAttributeNodeNS("", "version");
-                if (versionAttribute != null) {
-                    result.setVersion(versionAttribute.getValue());
-                }
-                
-                if (vpnDeviceListElement != null) {
-                    for (int i1 = 0; i1 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(vpnDeviceListElement, "", "Vendor").size(); i1 = i1 + 1) {
-                        org.w3c.dom.Element vendorsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(vpnDeviceListElement, "", "Vendor").get(i1));
-                        GatewayListSupportedDevicesResponse.Vendor vendorInstance = new GatewayListSupportedDevicesResponse.Vendor();
-                        result.getVendors().add(vendorInstance);
-                        
-                        Attr nameAttribute = vendorsElement.getAttributeNodeNS("", "name");
-                        if (nameAttribute != null) {
-                            vendorInstance.setName(nameAttribute.getValue());
-                        }
-                        
-                        if (vendorsElement != null) {
-                            for (int i2 = 0; i2 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(vendorsElement, "", "Platform").size(); i2 = i2 + 1) {
-                                org.w3c.dom.Element platformsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(vendorsElement, "", "Platform").get(i2));
-                                GatewayListSupportedDevicesResponse.Platform platformInstance = new GatewayListSupportedDevicesResponse.Platform();
-                                vendorInstance.getPlatforms().add(platformInstance);
-                                
-                                Attr nameAttribute2 = platformsElement.getAttributeNodeNS("", "name");
-                                if (nameAttribute2 != null) {
-                                    platformInstance.setName(nameAttribute2.getValue());
-                                }
-                                
-                                if (platformsElement != null) {
-                                    for (int i3 = 0; i3 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(platformsElement, "", "OSFamily").size(); i3 = i3 + 1) {
-                                        org.w3c.dom.Element oSFamiliesElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(platformsElement, "", "OSFamily").get(i3));
-                                        GatewayListSupportedDevicesResponse.OSFamily oSFamilyInstance = new GatewayListSupportedDevicesResponse.OSFamily();
-                                        platformInstance.getOSFamilies().add(oSFamilyInstance);
-                                        
-                                        Attr nameAttribute3 = oSFamiliesElement.getAttributeNodeNS("", "name");
-                                        if (nameAttribute3 != null) {
-                                            oSFamilyInstance.setName(nameAttribute3.getValue());
-                                        }
-                                    }
-                                }
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "VpnDeviceList".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "VpnDeviceList".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
+                        for (int i = 0; i < xmlPullParser.getAttributeCount(); i = i + 1) {
+                            if ("version".equals(xmlPullParser.getAttributeName(i)) && "".equals(xmlPullParser.getAttributeNamespace(i))) {
+                                result.setVersion(xmlPullParser.getAttributeValue(i));
                             }
                         }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Vendors".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Vendors".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "Vendor".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
+                                    GatewayListSupportedDevicesResponse.Vendor vendorInstance = new GatewayListSupportedDevicesResponse.Vendor();
+                                    result.getVendors().add(vendorInstance);
+                                    for (int i2 = 0; i2 < xmlPullParser.getAttributeCount(); i2 = i2 + 1) {
+                                        if ("name".equals(xmlPullParser.getAttributeName(i2)) && "".equals(xmlPullParser.getAttributeNamespace(i2))) {
+                                            vendorInstance.setName(xmlPullParser.getAttributeValue(i2));
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "Platforms".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "Platforms".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
+                                            if (eventType == XmlPullParser.START_TAG && "Platform".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
+                                                GatewayListSupportedDevicesResponse.Platform platformInstance = new GatewayListSupportedDevicesResponse.Platform();
+                                                vendorInstance.getPlatforms().add(platformInstance);
+                                                for (int i3 = 0; i3 < xmlPullParser.getAttributeCount(); i3 = i3 + 1) {
+                                                    if ("name".equals(xmlPullParser.getAttributeName(i3)) && "".equals(xmlPullParser.getAttributeNamespace(i3))) {
+                                                        platformInstance.setName(xmlPullParser.getAttributeValue(i3));
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "OSFamilies".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "OSFamilies".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
+                                                        if (eventType == XmlPullParser.START_TAG && "OSFamily".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
+                                                            GatewayListSupportedDevicesResponse.OSFamily oSFamilyInstance = new GatewayListSupportedDevicesResponse.OSFamily();
+                                                            platformInstance.getOSFamilies().add(oSFamilyInstance);
+                                                            for (int i4 = 0; i4 < xmlPullParser.getAttributeCount(); i4 = i4 + 1) {
+                                                                if ("name".equals(xmlPullParser.getAttributeName(i4)) && "".equals(xmlPullParser.getAttributeNamespace(i4))) {
+                                                                    oSFamilyInstance.setName(xmlPullParser.getAttributeValue(i4));
+                                                                }
+                                                            }
+                                                            
+                                                            eventType = xmlPullParser.next();
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
                     }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);

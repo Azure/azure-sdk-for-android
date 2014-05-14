@@ -29,7 +29,6 @@ import com.microsoft.windowsazure.core.OperationStatus;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
 import com.microsoft.windowsazure.core.ServiceClient;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
-import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.credentials.SubscriptionCloudCredentials;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.configuration.ManagementConfiguration;
@@ -37,6 +36,7 @@ import com.microsoft.windowsazure.management.network.models.LocalNetworkConnecti
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -47,12 +47,9 @@ import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 /**
 * The Service Management API includes operations for managing the virtual
@@ -71,6 +68,14 @@ public class NetworkManagementClientImpl extends ServiceClient<NetworkManagement
         return this.baseUri;
     }
     
+    /**
+    * The URI used as the base for all SQL requests.
+    * @param baseUriValue The BaseUri value.
+    */
+    public void setBaseUri(final URI baseUriValue) {
+        this.baseUri = baseUriValue;
+    }
+    
     private SubscriptionCloudCredentials credentials;
     
     /**
@@ -84,6 +89,19 @@ public class NetworkManagementClientImpl extends ServiceClient<NetworkManagement
     */
     public SubscriptionCloudCredentials getCredentials() {
         return this.credentials;
+    }
+    
+    /**
+    * When you create an Azure subscription, it is uniquely identified by a
+    * subscription ID. The subscription ID forms part of the URI for every
+    * call that you make to the Service Management API. The Azure Service
+    * Management API uses mutual authentication of management certificates
+    * over SSL to ensure that a request made to the service is secure. No
+    * anonymous requests are allowed.
+    * @param credentialsValue The Credentials value.
+    */
+    public void setCredentials(final SubscriptionCloudCredentials credentialsValue) {
+        this.credentials = credentialsValue;
     }
     
     private ClientRootCertificateOperations clientRootCertificates;
@@ -234,10 +252,8 @@ public class NetworkManagementClientImpl extends ServiceClient<NetworkManagement
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -249,7 +265,7 @@ public class NetworkManagementClientImpl extends ServiceClient<NetworkManagement
     * failure.
     */
     @Override
-    public OperationStatusResponse getOperationStatus(String requestId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public OperationStatusResponse getOperationStatus(String requestId) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (requestId == null) {
             throw new NullPointerException("requestId");
@@ -281,7 +297,7 @@ public class NetworkManagementClientImpl extends ServiceClient<NetworkManagement
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -305,53 +321,89 @@ public class NetworkManagementClientImpl extends ServiceClient<NetworkManagement
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new OperationStatusResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element operationElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "Operation");
-            if (operationElement != null) {
-                Element idElement = XmlUtility.getElementByTagNameNS(operationElement, "http://schemas.microsoft.com/windowsazure", "ID");
-                if (idElement != null) {
-                    String idInstance;
-                    idInstance = idElement.getTextContent();
-                    result.setId(idInstance);
-                }
-                
-                Element statusElement = XmlUtility.getElementByTagNameNS(operationElement, "http://schemas.microsoft.com/windowsazure", "Status");
-                if (statusElement != null) {
-                    OperationStatus statusInstance;
-                    statusInstance = OperationStatus.valueOf(statusElement.getTextContent());
-                    result.setStatus(statusInstance);
-                }
-                
-                Element httpStatusCodeElement = XmlUtility.getElementByTagNameNS(operationElement, "http://schemas.microsoft.com/windowsazure", "HttpStatusCode");
-                if (httpStatusCodeElement != null) {
-                    Integer httpStatusCodeInstance;
-                    httpStatusCodeInstance = Integer.valueOf(httpStatusCodeElement.getTextContent());
-                    result.setHttpStatusCode(httpStatusCodeInstance);
-                }
-                
-                Element errorElement = XmlUtility.getElementByTagNameNS(operationElement, "http://schemas.microsoft.com/windowsazure", "Error");
-                if (errorElement != null) {
-                    OperationStatusResponse.ErrorDetails errorInstance = new OperationStatusResponse.ErrorDetails();
-                    result.setError(errorInstance);
-                    
-                    Element codeElement = XmlUtility.getElementByTagNameNS(errorElement, "http://schemas.microsoft.com/windowsazure", "Code");
-                    if (codeElement != null) {
-                        String codeInstance;
-                        codeInstance = codeElement.getTextContent();
-                        errorInstance.setCode(codeInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "Operation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "Operation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String idInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    idInstance = xmlPullParser.getText();
+                                    result.setId(idInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                OperationStatus statusInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    statusInstance = OperationStatus.valueOf(xmlPullParser.getText());
+                                    result.setStatus(statusInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "HttpStatusCode".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "HttpStatusCode".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                Integer httpStatusCodeInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    httpStatusCodeInstance = Integer.valueOf(xmlPullParser.getText());
+                                    result.setHttpStatusCode(httpStatusCodeInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Error".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Error".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                OperationStatusResponse.ErrorDetails errorInstance = new OperationStatusResponse.ErrorDetails();
+                                result.setError(errorInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Code".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Code".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String codeInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            codeInstance = xmlPullParser.getText();
+                                            errorInstance.setCode(codeInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String messageInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            messageInstance = xmlPullParser.getText();
+                                            errorInstance.setMessage(messageInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
                     }
-                    
-                    Element messageElement = XmlUtility.getElementByTagNameNS(errorElement, "http://schemas.microsoft.com/windowsazure", "Message");
-                    if (messageElement != null) {
-                        String messageInstance;
-                        messageInstance = messageElement.getTextContent();
-                        errorInstance.setMessage(messageInstance);
-                    }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);

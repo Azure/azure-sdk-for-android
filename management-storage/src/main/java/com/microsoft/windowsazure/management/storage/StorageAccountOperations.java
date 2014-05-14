@@ -40,9 +40,7 @@ import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
 * The Service Management API includes operations for managing the storage
@@ -61,19 +59,13 @@ public interface StorageAccountOperations {
     * Storage Account operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginCreating(StorageAccountCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    OperationResponse beginCreating(StorageAccountCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Begin Creating Storage Account operation creates a new storage
@@ -101,13 +93,11 @@ public interface StorageAccountOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response to a storage account check name availability request.
     */
-    CheckNameAvailabilityResponse checkNameAvailability(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    CheckNameAvailabilityResponse checkNameAvailability(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The Check Name Availability operation checks if a storage account name is
@@ -213,15 +203,13 @@ public interface StorageAccountOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Get Storage Account Properties operation response.
     */
-    StorageAccountGetResponse get(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
+    StorageAccountGetResponse get(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException;
     
     /**
     * The Get Storage Account Properties operation returns system properties
@@ -247,15 +235,13 @@ public interface StorageAccountOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The primary and secondary access keys for a storage account.
     */
-    StorageAccountGetKeysResponse getKeys(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
+    StorageAccountGetKeysResponse getKeys(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException;
     
     /**
     * The Get Storage Keys operation returns the primary and secondary access
@@ -279,15 +265,13 @@ public interface StorageAccountOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The List Storage Accounts operation response.
     */
-    StorageAccountListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
+    StorageAccountListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException;
     
     /**
     * The List Storage Accounts operation lists the storage accounts available
@@ -309,20 +293,16 @@ public interface StorageAccountOperations {
     * operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The primary and secondary access keys for a storage account.
     */
-    StorageAccountRegenerateKeysResponse regenerateKeys(StorageAccountRegenerateKeysParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException;
+    StorageAccountRegenerateKeysResponse regenerateKeys(StorageAccountRegenerateKeysParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException;
     
     /**
     * The Regenerate Keys operation regenerates the primary or secondary access
@@ -348,19 +328,13 @@ public interface StorageAccountOperations {
     * Account operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse update(String accountName, StorageAccountUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    OperationResponse update(String accountName, StorageAccountUpdateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Update Storage Account operation updates the label and the

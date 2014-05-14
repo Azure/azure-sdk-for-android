@@ -41,9 +41,7 @@ import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
 * The Service Management API includes operations for managing the disks in your
@@ -120,19 +118,13 @@ public interface VirtualMachineDiskOperations {
     * Machine Data Disk operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse createDataDisk(String serviceName, String deploymentName, String roleName, VirtualMachineDataDiskCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    OperationResponse createDataDisk(String serviceName, String deploymentName, String roleName, VirtualMachineDataDiskCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Create Data Disk operation adds a data disk to a virtual machine.
@@ -174,20 +166,16 @@ public interface VirtualMachineDiskOperations {
     * Machine Disk operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return A virtual machine disk associated with your subscription.
     */
-    VirtualMachineDiskCreateResponse createDisk(VirtualMachineDiskCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException;
+    VirtualMachineDiskCreateResponse createDisk(VirtualMachineDiskCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException;
     
     /**
     * The Create Disk operation adds a disk to the user image repository. The
@@ -307,15 +295,13 @@ public interface VirtualMachineDiskOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Get Data Disk operation response.
     */
-    VirtualMachineDataDiskGetResponse getDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
+    VirtualMachineDataDiskGetResponse getDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException;
     
     /**
     * The Get Data Disk operation retrieves the specified data disk from a
@@ -343,15 +329,13 @@ public interface VirtualMachineDiskOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return A virtual machine disk associated with your subscription.
     */
-    VirtualMachineDiskGetResponse getDisk(String name) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
+    VirtualMachineDiskGetResponse getDisk(String name) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException;
     
     /**
     * The Get Disk operation retrieves a disk from the user image repository.
@@ -375,15 +359,13 @@ public interface VirtualMachineDiskOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The List Disks operation response.
     */
-    VirtualMachineDiskListResponse listDisks() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
+    VirtualMachineDiskListResponse listDisks() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException;
     
     /**
     * The List Disks operation retrieves a list of the disks in your image
@@ -409,19 +391,13 @@ public interface VirtualMachineDiskOperations {
     * Machine Data Disk operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse updateDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber, VirtualMachineDataDiskUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    OperationResponse updateDataDisk(String serviceName, String deploymentName, String roleName, int logicalUnitNumber, VirtualMachineDataDiskUpdateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException;
     
     /**
     * The Update Data Disk operation updates the specified data disk attached
@@ -451,20 +427,16 @@ public interface VirtualMachineDiskOperations {
     * Machine Disk operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return A virtual machine disk associated with your subscription.
     */
-    VirtualMachineDiskUpdateResponse updateDisk(String name, VirtualMachineDiskUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, URISyntaxException;
+    VirtualMachineDiskUpdateResponse updateDisk(String name, VirtualMachineDiskUpdateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException;
     
     /**
     * The Add Disk operation adds a disk to the user image repository. The disk

@@ -34,9 +34,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
 * The Network Management API includes operations for managing the reserved IPs
@@ -51,15 +49,11 @@ public interface ReservedIPOperations {
     * Reserved IP operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -70,7 +64,7 @@ public interface ReservedIPOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    OperationStatusResponse beginCreating(NetworkReservedIPCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException;
+    OperationStatusResponse beginCreating(NetworkReservedIPCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The Begin Creating Reserved IP operation creates a reserved IP from your
@@ -100,14 +94,12 @@ public interface ReservedIPOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse beginDeleting(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    OperationResponse beginDeleting(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The Begin Deleting Reserved IP operation removes a reserved IP from your
@@ -130,10 +122,8 @@ public interface ReservedIPOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -154,7 +144,7 @@ public interface ReservedIPOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    OperationStatusResponse create(NetworkReservedIPCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
+    OperationStatusResponse create(NetworkReservedIPCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, InterruptedException, ExecutionException;
     
     /**
     * The Create Reserved IP operation creates a reserved IP from your the
@@ -184,10 +174,8 @@ public interface ReservedIPOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -208,7 +196,7 @@ public interface ReservedIPOperations {
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    OperationStatusResponse delete(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException;
+    OperationStatusResponse delete(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, InterruptedException, ExecutionException;
     
     /**
     * The Delete Reserved IP operation removes a reserved IP from your the
@@ -237,13 +225,11 @@ public interface ReservedIPOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A reserved IP associated with your subscription.
     */
-    NetworkReservedIPGetResponse get(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    NetworkReservedIPGetResponse get(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The Get Reserved IP operation retrieves the details for the virtual IP
@@ -263,13 +249,11 @@ public interface ReservedIPOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response structure for the Server List operation.
     */
-    NetworkReservedIPListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    NetworkReservedIPListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The List Reserved IP operation retrieves all of the virtual IPs reserved

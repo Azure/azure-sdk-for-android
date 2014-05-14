@@ -52,6 +52,11 @@ public interface WebSiteManagementClient extends FilterableService<WebSiteManage
     URI getBaseUri();
     
     /**
+    * The URI used as the base for all Service Management requests.
+    * @param baseUriValue The BaseUri value.
+    */
+    void setBaseUri(final URI baseUriValue);
+    /**
     * When you create an Azure subscription, it is uniquely identified by a
     * subscription ID. The subscription ID forms part of the URI for every
     * call that you make to the Service Management API. The Azure Service
@@ -62,6 +67,16 @@ public interface WebSiteManagementClient extends FilterableService<WebSiteManage
     */
     SubscriptionCloudCredentials getCredentials();
     
+    /**
+    * When you create an Azure subscription, it is uniquely identified by a
+    * subscription ID. The subscription ID forms part of the URI for every
+    * call that you make to the Service Management API. The Azure Service
+    * Management API uses mutual authentication of management certificates
+    * over SSL to ensure that a request made to the service is secure. No
+    * anonymous requests are allowed.
+    * @param credentialsValue The Credentials value.
+    */
+    void setCredentials(final SubscriptionCloudCredentials credentialsValue);
     /**
     * Operations for managing the server farm in a web space.  (see
     * http://msdn.microsoft.com/en-us/library/windowsazure/dn194277.aspx for

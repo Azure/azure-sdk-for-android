@@ -31,8 +31,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.Future;
-import javax.xml.parsers.ParserConfigurationException;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
 * Operations for determining the version of the Azure Guest Operating System on
@@ -58,15 +57,13 @@ public interface OperatingSystemOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The List Operating Systems operation response.
     */
-    OperatingSystemListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException;
+    OperatingSystemListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException;
     
     /**
     * The List Operating Systems operation lists the versions of the guest
@@ -99,13 +96,11 @@ public interface OperatingSystemOperations {
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The List Operating System Families operation response.
     */
-    OperatingSystemListFamiliesResponse listFamilies() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    OperatingSystemListFamiliesResponse listFamilies() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The List OS Families operation lists the guest operating system families

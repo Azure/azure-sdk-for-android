@@ -23,6 +23,7 @@
 
 package com.microsoft.windowsazure.management.compute;
 
+import android.util.Xml;
 import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.OperationStatus;
@@ -31,7 +32,6 @@ import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
 import com.microsoft.windowsazure.core.utils.Base64;
 import com.microsoft.windowsazure.core.utils.StreamUtils;
-import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.compute.models.AccessControlListRule;
 import com.microsoft.windowsazure.management.compute.models.ConfigurationSet;
@@ -72,6 +72,7 @@ import com.microsoft.windowsazure.tracing.ClientRequestTrackingHandler;
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -85,17 +86,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.xml.bind.DatatypeConverter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+import org.xmlpull.v1.XmlSerializer;
 
 /**
 * The Service Management API includes operations for managing the virtual
@@ -183,12 +177,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * Virtual Machine operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -196,7 +184,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * request ID.
     */
     @Override
-    public OperationResponse beginCapturingOSImage(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineCaptureOSImageParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public OperationResponse beginCapturingOSImage(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineCaptureOSImageParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -319,400 +307,403 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element captureRoleOperationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CaptureRoleOperation");
-        requestDoc.appendChild(captureRoleOperationElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CaptureRoleOperation");
         
-        Element operationTypeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OperationType");
-        operationTypeElement.appendChild(requestDoc.createTextNode("CaptureRoleOperation"));
-        captureRoleOperationElement.appendChild(operationTypeElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OperationType");
+        xmlSerializer.text("CaptureRoleOperation");
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OperationType");
         
-        Element postCaptureActionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PostCaptureAction");
-        postCaptureActionElement.appendChild(requestDoc.createTextNode(parameters.getPostCaptureAction().toString()));
-        captureRoleOperationElement.appendChild(postCaptureActionElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PostCaptureAction");
+        xmlSerializer.text(parameters.getPostCaptureAction().toString());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PostCaptureAction");
         
         if (parameters.getProvisioningConfiguration() != null) {
-            Element provisioningConfigurationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ProvisioningConfiguration");
-            captureRoleOperationElement.appendChild(provisioningConfigurationElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ProvisioningConfiguration");
             
             if (parameters.getProvisioningConfiguration().getConfigurationSetType() != null) {
-                Element configurationSetTypeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ConfigurationSetType");
-                configurationSetTypeElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getConfigurationSetType()));
-                provisioningConfigurationElement.appendChild(configurationSetTypeElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSetType");
+                xmlSerializer.text(parameters.getProvisioningConfiguration().getConfigurationSetType());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSetType");
             }
             
             if (parameters.getProvisioningConfiguration().getInputEndpoints() != null) {
-                Element inputEndpointsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "InputEndpoints");
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "InputEndpoints");
                 for (InputEndpoint inputEndpointsItem : parameters.getProvisioningConfiguration().getInputEndpoints()) {
-                    Element inputEndpointElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
-                    inputEndpointsSequenceElement.appendChild(inputEndpointElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
                     
                     if (inputEndpointsItem.getLoadBalancedEndpointSetName() != null) {
-                        Element loadBalancedEndpointSetNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
-                        loadBalancedEndpointSetNameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancedEndpointSetName()));
-                        inputEndpointElement.appendChild(loadBalancedEndpointSetNameElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
+                        xmlSerializer.text(inputEndpointsItem.getLoadBalancedEndpointSetName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
                     }
                     
                     if (inputEndpointsItem.getLocalPort() != null) {
-                        Element localPortElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LocalPort");
-                        localPortElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLocalPort())));
-                        inputEndpointElement.appendChild(localPortElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LocalPort");
+                        xmlSerializer.text(Integer.toString(inputEndpointsItem.getLocalPort()));
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LocalPort");
                     }
                     
                     if (inputEndpointsItem.getName() != null) {
-                        Element nameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                        nameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getName()));
-                        inputEndpointElement.appendChild(nameElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                        xmlSerializer.text(inputEndpointsItem.getName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
                     }
                     
                     if (inputEndpointsItem.getPort() != null) {
-                        Element portElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Port");
-                        portElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getPort())));
-                        inputEndpointElement.appendChild(portElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Port");
+                        xmlSerializer.text(Integer.toString(inputEndpointsItem.getPort()));
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Port");
                     }
                     
                     if (inputEndpointsItem.getLoadBalancerProbe() != null) {
-                        Element loadBalancerProbeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
-                        inputEndpointElement.appendChild(loadBalancerProbeElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
                         
                         if (inputEndpointsItem.getLoadBalancerProbe().getPath() != null) {
-                            Element pathElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Path");
-                            pathElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancerProbe().getPath()));
-                            loadBalancerProbeElement.appendChild(pathElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Path");
+                            xmlSerializer.text(inputEndpointsItem.getLoadBalancerProbe().getPath());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Path");
                         }
                         
-                        Element portElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Port");
-                        portElement2.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getPort())));
-                        loadBalancerProbeElement.appendChild(portElement2);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Port");
+                        xmlSerializer.text(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getPort()));
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Port");
                         
-                        Element protocolElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Protocol");
-                        protocolElement.appendChild(requestDoc.createTextNode(ComputeManagementClientImpl.loadBalancerProbeTransportProtocolToString(inputEndpointsItem.getLoadBalancerProbe().getProtocol())));
-                        loadBalancerProbeElement.appendChild(protocolElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                        xmlSerializer.text(ComputeManagementClientImpl.loadBalancerProbeTransportProtocolToString(inputEndpointsItem.getLoadBalancerProbe().getProtocol()));
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Protocol");
                         
                         if (inputEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds() != null) {
-                            Element intervalInSecondsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
-                            intervalInSecondsElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds())));
-                            loadBalancerProbeElement.appendChild(intervalInSecondsElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
+                            xmlSerializer.text(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds()));
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
                         }
                         
                         if (inputEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds() != null) {
-                            Element timeoutInSecondsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
-                            timeoutInSecondsElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds())));
-                            loadBalancerProbeElement.appendChild(timeoutInSecondsElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
+                            xmlSerializer.text(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds()));
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
                         }
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
                     }
                     
                     if (inputEndpointsItem.getProtocol() != null) {
-                        Element protocolElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Protocol");
-                        protocolElement2.appendChild(requestDoc.createTextNode(inputEndpointsItem.getProtocol()));
-                        inputEndpointElement.appendChild(protocolElement2);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                        xmlSerializer.text(inputEndpointsItem.getProtocol());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Protocol");
                     }
                     
                     if (inputEndpointsItem.getVirtualIPAddress() != null) {
-                        Element vipElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Vip");
-                        vipElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getVirtualIPAddress().getHostAddress()));
-                        inputEndpointElement.appendChild(vipElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Vip");
+                        xmlSerializer.text(inputEndpointsItem.getVirtualIPAddress().getHostAddress());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Vip");
                     }
                     
                     if (inputEndpointsItem.isEnableDirectServerReturn() != null) {
-                        Element enableDirectServerReturnElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
-                        enableDirectServerReturnElement.appendChild(requestDoc.createTextNode(Boolean.toString(inputEndpointsItem.isEnableDirectServerReturn()).toLowerCase()));
-                        inputEndpointElement.appendChild(enableDirectServerReturnElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
+                        xmlSerializer.text(Boolean.toString(inputEndpointsItem.isEnableDirectServerReturn()).toLowerCase());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
                     }
                     
                     if (inputEndpointsItem.getLoadBalancerName() != null) {
-                        Element loadBalancerNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
-                        loadBalancerNameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancerName()));
-                        inputEndpointElement.appendChild(loadBalancerNameElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
+                        xmlSerializer.text(inputEndpointsItem.getLoadBalancerName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
                     }
                     
                     if (inputEndpointsItem.getEndpointAcl() != null) {
-                        Element endpointAclElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
-                        inputEndpointElement.appendChild(endpointAclElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                         
                         if (inputEndpointsItem.getEndpointAcl().getRules() != null) {
-                            Element rulesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Rules");
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Rules");
                             for (AccessControlListRule rulesItem : inputEndpointsItem.getEndpointAcl().getRules()) {
-                                Element ruleElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Rule");
-                                rulesSequenceElement.appendChild(ruleElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Rule");
                                 
                                 if (rulesItem.getOrder() != null) {
-                                    Element orderElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Order");
-                                    orderElement.appendChild(requestDoc.createTextNode(Integer.toString(rulesItem.getOrder())));
-                                    ruleElement.appendChild(orderElement);
+                                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Order");
+                                    xmlSerializer.text(Integer.toString(rulesItem.getOrder()));
+                                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Order");
                                 }
                                 
                                 if (rulesItem.getAction() != null) {
-                                    Element actionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Action");
-                                    actionElement.appendChild(requestDoc.createTextNode(rulesItem.getAction()));
-                                    ruleElement.appendChild(actionElement);
+                                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Action");
+                                    xmlSerializer.text(rulesItem.getAction());
+                                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Action");
                                 }
                                 
                                 if (rulesItem.getRemoteSubnet() != null) {
-                                    Element remoteSubnetElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
-                                    remoteSubnetElement.appendChild(requestDoc.createTextNode(rulesItem.getRemoteSubnet()));
-                                    ruleElement.appendChild(remoteSubnetElement);
+                                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
+                                    xmlSerializer.text(rulesItem.getRemoteSubnet());
+                                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
                                 }
                                 
                                 if (rulesItem.getDescription() != null) {
-                                    Element descriptionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Description");
-                                    descriptionElement.appendChild(requestDoc.createTextNode(rulesItem.getDescription()));
-                                    ruleElement.appendChild(descriptionElement);
+                                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Description");
+                                    xmlSerializer.text(rulesItem.getDescription());
+                                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Description");
                                 }
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Rule");
                             }
-                            endpointAclElement.appendChild(rulesSequenceElement);
+                            
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Rules");
                         }
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
                 }
-                provisioningConfigurationElement.appendChild(inputEndpointsSequenceElement);
+                
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "InputEndpoints");
             }
             
             if (parameters.getProvisioningConfiguration().getSubnetNames() != null) {
-                Element subnetNamesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SubnetNames");
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SubnetNames");
                 for (String subnetNamesItem : parameters.getProvisioningConfiguration().getSubnetNames()) {
-                    Element subnetNamesItemElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SubnetName");
-                    subnetNamesItemElement.appendChild(requestDoc.createTextNode(subnetNamesItem));
-                    subnetNamesSequenceElement.appendChild(subnetNamesItemElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SubnetName");
+                    xmlSerializer.text(subnetNamesItem);
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SubnetName");
                 }
-                provisioningConfigurationElement.appendChild(subnetNamesSequenceElement);
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SubnetNames");
             }
             
             if (parameters.getProvisioningConfiguration().getStaticVirtualNetworkIPAddress() != null) {
-                Element staticVirtualNetworkIPAddressElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
-                staticVirtualNetworkIPAddressElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getStaticVirtualNetworkIPAddress()));
-                provisioningConfigurationElement.appendChild(staticVirtualNetworkIPAddressElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
+                xmlSerializer.text(parameters.getProvisioningConfiguration().getStaticVirtualNetworkIPAddress());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
             }
             
             if (parameters.getProvisioningConfiguration().getPublicIPs() != null) {
-                Element publicIPsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIPs");
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicIPs");
                 for (ConfigurationSet.PublicIP publicIPsItem : parameters.getProvisioningConfiguration().getPublicIPs()) {
-                    Element publicIPElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIP");
-                    publicIPsSequenceElement.appendChild(publicIPElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicIP");
                     
                     if (publicIPsItem.getName() != null) {
-                        Element nameElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                        nameElement2.appendChild(requestDoc.createTextNode(publicIPsItem.getName()));
-                        publicIPElement.appendChild(nameElement2);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                        xmlSerializer.text(publicIPsItem.getName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicIP");
                 }
-                provisioningConfigurationElement.appendChild(publicIPsSequenceElement);
+                
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicIPs");
             }
             
             if (parameters.getProvisioningConfiguration().getComputerName() != null) {
-                Element computerNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ComputerName");
-                computerNameElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getComputerName()));
-                provisioningConfigurationElement.appendChild(computerNameElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ComputerName");
+                xmlSerializer.text(parameters.getProvisioningConfiguration().getComputerName());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ComputerName");
             }
             
             if (parameters.getProvisioningConfiguration().getAdminPassword() != null) {
-                Element adminPasswordElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AdminPassword");
-                adminPasswordElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getAdminPassword()));
-                provisioningConfigurationElement.appendChild(adminPasswordElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AdminPassword");
+                xmlSerializer.text(parameters.getProvisioningConfiguration().getAdminPassword());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AdminPassword");
             }
             
             if (parameters.getProvisioningConfiguration().isResetPasswordOnFirstLogon() != null) {
-                Element resetPasswordOnFirstLogonElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResetPasswordOnFirstLogon");
-                resetPasswordOnFirstLogonElement.appendChild(requestDoc.createTextNode(Boolean.toString(parameters.getProvisioningConfiguration().isResetPasswordOnFirstLogon()).toLowerCase()));
-                provisioningConfigurationElement.appendChild(resetPasswordOnFirstLogonElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResetPasswordOnFirstLogon");
+                xmlSerializer.text(Boolean.toString(parameters.getProvisioningConfiguration().isResetPasswordOnFirstLogon()).toLowerCase());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResetPasswordOnFirstLogon");
             }
             
             if (parameters.getProvisioningConfiguration().isEnableAutomaticUpdates() != null) {
-                Element enableAutomaticUpdatesElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EnableAutomaticUpdates");
-                enableAutomaticUpdatesElement.appendChild(requestDoc.createTextNode(Boolean.toString(parameters.getProvisioningConfiguration().isEnableAutomaticUpdates()).toLowerCase()));
-                provisioningConfigurationElement.appendChild(enableAutomaticUpdatesElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "EnableAutomaticUpdates");
+                xmlSerializer.text(Boolean.toString(parameters.getProvisioningConfiguration().isEnableAutomaticUpdates()).toLowerCase());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "EnableAutomaticUpdates");
             }
             
             if (parameters.getProvisioningConfiguration().getTimeZone() != null) {
-                Element timeZoneElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "TimeZone");
-                timeZoneElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getTimeZone()));
-                provisioningConfigurationElement.appendChild(timeZoneElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "TimeZone");
+                xmlSerializer.text(parameters.getProvisioningConfiguration().getTimeZone());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "TimeZone");
             }
             
             if (parameters.getProvisioningConfiguration().getDomainJoin() != null) {
-                Element domainJoinElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DomainJoin");
-                provisioningConfigurationElement.appendChild(domainJoinElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DomainJoin");
                 
                 if (parameters.getProvisioningConfiguration().getDomainJoin().getCredentials() != null) {
-                    Element credentialsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Credentials");
-                    domainJoinElement.appendChild(credentialsElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Credentials");
                     
                     if (parameters.getProvisioningConfiguration().getDomainJoin().getCredentials().getDomain() != null) {
-                        Element domainElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Domain");
-                        domainElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getDomainJoin().getCredentials().getDomain()));
-                        credentialsElement.appendChild(domainElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Domain");
+                        xmlSerializer.text(parameters.getProvisioningConfiguration().getDomainJoin().getCredentials().getDomain());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Domain");
                     }
                     
-                    Element usernameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Username");
-                    usernameElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getDomainJoin().getCredentials().getUserName()));
-                    credentialsElement.appendChild(usernameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Username");
+                    xmlSerializer.text(parameters.getProvisioningConfiguration().getDomainJoin().getCredentials().getUserName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Username");
                     
-                    Element passwordElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Password");
-                    passwordElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getDomainJoin().getCredentials().getPassword()));
-                    credentialsElement.appendChild(passwordElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Password");
+                    xmlSerializer.text(parameters.getProvisioningConfiguration().getDomainJoin().getCredentials().getPassword());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Password");
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Credentials");
                 }
                 
                 if (parameters.getProvisioningConfiguration().getDomainJoin().getDomainToJoin() != null) {
-                    Element joinDomainElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "JoinDomain");
-                    joinDomainElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getDomainJoin().getDomainToJoin()));
-                    domainJoinElement.appendChild(joinDomainElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "JoinDomain");
+                    xmlSerializer.text(parameters.getProvisioningConfiguration().getDomainJoin().getDomainToJoin());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "JoinDomain");
                 }
                 
                 if (parameters.getProvisioningConfiguration().getDomainJoin().getLdapMachineObjectOU() != null) {
-                    Element machineObjectOUElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MachineObjectOU");
-                    machineObjectOUElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getDomainJoin().getLdapMachineObjectOU()));
-                    domainJoinElement.appendChild(machineObjectOUElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MachineObjectOU");
+                    xmlSerializer.text(parameters.getProvisioningConfiguration().getDomainJoin().getLdapMachineObjectOU());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MachineObjectOU");
                 }
                 
                 if (parameters.getProvisioningConfiguration().getDomainJoin().getProvisioning() != null) {
-                    Element provisioningElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Provisioning");
-                    domainJoinElement.appendChild(provisioningElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Provisioning");
                     
                     if (parameters.getProvisioningConfiguration().getDomainJoin().getProvisioning().getAccountData() != null) {
-                        Element accountDataElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AccountData");
-                        accountDataElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getDomainJoin().getProvisioning().getAccountData()));
-                        provisioningElement.appendChild(accountDataElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AccountData");
+                        xmlSerializer.text(parameters.getProvisioningConfiguration().getDomainJoin().getProvisioning().getAccountData());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AccountData");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Provisioning");
                 }
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DomainJoin");
             }
             
             if (parameters.getProvisioningConfiguration().getStoredCertificateSettings() != null) {
-                Element storedCertificateSettingsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StoredCertificateSettings");
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StoredCertificateSettings");
                 for (StoredCertificateSettings storedCertificateSettingsItem : parameters.getProvisioningConfiguration().getStoredCertificateSettings()) {
-                    Element certificateSettingElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CertificateSetting");
-                    storedCertificateSettingsSequenceElement.appendChild(certificateSettingElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CertificateSetting");
                     
-                    Element storeLocationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StoreLocation");
-                    storeLocationElement.appendChild(requestDoc.createTextNode("LocalMachine"));
-                    certificateSettingElement.appendChild(storeLocationElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StoreLocation");
+                    xmlSerializer.text("LocalMachine");
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StoreLocation");
                     
-                    Element storeNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StoreName");
-                    storeNameElement.appendChild(requestDoc.createTextNode(storedCertificateSettingsItem.getStoreName()));
-                    certificateSettingElement.appendChild(storeNameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StoreName");
+                    xmlSerializer.text(storedCertificateSettingsItem.getStoreName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StoreName");
                     
-                    Element thumbprintElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Thumbprint");
-                    thumbprintElement.appendChild(requestDoc.createTextNode(storedCertificateSettingsItem.getThumbprint()));
-                    certificateSettingElement.appendChild(thumbprintElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Thumbprint");
+                    xmlSerializer.text(storedCertificateSettingsItem.getThumbprint());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Thumbprint");
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CertificateSetting");
                 }
-                provisioningConfigurationElement.appendChild(storedCertificateSettingsSequenceElement);
+                
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StoredCertificateSettings");
             }
             
             if (parameters.getProvisioningConfiguration().getWindowsRemoteManagement() != null) {
-                Element winRMElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "WinRM");
-                provisioningConfigurationElement.appendChild(winRMElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "WinRM");
                 
                 if (parameters.getProvisioningConfiguration().getWindowsRemoteManagement().getListeners() != null) {
-                    Element listenersSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Listeners");
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Listeners");
                     for (WindowsRemoteManagementListener listenersItem : parameters.getProvisioningConfiguration().getWindowsRemoteManagement().getListeners()) {
-                        Element listenerElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Listener");
-                        listenersSequenceElement.appendChild(listenerElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Listener");
                         
                         if (listenersItem.getCertificateThumbprint() != null) {
-                            Element certificateThumbprintElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CertificateThumbprint");
-                            certificateThumbprintElement.appendChild(requestDoc.createTextNode(listenersItem.getCertificateThumbprint()));
-                            listenerElement.appendChild(certificateThumbprintElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CertificateThumbprint");
+                            xmlSerializer.text(listenersItem.getCertificateThumbprint());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CertificateThumbprint");
                         }
                         
-                        Element protocolElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Protocol");
-                        protocolElement3.appendChild(requestDoc.createTextNode(listenersItem.getListenerType().toString()));
-                        listenerElement.appendChild(protocolElement3);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                        xmlSerializer.text(listenersItem.getListenerType().toString());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Listener");
                     }
-                    winRMElement.appendChild(listenersSequenceElement);
+                    
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Listeners");
                 }
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "WinRM");
             }
             
             if (parameters.getProvisioningConfiguration().getAdminUserName() != null) {
-                Element adminUsernameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AdminUsername");
-                adminUsernameElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getAdminUserName()));
-                provisioningConfigurationElement.appendChild(adminUsernameElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AdminUsername");
+                xmlSerializer.text(parameters.getProvisioningConfiguration().getAdminUserName());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AdminUsername");
             }
             
             if (parameters.getProvisioningConfiguration().getHostName() != null) {
-                Element hostNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostName");
-                hostNameElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getHostName()));
-                provisioningConfigurationElement.appendChild(hostNameElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "HostName");
+                xmlSerializer.text(parameters.getProvisioningConfiguration().getHostName());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "HostName");
             }
             
             if (parameters.getProvisioningConfiguration().getUserName() != null) {
-                Element userNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "UserName");
-                userNameElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getUserName()));
-                provisioningConfigurationElement.appendChild(userNameElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "UserName");
+                xmlSerializer.text(parameters.getProvisioningConfiguration().getUserName());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "UserName");
             }
             
             if (parameters.getProvisioningConfiguration().getUserPassword() != null) {
-                Element userPasswordElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "UserPassword");
-                userPasswordElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getUserPassword()));
-                provisioningConfigurationElement.appendChild(userPasswordElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "UserPassword");
+                xmlSerializer.text(parameters.getProvisioningConfiguration().getUserPassword());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "UserPassword");
             }
             
             if (parameters.getProvisioningConfiguration().isDisableSshPasswordAuthentication() != null) {
-                Element disableSshPasswordAuthenticationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DisableSshPasswordAuthentication");
-                disableSshPasswordAuthenticationElement.appendChild(requestDoc.createTextNode(Boolean.toString(parameters.getProvisioningConfiguration().isDisableSshPasswordAuthentication()).toLowerCase()));
-                provisioningConfigurationElement.appendChild(disableSshPasswordAuthenticationElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DisableSshPasswordAuthentication");
+                xmlSerializer.text(Boolean.toString(parameters.getProvisioningConfiguration().isDisableSshPasswordAuthentication()).toLowerCase());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DisableSshPasswordAuthentication");
             }
             
             if (parameters.getProvisioningConfiguration().getSshSettings() != null) {
-                Element sSHElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SSH");
-                provisioningConfigurationElement.appendChild(sSHElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SSH");
                 
                 if (parameters.getProvisioningConfiguration().getSshSettings().getPublicKeys() != null) {
-                    Element publicKeysSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicKeys");
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicKeys");
                     for (SshSettingPublicKey publicKeysItem : parameters.getProvisioningConfiguration().getSshSettings().getPublicKeys()) {
-                        Element publicKeyElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicKey");
-                        publicKeysSequenceElement.appendChild(publicKeyElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicKey");
                         
-                        Element fingerprintElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Fingerprint");
-                        fingerprintElement.appendChild(requestDoc.createTextNode(publicKeysItem.getFingerprint()));
-                        publicKeyElement.appendChild(fingerprintElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
+                        xmlSerializer.text(publicKeysItem.getFingerprint());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
                         
-                        Element pathElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Path");
-                        pathElement2.appendChild(requestDoc.createTextNode(publicKeysItem.getPath()));
-                        publicKeyElement.appendChild(pathElement2);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Path");
+                        xmlSerializer.text(publicKeysItem.getPath());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Path");
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicKey");
                     }
-                    sSHElement.appendChild(publicKeysSequenceElement);
+                    
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicKeys");
                 }
                 
                 if (parameters.getProvisioningConfiguration().getSshSettings().getKeyPairs() != null) {
-                    Element keyPairsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "KeyPairs");
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "KeyPairs");
                     for (SshSettingKeyPair keyPairsItem : parameters.getProvisioningConfiguration().getSshSettings().getKeyPairs()) {
-                        Element keyPairElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "KeyPair");
-                        keyPairsSequenceElement.appendChild(keyPairElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "KeyPair");
                         
-                        Element fingerprintElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Fingerprint");
-                        fingerprintElement2.appendChild(requestDoc.createTextNode(keyPairsItem.getFingerprint()));
-                        keyPairElement.appendChild(fingerprintElement2);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
+                        xmlSerializer.text(keyPairsItem.getFingerprint());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
                         
-                        Element pathElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Path");
-                        pathElement3.appendChild(requestDoc.createTextNode(keyPairsItem.getPath()));
-                        keyPairElement.appendChild(pathElement3);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Path");
+                        xmlSerializer.text(keyPairsItem.getPath());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Path");
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "KeyPair");
                     }
-                    sSHElement.appendChild(keyPairsSequenceElement);
+                    
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "KeyPairs");
                 }
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SSH");
             }
             
             if (parameters.getProvisioningConfiguration().getCustomData() != null) {
-                Element customDataElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CustomData");
-                customDataElement.appendChild(requestDoc.createTextNode(parameters.getProvisioningConfiguration().getCustomData()));
-                provisioningConfigurationElement.appendChild(customDataElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CustomData");
+                xmlSerializer.text(parameters.getProvisioningConfiguration().getCustomData());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CustomData");
             }
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ProvisioningConfiguration");
         }
         
-        Element targetImageLabelElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "TargetImageLabel");
-        targetImageLabelElement.appendChild(requestDoc.createTextNode(parameters.getTargetImageLabel()));
-        captureRoleOperationElement.appendChild(targetImageLabelElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "TargetImageLabel");
+        xmlSerializer.text(parameters.getTargetImageLabel());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "TargetImageLabel");
         
-        Element targetImageNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "TargetImageName");
-        targetImageNameElement.appendChild(requestDoc.createTextNode(parameters.getTargetImageName()));
-        captureRoleOperationElement.appendChild(targetImageNameElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "TargetImageName");
+        xmlSerializer.text(parameters.getTargetImageName());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "TargetImageName");
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CaptureRoleOperation");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -779,12 +770,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * Machine operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -792,7 +777,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * request ID.
     */
     @Override
-    public OperationResponse beginCapturingVMImage(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineCaptureVMImageParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public OperationResponse beginCapturingVMImage(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineCaptureVMImageParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -847,41 +832,37 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element captureRoleAsVMImageOperationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CaptureRoleAsVMImageOperation");
-        requestDoc.appendChild(captureRoleAsVMImageOperationElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CaptureRoleAsVMImageOperation");
         
-        Element operationTypeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OperationType");
-        operationTypeElement.appendChild(requestDoc.createTextNode("CaptureRoleAsVMImageOperation"));
-        captureRoleAsVMImageOperationElement.appendChild(operationTypeElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OperationType");
+        xmlSerializer.text("CaptureRoleAsVMImageOperation");
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OperationType");
         
         if (parameters.getOSState() != null) {
-            Element oSStateElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OSState");
-            oSStateElement.appendChild(requestDoc.createTextNode(parameters.getOSState()));
-            captureRoleAsVMImageOperationElement.appendChild(oSStateElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OSState");
+            xmlSerializer.text(parameters.getOSState());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OSState");
         }
         
         if (parameters.getVMImageName() != null) {
-            Element vMImageNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "VMImageName");
-            vMImageNameElement.appendChild(requestDoc.createTextNode(parameters.getVMImageName()));
-            captureRoleAsVMImageOperationElement.appendChild(vMImageNameElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "VMImageName");
+            xmlSerializer.text(parameters.getVMImageName());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "VMImageName");
         }
         
         if (parameters.getVMImageLabel() != null) {
-            Element vMImageLabelElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "VMImageLabel");
-            vMImageLabelElement.appendChild(requestDoc.createTextNode(parameters.getVMImageLabel()));
-            captureRoleAsVMImageOperationElement.appendChild(vMImageLabelElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "VMImageLabel");
+            xmlSerializer.text(parameters.getVMImageLabel());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "VMImageLabel");
         }
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CaptureRoleAsVMImageOperation");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -968,12 +949,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * Virtual Machine operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -981,7 +956,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * request ID.
     */
     @Override
-    public OperationResponse beginCreating(String serviceName, String deploymentName, VirtualMachineCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public OperationResponse beginCreating(String serviceName, String deploymentName, VirtualMachineCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -1099,584 +1074,591 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element persistentVMRoleElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PersistentVMRole");
-        requestDoc.appendChild(persistentVMRoleElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PersistentVMRole");
         
-        Element roleNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RoleName");
-        roleNameElement.appendChild(requestDoc.createTextNode(parameters.getRoleName()));
-        persistentVMRoleElement.appendChild(roleNameElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RoleName");
+        xmlSerializer.text(parameters.getRoleName());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RoleName");
         
-        Element roleTypeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RoleType");
-        roleTypeElement.appendChild(requestDoc.createTextNode("PersistentVMRole"));
-        persistentVMRoleElement.appendChild(roleTypeElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RoleType");
+        xmlSerializer.text("PersistentVMRole");
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RoleType");
         
         if (parameters.getConfigurationSets() != null) {
-            Element configurationSetsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ConfigurationSets");
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSets");
             for (ConfigurationSet configurationSetsItem : parameters.getConfigurationSets()) {
-                Element configurationSetElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ConfigurationSet");
-                configurationSetsSequenceElement.appendChild(configurationSetElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSet");
                 
                 if (configurationSetsItem.getConfigurationSetType() != null) {
-                    Element configurationSetTypeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ConfigurationSetType");
-                    configurationSetTypeElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getConfigurationSetType()));
-                    configurationSetElement.appendChild(configurationSetTypeElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSetType");
+                    xmlSerializer.text(configurationSetsItem.getConfigurationSetType());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSetType");
                 }
                 
                 if (configurationSetsItem.getInputEndpoints() != null) {
-                    Element inputEndpointsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "InputEndpoints");
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "InputEndpoints");
                     for (InputEndpoint inputEndpointsItem : configurationSetsItem.getInputEndpoints()) {
-                        Element inputEndpointElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
-                        inputEndpointsSequenceElement.appendChild(inputEndpointElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
                         
                         if (inputEndpointsItem.getLoadBalancedEndpointSetName() != null) {
-                            Element loadBalancedEndpointSetNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
-                            loadBalancedEndpointSetNameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancedEndpointSetName()));
-                            inputEndpointElement.appendChild(loadBalancedEndpointSetNameElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
+                            xmlSerializer.text(inputEndpointsItem.getLoadBalancedEndpointSetName());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
                         }
                         
                         if (inputEndpointsItem.getLocalPort() != null) {
-                            Element localPortElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LocalPort");
-                            localPortElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLocalPort())));
-                            inputEndpointElement.appendChild(localPortElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LocalPort");
+                            xmlSerializer.text(Integer.toString(inputEndpointsItem.getLocalPort()));
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LocalPort");
                         }
                         
                         if (inputEndpointsItem.getName() != null) {
-                            Element nameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                            nameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getName()));
-                            inputEndpointElement.appendChild(nameElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                            xmlSerializer.text(inputEndpointsItem.getName());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
                         }
                         
                         if (inputEndpointsItem.getPort() != null) {
-                            Element portElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Port");
-                            portElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getPort())));
-                            inputEndpointElement.appendChild(portElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Port");
+                            xmlSerializer.text(Integer.toString(inputEndpointsItem.getPort()));
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Port");
                         }
                         
                         if (inputEndpointsItem.getLoadBalancerProbe() != null) {
-                            Element loadBalancerProbeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
-                            inputEndpointElement.appendChild(loadBalancerProbeElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
                             
                             if (inputEndpointsItem.getLoadBalancerProbe().getPath() != null) {
-                                Element pathElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Path");
-                                pathElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancerProbe().getPath()));
-                                loadBalancerProbeElement.appendChild(pathElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Path");
+                                xmlSerializer.text(inputEndpointsItem.getLoadBalancerProbe().getPath());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Path");
                             }
                             
-                            Element portElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Port");
-                            portElement2.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getPort())));
-                            loadBalancerProbeElement.appendChild(portElement2);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Port");
+                            xmlSerializer.text(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getPort()));
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Port");
                             
-                            Element protocolElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Protocol");
-                            protocolElement.appendChild(requestDoc.createTextNode(ComputeManagementClientImpl.loadBalancerProbeTransportProtocolToString(inputEndpointsItem.getLoadBalancerProbe().getProtocol())));
-                            loadBalancerProbeElement.appendChild(protocolElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                            xmlSerializer.text(ComputeManagementClientImpl.loadBalancerProbeTransportProtocolToString(inputEndpointsItem.getLoadBalancerProbe().getProtocol()));
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Protocol");
                             
                             if (inputEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds() != null) {
-                                Element intervalInSecondsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
-                                intervalInSecondsElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds())));
-                                loadBalancerProbeElement.appendChild(intervalInSecondsElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
+                                xmlSerializer.text(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds()));
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
                             }
                             
                             if (inputEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds() != null) {
-                                Element timeoutInSecondsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
-                                timeoutInSecondsElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds())));
-                                loadBalancerProbeElement.appendChild(timeoutInSecondsElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
+                                xmlSerializer.text(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds()));
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
                             }
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
                         }
                         
                         if (inputEndpointsItem.getProtocol() != null) {
-                            Element protocolElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Protocol");
-                            protocolElement2.appendChild(requestDoc.createTextNode(inputEndpointsItem.getProtocol()));
-                            inputEndpointElement.appendChild(protocolElement2);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                            xmlSerializer.text(inputEndpointsItem.getProtocol());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Protocol");
                         }
                         
                         if (inputEndpointsItem.getVirtualIPAddress() != null) {
-                            Element vipElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Vip");
-                            vipElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getVirtualIPAddress().getHostAddress()));
-                            inputEndpointElement.appendChild(vipElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Vip");
+                            xmlSerializer.text(inputEndpointsItem.getVirtualIPAddress().getHostAddress());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Vip");
                         }
                         
                         if (inputEndpointsItem.isEnableDirectServerReturn() != null) {
-                            Element enableDirectServerReturnElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
-                            enableDirectServerReturnElement.appendChild(requestDoc.createTextNode(Boolean.toString(inputEndpointsItem.isEnableDirectServerReturn()).toLowerCase()));
-                            inputEndpointElement.appendChild(enableDirectServerReturnElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
+                            xmlSerializer.text(Boolean.toString(inputEndpointsItem.isEnableDirectServerReturn()).toLowerCase());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
                         }
                         
                         if (inputEndpointsItem.getLoadBalancerName() != null) {
-                            Element loadBalancerNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
-                            loadBalancerNameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancerName()));
-                            inputEndpointElement.appendChild(loadBalancerNameElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
+                            xmlSerializer.text(inputEndpointsItem.getLoadBalancerName());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
                         }
                         
                         if (inputEndpointsItem.getEndpointAcl() != null) {
-                            Element endpointAclElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
-                            inputEndpointElement.appendChild(endpointAclElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                             
                             if (inputEndpointsItem.getEndpointAcl().getRules() != null) {
-                                Element rulesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Rules");
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Rules");
                                 for (AccessControlListRule rulesItem : inputEndpointsItem.getEndpointAcl().getRules()) {
-                                    Element ruleElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Rule");
-                                    rulesSequenceElement.appendChild(ruleElement);
+                                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Rule");
                                     
                                     if (rulesItem.getOrder() != null) {
-                                        Element orderElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Order");
-                                        orderElement.appendChild(requestDoc.createTextNode(Integer.toString(rulesItem.getOrder())));
-                                        ruleElement.appendChild(orderElement);
+                                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Order");
+                                        xmlSerializer.text(Integer.toString(rulesItem.getOrder()));
+                                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Order");
                                     }
                                     
                                     if (rulesItem.getAction() != null) {
-                                        Element actionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Action");
-                                        actionElement.appendChild(requestDoc.createTextNode(rulesItem.getAction()));
-                                        ruleElement.appendChild(actionElement);
+                                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Action");
+                                        xmlSerializer.text(rulesItem.getAction());
+                                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Action");
                                     }
                                     
                                     if (rulesItem.getRemoteSubnet() != null) {
-                                        Element remoteSubnetElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
-                                        remoteSubnetElement.appendChild(requestDoc.createTextNode(rulesItem.getRemoteSubnet()));
-                                        ruleElement.appendChild(remoteSubnetElement);
+                                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
+                                        xmlSerializer.text(rulesItem.getRemoteSubnet());
+                                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
                                     }
                                     
                                     if (rulesItem.getDescription() != null) {
-                                        Element descriptionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Description");
-                                        descriptionElement.appendChild(requestDoc.createTextNode(rulesItem.getDescription()));
-                                        ruleElement.appendChild(descriptionElement);
+                                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Description");
+                                        xmlSerializer.text(rulesItem.getDescription());
+                                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Description");
                                     }
+                                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Rule");
                                 }
-                                endpointAclElement.appendChild(rulesSequenceElement);
+                                
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Rules");
                             }
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                         }
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
                     }
-                    configurationSetElement.appendChild(inputEndpointsSequenceElement);
+                    
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "InputEndpoints");
                 }
                 
                 if (configurationSetsItem.getSubnetNames() != null) {
-                    Element subnetNamesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SubnetNames");
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SubnetNames");
                     for (String subnetNamesItem : configurationSetsItem.getSubnetNames()) {
-                        Element subnetNamesItemElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SubnetName");
-                        subnetNamesItemElement.appendChild(requestDoc.createTextNode(subnetNamesItem));
-                        subnetNamesSequenceElement.appendChild(subnetNamesItemElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SubnetName");
+                        xmlSerializer.text(subnetNamesItem);
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SubnetName");
                     }
-                    configurationSetElement.appendChild(subnetNamesSequenceElement);
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SubnetNames");
                 }
                 
                 if (configurationSetsItem.getStaticVirtualNetworkIPAddress() != null) {
-                    Element staticVirtualNetworkIPAddressElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
-                    staticVirtualNetworkIPAddressElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getStaticVirtualNetworkIPAddress()));
-                    configurationSetElement.appendChild(staticVirtualNetworkIPAddressElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
+                    xmlSerializer.text(configurationSetsItem.getStaticVirtualNetworkIPAddress());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
                 }
                 
                 if (configurationSetsItem.getPublicIPs() != null) {
-                    Element publicIPsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIPs");
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicIPs");
                     for (ConfigurationSet.PublicIP publicIPsItem : configurationSetsItem.getPublicIPs()) {
-                        Element publicIPElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIP");
-                        publicIPsSequenceElement.appendChild(publicIPElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicIP");
                         
                         if (publicIPsItem.getName() != null) {
-                            Element nameElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                            nameElement2.appendChild(requestDoc.createTextNode(publicIPsItem.getName()));
-                            publicIPElement.appendChild(nameElement2);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                            xmlSerializer.text(publicIPsItem.getName());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
                         }
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicIP");
                     }
-                    configurationSetElement.appendChild(publicIPsSequenceElement);
+                    
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicIPs");
                 }
                 
                 if (configurationSetsItem.getComputerName() != null) {
-                    Element computerNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ComputerName");
-                    computerNameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getComputerName()));
-                    configurationSetElement.appendChild(computerNameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ComputerName");
+                    xmlSerializer.text(configurationSetsItem.getComputerName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ComputerName");
                 }
                 
                 if (configurationSetsItem.getAdminPassword() != null) {
-                    Element adminPasswordElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AdminPassword");
-                    adminPasswordElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getAdminPassword()));
-                    configurationSetElement.appendChild(adminPasswordElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AdminPassword");
+                    xmlSerializer.text(configurationSetsItem.getAdminPassword());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AdminPassword");
                 }
                 
                 if (configurationSetsItem.isResetPasswordOnFirstLogon() != null) {
-                    Element resetPasswordOnFirstLogonElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResetPasswordOnFirstLogon");
-                    resetPasswordOnFirstLogonElement.appendChild(requestDoc.createTextNode(Boolean.toString(configurationSetsItem.isResetPasswordOnFirstLogon()).toLowerCase()));
-                    configurationSetElement.appendChild(resetPasswordOnFirstLogonElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResetPasswordOnFirstLogon");
+                    xmlSerializer.text(Boolean.toString(configurationSetsItem.isResetPasswordOnFirstLogon()).toLowerCase());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResetPasswordOnFirstLogon");
                 }
                 
                 if (configurationSetsItem.isEnableAutomaticUpdates() != null) {
-                    Element enableAutomaticUpdatesElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EnableAutomaticUpdates");
-                    enableAutomaticUpdatesElement.appendChild(requestDoc.createTextNode(Boolean.toString(configurationSetsItem.isEnableAutomaticUpdates()).toLowerCase()));
-                    configurationSetElement.appendChild(enableAutomaticUpdatesElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "EnableAutomaticUpdates");
+                    xmlSerializer.text(Boolean.toString(configurationSetsItem.isEnableAutomaticUpdates()).toLowerCase());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "EnableAutomaticUpdates");
                 }
                 
                 if (configurationSetsItem.getTimeZone() != null) {
-                    Element timeZoneElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "TimeZone");
-                    timeZoneElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getTimeZone()));
-                    configurationSetElement.appendChild(timeZoneElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "TimeZone");
+                    xmlSerializer.text(configurationSetsItem.getTimeZone());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "TimeZone");
                 }
                 
                 if (configurationSetsItem.getDomainJoin() != null) {
-                    Element domainJoinElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DomainJoin");
-                    configurationSetElement.appendChild(domainJoinElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DomainJoin");
                     
                     if (configurationSetsItem.getDomainJoin().getCredentials() != null) {
-                        Element credentialsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Credentials");
-                        domainJoinElement.appendChild(credentialsElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Credentials");
                         
                         if (configurationSetsItem.getDomainJoin().getCredentials().getDomain() != null) {
-                            Element domainElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Domain");
-                            domainElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getCredentials().getDomain()));
-                            credentialsElement.appendChild(domainElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Domain");
+                            xmlSerializer.text(configurationSetsItem.getDomainJoin().getCredentials().getDomain());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Domain");
                         }
                         
-                        Element usernameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Username");
-                        usernameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getCredentials().getUserName()));
-                        credentialsElement.appendChild(usernameElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Username");
+                        xmlSerializer.text(configurationSetsItem.getDomainJoin().getCredentials().getUserName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Username");
                         
-                        Element passwordElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Password");
-                        passwordElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getCredentials().getPassword()));
-                        credentialsElement.appendChild(passwordElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Password");
+                        xmlSerializer.text(configurationSetsItem.getDomainJoin().getCredentials().getPassword());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Password");
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Credentials");
                     }
                     
                     if (configurationSetsItem.getDomainJoin().getDomainToJoin() != null) {
-                        Element joinDomainElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "JoinDomain");
-                        joinDomainElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getDomainToJoin()));
-                        domainJoinElement.appendChild(joinDomainElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "JoinDomain");
+                        xmlSerializer.text(configurationSetsItem.getDomainJoin().getDomainToJoin());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "JoinDomain");
                     }
                     
                     if (configurationSetsItem.getDomainJoin().getLdapMachineObjectOU() != null) {
-                        Element machineObjectOUElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MachineObjectOU");
-                        machineObjectOUElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getLdapMachineObjectOU()));
-                        domainJoinElement.appendChild(machineObjectOUElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MachineObjectOU");
+                        xmlSerializer.text(configurationSetsItem.getDomainJoin().getLdapMachineObjectOU());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MachineObjectOU");
                     }
                     
                     if (configurationSetsItem.getDomainJoin().getProvisioning() != null) {
-                        Element provisioningElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Provisioning");
-                        domainJoinElement.appendChild(provisioningElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Provisioning");
                         
                         if (configurationSetsItem.getDomainJoin().getProvisioning().getAccountData() != null) {
-                            Element accountDataElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AccountData");
-                            accountDataElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getProvisioning().getAccountData()));
-                            provisioningElement.appendChild(accountDataElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AccountData");
+                            xmlSerializer.text(configurationSetsItem.getDomainJoin().getProvisioning().getAccountData());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AccountData");
                         }
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Provisioning");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DomainJoin");
                 }
                 
                 if (configurationSetsItem.getStoredCertificateSettings() != null) {
-                    Element storedCertificateSettingsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StoredCertificateSettings");
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StoredCertificateSettings");
                     for (StoredCertificateSettings storedCertificateSettingsItem : configurationSetsItem.getStoredCertificateSettings()) {
-                        Element certificateSettingElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CertificateSetting");
-                        storedCertificateSettingsSequenceElement.appendChild(certificateSettingElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CertificateSetting");
                         
-                        Element storeLocationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StoreLocation");
-                        storeLocationElement.appendChild(requestDoc.createTextNode("LocalMachine"));
-                        certificateSettingElement.appendChild(storeLocationElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StoreLocation");
+                        xmlSerializer.text("LocalMachine");
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StoreLocation");
                         
-                        Element storeNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StoreName");
-                        storeNameElement.appendChild(requestDoc.createTextNode(storedCertificateSettingsItem.getStoreName()));
-                        certificateSettingElement.appendChild(storeNameElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StoreName");
+                        xmlSerializer.text(storedCertificateSettingsItem.getStoreName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StoreName");
                         
-                        Element thumbprintElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Thumbprint");
-                        thumbprintElement.appendChild(requestDoc.createTextNode(storedCertificateSettingsItem.getThumbprint()));
-                        certificateSettingElement.appendChild(thumbprintElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Thumbprint");
+                        xmlSerializer.text(storedCertificateSettingsItem.getThumbprint());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Thumbprint");
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CertificateSetting");
                     }
-                    configurationSetElement.appendChild(storedCertificateSettingsSequenceElement);
+                    
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StoredCertificateSettings");
                 }
                 
                 if (configurationSetsItem.getWindowsRemoteManagement() != null) {
-                    Element winRMElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "WinRM");
-                    configurationSetElement.appendChild(winRMElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "WinRM");
                     
                     if (configurationSetsItem.getWindowsRemoteManagement().getListeners() != null) {
-                        Element listenersSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Listeners");
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Listeners");
                         for (WindowsRemoteManagementListener listenersItem : configurationSetsItem.getWindowsRemoteManagement().getListeners()) {
-                            Element listenerElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Listener");
-                            listenersSequenceElement.appendChild(listenerElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Listener");
                             
                             if (listenersItem.getCertificateThumbprint() != null) {
-                                Element certificateThumbprintElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CertificateThumbprint");
-                                certificateThumbprintElement.appendChild(requestDoc.createTextNode(listenersItem.getCertificateThumbprint()));
-                                listenerElement.appendChild(certificateThumbprintElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CertificateThumbprint");
+                                xmlSerializer.text(listenersItem.getCertificateThumbprint());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CertificateThumbprint");
                             }
                             
-                            Element protocolElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Protocol");
-                            protocolElement3.appendChild(requestDoc.createTextNode(listenersItem.getListenerType().toString()));
-                            listenerElement.appendChild(protocolElement3);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                            xmlSerializer.text(listenersItem.getListenerType().toString());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Listener");
                         }
-                        winRMElement.appendChild(listenersSequenceElement);
+                        
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Listeners");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "WinRM");
                 }
                 
                 if (configurationSetsItem.getAdminUserName() != null) {
-                    Element adminUsernameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AdminUsername");
-                    adminUsernameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getAdminUserName()));
-                    configurationSetElement.appendChild(adminUsernameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AdminUsername");
+                    xmlSerializer.text(configurationSetsItem.getAdminUserName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AdminUsername");
                 }
                 
                 if (configurationSetsItem.getHostName() != null) {
-                    Element hostNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostName");
-                    hostNameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getHostName()));
-                    configurationSetElement.appendChild(hostNameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "HostName");
+                    xmlSerializer.text(configurationSetsItem.getHostName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "HostName");
                 }
                 
                 if (configurationSetsItem.getUserName() != null) {
-                    Element userNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "UserName");
-                    userNameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getUserName()));
-                    configurationSetElement.appendChild(userNameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "UserName");
+                    xmlSerializer.text(configurationSetsItem.getUserName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "UserName");
                 }
                 
                 if (configurationSetsItem.getUserPassword() != null) {
-                    Element userPasswordElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "UserPassword");
-                    userPasswordElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getUserPassword()));
-                    configurationSetElement.appendChild(userPasswordElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "UserPassword");
+                    xmlSerializer.text(configurationSetsItem.getUserPassword());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "UserPassword");
                 }
                 
                 if (configurationSetsItem.isDisableSshPasswordAuthentication() != null) {
-                    Element disableSshPasswordAuthenticationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DisableSshPasswordAuthentication");
-                    disableSshPasswordAuthenticationElement.appendChild(requestDoc.createTextNode(Boolean.toString(configurationSetsItem.isDisableSshPasswordAuthentication()).toLowerCase()));
-                    configurationSetElement.appendChild(disableSshPasswordAuthenticationElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DisableSshPasswordAuthentication");
+                    xmlSerializer.text(Boolean.toString(configurationSetsItem.isDisableSshPasswordAuthentication()).toLowerCase());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DisableSshPasswordAuthentication");
                 }
                 
                 if (configurationSetsItem.getSshSettings() != null) {
-                    Element sSHElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SSH");
-                    configurationSetElement.appendChild(sSHElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SSH");
                     
                     if (configurationSetsItem.getSshSettings().getPublicKeys() != null) {
-                        Element publicKeysSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicKeys");
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicKeys");
                         for (SshSettingPublicKey publicKeysItem : configurationSetsItem.getSshSettings().getPublicKeys()) {
-                            Element publicKeyElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicKey");
-                            publicKeysSequenceElement.appendChild(publicKeyElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicKey");
                             
-                            Element fingerprintElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Fingerprint");
-                            fingerprintElement.appendChild(requestDoc.createTextNode(publicKeysItem.getFingerprint()));
-                            publicKeyElement.appendChild(fingerprintElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
+                            xmlSerializer.text(publicKeysItem.getFingerprint());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
                             
-                            Element pathElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Path");
-                            pathElement2.appendChild(requestDoc.createTextNode(publicKeysItem.getPath()));
-                            publicKeyElement.appendChild(pathElement2);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Path");
+                            xmlSerializer.text(publicKeysItem.getPath());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Path");
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicKey");
                         }
-                        sSHElement.appendChild(publicKeysSequenceElement);
+                        
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicKeys");
                     }
                     
                     if (configurationSetsItem.getSshSettings().getKeyPairs() != null) {
-                        Element keyPairsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "KeyPairs");
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "KeyPairs");
                         for (SshSettingKeyPair keyPairsItem : configurationSetsItem.getSshSettings().getKeyPairs()) {
-                            Element keyPairElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "KeyPair");
-                            keyPairsSequenceElement.appendChild(keyPairElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "KeyPair");
                             
-                            Element fingerprintElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Fingerprint");
-                            fingerprintElement2.appendChild(requestDoc.createTextNode(keyPairsItem.getFingerprint()));
-                            keyPairElement.appendChild(fingerprintElement2);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
+                            xmlSerializer.text(keyPairsItem.getFingerprint());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
                             
-                            Element pathElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Path");
-                            pathElement3.appendChild(requestDoc.createTextNode(keyPairsItem.getPath()));
-                            keyPairElement.appendChild(pathElement3);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Path");
+                            xmlSerializer.text(keyPairsItem.getPath());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Path");
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "KeyPair");
                         }
-                        sSHElement.appendChild(keyPairsSequenceElement);
+                        
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "KeyPairs");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SSH");
                 }
                 
                 if (configurationSetsItem.getCustomData() != null) {
-                    Element customDataElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CustomData");
-                    customDataElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getCustomData()));
-                    configurationSetElement.appendChild(customDataElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CustomData");
+                    xmlSerializer.text(configurationSetsItem.getCustomData());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CustomData");
                 }
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSet");
             }
-            persistentVMRoleElement.appendChild(configurationSetsSequenceElement);
+            
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSets");
         }
         
         if (parameters.getResourceExtensionReferences() != null) {
-            Element resourceExtensionReferencesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReferences");
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReferences");
             for (ResourceExtensionReference resourceExtensionReferencesItem : parameters.getResourceExtensionReferences()) {
-                Element resourceExtensionReferenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReference");
-                resourceExtensionReferencesSequenceElement.appendChild(resourceExtensionReferenceElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReference");
                 
                 if (resourceExtensionReferencesItem.getReferenceName() != null) {
-                    Element referenceNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ReferenceName");
-                    referenceNameElement.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getReferenceName()));
-                    resourceExtensionReferenceElement.appendChild(referenceNameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ReferenceName");
+                    xmlSerializer.text(resourceExtensionReferencesItem.getReferenceName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ReferenceName");
                 }
                 
                 if (resourceExtensionReferencesItem.getPublisher() != null) {
-                    Element publisherElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Publisher");
-                    publisherElement.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getPublisher()));
-                    resourceExtensionReferenceElement.appendChild(publisherElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Publisher");
+                    xmlSerializer.text(resourceExtensionReferencesItem.getPublisher());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Publisher");
                 }
                 
                 if (resourceExtensionReferencesItem.getName() != null) {
-                    Element nameElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                    nameElement3.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getName()));
-                    resourceExtensionReferenceElement.appendChild(nameElement3);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                    xmlSerializer.text(resourceExtensionReferencesItem.getName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
                 }
                 
                 if (resourceExtensionReferencesItem.getVersion() != null) {
-                    Element versionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Version");
-                    versionElement.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getVersion()));
-                    resourceExtensionReferenceElement.appendChild(versionElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Version");
+                    xmlSerializer.text(resourceExtensionReferencesItem.getVersion());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Version");
                 }
                 
                 if (resourceExtensionReferencesItem.getResourceExtensionParameterValues() != null) {
-                    Element resourceExtensionParameterValuesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValues");
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValues");
                     for (ResourceExtensionParameterValue resourceExtensionParameterValuesItem : resourceExtensionReferencesItem.getResourceExtensionParameterValues()) {
-                        Element resourceExtensionParameterValueElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValue");
-                        resourceExtensionParameterValuesSequenceElement.appendChild(resourceExtensionParameterValueElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValue");
                         
                         if (resourceExtensionParameterValuesItem.getKey() != null) {
-                            Element keyElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Key");
-                            keyElement.appendChild(requestDoc.createTextNode(resourceExtensionParameterValuesItem.getKey()));
-                            resourceExtensionParameterValueElement.appendChild(keyElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Key");
+                            xmlSerializer.text(resourceExtensionParameterValuesItem.getKey());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Key");
                         }
                         
                         if (resourceExtensionParameterValuesItem.getValue() != null) {
-                            Element valueElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Value");
-                            valueElement.appendChild(requestDoc.createTextNode(Base64.encode(resourceExtensionParameterValuesItem.getValue().getBytes())));
-                            resourceExtensionParameterValueElement.appendChild(valueElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Value");
+                            xmlSerializer.text(Base64.encode(resourceExtensionParameterValuesItem.getValue().getBytes()));
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Value");
                         }
                         
                         if (resourceExtensionParameterValuesItem.getType() != null) {
-                            Element typeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Type");
-                            typeElement.appendChild(requestDoc.createTextNode(resourceExtensionParameterValuesItem.getType()));
-                            resourceExtensionParameterValueElement.appendChild(typeElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Type");
+                            xmlSerializer.text(resourceExtensionParameterValuesItem.getType());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Type");
                         }
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValue");
                     }
-                    resourceExtensionReferenceElement.appendChild(resourceExtensionParameterValuesSequenceElement);
+                    
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValues");
                 }
                 
                 if (resourceExtensionReferencesItem.getState() != null) {
-                    Element stateElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "State");
-                    stateElement.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getState()));
-                    resourceExtensionReferenceElement.appendChild(stateElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "State");
+                    xmlSerializer.text(resourceExtensionReferencesItem.getState());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "State");
                 }
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReference");
             }
-            persistentVMRoleElement.appendChild(resourceExtensionReferencesSequenceElement);
+            
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReferences");
         }
         
         if (parameters.getVMImageName() != null) {
-            Element vMImageNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "VMImageName");
-            vMImageNameElement.appendChild(requestDoc.createTextNode(parameters.getVMImageName()));
-            persistentVMRoleElement.appendChild(vMImageNameElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "VMImageName");
+            xmlSerializer.text(parameters.getVMImageName());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "VMImageName");
         }
         
         if (parameters.getMediaLocation() != null) {
-            Element mediaLocationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MediaLocation");
-            mediaLocationElement.appendChild(requestDoc.createTextNode(parameters.getMediaLocation().toString()));
-            persistentVMRoleElement.appendChild(mediaLocationElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MediaLocation");
+            xmlSerializer.text(parameters.getMediaLocation().toString());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MediaLocation");
         }
         
         if (parameters.getAvailabilitySetName() != null) {
-            Element availabilitySetNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AvailabilitySetName");
-            availabilitySetNameElement.appendChild(requestDoc.createTextNode(parameters.getAvailabilitySetName()));
-            persistentVMRoleElement.appendChild(availabilitySetNameElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AvailabilitySetName");
+            xmlSerializer.text(parameters.getAvailabilitySetName());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AvailabilitySetName");
         }
         
         if (parameters.getDataVirtualHardDisks() != null) {
-            Element dataVirtualHardDisksSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisks");
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisks");
             for (DataVirtualHardDisk dataVirtualHardDisksItem : parameters.getDataVirtualHardDisks()) {
-                Element dataVirtualHardDiskElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
-                dataVirtualHardDisksSequenceElement.appendChild(dataVirtualHardDiskElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
                 
                 if (dataVirtualHardDisksItem.getHostCaching() != null) {
-                    Element hostCachingElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-                    hostCachingElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getHostCaching()));
-                    dataVirtualHardDiskElement.appendChild(hostCachingElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
+                    xmlSerializer.text(dataVirtualHardDisksItem.getHostCaching());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
                 }
                 
                 if (dataVirtualHardDisksItem.getLabel() != null) {
-                    Element diskLabelElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskLabel");
-                    diskLabelElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getLabel()));
-                    dataVirtualHardDiskElement.appendChild(diskLabelElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
+                    xmlSerializer.text(dataVirtualHardDisksItem.getLabel());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
                 }
                 
                 if (dataVirtualHardDisksItem.getName() != null) {
-                    Element diskNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskName");
-                    diskNameElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getName()));
-                    dataVirtualHardDiskElement.appendChild(diskNameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskName");
+                    xmlSerializer.text(dataVirtualHardDisksItem.getName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskName");
                 }
                 
                 if (dataVirtualHardDisksItem.getLogicalUnitNumber() != null) {
-                    Element lunElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Lun");
-                    lunElement.appendChild(requestDoc.createTextNode(Integer.toString(dataVirtualHardDisksItem.getLogicalUnitNumber())));
-                    dataVirtualHardDiskElement.appendChild(lunElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Lun");
+                    xmlSerializer.text(Integer.toString(dataVirtualHardDisksItem.getLogicalUnitNumber()));
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Lun");
                 }
                 
                 if (dataVirtualHardDisksItem.getLogicalDiskSizeInGB() != null) {
-                    Element logicalDiskSizeInGBElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
-                    logicalDiskSizeInGBElement.appendChild(requestDoc.createTextNode(Integer.toString(dataVirtualHardDisksItem.getLogicalDiskSizeInGB())));
-                    dataVirtualHardDiskElement.appendChild(logicalDiskSizeInGBElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
+                    xmlSerializer.text(Integer.toString(dataVirtualHardDisksItem.getLogicalDiskSizeInGB()));
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
                 }
                 
                 if (dataVirtualHardDisksItem.getMediaLink() != null) {
-                    Element mediaLinkElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MediaLink");
-                    mediaLinkElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getMediaLink().toString()));
-                    dataVirtualHardDiskElement.appendChild(mediaLinkElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
+                    xmlSerializer.text(dataVirtualHardDisksItem.getMediaLink().toString());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
                 }
                 
                 if (dataVirtualHardDisksItem.getSourceMediaLink() != null) {
-                    Element sourceMediaLinkElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SourceMediaLink");
-                    sourceMediaLinkElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getSourceMediaLink().toString()));
-                    dataVirtualHardDiskElement.appendChild(sourceMediaLinkElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SourceMediaLink");
+                    xmlSerializer.text(dataVirtualHardDisksItem.getSourceMediaLink().toString());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SourceMediaLink");
                 }
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
             }
-            persistentVMRoleElement.appendChild(dataVirtualHardDisksSequenceElement);
+            
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisks");
         }
         
         if (parameters.getOSVirtualHardDisk() != null) {
-            Element oSVirtualHardDiskElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OSVirtualHardDisk");
-            persistentVMRoleElement.appendChild(oSVirtualHardDiskElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OSVirtualHardDisk");
             
             if (parameters.getOSVirtualHardDisk().getHostCaching() != null) {
-                Element hostCachingElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-                hostCachingElement2.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getHostCaching()));
-                oSVirtualHardDiskElement.appendChild(hostCachingElement2);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
+                xmlSerializer.text(parameters.getOSVirtualHardDisk().getHostCaching());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
             }
             
             if (parameters.getOSVirtualHardDisk().getLabel() != null) {
-                Element diskLabelElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskLabel");
-                diskLabelElement2.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getLabel()));
-                oSVirtualHardDiskElement.appendChild(diskLabelElement2);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
+                xmlSerializer.text(parameters.getOSVirtualHardDisk().getLabel());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
             }
             
             if (parameters.getOSVirtualHardDisk().getName() != null) {
-                Element diskNameElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskName");
-                diskNameElement2.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getName()));
-                oSVirtualHardDiskElement.appendChild(diskNameElement2);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskName");
+                xmlSerializer.text(parameters.getOSVirtualHardDisk().getName());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskName");
             }
             
             if (parameters.getOSVirtualHardDisk().getMediaLink() != null) {
-                Element mediaLinkElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MediaLink");
-                mediaLinkElement2.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getMediaLink().toString()));
-                oSVirtualHardDiskElement.appendChild(mediaLinkElement2);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
+                xmlSerializer.text(parameters.getOSVirtualHardDisk().getMediaLink().toString());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
             }
             
             if (parameters.getOSVirtualHardDisk().getSourceImageName() != null) {
-                Element sourceImageNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SourceImageName");
-                sourceImageNameElement.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getSourceImageName()));
-                oSVirtualHardDiskElement.appendChild(sourceImageNameElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SourceImageName");
+                xmlSerializer.text(parameters.getOSVirtualHardDisk().getSourceImageName());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SourceImageName");
             }
             
             if (parameters.getOSVirtualHardDisk().getOperatingSystem() != null) {
-                Element osElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OS");
-                osElement.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getOperatingSystem()));
-                oSVirtualHardDiskElement.appendChild(osElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OS");
+                xmlSerializer.text(parameters.getOSVirtualHardDisk().getOperatingSystem());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OS");
             }
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OSVirtualHardDisk");
         }
         
         if (parameters.getRoleSize() != null) {
-            Element roleSizeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RoleSize");
-            roleSizeElement.appendChild(requestDoc.createTextNode(parameters.getRoleSize()));
-            persistentVMRoleElement.appendChild(roleSizeElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RoleSize");
+            xmlSerializer.text(parameters.getRoleSize());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RoleSize");
         }
         
         if (parameters.isProvisionGuestAgent() != null) {
-            Element provisionGuestAgentElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ProvisionGuestAgent");
-            provisionGuestAgentElement.appendChild(requestDoc.createTextNode(Boolean.toString(parameters.isProvisionGuestAgent()).toLowerCase()));
-            persistentVMRoleElement.appendChild(provisionGuestAgentElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ProvisionGuestAgent");
+            xmlSerializer.text(Boolean.toString(parameters.isProvisionGuestAgent()).toLowerCase());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ProvisionGuestAgent");
         }
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PersistentVMRole");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -1753,12 +1735,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * Virtual Machine Deployment operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -1766,7 +1742,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * request ID.
     */
     @Override
-    public OperationResponse beginCreatingDeployment(String serviceName, VirtualMachineCreateDeploymentParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public OperationResponse beginCreatingDeployment(String serviceName, VirtualMachineCreateDeploymentParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -1893,701 +1869,711 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element deploymentElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Deployment");
-        requestDoc.appendChild(deploymentElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Deployment");
         
-        Element nameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-        nameElement.appendChild(requestDoc.createTextNode(parameters.getName()));
-        deploymentElement.appendChild(nameElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+        xmlSerializer.text(parameters.getName());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
         
-        Element deploymentSlotElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DeploymentSlot");
-        deploymentSlotElement.appendChild(requestDoc.createTextNode(parameters.getDeploymentSlot().toString()));
-        deploymentElement.appendChild(deploymentSlotElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DeploymentSlot");
+        xmlSerializer.text(parameters.getDeploymentSlot().toString());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DeploymentSlot");
         
-        Element labelElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Label");
-        labelElement.appendChild(requestDoc.createTextNode(Base64.encode(parameters.getLabel().getBytes())));
-        deploymentElement.appendChild(labelElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Label");
+        xmlSerializer.text(Base64.encode(parameters.getLabel().getBytes()));
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Label");
         
-        Element roleListSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RoleList");
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RoleList");
         for (Role roleListItem : parameters.getRoles()) {
-            Element roleElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Role");
-            roleListSequenceElement.appendChild(roleElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Role");
             
             if (roleListItem.getRoleName() != null) {
-                Element roleNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RoleName");
-                roleNameElement.appendChild(requestDoc.createTextNode(roleListItem.getRoleName()));
-                roleElement.appendChild(roleNameElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RoleName");
+                xmlSerializer.text(roleListItem.getRoleName());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RoleName");
             }
             
             if (roleListItem.getOSVersion() != null) {
-                Element osVersionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OsVersion");
-                osVersionElement.appendChild(requestDoc.createTextNode(roleListItem.getOSVersion()));
-                roleElement.appendChild(osVersionElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OsVersion");
+                xmlSerializer.text(roleListItem.getOSVersion());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OsVersion");
             }
             
             if (roleListItem.getRoleType() != null) {
-                Element roleTypeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RoleType");
-                roleTypeElement.appendChild(requestDoc.createTextNode(roleListItem.getRoleType()));
-                roleElement.appendChild(roleTypeElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RoleType");
+                xmlSerializer.text(roleListItem.getRoleType());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RoleType");
             }
             
             if (roleListItem.getConfigurationSets() != null) {
-                Element configurationSetsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ConfigurationSets");
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSets");
                 for (ConfigurationSet configurationSetsItem : roleListItem.getConfigurationSets()) {
-                    Element configurationSetElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ConfigurationSet");
-                    configurationSetsSequenceElement.appendChild(configurationSetElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSet");
                     
                     if (configurationSetsItem.getConfigurationSetType() != null) {
-                        Element configurationSetTypeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ConfigurationSetType");
-                        configurationSetTypeElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getConfigurationSetType()));
-                        configurationSetElement.appendChild(configurationSetTypeElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSetType");
+                        xmlSerializer.text(configurationSetsItem.getConfigurationSetType());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSetType");
                     }
                     
                     if (configurationSetsItem.getInputEndpoints() != null) {
-                        Element inputEndpointsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "InputEndpoints");
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "InputEndpoints");
                         for (InputEndpoint inputEndpointsItem : configurationSetsItem.getInputEndpoints()) {
-                            Element inputEndpointElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
-                            inputEndpointsSequenceElement.appendChild(inputEndpointElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
                             
                             if (inputEndpointsItem.getLoadBalancedEndpointSetName() != null) {
-                                Element loadBalancedEndpointSetNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
-                                loadBalancedEndpointSetNameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancedEndpointSetName()));
-                                inputEndpointElement.appendChild(loadBalancedEndpointSetNameElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
+                                xmlSerializer.text(inputEndpointsItem.getLoadBalancedEndpointSetName());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
                             }
                             
                             if (inputEndpointsItem.getLocalPort() != null) {
-                                Element localPortElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LocalPort");
-                                localPortElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLocalPort())));
-                                inputEndpointElement.appendChild(localPortElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LocalPort");
+                                xmlSerializer.text(Integer.toString(inputEndpointsItem.getLocalPort()));
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LocalPort");
                             }
                             
                             if (inputEndpointsItem.getName() != null) {
-                                Element nameElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                                nameElement2.appendChild(requestDoc.createTextNode(inputEndpointsItem.getName()));
-                                inputEndpointElement.appendChild(nameElement2);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                                xmlSerializer.text(inputEndpointsItem.getName());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
                             }
                             
                             if (inputEndpointsItem.getPort() != null) {
-                                Element portElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Port");
-                                portElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getPort())));
-                                inputEndpointElement.appendChild(portElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Port");
+                                xmlSerializer.text(Integer.toString(inputEndpointsItem.getPort()));
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Port");
                             }
                             
                             if (inputEndpointsItem.getLoadBalancerProbe() != null) {
-                                Element loadBalancerProbeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
-                                inputEndpointElement.appendChild(loadBalancerProbeElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
                                 
                                 if (inputEndpointsItem.getLoadBalancerProbe().getPath() != null) {
-                                    Element pathElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Path");
-                                    pathElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancerProbe().getPath()));
-                                    loadBalancerProbeElement.appendChild(pathElement);
+                                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Path");
+                                    xmlSerializer.text(inputEndpointsItem.getLoadBalancerProbe().getPath());
+                                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Path");
                                 }
                                 
-                                Element portElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Port");
-                                portElement2.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getPort())));
-                                loadBalancerProbeElement.appendChild(portElement2);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Port");
+                                xmlSerializer.text(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getPort()));
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Port");
                                 
-                                Element protocolElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Protocol");
-                                protocolElement.appendChild(requestDoc.createTextNode(ComputeManagementClientImpl.loadBalancerProbeTransportProtocolToString(inputEndpointsItem.getLoadBalancerProbe().getProtocol())));
-                                loadBalancerProbeElement.appendChild(protocolElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                                xmlSerializer.text(ComputeManagementClientImpl.loadBalancerProbeTransportProtocolToString(inputEndpointsItem.getLoadBalancerProbe().getProtocol()));
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Protocol");
                                 
                                 if (inputEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds() != null) {
-                                    Element intervalInSecondsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
-                                    intervalInSecondsElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds())));
-                                    loadBalancerProbeElement.appendChild(intervalInSecondsElement);
+                                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
+                                    xmlSerializer.text(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds()));
+                                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
                                 }
                                 
                                 if (inputEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds() != null) {
-                                    Element timeoutInSecondsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
-                                    timeoutInSecondsElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds())));
-                                    loadBalancerProbeElement.appendChild(timeoutInSecondsElement);
+                                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
+                                    xmlSerializer.text(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds()));
+                                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
                                 }
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
                             }
                             
                             if (inputEndpointsItem.getProtocol() != null) {
-                                Element protocolElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Protocol");
-                                protocolElement2.appendChild(requestDoc.createTextNode(inputEndpointsItem.getProtocol()));
-                                inputEndpointElement.appendChild(protocolElement2);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                                xmlSerializer.text(inputEndpointsItem.getProtocol());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Protocol");
                             }
                             
                             if (inputEndpointsItem.getVirtualIPAddress() != null) {
-                                Element vipElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Vip");
-                                vipElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getVirtualIPAddress().getHostAddress()));
-                                inputEndpointElement.appendChild(vipElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Vip");
+                                xmlSerializer.text(inputEndpointsItem.getVirtualIPAddress().getHostAddress());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Vip");
                             }
                             
                             if (inputEndpointsItem.isEnableDirectServerReturn() != null) {
-                                Element enableDirectServerReturnElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
-                                enableDirectServerReturnElement.appendChild(requestDoc.createTextNode(Boolean.toString(inputEndpointsItem.isEnableDirectServerReturn()).toLowerCase()));
-                                inputEndpointElement.appendChild(enableDirectServerReturnElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
+                                xmlSerializer.text(Boolean.toString(inputEndpointsItem.isEnableDirectServerReturn()).toLowerCase());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
                             }
                             
                             if (inputEndpointsItem.getLoadBalancerName() != null) {
-                                Element loadBalancerNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
-                                loadBalancerNameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancerName()));
-                                inputEndpointElement.appendChild(loadBalancerNameElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
+                                xmlSerializer.text(inputEndpointsItem.getLoadBalancerName());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
                             }
                             
                             if (inputEndpointsItem.getEndpointAcl() != null) {
-                                Element endpointAclElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
-                                inputEndpointElement.appendChild(endpointAclElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                                 
                                 if (inputEndpointsItem.getEndpointAcl().getRules() != null) {
-                                    Element rulesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Rules");
+                                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Rules");
                                     for (AccessControlListRule rulesItem : inputEndpointsItem.getEndpointAcl().getRules()) {
-                                        Element ruleElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Rule");
-                                        rulesSequenceElement.appendChild(ruleElement);
+                                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Rule");
                                         
                                         if (rulesItem.getOrder() != null) {
-                                            Element orderElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Order");
-                                            orderElement.appendChild(requestDoc.createTextNode(Integer.toString(rulesItem.getOrder())));
-                                            ruleElement.appendChild(orderElement);
+                                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Order");
+                                            xmlSerializer.text(Integer.toString(rulesItem.getOrder()));
+                                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Order");
                                         }
                                         
                                         if (rulesItem.getAction() != null) {
-                                            Element actionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Action");
-                                            actionElement.appendChild(requestDoc.createTextNode(rulesItem.getAction()));
-                                            ruleElement.appendChild(actionElement);
+                                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Action");
+                                            xmlSerializer.text(rulesItem.getAction());
+                                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Action");
                                         }
                                         
                                         if (rulesItem.getRemoteSubnet() != null) {
-                                            Element remoteSubnetElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
-                                            remoteSubnetElement.appendChild(requestDoc.createTextNode(rulesItem.getRemoteSubnet()));
-                                            ruleElement.appendChild(remoteSubnetElement);
+                                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
+                                            xmlSerializer.text(rulesItem.getRemoteSubnet());
+                                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
                                         }
                                         
                                         if (rulesItem.getDescription() != null) {
-                                            Element descriptionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Description");
-                                            descriptionElement.appendChild(requestDoc.createTextNode(rulesItem.getDescription()));
-                                            ruleElement.appendChild(descriptionElement);
+                                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Description");
+                                            xmlSerializer.text(rulesItem.getDescription());
+                                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Description");
                                         }
+                                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Rule");
                                     }
-                                    endpointAclElement.appendChild(rulesSequenceElement);
+                                    
+                                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Rules");
                                 }
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                             }
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
                         }
-                        configurationSetElement.appendChild(inputEndpointsSequenceElement);
+                        
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "InputEndpoints");
                     }
                     
                     if (configurationSetsItem.getSubnetNames() != null) {
-                        Element subnetNamesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SubnetNames");
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SubnetNames");
                         for (String subnetNamesItem : configurationSetsItem.getSubnetNames()) {
-                            Element subnetNamesItemElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SubnetName");
-                            subnetNamesItemElement.appendChild(requestDoc.createTextNode(subnetNamesItem));
-                            subnetNamesSequenceElement.appendChild(subnetNamesItemElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SubnetName");
+                            xmlSerializer.text(subnetNamesItem);
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SubnetName");
                         }
-                        configurationSetElement.appendChild(subnetNamesSequenceElement);
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SubnetNames");
                     }
                     
                     if (configurationSetsItem.getStaticVirtualNetworkIPAddress() != null) {
-                        Element staticVirtualNetworkIPAddressElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
-                        staticVirtualNetworkIPAddressElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getStaticVirtualNetworkIPAddress()));
-                        configurationSetElement.appendChild(staticVirtualNetworkIPAddressElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
+                        xmlSerializer.text(configurationSetsItem.getStaticVirtualNetworkIPAddress());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
                     }
                     
                     if (configurationSetsItem.getPublicIPs() != null) {
-                        Element publicIPsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIPs");
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicIPs");
                         for (ConfigurationSet.PublicIP publicIPsItem : configurationSetsItem.getPublicIPs()) {
-                            Element publicIPElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIP");
-                            publicIPsSequenceElement.appendChild(publicIPElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicIP");
                             
                             if (publicIPsItem.getName() != null) {
-                                Element nameElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                                nameElement3.appendChild(requestDoc.createTextNode(publicIPsItem.getName()));
-                                publicIPElement.appendChild(nameElement3);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                                xmlSerializer.text(publicIPsItem.getName());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
                             }
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicIP");
                         }
-                        configurationSetElement.appendChild(publicIPsSequenceElement);
+                        
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicIPs");
                     }
                     
                     if (configurationSetsItem.getComputerName() != null) {
-                        Element computerNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ComputerName");
-                        computerNameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getComputerName()));
-                        configurationSetElement.appendChild(computerNameElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ComputerName");
+                        xmlSerializer.text(configurationSetsItem.getComputerName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ComputerName");
                     }
                     
                     if (configurationSetsItem.getAdminPassword() != null) {
-                        Element adminPasswordElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AdminPassword");
-                        adminPasswordElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getAdminPassword()));
-                        configurationSetElement.appendChild(adminPasswordElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AdminPassword");
+                        xmlSerializer.text(configurationSetsItem.getAdminPassword());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AdminPassword");
                     }
                     
                     if (configurationSetsItem.isResetPasswordOnFirstLogon() != null) {
-                        Element resetPasswordOnFirstLogonElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResetPasswordOnFirstLogon");
-                        resetPasswordOnFirstLogonElement.appendChild(requestDoc.createTextNode(Boolean.toString(configurationSetsItem.isResetPasswordOnFirstLogon()).toLowerCase()));
-                        configurationSetElement.appendChild(resetPasswordOnFirstLogonElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResetPasswordOnFirstLogon");
+                        xmlSerializer.text(Boolean.toString(configurationSetsItem.isResetPasswordOnFirstLogon()).toLowerCase());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResetPasswordOnFirstLogon");
                     }
                     
                     if (configurationSetsItem.isEnableAutomaticUpdates() != null) {
-                        Element enableAutomaticUpdatesElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EnableAutomaticUpdates");
-                        enableAutomaticUpdatesElement.appendChild(requestDoc.createTextNode(Boolean.toString(configurationSetsItem.isEnableAutomaticUpdates()).toLowerCase()));
-                        configurationSetElement.appendChild(enableAutomaticUpdatesElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "EnableAutomaticUpdates");
+                        xmlSerializer.text(Boolean.toString(configurationSetsItem.isEnableAutomaticUpdates()).toLowerCase());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "EnableAutomaticUpdates");
                     }
                     
                     if (configurationSetsItem.getTimeZone() != null) {
-                        Element timeZoneElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "TimeZone");
-                        timeZoneElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getTimeZone()));
-                        configurationSetElement.appendChild(timeZoneElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "TimeZone");
+                        xmlSerializer.text(configurationSetsItem.getTimeZone());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "TimeZone");
                     }
                     
                     if (configurationSetsItem.getDomainJoin() != null) {
-                        Element domainJoinElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DomainJoin");
-                        configurationSetElement.appendChild(domainJoinElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DomainJoin");
                         
                         if (configurationSetsItem.getDomainJoin().getCredentials() != null) {
-                            Element credentialsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Credentials");
-                            domainJoinElement.appendChild(credentialsElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Credentials");
                             
                             if (configurationSetsItem.getDomainJoin().getCredentials().getDomain() != null) {
-                                Element domainElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Domain");
-                                domainElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getCredentials().getDomain()));
-                                credentialsElement.appendChild(domainElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Domain");
+                                xmlSerializer.text(configurationSetsItem.getDomainJoin().getCredentials().getDomain());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Domain");
                             }
                             
-                            Element usernameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Username");
-                            usernameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getCredentials().getUserName()));
-                            credentialsElement.appendChild(usernameElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Username");
+                            xmlSerializer.text(configurationSetsItem.getDomainJoin().getCredentials().getUserName());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Username");
                             
-                            Element passwordElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Password");
-                            passwordElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getCredentials().getPassword()));
-                            credentialsElement.appendChild(passwordElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Password");
+                            xmlSerializer.text(configurationSetsItem.getDomainJoin().getCredentials().getPassword());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Password");
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Credentials");
                         }
                         
                         if (configurationSetsItem.getDomainJoin().getDomainToJoin() != null) {
-                            Element joinDomainElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "JoinDomain");
-                            joinDomainElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getDomainToJoin()));
-                            domainJoinElement.appendChild(joinDomainElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "JoinDomain");
+                            xmlSerializer.text(configurationSetsItem.getDomainJoin().getDomainToJoin());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "JoinDomain");
                         }
                         
                         if (configurationSetsItem.getDomainJoin().getLdapMachineObjectOU() != null) {
-                            Element machineObjectOUElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MachineObjectOU");
-                            machineObjectOUElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getLdapMachineObjectOU()));
-                            domainJoinElement.appendChild(machineObjectOUElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MachineObjectOU");
+                            xmlSerializer.text(configurationSetsItem.getDomainJoin().getLdapMachineObjectOU());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MachineObjectOU");
                         }
                         
                         if (configurationSetsItem.getDomainJoin().getProvisioning() != null) {
-                            Element provisioningElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Provisioning");
-                            domainJoinElement.appendChild(provisioningElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Provisioning");
                             
                             if (configurationSetsItem.getDomainJoin().getProvisioning().getAccountData() != null) {
-                                Element accountDataElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AccountData");
-                                accountDataElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getProvisioning().getAccountData()));
-                                provisioningElement.appendChild(accountDataElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AccountData");
+                                xmlSerializer.text(configurationSetsItem.getDomainJoin().getProvisioning().getAccountData());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AccountData");
                             }
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Provisioning");
                         }
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DomainJoin");
                     }
                     
                     if (configurationSetsItem.getStoredCertificateSettings() != null) {
-                        Element storedCertificateSettingsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StoredCertificateSettings");
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StoredCertificateSettings");
                         for (StoredCertificateSettings storedCertificateSettingsItem : configurationSetsItem.getStoredCertificateSettings()) {
-                            Element certificateSettingElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CertificateSetting");
-                            storedCertificateSettingsSequenceElement.appendChild(certificateSettingElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CertificateSetting");
                             
-                            Element storeLocationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StoreLocation");
-                            storeLocationElement.appendChild(requestDoc.createTextNode("LocalMachine"));
-                            certificateSettingElement.appendChild(storeLocationElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StoreLocation");
+                            xmlSerializer.text("LocalMachine");
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StoreLocation");
                             
-                            Element storeNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StoreName");
-                            storeNameElement.appendChild(requestDoc.createTextNode(storedCertificateSettingsItem.getStoreName()));
-                            certificateSettingElement.appendChild(storeNameElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StoreName");
+                            xmlSerializer.text(storedCertificateSettingsItem.getStoreName());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StoreName");
                             
-                            Element thumbprintElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Thumbprint");
-                            thumbprintElement.appendChild(requestDoc.createTextNode(storedCertificateSettingsItem.getThumbprint()));
-                            certificateSettingElement.appendChild(thumbprintElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Thumbprint");
+                            xmlSerializer.text(storedCertificateSettingsItem.getThumbprint());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Thumbprint");
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CertificateSetting");
                         }
-                        configurationSetElement.appendChild(storedCertificateSettingsSequenceElement);
+                        
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StoredCertificateSettings");
                     }
                     
                     if (configurationSetsItem.getWindowsRemoteManagement() != null) {
-                        Element winRMElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "WinRM");
-                        configurationSetElement.appendChild(winRMElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "WinRM");
                         
                         if (configurationSetsItem.getWindowsRemoteManagement().getListeners() != null) {
-                            Element listenersSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Listeners");
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Listeners");
                             for (WindowsRemoteManagementListener listenersItem : configurationSetsItem.getWindowsRemoteManagement().getListeners()) {
-                                Element listenerElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Listener");
-                                listenersSequenceElement.appendChild(listenerElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Listener");
                                 
                                 if (listenersItem.getCertificateThumbprint() != null) {
-                                    Element certificateThumbprintElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CertificateThumbprint");
-                                    certificateThumbprintElement.appendChild(requestDoc.createTextNode(listenersItem.getCertificateThumbprint()));
-                                    listenerElement.appendChild(certificateThumbprintElement);
+                                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CertificateThumbprint");
+                                    xmlSerializer.text(listenersItem.getCertificateThumbprint());
+                                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CertificateThumbprint");
                                 }
                                 
-                                Element protocolElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Protocol");
-                                protocolElement3.appendChild(requestDoc.createTextNode(listenersItem.getListenerType().toString()));
-                                listenerElement.appendChild(protocolElement3);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                                xmlSerializer.text(listenersItem.getListenerType().toString());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Listener");
                             }
-                            winRMElement.appendChild(listenersSequenceElement);
+                            
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Listeners");
                         }
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "WinRM");
                     }
                     
                     if (configurationSetsItem.getAdminUserName() != null) {
-                        Element adminUsernameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AdminUsername");
-                        adminUsernameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getAdminUserName()));
-                        configurationSetElement.appendChild(adminUsernameElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AdminUsername");
+                        xmlSerializer.text(configurationSetsItem.getAdminUserName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AdminUsername");
                     }
                     
                     if (configurationSetsItem.getHostName() != null) {
-                        Element hostNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostName");
-                        hostNameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getHostName()));
-                        configurationSetElement.appendChild(hostNameElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "HostName");
+                        xmlSerializer.text(configurationSetsItem.getHostName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "HostName");
                     }
                     
                     if (configurationSetsItem.getUserName() != null) {
-                        Element userNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "UserName");
-                        userNameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getUserName()));
-                        configurationSetElement.appendChild(userNameElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "UserName");
+                        xmlSerializer.text(configurationSetsItem.getUserName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "UserName");
                     }
                     
                     if (configurationSetsItem.getUserPassword() != null) {
-                        Element userPasswordElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "UserPassword");
-                        userPasswordElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getUserPassword()));
-                        configurationSetElement.appendChild(userPasswordElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "UserPassword");
+                        xmlSerializer.text(configurationSetsItem.getUserPassword());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "UserPassword");
                     }
                     
                     if (configurationSetsItem.isDisableSshPasswordAuthentication() != null) {
-                        Element disableSshPasswordAuthenticationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DisableSshPasswordAuthentication");
-                        disableSshPasswordAuthenticationElement.appendChild(requestDoc.createTextNode(Boolean.toString(configurationSetsItem.isDisableSshPasswordAuthentication()).toLowerCase()));
-                        configurationSetElement.appendChild(disableSshPasswordAuthenticationElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DisableSshPasswordAuthentication");
+                        xmlSerializer.text(Boolean.toString(configurationSetsItem.isDisableSshPasswordAuthentication()).toLowerCase());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DisableSshPasswordAuthentication");
                     }
                     
                     if (configurationSetsItem.getSshSettings() != null) {
-                        Element sSHElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SSH");
-                        configurationSetElement.appendChild(sSHElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SSH");
                         
                         if (configurationSetsItem.getSshSettings().getPublicKeys() != null) {
-                            Element publicKeysSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicKeys");
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicKeys");
                             for (SshSettingPublicKey publicKeysItem : configurationSetsItem.getSshSettings().getPublicKeys()) {
-                                Element publicKeyElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicKey");
-                                publicKeysSequenceElement.appendChild(publicKeyElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicKey");
                                 
-                                Element fingerprintElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Fingerprint");
-                                fingerprintElement.appendChild(requestDoc.createTextNode(publicKeysItem.getFingerprint()));
-                                publicKeyElement.appendChild(fingerprintElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
+                                xmlSerializer.text(publicKeysItem.getFingerprint());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
                                 
-                                Element pathElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Path");
-                                pathElement2.appendChild(requestDoc.createTextNode(publicKeysItem.getPath()));
-                                publicKeyElement.appendChild(pathElement2);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Path");
+                                xmlSerializer.text(publicKeysItem.getPath());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Path");
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicKey");
                             }
-                            sSHElement.appendChild(publicKeysSequenceElement);
+                            
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicKeys");
                         }
                         
                         if (configurationSetsItem.getSshSettings().getKeyPairs() != null) {
-                            Element keyPairsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "KeyPairs");
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "KeyPairs");
                             for (SshSettingKeyPair keyPairsItem : configurationSetsItem.getSshSettings().getKeyPairs()) {
-                                Element keyPairElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "KeyPair");
-                                keyPairsSequenceElement.appendChild(keyPairElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "KeyPair");
                                 
-                                Element fingerprintElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Fingerprint");
-                                fingerprintElement2.appendChild(requestDoc.createTextNode(keyPairsItem.getFingerprint()));
-                                keyPairElement.appendChild(fingerprintElement2);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
+                                xmlSerializer.text(keyPairsItem.getFingerprint());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
                                 
-                                Element pathElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Path");
-                                pathElement3.appendChild(requestDoc.createTextNode(keyPairsItem.getPath()));
-                                keyPairElement.appendChild(pathElement3);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Path");
+                                xmlSerializer.text(keyPairsItem.getPath());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Path");
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "KeyPair");
                             }
-                            sSHElement.appendChild(keyPairsSequenceElement);
+                            
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "KeyPairs");
                         }
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SSH");
                     }
                     
                     if (configurationSetsItem.getCustomData() != null) {
-                        Element customDataElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CustomData");
-                        customDataElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getCustomData()));
-                        configurationSetElement.appendChild(customDataElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CustomData");
+                        xmlSerializer.text(configurationSetsItem.getCustomData());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CustomData");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSet");
                 }
-                roleElement.appendChild(configurationSetsSequenceElement);
+                
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSets");
             }
             
             if (roleListItem.getResourceExtensionReferences() != null) {
-                Element resourceExtensionReferencesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReferences");
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReferences");
                 for (ResourceExtensionReference resourceExtensionReferencesItem : roleListItem.getResourceExtensionReferences()) {
-                    Element resourceExtensionReferenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReference");
-                    resourceExtensionReferencesSequenceElement.appendChild(resourceExtensionReferenceElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReference");
                     
                     if (resourceExtensionReferencesItem.getReferenceName() != null) {
-                        Element referenceNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ReferenceName");
-                        referenceNameElement.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getReferenceName()));
-                        resourceExtensionReferenceElement.appendChild(referenceNameElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ReferenceName");
+                        xmlSerializer.text(resourceExtensionReferencesItem.getReferenceName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ReferenceName");
                     }
                     
                     if (resourceExtensionReferencesItem.getPublisher() != null) {
-                        Element publisherElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Publisher");
-                        publisherElement.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getPublisher()));
-                        resourceExtensionReferenceElement.appendChild(publisherElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Publisher");
+                        xmlSerializer.text(resourceExtensionReferencesItem.getPublisher());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Publisher");
                     }
                     
                     if (resourceExtensionReferencesItem.getName() != null) {
-                        Element nameElement4 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                        nameElement4.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getName()));
-                        resourceExtensionReferenceElement.appendChild(nameElement4);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                        xmlSerializer.text(resourceExtensionReferencesItem.getName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
                     }
                     
                     if (resourceExtensionReferencesItem.getVersion() != null) {
-                        Element versionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Version");
-                        versionElement.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getVersion()));
-                        resourceExtensionReferenceElement.appendChild(versionElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Version");
+                        xmlSerializer.text(resourceExtensionReferencesItem.getVersion());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Version");
                     }
                     
                     if (resourceExtensionReferencesItem.getResourceExtensionParameterValues() != null) {
-                        Element resourceExtensionParameterValuesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValues");
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValues");
                         for (ResourceExtensionParameterValue resourceExtensionParameterValuesItem : resourceExtensionReferencesItem.getResourceExtensionParameterValues()) {
-                            Element resourceExtensionParameterValueElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValue");
-                            resourceExtensionParameterValuesSequenceElement.appendChild(resourceExtensionParameterValueElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValue");
                             
                             if (resourceExtensionParameterValuesItem.getKey() != null) {
-                                Element keyElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Key");
-                                keyElement.appendChild(requestDoc.createTextNode(resourceExtensionParameterValuesItem.getKey()));
-                                resourceExtensionParameterValueElement.appendChild(keyElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Key");
+                                xmlSerializer.text(resourceExtensionParameterValuesItem.getKey());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Key");
                             }
                             
                             if (resourceExtensionParameterValuesItem.getValue() != null) {
-                                Element valueElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Value");
-                                valueElement.appendChild(requestDoc.createTextNode(Base64.encode(resourceExtensionParameterValuesItem.getValue().getBytes())));
-                                resourceExtensionParameterValueElement.appendChild(valueElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Value");
+                                xmlSerializer.text(Base64.encode(resourceExtensionParameterValuesItem.getValue().getBytes()));
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Value");
                             }
                             
                             if (resourceExtensionParameterValuesItem.getType() != null) {
-                                Element typeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Type");
-                                typeElement.appendChild(requestDoc.createTextNode(resourceExtensionParameterValuesItem.getType()));
-                                resourceExtensionParameterValueElement.appendChild(typeElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Type");
+                                xmlSerializer.text(resourceExtensionParameterValuesItem.getType());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Type");
                             }
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValue");
                         }
-                        resourceExtensionReferenceElement.appendChild(resourceExtensionParameterValuesSequenceElement);
+                        
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValues");
                     }
                     
                     if (resourceExtensionReferencesItem.getState() != null) {
-                        Element stateElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "State");
-                        stateElement.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getState()));
-                        resourceExtensionReferenceElement.appendChild(stateElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "State");
+                        xmlSerializer.text(resourceExtensionReferencesItem.getState());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "State");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReference");
                 }
-                roleElement.appendChild(resourceExtensionReferencesSequenceElement);
+                
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReferences");
             }
             
             if (roleListItem.getVMImageName() != null) {
-                Element vMImageNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "VMImageName");
-                vMImageNameElement.appendChild(requestDoc.createTextNode(roleListItem.getVMImageName()));
-                roleElement.appendChild(vMImageNameElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "VMImageName");
+                xmlSerializer.text(roleListItem.getVMImageName());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "VMImageName");
             }
             
             if (roleListItem.getMediaLocation() != null) {
-                Element mediaLocationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MediaLocation");
-                mediaLocationElement.appendChild(requestDoc.createTextNode(roleListItem.getMediaLocation().toString()));
-                roleElement.appendChild(mediaLocationElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MediaLocation");
+                xmlSerializer.text(roleListItem.getMediaLocation().toString());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MediaLocation");
             }
             
             if (roleListItem.getAvailabilitySetName() != null) {
-                Element availabilitySetNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AvailabilitySetName");
-                availabilitySetNameElement.appendChild(requestDoc.createTextNode(roleListItem.getAvailabilitySetName()));
-                roleElement.appendChild(availabilitySetNameElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AvailabilitySetName");
+                xmlSerializer.text(roleListItem.getAvailabilitySetName());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AvailabilitySetName");
             }
             
             if (roleListItem.getDataVirtualHardDisks() != null) {
-                Element dataVirtualHardDisksSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisks");
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisks");
                 for (DataVirtualHardDisk dataVirtualHardDisksItem : roleListItem.getDataVirtualHardDisks()) {
-                    Element dataVirtualHardDiskElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
-                    dataVirtualHardDisksSequenceElement.appendChild(dataVirtualHardDiskElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
                     
                     if (dataVirtualHardDisksItem.getHostCaching() != null) {
-                        Element hostCachingElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-                        hostCachingElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getHostCaching()));
-                        dataVirtualHardDiskElement.appendChild(hostCachingElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
+                        xmlSerializer.text(dataVirtualHardDisksItem.getHostCaching());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
                     }
                     
                     if (dataVirtualHardDisksItem.getLabel() != null) {
-                        Element diskLabelElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskLabel");
-                        diskLabelElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getLabel()));
-                        dataVirtualHardDiskElement.appendChild(diskLabelElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
+                        xmlSerializer.text(dataVirtualHardDisksItem.getLabel());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
                     }
                     
                     if (dataVirtualHardDisksItem.getName() != null) {
-                        Element diskNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskName");
-                        diskNameElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getName()));
-                        dataVirtualHardDiskElement.appendChild(diskNameElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskName");
+                        xmlSerializer.text(dataVirtualHardDisksItem.getName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskName");
                     }
                     
                     if (dataVirtualHardDisksItem.getLogicalUnitNumber() != null) {
-                        Element lunElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Lun");
-                        lunElement.appendChild(requestDoc.createTextNode(Integer.toString(dataVirtualHardDisksItem.getLogicalUnitNumber())));
-                        dataVirtualHardDiskElement.appendChild(lunElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Lun");
+                        xmlSerializer.text(Integer.toString(dataVirtualHardDisksItem.getLogicalUnitNumber()));
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Lun");
                     }
                     
                     if (dataVirtualHardDisksItem.getLogicalDiskSizeInGB() != null) {
-                        Element logicalDiskSizeInGBElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
-                        logicalDiskSizeInGBElement.appendChild(requestDoc.createTextNode(Integer.toString(dataVirtualHardDisksItem.getLogicalDiskSizeInGB())));
-                        dataVirtualHardDiskElement.appendChild(logicalDiskSizeInGBElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
+                        xmlSerializer.text(Integer.toString(dataVirtualHardDisksItem.getLogicalDiskSizeInGB()));
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
                     }
                     
                     if (dataVirtualHardDisksItem.getMediaLink() != null) {
-                        Element mediaLinkElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MediaLink");
-                        mediaLinkElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getMediaLink().toString()));
-                        dataVirtualHardDiskElement.appendChild(mediaLinkElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
+                        xmlSerializer.text(dataVirtualHardDisksItem.getMediaLink().toString());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
                     }
                     
                     if (dataVirtualHardDisksItem.getSourceMediaLink() != null) {
-                        Element sourceMediaLinkElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SourceMediaLink");
-                        sourceMediaLinkElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getSourceMediaLink().toString()));
-                        dataVirtualHardDiskElement.appendChild(sourceMediaLinkElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SourceMediaLink");
+                        xmlSerializer.text(dataVirtualHardDisksItem.getSourceMediaLink().toString());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SourceMediaLink");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
                 }
-                roleElement.appendChild(dataVirtualHardDisksSequenceElement);
+                
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisks");
             }
             
             if (roleListItem.getLabel() != null) {
-                Element labelElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Label");
-                labelElement2.appendChild(requestDoc.createTextNode(roleListItem.getLabel()));
-                roleElement.appendChild(labelElement2);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Label");
+                xmlSerializer.text(roleListItem.getLabel());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Label");
             }
             
             if (roleListItem.getOSVirtualHardDisk() != null) {
-                Element oSVirtualHardDiskElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OSVirtualHardDisk");
-                roleElement.appendChild(oSVirtualHardDiskElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OSVirtualHardDisk");
                 
                 if (roleListItem.getOSVirtualHardDisk().getHostCaching() != null) {
-                    Element hostCachingElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-                    hostCachingElement2.appendChild(requestDoc.createTextNode(roleListItem.getOSVirtualHardDisk().getHostCaching()));
-                    oSVirtualHardDiskElement.appendChild(hostCachingElement2);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
+                    xmlSerializer.text(roleListItem.getOSVirtualHardDisk().getHostCaching());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
                 }
                 
                 if (roleListItem.getOSVirtualHardDisk().getLabel() != null) {
-                    Element diskLabelElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskLabel");
-                    diskLabelElement2.appendChild(requestDoc.createTextNode(roleListItem.getOSVirtualHardDisk().getLabel()));
-                    oSVirtualHardDiskElement.appendChild(diskLabelElement2);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
+                    xmlSerializer.text(roleListItem.getOSVirtualHardDisk().getLabel());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
                 }
                 
                 if (roleListItem.getOSVirtualHardDisk().getName() != null) {
-                    Element diskNameElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskName");
-                    diskNameElement2.appendChild(requestDoc.createTextNode(roleListItem.getOSVirtualHardDisk().getName()));
-                    oSVirtualHardDiskElement.appendChild(diskNameElement2);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskName");
+                    xmlSerializer.text(roleListItem.getOSVirtualHardDisk().getName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskName");
                 }
                 
                 if (roleListItem.getOSVirtualHardDisk().getMediaLink() != null) {
-                    Element mediaLinkElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MediaLink");
-                    mediaLinkElement2.appendChild(requestDoc.createTextNode(roleListItem.getOSVirtualHardDisk().getMediaLink().toString()));
-                    oSVirtualHardDiskElement.appendChild(mediaLinkElement2);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
+                    xmlSerializer.text(roleListItem.getOSVirtualHardDisk().getMediaLink().toString());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
                 }
                 
                 if (roleListItem.getOSVirtualHardDisk().getSourceImageName() != null) {
-                    Element sourceImageNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SourceImageName");
-                    sourceImageNameElement.appendChild(requestDoc.createTextNode(roleListItem.getOSVirtualHardDisk().getSourceImageName()));
-                    oSVirtualHardDiskElement.appendChild(sourceImageNameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SourceImageName");
+                    xmlSerializer.text(roleListItem.getOSVirtualHardDisk().getSourceImageName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SourceImageName");
                 }
                 
                 if (roleListItem.getOSVirtualHardDisk().getOperatingSystem() != null) {
-                    Element osElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OS");
-                    osElement.appendChild(requestDoc.createTextNode(roleListItem.getOSVirtualHardDisk().getOperatingSystem()));
-                    oSVirtualHardDiskElement.appendChild(osElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OS");
+                    xmlSerializer.text(roleListItem.getOSVirtualHardDisk().getOperatingSystem());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OS");
                 }
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OSVirtualHardDisk");
             }
             
             if (roleListItem.getRoleSize() != null) {
-                Element roleSizeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RoleSize");
-                roleSizeElement.appendChild(requestDoc.createTextNode(roleListItem.getRoleSize()));
-                roleElement.appendChild(roleSizeElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RoleSize");
+                xmlSerializer.text(roleListItem.getRoleSize());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RoleSize");
             }
             
             if (roleListItem.getDefaultWinRmCertificateThumbprint() != null) {
-                Element defaultWinRmCertificateThumbprintElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DefaultWinRmCertificateThumbprint");
-                defaultWinRmCertificateThumbprintElement.appendChild(requestDoc.createTextNode(roleListItem.getDefaultWinRmCertificateThumbprint()));
-                roleElement.appendChild(defaultWinRmCertificateThumbprintElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DefaultWinRmCertificateThumbprint");
+                xmlSerializer.text(roleListItem.getDefaultWinRmCertificateThumbprint());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DefaultWinRmCertificateThumbprint");
             }
             
             if (roleListItem.isProvisionGuestAgent() != null) {
-                Element provisionGuestAgentElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ProvisionGuestAgent");
-                provisionGuestAgentElement.appendChild(requestDoc.createTextNode(Boolean.toString(roleListItem.isProvisionGuestAgent()).toLowerCase()));
-                roleElement.appendChild(provisionGuestAgentElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ProvisionGuestAgent");
+                xmlSerializer.text(Boolean.toString(roleListItem.isProvisionGuestAgent()).toLowerCase());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ProvisionGuestAgent");
             }
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Role");
         }
-        deploymentElement.appendChild(roleListSequenceElement);
+        
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RoleList");
         
         if (parameters.getVirtualNetworkName() != null) {
-            Element virtualNetworkNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "VirtualNetworkName");
-            virtualNetworkNameElement.appendChild(requestDoc.createTextNode(parameters.getVirtualNetworkName()));
-            deploymentElement.appendChild(virtualNetworkNameElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "VirtualNetworkName");
+            xmlSerializer.text(parameters.getVirtualNetworkName());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "VirtualNetworkName");
         }
         
         if (parameters.getDnsSettings() != null) {
-            Element dnsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Dns");
-            deploymentElement.appendChild(dnsElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Dns");
             
             if (parameters.getDnsSettings().getDnsServers() != null) {
-                Element dnsServersSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DnsServers");
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DnsServers");
                 for (DnsServer dnsServersItem : parameters.getDnsSettings().getDnsServers()) {
-                    Element dnsServerElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DnsServer");
-                    dnsServersSequenceElement.appendChild(dnsServerElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DnsServer");
                     
                     if (dnsServersItem.getName() != null) {
-                        Element nameElement5 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                        nameElement5.appendChild(requestDoc.createTextNode(dnsServersItem.getName()));
-                        dnsServerElement.appendChild(nameElement5);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                        xmlSerializer.text(dnsServersItem.getName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
                     }
                     
                     if (dnsServersItem.getAddress() != null) {
-                        Element addressElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Address");
-                        addressElement.appendChild(requestDoc.createTextNode(dnsServersItem.getAddress().getHostAddress()));
-                        dnsServerElement.appendChild(addressElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Address");
+                        xmlSerializer.text(dnsServersItem.getAddress().getHostAddress());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Address");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DnsServer");
                 }
-                dnsElement.appendChild(dnsServersSequenceElement);
+                
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DnsServers");
             }
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Dns");
         }
         
         if (parameters.getReservedIPName() != null) {
-            Element reservedIPNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ReservedIPName");
-            reservedIPNameElement.appendChild(requestDoc.createTextNode(parameters.getReservedIPName()));
-            deploymentElement.appendChild(reservedIPNameElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ReservedIPName");
+            xmlSerializer.text(parameters.getReservedIPName());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ReservedIPName");
         }
         
         if (parameters.getLoadBalancers() != null) {
-            Element loadBalancersSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancers");
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancers");
             for (LoadBalancer loadBalancersItem : parameters.getLoadBalancers()) {
-                Element loadBalancerElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancer");
-                loadBalancersSequenceElement.appendChild(loadBalancerElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancer");
                 
                 if (loadBalancersItem.getName() != null) {
-                    Element nameElement6 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                    nameElement6.appendChild(requestDoc.createTextNode(loadBalancersItem.getName()));
-                    loadBalancerElement.appendChild(nameElement6);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                    xmlSerializer.text(loadBalancersItem.getName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
                 }
                 
                 if (loadBalancersItem.getFrontendIPConfiguration() != null) {
-                    Element frontendIpConfigurationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "FrontendIpConfiguration");
-                    loadBalancerElement.appendChild(frontendIpConfigurationElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "FrontendIpConfiguration");
                     
                     if (loadBalancersItem.getFrontendIPConfiguration().getType() != null) {
-                        Element typeElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Type");
-                        typeElement2.appendChild(requestDoc.createTextNode(loadBalancersItem.getFrontendIPConfiguration().getType()));
-                        frontendIpConfigurationElement.appendChild(typeElement2);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Type");
+                        xmlSerializer.text(loadBalancersItem.getFrontendIPConfiguration().getType());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Type");
                     }
                     
                     if (loadBalancersItem.getFrontendIPConfiguration().getSubnetName() != null) {
-                        Element subnetNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SubnetName");
-                        subnetNameElement.appendChild(requestDoc.createTextNode(loadBalancersItem.getFrontendIPConfiguration().getSubnetName()));
-                        frontendIpConfigurationElement.appendChild(subnetNameElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SubnetName");
+                        xmlSerializer.text(loadBalancersItem.getFrontendIPConfiguration().getSubnetName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SubnetName");
                     }
                     
                     if (loadBalancersItem.getFrontendIPConfiguration().getStaticVirtualNetworkIPAddress() != null) {
-                        Element staticVirtualNetworkIPAddressElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
-                        staticVirtualNetworkIPAddressElement2.appendChild(requestDoc.createTextNode(loadBalancersItem.getFrontendIPConfiguration().getStaticVirtualNetworkIPAddress().getHostAddress()));
-                        frontendIpConfigurationElement.appendChild(staticVirtualNetworkIPAddressElement2);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
+                        xmlSerializer.text(loadBalancersItem.getFrontendIPConfiguration().getStaticVirtualNetworkIPAddress().getHostAddress());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "FrontendIpConfiguration");
                 }
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancer");
             }
-            deploymentElement.appendChild(loadBalancersSequenceElement);
+            
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancers");
         }
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Deployment");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -2709,7 +2695,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("DELETE");
-        httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -2905,12 +2890,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @param parameters Required. The parameters for the shutdown vm operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -2918,7 +2897,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * request ID.
     */
     @Override
-    public OperationResponse beginShutdown(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineShutdownParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public OperationResponse beginShutdown(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineShutdownParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -2973,27 +2952,23 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
-        
-        Element shutdownRoleOperationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ShutdownRoleOperation");
-        requestDoc.appendChild(shutdownRoleOperationElement);
-        
-        Element operationTypeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OperationType");
-        operationTypeElement.appendChild(requestDoc.createTextNode("ShutdownRoleOperation"));
-        shutdownRoleOperationElement.appendChild(operationTypeElement);
-        
-        Element postShutdownActionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PostShutdownAction");
-        postShutdownActionElement.appendChild(requestDoc.createTextNode(parameters.getPostShutdownAction().toString()));
-        shutdownRoleOperationElement.appendChild(postShutdownActionElement);
-        
-        DOMSource domSource = new DOMSource(requestDoc);
+        XmlSerializer xmlSerializer = Xml.newSerializer();
         StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
+        
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ShutdownRoleOperation");
+        
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OperationType");
+        xmlSerializer.text("ShutdownRoleOperation");
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OperationType");
+        
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PostShutdownAction");
+        xmlSerializer.text(parameters.getPostShutdownAction().toString());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PostShutdownAction");
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ShutdownRoleOperation");
+        xmlSerializer.endDocument();
+        
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -3062,12 +3037,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * Roles operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -3075,7 +3044,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * request ID.
     */
     @Override
-    public OperationResponse beginShuttingDownRoles(String serviceName, String deploymentName, VirtualMachineShutdownRolesParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public OperationResponse beginShuttingDownRoles(String serviceName, String deploymentName, VirtualMachineShutdownRolesParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -3126,39 +3095,35 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element shutdownRolesOperationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ShutdownRolesOperation");
-        requestDoc.appendChild(shutdownRolesOperationElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ShutdownRolesOperation");
         
-        Element operationTypeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OperationType");
-        operationTypeElement.appendChild(requestDoc.createTextNode("ShutdownRolesOperation"));
-        shutdownRolesOperationElement.appendChild(operationTypeElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OperationType");
+        xmlSerializer.text("ShutdownRolesOperation");
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OperationType");
         
         if (parameters.getRoles() != null) {
-            Element rolesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Roles");
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Roles");
             for (String rolesItem : parameters.getRoles()) {
-                Element rolesItemElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                rolesItemElement.appendChild(requestDoc.createTextNode(rolesItem));
-                rolesSequenceElement.appendChild(rolesItemElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                xmlSerializer.text(rolesItem);
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
             }
-            shutdownRolesOperationElement.appendChild(rolesSequenceElement);
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Roles");
         }
         
         if (parameters.getPostShutdownAction() != null) {
-            Element postShutdownActionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PostShutdownAction");
-            postShutdownActionElement.appendChild(requestDoc.createTextNode(parameters.getPostShutdownAction().toString()));
-            shutdownRolesOperationElement.appendChild(postShutdownActionElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PostShutdownAction");
+            xmlSerializer.text(parameters.getPostShutdownAction().toString());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PostShutdownAction");
         }
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ShutdownRolesOperation");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -3350,12 +3315,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * Roles operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -3363,7 +3322,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * request ID.
     */
     @Override
-    public OperationResponse beginStartingRoles(String serviceName, String deploymentName, VirtualMachineStartRolesParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public OperationResponse beginStartingRoles(String serviceName, String deploymentName, VirtualMachineStartRolesParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -3414,33 +3373,29 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element startRolesOperationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StartRolesOperation");
-        requestDoc.appendChild(startRolesOperationElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StartRolesOperation");
         
-        Element operationTypeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OperationType");
-        operationTypeElement.appendChild(requestDoc.createTextNode("StartRolesOperation"));
-        startRolesOperationElement.appendChild(operationTypeElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OperationType");
+        xmlSerializer.text("StartRolesOperation");
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OperationType");
         
         if (parameters.getRoles() != null) {
-            Element rolesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Roles");
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Roles");
             for (String rolesItem : parameters.getRoles()) {
-                Element rolesItemElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                rolesItemElement.appendChild(requestDoc.createTextNode(rolesItem));
-                rolesSequenceElement.appendChild(rolesItemElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                xmlSerializer.text(rolesItem);
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
             }
-            startRolesOperationElement.appendChild(rolesSequenceElement);
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Roles");
         }
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StartRolesOperation");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -3511,12 +3466,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * Virtual Machine operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -3524,7 +3473,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * request ID.
     */
     @Override
-    public OperationResponse beginUpdating(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public OperationResponse beginUpdating(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineUpdateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -3649,570 +3598,577 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element persistentVMRoleElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PersistentVMRole");
-        requestDoc.appendChild(persistentVMRoleElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PersistentVMRole");
         
-        Element roleNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RoleName");
-        roleNameElement.appendChild(requestDoc.createTextNode(parameters.getRoleName()));
-        persistentVMRoleElement.appendChild(roleNameElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RoleName");
+        xmlSerializer.text(parameters.getRoleName());
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RoleName");
         
-        Element roleTypeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RoleType");
-        roleTypeElement.appendChild(requestDoc.createTextNode("PersistentVMRole"));
-        persistentVMRoleElement.appendChild(roleTypeElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RoleType");
+        xmlSerializer.text("PersistentVMRole");
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RoleType");
         
         if (parameters.getConfigurationSets() != null) {
-            Element configurationSetsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ConfigurationSets");
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSets");
             for (ConfigurationSet configurationSetsItem : parameters.getConfigurationSets()) {
-                Element configurationSetElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ConfigurationSet");
-                configurationSetsSequenceElement.appendChild(configurationSetElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSet");
                 
                 if (configurationSetsItem.getConfigurationSetType() != null) {
-                    Element configurationSetTypeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ConfigurationSetType");
-                    configurationSetTypeElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getConfigurationSetType()));
-                    configurationSetElement.appendChild(configurationSetTypeElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSetType");
+                    xmlSerializer.text(configurationSetsItem.getConfigurationSetType());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSetType");
                 }
                 
                 if (configurationSetsItem.getInputEndpoints() != null) {
-                    Element inputEndpointsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "InputEndpoints");
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "InputEndpoints");
                     for (InputEndpoint inputEndpointsItem : configurationSetsItem.getInputEndpoints()) {
-                        Element inputEndpointElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
-                        inputEndpointsSequenceElement.appendChild(inputEndpointElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
                         
                         if (inputEndpointsItem.getLoadBalancedEndpointSetName() != null) {
-                            Element loadBalancedEndpointSetNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
-                            loadBalancedEndpointSetNameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancedEndpointSetName()));
-                            inputEndpointElement.appendChild(loadBalancedEndpointSetNameElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
+                            xmlSerializer.text(inputEndpointsItem.getLoadBalancedEndpointSetName());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
                         }
                         
                         if (inputEndpointsItem.getLocalPort() != null) {
-                            Element localPortElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LocalPort");
-                            localPortElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLocalPort())));
-                            inputEndpointElement.appendChild(localPortElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LocalPort");
+                            xmlSerializer.text(Integer.toString(inputEndpointsItem.getLocalPort()));
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LocalPort");
                         }
                         
                         if (inputEndpointsItem.getName() != null) {
-                            Element nameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                            nameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getName()));
-                            inputEndpointElement.appendChild(nameElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                            xmlSerializer.text(inputEndpointsItem.getName());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
                         }
                         
                         if (inputEndpointsItem.getPort() != null) {
-                            Element portElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Port");
-                            portElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getPort())));
-                            inputEndpointElement.appendChild(portElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Port");
+                            xmlSerializer.text(Integer.toString(inputEndpointsItem.getPort()));
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Port");
                         }
                         
                         if (inputEndpointsItem.getLoadBalancerProbe() != null) {
-                            Element loadBalancerProbeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
-                            inputEndpointElement.appendChild(loadBalancerProbeElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
                             
                             if (inputEndpointsItem.getLoadBalancerProbe().getPath() != null) {
-                                Element pathElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Path");
-                                pathElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancerProbe().getPath()));
-                                loadBalancerProbeElement.appendChild(pathElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Path");
+                                xmlSerializer.text(inputEndpointsItem.getLoadBalancerProbe().getPath());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Path");
                             }
                             
-                            Element portElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Port");
-                            portElement2.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getPort())));
-                            loadBalancerProbeElement.appendChild(portElement2);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Port");
+                            xmlSerializer.text(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getPort()));
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Port");
                             
-                            Element protocolElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Protocol");
-                            protocolElement.appendChild(requestDoc.createTextNode(ComputeManagementClientImpl.loadBalancerProbeTransportProtocolToString(inputEndpointsItem.getLoadBalancerProbe().getProtocol())));
-                            loadBalancerProbeElement.appendChild(protocolElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                            xmlSerializer.text(ComputeManagementClientImpl.loadBalancerProbeTransportProtocolToString(inputEndpointsItem.getLoadBalancerProbe().getProtocol()));
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Protocol");
                             
                             if (inputEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds() != null) {
-                                Element intervalInSecondsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
-                                intervalInSecondsElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds())));
-                                loadBalancerProbeElement.appendChild(intervalInSecondsElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
+                                xmlSerializer.text(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds()));
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
                             }
                             
                             if (inputEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds() != null) {
-                                Element timeoutInSecondsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
-                                timeoutInSecondsElement.appendChild(requestDoc.createTextNode(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds())));
-                                loadBalancerProbeElement.appendChild(timeoutInSecondsElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
+                                xmlSerializer.text(Integer.toString(inputEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds()));
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
                             }
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
                         }
                         
                         if (inputEndpointsItem.getProtocol() != null) {
-                            Element protocolElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Protocol");
-                            protocolElement2.appendChild(requestDoc.createTextNode(inputEndpointsItem.getProtocol()));
-                            inputEndpointElement.appendChild(protocolElement2);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                            xmlSerializer.text(inputEndpointsItem.getProtocol());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Protocol");
                         }
                         
                         if (inputEndpointsItem.getVirtualIPAddress() != null) {
-                            Element vipElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Vip");
-                            vipElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getVirtualIPAddress().getHostAddress()));
-                            inputEndpointElement.appendChild(vipElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Vip");
+                            xmlSerializer.text(inputEndpointsItem.getVirtualIPAddress().getHostAddress());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Vip");
                         }
                         
                         if (inputEndpointsItem.isEnableDirectServerReturn() != null) {
-                            Element enableDirectServerReturnElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
-                            enableDirectServerReturnElement.appendChild(requestDoc.createTextNode(Boolean.toString(inputEndpointsItem.isEnableDirectServerReturn()).toLowerCase()));
-                            inputEndpointElement.appendChild(enableDirectServerReturnElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
+                            xmlSerializer.text(Boolean.toString(inputEndpointsItem.isEnableDirectServerReturn()).toLowerCase());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
                         }
                         
                         if (inputEndpointsItem.getLoadBalancerName() != null) {
-                            Element loadBalancerNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
-                            loadBalancerNameElement.appendChild(requestDoc.createTextNode(inputEndpointsItem.getLoadBalancerName()));
-                            inputEndpointElement.appendChild(loadBalancerNameElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
+                            xmlSerializer.text(inputEndpointsItem.getLoadBalancerName());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
                         }
                         
                         if (inputEndpointsItem.getEndpointAcl() != null) {
-                            Element endpointAclElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
-                            inputEndpointElement.appendChild(endpointAclElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                             
                             if (inputEndpointsItem.getEndpointAcl().getRules() != null) {
-                                Element rulesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Rules");
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Rules");
                                 for (AccessControlListRule rulesItem : inputEndpointsItem.getEndpointAcl().getRules()) {
-                                    Element ruleElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Rule");
-                                    rulesSequenceElement.appendChild(ruleElement);
+                                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Rule");
                                     
                                     if (rulesItem.getOrder() != null) {
-                                        Element orderElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Order");
-                                        orderElement.appendChild(requestDoc.createTextNode(Integer.toString(rulesItem.getOrder())));
-                                        ruleElement.appendChild(orderElement);
+                                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Order");
+                                        xmlSerializer.text(Integer.toString(rulesItem.getOrder()));
+                                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Order");
                                     }
                                     
                                     if (rulesItem.getAction() != null) {
-                                        Element actionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Action");
-                                        actionElement.appendChild(requestDoc.createTextNode(rulesItem.getAction()));
-                                        ruleElement.appendChild(actionElement);
+                                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Action");
+                                        xmlSerializer.text(rulesItem.getAction());
+                                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Action");
                                     }
                                     
                                     if (rulesItem.getRemoteSubnet() != null) {
-                                        Element remoteSubnetElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
-                                        remoteSubnetElement.appendChild(requestDoc.createTextNode(rulesItem.getRemoteSubnet()));
-                                        ruleElement.appendChild(remoteSubnetElement);
+                                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
+                                        xmlSerializer.text(rulesItem.getRemoteSubnet());
+                                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
                                     }
                                     
                                     if (rulesItem.getDescription() != null) {
-                                        Element descriptionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Description");
-                                        descriptionElement.appendChild(requestDoc.createTextNode(rulesItem.getDescription()));
-                                        ruleElement.appendChild(descriptionElement);
+                                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Description");
+                                        xmlSerializer.text(rulesItem.getDescription());
+                                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Description");
                                     }
+                                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Rule");
                                 }
-                                endpointAclElement.appendChild(rulesSequenceElement);
+                                
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Rules");
                             }
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                         }
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
                     }
-                    configurationSetElement.appendChild(inputEndpointsSequenceElement);
+                    
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "InputEndpoints");
                 }
                 
                 if (configurationSetsItem.getSubnetNames() != null) {
-                    Element subnetNamesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SubnetNames");
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SubnetNames");
                     for (String subnetNamesItem : configurationSetsItem.getSubnetNames()) {
-                        Element subnetNamesItemElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SubnetName");
-                        subnetNamesItemElement.appendChild(requestDoc.createTextNode(subnetNamesItem));
-                        subnetNamesSequenceElement.appendChild(subnetNamesItemElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SubnetName");
+                        xmlSerializer.text(subnetNamesItem);
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SubnetName");
                     }
-                    configurationSetElement.appendChild(subnetNamesSequenceElement);
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SubnetNames");
                 }
                 
                 if (configurationSetsItem.getStaticVirtualNetworkIPAddress() != null) {
-                    Element staticVirtualNetworkIPAddressElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
-                    staticVirtualNetworkIPAddressElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getStaticVirtualNetworkIPAddress()));
-                    configurationSetElement.appendChild(staticVirtualNetworkIPAddressElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
+                    xmlSerializer.text(configurationSetsItem.getStaticVirtualNetworkIPAddress());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
                 }
                 
                 if (configurationSetsItem.getPublicIPs() != null) {
-                    Element publicIPsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIPs");
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicIPs");
                     for (ConfigurationSet.PublicIP publicIPsItem : configurationSetsItem.getPublicIPs()) {
-                        Element publicIPElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicIP");
-                        publicIPsSequenceElement.appendChild(publicIPElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicIP");
                         
                         if (publicIPsItem.getName() != null) {
-                            Element nameElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                            nameElement2.appendChild(requestDoc.createTextNode(publicIPsItem.getName()));
-                            publicIPElement.appendChild(nameElement2);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                            xmlSerializer.text(publicIPsItem.getName());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
                         }
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicIP");
                     }
-                    configurationSetElement.appendChild(publicIPsSequenceElement);
+                    
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicIPs");
                 }
                 
                 if (configurationSetsItem.getComputerName() != null) {
-                    Element computerNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ComputerName");
-                    computerNameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getComputerName()));
-                    configurationSetElement.appendChild(computerNameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ComputerName");
+                    xmlSerializer.text(configurationSetsItem.getComputerName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ComputerName");
                 }
                 
                 if (configurationSetsItem.getAdminPassword() != null) {
-                    Element adminPasswordElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AdminPassword");
-                    adminPasswordElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getAdminPassword()));
-                    configurationSetElement.appendChild(adminPasswordElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AdminPassword");
+                    xmlSerializer.text(configurationSetsItem.getAdminPassword());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AdminPassword");
                 }
                 
                 if (configurationSetsItem.isResetPasswordOnFirstLogon() != null) {
-                    Element resetPasswordOnFirstLogonElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResetPasswordOnFirstLogon");
-                    resetPasswordOnFirstLogonElement.appendChild(requestDoc.createTextNode(Boolean.toString(configurationSetsItem.isResetPasswordOnFirstLogon()).toLowerCase()));
-                    configurationSetElement.appendChild(resetPasswordOnFirstLogonElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResetPasswordOnFirstLogon");
+                    xmlSerializer.text(Boolean.toString(configurationSetsItem.isResetPasswordOnFirstLogon()).toLowerCase());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResetPasswordOnFirstLogon");
                 }
                 
                 if (configurationSetsItem.isEnableAutomaticUpdates() != null) {
-                    Element enableAutomaticUpdatesElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EnableAutomaticUpdates");
-                    enableAutomaticUpdatesElement.appendChild(requestDoc.createTextNode(Boolean.toString(configurationSetsItem.isEnableAutomaticUpdates()).toLowerCase()));
-                    configurationSetElement.appendChild(enableAutomaticUpdatesElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "EnableAutomaticUpdates");
+                    xmlSerializer.text(Boolean.toString(configurationSetsItem.isEnableAutomaticUpdates()).toLowerCase());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "EnableAutomaticUpdates");
                 }
                 
                 if (configurationSetsItem.getTimeZone() != null) {
-                    Element timeZoneElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "TimeZone");
-                    timeZoneElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getTimeZone()));
-                    configurationSetElement.appendChild(timeZoneElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "TimeZone");
+                    xmlSerializer.text(configurationSetsItem.getTimeZone());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "TimeZone");
                 }
                 
                 if (configurationSetsItem.getDomainJoin() != null) {
-                    Element domainJoinElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DomainJoin");
-                    configurationSetElement.appendChild(domainJoinElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DomainJoin");
                     
                     if (configurationSetsItem.getDomainJoin().getCredentials() != null) {
-                        Element credentialsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Credentials");
-                        domainJoinElement.appendChild(credentialsElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Credentials");
                         
                         if (configurationSetsItem.getDomainJoin().getCredentials().getDomain() != null) {
-                            Element domainElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Domain");
-                            domainElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getCredentials().getDomain()));
-                            credentialsElement.appendChild(domainElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Domain");
+                            xmlSerializer.text(configurationSetsItem.getDomainJoin().getCredentials().getDomain());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Domain");
                         }
                         
-                        Element usernameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Username");
-                        usernameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getCredentials().getUserName()));
-                        credentialsElement.appendChild(usernameElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Username");
+                        xmlSerializer.text(configurationSetsItem.getDomainJoin().getCredentials().getUserName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Username");
                         
-                        Element passwordElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Password");
-                        passwordElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getCredentials().getPassword()));
-                        credentialsElement.appendChild(passwordElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Password");
+                        xmlSerializer.text(configurationSetsItem.getDomainJoin().getCredentials().getPassword());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Password");
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Credentials");
                     }
                     
                     if (configurationSetsItem.getDomainJoin().getDomainToJoin() != null) {
-                        Element joinDomainElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "JoinDomain");
-                        joinDomainElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getDomainToJoin()));
-                        domainJoinElement.appendChild(joinDomainElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "JoinDomain");
+                        xmlSerializer.text(configurationSetsItem.getDomainJoin().getDomainToJoin());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "JoinDomain");
                     }
                     
                     if (configurationSetsItem.getDomainJoin().getLdapMachineObjectOU() != null) {
-                        Element machineObjectOUElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MachineObjectOU");
-                        machineObjectOUElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getLdapMachineObjectOU()));
-                        domainJoinElement.appendChild(machineObjectOUElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MachineObjectOU");
+                        xmlSerializer.text(configurationSetsItem.getDomainJoin().getLdapMachineObjectOU());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MachineObjectOU");
                     }
                     
                     if (configurationSetsItem.getDomainJoin().getProvisioning() != null) {
-                        Element provisioningElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Provisioning");
-                        domainJoinElement.appendChild(provisioningElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Provisioning");
                         
                         if (configurationSetsItem.getDomainJoin().getProvisioning().getAccountData() != null) {
-                            Element accountDataElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AccountData");
-                            accountDataElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getDomainJoin().getProvisioning().getAccountData()));
-                            provisioningElement.appendChild(accountDataElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AccountData");
+                            xmlSerializer.text(configurationSetsItem.getDomainJoin().getProvisioning().getAccountData());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AccountData");
                         }
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Provisioning");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DomainJoin");
                 }
                 
                 if (configurationSetsItem.getStoredCertificateSettings() != null) {
-                    Element storedCertificateSettingsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StoredCertificateSettings");
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StoredCertificateSettings");
                     for (StoredCertificateSettings storedCertificateSettingsItem : configurationSetsItem.getStoredCertificateSettings()) {
-                        Element certificateSettingElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CertificateSetting");
-                        storedCertificateSettingsSequenceElement.appendChild(certificateSettingElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CertificateSetting");
                         
-                        Element storeLocationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StoreLocation");
-                        storeLocationElement.appendChild(requestDoc.createTextNode("LocalMachine"));
-                        certificateSettingElement.appendChild(storeLocationElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StoreLocation");
+                        xmlSerializer.text("LocalMachine");
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StoreLocation");
                         
-                        Element storeNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "StoreName");
-                        storeNameElement.appendChild(requestDoc.createTextNode(storedCertificateSettingsItem.getStoreName()));
-                        certificateSettingElement.appendChild(storeNameElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "StoreName");
+                        xmlSerializer.text(storedCertificateSettingsItem.getStoreName());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StoreName");
                         
-                        Element thumbprintElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Thumbprint");
-                        thumbprintElement.appendChild(requestDoc.createTextNode(storedCertificateSettingsItem.getThumbprint()));
-                        certificateSettingElement.appendChild(thumbprintElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Thumbprint");
+                        xmlSerializer.text(storedCertificateSettingsItem.getThumbprint());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Thumbprint");
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CertificateSetting");
                     }
-                    configurationSetElement.appendChild(storedCertificateSettingsSequenceElement);
+                    
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "StoredCertificateSettings");
                 }
                 
                 if (configurationSetsItem.getWindowsRemoteManagement() != null) {
-                    Element winRMElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "WinRM");
-                    configurationSetElement.appendChild(winRMElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "WinRM");
                     
                     if (configurationSetsItem.getWindowsRemoteManagement().getListeners() != null) {
-                        Element listenersSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Listeners");
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Listeners");
                         for (WindowsRemoteManagementListener listenersItem : configurationSetsItem.getWindowsRemoteManagement().getListeners()) {
-                            Element listenerElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Listener");
-                            listenersSequenceElement.appendChild(listenerElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Listener");
                             
                             if (listenersItem.getCertificateThumbprint() != null) {
-                                Element certificateThumbprintElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CertificateThumbprint");
-                                certificateThumbprintElement.appendChild(requestDoc.createTextNode(listenersItem.getCertificateThumbprint()));
-                                listenerElement.appendChild(certificateThumbprintElement);
+                                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CertificateThumbprint");
+                                xmlSerializer.text(listenersItem.getCertificateThumbprint());
+                                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CertificateThumbprint");
                             }
                             
-                            Element protocolElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Protocol");
-                            protocolElement3.appendChild(requestDoc.createTextNode(listenersItem.getListenerType().toString()));
-                            listenerElement.appendChild(protocolElement3);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                            xmlSerializer.text(listenersItem.getListenerType().toString());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Listener");
                         }
-                        winRMElement.appendChild(listenersSequenceElement);
+                        
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Listeners");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "WinRM");
                 }
                 
                 if (configurationSetsItem.getAdminUserName() != null) {
-                    Element adminUsernameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AdminUsername");
-                    adminUsernameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getAdminUserName()));
-                    configurationSetElement.appendChild(adminUsernameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AdminUsername");
+                    xmlSerializer.text(configurationSetsItem.getAdminUserName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AdminUsername");
                 }
                 
                 if (configurationSetsItem.getHostName() != null) {
-                    Element hostNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostName");
-                    hostNameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getHostName()));
-                    configurationSetElement.appendChild(hostNameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "HostName");
+                    xmlSerializer.text(configurationSetsItem.getHostName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "HostName");
                 }
                 
                 if (configurationSetsItem.getUserName() != null) {
-                    Element userNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "UserName");
-                    userNameElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getUserName()));
-                    configurationSetElement.appendChild(userNameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "UserName");
+                    xmlSerializer.text(configurationSetsItem.getUserName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "UserName");
                 }
                 
                 if (configurationSetsItem.getUserPassword() != null) {
-                    Element userPasswordElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "UserPassword");
-                    userPasswordElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getUserPassword()));
-                    configurationSetElement.appendChild(userPasswordElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "UserPassword");
+                    xmlSerializer.text(configurationSetsItem.getUserPassword());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "UserPassword");
                 }
                 
                 if (configurationSetsItem.isDisableSshPasswordAuthentication() != null) {
-                    Element disableSshPasswordAuthenticationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DisableSshPasswordAuthentication");
-                    disableSshPasswordAuthenticationElement.appendChild(requestDoc.createTextNode(Boolean.toString(configurationSetsItem.isDisableSshPasswordAuthentication()).toLowerCase()));
-                    configurationSetElement.appendChild(disableSshPasswordAuthenticationElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DisableSshPasswordAuthentication");
+                    xmlSerializer.text(Boolean.toString(configurationSetsItem.isDisableSshPasswordAuthentication()).toLowerCase());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DisableSshPasswordAuthentication");
                 }
                 
                 if (configurationSetsItem.getSshSettings() != null) {
-                    Element sSHElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SSH");
-                    configurationSetElement.appendChild(sSHElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SSH");
                     
                     if (configurationSetsItem.getSshSettings().getPublicKeys() != null) {
-                        Element publicKeysSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicKeys");
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicKeys");
                         for (SshSettingPublicKey publicKeysItem : configurationSetsItem.getSshSettings().getPublicKeys()) {
-                            Element publicKeyElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "PublicKey");
-                            publicKeysSequenceElement.appendChild(publicKeyElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "PublicKey");
                             
-                            Element fingerprintElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Fingerprint");
-                            fingerprintElement.appendChild(requestDoc.createTextNode(publicKeysItem.getFingerprint()));
-                            publicKeyElement.appendChild(fingerprintElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
+                            xmlSerializer.text(publicKeysItem.getFingerprint());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
                             
-                            Element pathElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Path");
-                            pathElement2.appendChild(requestDoc.createTextNode(publicKeysItem.getPath()));
-                            publicKeyElement.appendChild(pathElement2);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Path");
+                            xmlSerializer.text(publicKeysItem.getPath());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Path");
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicKey");
                         }
-                        sSHElement.appendChild(publicKeysSequenceElement);
+                        
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PublicKeys");
                     }
                     
                     if (configurationSetsItem.getSshSettings().getKeyPairs() != null) {
-                        Element keyPairsSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "KeyPairs");
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "KeyPairs");
                         for (SshSettingKeyPair keyPairsItem : configurationSetsItem.getSshSettings().getKeyPairs()) {
-                            Element keyPairElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "KeyPair");
-                            keyPairsSequenceElement.appendChild(keyPairElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "KeyPair");
                             
-                            Element fingerprintElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Fingerprint");
-                            fingerprintElement2.appendChild(requestDoc.createTextNode(keyPairsItem.getFingerprint()));
-                            keyPairElement.appendChild(fingerprintElement2);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
+                            xmlSerializer.text(keyPairsItem.getFingerprint());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Fingerprint");
                             
-                            Element pathElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Path");
-                            pathElement3.appendChild(requestDoc.createTextNode(keyPairsItem.getPath()));
-                            keyPairElement.appendChild(pathElement3);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Path");
+                            xmlSerializer.text(keyPairsItem.getPath());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Path");
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "KeyPair");
                         }
-                        sSHElement.appendChild(keyPairsSequenceElement);
+                        
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "KeyPairs");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SSH");
                 }
                 
                 if (configurationSetsItem.getCustomData() != null) {
-                    Element customDataElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "CustomData");
-                    customDataElement.appendChild(requestDoc.createTextNode(configurationSetsItem.getCustomData()));
-                    configurationSetElement.appendChild(customDataElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "CustomData");
+                    xmlSerializer.text(configurationSetsItem.getCustomData());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "CustomData");
                 }
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSet");
             }
-            persistentVMRoleElement.appendChild(configurationSetsSequenceElement);
+            
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ConfigurationSets");
         }
         
         if (parameters.getAvailabilitySetName() != null) {
-            Element availabilitySetNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "AvailabilitySetName");
-            availabilitySetNameElement.appendChild(requestDoc.createTextNode(parameters.getAvailabilitySetName()));
-            persistentVMRoleElement.appendChild(availabilitySetNameElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "AvailabilitySetName");
+            xmlSerializer.text(parameters.getAvailabilitySetName());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "AvailabilitySetName");
         }
         
         if (parameters.getResourceExtensionReferences() != null) {
-            Element resourceExtensionReferencesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReferences");
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReferences");
             for (ResourceExtensionReference resourceExtensionReferencesItem : parameters.getResourceExtensionReferences()) {
-                Element resourceExtensionReferenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReference");
-                resourceExtensionReferencesSequenceElement.appendChild(resourceExtensionReferenceElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReference");
                 
                 if (resourceExtensionReferencesItem.getReferenceName() != null) {
-                    Element referenceNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ReferenceName");
-                    referenceNameElement.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getReferenceName()));
-                    resourceExtensionReferenceElement.appendChild(referenceNameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ReferenceName");
+                    xmlSerializer.text(resourceExtensionReferencesItem.getReferenceName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ReferenceName");
                 }
                 
                 if (resourceExtensionReferencesItem.getPublisher() != null) {
-                    Element publisherElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Publisher");
-                    publisherElement.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getPublisher()));
-                    resourceExtensionReferenceElement.appendChild(publisherElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Publisher");
+                    xmlSerializer.text(resourceExtensionReferencesItem.getPublisher());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Publisher");
                 }
                 
                 if (resourceExtensionReferencesItem.getName() != null) {
-                    Element nameElement3 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                    nameElement3.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getName()));
-                    resourceExtensionReferenceElement.appendChild(nameElement3);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                    xmlSerializer.text(resourceExtensionReferencesItem.getName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
                 }
                 
                 if (resourceExtensionReferencesItem.getVersion() != null) {
-                    Element versionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Version");
-                    versionElement.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getVersion()));
-                    resourceExtensionReferenceElement.appendChild(versionElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Version");
+                    xmlSerializer.text(resourceExtensionReferencesItem.getVersion());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Version");
                 }
                 
                 if (resourceExtensionReferencesItem.getResourceExtensionParameterValues() != null) {
-                    Element resourceExtensionParameterValuesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValues");
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValues");
                     for (ResourceExtensionParameterValue resourceExtensionParameterValuesItem : resourceExtensionReferencesItem.getResourceExtensionParameterValues()) {
-                        Element resourceExtensionParameterValueElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValue");
-                        resourceExtensionParameterValuesSequenceElement.appendChild(resourceExtensionParameterValueElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValue");
                         
                         if (resourceExtensionParameterValuesItem.getKey() != null) {
-                            Element keyElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Key");
-                            keyElement.appendChild(requestDoc.createTextNode(resourceExtensionParameterValuesItem.getKey()));
-                            resourceExtensionParameterValueElement.appendChild(keyElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Key");
+                            xmlSerializer.text(resourceExtensionParameterValuesItem.getKey());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Key");
                         }
                         
                         if (resourceExtensionParameterValuesItem.getValue() != null) {
-                            Element valueElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Value");
-                            valueElement.appendChild(requestDoc.createTextNode(Base64.encode(resourceExtensionParameterValuesItem.getValue().getBytes())));
-                            resourceExtensionParameterValueElement.appendChild(valueElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Value");
+                            xmlSerializer.text(Base64.encode(resourceExtensionParameterValuesItem.getValue().getBytes()));
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Value");
                         }
                         
                         if (resourceExtensionParameterValuesItem.getType() != null) {
-                            Element typeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Type");
-                            typeElement.appendChild(requestDoc.createTextNode(resourceExtensionParameterValuesItem.getType()));
-                            resourceExtensionParameterValueElement.appendChild(typeElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Type");
+                            xmlSerializer.text(resourceExtensionParameterValuesItem.getType());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Type");
                         }
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValue");
                     }
-                    resourceExtensionReferenceElement.appendChild(resourceExtensionParameterValuesSequenceElement);
+                    
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionParameterValues");
                 }
                 
                 if (resourceExtensionReferencesItem.getState() != null) {
-                    Element stateElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "State");
-                    stateElement.appendChild(requestDoc.createTextNode(resourceExtensionReferencesItem.getState()));
-                    resourceExtensionReferenceElement.appendChild(stateElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "State");
+                    xmlSerializer.text(resourceExtensionReferencesItem.getState());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "State");
                 }
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReference");
             }
-            persistentVMRoleElement.appendChild(resourceExtensionReferencesSequenceElement);
+            
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ResourceExtensionReferences");
         }
         
         if (parameters.getDataVirtualHardDisks() != null) {
-            Element dataVirtualHardDisksSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisks");
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisks");
             for (DataVirtualHardDisk dataVirtualHardDisksItem : parameters.getDataVirtualHardDisks()) {
-                Element dataVirtualHardDiskElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
-                dataVirtualHardDisksSequenceElement.appendChild(dataVirtualHardDiskElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
                 
                 if (dataVirtualHardDisksItem.getHostCaching() != null) {
-                    Element hostCachingElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-                    hostCachingElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getHostCaching()));
-                    dataVirtualHardDiskElement.appendChild(hostCachingElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
+                    xmlSerializer.text(dataVirtualHardDisksItem.getHostCaching());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
                 }
                 
                 if (dataVirtualHardDisksItem.getLabel() != null) {
-                    Element diskLabelElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskLabel");
-                    diskLabelElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getLabel()));
-                    dataVirtualHardDiskElement.appendChild(diskLabelElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
+                    xmlSerializer.text(dataVirtualHardDisksItem.getLabel());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
                 }
                 
                 if (dataVirtualHardDisksItem.getName() != null) {
-                    Element diskNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskName");
-                    diskNameElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getName()));
-                    dataVirtualHardDiskElement.appendChild(diskNameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskName");
+                    xmlSerializer.text(dataVirtualHardDisksItem.getName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskName");
                 }
                 
                 if (dataVirtualHardDisksItem.getLogicalUnitNumber() != null) {
-                    Element lunElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Lun");
-                    lunElement.appendChild(requestDoc.createTextNode(Integer.toString(dataVirtualHardDisksItem.getLogicalUnitNumber())));
-                    dataVirtualHardDiskElement.appendChild(lunElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Lun");
+                    xmlSerializer.text(Integer.toString(dataVirtualHardDisksItem.getLogicalUnitNumber()));
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Lun");
                 }
                 
                 if (dataVirtualHardDisksItem.getLogicalDiskSizeInGB() != null) {
-                    Element logicalDiskSizeInGBElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
-                    logicalDiskSizeInGBElement.appendChild(requestDoc.createTextNode(Integer.toString(dataVirtualHardDisksItem.getLogicalDiskSizeInGB())));
-                    dataVirtualHardDiskElement.appendChild(logicalDiskSizeInGBElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
+                    xmlSerializer.text(Integer.toString(dataVirtualHardDisksItem.getLogicalDiskSizeInGB()));
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
                 }
                 
                 if (dataVirtualHardDisksItem.getMediaLink() != null) {
-                    Element mediaLinkElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MediaLink");
-                    mediaLinkElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getMediaLink().toString()));
-                    dataVirtualHardDiskElement.appendChild(mediaLinkElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
+                    xmlSerializer.text(dataVirtualHardDisksItem.getMediaLink().toString());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
                 }
                 
                 if (dataVirtualHardDisksItem.getSourceMediaLink() != null) {
-                    Element sourceMediaLinkElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SourceMediaLink");
-                    sourceMediaLinkElement.appendChild(requestDoc.createTextNode(dataVirtualHardDisksItem.getSourceMediaLink().toString()));
-                    dataVirtualHardDiskElement.appendChild(sourceMediaLinkElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SourceMediaLink");
+                    xmlSerializer.text(dataVirtualHardDisksItem.getSourceMediaLink().toString());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SourceMediaLink");
                 }
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk");
             }
-            persistentVMRoleElement.appendChild(dataVirtualHardDisksSequenceElement);
+            
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisks");
         }
         
-        Element oSVirtualHardDiskElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OSVirtualHardDisk");
-        persistentVMRoleElement.appendChild(oSVirtualHardDiskElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OSVirtualHardDisk");
         
         if (parameters.getOSVirtualHardDisk().getHostCaching() != null) {
-            Element hostCachingElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "HostCaching");
-            hostCachingElement2.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getHostCaching()));
-            oSVirtualHardDiskElement.appendChild(hostCachingElement2);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
+            xmlSerializer.text(parameters.getOSVirtualHardDisk().getHostCaching());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "HostCaching");
         }
         
         if (parameters.getOSVirtualHardDisk().getLabel() != null) {
-            Element diskLabelElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskLabel");
-            diskLabelElement2.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getLabel()));
-            oSVirtualHardDiskElement.appendChild(diskLabelElement2);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
+            xmlSerializer.text(parameters.getOSVirtualHardDisk().getLabel());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskLabel");
         }
         
         if (parameters.getOSVirtualHardDisk().getName() != null) {
-            Element diskNameElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DiskName");
-            diskNameElement2.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getName()));
-            oSVirtualHardDiskElement.appendChild(diskNameElement2);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DiskName");
+            xmlSerializer.text(parameters.getOSVirtualHardDisk().getName());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DiskName");
         }
         
         if (parameters.getOSVirtualHardDisk().getMediaLink() != null) {
-            Element mediaLinkElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "MediaLink");
-            mediaLinkElement2.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getMediaLink().toString()));
-            oSVirtualHardDiskElement.appendChild(mediaLinkElement2);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
+            xmlSerializer.text(parameters.getOSVirtualHardDisk().getMediaLink().toString());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "MediaLink");
         }
         
         if (parameters.getOSVirtualHardDisk().getSourceImageName() != null) {
-            Element sourceImageNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "SourceImageName");
-            sourceImageNameElement.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getSourceImageName()));
-            oSVirtualHardDiskElement.appendChild(sourceImageNameElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "SourceImageName");
+            xmlSerializer.text(parameters.getOSVirtualHardDisk().getSourceImageName());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "SourceImageName");
         }
         
         if (parameters.getOSVirtualHardDisk().getOperatingSystem() != null) {
-            Element osElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "OS");
-            osElement.appendChild(requestDoc.createTextNode(parameters.getOSVirtualHardDisk().getOperatingSystem()));
-            oSVirtualHardDiskElement.appendChild(osElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "OS");
+            xmlSerializer.text(parameters.getOSVirtualHardDisk().getOperatingSystem());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OS");
         }
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "OSVirtualHardDisk");
         
         if (parameters.getRoleSize() != null) {
-            Element roleSizeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RoleSize");
-            roleSizeElement.appendChild(requestDoc.createTextNode(parameters.getRoleSize()));
-            persistentVMRoleElement.appendChild(roleSizeElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RoleSize");
+            xmlSerializer.text(parameters.getRoleSize());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RoleSize");
         }
         
         if (parameters.isProvisionGuestAgent() != null) {
-            Element provisionGuestAgentElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ProvisionGuestAgent");
-            provisionGuestAgentElement.appendChild(requestDoc.createTextNode(Boolean.toString(parameters.isProvisionGuestAgent()).toLowerCase()));
-            persistentVMRoleElement.appendChild(provisionGuestAgentElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ProvisionGuestAgent");
+            xmlSerializer.text(Boolean.toString(parameters.isProvisionGuestAgent()).toLowerCase());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ProvisionGuestAgent");
         }
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "PersistentVMRole");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -4285,12 +4241,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * Load Balanced Endpoint Set operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -4298,7 +4248,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * request ID.
     */
     @Override
-    public OperationResponse beginUpdatingLoadBalancedEndpointSet(String serviceName, String deploymentName, VirtualMachineUpdateLoadBalancedSetParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public OperationResponse beginUpdatingLoadBalancedEndpointSet(String serviceName, String deploymentName, VirtualMachineUpdateLoadBalancedSetParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -4356,139 +4306,139 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element loadBalancedEndpointListElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointList");
-        requestDoc.appendChild(loadBalancedEndpointListElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointList");
         
         if (parameters.getLoadBalancedEndpoints() != null) {
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpoints");
             for (VirtualMachineUpdateLoadBalancedSetParameters.InputEndpoint loadBalancedEndpointsItem : parameters.getLoadBalancedEndpoints()) {
-                Element inputEndpointElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
-                loadBalancedEndpointListElement.appendChild(inputEndpointElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
                 
-                Element loadBalancedEndpointSetNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
-                loadBalancedEndpointSetNameElement.appendChild(requestDoc.createTextNode(loadBalancedEndpointsItem.getLoadBalancedEndpointSetName()));
-                inputEndpointElement.appendChild(loadBalancedEndpointSetNameElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
+                xmlSerializer.text(loadBalancedEndpointsItem.getLoadBalancedEndpointSetName());
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
                 
                 if (loadBalancedEndpointsItem.getLocalPort() != null) {
-                    Element localPortElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LocalPort");
-                    localPortElement.appendChild(requestDoc.createTextNode(Integer.toString(loadBalancedEndpointsItem.getLocalPort())));
-                    inputEndpointElement.appendChild(localPortElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LocalPort");
+                    xmlSerializer.text(Integer.toString(loadBalancedEndpointsItem.getLocalPort()));
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LocalPort");
                 }
                 
                 if (loadBalancedEndpointsItem.getName() != null) {
-                    Element nameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-                    nameElement.appendChild(requestDoc.createTextNode(loadBalancedEndpointsItem.getName()));
-                    inputEndpointElement.appendChild(nameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+                    xmlSerializer.text(loadBalancedEndpointsItem.getName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
                 }
                 
                 if (loadBalancedEndpointsItem.getPort() != null) {
-                    Element portElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Port");
-                    portElement.appendChild(requestDoc.createTextNode(Integer.toString(loadBalancedEndpointsItem.getPort())));
-                    inputEndpointElement.appendChild(portElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Port");
+                    xmlSerializer.text(Integer.toString(loadBalancedEndpointsItem.getPort()));
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Port");
                 }
                 
                 if (loadBalancedEndpointsItem.getLoadBalancerProbe() != null) {
-                    Element loadBalancerProbeElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
-                    inputEndpointElement.appendChild(loadBalancerProbeElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
                     
                     if (loadBalancedEndpointsItem.getLoadBalancerProbe().getPath() != null) {
-                        Element pathElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Path");
-                        pathElement.appendChild(requestDoc.createTextNode(loadBalancedEndpointsItem.getLoadBalancerProbe().getPath()));
-                        loadBalancerProbeElement.appendChild(pathElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Path");
+                        xmlSerializer.text(loadBalancedEndpointsItem.getLoadBalancerProbe().getPath());
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Path");
                     }
                     
-                    Element portElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Port");
-                    portElement2.appendChild(requestDoc.createTextNode(Integer.toString(loadBalancedEndpointsItem.getLoadBalancerProbe().getPort())));
-                    loadBalancerProbeElement.appendChild(portElement2);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Port");
+                    xmlSerializer.text(Integer.toString(loadBalancedEndpointsItem.getLoadBalancerProbe().getPort()));
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Port");
                     
-                    Element protocolElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Protocol");
-                    protocolElement.appendChild(requestDoc.createTextNode(ComputeManagementClientImpl.loadBalancerProbeTransportProtocolToString(loadBalancedEndpointsItem.getLoadBalancerProbe().getProtocol())));
-                    loadBalancerProbeElement.appendChild(protocolElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                    xmlSerializer.text(ComputeManagementClientImpl.loadBalancerProbeTransportProtocolToString(loadBalancedEndpointsItem.getLoadBalancerProbe().getProtocol()));
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Protocol");
                     
                     if (loadBalancedEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds() != null) {
-                        Element intervalInSecondsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
-                        intervalInSecondsElement.appendChild(requestDoc.createTextNode(Integer.toString(loadBalancedEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds())));
-                        loadBalancerProbeElement.appendChild(intervalInSecondsElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
+                        xmlSerializer.text(Integer.toString(loadBalancedEndpointsItem.getLoadBalancerProbe().getIntervalInSeconds()));
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
                     }
                     
                     if (loadBalancedEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds() != null) {
-                        Element timeoutInSecondsElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
-                        timeoutInSecondsElement.appendChild(requestDoc.createTextNode(Integer.toString(loadBalancedEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds())));
-                        loadBalancerProbeElement.appendChild(timeoutInSecondsElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
+                        xmlSerializer.text(Integer.toString(loadBalancedEndpointsItem.getLoadBalancerProbe().getTimeoutInSeconds()));
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
                     }
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
                 }
                 
                 if (loadBalancedEndpointsItem.getProtocol() != null) {
-                    Element protocolElement2 = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Protocol");
-                    protocolElement2.appendChild(requestDoc.createTextNode(loadBalancedEndpointsItem.getProtocol()));
-                    inputEndpointElement.appendChild(protocolElement2);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Protocol");
+                    xmlSerializer.text(loadBalancedEndpointsItem.getProtocol());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Protocol");
                 }
                 
                 if (loadBalancedEndpointsItem.getVirtualIPAddress() != null) {
-                    Element vipElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Vip");
-                    vipElement.appendChild(requestDoc.createTextNode(loadBalancedEndpointsItem.getVirtualIPAddress().getHostAddress()));
-                    inputEndpointElement.appendChild(vipElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Vip");
+                    xmlSerializer.text(loadBalancedEndpointsItem.getVirtualIPAddress().getHostAddress());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Vip");
                 }
                 
                 if (loadBalancedEndpointsItem.isEnableDirectServerReturn() != null) {
-                    Element enableDirectServerReturnElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
-                    enableDirectServerReturnElement.appendChild(requestDoc.createTextNode(Boolean.toString(loadBalancedEndpointsItem.isEnableDirectServerReturn()).toLowerCase()));
-                    inputEndpointElement.appendChild(enableDirectServerReturnElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
+                    xmlSerializer.text(Boolean.toString(loadBalancedEndpointsItem.isEnableDirectServerReturn()).toLowerCase());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
                 }
                 
                 if (loadBalancedEndpointsItem.getLoadBalancerName() != null) {
-                    Element loadBalancerNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
-                    loadBalancerNameElement.appendChild(requestDoc.createTextNode(loadBalancedEndpointsItem.getLoadBalancerName()));
-                    inputEndpointElement.appendChild(loadBalancerNameElement);
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
+                    xmlSerializer.text(loadBalancedEndpointsItem.getLoadBalancerName());
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
                 }
                 
-                Element endpointAclElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
-                inputEndpointElement.appendChild(endpointAclElement);
+                xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
                 
                 if (loadBalancedEndpointsItem.getRules() != null) {
-                    Element rulesSequenceElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Rules");
+                    xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Rules");
                     for (AccessControlListRule rulesItem : loadBalancedEndpointsItem.getRules()) {
-                        Element ruleElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Rule");
-                        rulesSequenceElement.appendChild(ruleElement);
+                        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Rule");
                         
                         if (rulesItem.getOrder() != null) {
-                            Element orderElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Order");
-                            orderElement.appendChild(requestDoc.createTextNode(Integer.toString(rulesItem.getOrder())));
-                            ruleElement.appendChild(orderElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Order");
+                            xmlSerializer.text(Integer.toString(rulesItem.getOrder()));
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Order");
                         }
                         
                         if (rulesItem.getAction() != null) {
-                            Element actionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Action");
-                            actionElement.appendChild(requestDoc.createTextNode(rulesItem.getAction()));
-                            ruleElement.appendChild(actionElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Action");
+                            xmlSerializer.text(rulesItem.getAction());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Action");
                         }
                         
                         if (rulesItem.getRemoteSubnet() != null) {
-                            Element remoteSubnetElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
-                            remoteSubnetElement.appendChild(requestDoc.createTextNode(rulesItem.getRemoteSubnet()));
-                            ruleElement.appendChild(remoteSubnetElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
+                            xmlSerializer.text(rulesItem.getRemoteSubnet());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
                         }
                         
                         if (rulesItem.getDescription() != null) {
-                            Element descriptionElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Description");
-                            descriptionElement.appendChild(requestDoc.createTextNode(rulesItem.getDescription()));
-                            ruleElement.appendChild(descriptionElement);
+                            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Description");
+                            xmlSerializer.text(rulesItem.getDescription());
+                            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Description");
                         }
+                        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Rule");
                     }
-                    endpointAclElement.appendChild(rulesSequenceElement);
+                    
+                    xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Rules");
                 }
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "EndpointAcl");
+                xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "InputEndpoint");
             }
+            
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpoints");
         }
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointList");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -4833,15 +4783,11 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * request.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The response body contains the status of the specified
@@ -4854,7 +4800,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse create(String serviceName, String deploymentName, VirtualMachineCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, IOException, URISyntaxException {
+    public OperationStatusResponse create(String serviceName, String deploymentName, VirtualMachineCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -5172,16 +5118,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Get Virtual Machine operation response.
     */
     @Override
-    public VirtualMachineGetResponse get(String serviceName, String deploymentName, String virtualMachineName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
+    public VirtualMachineGetResponse get(String serviceName, String deploymentName, String virtualMachineName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException {
         // Validate
         if (serviceName == null) {
             throw new NullPointerException("serviceName");
@@ -5221,7 +5165,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -5245,601 +5189,992 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new VirtualMachineGetResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element persistentVMRoleElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "PersistentVMRole");
-            if (persistentVMRoleElement != null) {
-                Element roleNameElement = XmlUtility.getElementByTagNameNS(persistentVMRoleElement, "http://schemas.microsoft.com/windowsazure", "RoleName");
-                if (roleNameElement != null) {
-                    String roleNameInstance;
-                    roleNameInstance = roleNameElement.getTextContent();
-                    result.setRoleName(roleNameInstance);
-                }
-                
-                Element osVersionElement = XmlUtility.getElementByTagNameNS(persistentVMRoleElement, "http://schemas.microsoft.com/windowsazure", "OsVersion");
-                if (osVersionElement != null) {
-                    String osVersionInstance;
-                    osVersionInstance = osVersionElement.getTextContent();
-                    result.setOsVersion(osVersionInstance);
-                }
-                
-                Element roleTypeElement = XmlUtility.getElementByTagNameNS(persistentVMRoleElement, "http://schemas.microsoft.com/windowsazure", "RoleType");
-                if (roleTypeElement != null) {
-                    VirtualMachineRoleType roleTypeInstance;
-                    roleTypeInstance = VirtualMachineRoleType.valueOf(roleTypeElement.getTextContent());
-                    result.setRoleType(roleTypeInstance);
-                }
-                
-                Element availabilitySetNameElement = XmlUtility.getElementByTagNameNS(persistentVMRoleElement, "http://schemas.microsoft.com/windowsazure", "AvailabilitySetName");
-                if (availabilitySetNameElement != null) {
-                    String availabilitySetNameInstance;
-                    availabilitySetNameInstance = availabilitySetNameElement.getTextContent();
-                    result.setAvailabilitySetName(availabilitySetNameInstance);
-                }
-                
-                Element roleSizeElement = XmlUtility.getElementByTagNameNS(persistentVMRoleElement, "http://schemas.microsoft.com/windowsazure", "RoleSize");
-                if (roleSizeElement != null) {
-                    String roleSizeInstance;
-                    roleSizeInstance = roleSizeElement.getTextContent();
-                    result.setRoleSize(roleSizeInstance);
-                }
-                
-                Element defaultWinRmCertificateThumbprintElement = XmlUtility.getElementByTagNameNS(persistentVMRoleElement, "http://schemas.microsoft.com/windowsazure", "DefaultWinRmCertificateThumbprint");
-                if (defaultWinRmCertificateThumbprintElement != null) {
-                    String defaultWinRmCertificateThumbprintInstance;
-                    defaultWinRmCertificateThumbprintInstance = defaultWinRmCertificateThumbprintElement.getTextContent();
-                    result.setDefaultWinRmCertificateThumbprint(defaultWinRmCertificateThumbprintInstance);
-                }
-                
-                Element configurationSetsSequenceElement = XmlUtility.getElementByTagNameNS(persistentVMRoleElement, "http://schemas.microsoft.com/windowsazure", "ConfigurationSets");
-                if (configurationSetsSequenceElement != null) {
-                    for (int i1 = 0; i1 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(configurationSetsSequenceElement, "http://schemas.microsoft.com/windowsazure", "ConfigurationSet").size(); i1 = i1 + 1) {
-                        org.w3c.dom.Element configurationSetsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(configurationSetsSequenceElement, "http://schemas.microsoft.com/windowsazure", "ConfigurationSet").get(i1));
-                        ConfigurationSet configurationSetInstance = new ConfigurationSet();
-                        result.getConfigurationSets().add(configurationSetInstance);
-                        
-                        Element configurationSetTypeElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "ConfigurationSetType");
-                        if (configurationSetTypeElement != null) {
-                            String configurationSetTypeInstance;
-                            configurationSetTypeInstance = configurationSetTypeElement.getTextContent();
-                            configurationSetInstance.setConfigurationSetType(configurationSetTypeInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "PersistentVMRole".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "PersistentVMRole".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "RoleName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "RoleName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String roleNameInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    roleNameInstance = xmlPullParser.getText();
+                                    result.setRoleName(roleNameInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
                         }
                         
-                        Element inputEndpointsSequenceElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "InputEndpoints");
-                        if (inputEndpointsSequenceElement != null) {
-                            for (int i2 = 0; i2 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(inputEndpointsSequenceElement, "http://schemas.microsoft.com/windowsazure", "InputEndpoint").size(); i2 = i2 + 1) {
-                                org.w3c.dom.Element inputEndpointsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(inputEndpointsSequenceElement, "http://schemas.microsoft.com/windowsazure", "InputEndpoint").get(i2));
-                                InputEndpoint inputEndpointInstance = new InputEndpoint();
-                                configurationSetInstance.getInputEndpoints().add(inputEndpointInstance);
-                                
-                                Element loadBalancedEndpointSetNameElement = XmlUtility.getElementByTagNameNS(inputEndpointsElement, "http://schemas.microsoft.com/windowsazure", "LoadBalancedEndpointSetName");
-                                if (loadBalancedEndpointSetNameElement != null) {
-                                    String loadBalancedEndpointSetNameInstance;
-                                    loadBalancedEndpointSetNameInstance = loadBalancedEndpointSetNameElement.getTextContent();
-                                    inputEndpointInstance.setLoadBalancedEndpointSetName(loadBalancedEndpointSetNameInstance);
+                        if (eventType == XmlPullParser.START_TAG && "OsVersion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "OsVersion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String osVersionInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    osVersionInstance = xmlPullParser.getText();
+                                    result.setOsVersion(osVersionInstance);
                                 }
                                 
-                                Element localPortElement = XmlUtility.getElementByTagNameNS(inputEndpointsElement, "http://schemas.microsoft.com/windowsazure", "LocalPort");
-                                if (localPortElement != null && (localPortElement.getTextContent() == null || localPortElement.getTextContent().isEmpty() == true) == false) {
-                                    int localPortInstance;
-                                    localPortInstance = DatatypeConverter.parseInt(localPortElement.getTextContent());
-                                    inputEndpointInstance.setLocalPort(localPortInstance);
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "RoleType".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "RoleType".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                VirtualMachineRoleType roleTypeInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    roleTypeInstance = VirtualMachineRoleType.valueOf(xmlPullParser.getText());
+                                    result.setRoleType(roleTypeInstance);
                                 }
                                 
-                                Element nameElement = XmlUtility.getElementByTagNameNS(inputEndpointsElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                                if (nameElement != null) {
-                                    String nameInstance;
-                                    nameInstance = nameElement.getTextContent();
-                                    inputEndpointInstance.setName(nameInstance);
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "AvailabilitySetName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "AvailabilitySetName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String availabilitySetNameInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    availabilitySetNameInstance = xmlPullParser.getText();
+                                    result.setAvailabilitySetName(availabilitySetNameInstance);
                                 }
                                 
-                                Element portElement = XmlUtility.getElementByTagNameNS(inputEndpointsElement, "http://schemas.microsoft.com/windowsazure", "Port");
-                                if (portElement != null && (portElement.getTextContent() == null || portElement.getTextContent().isEmpty() == true) == false) {
-                                    int portInstance;
-                                    portInstance = DatatypeConverter.parseInt(portElement.getTextContent());
-                                    inputEndpointInstance.setPort(portInstance);
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "RoleSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "RoleSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String roleSizeInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    roleSizeInstance = xmlPullParser.getText();
+                                    result.setRoleSize(roleSizeInstance);
                                 }
                                 
-                                Element loadBalancerProbeElement = XmlUtility.getElementByTagNameNS(inputEndpointsElement, "http://schemas.microsoft.com/windowsazure", "LoadBalancerProbe");
-                                if (loadBalancerProbeElement != null) {
-                                    LoadBalancerProbe loadBalancerProbeInstance = new LoadBalancerProbe();
-                                    inputEndpointInstance.setLoadBalancerProbe(loadBalancerProbeInstance);
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "DefaultWinRmCertificateThumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "DefaultWinRmCertificateThumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String defaultWinRmCertificateThumbprintInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    defaultWinRmCertificateThumbprintInstance = xmlPullParser.getText();
+                                    result.setDefaultWinRmCertificateThumbprint(defaultWinRmCertificateThumbprintInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "ConfigurationSets".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ConfigurationSets".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "ConfigurationSet".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    ConfigurationSet configurationSetInstance = new ConfigurationSet();
+                                    result.getConfigurationSets().add(configurationSetInstance);
                                     
-                                    Element pathElement = XmlUtility.getElementByTagNameNS(loadBalancerProbeElement, "http://schemas.microsoft.com/windowsazure", "Path");
-                                    if (pathElement != null) {
-                                        String pathInstance;
-                                        pathInstance = pathElement.getTextContent();
-                                        loadBalancerProbeInstance.setPath(pathInstance);
-                                    }
-                                    
-                                    Element portElement2 = XmlUtility.getElementByTagNameNS(loadBalancerProbeElement, "http://schemas.microsoft.com/windowsazure", "Port");
-                                    if (portElement2 != null) {
-                                        int portInstance2;
-                                        portInstance2 = DatatypeConverter.parseInt(portElement2.getTextContent());
-                                        loadBalancerProbeInstance.setPort(portInstance2);
-                                    }
-                                    
-                                    Element protocolElement = XmlUtility.getElementByTagNameNS(loadBalancerProbeElement, "http://schemas.microsoft.com/windowsazure", "Protocol");
-                                    if (protocolElement != null) {
-                                        LoadBalancerProbeTransportProtocol protocolInstance;
-                                        protocolInstance = ComputeManagementClientImpl.parseLoadBalancerProbeTransportProtocol(protocolElement.getTextContent());
-                                        loadBalancerProbeInstance.setProtocol(protocolInstance);
-                                    }
-                                    
-                                    Element intervalInSecondsElement = XmlUtility.getElementByTagNameNS(loadBalancerProbeElement, "http://schemas.microsoft.com/windowsazure", "IntervalInSeconds");
-                                    if (intervalInSecondsElement != null && (intervalInSecondsElement.getTextContent() == null || intervalInSecondsElement.getTextContent().isEmpty() == true) == false) {
-                                        int intervalInSecondsInstance;
-                                        intervalInSecondsInstance = DatatypeConverter.parseInt(intervalInSecondsElement.getTextContent());
-                                        loadBalancerProbeInstance.setIntervalInSeconds(intervalInSecondsInstance);
-                                    }
-                                    
-                                    Element timeoutInSecondsElement = XmlUtility.getElementByTagNameNS(loadBalancerProbeElement, "http://schemas.microsoft.com/windowsazure", "TimeoutInSeconds");
-                                    if (timeoutInSecondsElement != null && (timeoutInSecondsElement.getTextContent() == null || timeoutInSecondsElement.getTextContent().isEmpty() == true) == false) {
-                                        int timeoutInSecondsInstance;
-                                        timeoutInSecondsInstance = DatatypeConverter.parseInt(timeoutInSecondsElement.getTextContent());
-                                        loadBalancerProbeInstance.setTimeoutInSeconds(timeoutInSecondsInstance);
-                                    }
-                                }
-                                
-                                Element protocolElement2 = XmlUtility.getElementByTagNameNS(inputEndpointsElement, "http://schemas.microsoft.com/windowsazure", "Protocol");
-                                if (protocolElement2 != null) {
-                                    String protocolInstance2;
-                                    protocolInstance2 = protocolElement2.getTextContent();
-                                    inputEndpointInstance.setProtocol(protocolInstance2);
-                                }
-                                
-                                Element vipElement = XmlUtility.getElementByTagNameNS(inputEndpointsElement, "http://schemas.microsoft.com/windowsazure", "Vip");
-                                if (vipElement != null) {
-                                    InetAddress vipInstance;
-                                    vipInstance = InetAddress.getByName(vipElement.getTextContent());
-                                    inputEndpointInstance.setVirtualIPAddress(vipInstance);
-                                }
-                                
-                                Element enableDirectServerReturnElement = XmlUtility.getElementByTagNameNS(inputEndpointsElement, "http://schemas.microsoft.com/windowsazure", "EnableDirectServerReturn");
-                                if (enableDirectServerReturnElement != null && (enableDirectServerReturnElement.getTextContent() == null || enableDirectServerReturnElement.getTextContent().isEmpty() == true) == false) {
-                                    boolean enableDirectServerReturnInstance;
-                                    enableDirectServerReturnInstance = DatatypeConverter.parseBoolean(enableDirectServerReturnElement.getTextContent().toLowerCase());
-                                    inputEndpointInstance.setEnableDirectServerReturn(enableDirectServerReturnInstance);
-                                }
-                                
-                                Element loadBalancerNameElement = XmlUtility.getElementByTagNameNS(inputEndpointsElement, "http://schemas.microsoft.com/windowsazure", "LoadBalancerName");
-                                if (loadBalancerNameElement != null) {
-                                    String loadBalancerNameInstance;
-                                    loadBalancerNameInstance = loadBalancerNameElement.getTextContent();
-                                    inputEndpointInstance.setLoadBalancerName(loadBalancerNameInstance);
-                                }
-                                
-                                Element endpointAclElement = XmlUtility.getElementByTagNameNS(inputEndpointsElement, "http://schemas.microsoft.com/windowsazure", "EndpointAcl");
-                                if (endpointAclElement != null) {
-                                    EndpointAcl endpointAclInstance = new EndpointAcl();
-                                    inputEndpointInstance.setEndpointAcl(endpointAclInstance);
-                                    
-                                    Element rulesSequenceElement = XmlUtility.getElementByTagNameNS(endpointAclElement, "http://schemas.microsoft.com/windowsazure", "Rules");
-                                    if (rulesSequenceElement != null) {
-                                        for (int i3 = 0; i3 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(rulesSequenceElement, "http://schemas.microsoft.com/windowsazure", "Rule").size(); i3 = i3 + 1) {
-                                            org.w3c.dom.Element rulesElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(rulesSequenceElement, "http://schemas.microsoft.com/windowsazure", "Rule").get(i3));
-                                            AccessControlListRule ruleInstance = new AccessControlListRule();
-                                            endpointAclInstance.getRules().add(ruleInstance);
-                                            
-                                            Element orderElement = XmlUtility.getElementByTagNameNS(rulesElement, "http://schemas.microsoft.com/windowsazure", "Order");
-                                            if (orderElement != null && (orderElement.getTextContent() == null || orderElement.getTextContent().isEmpty() == true) == false) {
-                                                int orderInstance;
-                                                orderInstance = DatatypeConverter.parseInt(orderElement.getTextContent());
-                                                ruleInstance.setOrder(orderInstance);
+                                    if (eventType == XmlPullParser.START_TAG && "ConfigurationSetType".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "ConfigurationSetType".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String configurationSetTypeInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                configurationSetTypeInstance = xmlPullParser.getText();
+                                                configurationSetInstance.setConfigurationSetType(configurationSetTypeInstance);
                                             }
                                             
-                                            Element actionElement = XmlUtility.getElementByTagNameNS(rulesElement, "http://schemas.microsoft.com/windowsazure", "Action");
-                                            if (actionElement != null) {
-                                                String actionInstance;
-                                                actionInstance = actionElement.getTextContent();
-                                                ruleInstance.setAction(actionInstance);
-                                            }
-                                            
-                                            Element remoteSubnetElement = XmlUtility.getElementByTagNameNS(rulesElement, "http://schemas.microsoft.com/windowsazure", "RemoteSubnet");
-                                            if (remoteSubnetElement != null) {
-                                                String remoteSubnetInstance;
-                                                remoteSubnetInstance = remoteSubnetElement.getTextContent();
-                                                ruleInstance.setRemoteSubnet(remoteSubnetInstance);
-                                            }
-                                            
-                                            Element descriptionElement = XmlUtility.getElementByTagNameNS(rulesElement, "http://schemas.microsoft.com/windowsazure", "Description");
-                                            if (descriptionElement != null) {
-                                                String descriptionInstance;
-                                                descriptionInstance = descriptionElement.getTextContent();
-                                                ruleInstance.setDescription(descriptionInstance);
-                                            }
+                                            eventType = xmlPullParser.next();
                                         }
                                     }
-                                }
-                            }
-                        }
-                        
-                        Element subnetNamesSequenceElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "SubnetNames");
-                        if (subnetNamesSequenceElement != null) {
-                            for (int i4 = 0; i4 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(subnetNamesSequenceElement, "http://schemas.microsoft.com/windowsazure", "SubnetName").size(); i4 = i4 + 1) {
-                                org.w3c.dom.Element subnetNamesElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(subnetNamesSequenceElement, "http://schemas.microsoft.com/windowsazure", "SubnetName").get(i4));
-                                configurationSetInstance.getSubnetNames().add(subnetNamesElement.getTextContent());
-                            }
-                        }
-                        
-                        Element staticVirtualNetworkIPAddressElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "StaticVirtualNetworkIPAddress");
-                        if (staticVirtualNetworkIPAddressElement != null) {
-                            String staticVirtualNetworkIPAddressInstance;
-                            staticVirtualNetworkIPAddressInstance = staticVirtualNetworkIPAddressElement.getTextContent();
-                            configurationSetInstance.setStaticVirtualNetworkIPAddress(staticVirtualNetworkIPAddressInstance);
-                        }
-                        
-                        Element publicIPsSequenceElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "PublicIPs");
-                        if (publicIPsSequenceElement != null) {
-                            for (int i5 = 0; i5 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(publicIPsSequenceElement, "http://schemas.microsoft.com/windowsazure", "PublicIP").size(); i5 = i5 + 1) {
-                                org.w3c.dom.Element publicIPsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(publicIPsSequenceElement, "http://schemas.microsoft.com/windowsazure", "PublicIP").get(i5));
-                                ConfigurationSet.PublicIP publicIPInstance = new ConfigurationSet.PublicIP();
-                                configurationSetInstance.getPublicIPs().add(publicIPInstance);
-                                
-                                Element nameElement2 = XmlUtility.getElementByTagNameNS(publicIPsElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                                if (nameElement2 != null) {
-                                    String nameInstance2;
-                                    nameInstance2 = nameElement2.getTextContent();
-                                    publicIPInstance.setName(nameInstance2);
-                                }
-                            }
-                        }
-                        
-                        Element computerNameElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "ComputerName");
-                        if (computerNameElement != null) {
-                            String computerNameInstance;
-                            computerNameInstance = computerNameElement.getTextContent();
-                            configurationSetInstance.setComputerName(computerNameInstance);
-                        }
-                        
-                        Element adminPasswordElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "AdminPassword");
-                        if (adminPasswordElement != null) {
-                            String adminPasswordInstance;
-                            adminPasswordInstance = adminPasswordElement.getTextContent();
-                            configurationSetInstance.setAdminPassword(adminPasswordInstance);
-                        }
-                        
-                        Element resetPasswordOnFirstLogonElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "ResetPasswordOnFirstLogon");
-                        if (resetPasswordOnFirstLogonElement != null && (resetPasswordOnFirstLogonElement.getTextContent() == null || resetPasswordOnFirstLogonElement.getTextContent().isEmpty() == true) == false) {
-                            boolean resetPasswordOnFirstLogonInstance;
-                            resetPasswordOnFirstLogonInstance = DatatypeConverter.parseBoolean(resetPasswordOnFirstLogonElement.getTextContent().toLowerCase());
-                            configurationSetInstance.setResetPasswordOnFirstLogon(resetPasswordOnFirstLogonInstance);
-                        }
-                        
-                        Element enableAutomaticUpdatesElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "EnableAutomaticUpdates");
-                        if (enableAutomaticUpdatesElement != null && (enableAutomaticUpdatesElement.getTextContent() == null || enableAutomaticUpdatesElement.getTextContent().isEmpty() == true) == false) {
-                            boolean enableAutomaticUpdatesInstance;
-                            enableAutomaticUpdatesInstance = DatatypeConverter.parseBoolean(enableAutomaticUpdatesElement.getTextContent().toLowerCase());
-                            configurationSetInstance.setEnableAutomaticUpdates(enableAutomaticUpdatesInstance);
-                        }
-                        
-                        Element timeZoneElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "TimeZone");
-                        if (timeZoneElement != null) {
-                            String timeZoneInstance;
-                            timeZoneInstance = timeZoneElement.getTextContent();
-                            configurationSetInstance.setTimeZone(timeZoneInstance);
-                        }
-                        
-                        Element domainJoinElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "DomainJoin");
-                        if (domainJoinElement != null) {
-                            DomainJoinSettings domainJoinInstance = new DomainJoinSettings();
-                            configurationSetInstance.setDomainJoin(domainJoinInstance);
-                            
-                            Element credentialsElement = XmlUtility.getElementByTagNameNS(domainJoinElement, "http://schemas.microsoft.com/windowsazure", "Credentials");
-                            if (credentialsElement != null) {
-                                DomainJoinCredentials credentialsInstance = new DomainJoinCredentials();
-                                domainJoinInstance.setCredentials(credentialsInstance);
-                                
-                                Element domainElement = XmlUtility.getElementByTagNameNS(credentialsElement, "http://schemas.microsoft.com/windowsazure", "Domain");
-                                if (domainElement != null) {
-                                    String domainInstance;
-                                    domainInstance = domainElement.getTextContent();
-                                    credentialsInstance.setDomain(domainInstance);
-                                }
-                                
-                                Element usernameElement = XmlUtility.getElementByTagNameNS(credentialsElement, "http://schemas.microsoft.com/windowsazure", "Username");
-                                if (usernameElement != null) {
-                                    String usernameInstance;
-                                    usernameInstance = usernameElement.getTextContent();
-                                    credentialsInstance.setUserName(usernameInstance);
-                                }
-                                
-                                Element passwordElement = XmlUtility.getElementByTagNameNS(credentialsElement, "http://schemas.microsoft.com/windowsazure", "Password");
-                                if (passwordElement != null) {
-                                    String passwordInstance;
-                                    passwordInstance = passwordElement.getTextContent();
-                                    credentialsInstance.setPassword(passwordInstance);
-                                }
-                            }
-                            
-                            Element joinDomainElement = XmlUtility.getElementByTagNameNS(domainJoinElement, "http://schemas.microsoft.com/windowsazure", "JoinDomain");
-                            if (joinDomainElement != null) {
-                                String joinDomainInstance;
-                                joinDomainInstance = joinDomainElement.getTextContent();
-                                domainJoinInstance.setDomainToJoin(joinDomainInstance);
-                            }
-                            
-                            Element machineObjectOUElement = XmlUtility.getElementByTagNameNS(domainJoinElement, "http://schemas.microsoft.com/windowsazure", "MachineObjectOU");
-                            if (machineObjectOUElement != null) {
-                                String machineObjectOUInstance;
-                                machineObjectOUInstance = machineObjectOUElement.getTextContent();
-                                domainJoinInstance.setLdapMachineObjectOU(machineObjectOUInstance);
-                            }
-                            
-                            Element provisioningElement = XmlUtility.getElementByTagNameNS(domainJoinElement, "http://schemas.microsoft.com/windowsazure", "Provisioning");
-                            if (provisioningElement != null) {
-                                DomainJoinProvisioning provisioningInstance = new DomainJoinProvisioning();
-                                domainJoinInstance.setProvisioning(provisioningInstance);
-                                
-                                Element accountDataElement = XmlUtility.getElementByTagNameNS(provisioningElement, "http://schemas.microsoft.com/windowsazure", "AccountData");
-                                if (accountDataElement != null) {
-                                    String accountDataInstance;
-                                    accountDataInstance = accountDataElement.getTextContent();
-                                    provisioningInstance.setAccountData(accountDataInstance);
-                                }
-                            }
-                        }
-                        
-                        Element storedCertificateSettingsSequenceElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "StoredCertificateSettings");
-                        if (storedCertificateSettingsSequenceElement != null) {
-                            for (int i6 = 0; i6 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(storedCertificateSettingsSequenceElement, "http://schemas.microsoft.com/windowsazure", "CertificateSetting").size(); i6 = i6 + 1) {
-                                org.w3c.dom.Element storedCertificateSettingsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(storedCertificateSettingsSequenceElement, "http://schemas.microsoft.com/windowsazure", "CertificateSetting").get(i6));
-                                StoredCertificateSettings certificateSettingInstance = new StoredCertificateSettings();
-                                configurationSetInstance.getStoredCertificateSettings().add(certificateSettingInstance);
-                                
-                                Element storeLocationElement = XmlUtility.getElementByTagNameNS(storedCertificateSettingsElement, "http://schemas.microsoft.com/windowsazure", "StoreLocation");
-                                if (storeLocationElement != null) {
-                                }
-                                
-                                Element storeNameElement = XmlUtility.getElementByTagNameNS(storedCertificateSettingsElement, "http://schemas.microsoft.com/windowsazure", "StoreName");
-                                if (storeNameElement != null) {
-                                    String storeNameInstance;
-                                    storeNameInstance = storeNameElement.getTextContent();
-                                    certificateSettingInstance.setStoreName(storeNameInstance);
-                                }
-                                
-                                Element thumbprintElement = XmlUtility.getElementByTagNameNS(storedCertificateSettingsElement, "http://schemas.microsoft.com/windowsazure", "Thumbprint");
-                                if (thumbprintElement != null) {
-                                    String thumbprintInstance;
-                                    thumbprintInstance = thumbprintElement.getTextContent();
-                                    certificateSettingInstance.setThumbprint(thumbprintInstance);
-                                }
-                            }
-                        }
-                        
-                        Element winRMElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "WinRM");
-                        if (winRMElement != null) {
-                            WindowsRemoteManagementSettings winRMInstance = new WindowsRemoteManagementSettings();
-                            configurationSetInstance.setWindowsRemoteManagement(winRMInstance);
-                            
-                            Element listenersSequenceElement = XmlUtility.getElementByTagNameNS(winRMElement, "http://schemas.microsoft.com/windowsazure", "Listeners");
-                            if (listenersSequenceElement != null) {
-                                for (int i7 = 0; i7 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(listenersSequenceElement, "http://schemas.microsoft.com/windowsazure", "Listener").size(); i7 = i7 + 1) {
-                                    org.w3c.dom.Element listenersElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(listenersSequenceElement, "http://schemas.microsoft.com/windowsazure", "Listener").get(i7));
-                                    WindowsRemoteManagementListener listenerInstance = new WindowsRemoteManagementListener();
-                                    winRMInstance.getListeners().add(listenerInstance);
                                     
-                                    Element protocolElement3 = XmlUtility.getElementByTagNameNS(listenersElement, "http://schemas.microsoft.com/windowsazure", "Protocol");
-                                    if (protocolElement3 != null) {
-                                        VirtualMachineWindowsRemoteManagementListenerType protocolInstance3;
-                                        protocolInstance3 = VirtualMachineWindowsRemoteManagementListenerType.valueOf(protocolElement3.getTextContent());
-                                        listenerInstance.setListenerType(protocolInstance3);
+                                    if (eventType == XmlPullParser.START_TAG && "InputEndpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "InputEndpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            if (eventType == XmlPullParser.START_TAG && "InputEndpoint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                InputEndpoint inputEndpointInstance = new InputEndpoint();
+                                                configurationSetInstance.getInputEndpoints().add(inputEndpointInstance);
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "LoadBalancedEndpointSetName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "LoadBalancedEndpointSetName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        String loadBalancedEndpointSetNameInstance;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            loadBalancedEndpointSetNameInstance = xmlPullParser.getText();
+                                                            inputEndpointInstance.setLoadBalancedEndpointSetName(loadBalancedEndpointSetNameInstance);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "LocalPort".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "LocalPort".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        int localPortInstance;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            localPortInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                                            inputEndpointInstance.setLocalPort(localPortInstance);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        String nameInstance;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            nameInstance = xmlPullParser.getText();
+                                                            inputEndpointInstance.setName(nameInstance);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "Port".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "Port".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        int portInstance;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            portInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                                            inputEndpointInstance.setPort(portInstance);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "LoadBalancerProbe".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "LoadBalancerProbe".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        LoadBalancerProbe loadBalancerProbeInstance = new LoadBalancerProbe();
+                                                        inputEndpointInstance.setLoadBalancerProbe(loadBalancerProbeInstance);
+                                                        
+                                                        if (eventType == XmlPullParser.START_TAG && "Path".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                            while ((eventType == XmlPullParser.END_TAG && "Path".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                String pathInstance;
+                                                                if (eventType == XmlPullParser.TEXT) {
+                                                                    pathInstance = xmlPullParser.getText();
+                                                                    loadBalancerProbeInstance.setPath(pathInstance);
+                                                                }
+                                                                
+                                                                eventType = xmlPullParser.next();
+                                                            }
+                                                        }
+                                                        
+                                                        if (eventType == XmlPullParser.START_TAG && "Port".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                            while ((eventType == XmlPullParser.END_TAG && "Port".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                int portInstance2;
+                                                                if (eventType == XmlPullParser.TEXT) {
+                                                                    portInstance2 = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                                                    loadBalancerProbeInstance.setPort(portInstance2);
+                                                                }
+                                                                
+                                                                eventType = xmlPullParser.next();
+                                                            }
+                                                        }
+                                                        
+                                                        if (eventType == XmlPullParser.START_TAG && "Protocol".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                            while ((eventType == XmlPullParser.END_TAG && "Protocol".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                LoadBalancerProbeTransportProtocol protocolInstance;
+                                                                if (eventType == XmlPullParser.TEXT) {
+                                                                    protocolInstance = ComputeManagementClientImpl.parseLoadBalancerProbeTransportProtocol(xmlPullParser.getText());
+                                                                    loadBalancerProbeInstance.setProtocol(protocolInstance);
+                                                                }
+                                                                
+                                                                eventType = xmlPullParser.next();
+                                                            }
+                                                        }
+                                                        
+                                                        if (eventType == XmlPullParser.START_TAG && "IntervalInSeconds".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                            while ((eventType == XmlPullParser.END_TAG && "IntervalInSeconds".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                int intervalInSecondsInstance;
+                                                                if (eventType == XmlPullParser.TEXT) {
+                                                                    intervalInSecondsInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                                                    loadBalancerProbeInstance.setIntervalInSeconds(intervalInSecondsInstance);
+                                                                }
+                                                                
+                                                                eventType = xmlPullParser.next();
+                                                            }
+                                                        }
+                                                        
+                                                        if (eventType == XmlPullParser.START_TAG && "TimeoutInSeconds".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                            while ((eventType == XmlPullParser.END_TAG && "TimeoutInSeconds".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                int timeoutInSecondsInstance;
+                                                                if (eventType == XmlPullParser.TEXT) {
+                                                                    timeoutInSecondsInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                                                    loadBalancerProbeInstance.setTimeoutInSeconds(timeoutInSecondsInstance);
+                                                                }
+                                                                
+                                                                eventType = xmlPullParser.next();
+                                                            }
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "Protocol".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "Protocol".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        String protocolInstance2;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            protocolInstance2 = xmlPullParser.getText();
+                                                            inputEndpointInstance.setProtocol(protocolInstance2);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "Vip".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "Vip".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        InetAddress vipInstance;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            vipInstance = InetAddress.getByName(xmlPullParser.getText());
+                                                            inputEndpointInstance.setVirtualIPAddress(vipInstance);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "EnableDirectServerReturn".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "EnableDirectServerReturn".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        boolean enableDirectServerReturnInstance;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            enableDirectServerReturnInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                                            inputEndpointInstance.setEnableDirectServerReturn(enableDirectServerReturnInstance);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "LoadBalancerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "LoadBalancerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        String loadBalancerNameInstance;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            loadBalancerNameInstance = xmlPullParser.getText();
+                                                            inputEndpointInstance.setLoadBalancerName(loadBalancerNameInstance);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "EndpointAcl".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "EndpointAcl".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        EndpointAcl endpointAclInstance = new EndpointAcl();
+                                                        inputEndpointInstance.setEndpointAcl(endpointAclInstance);
+                                                        
+                                                        if (eventType == XmlPullParser.START_TAG && "Rules".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                            while ((eventType == XmlPullParser.END_TAG && "Rules".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                if (eventType == XmlPullParser.START_TAG && "Rule".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                                    AccessControlListRule ruleInstance = new AccessControlListRule();
+                                                                    endpointAclInstance.getRules().add(ruleInstance);
+                                                                    
+                                                                    if (eventType == XmlPullParser.START_TAG && "Order".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                                        while ((eventType == XmlPullParser.END_TAG && "Order".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                            int orderInstance;
+                                                                            if (eventType == XmlPullParser.TEXT) {
+                                                                                orderInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                                                                ruleInstance.setOrder(orderInstance);
+                                                                            }
+                                                                            
+                                                                            eventType = xmlPullParser.next();
+                                                                        }
+                                                                    }
+                                                                    
+                                                                    if (eventType == XmlPullParser.START_TAG && "Action".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                                        while ((eventType == XmlPullParser.END_TAG && "Action".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                            String actionInstance;
+                                                                            if (eventType == XmlPullParser.TEXT) {
+                                                                                actionInstance = xmlPullParser.getText();
+                                                                                ruleInstance.setAction(actionInstance);
+                                                                            }
+                                                                            
+                                                                            eventType = xmlPullParser.next();
+                                                                        }
+                                                                    }
+                                                                    
+                                                                    if (eventType == XmlPullParser.START_TAG && "RemoteSubnet".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                                        while ((eventType == XmlPullParser.END_TAG && "RemoteSubnet".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                            String remoteSubnetInstance;
+                                                                            if (eventType == XmlPullParser.TEXT) {
+                                                                                remoteSubnetInstance = xmlPullParser.getText();
+                                                                                ruleInstance.setRemoteSubnet(remoteSubnetInstance);
+                                                                            }
+                                                                            
+                                                                            eventType = xmlPullParser.next();
+                                                                        }
+                                                                    }
+                                                                    
+                                                                    if (eventType == XmlPullParser.START_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                                        while ((eventType == XmlPullParser.END_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                            String descriptionInstance;
+                                                                            if (eventType == XmlPullParser.TEXT) {
+                                                                                descriptionInstance = xmlPullParser.getText();
+                                                                                ruleInstance.setDescription(descriptionInstance);
+                                                                            }
+                                                                            
+                                                                            eventType = xmlPullParser.next();
+                                                                        }
+                                                                    }
+                                                                    
+                                                                    eventType = xmlPullParser.next();
+                                                                }
+                                                                
+                                                                eventType = xmlPullParser.next();
+                                                            }
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
                                     }
                                     
-                                    Element certificateThumbprintElement = XmlUtility.getElementByTagNameNS(listenersElement, "http://schemas.microsoft.com/windowsazure", "CertificateThumbprint");
-                                    if (certificateThumbprintElement != null) {
-                                        String certificateThumbprintInstance;
-                                        certificateThumbprintInstance = certificateThumbprintElement.getTextContent();
-                                        listenerInstance.setCertificateThumbprint(certificateThumbprintInstance);
+                                    if (eventType == XmlPullParser.START_TAG && "SubnetNames".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "SubnetNames".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                configurationSetInstance.getSubnetNames().add(xmlPullParser.getText());
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
                                     }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "StaticVirtualNetworkIPAddress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "StaticVirtualNetworkIPAddress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String staticVirtualNetworkIPAddressInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                staticVirtualNetworkIPAddressInstance = xmlPullParser.getText();
+                                                configurationSetInstance.setStaticVirtualNetworkIPAddress(staticVirtualNetworkIPAddressInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "PublicIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "PublicIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            if (eventType == XmlPullParser.START_TAG && "PublicIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                ConfigurationSet.PublicIP publicIPInstance = new ConfigurationSet.PublicIP();
+                                                configurationSetInstance.getPublicIPs().add(publicIPInstance);
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        String nameInstance2;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            nameInstance2 = xmlPullParser.getText();
+                                                            publicIPInstance.setName(nameInstance2);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "ComputerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "ComputerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String computerNameInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                computerNameInstance = xmlPullParser.getText();
+                                                configurationSetInstance.setComputerName(computerNameInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "AdminPassword".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "AdminPassword".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String adminPasswordInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                adminPasswordInstance = xmlPullParser.getText();
+                                                configurationSetInstance.setAdminPassword(adminPasswordInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "ResetPasswordOnFirstLogon".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "ResetPasswordOnFirstLogon".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            boolean resetPasswordOnFirstLogonInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                resetPasswordOnFirstLogonInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                                configurationSetInstance.setResetPasswordOnFirstLogon(resetPasswordOnFirstLogonInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "EnableAutomaticUpdates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "EnableAutomaticUpdates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            boolean enableAutomaticUpdatesInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                enableAutomaticUpdatesInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                                configurationSetInstance.setEnableAutomaticUpdates(enableAutomaticUpdatesInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "TimeZone".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "TimeZone".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String timeZoneInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                timeZoneInstance = xmlPullParser.getText();
+                                                configurationSetInstance.setTimeZone(timeZoneInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "DomainJoin".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "DomainJoin".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            DomainJoinSettings domainJoinInstance = new DomainJoinSettings();
+                                            configurationSetInstance.setDomainJoin(domainJoinInstance);
+                                            
+                                            if (eventType == XmlPullParser.START_TAG && "Credentials".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                while ((eventType == XmlPullParser.END_TAG && "Credentials".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                    DomainJoinCredentials credentialsInstance = new DomainJoinCredentials();
+                                                    domainJoinInstance.setCredentials(credentialsInstance);
+                                                    
+                                                    if (eventType == XmlPullParser.START_TAG && "Domain".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                        while ((eventType == XmlPullParser.END_TAG && "Domain".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                            String domainInstance;
+                                                            if (eventType == XmlPullParser.TEXT) {
+                                                                domainInstance = xmlPullParser.getText();
+                                                                credentialsInstance.setDomain(domainInstance);
+                                                            }
+                                                            
+                                                            eventType = xmlPullParser.next();
+                                                        }
+                                                    }
+                                                    
+                                                    if (eventType == XmlPullParser.START_TAG && "Username".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                        while ((eventType == XmlPullParser.END_TAG && "Username".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                            String usernameInstance;
+                                                            if (eventType == XmlPullParser.TEXT) {
+                                                                usernameInstance = xmlPullParser.getText();
+                                                                credentialsInstance.setUserName(usernameInstance);
+                                                            }
+                                                            
+                                                            eventType = xmlPullParser.next();
+                                                        }
+                                                    }
+                                                    
+                                                    if (eventType == XmlPullParser.START_TAG && "Password".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                        while ((eventType == XmlPullParser.END_TAG && "Password".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                            String passwordInstance;
+                                                            if (eventType == XmlPullParser.TEXT) {
+                                                                passwordInstance = xmlPullParser.getText();
+                                                                credentialsInstance.setPassword(passwordInstance);
+                                                            }
+                                                            
+                                                            eventType = xmlPullParser.next();
+                                                        }
+                                                    }
+                                                    
+                                                    eventType = xmlPullParser.next();
+                                                }
+                                            }
+                                            
+                                            if (eventType == XmlPullParser.START_TAG && "JoinDomain".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                while ((eventType == XmlPullParser.END_TAG && "JoinDomain".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                    String joinDomainInstance;
+                                                    if (eventType == XmlPullParser.TEXT) {
+                                                        joinDomainInstance = xmlPullParser.getText();
+                                                        domainJoinInstance.setDomainToJoin(joinDomainInstance);
+                                                    }
+                                                    
+                                                    eventType = xmlPullParser.next();
+                                                }
+                                            }
+                                            
+                                            if (eventType == XmlPullParser.START_TAG && "MachineObjectOU".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                while ((eventType == XmlPullParser.END_TAG && "MachineObjectOU".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                    String machineObjectOUInstance;
+                                                    if (eventType == XmlPullParser.TEXT) {
+                                                        machineObjectOUInstance = xmlPullParser.getText();
+                                                        domainJoinInstance.setLdapMachineObjectOU(machineObjectOUInstance);
+                                                    }
+                                                    
+                                                    eventType = xmlPullParser.next();
+                                                }
+                                            }
+                                            
+                                            if (eventType == XmlPullParser.START_TAG && "Provisioning".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                while ((eventType == XmlPullParser.END_TAG && "Provisioning".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                    DomainJoinProvisioning provisioningInstance = new DomainJoinProvisioning();
+                                                    domainJoinInstance.setProvisioning(provisioningInstance);
+                                                    
+                                                    if (eventType == XmlPullParser.START_TAG && "AccountData".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                        while ((eventType == XmlPullParser.END_TAG && "AccountData".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                            String accountDataInstance;
+                                                            if (eventType == XmlPullParser.TEXT) {
+                                                                accountDataInstance = xmlPullParser.getText();
+                                                                provisioningInstance.setAccountData(accountDataInstance);
+                                                            }
+                                                            
+                                                            eventType = xmlPullParser.next();
+                                                        }
+                                                    }
+                                                    
+                                                    eventType = xmlPullParser.next();
+                                                }
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "StoredCertificateSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "StoredCertificateSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            if (eventType == XmlPullParser.START_TAG && "CertificateSetting".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                StoredCertificateSettings certificateSettingInstance = new StoredCertificateSettings();
+                                                configurationSetInstance.getStoredCertificateSettings().add(certificateSettingInstance);
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "StoreLocation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "StoreLocation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "StoreName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "StoreName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        String storeNameInstance;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            storeNameInstance = xmlPullParser.getText();
+                                                            certificateSettingInstance.setStoreName(storeNameInstance);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                if (eventType == XmlPullParser.START_TAG && "Thumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "Thumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        String thumbprintInstance;
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            thumbprintInstance = xmlPullParser.getText();
+                                                            certificateSettingInstance.setThumbprint(thumbprintInstance);
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "WinRM".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "WinRM".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            WindowsRemoteManagementSettings winRMInstance = new WindowsRemoteManagementSettings();
+                                            configurationSetInstance.setWindowsRemoteManagement(winRMInstance);
+                                            
+                                            if (eventType == XmlPullParser.START_TAG && "Listeners".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                while ((eventType == XmlPullParser.END_TAG && "Listeners".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                    if (eventType == XmlPullParser.START_TAG && "Listener".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                        WindowsRemoteManagementListener listenerInstance = new WindowsRemoteManagementListener();
+                                                        winRMInstance.getListeners().add(listenerInstance);
+                                                        
+                                                        if (eventType == XmlPullParser.START_TAG && "Protocol".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                            while ((eventType == XmlPullParser.END_TAG && "Protocol".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                VirtualMachineWindowsRemoteManagementListenerType protocolInstance3;
+                                                                if (eventType == XmlPullParser.TEXT) {
+                                                                    protocolInstance3 = VirtualMachineWindowsRemoteManagementListenerType.valueOf(xmlPullParser.getText());
+                                                                    listenerInstance.setListenerType(protocolInstance3);
+                                                                }
+                                                                
+                                                                eventType = xmlPullParser.next();
+                                                            }
+                                                        }
+                                                        
+                                                        if (eventType == XmlPullParser.START_TAG && "CertificateThumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                            while ((eventType == XmlPullParser.END_TAG && "CertificateThumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                String certificateThumbprintInstance;
+                                                                if (eventType == XmlPullParser.TEXT) {
+                                                                    certificateThumbprintInstance = xmlPullParser.getText();
+                                                                    listenerInstance.setCertificateThumbprint(certificateThumbprintInstance);
+                                                                }
+                                                                
+                                                                eventType = xmlPullParser.next();
+                                                            }
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                    
+                                                    eventType = xmlPullParser.next();
+                                                }
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "AdminUsername".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "AdminUsername".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String adminUsernameInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                adminUsernameInstance = xmlPullParser.getText();
+                                                configurationSetInstance.setAdminUserName(adminUsernameInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "HostName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "HostName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String hostNameInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                hostNameInstance = xmlPullParser.getText();
+                                                configurationSetInstance.setHostName(hostNameInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "UserName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "UserName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String userNameInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                userNameInstance = xmlPullParser.getText();
+                                                configurationSetInstance.setUserName(userNameInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "UserPassword".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "UserPassword".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String userPasswordInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                userPasswordInstance = xmlPullParser.getText();
+                                                configurationSetInstance.setUserPassword(userPasswordInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "DisableSshPasswordAuthentication".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "DisableSshPasswordAuthentication".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            boolean disableSshPasswordAuthenticationInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                disableSshPasswordAuthenticationInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                                configurationSetInstance.setDisableSshPasswordAuthentication(disableSshPasswordAuthenticationInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "SSH".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "SSH".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            SshSettings sSHInstance = new SshSettings();
+                                            configurationSetInstance.setSshSettings(sSHInstance);
+                                            
+                                            if (eventType == XmlPullParser.START_TAG && "PublicKeys".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                while ((eventType == XmlPullParser.END_TAG && "PublicKeys".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                    if (eventType == XmlPullParser.START_TAG && "PublicKey".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                        SshSettingPublicKey publicKeyInstance = new SshSettingPublicKey();
+                                                        sSHInstance.getPublicKeys().add(publicKeyInstance);
+                                                        
+                                                        if (eventType == XmlPullParser.START_TAG && "Fingerprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                            while ((eventType == XmlPullParser.END_TAG && "Fingerprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                String fingerprintInstance;
+                                                                if (eventType == XmlPullParser.TEXT) {
+                                                                    fingerprintInstance = xmlPullParser.getText();
+                                                                    publicKeyInstance.setFingerprint(fingerprintInstance);
+                                                                }
+                                                                
+                                                                eventType = xmlPullParser.next();
+                                                            }
+                                                        }
+                                                        
+                                                        if (eventType == XmlPullParser.START_TAG && "Path".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                            while ((eventType == XmlPullParser.END_TAG && "Path".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                String pathInstance2;
+                                                                if (eventType == XmlPullParser.TEXT) {
+                                                                    pathInstance2 = xmlPullParser.getText();
+                                                                    publicKeyInstance.setPath(pathInstance2);
+                                                                }
+                                                                
+                                                                eventType = xmlPullParser.next();
+                                                            }
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                    
+                                                    eventType = xmlPullParser.next();
+                                                }
+                                            }
+                                            
+                                            if (eventType == XmlPullParser.START_TAG && "KeyPairs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                while ((eventType == XmlPullParser.END_TAG && "KeyPairs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                    if (eventType == XmlPullParser.START_TAG && "KeyPair".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                        SshSettingKeyPair keyPairInstance = new SshSettingKeyPair();
+                                                        sSHInstance.getKeyPairs().add(keyPairInstance);
+                                                        
+                                                        if (eventType == XmlPullParser.START_TAG && "Fingerprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                            while ((eventType == XmlPullParser.END_TAG && "Fingerprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                String fingerprintInstance2;
+                                                                if (eventType == XmlPullParser.TEXT) {
+                                                                    fingerprintInstance2 = xmlPullParser.getText();
+                                                                    keyPairInstance.setFingerprint(fingerprintInstance2);
+                                                                }
+                                                                
+                                                                eventType = xmlPullParser.next();
+                                                            }
+                                                        }
+                                                        
+                                                        if (eventType == XmlPullParser.START_TAG && "Path".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                            while ((eventType == XmlPullParser.END_TAG && "Path".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                String pathInstance3;
+                                                                if (eventType == XmlPullParser.TEXT) {
+                                                                    pathInstance3 = xmlPullParser.getText();
+                                                                    keyPairInstance.setPath(pathInstance3);
+                                                                }
+                                                                
+                                                                eventType = xmlPullParser.next();
+                                                            }
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                    
+                                                    eventType = xmlPullParser.next();
+                                                }
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "CustomData".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "CustomData".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String customDataInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                customDataInstance = xmlPullParser.getText();
+                                                configurationSetInstance.setCustomData(customDataInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
-                        Element adminUsernameElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "AdminUsername");
-                        if (adminUsernameElement != null) {
-                            String adminUsernameInstance;
-                            adminUsernameInstance = adminUsernameElement.getTextContent();
-                            configurationSetInstance.setAdminUserName(adminUsernameInstance);
-                        }
-                        
-                        Element hostNameElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "HostName");
-                        if (hostNameElement != null) {
-                            String hostNameInstance;
-                            hostNameInstance = hostNameElement.getTextContent();
-                            configurationSetInstance.setHostName(hostNameInstance);
-                        }
-                        
-                        Element userNameElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "UserName");
-                        if (userNameElement != null) {
-                            String userNameInstance;
-                            userNameInstance = userNameElement.getTextContent();
-                            configurationSetInstance.setUserName(userNameInstance);
-                        }
-                        
-                        Element userPasswordElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "UserPassword");
-                        if (userPasswordElement != null) {
-                            String userPasswordInstance;
-                            userPasswordInstance = userPasswordElement.getTextContent();
-                            configurationSetInstance.setUserPassword(userPasswordInstance);
-                        }
-                        
-                        Element disableSshPasswordAuthenticationElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "DisableSshPasswordAuthentication");
-                        if (disableSshPasswordAuthenticationElement != null && (disableSshPasswordAuthenticationElement.getTextContent() == null || disableSshPasswordAuthenticationElement.getTextContent().isEmpty() == true) == false) {
-                            boolean disableSshPasswordAuthenticationInstance;
-                            disableSshPasswordAuthenticationInstance = DatatypeConverter.parseBoolean(disableSshPasswordAuthenticationElement.getTextContent().toLowerCase());
-                            configurationSetInstance.setDisableSshPasswordAuthentication(disableSshPasswordAuthenticationInstance);
-                        }
-                        
-                        Element sSHElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "SSH");
-                        if (sSHElement != null) {
-                            SshSettings sSHInstance = new SshSettings();
-                            configurationSetInstance.setSshSettings(sSHInstance);
-                            
-                            Element publicKeysSequenceElement = XmlUtility.getElementByTagNameNS(sSHElement, "http://schemas.microsoft.com/windowsazure", "PublicKeys");
-                            if (publicKeysSequenceElement != null) {
-                                for (int i8 = 0; i8 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(publicKeysSequenceElement, "http://schemas.microsoft.com/windowsazure", "PublicKey").size(); i8 = i8 + 1) {
-                                    org.w3c.dom.Element publicKeysElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(publicKeysSequenceElement, "http://schemas.microsoft.com/windowsazure", "PublicKey").get(i8));
-                                    SshSettingPublicKey publicKeyInstance = new SshSettingPublicKey();
-                                    sSHInstance.getPublicKeys().add(publicKeyInstance);
+                        if (eventType == XmlPullParser.START_TAG && "DataVirtualHardDisks".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "DataVirtualHardDisks".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "DataVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    DataVirtualHardDisk dataVirtualHardDiskInstance = new DataVirtualHardDisk();
+                                    result.getDataVirtualHardDisks().add(dataVirtualHardDiskInstance);
                                     
-                                    Element fingerprintElement = XmlUtility.getElementByTagNameNS(publicKeysElement, "http://schemas.microsoft.com/windowsazure", "Fingerprint");
-                                    if (fingerprintElement != null) {
-                                        String fingerprintInstance;
-                                        fingerprintInstance = fingerprintElement.getTextContent();
-                                        publicKeyInstance.setFingerprint(fingerprintInstance);
+                                    if (eventType == XmlPullParser.START_TAG && "HostCaching".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "HostCaching".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String hostCachingInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                hostCachingInstance = xmlPullParser.getText();
+                                                dataVirtualHardDiskInstance.setHostCaching(hostCachingInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
                                     }
                                     
-                                    Element pathElement2 = XmlUtility.getElementByTagNameNS(publicKeysElement, "http://schemas.microsoft.com/windowsazure", "Path");
-                                    if (pathElement2 != null) {
-                                        String pathInstance2;
-                                        pathInstance2 = pathElement2.getTextContent();
-                                        publicKeyInstance.setPath(pathInstance2);
+                                    if (eventType == XmlPullParser.START_TAG && "DiskLabel".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "DiskLabel".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String diskLabelInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                diskLabelInstance = xmlPullParser.getText();
+                                                dataVirtualHardDiskInstance.setLabel(diskLabelInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "DiskName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "DiskName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String diskNameInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                diskNameInstance = xmlPullParser.getText();
+                                                dataVirtualHardDiskInstance.setName(diskNameInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "Lun".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "Lun".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            int lunInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                lunInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                                dataVirtualHardDiskInstance.setLogicalUnitNumber(lunInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "LogicalDiskSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "LogicalDiskSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            int logicalDiskSizeInGBInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                logicalDiskSizeInGBInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                                dataVirtualHardDiskInstance.setLogicalDiskSizeInGB(logicalDiskSizeInGBInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            URI mediaLinkInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                mediaLinkInstance = new URI(xmlPullParser.getText());
+                                                dataVirtualHardDiskInstance.setMediaLink(mediaLinkInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "SourceMediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "SourceMediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            URI sourceMediaLinkInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                sourceMediaLinkInstance = new URI(xmlPullParser.getText());
+                                                dataVirtualHardDiskInstance.setSourceMediaLink(sourceMediaLinkInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "OSVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "OSVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                OSVirtualHardDisk oSVirtualHardDiskInstance = new OSVirtualHardDisk();
+                                result.setOSVirtualHardDisk(oSVirtualHardDiskInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "HostCaching".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "HostCaching".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String hostCachingInstance2;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            hostCachingInstance2 = xmlPullParser.getText();
+                                            oSVirtualHardDiskInstance.setHostCaching(hostCachingInstance2);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
                                 }
-                            }
-                            
-                            Element keyPairsSequenceElement = XmlUtility.getElementByTagNameNS(sSHElement, "http://schemas.microsoft.com/windowsazure", "KeyPairs");
-                            if (keyPairsSequenceElement != null) {
-                                for (int i9 = 0; i9 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(keyPairsSequenceElement, "http://schemas.microsoft.com/windowsazure", "KeyPair").size(); i9 = i9 + 1) {
-                                    org.w3c.dom.Element keyPairsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(keyPairsSequenceElement, "http://schemas.microsoft.com/windowsazure", "KeyPair").get(i9));
-                                    SshSettingKeyPair keyPairInstance = new SshSettingKeyPair();
-                                    sSHInstance.getKeyPairs().add(keyPairInstance);
-                                    
-                                    Element fingerprintElement2 = XmlUtility.getElementByTagNameNS(keyPairsElement, "http://schemas.microsoft.com/windowsazure", "Fingerprint");
-                                    if (fingerprintElement2 != null) {
-                                        String fingerprintInstance2;
-                                        fingerprintInstance2 = fingerprintElement2.getTextContent();
-                                        keyPairInstance.setFingerprint(fingerprintInstance2);
-                                    }
-                                    
-                                    Element pathElement3 = XmlUtility.getElementByTagNameNS(keyPairsElement, "http://schemas.microsoft.com/windowsazure", "Path");
-                                    if (pathElement3 != null) {
-                                        String pathInstance3;
-                                        pathInstance3 = pathElement3.getTextContent();
-                                        keyPairInstance.setPath(pathInstance3);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "DiskLabel".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "DiskLabel".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String diskLabelInstance2;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            diskLabelInstance2 = xmlPullParser.getText();
+                                            oSVirtualHardDiskInstance.setLabel(diskLabelInstance2);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
                                 }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "DiskName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "DiskName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String diskNameInstance2;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            diskNameInstance2 = xmlPullParser.getText();
+                                            oSVirtualHardDiskInstance.setName(diskNameInstance2);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        URI mediaLinkInstance2;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            mediaLinkInstance2 = new URI(xmlPullParser.getText());
+                                            oSVirtualHardDiskInstance.setMediaLink(mediaLinkInstance2);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "SourceImageName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "SourceImageName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String sourceImageNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            sourceImageNameInstance = xmlPullParser.getText();
+                                            oSVirtualHardDiskInstance.setSourceImageName(sourceImageNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "OS".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "OS".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String osInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            osInstance = xmlPullParser.getText();
+                                            oSVirtualHardDiskInstance.setOperatingSystem(osInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
-                        Element customDataElement = XmlUtility.getElementByTagNameNS(configurationSetsElement, "http://schemas.microsoft.com/windowsazure", "CustomData");
-                        if (customDataElement != null) {
-                            String customDataInstance;
-                            customDataInstance = customDataElement.getTextContent();
-                            configurationSetInstance.setCustomData(customDataInstance);
-                        }
+                        eventType = xmlPullParser.next();
                     }
                 }
                 
-                Element dataVirtualHardDisksSequenceElement = XmlUtility.getElementByTagNameNS(persistentVMRoleElement, "http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisks");
-                if (dataVirtualHardDisksSequenceElement != null) {
-                    for (int i10 = 0; i10 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(dataVirtualHardDisksSequenceElement, "http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk").size(); i10 = i10 + 1) {
-                        org.w3c.dom.Element dataVirtualHardDisksElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(dataVirtualHardDisksSequenceElement, "http://schemas.microsoft.com/windowsazure", "DataVirtualHardDisk").get(i10));
-                        DataVirtualHardDisk dataVirtualHardDiskInstance = new DataVirtualHardDisk();
-                        result.getDataVirtualHardDisks().add(dataVirtualHardDiskInstance);
-                        
-                        Element hostCachingElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDisksElement, "http://schemas.microsoft.com/windowsazure", "HostCaching");
-                        if (hostCachingElement != null) {
-                            String hostCachingInstance;
-                            hostCachingInstance = hostCachingElement.getTextContent();
-                            dataVirtualHardDiskInstance.setHostCaching(hostCachingInstance);
-                        }
-                        
-                        Element diskLabelElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDisksElement, "http://schemas.microsoft.com/windowsazure", "DiskLabel");
-                        if (diskLabelElement != null) {
-                            String diskLabelInstance;
-                            diskLabelInstance = diskLabelElement.getTextContent();
-                            dataVirtualHardDiskInstance.setLabel(diskLabelInstance);
-                        }
-                        
-                        Element diskNameElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDisksElement, "http://schemas.microsoft.com/windowsazure", "DiskName");
-                        if (diskNameElement != null) {
-                            String diskNameInstance;
-                            diskNameInstance = diskNameElement.getTextContent();
-                            dataVirtualHardDiskInstance.setName(diskNameInstance);
-                        }
-                        
-                        Element lunElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDisksElement, "http://schemas.microsoft.com/windowsazure", "Lun");
-                        if (lunElement != null && (lunElement.getTextContent() == null || lunElement.getTextContent().isEmpty() == true) == false) {
-                            int lunInstance;
-                            lunInstance = DatatypeConverter.parseInt(lunElement.getTextContent());
-                            dataVirtualHardDiskInstance.setLogicalUnitNumber(lunInstance);
-                        }
-                        
-                        Element logicalDiskSizeInGBElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDisksElement, "http://schemas.microsoft.com/windowsazure", "LogicalDiskSizeInGB");
-                        if (logicalDiskSizeInGBElement != null && (logicalDiskSizeInGBElement.getTextContent() == null || logicalDiskSizeInGBElement.getTextContent().isEmpty() == true) == false) {
-                            int logicalDiskSizeInGBInstance;
-                            logicalDiskSizeInGBInstance = DatatypeConverter.parseInt(logicalDiskSizeInGBElement.getTextContent());
-                            dataVirtualHardDiskInstance.setLogicalDiskSizeInGB(logicalDiskSizeInGBInstance);
-                        }
-                        
-                        Element mediaLinkElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDisksElement, "http://schemas.microsoft.com/windowsazure", "MediaLink");
-                        if (mediaLinkElement != null) {
-                            URI mediaLinkInstance;
-                            mediaLinkInstance = new URI(mediaLinkElement.getTextContent());
-                            dataVirtualHardDiskInstance.setMediaLink(mediaLinkInstance);
-                        }
-                        
-                        Element sourceMediaLinkElement = XmlUtility.getElementByTagNameNS(dataVirtualHardDisksElement, "http://schemas.microsoft.com/windowsazure", "SourceMediaLink");
-                        if (sourceMediaLinkElement != null) {
-                            URI sourceMediaLinkInstance;
-                            sourceMediaLinkInstance = new URI(sourceMediaLinkElement.getTextContent());
-                            dataVirtualHardDiskInstance.setSourceMediaLink(sourceMediaLinkInstance);
-                        }
-                    }
-                }
-                
-                Element oSVirtualHardDiskElement = XmlUtility.getElementByTagNameNS(persistentVMRoleElement, "http://schemas.microsoft.com/windowsazure", "OSVirtualHardDisk");
-                if (oSVirtualHardDiskElement != null) {
-                    OSVirtualHardDisk oSVirtualHardDiskInstance = new OSVirtualHardDisk();
-                    result.setOSVirtualHardDisk(oSVirtualHardDiskInstance);
-                    
-                    Element hostCachingElement2 = XmlUtility.getElementByTagNameNS(oSVirtualHardDiskElement, "http://schemas.microsoft.com/windowsazure", "HostCaching");
-                    if (hostCachingElement2 != null) {
-                        String hostCachingInstance2;
-                        hostCachingInstance2 = hostCachingElement2.getTextContent();
-                        oSVirtualHardDiskInstance.setHostCaching(hostCachingInstance2);
-                    }
-                    
-                    Element diskLabelElement2 = XmlUtility.getElementByTagNameNS(oSVirtualHardDiskElement, "http://schemas.microsoft.com/windowsazure", "DiskLabel");
-                    if (diskLabelElement2 != null) {
-                        String diskLabelInstance2;
-                        diskLabelInstance2 = diskLabelElement2.getTextContent();
-                        oSVirtualHardDiskInstance.setLabel(diskLabelInstance2);
-                    }
-                    
-                    Element diskNameElement2 = XmlUtility.getElementByTagNameNS(oSVirtualHardDiskElement, "http://schemas.microsoft.com/windowsazure", "DiskName");
-                    if (diskNameElement2 != null) {
-                        String diskNameInstance2;
-                        diskNameInstance2 = diskNameElement2.getTextContent();
-                        oSVirtualHardDiskInstance.setName(diskNameInstance2);
-                    }
-                    
-                    Element mediaLinkElement2 = XmlUtility.getElementByTagNameNS(oSVirtualHardDiskElement, "http://schemas.microsoft.com/windowsazure", "MediaLink");
-                    if (mediaLinkElement2 != null) {
-                        URI mediaLinkInstance2;
-                        mediaLinkInstance2 = new URI(mediaLinkElement2.getTextContent());
-                        oSVirtualHardDiskInstance.setMediaLink(mediaLinkInstance2);
-                    }
-                    
-                    Element sourceImageNameElement = XmlUtility.getElementByTagNameNS(oSVirtualHardDiskElement, "http://schemas.microsoft.com/windowsazure", "SourceImageName");
-                    if (sourceImageNameElement != null) {
-                        String sourceImageNameInstance;
-                        sourceImageNameInstance = sourceImageNameElement.getTextContent();
-                        oSVirtualHardDiskInstance.setSourceImageName(sourceImageNameInstance);
-                    }
-                    
-                    Element osElement = XmlUtility.getElementByTagNameNS(oSVirtualHardDiskElement, "http://schemas.microsoft.com/windowsazure", "OS");
-                    if (osElement != null) {
-                        String osInstance;
-                        osInstance = osElement.getTextContent();
-                        oSVirtualHardDiskInstance.setOperatingSystem(osInstance);
-                    }
-                }
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -5934,7 +6269,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -6549,12 +6884,6 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * Machine operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
@@ -6568,6 +6897,8 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * inspected using the Throwable.getCause() method.
     * @throws ServiceException Thrown if the server returned an error for the
     * request.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The response body contains the status of the specified
@@ -6580,7 +6911,7 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse update(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineUpdateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException, InterruptedException, ExecutionException, URISyntaxException {
+    public OperationStatusResponse update(String serviceName, String deploymentName, String virtualMachineName, VirtualMachineUpdateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, InterruptedException, ExecutionException, XmlPullParserException, URISyntaxException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
