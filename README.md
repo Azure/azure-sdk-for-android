@@ -45,7 +45,7 @@ within your project you can also have them installed by the Java package manager
 
 To use this SDK to call Microsoft Azure services, you need to first create an
 account.  To host your Java code in Microsoft Azure, you additionally need to download
-the full Microsoft Azure SDK for Java - which includes packaging, emulation, and
+the full Microsoft Azure SDK for Android - which includes packaging, emulation, and
 deployment tools.
 
 #Need Help?
