@@ -17,11 +17,13 @@ package com.microsoft.windowsazure.management.sql;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 
 import org.junit.*;
 import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.sql.models.DacExportParameters;
@@ -74,7 +76,7 @@ public class DacOperationsIntegrationTest extends SqlManagementIntegrationTestBa
 
     @Test
     @Ignore("temporary disable because of long running ")
-    public void importDatabaseSuccess() throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, URISyntaxException {
+    public void importDatabaseSuccess() throws ParserConfigurationException, SAXException, TransformerException, IOException, XmlPullParserException, ServiceException, URISyntaxException {
         // arrange
         String serverName = createServer();
         String azureEditionValue = "sqlazure";
@@ -93,7 +95,7 @@ public class DacOperationsIntegrationTest extends SqlManagementIntegrationTestBa
 
     @Test
     @Ignore("temporary disable because of long running ")
-    public void exportDatabaseSuccess() throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, URISyntaxException {
+    public void exportDatabaseSuccess() throws ParserConfigurationException, SAXException, TransformerException, IOException, XmlPullParserException, ServiceException, URISyntaxException {
         // arrange
         String serverName = createServer();
         URI uriValue = storageAccount.getUri();

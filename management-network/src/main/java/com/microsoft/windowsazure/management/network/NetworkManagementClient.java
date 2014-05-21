@@ -32,8 +32,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URI;
 import java.util.concurrent.Future;
-import javax.xml.parsers.ParserConfigurationException;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 /**
 * The Service Management API includes operations for managing the virtual
@@ -49,6 +48,11 @@ public interface NetworkManagementClient extends FilterableService<NetworkManage
     URI getBaseUri();
     
     /**
+    * The URI used as the base for all SQL requests.
+    * @param baseUriValue The BaseUri value.
+    */
+    void setBaseUri(final URI baseUriValue);
+    /**
     * When you create an Azure subscription, it is uniquely identified by a
     * subscription ID. The subscription ID forms part of the URI for every
     * call that you make to the Service Management API. The Azure Service
@@ -59,6 +63,16 @@ public interface NetworkManagementClient extends FilterableService<NetworkManage
     */
     SubscriptionCloudCredentials getCredentials();
     
+    /**
+    * When you create an Azure subscription, it is uniquely identified by a
+    * subscription ID. The subscription ID forms part of the URI for every
+    * call that you make to the Service Management API. The Azure Service
+    * Management API uses mutual authentication of management certificates
+    * over SSL to ensure that a request made to the service is secure. No
+    * anonymous requests are allowed.
+    * @param credentialsValue The Credentials value.
+    */
+    void setCredentials(final SubscriptionCloudCredentials credentialsValue);
     /**
     * The Network Management API includes operations for managing the client
     * root certificates for your subscription.  (see
@@ -116,10 +130,8 @@ public interface NetworkManagementClient extends FilterableService<NetworkManage
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -130,7 +142,7 @@ public interface NetworkManagementClient extends FilterableService<NetworkManage
     * the failed request, and also includes error information regarding the
     * failure.
     */
-    OperationStatusResponse getOperationStatus(String requestId) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException;
+    OperationStatusResponse getOperationStatus(String requestId) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
     
     /**
     * The Get Operation Status operation returns the status of the specified

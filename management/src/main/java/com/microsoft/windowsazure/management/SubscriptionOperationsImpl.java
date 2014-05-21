@@ -27,7 +27,6 @@ import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
-import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.models.SubscriptionGetResponse;
 import com.microsoft.windowsazure.management.models.SubscriptionListOperationsParameters;
@@ -36,6 +35,7 @@ import com.microsoft.windowsazure.management.models.SubscriptionStatus;
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -50,12 +50,9 @@ import java.util.TimeZone;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import javax.xml.bind.DatatypeConverter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
 
 /**
 * Operations for listing subscription details.  (see
@@ -112,16 +109,14 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
     * @return The Get Subscription operation response.
     */
     @Override
-    public SubscriptionGetResponse get() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, URISyntaxException {
+    public SubscriptionGetResponse get() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException {
         // Validate
         
         // Tracing
@@ -149,7 +144,7 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2013-03-01");
@@ -173,131 +168,224 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new SubscriptionGetResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element subscriptionElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "Subscription");
-            if (subscriptionElement != null) {
-                Element subscriptionIDElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "SubscriptionID");
-                if (subscriptionIDElement != null) {
-                    String subscriptionIDInstance;
-                    subscriptionIDInstance = subscriptionIDElement.getTextContent();
-                    result.setSubscriptionID(subscriptionIDInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "Subscription".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "Subscription".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "SubscriptionID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "SubscriptionID".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String subscriptionIDInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    subscriptionIDInstance = xmlPullParser.getText();
+                                    result.setSubscriptionID(subscriptionIDInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "SubscriptionName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "SubscriptionName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String subscriptionNameInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    subscriptionNameInstance = xmlPullParser.getText();
+                                    result.setSubscriptionName(subscriptionNameInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "SubscriptionStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "SubscriptionStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                SubscriptionStatus subscriptionStatusInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    subscriptionStatusInstance = SubscriptionStatus.valueOf(xmlPullParser.getText());
+                                    result.setSubscriptionStatus(subscriptionStatusInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "AccountAdminLiveEmailId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "AccountAdminLiveEmailId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String accountAdminLiveEmailIdInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    accountAdminLiveEmailIdInstance = xmlPullParser.getText();
+                                    result.setAccountAdminLiveEmailId(accountAdminLiveEmailIdInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "ServiceAdminLiveEmailId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ServiceAdminLiveEmailId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String serviceAdminLiveEmailIdInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    serviceAdminLiveEmailIdInstance = xmlPullParser.getText();
+                                    result.setServiceAdminLiveEmailId(serviceAdminLiveEmailIdInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "MaxCoreCount".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "MaxCoreCount".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int maxCoreCountInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    maxCoreCountInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setMaximumCoreCount(maxCoreCountInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "MaxStorageAccounts".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "MaxStorageAccounts".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int maxStorageAccountsInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    maxStorageAccountsInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setMaximumStorageAccounts(maxStorageAccountsInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "MaxHostedServices".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "MaxHostedServices".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int maxHostedServicesInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    maxHostedServicesInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setMaximumHostedServices(maxHostedServicesInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "CurrentCoreCount".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "CurrentCoreCount".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int currentCoreCountInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    currentCoreCountInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setCurrentCoreCount(currentCoreCountInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "CurrentStorageAccounts".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "CurrentStorageAccounts".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int currentStorageAccountsInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    currentStorageAccountsInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setCurrentStorageAccounts(currentStorageAccountsInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "CurrentHostedServices".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "CurrentHostedServices".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int currentHostedServicesInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    currentHostedServicesInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setCurrentHostedServices(currentHostedServicesInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "MaxVirtualNetworkSites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "MaxVirtualNetworkSites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int maxVirtualNetworkSitesInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    maxVirtualNetworkSitesInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setMaximumVirtualNetworkSites(maxVirtualNetworkSitesInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "CurrentVirtualNetworkSites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "CurrentVirtualNetworkSites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int currentVirtualNetworkSitesInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    currentVirtualNetworkSitesInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setCurrentVirtualNetworkSites(currentVirtualNetworkSitesInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "MaxLocalNetworkSites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "MaxLocalNetworkSites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int maxLocalNetworkSitesInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    maxLocalNetworkSitesInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setMaximumLocalNetworkSites(maxLocalNetworkSitesInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "MaxDnsServers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "MaxDnsServers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int maxDnsServersInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    maxDnsServersInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setMaximumDnsServers(maxDnsServersInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "CurrentLocalNetworkSites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "CurrentLocalNetworkSites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int currentLocalNetworkSitesInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    currentLocalNetworkSitesInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setCurrentLocalNetworkSites(currentLocalNetworkSitesInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "CurrentDnsServers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "CurrentDnsServers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                int currentDnsServersInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    currentDnsServersInstance = DatatypeConverter.parseInt(xmlPullParser.getText());
+                                    result.setCurrentDnsServers(currentDnsServersInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
                 
-                Element subscriptionNameElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "SubscriptionName");
-                if (subscriptionNameElement != null) {
-                    String subscriptionNameInstance;
-                    subscriptionNameInstance = subscriptionNameElement.getTextContent();
-                    result.setSubscriptionName(subscriptionNameInstance);
-                }
-                
-                Element subscriptionStatusElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "SubscriptionStatus");
-                if (subscriptionStatusElement != null) {
-                    SubscriptionStatus subscriptionStatusInstance;
-                    subscriptionStatusInstance = SubscriptionStatus.valueOf(subscriptionStatusElement.getTextContent());
-                    result.setSubscriptionStatus(subscriptionStatusInstance);
-                }
-                
-                Element accountAdminLiveEmailIdElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "AccountAdminLiveEmailId");
-                if (accountAdminLiveEmailIdElement != null) {
-                    String accountAdminLiveEmailIdInstance;
-                    accountAdminLiveEmailIdInstance = accountAdminLiveEmailIdElement.getTextContent();
-                    result.setAccountAdminLiveEmailId(accountAdminLiveEmailIdInstance);
-                }
-                
-                Element serviceAdminLiveEmailIdElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "ServiceAdminLiveEmailId");
-                if (serviceAdminLiveEmailIdElement != null) {
-                    String serviceAdminLiveEmailIdInstance;
-                    serviceAdminLiveEmailIdInstance = serviceAdminLiveEmailIdElement.getTextContent();
-                    result.setServiceAdminLiveEmailId(serviceAdminLiveEmailIdInstance);
-                }
-                
-                Element maxCoreCountElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "MaxCoreCount");
-                if (maxCoreCountElement != null) {
-                    int maxCoreCountInstance;
-                    maxCoreCountInstance = DatatypeConverter.parseInt(maxCoreCountElement.getTextContent());
-                    result.setMaximumCoreCount(maxCoreCountInstance);
-                }
-                
-                Element maxStorageAccountsElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "MaxStorageAccounts");
-                if (maxStorageAccountsElement != null) {
-                    int maxStorageAccountsInstance;
-                    maxStorageAccountsInstance = DatatypeConverter.parseInt(maxStorageAccountsElement.getTextContent());
-                    result.setMaximumStorageAccounts(maxStorageAccountsInstance);
-                }
-                
-                Element maxHostedServicesElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "MaxHostedServices");
-                if (maxHostedServicesElement != null) {
-                    int maxHostedServicesInstance;
-                    maxHostedServicesInstance = DatatypeConverter.parseInt(maxHostedServicesElement.getTextContent());
-                    result.setMaximumHostedServices(maxHostedServicesInstance);
-                }
-                
-                Element currentCoreCountElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "CurrentCoreCount");
-                if (currentCoreCountElement != null) {
-                    int currentCoreCountInstance;
-                    currentCoreCountInstance = DatatypeConverter.parseInt(currentCoreCountElement.getTextContent());
-                    result.setCurrentCoreCount(currentCoreCountInstance);
-                }
-                
-                Element currentStorageAccountsElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "CurrentStorageAccounts");
-                if (currentStorageAccountsElement != null) {
-                    int currentStorageAccountsInstance;
-                    currentStorageAccountsInstance = DatatypeConverter.parseInt(currentStorageAccountsElement.getTextContent());
-                    result.setCurrentStorageAccounts(currentStorageAccountsInstance);
-                }
-                
-                Element currentHostedServicesElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "CurrentHostedServices");
-                if (currentHostedServicesElement != null) {
-                    int currentHostedServicesInstance;
-                    currentHostedServicesInstance = DatatypeConverter.parseInt(currentHostedServicesElement.getTextContent());
-                    result.setCurrentHostedServices(currentHostedServicesInstance);
-                }
-                
-                Element maxVirtualNetworkSitesElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "MaxVirtualNetworkSites");
-                if (maxVirtualNetworkSitesElement != null) {
-                    int maxVirtualNetworkSitesInstance;
-                    maxVirtualNetworkSitesInstance = DatatypeConverter.parseInt(maxVirtualNetworkSitesElement.getTextContent());
-                    result.setMaximumVirtualNetworkSites(maxVirtualNetworkSitesInstance);
-                }
-                
-                Element currentVirtualNetworkSitesElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "CurrentVirtualNetworkSites");
-                if (currentVirtualNetworkSitesElement != null) {
-                    int currentVirtualNetworkSitesInstance;
-                    currentVirtualNetworkSitesInstance = DatatypeConverter.parseInt(currentVirtualNetworkSitesElement.getTextContent());
-                    result.setCurrentVirtualNetworkSites(currentVirtualNetworkSitesInstance);
-                }
-                
-                Element maxLocalNetworkSitesElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "MaxLocalNetworkSites");
-                if (maxLocalNetworkSitesElement != null) {
-                    int maxLocalNetworkSitesInstance;
-                    maxLocalNetworkSitesInstance = DatatypeConverter.parseInt(maxLocalNetworkSitesElement.getTextContent());
-                    result.setMaximumLocalNetworkSites(maxLocalNetworkSitesInstance);
-                }
-                
-                Element maxDnsServersElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "MaxDnsServers");
-                if (maxDnsServersElement != null) {
-                    int maxDnsServersInstance;
-                    maxDnsServersInstance = DatatypeConverter.parseInt(maxDnsServersElement.getTextContent());
-                    result.setMaximumDnsServers(maxDnsServersInstance);
-                }
-                
-                Element currentLocalNetworkSitesElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "CurrentLocalNetworkSites");
-                if (currentLocalNetworkSitesElement != null) {
-                    int currentLocalNetworkSitesInstance;
-                    currentLocalNetworkSitesInstance = DatatypeConverter.parseInt(currentLocalNetworkSitesElement.getTextContent());
-                    result.setCurrentLocalNetworkSites(currentLocalNetworkSitesInstance);
-                }
-                
-                Element currentDnsServersElement = XmlUtility.getElementByTagNameNS(subscriptionElement, "http://schemas.microsoft.com/windowsazure", "CurrentDnsServers");
-                if (currentDnsServersElement != null) {
-                    int currentDnsServersInstance;
-                    currentDnsServersInstance = DatatypeConverter.parseInt(currentDnsServersElement.getTextContent());
-                    result.setCurrentDnsServers(currentDnsServersInstance);
-                }
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -349,14 +437,12 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The List Subscription Operations operation response.
     */
     @Override
-    public SubscriptionListOperationsResponse listOperations(SubscriptionListOperationsParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public SubscriptionListOperationsResponse listOperations(SubscriptionListOperationsParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (parameters == null) {
             throw new NullPointerException("parameters");
@@ -403,7 +489,7 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2013-03-01");
@@ -427,114 +513,210 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new SubscriptionListOperationsResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element subscriptionOperationCollectionElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "SubscriptionOperationCollection");
-            if (subscriptionOperationCollectionElement != null) {
-                Element continuationTokenElement = XmlUtility.getElementByTagNameNS(subscriptionOperationCollectionElement, "http://schemas.microsoft.com/windowsazure", "ContinuationToken");
-                if (continuationTokenElement != null) {
-                    String continuationTokenInstance;
-                    continuationTokenInstance = continuationTokenElement.getTextContent();
-                    result.setContinuationToken(continuationTokenInstance);
-                }
-                
-                Element subscriptionOperationsSequenceElement = XmlUtility.getElementByTagNameNS(subscriptionOperationCollectionElement, "http://schemas.microsoft.com/windowsazure", "SubscriptionOperations");
-                if (subscriptionOperationsSequenceElement != null) {
-                    for (int i1 = 0; i1 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(subscriptionOperationsSequenceElement, "http://schemas.microsoft.com/windowsazure", "SubscriptionOperation").size(); i1 = i1 + 1) {
-                        org.w3c.dom.Element subscriptionOperationsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(subscriptionOperationsSequenceElement, "http://schemas.microsoft.com/windowsazure", "SubscriptionOperation").get(i1));
-                        SubscriptionListOperationsResponse.SubscriptionOperation subscriptionOperationInstance = new SubscriptionListOperationsResponse.SubscriptionOperation();
-                        result.getSubscriptionOperations().add(subscriptionOperationInstance);
-                        
-                        Element operationIdElement = XmlUtility.getElementByTagNameNS(subscriptionOperationsElement, "http://schemas.microsoft.com/windowsazure", "OperationId");
-                        if (operationIdElement != null) {
-                            String operationIdInstance;
-                            operationIdInstance = operationIdElement.getTextContent();
-                            subscriptionOperationInstance.setOperationId(operationIdInstance);
-                        }
-                        
-                        Element operationObjectIdElement = XmlUtility.getElementByTagNameNS(subscriptionOperationsElement, "http://schemas.microsoft.com/windowsazure", "OperationObjectId");
-                        if (operationObjectIdElement != null) {
-                            String operationObjectIdInstance;
-                            operationObjectIdInstance = operationObjectIdElement.getTextContent();
-                            subscriptionOperationInstance.setOperationObjectId(operationObjectIdInstance);
-                        }
-                        
-                        Element operationNameElement = XmlUtility.getElementByTagNameNS(subscriptionOperationsElement, "http://schemas.microsoft.com/windowsazure", "OperationName");
-                        if (operationNameElement != null) {
-                            String operationNameInstance;
-                            operationNameInstance = operationNameElement.getTextContent();
-                            subscriptionOperationInstance.setOperationName(operationNameInstance);
-                        }
-                        
-                        Element operationParametersSequenceElement = XmlUtility.getElementByTagNameNS(subscriptionOperationsElement, "http://schemas.microsoft.com/windowsazure", "OperationParameters");
-                        if (operationParametersSequenceElement != null) {
-                            for (int i2 = 0; i2 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(operationParametersSequenceElement, "http://schemas.microsoft.com/windowsazure", "OperationParameter").size(); i2 = i2 + 1) {
-                                org.w3c.dom.Element operationParametersElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(operationParametersSequenceElement, "http://schemas.microsoft.com/windowsazure", "OperationParameter").get(i2));
-                                String operationParametersKey = XmlUtility.getElementByTagNameNS(operationParametersElement, "http://schemas.datacontract.org/2004/07/Microsoft.WindowsAzure.ServiceManagement", "Name").getTextContent();
-                                String operationParametersValue = XmlUtility.getElementByTagNameNS(operationParametersElement, "http://schemas.datacontract.org/2004/07/Microsoft.WindowsAzure.ServiceManagement", "Value").getTextContent();
-                                subscriptionOperationInstance.getOperationParameters().put(operationParametersKey, operationParametersValue);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "SubscriptionOperationCollection".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "SubscriptionOperationCollection".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "ContinuationToken".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ContinuationToken".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String continuationTokenInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    continuationTokenInstance = xmlPullParser.getText();
+                                    result.setContinuationToken(continuationTokenInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
-                        Element operationCallerElement = XmlUtility.getElementByTagNameNS(subscriptionOperationsElement, "http://schemas.microsoft.com/windowsazure", "OperationCaller");
-                        if (operationCallerElement != null) {
-                            SubscriptionListOperationsResponse.OperationCallerDetails operationCallerInstance = new SubscriptionListOperationsResponse.OperationCallerDetails();
-                            subscriptionOperationInstance.setOperationCaller(operationCallerInstance);
-                            
-                            Element usedServiceManagementApiElement = XmlUtility.getElementByTagNameNS(operationCallerElement, "http://schemas.microsoft.com/windowsazure", "UsedServiceManagementApi");
-                            if (usedServiceManagementApiElement != null) {
-                                boolean usedServiceManagementApiInstance;
-                                usedServiceManagementApiInstance = DatatypeConverter.parseBoolean(usedServiceManagementApiElement.getTextContent().toLowerCase());
-                                operationCallerInstance.setUsedServiceManagementApi(usedServiceManagementApiInstance);
-                            }
-                            
-                            Element userEmailAddressElement = XmlUtility.getElementByTagNameNS(operationCallerElement, "http://schemas.microsoft.com/windowsazure", "UserEmailAddress");
-                            if (userEmailAddressElement != null) {
-                                String userEmailAddressInstance;
-                                userEmailAddressInstance = userEmailAddressElement.getTextContent();
-                                operationCallerInstance.setUserEmailAddress(userEmailAddressInstance);
-                            }
-                            
-                            Element subscriptionCertificateThumbprintElement = XmlUtility.getElementByTagNameNS(operationCallerElement, "http://schemas.microsoft.com/windowsazure", "SubscriptionCertificateThumbprint");
-                            if (subscriptionCertificateThumbprintElement != null) {
-                                String subscriptionCertificateThumbprintInstance;
-                                subscriptionCertificateThumbprintInstance = subscriptionCertificateThumbprintElement.getTextContent();
-                                operationCallerInstance.setSubscriptionCertificateThumbprint(subscriptionCertificateThumbprintInstance);
-                            }
-                            
-                            Element clientIPElement = XmlUtility.getElementByTagNameNS(operationCallerElement, "http://schemas.microsoft.com/windowsazure", "ClientIP");
-                            if (clientIPElement != null) {
-                                InetAddress clientIPInstance;
-                                clientIPInstance = InetAddress.getByName(clientIPElement.getTextContent());
-                                operationCallerInstance.setClientIPAddress(clientIPInstance);
+                        if (eventType == XmlPullParser.START_TAG && "SubscriptionOperations".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "SubscriptionOperations".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "SubscriptionOperation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    SubscriptionListOperationsResponse.SubscriptionOperation subscriptionOperationInstance = new SubscriptionListOperationsResponse.SubscriptionOperation();
+                                    result.getSubscriptionOperations().add(subscriptionOperationInstance);
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "OperationId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "OperationId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String operationIdInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                operationIdInstance = xmlPullParser.getText();
+                                                subscriptionOperationInstance.setOperationId(operationIdInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "OperationObjectId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "OperationObjectId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String operationObjectIdInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                operationObjectIdInstance = xmlPullParser.getText();
+                                                subscriptionOperationInstance.setOperationObjectId(operationObjectIdInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "OperationName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "OperationName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String operationNameInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                operationNameInstance = xmlPullParser.getText();
+                                                subscriptionOperationInstance.setOperationName(operationNameInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "OperationParameters".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "OperationParameters".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            if (eventType == XmlPullParser.START_TAG && "OperationParameter".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                while ((eventType == XmlPullParser.END_TAG && "OperationParameter".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                    String key = null;
+                                                    String value = null;
+                                                    if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.WindowsAzure.ServiceManagement".equals(xmlPullParser.getNamespace())) {
+                                                        while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.WindowsAzure.ServiceManagement".equals(xmlPullParser.getNamespace())) != true) {
+                                                            if (eventType == XmlPullParser.TEXT) {
+                                                                key = xmlPullParser.getText();
+                                                            }
+                                                            
+                                                            eventType = xmlPullParser.next();
+                                                        }
+                                                    }
+                                                    else if (eventType == XmlPullParser.START_TAG && "Value".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.WindowsAzure.ServiceManagement".equals(xmlPullParser.getNamespace())) {
+                                                        while ((eventType == XmlPullParser.END_TAG && "Value".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.WindowsAzure.ServiceManagement".equals(xmlPullParser.getNamespace())) != true) {
+                                                            if (eventType == XmlPullParser.TEXT) {
+                                                                value = xmlPullParser.getText();
+                                                            }
+                                                            
+                                                            eventType = xmlPullParser.next();
+                                                        }
+                                                    }
+                                                    if (key != null && value != null) {
+                                                        subscriptionOperationInstance.getOperationParameters().put(key, xmlPullParser.getText());
+                                                    }
+                                                    
+                                                    eventType = xmlPullParser.next();
+                                                }
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "OperationCaller".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "OperationCaller".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            SubscriptionListOperationsResponse.OperationCallerDetails operationCallerInstance = new SubscriptionListOperationsResponse.OperationCallerDetails();
+                                            subscriptionOperationInstance.setOperationCaller(operationCallerInstance);
+                                            
+                                            if (eventType == XmlPullParser.START_TAG && "UsedServiceManagementApi".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                while ((eventType == XmlPullParser.END_TAG && "UsedServiceManagementApi".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                    boolean usedServiceManagementApiInstance;
+                                                    if (eventType == XmlPullParser.TEXT) {
+                                                        usedServiceManagementApiInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                                        operationCallerInstance.setUsedServiceManagementApi(usedServiceManagementApiInstance);
+                                                    }
+                                                    
+                                                    eventType = xmlPullParser.next();
+                                                }
+                                            }
+                                            
+                                            if (eventType == XmlPullParser.START_TAG && "UserEmailAddress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                while ((eventType == XmlPullParser.END_TAG && "UserEmailAddress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                    String userEmailAddressInstance;
+                                                    if (eventType == XmlPullParser.TEXT) {
+                                                        userEmailAddressInstance = xmlPullParser.getText();
+                                                        operationCallerInstance.setUserEmailAddress(userEmailAddressInstance);
+                                                    }
+                                                    
+                                                    eventType = xmlPullParser.next();
+                                                }
+                                            }
+                                            
+                                            if (eventType == XmlPullParser.START_TAG && "SubscriptionCertificateThumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                while ((eventType == XmlPullParser.END_TAG && "SubscriptionCertificateThumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                    String subscriptionCertificateThumbprintInstance;
+                                                    if (eventType == XmlPullParser.TEXT) {
+                                                        subscriptionCertificateThumbprintInstance = xmlPullParser.getText();
+                                                        operationCallerInstance.setSubscriptionCertificateThumbprint(subscriptionCertificateThumbprintInstance);
+                                                    }
+                                                    
+                                                    eventType = xmlPullParser.next();
+                                                }
+                                            }
+                                            
+                                            if (eventType == XmlPullParser.START_TAG && "ClientIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                while ((eventType == XmlPullParser.END_TAG && "ClientIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                    InetAddress clientIPInstance;
+                                                    if (eventType == XmlPullParser.TEXT) {
+                                                        clientIPInstance = InetAddress.getByName(xmlPullParser.getText());
+                                                        operationCallerInstance.setClientIPAddress(clientIPInstance);
+                                                    }
+                                                    
+                                                    eventType = xmlPullParser.next();
+                                                }
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "OperationStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "OperationStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            String operationStatusInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                operationStatusInstance = xmlPullParser.getText();
+                                                subscriptionOperationInstance.setOperationStatus(operationStatusInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "OperationStartedTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "OperationStartedTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            Calendar operationStartedTimeInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                operationStartedTimeInstance = DatatypeConverter.parseDateTime(xmlPullParser.getText());
+                                                subscriptionOperationInstance.setOperationStartedTime(operationStartedTimeInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    if (eventType == XmlPullParser.START_TAG && "OperationCompletedTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                        while ((eventType == XmlPullParser.END_TAG && "OperationCompletedTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                            Calendar operationCompletedTimeInstance;
+                                            if (eventType == XmlPullParser.TEXT) {
+                                                operationCompletedTimeInstance = DatatypeConverter.parseDateTime(xmlPullParser.getText());
+                                                subscriptionOperationInstance.setOperationCompletedTime(operationCompletedTimeInstance);
+                                            }
+                                            
+                                            eventType = xmlPullParser.next();
+                                        }
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
-                        Element operationStatusElement = XmlUtility.getElementByTagNameNS(subscriptionOperationsElement, "http://schemas.microsoft.com/windowsazure", "OperationStatus");
-                        if (operationStatusElement != null) {
-                            String operationStatusInstance;
-                            operationStatusInstance = operationStatusElement.getTextContent();
-                            subscriptionOperationInstance.setOperationStatus(operationStatusInstance);
-                        }
-                        
-                        Element operationStartedTimeElement = XmlUtility.getElementByTagNameNS(subscriptionOperationsElement, "http://schemas.microsoft.com/windowsazure", "OperationStartedTime");
-                        if (operationStartedTimeElement != null) {
-                            Calendar operationStartedTimeInstance;
-                            operationStartedTimeInstance = DatatypeConverter.parseDateTime(operationStartedTimeElement.getTextContent());
-                            subscriptionOperationInstance.setOperationStartedTime(operationStartedTimeInstance);
-                        }
-                        
-                        Element operationCompletedTimeElement = XmlUtility.getElementByTagNameNS(subscriptionOperationsElement, "http://schemas.microsoft.com/windowsazure", "OperationCompletedTime");
-                        if (operationCompletedTimeElement != null) {
-                            Calendar operationCompletedTimeInstance;
-                            operationCompletedTimeInstance = DatatypeConverter.parseDateTime(operationCompletedTimeElement.getTextContent());
-                            subscriptionOperationInstance.setOperationCompletedTime(operationCompletedTimeInstance);
-                        }
+                        eventType = xmlPullParser.next();
                     }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);

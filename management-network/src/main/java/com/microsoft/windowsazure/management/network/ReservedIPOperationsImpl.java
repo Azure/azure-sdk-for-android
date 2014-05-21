@@ -23,13 +23,13 @@
 
 package com.microsoft.windowsazure.management.network;
 
+import android.util.Xml;
 import com.microsoft.windowsazure.AzureHttpStatus;
 import com.microsoft.windowsazure.core.OperationResponse;
 import com.microsoft.windowsazure.core.OperationStatus;
 import com.microsoft.windowsazure.core.OperationStatusResponse;
 import com.microsoft.windowsazure.core.ServiceOperations;
 import com.microsoft.windowsazure.core.utils.BOMInputStream;
-import com.microsoft.windowsazure.core.utils.XmlUtility;
 import com.microsoft.windowsazure.exception.ServiceException;
 import com.microsoft.windowsazure.management.network.models.NetworkReservedIPCreateParameters;
 import com.microsoft.windowsazure.management.network.models.NetworkReservedIPGetResponse;
@@ -38,6 +38,7 @@ import com.microsoft.windowsazure.tracing.ClientRequestTrackingHandler;
 import com.microsoft.windowsazure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -49,17 +50,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.xml.bind.DatatypeConverter;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+import org.xmlpull.v1.XmlPullParserFactory;
+import org.xmlpull.v1.XmlSerializer;
 
 /**
 * The Network Management API includes operations for managing the reserved IPs
@@ -120,15 +114,11 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
     * Reserved IP operation.
     * @throws MalformedURLException Thrown in case of an invalid request URL
     * @throws ProtocolException Thrown if invalid request method
-    * @throws ParserConfigurationException Thrown if there was an error
-    * configuring the parser for the response body.
-    * @throws SAXException Thrown if there was an error parsing the response
-    * body.
-    * @throws TransformerException Thrown if there was an error creating the
-    * DOM transformer.
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -140,7 +130,7 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
     * failure.
     */
     @Override
-    public OperationStatusResponse beginCreating(NetworkReservedIPCreateParameters parameters) throws MalformedURLException, ProtocolException, ParserConfigurationException, SAXException, TransformerException, ServiceException, IOException {
+    public OperationStatusResponse beginCreating(NetworkReservedIPCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (parameters == null) {
             throw new NullPointerException("parameters");
@@ -183,49 +173,45 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
         
         // Serialize Request
         String requestContent = null;
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-        Document requestDoc = documentBuilder.newDocument();
+        XmlSerializer xmlSerializer = Xml.newSerializer();
+        StringWriter stringWriter = new StringWriter();
+        xmlSerializer.setOutput(stringWriter);
+        xmlSerializer.startDocument("UTF-8", true);
         
-        Element reservedIPElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ReservedIP");
-        requestDoc.appendChild(reservedIPElement);
+        xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ReservedIP");
         
         if (parameters.getName() != null) {
-            Element nameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Name");
-            nameElement.appendChild(requestDoc.createTextNode(parameters.getName()));
-            reservedIPElement.appendChild(nameElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Name");
+            xmlSerializer.text(parameters.getName());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Name");
         }
         
         if (parameters.getLabel() != null) {
-            Element labelElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Label");
-            labelElement.appendChild(requestDoc.createTextNode(parameters.getLabel()));
-            reservedIPElement.appendChild(labelElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Label");
+            xmlSerializer.text(parameters.getLabel());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Label");
         }
         
         if (parameters.getLocation() != null) {
-            Element locationElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "Location");
-            locationElement.appendChild(requestDoc.createTextNode(parameters.getLocation()));
-            reservedIPElement.appendChild(locationElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "Location");
+            xmlSerializer.text(parameters.getLocation());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "Location");
         }
         
         if (parameters.getServiceName() != null) {
-            Element serviceNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "ServiceName");
-            serviceNameElement.appendChild(requestDoc.createTextNode(parameters.getServiceName()));
-            reservedIPElement.appendChild(serviceNameElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "ServiceName");
+            xmlSerializer.text(parameters.getServiceName());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ServiceName");
         }
         
         if (parameters.getDeploymentName() != null) {
-            Element deploymentNameElement = requestDoc.createElementNS("http://schemas.microsoft.com/windowsazure", "DeploymentName");
-            deploymentNameElement.appendChild(requestDoc.createTextNode(parameters.getDeploymentName()));
-            reservedIPElement.appendChild(deploymentNameElement);
+            xmlSerializer.startTag("http://schemas.microsoft.com/windowsazure", "DeploymentName");
+            xmlSerializer.text(parameters.getDeploymentName());
+            xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "DeploymentName");
         }
+        xmlSerializer.endTag("http://schemas.microsoft.com/windowsazure", "ReservedIP");
+        xmlSerializer.endDocument();
         
-        DOMSource domSource = new DOMSource(requestDoc);
-        StringWriter stringWriter = new StringWriter();
-        StreamResult streamResult = new StreamResult(stringWriter);
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        transformer.transform(domSource, streamResult);
         requestContent = stringWriter.toString();
         httpRequest.setRequestProperty("Content-Type", "application/xml");
         
@@ -287,15 +273,13 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
     @Override
-    public OperationResponse beginDeleting(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public OperationResponse beginDeleting(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (ipName == null) {
             throw new NullPointerException("ipName");
@@ -327,7 +311,6 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("DELETE");
-        httpRequest.setDoOutput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("Content-Type", "application/xml");
@@ -401,10 +384,8 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -426,7 +407,7 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
     * failure.
     */
     @Override
-    public OperationStatusResponse create(NetworkReservedIPCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException {
+    public OperationStatusResponse create(NetworkReservedIPCreateParameters parameters) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, InterruptedException, ExecutionException {
         NetworkManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -512,10 +493,8 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @throws InterruptedException Thrown when a thread is waiting, sleeping,
     * or otherwise occupied, and the thread is interrupted, either before or
     * during the activity. Occasionally a method may wish to test whether the
@@ -537,7 +516,7 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
     * failure.
     */
     @Override
-    public OperationStatusResponse delete(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException, InterruptedException, ExecutionException {
+    public OperationStatusResponse delete(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, InterruptedException, ExecutionException {
         NetworkManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -612,14 +591,12 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return A reserved IP associated with your subscription.
     */
     @Override
-    public NetworkReservedIPGetResponse get(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public NetworkReservedIPGetResponse get(String ipName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         if (ipName == null) {
             throw new NullPointerException("ipName");
@@ -651,7 +628,7 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -675,75 +652,128 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new NetworkReservedIPGetResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element reservedIPElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "ReservedIP");
-            if (reservedIPElement != null) {
-                Element nameElement = XmlUtility.getElementByTagNameNS(reservedIPElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                if (nameElement != null) {
-                    String nameInstance;
-                    nameInstance = nameElement.getTextContent();
-                    result.setName(nameInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "ReservedIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "ReservedIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String nameInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    nameInstance = xmlPullParser.getText();
+                                    result.setName(nameInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Address".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Address".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                InetAddress addressInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    addressInstance = InetAddress.getByName(xmlPullParser.getText());
+                                    result.setAddress(addressInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String idInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    idInstance = xmlPullParser.getText();
+                                    result.setId(idInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String labelInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    labelInstance = xmlPullParser.getText();
+                                    result.setLabel(labelInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String stateInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    stateInstance = xmlPullParser.getText();
+                                    result.setState(stateInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "InUse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "InUse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean inUseInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    inUseInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setInUse(inUseInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "ServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "ServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String serviceNameInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    serviceNameInstance = xmlPullParser.getText();
+                                    result.setServiceName(serviceNameInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "DeploymentName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "DeploymentName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String deploymentNameInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    deploymentNameInstance = xmlPullParser.getText();
+                                    result.setDeploymentName(deploymentNameInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                String locationInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    locationInstance = xmlPullParser.getText();
+                                    result.setLocation(locationInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
+                            }
+                        }
+                        
+                        eventType = xmlPullParser.next();
+                    }
                 }
                 
-                Element addressElement = XmlUtility.getElementByTagNameNS(reservedIPElement, "http://schemas.microsoft.com/windowsazure", "Address");
-                if (addressElement != null) {
-                    InetAddress addressInstance;
-                    addressInstance = InetAddress.getByName(addressElement.getTextContent());
-                    result.setAddress(addressInstance);
-                }
-                
-                Element idElement = XmlUtility.getElementByTagNameNS(reservedIPElement, "http://schemas.microsoft.com/windowsazure", "Id");
-                if (idElement != null) {
-                    String idInstance;
-                    idInstance = idElement.getTextContent();
-                    result.setId(idInstance);
-                }
-                
-                Element labelElement = XmlUtility.getElementByTagNameNS(reservedIPElement, "http://schemas.microsoft.com/windowsazure", "Label");
-                if (labelElement != null) {
-                    String labelInstance;
-                    labelInstance = labelElement.getTextContent();
-                    result.setLabel(labelInstance);
-                }
-                
-                Element stateElement = XmlUtility.getElementByTagNameNS(reservedIPElement, "http://schemas.microsoft.com/windowsazure", "State");
-                if (stateElement != null) {
-                    String stateInstance;
-                    stateInstance = stateElement.getTextContent();
-                    result.setState(stateInstance);
-                }
-                
-                Element inUseElement = XmlUtility.getElementByTagNameNS(reservedIPElement, "http://schemas.microsoft.com/windowsazure", "InUse");
-                if (inUseElement != null) {
-                    boolean inUseInstance;
-                    inUseInstance = DatatypeConverter.parseBoolean(inUseElement.getTextContent().toLowerCase());
-                    result.setInUse(inUseInstance);
-                }
-                
-                Element serviceNameElement = XmlUtility.getElementByTagNameNS(reservedIPElement, "http://schemas.microsoft.com/windowsazure", "ServiceName");
-                if (serviceNameElement != null) {
-                    String serviceNameInstance;
-                    serviceNameInstance = serviceNameElement.getTextContent();
-                    result.setServiceName(serviceNameInstance);
-                }
-                
-                Element deploymentNameElement = XmlUtility.getElementByTagNameNS(reservedIPElement, "http://schemas.microsoft.com/windowsazure", "DeploymentName");
-                if (deploymentNameElement != null) {
-                    String deploymentNameInstance;
-                    deploymentNameInstance = deploymentNameElement.getTextContent();
-                    result.setDeploymentName(deploymentNameInstance);
-                }
-                
-                Element locationElement = XmlUtility.getElementByTagNameNS(reservedIPElement, "http://schemas.microsoft.com/windowsazure", "Location");
-                if (locationElement != null) {
-                    String locationInstance;
-                    locationInstance = locationElement.getTextContent();
-                    result.setLocation(locationInstance);
-                }
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);
@@ -785,14 +815,12 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
     * @throws ServiceException Thrown if an unexpected response is found.
     * @throws IOException Signals that an I/O exception of some sort has
     * occurred
-    * @throws ParserConfigurationException Thrown if there was a serious
-    * configuration error with the document parser.
-    * @throws SAXException Thrown if there was an error parsing the XML
-    * response.
+    * @throws XmlPullParserException This exception is thrown to signal XML
+    * Pull Parser related faults.
     * @return The response structure for the Server List operation.
     */
     @Override
-    public NetworkReservedIPListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, ParserConfigurationException, SAXException {
+    public NetworkReservedIPListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException {
         // Validate
         
         // Tracing
@@ -820,7 +848,7 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2014-05-01");
@@ -844,81 +872,135 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
             // Deserialize Response
             InputStream responseContent = httpRequest.getInputStream();
             result = new NetworkReservedIPListResponse();
-            DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-            documentBuilderFactory.setNamespaceAware(true);
-            DocumentBuilder documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document responseDoc = documentBuilder.parse(new BOMInputStream(responseContent));
+            XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
+            xmlPullParserFactory.setNamespaceAware(true);
+            XmlPullParser xmlPullParser = xmlPullParserFactory.newPullParser();
+            xmlPullParser.setInput(new InputStreamReader(new BOMInputStream(responseContent)));
             
-            Element reservedIPsSequenceElement = XmlUtility.getElementByTagNameNS(responseDoc, "http://schemas.microsoft.com/windowsazure", "ReservedIPs");
-            if (reservedIPsSequenceElement != null) {
-                for (int i1 = 0; i1 < com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(reservedIPsSequenceElement, "http://schemas.microsoft.com/windowsazure", "ReservedIP").size(); i1 = i1 + 1) {
-                    org.w3c.dom.Element reservedIPsElement = ((org.w3c.dom.Element) com.microsoft.windowsazure.core.utils.XmlUtility.getElementsByTagNameNS(reservedIPsSequenceElement, "http://schemas.microsoft.com/windowsazure", "ReservedIP").get(i1));
-                    NetworkReservedIPListResponse.ReservedIP reservedIPInstance = new NetworkReservedIPListResponse.ReservedIP();
-                    result.getReservedIPs().add(reservedIPInstance);
-                    
-                    Element nameElement = XmlUtility.getElementByTagNameNS(reservedIPsElement, "http://schemas.microsoft.com/windowsazure", "Name");
-                    if (nameElement != null) {
-                        String nameInstance;
-                        nameInstance = nameElement.getTextContent();
-                        reservedIPInstance.setName(nameInstance);
-                    }
-                    
-                    Element addressElement = XmlUtility.getElementByTagNameNS(reservedIPsElement, "http://schemas.microsoft.com/windowsazure", "Address");
-                    if (addressElement != null) {
-                        InetAddress addressInstance;
-                        addressInstance = InetAddress.getByName(addressElement.getTextContent());
-                        reservedIPInstance.setAddress(addressInstance);
-                    }
-                    
-                    Element idElement = XmlUtility.getElementByTagNameNS(reservedIPsElement, "http://schemas.microsoft.com/windowsazure", "Id");
-                    if (idElement != null) {
-                        String idInstance;
-                        idInstance = idElement.getTextContent();
-                        reservedIPInstance.setId(idInstance);
-                    }
-                    
-                    Element labelElement = XmlUtility.getElementByTagNameNS(reservedIPsElement, "http://schemas.microsoft.com/windowsazure", "Label");
-                    if (labelElement != null) {
-                        String labelInstance;
-                        labelInstance = labelElement.getTextContent();
-                        reservedIPInstance.setLabel(labelInstance);
-                    }
-                    
-                    Element stateElement = XmlUtility.getElementByTagNameNS(reservedIPsElement, "http://schemas.microsoft.com/windowsazure", "State");
-                    if (stateElement != null) {
-                        String stateInstance;
-                        stateInstance = stateElement.getTextContent();
-                        reservedIPInstance.setState(stateInstance);
-                    }
-                    
-                    Element inUseElement = XmlUtility.getElementByTagNameNS(reservedIPsElement, "http://schemas.microsoft.com/windowsazure", "InUse");
-                    if (inUseElement != null) {
-                        boolean inUseInstance;
-                        inUseInstance = DatatypeConverter.parseBoolean(inUseElement.getTextContent().toLowerCase());
-                        reservedIPInstance.setInUse(inUseInstance);
-                    }
-                    
-                    Element serviceNameElement = XmlUtility.getElementByTagNameNS(reservedIPsElement, "http://schemas.microsoft.com/windowsazure", "ServiceName");
-                    if (serviceNameElement != null) {
-                        String serviceNameInstance;
-                        serviceNameInstance = serviceNameElement.getTextContent();
-                        reservedIPInstance.setServiceName(serviceNameInstance);
-                    }
-                    
-                    Element deploymentNameElement = XmlUtility.getElementByTagNameNS(reservedIPsElement, "http://schemas.microsoft.com/windowsazure", "DeploymentName");
-                    if (deploymentNameElement != null) {
-                        String deploymentNameInstance;
-                        deploymentNameInstance = deploymentNameElement.getTextContent();
-                        reservedIPInstance.setDeploymentName(deploymentNameInstance);
-                    }
-                    
-                    Element locationElement = XmlUtility.getElementByTagNameNS(reservedIPsElement, "http://schemas.microsoft.com/windowsazure", "Location");
-                    if (locationElement != null) {
-                        String locationInstance;
-                        locationInstance = locationElement.getTextContent();
-                        reservedIPInstance.setLocation(locationInstance);
+            int eventType = xmlPullParser.getEventType();
+            while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
+                if (eventType == XmlPullParser.START_TAG && "ReservedIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                    while ((eventType == XmlPullParser.END_TAG && "ReservedIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                        if (eventType == XmlPullParser.START_TAG && "ReservedIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                            NetworkReservedIPListResponse.ReservedIP reservedIPInstance = new NetworkReservedIPListResponse.ReservedIP();
+                            result.getReservedIPs().add(reservedIPInstance);
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String nameInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        nameInstance = xmlPullParser.getText();
+                                        reservedIPInstance.setName(nameInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Address".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Address".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    InetAddress addressInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        addressInstance = InetAddress.getByName(xmlPullParser.getText());
+                                        reservedIPInstance.setAddress(addressInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String idInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        idInstance = xmlPullParser.getText();
+                                        reservedIPInstance.setId(idInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String labelInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        labelInstance = xmlPullParser.getText();
+                                        reservedIPInstance.setLabel(labelInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String stateInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        stateInstance = xmlPullParser.getText();
+                                        reservedIPInstance.setState(stateInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "InUse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "InUse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    boolean inUseInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        inUseInstance = DatatypeConverter.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                        reservedIPInstance.setInUse(inUseInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "ServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "ServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String serviceNameInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        serviceNameInstance = xmlPullParser.getText();
+                                        reservedIPInstance.setServiceName(serviceNameInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "DeploymentName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "DeploymentName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String deploymentNameInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        deploymentNameInstance = xmlPullParser.getText();
+                                        reservedIPInstance.setDeploymentName(deploymentNameInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                    String locationInstance;
+                                    if (eventType == XmlPullParser.TEXT) {
+                                        locationInstance = xmlPullParser.getText();
+                                        reservedIPInstance.setLocation(locationInstance);
+                                    }
+                                    
+                                    eventType = xmlPullParser.next();
+                                }
+                            }
+                            
+                            eventType = xmlPullParser.next();
+                        }
+                        
+                        eventType = xmlPullParser.next();
                     }
                 }
+                
+                eventType = xmlPullParser.next();
             }
             
             result.setStatusCode(statusCode);

@@ -36,6 +36,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.xml.sax.SAXException;
+import org.xmlpull.v1.XmlPullParserException;
 
 public class VirtualMachineOperationsTests extends ComputeManagementIntegrationTestBase {
 
@@ -134,7 +135,7 @@ public class VirtualMachineOperationsTests extends ComputeManagementIntegrationT
         Assert.assertNotNull(operationResponse.getRequestId());
     }
     
-    private static void createHostedService() throws InterruptedException, ExecutionException, ServiceException, IOException, ParserConfigurationException, SAXException, TransformerException, URISyntaxException {
+    private static void createHostedService() throws InterruptedException, ExecutionException, ServiceException, IOException, XmlPullParserException, ParserConfigurationException, SAXException, TransformerException, URISyntaxException {
         //hosted service required for vm deployment
         HostedServiceCreateParameters createParameters = new HostedServiceCreateParameters(); 
         //required
@@ -395,8 +396,7 @@ public class VirtualMachineOperationsTests extends ComputeManagementIntegrationT
             hostedServiceGetResponse = computeManagementClient.getHostedServicesOperations().get(hostedServiceName); 
         } catch (ServiceException e) {
         } catch (IOException e) {
-        } catch (ParserConfigurationException e) {
-        } catch (SAXException e) {
+        } catch (XmlPullParserException e) {
         } catch (URISyntaxException e) {
         }
         
@@ -421,8 +421,7 @@ public class VirtualMachineOperationsTests extends ComputeManagementIntegrationT
                 deploymentGetResponse = computeManagementClient.getDeploymentsOperations().getByName(hostedServiceName, deploymentName);
         } catch (ServiceException e) {
         } catch (IOException e) {
-        } catch (ParserConfigurationException e) {
-        } catch (SAXException e) {
+        } catch (XmlPullParserException e) {
         } catch (URISyntaxException e) {
         }
         

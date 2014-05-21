@@ -76,6 +76,14 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         return this.baseUri;
     }
     
+    /**
+    * The URI used as the base for all Service Management requests.
+    * @param baseUriValue The BaseUri value.
+    */
+    public void setBaseUri(final URI baseUriValue) {
+        this.baseUri = baseUriValue;
+    }
+    
     private SubscriptionCloudCredentials credentials;
     
     /**
@@ -89,6 +97,19 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
     */
     public SubscriptionCloudCredentials getCredentials() {
         return this.credentials;
+    }
+    
+    /**
+    * When you create an Azure subscription, it is uniquely identified by a
+    * subscription ID. The subscription ID forms part of the URI for every
+    * call that you make to the Service Management API. The Azure Service
+    * Management API uses mutual authentication of management certificates
+    * over SSL to ensure that a request made to the service is secure. No
+    * anonymous requests are allowed.
+    * @param credentialsValue The Credentials value.
+    */
+    public void setCredentials(final SubscriptionCloudCredentials credentialsValue) {
+        this.credentials = credentialsValue;
     }
     
     private ServerFarmOperations serverFarms;
@@ -267,7 +288,7 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
         URL serverAddress = new URL(url);
         HttpURLConnection httpRequest = ((HttpURLConnection) serverAddress.openConnection());
         httpRequest.setRequestMethod("GET");
-        httpRequest.setDoOutput(true);
+        httpRequest.setDoInput(true);
         
         // Set Headers
         httpRequest.setRequestProperty("x-ms-version", "2013-08-01");

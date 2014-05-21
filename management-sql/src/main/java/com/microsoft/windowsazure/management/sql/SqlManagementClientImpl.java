@@ -46,6 +46,14 @@ public class SqlManagementClientImpl extends ServiceClient<SqlManagementClient> 
         return this.baseUri;
     }
     
+    /**
+    * The URI used as the base for all SQL requests.
+    * @param baseUriValue The BaseUri value.
+    */
+    public void setBaseUri(final URI baseUriValue) {
+        this.baseUri = baseUriValue;
+    }
+    
     private SubscriptionCloudCredentials credentials;
     
     /**
@@ -59,6 +67,19 @@ public class SqlManagementClientImpl extends ServiceClient<SqlManagementClient> 
     */
     public SubscriptionCloudCredentials getCredentials() {
         return this.credentials;
+    }
+    
+    /**
+    * When you create an Azure subscription, it is uniquely identified by a
+    * subscription ID. The subscription ID forms part of the URI for every
+    * call that you make to the Service Management API.  The Azure Service
+    * ManagementAPIs use mutual authentication of management certificates over
+    * SSL to ensure that a request made to the service is secure.  No
+    * anonymous requests are allowed.
+    * @param credentialsValue The Credentials value.
+    */
+    public void setCredentials(final SubscriptionCloudCredentials credentialsValue) {
+        this.credentials = credentialsValue;
     }
     
     private DacOperations dac;
