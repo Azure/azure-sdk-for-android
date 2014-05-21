@@ -9,7 +9,7 @@
 	the specific language governing permissions and limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.microsoft.azure.storage"
+    package="com.microsoft.azure"
     android:versionCode="0"
     android:versionName="0.1.0" >
 
