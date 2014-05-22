@@ -1,6 +1,6 @@
 #Microsoft Azure SDK for Android
 
-This project provides a client library in Java that makes it easy to consume Microsoft Azure services from the Android platform. For documentation please see the [Microsoft Azure Java Developer Center](http://azure.microsoft.com/en-us/develop/java/).
+This project provides a client library that makes it easy to consume Microsoft Azure services from the Android platform. For documentation please see the [Microsoft Azure Java Developer Center](http://azure.microsoft.com/en-us/develop/java/).
 
 #Features
 
