@@ -36,7 +36,7 @@ android {
     buildToolsVersion "19.0.0"
     
     defaultConfig {
-        packageName "microsoft.azure.android.sdk"
+        packageName "microsoft.azure.android.core"
     }
         
     sourceSets {
