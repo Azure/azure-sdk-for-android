@@ -16,18 +16,18 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
-    <groupId>com.microsoft.windowsazure</groupId>
-    <artifactId>microsoft-azure-api-parent</artifactId>
+    <groupId>com.microsoft.azure</groupId>
+    <artifactId>microsoft-azure-android</artifactId>
     <version>0.5.0</version>
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
 
-  <artifactId>microsoft-azure-api-core-test</artifactId>
+  <artifactId>microsoft-azure-android-core-test</artifactId>
   <packaging>jar</packaging>
 
-  <name>Microsoft Azure Core Test Client API</name>
-  <description>API for Testing Microsoft Azure Clients</description>
-  <url>https://github.com/Azure/azure-sdk-for-java</url>
+  <name>Microsoft Windows Azure Core Test Client API</name>
+  <description>API for Testing Microsoft Windows Azure Clients</description>
+  <url>https://github.com/WindowsAzure/azure-sdk-for-java</url>
 
   <licenses>
     <license>
@@ -38,8 +38,8 @@
   </licenses>
 
   <scm>
-    <url>scm:git:https://github.com/Azure/azure-sdk-for-java</url>
-    <connection>scm:git:git://github.com/Azure/azure-sdk-for-java.git</connection>
+    <url>scm:git:https://github.com/WindowsAzure/azure-sdk-for-java</url>
+    <connection>scm:git:git://github.com/WindowsAzure/azure-sdk-for-java.git</connection>
   </scm>
 
   <properties>
@@ -57,27 +57,27 @@
   <dependencies>
     <dependency> 
       <groupId>${project.groupId}</groupId>
-      <artifactId>microsoft-azure-api-core</artifactId>
+      <artifactId>microsoft-azure-android-core</artifactId>
       <version>0.5.0</version>
     </dependency>
     <dependency> 
       <groupId>${project.groupId}</groupId>
-      <artifactId>microsoft-azure-api-management</artifactId>
+      <artifactId>microsoft-azure-android-management</artifactId>
       <version>0.5.0</version>
     </dependency>
     <dependency> 
       <groupId>${project.groupId}</groupId>
-      <artifactId>microsoft-azure-api-management-websites</artifactId>
+      <artifactId>microsoft-azure-android-management-websites</artifactId>
       <version>0.5.0</version>
     </dependency>
     <dependency> 
       <groupId>${project.groupId}</groupId>
-      <artifactId>microsoft-azure-api-management-storage</artifactId>
+      <artifactId>microsoft-azure-android-management-storage</artifactId>
       <version>0.5.0</version>
     </dependency>
     <dependency> 
       <groupId>${project.groupId}</groupId>
-      <artifactId>microsoft-azure-api-management-sql</artifactId>
+      <artifactId>microsoft-azure-android-management-sql</artifactId>
       <version>0.5.0</version>
     </dependency>
 

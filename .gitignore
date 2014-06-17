@@ -40,3 +40,7 @@ target
 
 # Windows #
 Thumbs.db
+
+# Android #
+*/bin/
+*/gen/
