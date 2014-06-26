@@ -49,7 +49,6 @@ public class VirtualMachineDiskOperationsTests extends ComputeManagementIntegrat
         //create a new storage account for vm .vhd storage.
         createStorageAccount(storageAccountName, storageContainer);
         uploadFileToBlob(storageAccountName, storageContainer, vhdfileName, filePath);
-        createDisk();
     }
 
     public static void cleanup() {

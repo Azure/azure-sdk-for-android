@@ -21,12 +21,8 @@ import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Random;
 
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.parsers.ParserConfigurationException;
-
 import junit.framework.Assert;
 
-import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParserException;
 
 import com.microsoft.azure.*;
@@ -42,9 +38,12 @@ import com.microsoft.azure.management.storage.StorageManagementService;
 import com.microsoft.azure.management.storage.models.StorageAccountCreateParameters;
 import com.microsoft.azure.management.storage.models.StorageAccountGetKeysResponse;
 import com.microsoft.azure.management.storage.models.StorageAccountGetResponse;
-import com.microsoft.windowsazure.storage.CloudStorageAccount;
-import com.microsoft.windowsazure.storage.StorageException;
-import com.microsoft.windowsazure.storage.blob.*;
+import com.microsoft.azure.storage.CloudStorageAccount;
+import com.microsoft.azure.storage.StorageException;
+import com.microsoft.azure.storage.blob.CloudBlobClient;
+import com.microsoft.azure.storage.blob.CloudBlobContainer;
+import com.microsoft.azure.storage.blob.CloudPageBlob;
+import com.microsoft.azure.storage.blob.ListBlobItem;
 
 public abstract class ComputeManagementIntegrationTestBase {
     protected static String testVMPrefix = "aztst";
