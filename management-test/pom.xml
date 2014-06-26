@@ -23,7 +23,7 @@
   </parent>
 
   <artifactId>microsoft-azure-android-management-test</artifactId>
-  <packaging>apk</packaging>
+  <packaging>aar</packaging>
 
   <name>Microsoft Windows Azure Management Client API tests</name>
   <description>Windows Azure Management SDK Clients</description>

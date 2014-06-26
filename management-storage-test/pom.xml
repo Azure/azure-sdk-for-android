@@ -23,7 +23,7 @@
   </parent>
 
   <artifactId>microsoft-azure-android-management-storage-test</artifactId>
-  <packaging>apk</packaging>
+  <packaging>aar</packaging>
 
   <name>Microsoft Windows Azure Storage Management Client API tests</name>
   <description>Windows Azure Storage Management SDK Clients</description>
