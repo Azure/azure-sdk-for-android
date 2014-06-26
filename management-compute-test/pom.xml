@@ -86,7 +86,6 @@
       <groupId>com.microsoft.windowsazure.storage</groupId>
       <artifactId>microsoft-windowsazure-storage-sdk</artifactId>
       <version>1.0.0</version>
-      <scope>apk</scope>
     </dependency>
     <dependency>
       <groupId>org.hamcrest</groupId>
