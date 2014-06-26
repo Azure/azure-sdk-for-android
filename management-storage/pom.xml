@@ -23,7 +23,7 @@
   </parent>
 
   <artifactId>microsoft-azure-android-management-storage</artifactId>
-  <packaging>apk</packaging>
+  <packaging>aar</packaging>
 
   <name>Microsoft Windows Azure Storage Management Client API</name>
   <description>Windows Azure Storage Management SDK Clients</description>
@@ -62,6 +62,7 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>microsoft-azure-android-core</artifactId>
       <version>0.5.0</version>
+      <type>aar</type>
     </dependency>
     <dependency>
       <groupId>com.google.android</groupId>
@@ -71,6 +72,23 @@
   </dependencies>
   <build>
     <plugins>
+      <plugin>
+        <groupId>com.jayway.maven.plugins.android.generation2</groupId>
+        <artifactId>android-maven-plugin</artifactId>
+        <version>3.8.2</version>
+        <extensions>true</extensions>
+        <configuration>
+          <androidManifestFile>${project.basedir}/AndroidManifest.xml</androidManifestFile>
+          <assetsDirectory>${project.basedir}/assets</assetsDirectory>
+          <resourceDirectory>${project.basedir}/res</resourceDirectory>
+          <deleteConflictingFiles>true</deleteConflictingFiles>
+          <undeployBeforeDeploy>true</undeployBeforeDeploy>
+          <sdk>
+            <platform>18</platform>
+          </sdk>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-help-plugin</artifactId>
