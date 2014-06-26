@@ -23,7 +23,6 @@
   </parent>
 
   <artifactId>microsoft-azure-android-core-test</artifactId>
-  <packaging>jar</packaging>
 
   <name>Microsoft Windows Azure Core Test Client API</name>
   <description>API for Testing Microsoft Windows Azure Clients</description>

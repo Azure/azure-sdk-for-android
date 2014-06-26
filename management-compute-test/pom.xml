@@ -23,7 +23,6 @@
   </parent>
 
   <artifactId>microsoft-azure-android-management-compute-test</artifactId>
-  <packaging>aar</packaging>
 
   <name>Microsoft Windows Azure Compute Management Client API tests</name>
   <description>Windows Azure Compute Management SDK Clients</description>

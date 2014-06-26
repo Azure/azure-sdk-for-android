@@ -23,7 +23,6 @@
   </parent>
 
   <artifactId>microsoft-azure-android-management-network-test</artifactId>
-  <packaging>aar</packaging>
 
   <name>Microsoft Windows Azure Network Management Client API tests</name>
   <description>Windows Azure Network Management SDK Clients</description>

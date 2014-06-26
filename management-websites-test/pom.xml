@@ -23,7 +23,6 @@
   </parent>
 
   <artifactId>microsoft-azure-android-management-websites-test</artifactId>
-  <packaging>aar</packaging>
 
   <name>Microsoft Windows Azure Website Management Client API tests</name>
   <description>Windows Azure Website Management SDK Clients</description>

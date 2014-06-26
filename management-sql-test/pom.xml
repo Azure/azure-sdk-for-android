@@ -23,7 +23,6 @@
   </parent>
 
   <artifactId>microsoft-azure-android-management-sql-test</artifactId>
-  <packaging>aar</packaging>
 
   <name>Microsoft Windows Azure SQL Management Client API tests</name>
   <description>Windows Azure SQL Management SDK Clients</description>
