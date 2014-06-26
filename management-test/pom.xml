@@ -60,11 +60,13 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>microsoft-azure-android-core</artifactId>
       <version>0.5.0</version>
+      <type>aar</type>
     </dependency>
     <dependency> 
       <groupId>${project.groupId}</groupId>
       <artifactId>microsoft-azure-android-management</artifactId>
       <version>0.5.0</version>
+      <type>aar</type>
     </dependency>
     <dependency>
       <groupId>com.google.android</groupId>
