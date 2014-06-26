@@ -19,7 +19,7 @@
 
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="com.microsoft.azure.management.websites" />
+        android:targetPackage="com.microsoft.azure.management.websites.test" />
 
     <application>
         <uses-library android:name="android.test.runner" />

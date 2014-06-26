@@ -21,7 +21,7 @@
     
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="com.microsoft.azure.management.storage" />
+        android:targetPackage="com.microsoft.azure.management.storage.test" />
 
     <application>
         <uses-library android:name="android.test.runner" />

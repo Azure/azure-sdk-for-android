@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.microsoft.azure.management.sql"
+    package="com.microsoft.azure.management.sql.test"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -11,7 +11,7 @@
 
     <instrumentation
         android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="com.microsoft.azure.management.sql" />
+        android:targetPackage="com.microsoft.azure.management.sql.test" />
 
     <application>
         <uses-library android:name="android.test.runner" />
