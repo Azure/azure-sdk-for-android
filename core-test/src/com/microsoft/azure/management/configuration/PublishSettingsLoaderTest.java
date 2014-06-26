@@ -14,8 +14,11 @@
  */
 package com.microsoft.azure.management.configuration;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import junit.framework.TestCase;
 
@@ -43,7 +46,15 @@ public class PublishSettingsLoaderTest extends TestCase {
     public void testShouldCreateManagementConfigurationFromVersion1()
             throws Exception {
         // Arrange
-        String file = getClass().getResource("v1.publishsettings").getFile();
+    	InputStream input = getClass().getResourceAsStream("/Assets/v1.publishsettings");
+    	BufferedReader r = new BufferedReader(new InputStreamReader(input));
+    	StringBuilder total = new StringBuilder();
+    	String line;
+    	while ((line = r.readLine()) != null) {
+    	    total.append(line);
+    	}
+    	
+        String file = total.toString();
         String expectedKeyStoreLocation = System.getProperty("user.home") + File.separator
                 + ".azure" + File.separator + "1234.out";
 
