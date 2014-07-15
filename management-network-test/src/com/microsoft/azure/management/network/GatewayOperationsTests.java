@@ -30,7 +30,8 @@ import junit.framework.Assert;
 import org.xmlpull.v1.XmlPullParserException;
 
 public class GatewayOperationsTests extends NetworkManagementIntegrationTestBase {
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         createService();
         networkOperations = networkManagementClient.getNetworksOperations();
         gatewayOperations = networkManagementClient.getGatewaysOperations();
@@ -39,7 +40,8 @@ public class GatewayOperationsTests extends NetworkManagementIntegrationTestBase
         createNetwork(testNetworkName);
     }
 
-    public static void cleanup() {
+    @Override
+    public void tearDown() {
         deleteNetwork(testNetworkName);
         
         try {

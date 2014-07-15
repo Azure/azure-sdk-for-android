@@ -15,8 +15,6 @@
 
 package com.microsoft.azure.core.utils;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -82,7 +80,7 @@ public final class SSLContextFactory {
             String keyStorePassword, KeyStoreType keyStoreType)
             throws GeneralSecurityException, IOException {
 
-        if ((keyStorePath == null) || (keyStorePath.isEmpty())) {
+        if (keyStorePath == null) {
             throw new IllegalArgumentException(
                     "The keystore path cannot be null or empty.");
         }
@@ -92,9 +90,8 @@ public final class SSLContextFactory {
                     "The type of the keystore cannot be null");
         }
 
-        InputStream keyStoreInputStream = new FileInputStream(new File(
-                keyStorePath));
-
+        InputStream keyStoreInputStream = SSLContextFactory.class.getResourceAsStream(keyStorePath);
+        
         SSLContext sslContext = SSLContext.getInstance("TLS");
 
         // Using bouncy castle only in case of java6 and if keystore is having

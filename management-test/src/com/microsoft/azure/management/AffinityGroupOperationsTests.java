@@ -37,9 +37,10 @@ public class AffinityGroupOperationsTests extends ManagementIntegrationTestBase 
     private static final String affinityGroupDescription1 = "testAffinityGroupDescription1";
     private static final String affinityGroupDescription2 = "testAffinityGroupDescription2";
 
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         createService();
-        cleanup();
+        tearDown();
         
         AffinityGroupCreateParameters createParameters = new AffinityGroupCreateParameters();
         createParameters.setName(affinityGroupName1);        
@@ -50,7 +51,8 @@ public class AffinityGroupOperationsTests extends ManagementIntegrationTestBase 
         managementClient.getAffinityGroupsOperations().create(createParameters);
     }
 
-    public static void cleanup() throws Exception {
+    @Override
+    public void tearDown() throws Exception {
         try {
              AffinityGroupListResponse affinityGroupListResponse = managementClient.getAffinityGroupsOperations().list();
              ArrayList<AffinityGroupListResponse.AffinityGroup> affinityGrouplist = affinityGroupListResponse.getAffinityGroups();

@@ -4,8 +4,9 @@ import junit.framework.Assert;
 
 import com.microsoft.azure.management.models.LocationsListResponse;
 
-public class LocationOperationsTest  extends ManagementIntegrationTestBase {
-    public static void setup() throws Exception {
+public class LocationOperationsTests  extends ManagementIntegrationTestBase {
+    @Override
+    public void setUp() throws Exception {
         createService();
     }
 

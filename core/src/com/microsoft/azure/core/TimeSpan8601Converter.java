@@ -19,6 +19,8 @@ import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.Duration;
 
+import com.microsoft.azure.core.datatype.DatatypeFactoryImpl;
+
 public abstract class TimeSpan8601Converter {
     public static String format(Duration duration) {
         return duration.toString();
@@ -26,7 +28,7 @@ public abstract class TimeSpan8601Converter {
 
     public static Duration parse(String duration) {
         try {
-            DatatypeFactory factory = DatatypeFactory.newInstance();
+            DatatypeFactory factory = DatatypeFactoryImpl.newInstance();
             return factory.newDuration(duration);
         } catch (DatatypeConfigurationException e) {
             String msg = String.format(

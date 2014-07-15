@@ -123,6 +123,7 @@ public class RoleSizeOperationsImpl implements ServiceOperations<ManagementClien
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -165,119 +166,123 @@ public class RoleSizeOperationsImpl implements ServiceOperations<ManagementClien
                             RoleSizeListResponse.RoleSize roleSizeInstance = new RoleSizeListResponse.RoleSize();
                             result.getRoleSizes().add(roleSizeInstance);
                             
-                            if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String nameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        nameInstance = xmlPullParser.getText();
-                                        roleSizeInstance.setName(nameInstance);
+                            while ((eventType == XmlPullParser.END_TAG && "RoleSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String nameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            nameInstance = xmlPullParser.getText();
+                                            roleSizeInstance.setName(nameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String labelInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        labelInstance = xmlPullParser.getText();
-                                        roleSizeInstance.setLabel(labelInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String labelInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            labelInstance = xmlPullParser.getText();
+                                            roleSizeInstance.setLabel(labelInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Cores".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Cores".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    int coresInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        coresInstance = Integer.parseInt(xmlPullParser.getText());
-                                        roleSizeInstance.setCores(coresInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Cores".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Cores".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        int coresInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            coresInstance = Integer.parseInt(xmlPullParser.getText());
+                                            roleSizeInstance.setCores(coresInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "MemoryInMb".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "MemoryInMb".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    int memoryInMbInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        memoryInMbInstance = Integer.parseInt(xmlPullParser.getText());
-                                        roleSizeInstance.setMemoryInMb(memoryInMbInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "MemoryInMb".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "MemoryInMb".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        int memoryInMbInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            memoryInMbInstance = Integer.parseInt(xmlPullParser.getText());
+                                            roleSizeInstance.setMemoryInMb(memoryInMbInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "SupportedByWebWorkerRoles".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "SupportedByWebWorkerRoles".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    boolean supportedByWebWorkerRolesInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        supportedByWebWorkerRolesInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
-                                        roleSizeInstance.setSupportedByWebWorkerRoles(supportedByWebWorkerRolesInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "SupportedByWebWorkerRoles".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "SupportedByWebWorkerRoles".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        boolean supportedByWebWorkerRolesInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            supportedByWebWorkerRolesInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                            roleSizeInstance.setSupportedByWebWorkerRoles(supportedByWebWorkerRolesInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "SupportedByVirtualMachines".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "SupportedByVirtualMachines".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    boolean supportedByVirtualMachinesInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        supportedByVirtualMachinesInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
-                                        roleSizeInstance.setSupportedByVirtualMachines(supportedByVirtualMachinesInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "SupportedByVirtualMachines".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "SupportedByVirtualMachines".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        boolean supportedByVirtualMachinesInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            supportedByVirtualMachinesInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                            roleSizeInstance.setSupportedByVirtualMachines(supportedByVirtualMachinesInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "MaxDataDiskCount".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "MaxDataDiskCount".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    int maxDataDiskCountInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        maxDataDiskCountInstance = Integer.parseInt(xmlPullParser.getText());
-                                        roleSizeInstance.setMaxDataDiskCount(maxDataDiskCountInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "MaxDataDiskCount".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "MaxDataDiskCount".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        int maxDataDiskCountInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            maxDataDiskCountInstance = Integer.parseInt(xmlPullParser.getText());
+                                            roleSizeInstance.setMaxDataDiskCount(maxDataDiskCountInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "WebWorkerResourceDiskSizeInMb".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "WebWorkerResourceDiskSizeInMb".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    int webWorkerResourceDiskSizeInMbInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        webWorkerResourceDiskSizeInMbInstance = Integer.parseInt(xmlPullParser.getText());
-                                        roleSizeInstance.setWebWorkerResourceDiskSizeInMb(webWorkerResourceDiskSizeInMbInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "WebWorkerResourceDiskSizeInMb".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "WebWorkerResourceDiskSizeInMb".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        int webWorkerResourceDiskSizeInMbInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            webWorkerResourceDiskSizeInMbInstance = Integer.parseInt(xmlPullParser.getText());
+                                            roleSizeInstance.setWebWorkerResourceDiskSizeInMb(webWorkerResourceDiskSizeInMbInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "VirtualMachineResourceDiskSizeInMb".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "VirtualMachineResourceDiskSizeInMb".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    int virtualMachineResourceDiskSizeInMbInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        virtualMachineResourceDiskSizeInMbInstance = Integer.parseInt(xmlPullParser.getText());
-                                        roleSizeInstance.setVirtualMachineResourceDiskSizeInMb(virtualMachineResourceDiskSizeInMbInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "VirtualMachineResourceDiskSizeInMb".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "VirtualMachineResourceDiskSizeInMb".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        int virtualMachineResourceDiskSizeInMbInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            virtualMachineResourceDiskSizeInMbInstance = Integer.parseInt(xmlPullParser.getText());
+                                            roleSizeInstance.setVirtualMachineResourceDiskSizeInMb(virtualMachineResourceDiskSizeInMbInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
                     }
+                    
+                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();

@@ -26,6 +26,7 @@ package com.microsoft.azure.management.sql;
 import android.util.Xml;
 import com.microsoft.azure.AzureHttpStatus;
 import com.microsoft.azure.core.ServiceOperations;
+import com.microsoft.azure.core.datatype.DatatypeFactoryImpl;
 import com.microsoft.azure.core.utils.BOMInputStream;
 import com.microsoft.azure.exception.ServiceException;
 import com.microsoft.azure.management.sql.models.RestoreDatabaseOperation;
@@ -47,7 +48,6 @@ import java.util.TimeZone;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -153,6 +153,7 @@ public class RestoreDatabaseOperationsImpl implements ServiceOperations<SqlManag
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -267,6 +268,13 @@ public class RestoreDatabaseOperationsImpl implements ServiceOperations<SqlManag
                         
                         if (eventType == XmlPullParser.START_TAG && "SourceDatabaseDeletionDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "SourceDatabaseDeletionDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                Calendar sourceDatabaseDeletionDateInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    sourceDatabaseDeletionDateInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                    serviceResourceInstance.setSourceDatabaseDeletionDate(sourceDatabaseDeletionDateInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -298,7 +306,7 @@ public class RestoreDatabaseOperationsImpl implements ServiceOperations<SqlManag
                             while ((eventType == XmlPullParser.END_TAG && "TargetUtcPointInTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 Calendar targetUtcPointInTimeInstance;
                                 if (eventType == XmlPullParser.TEXT) {
-                                    targetUtcPointInTimeInstance = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                    targetUtcPointInTimeInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
                                     serviceResourceInstance.setPointInTime(targetUtcPointInTimeInstance);
                                 }
                                 

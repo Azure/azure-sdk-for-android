@@ -148,6 +148,7 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -279,6 +280,7 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -440,6 +442,7 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -534,6 +537,7 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -576,83 +580,87 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
                             Server serverInstance = new Server();
                             result.getServers().add(serverInstance);
                             
-                            if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {
-                                    String nameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        nameInstance = xmlPullParser.getText();
-                                        serverInstance.setName(nameInstance);
+                            while ((eventType == XmlPullParser.END_TAG && "Server".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {
+                                        String nameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            nameInstance = xmlPullParser.getText();
+                                            serverInstance.setName(nameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "AdministratorLogin".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "AdministratorLogin".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {
-                                    String administratorLoginInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        administratorLoginInstance = xmlPullParser.getText();
-                                        serverInstance.setAdministratorUserName(administratorLoginInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "AdministratorLogin".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "AdministratorLogin".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {
+                                        String administratorLoginInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            administratorLoginInstance = xmlPullParser.getText();
+                                            serverInstance.setAdministratorUserName(administratorLoginInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {
-                                    String locationInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        locationInstance = xmlPullParser.getText();
-                                        serverInstance.setLocation(locationInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {
+                                        String locationInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            locationInstance = xmlPullParser.getText();
+                                            serverInstance.setLocation(locationInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "FullyQualifiedDomainName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "FullyQualifiedDomainName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {
-                                    String fullyQualifiedDomainNameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        fullyQualifiedDomainNameInstance = xmlPullParser.getText();
-                                        serverInstance.setFullyQualifiedDomainName(fullyQualifiedDomainNameInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "FullyQualifiedDomainName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "FullyQualifiedDomainName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {
+                                        String fullyQualifiedDomainNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            fullyQualifiedDomainNameInstance = xmlPullParser.getText();
+                                            serverInstance.setFullyQualifiedDomainName(fullyQualifiedDomainNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {
-                                    String stateInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        stateInstance = xmlPullParser.getText();
-                                        serverInstance.setState(stateInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {
+                                        String stateInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            stateInstance = xmlPullParser.getText();
+                                            serverInstance.setState(stateInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Version".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Version".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {
-                                    String versionInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        versionInstance = xmlPullParser.getText();
-                                        serverInstance.setVersion(versionInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Version".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Version".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {
+                                        String versionInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            versionInstance = xmlPullParser.getText();
+                                            serverInstance.setVersion(versionInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
                     }
+                    
+                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();

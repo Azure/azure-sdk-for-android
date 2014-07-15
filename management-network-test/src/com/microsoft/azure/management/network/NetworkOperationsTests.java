@@ -36,7 +36,8 @@ import com.microsoft.azure.management.network.models.*;
 import org.w3c.dom.Document;
 
 public class NetworkOperationsTests extends NetworkManagementIntegrationTestBase {
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         createService(); 
         networkOperations = networkManagementClient.getNetworksOperations();
     }

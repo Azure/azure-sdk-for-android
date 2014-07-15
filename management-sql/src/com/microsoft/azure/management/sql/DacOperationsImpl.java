@@ -26,6 +26,7 @@ package com.microsoft.azure.management.sql;
 import android.util.Xml;
 import com.microsoft.azure.AzureHttpStatus;
 import com.microsoft.azure.core.ServiceOperations;
+import com.microsoft.azure.core.datatype.DatatypeFactoryImpl;
 import com.microsoft.azure.core.utils.BOMInputStream;
 import com.microsoft.azure.exception.ServiceException;
 import com.microsoft.azure.management.sql.models.DacExportParameters;
@@ -51,7 +52,6 @@ import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -172,6 +172,7 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -396,6 +397,7 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -440,119 +442,123 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
                                     StatusInfo statusInfoInstance = new StatusInfo();
                                     result.getStatusInfoList().add(statusInfoInstance);
                                     
-                                    if (eventType == XmlPullParser.START_TAG && "BlobUri".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "BlobUri".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            URI blobUriInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                blobUriInstance = new URI(xmlPullParser.getText());
-                                                statusInfoInstance.setBlobUri(blobUriInstance);
+                                    while ((eventType == XmlPullParser.END_TAG && "StatusInfo".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                        if (eventType == XmlPullParser.START_TAG && "BlobUri".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "BlobUri".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                URI blobUriInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    blobUriInstance = new URI(xmlPullParser.getText());
+                                                    statusInfoInstance.setBlobUri(blobUriInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "DatabaseName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "DatabaseName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            String databaseNameInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                databaseNameInstance = xmlPullParser.getText();
-                                                statusInfoInstance.setDatabaseName(databaseNameInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "DatabaseName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "DatabaseName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                String databaseNameInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    databaseNameInstance = xmlPullParser.getText();
+                                                    statusInfoInstance.setDatabaseName(databaseNameInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "ErrorMessage".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "ErrorMessage".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            String errorMessageInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                errorMessageInstance = xmlPullParser.getText();
-                                                statusInfoInstance.setErrorMessage(errorMessageInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "ErrorMessage".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "ErrorMessage".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                String errorMessageInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    errorMessageInstance = xmlPullParser.getText();
+                                                    statusInfoInstance.setErrorMessage(errorMessageInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "LastModifiedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "LastModifiedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            Calendar lastModifiedTimeInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                lastModifiedTimeInstance = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
-                                                statusInfoInstance.setLastModifiedTime(lastModifiedTimeInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "LastModifiedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "LastModifiedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                Calendar lastModifiedTimeInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    lastModifiedTimeInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                                    statusInfoInstance.setLastModifiedTime(lastModifiedTimeInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "QueuedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "QueuedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            Calendar queuedTimeInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                queuedTimeInstance = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
-                                                statusInfoInstance.setQueuedTime(queuedTimeInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "QueuedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "QueuedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                Calendar queuedTimeInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    queuedTimeInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                                    statusInfoInstance.setQueuedTime(queuedTimeInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "RequestId".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "RequestId".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            String requestIdInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                requestIdInstance = xmlPullParser.getText();
-                                                statusInfoInstance.setRequestId(requestIdInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "RequestId".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "RequestId".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                String requestIdInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    requestIdInstance = xmlPullParser.getText();
+                                                    statusInfoInstance.setRequestId(requestIdInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "RequestType".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "RequestType".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            String requestTypeInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                requestTypeInstance = xmlPullParser.getText();
-                                                statusInfoInstance.setRequestType(requestTypeInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "RequestType".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "RequestType".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                String requestTypeInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    requestTypeInstance = xmlPullParser.getText();
+                                                    statusInfoInstance.setRequestType(requestTypeInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "ServerName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "ServerName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            String serverNameInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                serverNameInstance = xmlPullParser.getText();
-                                                statusInfoInstance.setServerName(serverNameInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "ServerName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "ServerName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                String serverNameInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    serverNameInstance = xmlPullParser.getText();
+                                                    statusInfoInstance.setServerName(serverNameInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            String statusInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                statusInstance = xmlPullParser.getText();
-                                                statusInfoInstance.setStatus(statusInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                String statusInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    statusInstance = xmlPullParser.getText();
+                                                    statusInfoInstance.setStatus(statusInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
                                 
                                 eventType = xmlPullParser.next();
                             }
+                            
+                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
@@ -664,6 +670,7 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -741,119 +748,123 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
                                     StatusInfo statusInfoInstance = new StatusInfo();
                                     result.getStatusInfoList().add(statusInfoInstance);
                                     
-                                    if (eventType == XmlPullParser.START_TAG && "BlobUri".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "BlobUri".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            URI blobUriInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                blobUriInstance = new URI(xmlPullParser.getText());
-                                                statusInfoInstance.setBlobUri(blobUriInstance);
+                                    while ((eventType == XmlPullParser.END_TAG && "StatusInfo".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                        if (eventType == XmlPullParser.START_TAG && "BlobUri".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "BlobUri".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                URI blobUriInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    blobUriInstance = new URI(xmlPullParser.getText());
+                                                    statusInfoInstance.setBlobUri(blobUriInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "DatabaseName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "DatabaseName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            String databaseNameInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                databaseNameInstance = xmlPullParser.getText();
-                                                statusInfoInstance.setDatabaseName(databaseNameInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "DatabaseName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "DatabaseName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                String databaseNameInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    databaseNameInstance = xmlPullParser.getText();
+                                                    statusInfoInstance.setDatabaseName(databaseNameInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "ErrorMessage".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "ErrorMessage".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            String errorMessageInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                errorMessageInstance = xmlPullParser.getText();
-                                                statusInfoInstance.setErrorMessage(errorMessageInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "ErrorMessage".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "ErrorMessage".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                String errorMessageInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    errorMessageInstance = xmlPullParser.getText();
+                                                    statusInfoInstance.setErrorMessage(errorMessageInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "LastModifiedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "LastModifiedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            Calendar lastModifiedTimeInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                lastModifiedTimeInstance = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
-                                                statusInfoInstance.setLastModifiedTime(lastModifiedTimeInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "LastModifiedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "LastModifiedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                Calendar lastModifiedTimeInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    lastModifiedTimeInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                                    statusInfoInstance.setLastModifiedTime(lastModifiedTimeInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "QueuedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "QueuedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            Calendar queuedTimeInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                queuedTimeInstance = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
-                                                statusInfoInstance.setQueuedTime(queuedTimeInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "QueuedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "QueuedTime".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                Calendar queuedTimeInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    queuedTimeInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                                    statusInfoInstance.setQueuedTime(queuedTimeInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "RequestId".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "RequestId".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            String requestIdInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                requestIdInstance = xmlPullParser.getText();
-                                                statusInfoInstance.setRequestId(requestIdInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "RequestId".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "RequestId".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                String requestIdInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    requestIdInstance = xmlPullParser.getText();
+                                                    statusInfoInstance.setRequestId(requestIdInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "RequestType".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "RequestType".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            String requestTypeInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                requestTypeInstance = xmlPullParser.getText();
-                                                statusInfoInstance.setRequestType(requestTypeInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "RequestType".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "RequestType".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                String requestTypeInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    requestTypeInstance = xmlPullParser.getText();
+                                                    statusInfoInstance.setRequestType(requestTypeInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "ServerName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "ServerName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            String serverNameInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                serverNameInstance = xmlPullParser.getText();
-                                                statusInfoInstance.setServerName(serverNameInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "ServerName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "ServerName".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                String serverNameInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    serverNameInstance = xmlPullParser.getText();
+                                                    statusInfoInstance.setServerName(serverNameInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
-                                            String statusInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                statusInstance = xmlPullParser.getText();
-                                                statusInfoInstance.setStatus(statusInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
+                                                String statusInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    statusInstance = xmlPullParser.getText();
+                                                    statusInfoInstance.setStatus(statusInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
                                 
                                 eventType = xmlPullParser.next();
                             }
+                            
+                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
@@ -889,7 +900,7 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
     * or export operation has been initiated.
     */
     @Override
-    public Future<DacImportExportResponse> importDatabaseAsync(final String serverName, final DacImportParameters parameters) {
+    public Future<DacImportExportResponse> importAsync(final String serverName, final DacImportParameters parameters) {
         return this.getClient().getExecutorService().submit(new Callable<DacImportExportResponse>() { 
             @Override
             public DacImportExportResponse call() throws Exception {
@@ -969,6 +980,7 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);

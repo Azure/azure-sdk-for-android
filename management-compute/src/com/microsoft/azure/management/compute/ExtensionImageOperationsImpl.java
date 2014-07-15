@@ -50,6 +50,7 @@ import java.util.TimeZone;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.xml.datatype.DatatypeConfigurationException;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlSerializer;
 
@@ -190,6 +191,7 @@ public class ExtensionImageOperationsImpl implements ServiceOperations<ComputeMa
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -549,6 +551,7 @@ public class ExtensionImageOperationsImpl implements ServiceOperations<ComputeMa
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -702,6 +705,7 @@ public class ExtensionImageOperationsImpl implements ServiceOperations<ComputeMa
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -1270,6 +1274,7 @@ public class ExtensionImageOperationsImpl implements ServiceOperations<ComputeMa
     * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
+    * @throws DatatypeConfigurationException Invalid datatype configuration
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -1280,7 +1285,7 @@ public class ExtensionImageOperationsImpl implements ServiceOperations<ComputeMa
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse update(ExtensionImageUpdateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException {
+    public OperationStatusResponse update(ExtensionImageUpdateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException, DatatypeConfigurationException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;

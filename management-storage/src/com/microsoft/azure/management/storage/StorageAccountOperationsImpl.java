@@ -29,10 +29,12 @@ import com.microsoft.azure.core.OperationResponse;
 import com.microsoft.azure.core.OperationStatus;
 import com.microsoft.azure.core.OperationStatusResponse;
 import com.microsoft.azure.core.ServiceOperations;
+import com.microsoft.azure.core.datatype.DatatypeFactoryImpl;
 import com.microsoft.azure.core.utils.BOMInputStream;
 import com.microsoft.azure.core.utils.Base64;
 import com.microsoft.azure.exception.ServiceException;
 import com.microsoft.azure.management.storage.models.CheckNameAvailabilityResponse;
+import com.microsoft.azure.management.storage.models.GeoRegionStatus;
 import com.microsoft.azure.management.storage.models.StorageAccount;
 import com.microsoft.azure.management.storage.models.StorageAccountCreateParameters;
 import com.microsoft.azure.management.storage.models.StorageAccountGetKeysResponse;
@@ -55,11 +57,13 @@ import java.net.ProtocolException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.xml.datatype.DatatypeConfigurationException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -185,6 +189,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -362,6 +367,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -619,6 +625,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -696,10 +703,11 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
+    * @throws DatatypeConfigurationException Invalid datatype configuration
     * @return The Get Storage Account Properties operation response.
     */
     @Override
-    public StorageAccountGetResponse get(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException {
+    public StorageAccountGetResponse get(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException, DatatypeConfigurationException {
         // Validate
         if (accountName == null) {
             throw new NullPointerException("accountName");
@@ -726,6 +734,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -892,11 +901,25 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
                                 
                                 if (eventType == XmlPullParser.START_TAG && "StatusOfPrimary".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "StatusOfPrimary".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        GeoRegionStatus statusOfPrimaryInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            statusOfPrimaryInstance = GeoRegionStatus.valueOf(xmlPullParser.getText());
+                                            storageServicePropertiesInstance.setStatusOfGeoPrimaryRegion(statusOfPrimaryInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
                                 }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "LastGeoFailoverTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "LastGeoFailoverTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        Calendar lastGeoFailoverTimeInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            lastGeoFailoverTimeInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                            storageServicePropertiesInstance.setLastGeoFailoverTime(lastGeoFailoverTimeInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
                                 }
                                 
@@ -914,6 +937,13 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
                                 
                                 if (eventType == XmlPullParser.START_TAG && "StatusOfSecondary".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "StatusOfSecondary".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        GeoRegionStatus statusOfSecondaryInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            statusOfSecondaryInstance = GeoRegionStatus.valueOf(xmlPullParser.getText());
+                                            storageServicePropertiesInstance.setStatusOfGeoSecondaryRegion(statusOfSecondaryInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
                                 }
                                 
@@ -1043,6 +1073,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -1175,10 +1206,11 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
     * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
+    * @throws DatatypeConfigurationException Invalid datatype configuration
     * @return The List Storage Accounts operation response.
     */
     @Override
-    public StorageAccountListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException {
+    public StorageAccountListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException, DatatypeConfigurationException {
         // Validate
         
         // Tracing
@@ -1201,6 +1233,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -1243,201 +1276,226 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
                             StorageAccount storageServiceInstance = new StorageAccount();
                             result.getStorageAccounts().add(storageServiceInstance);
                             
-                            if (eventType == XmlPullParser.START_TAG && "Url".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Url".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    URI urlInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        urlInstance = new URI(xmlPullParser.getText());
-                                        storageServiceInstance.setUri(urlInstance);
+                            while ((eventType == XmlPullParser.END_TAG && "StorageService".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "Url".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Url".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        URI urlInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            urlInstance = new URI(xmlPullParser.getText());
+                                            storageServiceInstance.setUri(urlInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "ServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "ServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String serviceNameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        serviceNameInstance = xmlPullParser.getText();
-                                        storageServiceInstance.setName(serviceNameInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "ServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "ServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String serviceNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            serviceNameInstance = xmlPullParser.getText();
+                                            storageServiceInstance.setName(serviceNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "StorageServiceProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "StorageServiceProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    StorageAccountProperties storageServicePropertiesInstance = new StorageAccountProperties();
-                                    storageServiceInstance.setProperties(storageServicePropertiesInstance);
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            String descriptionInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                descriptionInstance = xmlPullParser.getText();
-                                                storageServicePropertiesInstance.setDescription(descriptionInstance);
-                                            }
-                                            
-                                            eventType = xmlPullParser.next();
-                                        }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            String affinityGroupInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                affinityGroupInstance = xmlPullParser.getText();
-                                                storageServicePropertiesInstance.setAffinityGroup(affinityGroupInstance);
-                                            }
-                                            
-                                            eventType = xmlPullParser.next();
-                                        }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            String locationInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                locationInstance = xmlPullParser.getText();
-                                                storageServicePropertiesInstance.setLocation(locationInstance);
-                                            }
-                                            
-                                            eventType = xmlPullParser.next();
-                                        }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            String labelInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                labelInstance = xmlPullParser.getText() != null ? new String(Base64.decode(xmlPullParser.getText())) : null;
-                                                storageServicePropertiesInstance.setLabel(labelInstance);
-                                            }
-                                            
-                                            eventType = xmlPullParser.next();
-                                        }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            StorageAccountStatus statusInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                statusInstance = StorageAccountStatus.valueOf(xmlPullParser.getText());
-                                                storageServicePropertiesInstance.setStatus(statusInstance);
-                                            }
-                                            
-                                            eventType = xmlPullParser.next();
-                                        }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "Endpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "Endpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                storageServicePropertiesInstance.getEndpoints().add(new URI(xmlPullParser.getText()));
-                                            }
-                                            
-                                            eventType = xmlPullParser.next();
-                                        }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "GeoReplicationEnabled".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "GeoReplicationEnabled".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            boolean geoReplicationEnabledInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                geoReplicationEnabledInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
-                                                storageServicePropertiesInstance.setGeoReplicationEnabled(geoReplicationEnabledInstance);
-                                            }
-                                            
-                                            eventType = xmlPullParser.next();
-                                        }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "GeoPrimaryRegion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "GeoPrimaryRegion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            String geoPrimaryRegionInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                geoPrimaryRegionInstance = xmlPullParser.getText();
-                                                storageServicePropertiesInstance.setGeoPrimaryRegion(geoPrimaryRegionInstance);
-                                            }
-                                            
-                                            eventType = xmlPullParser.next();
-                                        }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "StatusOfPrimary".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "StatusOfPrimary".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                        }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "LastGeoFailoverTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "LastGeoFailoverTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                        }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "GeoSecondaryRegion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "GeoSecondaryRegion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            String geoSecondaryRegionInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                geoSecondaryRegionInstance = xmlPullParser.getText();
-                                                storageServicePropertiesInstance.setGeoSecondaryRegion(geoSecondaryRegionInstance);
-                                            }
-                                            
-                                            eventType = xmlPullParser.next();
-                                        }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "StatusOfSecondary".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "StatusOfSecondary".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                        }
-                                    }
-                                    
-                                    eventType = xmlPullParser.next();
-                                }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "ExtendedProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "ExtendedProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    if (eventType == XmlPullParser.START_TAG && "ExtendedProperty".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "ExtendedProperty".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            String key = null;
-                                            String value = null;
-                                            if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                    if (eventType == XmlPullParser.TEXT) {
-                                                        key = xmlPullParser.getText();
-                                                    }
-                                                    
-                                                    eventType = xmlPullParser.next();
+                                
+                                if (eventType == XmlPullParser.START_TAG && "StorageServiceProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "StorageServiceProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        StorageAccountProperties storageServicePropertiesInstance = new StorageAccountProperties();
+                                        storageServiceInstance.setProperties(storageServicePropertiesInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                String descriptionInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    descriptionInstance = xmlPullParser.getText();
+                                                    storageServicePropertiesInstance.setDescription(descriptionInstance);
                                                 }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            else if (eventType == XmlPullParser.START_TAG && "Value".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                while ((eventType == XmlPullParser.END_TAG && "Value".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                    if (eventType == XmlPullParser.TEXT) {
-                                                        value = xmlPullParser.getText();
-                                                    }
-                                                    
-                                                    eventType = xmlPullParser.next();
-                                                }
-                                            }
-                                            if (key != null && value != null) {
-                                                storageServiceInstance.getExtendedProperties().put(key, xmlPullParser.getText());
-                                            }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                String affinityGroupInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    affinityGroupInstance = xmlPullParser.getText();
+                                                    storageServicePropertiesInstance.setAffinityGroup(affinityGroupInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                String locationInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    locationInstance = xmlPullParser.getText();
+                                                    storageServicePropertiesInstance.setLocation(locationInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                String labelInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    labelInstance = xmlPullParser.getText() != null ? new String(Base64.decode(xmlPullParser.getText())) : null;
+                                                    storageServicePropertiesInstance.setLabel(labelInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                StorageAccountStatus statusInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    statusInstance = StorageAccountStatus.valueOf(xmlPullParser.getText());
+                                                    storageServicePropertiesInstance.setStatus(statusInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "Endpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Endpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    storageServicePropertiesInstance.getEndpoints().add(new URI(xmlPullParser.getText()));
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "GeoReplicationEnabled".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "GeoReplicationEnabled".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                boolean geoReplicationEnabledInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    geoReplicationEnabledInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                                    storageServicePropertiesInstance.setGeoReplicationEnabled(geoReplicationEnabledInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "GeoPrimaryRegion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "GeoPrimaryRegion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                String geoPrimaryRegionInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    geoPrimaryRegionInstance = xmlPullParser.getText();
+                                                    storageServicePropertiesInstance.setGeoPrimaryRegion(geoPrimaryRegionInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "StatusOfPrimary".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "StatusOfPrimary".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                GeoRegionStatus statusOfPrimaryInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    statusOfPrimaryInstance = GeoRegionStatus.valueOf(xmlPullParser.getText());
+                                                    storageServicePropertiesInstance.setStatusOfGeoPrimaryRegion(statusOfPrimaryInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "LastGeoFailoverTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "LastGeoFailoverTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                Calendar lastGeoFailoverTimeInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    lastGeoFailoverTimeInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                                    storageServicePropertiesInstance.setLastGeoFailoverTime(lastGeoFailoverTimeInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "GeoSecondaryRegion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "GeoSecondaryRegion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                String geoSecondaryRegionInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    geoSecondaryRegionInstance = xmlPullParser.getText();
+                                                    storageServicePropertiesInstance.setGeoSecondaryRegion(geoSecondaryRegionInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "StatusOfSecondary".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "StatusOfSecondary".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                GeoRegionStatus statusOfSecondaryInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    statusOfSecondaryInstance = GeoRegionStatus.valueOf(xmlPullParser.getText());
+                                                    storageServicePropertiesInstance.setStatusOfGeoSecondaryRegion(statusOfSecondaryInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "ExtendedProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "ExtendedProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        if (eventType == XmlPullParser.START_TAG && "ExtendedProperty".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "ExtendedProperty".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                String key = null;
+                                                String value = null;
+                                                if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            key = xmlPullParser.getText();
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                else if (eventType == XmlPullParser.START_TAG && "Value".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                                    while ((eventType == XmlPullParser.END_TAG && "Value".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                        if (eventType == XmlPullParser.TEXT) {
+                                                            value = xmlPullParser.getText();
+                                                        }
+                                                        
+                                                        eventType = xmlPullParser.next();
+                                                    }
+                                                }
+                                                if (key != null && value != null) {
+                                                    storageServiceInstance.getExtendedProperties().put(key, xmlPullParser.getText());
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
                     }
+                    
+                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();
@@ -1527,6 +1585,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -1735,6 +1794,7 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);

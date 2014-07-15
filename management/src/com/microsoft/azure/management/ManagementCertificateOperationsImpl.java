@@ -27,6 +27,7 @@ import android.util.Xml;
 import com.microsoft.azure.AzureHttpStatus;
 import com.microsoft.azure.core.OperationResponse;
 import com.microsoft.azure.core.ServiceOperations;
+import com.microsoft.azure.core.datatype.DatatypeFactoryImpl;
 import com.microsoft.azure.core.utils.BOMInputStream;
 import com.microsoft.azure.core.utils.Base64;
 import com.microsoft.azure.exception.ServiceException;
@@ -48,7 +49,6 @@ import java.util.HashMap;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -152,6 +152,7 @@ public class ManagementCertificateOperationsImpl implements ServiceOperations<Ma
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -297,6 +298,7 @@ public class ManagementCertificateOperationsImpl implements ServiceOperations<Ma
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -411,6 +413,7 @@ public class ManagementCertificateOperationsImpl implements ServiceOperations<Ma
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -489,7 +492,7 @@ public class ManagementCertificateOperationsImpl implements ServiceOperations<Ma
                             while ((eventType == XmlPullParser.END_TAG && "Created".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 Calendar createdInstance;
                                 if (eventType == XmlPullParser.TEXT) {
-                                    createdInstance = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                    createdInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
                                     result.setCreated(createdInstance);
                                 }
                                 
@@ -582,6 +585,7 @@ public class ManagementCertificateOperationsImpl implements ServiceOperations<Ma
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -624,59 +628,63 @@ public class ManagementCertificateOperationsImpl implements ServiceOperations<Ma
                             ManagementCertificateListResponse.SubscriptionCertificate subscriptionCertificateInstance = new ManagementCertificateListResponse.SubscriptionCertificate();
                             result.getSubscriptionCertificates().add(subscriptionCertificateInstance);
                             
-                            if (eventType == XmlPullParser.START_TAG && "SubscriptionCertificatePublicKey".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "SubscriptionCertificatePublicKey".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    byte[] subscriptionCertificatePublicKeyInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        subscriptionCertificatePublicKeyInstance = xmlPullParser.getText() != null ? Base64.decode(xmlPullParser.getText()) : null;
-                                        subscriptionCertificateInstance.setPublicKey(subscriptionCertificatePublicKeyInstance);
+                            while ((eventType == XmlPullParser.END_TAG && "SubscriptionCertificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "SubscriptionCertificatePublicKey".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "SubscriptionCertificatePublicKey".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        byte[] subscriptionCertificatePublicKeyInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            subscriptionCertificatePublicKeyInstance = xmlPullParser.getText() != null ? Base64.decode(xmlPullParser.getText()) : null;
+                                            subscriptionCertificateInstance.setPublicKey(subscriptionCertificatePublicKeyInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "SubscriptionCertificateThumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "SubscriptionCertificateThumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String subscriptionCertificateThumbprintInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        subscriptionCertificateThumbprintInstance = xmlPullParser.getText();
-                                        subscriptionCertificateInstance.setThumbprint(subscriptionCertificateThumbprintInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "SubscriptionCertificateThumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "SubscriptionCertificateThumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String subscriptionCertificateThumbprintInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            subscriptionCertificateThumbprintInstance = xmlPullParser.getText();
+                                            subscriptionCertificateInstance.setThumbprint(subscriptionCertificateThumbprintInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "SubscriptionCertificateData".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "SubscriptionCertificateData".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    byte[] subscriptionCertificateDataInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        subscriptionCertificateDataInstance = xmlPullParser.getText() != null ? Base64.decode(xmlPullParser.getText()) : null;
-                                        subscriptionCertificateInstance.setData(subscriptionCertificateDataInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "SubscriptionCertificateData".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "SubscriptionCertificateData".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        byte[] subscriptionCertificateDataInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            subscriptionCertificateDataInstance = xmlPullParser.getText() != null ? Base64.decode(xmlPullParser.getText()) : null;
+                                            subscriptionCertificateInstance.setData(subscriptionCertificateDataInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Created".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Created".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    Calendar createdInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        createdInstance = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
-                                        subscriptionCertificateInstance.setCreated(createdInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Created".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Created".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        Calendar createdInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            createdInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                            subscriptionCertificateInstance.setCreated(createdInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
                     }
+                    
+                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();

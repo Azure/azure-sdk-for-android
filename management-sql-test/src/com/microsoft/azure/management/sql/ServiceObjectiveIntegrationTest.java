@@ -37,14 +37,16 @@ public class ServiceObjectiveIntegrationTest extends SqlManagementIntegrationTes
     private static List<String> serverToBeRemoved = new ArrayList<String>();
     private static ServiceObjectiveOperations serviceObjectivesOperations;
 
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         createService();
         databaseOperations = sqlManagementClient.getDatabasesOperations();
         serverOperations = sqlManagementClient.getServersOperations();
         serviceObjectivesOperations = sqlManagementClient.getServiceObjectivesOperations();
     }
 
-    public static void cleanup() throws Exception {
+    @Override
+    public void tearDown() throws Exception {
         for (String databaseName : databaseToBeRemoved.keySet()) {
             String serverName = databaseToBeRemoved.get(databaseName);
             try {

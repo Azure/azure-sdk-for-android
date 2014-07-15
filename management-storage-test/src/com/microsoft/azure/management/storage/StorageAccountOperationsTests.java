@@ -20,6 +20,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+
 import junit.framework.Assert;
 
 import com.microsoft.azure.core.OperationResponse;
@@ -33,17 +35,20 @@ public class StorageAccountOperationsTests extends StorageManagementIntegrationT
     //need to create your own storage account and create container there to store VM images 
     private static String storageAccountName; 
 
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         storageAccountName = testStorageAccountPrefix + randomString(10);
         createService();
         createStorageAccount(); 
     }
 
-    public static void cleanup() {       
+    @Override
+    public void tearDown() {       
         StorageAccountListResponse storageServiceListResponse = null;
         try {
             storageServiceListResponse = storageManagementClient.getStorageAccountsOperations().list();
         } catch (IOException e) {
+        } catch (DatatypeConfigurationException e) {
         } catch (ServiceException e) {
         } catch (XmlPullParserException e) {
         } catch (URISyntaxException e) {

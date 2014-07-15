@@ -164,6 +164,7 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -317,6 +318,7 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -417,6 +419,7 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
     * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
+    * @throws DatatypeConfigurationException Invalid datatype configuration
     * @return The response body contains the status of the specified
     * asynchronous operation, indicating whether it has succeeded, is
     * inprogress, or has failed. Note that this status is distinct from the
@@ -427,7 +430,7 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
     * the failed request and error information regarding the failure.
     */
     @Override
-    public OperationStatusResponse create(String serviceName, ServiceCertificateCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException {
+    public OperationStatusResponse create(String serviceName, ServiceCertificateCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException, DatatypeConfigurationException {
         ComputeManagementClient client2 = this.getClient();
         boolean shouldTrace = CloudTracing.getIsEnabled();
         String invocationId = null;
@@ -678,6 +681,7 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -816,6 +820,7 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -858,59 +863,63 @@ public class ServiceCertificateOperationsImpl implements ServiceOperations<Compu
                             ServiceCertificateListResponse.Certificate certificateInstance = new ServiceCertificateListResponse.Certificate();
                             result.getCertificates().add(certificateInstance);
                             
-                            if (eventType == XmlPullParser.START_TAG && "CertificateUrl".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "CertificateUrl".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    URI certificateUrlInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        certificateUrlInstance = new URI(xmlPullParser.getText());
-                                        certificateInstance.setCertificateUri(certificateUrlInstance);
+                            while ((eventType == XmlPullParser.END_TAG && "Certificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "CertificateUrl".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "CertificateUrl".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        URI certificateUrlInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            certificateUrlInstance = new URI(xmlPullParser.getText());
+                                            certificateInstance.setCertificateUri(certificateUrlInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Thumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Thumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String thumbprintInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        thumbprintInstance = xmlPullParser.getText();
-                                        certificateInstance.setThumbprint(thumbprintInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Thumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Thumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String thumbprintInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            thumbprintInstance = xmlPullParser.getText();
+                                            certificateInstance.setThumbprint(thumbprintInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "ThumbprintAlgorithm".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "ThumbprintAlgorithm".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String thumbprintAlgorithmInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        thumbprintAlgorithmInstance = xmlPullParser.getText();
-                                        certificateInstance.setThumbprintAlgorithm(thumbprintAlgorithmInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "ThumbprintAlgorithm".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "ThumbprintAlgorithm".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String thumbprintAlgorithmInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            thumbprintAlgorithmInstance = xmlPullParser.getText();
+                                            certificateInstance.setThumbprintAlgorithm(thumbprintAlgorithmInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    byte[] dataInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        dataInstance = xmlPullParser.getText() != null ? Base64.decode(xmlPullParser.getText()) : null;
-                                        certificateInstance.setData(dataInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        byte[] dataInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            dataInstance = xmlPullParser.getText() != null ? Base64.decode(xmlPullParser.getText()) : null;
+                                            certificateInstance.setData(dataInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
                     }
+                    
+                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();

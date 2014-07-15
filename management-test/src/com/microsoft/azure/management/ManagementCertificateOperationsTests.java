@@ -8,7 +8,8 @@ import com.microsoft.azure.management.models.ManagementCertificateGetResponse;
 import com.microsoft.azure.management.models.ManagementCertificateListResponse;
 
 public class ManagementCertificateOperationsTests extends ManagementIntegrationTestBase {
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         createService();       
     }
     

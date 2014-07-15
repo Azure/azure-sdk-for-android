@@ -38,13 +38,15 @@ import com.microsoft.azure.management.sql.models.FirewallRuleUpdateResponse;
 public class FirewallRuleOperationsIntegrationTest extends SqlManagementIntegrationTestBase {
     private static FirewallRuleOperations firewallRuleOperations;
 
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         createService();
         firewallRuleOperations = sqlManagementClient.getFirewallRulesOperations();
         serverOperations = sqlManagementClient.getServersOperations();
     }
 
-    public static void cleanup() {
+    @Override
+    public void tearDown() {
         for (String firewallRuleName : firewallRuleToBeRemoved.keySet()) {
             String serverName = firewallRuleToBeRemoved.get(firewallRuleName);
             try {

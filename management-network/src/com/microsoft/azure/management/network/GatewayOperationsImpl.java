@@ -26,6 +26,7 @@ package com.microsoft.azure.management.network;
 import android.util.Xml;
 import com.microsoft.azure.AzureHttpStatus;
 import com.microsoft.azure.core.ServiceOperations;
+import com.microsoft.azure.core.datatype.DatatypeFactoryImpl;
 import com.microsoft.azure.core.utils.BOMInputStream;
 import com.microsoft.azure.core.utils.StreamUtils;
 import com.microsoft.azure.exception.ServiceException;
@@ -64,7 +65,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -182,6 +182,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -355,6 +356,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -512,6 +514,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -648,6 +651,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -808,6 +812,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -983,6 +988,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -1623,6 +1629,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -1783,6 +1790,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -1854,7 +1862,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
                                     while ((eventType == XmlPullParser.END_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                         Calendar timestampInstance;
                                         if (eventType == XmlPullParser.TEXT) {
-                                            timestampInstance = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                            timestampInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
                                             lastEventInstance.setTimestamp(timestampInstance);
                                         }
                                         
@@ -2017,6 +2025,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -2141,6 +2150,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -2342,6 +2352,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -2481,6 +2492,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -2523,138 +2535,142 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
                             GatewayListConnectionsResponse.GatewayConnection connectionInstance = new GatewayListConnectionsResponse.GatewayConnection();
                             result.getConnections().add(connectionInstance);
                             
-                            if (eventType == XmlPullParser.START_TAG && "LocalNetworkSiteName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "LocalNetworkSiteName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String localNetworkSiteNameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        localNetworkSiteNameInstance = xmlPullParser.getText();
-                                        connectionInstance.setLocalNetworkSiteName(localNetworkSiteNameInstance);
-                                    }
-                                    
-                                    eventType = xmlPullParser.next();
-                                }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "ConnectivityState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "ConnectivityState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    GatewayConnectivityState connectivityStateInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        connectivityStateInstance = GatewayConnectivityState.valueOf(xmlPullParser.getText());
-                                        connectionInstance.setConnectivityState(connectivityStateInstance);
-                                    }
-                                    
-                                    eventType = xmlPullParser.next();
-                                }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "LastEvent".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "LastEvent".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    GatewayEvent lastEventInstance = new GatewayEvent();
-                                    connectionInstance.setLastEvent(lastEventInstance);
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            Calendar timestampInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                timestampInstance = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
-                                                lastEventInstance.setTimestamp(timestampInstance);
-                                            }
-                                            
-                                            eventType = xmlPullParser.next();
+                            while ((eventType == XmlPullParser.END_TAG && "Connection".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "LocalNetworkSiteName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "LocalNetworkSiteName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String localNetworkSiteNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            localNetworkSiteNameInstance = xmlPullParser.getText();
+                                            connectionInstance.setLocalNetworkSiteName(localNetworkSiteNameInstance);
                                         }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            String idInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                idInstance = xmlPullParser.getText();
-                                                lastEventInstance.setId(idInstance);
-                                            }
-                                            
-                                            eventType = xmlPullParser.next();
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "ConnectivityState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "ConnectivityState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        GatewayConnectivityState connectivityStateInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            connectivityStateInstance = GatewayConnectivityState.valueOf(xmlPullParser.getText());
+                                            connectionInstance.setConnectivityState(connectivityStateInstance);
                                         }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            String messageInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                messageInstance = xmlPullParser.getText();
-                                                lastEventInstance.setMessage(messageInstance);
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "LastEvent".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "LastEvent".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        GatewayEvent lastEventInstance = new GatewayEvent();
+                                        connectionInstance.setLastEvent(lastEventInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                Calendar timestampInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    timestampInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                                    lastEventInstance.setTimestamp(timestampInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            String dataInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                dataInstance = xmlPullParser.getText();
-                                                lastEventInstance.setData(dataInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                String idInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    idInstance = xmlPullParser.getText();
+                                                    lastEventInstance.setId(idInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                String messageInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    messageInstance = xmlPullParser.getText();
+                                                    lastEventInstance.setMessage(messageInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                String dataInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    dataInstance = xmlPullParser.getText();
+                                                    lastEventInstance.setData(dataInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "IngressBytesTransferred".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "IngressBytesTransferred".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    long ingressBytesTransferredInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        ingressBytesTransferredInstance = Long.parseLong(xmlPullParser.getText());
-                                        connectionInstance.setIngressBytesTransferred(ingressBytesTransferredInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "IngressBytesTransferred".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "IngressBytesTransferred".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        long ingressBytesTransferredInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            ingressBytesTransferredInstance = Long.parseLong(xmlPullParser.getText());
+                                            connectionInstance.setIngressBytesTransferred(ingressBytesTransferredInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "EgressBytesTransferred".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "EgressBytesTransferred".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    long egressBytesTransferredInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        egressBytesTransferredInstance = Long.parseLong(xmlPullParser.getText());
-                                        connectionInstance.setEgressBytesTransferred(egressBytesTransferredInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "EgressBytesTransferred".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "EgressBytesTransferred".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        long egressBytesTransferredInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            egressBytesTransferredInstance = Long.parseLong(xmlPullParser.getText());
+                                            connectionInstance.setEgressBytesTransferred(egressBytesTransferredInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "LastConnectionEstablished".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "LastConnectionEstablished".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    Calendar lastConnectionEstablishedInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        lastConnectionEstablishedInstance = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
-                                        connectionInstance.setLastConnectionEstablished(lastConnectionEstablishedInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "LastConnectionEstablished".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "LastConnectionEstablished".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        Calendar lastConnectionEstablishedInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            lastConnectionEstablishedInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                            connectionInstance.setLastConnectionEstablished(lastConnectionEstablishedInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "AllocatedIPAddresses".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "AllocatedIPAddresses".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        connectionInstance.getAllocatedIPAddresses().add(xmlPullParser.getText());
+                                
+                                if (eventType == XmlPullParser.START_TAG && "AllocatedIPAddresses".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "AllocatedIPAddresses".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            connectionInstance.getAllocatedIPAddresses().add(xmlPullParser.getText());
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
                     }
+                    
+                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();
@@ -2731,6 +2747,7 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -2780,32 +2797,45 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
                                 if (eventType == XmlPullParser.START_TAG && "Vendor".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
                                     GatewayListSupportedDevicesResponse.Vendor vendorInstance = new GatewayListSupportedDevicesResponse.Vendor();
                                     result.getVendors().add(vendorInstance);
-                                    for (int i2 = 0; i2 < xmlPullParser.getAttributeCount(); i2 = i2 + 1) {
-                                        if ("name".equals(xmlPullParser.getAttributeName(i2)) && "".equals(xmlPullParser.getAttributeNamespace(i2))) {
-                                            vendorInstance.setName(xmlPullParser.getAttributeValue(i2));
-                                        }
-                                    }
                                     
-                                    if (eventType == XmlPullParser.START_TAG && "Platforms".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "Platforms".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
-                                            if (eventType == XmlPullParser.START_TAG && "Platform".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
-                                                GatewayListSupportedDevicesResponse.Platform platformInstance = new GatewayListSupportedDevicesResponse.Platform();
-                                                vendorInstance.getPlatforms().add(platformInstance);
-                                                for (int i3 = 0; i3 < xmlPullParser.getAttributeCount(); i3 = i3 + 1) {
-                                                    if ("name".equals(xmlPullParser.getAttributeName(i3)) && "".equals(xmlPullParser.getAttributeNamespace(i3))) {
-                                                        platformInstance.setName(xmlPullParser.getAttributeValue(i3));
-                                                    }
-                                                }
-                                                
-                                                if (eventType == XmlPullParser.START_TAG && "OSFamilies".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
-                                                    while ((eventType == XmlPullParser.END_TAG && "OSFamilies".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
-                                                        if (eventType == XmlPullParser.START_TAG && "OSFamily".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
-                                                            GatewayListSupportedDevicesResponse.OSFamily oSFamilyInstance = new GatewayListSupportedDevicesResponse.OSFamily();
-                                                            platformInstance.getOSFamilies().add(oSFamilyInstance);
-                                                            for (int i4 = 0; i4 < xmlPullParser.getAttributeCount(); i4 = i4 + 1) {
-                                                                if ("name".equals(xmlPullParser.getAttributeName(i4)) && "".equals(xmlPullParser.getAttributeNamespace(i4))) {
-                                                                    oSFamilyInstance.setName(xmlPullParser.getAttributeValue(i4));
+                                    while ((eventType == XmlPullParser.END_TAG && "Vendor".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
+                                        for (int i2 = 0; i2 < xmlPullParser.getAttributeCount(); i2 = i2 + 1) {
+                                            if ("name".equals(xmlPullParser.getAttributeName(i2)) && "".equals(xmlPullParser.getAttributeNamespace(i2))) {
+                                                vendorInstance.setName(xmlPullParser.getAttributeValue(i2));
+                                            }
+                                        }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "Platforms".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Platforms".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
+                                                if (eventType == XmlPullParser.START_TAG && "Platform".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
+                                                    GatewayListSupportedDevicesResponse.Platform platformInstance = new GatewayListSupportedDevicesResponse.Platform();
+                                                    vendorInstance.getPlatforms().add(platformInstance);
+                                                    
+                                                    while ((eventType == XmlPullParser.END_TAG && "Platform".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
+                                                        for (int i3 = 0; i3 < xmlPullParser.getAttributeCount(); i3 = i3 + 1) {
+                                                            if ("name".equals(xmlPullParser.getAttributeName(i3)) && "".equals(xmlPullParser.getAttributeNamespace(i3))) {
+                                                                platformInstance.setName(xmlPullParser.getAttributeValue(i3));
+                                                            }
+                                                        }
+                                                        
+                                                        if (eventType == XmlPullParser.START_TAG && "OSFamilies".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
+                                                            while ((eventType == XmlPullParser.END_TAG && "OSFamilies".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
+                                                                if (eventType == XmlPullParser.START_TAG && "OSFamily".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
+                                                                    GatewayListSupportedDevicesResponse.OSFamily oSFamilyInstance = new GatewayListSupportedDevicesResponse.OSFamily();
+                                                                    platformInstance.getOSFamilies().add(oSFamilyInstance);
+                                                                    
+                                                                    while ((eventType == XmlPullParser.END_TAG && "OSFamily".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
+                                                                        for (int i4 = 0; i4 < xmlPullParser.getAttributeCount(); i4 = i4 + 1) {
+                                                                            if ("name".equals(xmlPullParser.getAttributeName(i4)) && "".equals(xmlPullParser.getAttributeNamespace(i4))) {
+                                                                                oSFamilyInstance.setName(xmlPullParser.getAttributeValue(i4));
+                                                                            }
+                                                                        }
+                                                                        
+                                                                        eventType = xmlPullParser.next();
+                                                                    }
                                                                 }
+                                                                
+                                                                eventType = xmlPullParser.next();
                                                             }
                                                             
                                                             eventType = xmlPullParser.next();
@@ -2820,13 +2850,15 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
                                             
                                             eventType = xmlPullParser.next();
                                         }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
                                 
                                 eventType = xmlPullParser.next();
                             }
+                            
+                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();

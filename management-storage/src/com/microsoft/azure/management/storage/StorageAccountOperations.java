@@ -40,6 +40,7 @@ import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.xml.datatype.DatatypeConfigurationException;
 import org.xmlpull.v1.XmlPullParserException;
 
 /**
@@ -207,9 +208,10 @@ public interface StorageAccountOperations {
     * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
+    * @throws DatatypeConfigurationException Invalid datatype configuration
     * @return The Get Storage Account Properties operation response.
     */
-    StorageAccountGetResponse get(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException;
+    StorageAccountGetResponse get(String accountName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException, DatatypeConfigurationException;
     
     /**
     * The Get Storage Account Properties operation returns system properties
@@ -269,9 +271,10 @@ public interface StorageAccountOperations {
     * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
+    * @throws DatatypeConfigurationException Invalid datatype configuration
     * @return The List Storage Accounts operation response.
     */
-    StorageAccountListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException;
+    StorageAccountListResponse list() throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, URISyntaxException, DatatypeConfigurationException;
     
     /**
     * The List Storage Accounts operation lists the storage accounts available

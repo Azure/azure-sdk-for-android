@@ -32,12 +32,14 @@ import com.microsoft.azure.management.websites.models.WebSpacesListResponse;
 import com.microsoft.azure.management.websites.models.WebSpacesListWebSitesResponse;
 
 public class WebSpaceOperationsTests extends WebSiteManagementIntegrationTestBase {
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         createService();
-        cleanup();
+        tearDown();
     }
 
-    public static void cleanup() throws Exception {
+    @Override
+    public void tearDown() throws Exception {
         String webSpaceName = "northcentraluswebspace"; 
         try {
             webSiteManagementClient.getServerFarmsOperations().delete(webSpaceName);
