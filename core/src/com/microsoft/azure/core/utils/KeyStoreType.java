@@ -27,7 +27,9 @@ public enum KeyStoreType {
     /** The jks. */
     jks,
     /** The pkcs12. */
-    pkcs12;
+    pkcs12,
+    
+    bks;
     
     public static KeyStoreType fromString(String keyStoreTypeString) {
         if (keyStoreTypeString != null) {
@@ -37,6 +39,8 @@ public enum KeyStoreType {
                 return KeyStoreType.jks;
             } else if (keyStoreTypeString.equals("pkcs12")) {
                 return KeyStoreType.pkcs12;
+            } else if (keyStoreTypeString.equals("bks")) {
+                return KeyStoreType.bks;
             } else {
                 throw new InvalidParameterException(String.format("keyStoreTypeString value %s cannot be recognized.", keyStoreTypeString));
             }

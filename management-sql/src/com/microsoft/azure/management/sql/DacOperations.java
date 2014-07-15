@@ -196,5 +196,5 @@ public interface DacOperations {
     * @return Represents the response that the service returns once an import
     * or export operation has been initiated.
     */
-    Future<DacImportExportResponse> importDatabaseAsync(String serverName, DacImportParameters parameters);
+    Future<DacImportExportResponse> importAsync(String serverName, DacImportParameters parameters);
 }

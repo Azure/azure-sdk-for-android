@@ -38,13 +38,15 @@ public class WebSiteOperationsTests extends WebSiteManagementIntegrationTestBase
     private static String webSpaceName = WebSpaceNames.NORTHEUROPEWEBSPACE; 
     private static String hostName = ".azurewebsites.net";
     
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         createService();
-        cleanup();
+        tearDown();
         createWebSite();
     }
 
-    public static void cleanup() {
+    @Override
+    public void tearDown() {
         WebSiteListParameters  webSiteListParameters = new  WebSiteListParameters();
         ArrayList<String> propertiesToInclude = new ArrayList<String>();
         webSiteListParameters.setPropertiesToInclude(propertiesToInclude);

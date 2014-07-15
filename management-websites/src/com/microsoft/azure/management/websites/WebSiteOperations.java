@@ -341,9 +341,10 @@ public interface WebSiteOperations {
     * occurred
     * @throws XmlPullParserException This exception is thrown to signal XML
     * Pull Parser related faults.
+    * @throws DatatypeConfigurationException Invalid datatype configuration
     * @return The Get Configuration Web Site operation response.
     */
-    WebSiteGetConfigurationResponse getConfiguration(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException;
+    WebSiteGetConfigurationResponse getConfiguration(String webSpaceName, String webSiteName) throws MalformedURLException, ProtocolException, ServiceException, IOException, XmlPullParserException, DatatypeConfigurationException;
     
     /**
     * You can retrieve the config settings for a web site by issuing an HTTP

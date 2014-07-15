@@ -130,6 +130,7 @@ public class LocationOperationsImpl implements ServiceOperations<ManagementClien
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -172,74 +173,78 @@ public class LocationOperationsImpl implements ServiceOperations<ManagementClien
                             LocationsListResponse.Location locationInstance = new LocationsListResponse.Location();
                             result.getLocations().add(locationInstance);
                             
-                            if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String nameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        nameInstance = xmlPullParser.getText();
-                                        locationInstance.setName(nameInstance);
-                                    }
-                                    
-                                    eventType = xmlPullParser.next();
-                                }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "DisplayName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "DisplayName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String displayNameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        displayNameInstance = xmlPullParser.getText();
-                                        locationInstance.setDisplayName(displayNameInstance);
-                                    }
-                                    
-                                    eventType = xmlPullParser.next();
-                                }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "AvailableServices".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "AvailableServices".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        locationInstance.getAvailableServices().add(xmlPullParser.getText());
-                                    }
-                                    
-                                    eventType = xmlPullParser.next();
-                                }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "ComputeCapabilities".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "ComputeCapabilities".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    ComputeCapabilities computeCapabilitiesInstance = new ComputeCapabilities();
-                                    locationInstance.setComputeCapabilities(computeCapabilitiesInstance);
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "VirtualMachinesRoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "VirtualMachinesRoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                computeCapabilitiesInstance.getVirtualMachinesRoleSizes().add(xmlPullParser.getText());
-                                            }
-                                            
-                                            eventType = xmlPullParser.next();
+                            while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String nameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            nameInstance = xmlPullParser.getText();
+                                            locationInstance.setName(nameInstance);
                                         }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "WebWorkerRoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "WebWorkerRoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                computeCapabilitiesInstance.getWebWorkerRoleSizes().add(xmlPullParser.getText());
-                                            }
-                                            
-                                            eventType = xmlPullParser.next();
-                                        }
-                                    }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "DisplayName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "DisplayName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String displayNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            displayNameInstance = xmlPullParser.getText();
+                                            locationInstance.setDisplayName(displayNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "AvailableServices".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "AvailableServices".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            locationInstance.getAvailableServices().add(xmlPullParser.getText());
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "ComputeCapabilities".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "ComputeCapabilities".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        ComputeCapabilities computeCapabilitiesInstance = new ComputeCapabilities();
+                                        locationInstance.setComputeCapabilities(computeCapabilitiesInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "VirtualMachinesRoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "VirtualMachinesRoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    computeCapabilitiesInstance.getVirtualMachinesRoleSizes().add(xmlPullParser.getText());
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "WebWorkerRoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "WebWorkerRoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    computeCapabilitiesInstance.getWebWorkerRoleSizes().add(xmlPullParser.getText());
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
+                                            }
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
                     }
+                    
+                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();

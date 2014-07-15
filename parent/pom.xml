@@ -106,16 +106,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>com.jayway.maven.plugins.android.generation2</groupId>
-        <artifactId>android-maven-plugin</artifactId>
-        <configuration>
-          <sdk>
-            <platform>18</platform>
-          </sdk>
-        </configuration>
-      </plugin>
-
-      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-help-plugin</artifactId>
         <version>2.1.1</version>

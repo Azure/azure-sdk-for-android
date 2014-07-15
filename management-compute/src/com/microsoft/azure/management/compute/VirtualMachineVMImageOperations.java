@@ -421,10 +421,11 @@ public interface VirtualMachineVMImageOperations {
     * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
+    * @throws DatatypeConfigurationException Invalid datatype configuration
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse update(String imageName, VirtualMachineVMImageUpdateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException;
+    OperationResponse update(String imageName, VirtualMachineVMImageUpdateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException, DatatypeConfigurationException;
     
     /**
     * The Update VM Image operation updates a VM image that in your image

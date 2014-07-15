@@ -52,7 +52,8 @@ public class VirtualMachineOperationsTests extends ComputeManagementIntegrationT
     private static String deploymentLabel = testVMPrefix + "deployLabel1";
     private static HostedServiceOperations hostedServicesOperations;
    
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         storageAccountName = testStoragePrefix + randomString(10);
         hostedServiceName = testHostedServicePrefix + randomString(10);
         
@@ -73,7 +74,8 @@ public class VirtualMachineOperationsTests extends ComputeManagementIntegrationT
         createVMDeployment();
     }
 
-    public static void cleanup() {        
+    @Override
+    public void tearDown() {        
         cleanDeployment();
         cleanHostedService();
         cleanBlob(storageAccountName, storageContainer);
@@ -131,7 +133,7 @@ public class VirtualMachineOperationsTests extends ComputeManagementIntegrationT
         Assert.assertNotNull(operationResponse.getRequestId());
     }
     
-    private static void createHostedService() throws InterruptedException, ExecutionException, ServiceException, IOException, ParserConfigurationException, SAXException, TransformerException, URISyntaxException, XmlPullParserException {
+    private static void createHostedService() throws InterruptedException, ExecutionException, ServiceException, IOException, ParserConfigurationException, SAXException, TransformerException, URISyntaxException, XmlPullParserException, DatatypeConfigurationException {
         //hosted service required for vm deployment
         HostedServiceCreateParameters createParameters = new HostedServiceCreateParameters(); 
         //required

@@ -141,6 +141,7 @@ public class VirtualMachineExtensionOperationsImpl implements ServiceOperations<
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -183,153 +184,171 @@ public class VirtualMachineExtensionOperationsImpl implements ServiceOperations<
                             VirtualMachineExtensionListResponse.ResourceExtension resourceExtensionInstance = new VirtualMachineExtensionListResponse.ResourceExtension();
                             result.getResourceExtensions().add(resourceExtensionInstance);
                             
-                            if (eventType == XmlPullParser.START_TAG && "Publisher".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Publisher".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String publisherInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        publisherInstance = xmlPullParser.getText();
-                                        resourceExtensionInstance.setPublisher(publisherInstance);
+                            while ((eventType == XmlPullParser.END_TAG && "ResourceExtension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "Publisher".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Publisher".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String publisherInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            publisherInstance = xmlPullParser.getText();
+                                            resourceExtensionInstance.setPublisher(publisherInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String nameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        nameInstance = xmlPullParser.getText();
-                                        resourceExtensionInstance.setName(nameInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String nameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            nameInstance = xmlPullParser.getText();
+                                            resourceExtensionInstance.setName(nameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Version".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Version".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String versionInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        versionInstance = xmlPullParser.getText();
-                                        resourceExtensionInstance.setVersion(versionInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Version".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Version".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String versionInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            versionInstance = xmlPullParser.getText();
+                                            resourceExtensionInstance.setVersion(versionInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String labelInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        labelInstance = xmlPullParser.getText();
-                                        resourceExtensionInstance.setLabel(labelInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String labelInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            labelInstance = xmlPullParser.getText();
+                                            resourceExtensionInstance.setLabel(labelInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String descriptionInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        descriptionInstance = xmlPullParser.getText();
-                                        resourceExtensionInstance.setDescription(descriptionInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String descriptionInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            descriptionInstance = xmlPullParser.getText();
+                                            resourceExtensionInstance.setDescription(descriptionInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "PublicConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "PublicConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String publicConfigurationSchemaInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        publicConfigurationSchemaInstance = xmlPullParser.getText() != null ? new String(Base64.decode(xmlPullParser.getText())) : null;
-                                        resourceExtensionInstance.setPublicConfigurationSchema(publicConfigurationSchemaInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "PublicConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "PublicConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String publicConfigurationSchemaInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            publicConfigurationSchemaInstance = xmlPullParser.getText() != null ? new String(Base64.decode(xmlPullParser.getText())) : null;
+                                            resourceExtensionInstance.setPublicConfigurationSchema(publicConfigurationSchemaInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "PrivateConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "PrivateConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String privateConfigurationSchemaInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        privateConfigurationSchemaInstance = xmlPullParser.getText() != null ? new String(Base64.decode(xmlPullParser.getText())) : null;
-                                        resourceExtensionInstance.setPrivateConfigurationSchema(privateConfigurationSchemaInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "PrivateConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "PrivateConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String privateConfigurationSchemaInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            privateConfigurationSchemaInstance = xmlPullParser.getText() != null ? new String(Base64.decode(xmlPullParser.getText())) : null;
+                                            resourceExtensionInstance.setPrivateConfigurationSchema(privateConfigurationSchemaInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "SampleConfig".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "SampleConfig".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String sampleConfigInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        sampleConfigInstance = xmlPullParser.getText() != null ? new String(Base64.decode(xmlPullParser.getText())) : null;
-                                        resourceExtensionInstance.setSampleConfig(sampleConfigInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "SampleConfig".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "SampleConfig".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String sampleConfigInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            sampleConfigInstance = xmlPullParser.getText() != null ? new String(Base64.decode(xmlPullParser.getText())) : null;
+                                            resourceExtensionInstance.setSampleConfig(sampleConfigInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "ReplicationCompleted".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "ReplicationCompleted".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Eula".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Eula".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    URI eulaInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        eulaInstance = new URI(xmlPullParser.getText());
-                                        resourceExtensionInstance.setEula(eulaInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "ReplicationCompleted".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "ReplicationCompleted".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        boolean replicationCompletedInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            replicationCompletedInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                            resourceExtensionInstance.setReplicationCompleted(replicationCompletedInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "PrivacyUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "PrivacyUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    URI privacyUriInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        privacyUriInstance = new URI(xmlPullParser.getText());
-                                        resourceExtensionInstance.setPrivacyUri(privacyUriInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Eula".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Eula".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        URI eulaInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            eulaInstance = new URI(xmlPullParser.getText());
+                                            resourceExtensionInstance.setEula(eulaInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "HomepageUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "HomepageUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    URI homepageUriInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        homepageUriInstance = new URI(xmlPullParser.getText());
-                                        resourceExtensionInstance.setHomepageUri(homepageUriInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "PrivacyUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "PrivacyUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        URI privacyUriInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            privacyUriInstance = new URI(xmlPullParser.getText());
+                                            resourceExtensionInstance.setPrivacyUri(privacyUriInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "IsJsonExtension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "IsJsonExtension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                
+                                if (eventType == XmlPullParser.START_TAG && "HomepageUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "HomepageUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        URI homepageUriInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            homepageUriInstance = new URI(xmlPullParser.getText());
+                                            resourceExtensionInstance.setHomepageUri(homepageUriInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
                                 }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "IsJsonExtension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "IsJsonExtension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        boolean isJsonExtensionInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            isJsonExtensionInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                            resourceExtensionInstance.setIsJsonExtension(isJsonExtensionInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
                     }
+                    
+                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();
@@ -426,6 +445,7 @@ public class VirtualMachineExtensionOperationsImpl implements ServiceOperations<
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -468,153 +488,171 @@ public class VirtualMachineExtensionOperationsImpl implements ServiceOperations<
                             VirtualMachineExtensionListResponse.ResourceExtension resourceExtensionInstance = new VirtualMachineExtensionListResponse.ResourceExtension();
                             result.getResourceExtensions().add(resourceExtensionInstance);
                             
-                            if (eventType == XmlPullParser.START_TAG && "Publisher".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Publisher".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String publisherInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        publisherInstance = xmlPullParser.getText();
-                                        resourceExtensionInstance.setPublisher(publisherInstance);
+                            while ((eventType == XmlPullParser.END_TAG && "ResourceExtension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "Publisher".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Publisher".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String publisherInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            publisherInstance = xmlPullParser.getText();
+                                            resourceExtensionInstance.setPublisher(publisherInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String nameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        nameInstance = xmlPullParser.getText();
-                                        resourceExtensionInstance.setName(nameInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String nameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            nameInstance = xmlPullParser.getText();
+                                            resourceExtensionInstance.setName(nameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Version".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Version".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String versionInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        versionInstance = xmlPullParser.getText();
-                                        resourceExtensionInstance.setVersion(versionInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Version".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Version".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String versionInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            versionInstance = xmlPullParser.getText();
+                                            resourceExtensionInstance.setVersion(versionInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String labelInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        labelInstance = xmlPullParser.getText();
-                                        resourceExtensionInstance.setLabel(labelInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String labelInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            labelInstance = xmlPullParser.getText();
+                                            resourceExtensionInstance.setLabel(labelInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String descriptionInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        descriptionInstance = xmlPullParser.getText();
-                                        resourceExtensionInstance.setDescription(descriptionInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String descriptionInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            descriptionInstance = xmlPullParser.getText();
+                                            resourceExtensionInstance.setDescription(descriptionInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "PublicConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "PublicConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String publicConfigurationSchemaInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        publicConfigurationSchemaInstance = xmlPullParser.getText() != null ? new String(Base64.decode(xmlPullParser.getText())) : null;
-                                        resourceExtensionInstance.setPublicConfigurationSchema(publicConfigurationSchemaInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "PublicConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "PublicConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String publicConfigurationSchemaInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            publicConfigurationSchemaInstance = xmlPullParser.getText() != null ? new String(Base64.decode(xmlPullParser.getText())) : null;
+                                            resourceExtensionInstance.setPublicConfigurationSchema(publicConfigurationSchemaInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "PrivateConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "PrivateConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String privateConfigurationSchemaInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        privateConfigurationSchemaInstance = xmlPullParser.getText() != null ? new String(Base64.decode(xmlPullParser.getText())) : null;
-                                        resourceExtensionInstance.setPrivateConfigurationSchema(privateConfigurationSchemaInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "PrivateConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "PrivateConfigurationSchema".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String privateConfigurationSchemaInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            privateConfigurationSchemaInstance = xmlPullParser.getText() != null ? new String(Base64.decode(xmlPullParser.getText())) : null;
+                                            resourceExtensionInstance.setPrivateConfigurationSchema(privateConfigurationSchemaInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "SampleConfig".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "SampleConfig".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String sampleConfigInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        sampleConfigInstance = xmlPullParser.getText() != null ? new String(Base64.decode(xmlPullParser.getText())) : null;
-                                        resourceExtensionInstance.setSampleConfig(sampleConfigInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "SampleConfig".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "SampleConfig".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String sampleConfigInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            sampleConfigInstance = xmlPullParser.getText() != null ? new String(Base64.decode(xmlPullParser.getText())) : null;
+                                            resourceExtensionInstance.setSampleConfig(sampleConfigInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "ReplicationCompleted".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "ReplicationCompleted".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Eula".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Eula".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    URI eulaInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        eulaInstance = new URI(xmlPullParser.getText());
-                                        resourceExtensionInstance.setEula(eulaInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "ReplicationCompleted".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "ReplicationCompleted".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        boolean replicationCompletedInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            replicationCompletedInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                            resourceExtensionInstance.setReplicationCompleted(replicationCompletedInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "PrivacyUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "PrivacyUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    URI privacyUriInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        privacyUriInstance = new URI(xmlPullParser.getText());
-                                        resourceExtensionInstance.setPrivacyUri(privacyUriInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Eula".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Eula".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        URI eulaInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            eulaInstance = new URI(xmlPullParser.getText());
+                                            resourceExtensionInstance.setEula(eulaInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "HomepageUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "HomepageUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    URI homepageUriInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        homepageUriInstance = new URI(xmlPullParser.getText());
-                                        resourceExtensionInstance.setHomepageUri(homepageUriInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "PrivacyUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "PrivacyUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        URI privacyUriInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            privacyUriInstance = new URI(xmlPullParser.getText());
+                                            resourceExtensionInstance.setPrivacyUri(privacyUriInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "IsJsonExtension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "IsJsonExtension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                
+                                if (eventType == XmlPullParser.START_TAG && "HomepageUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "HomepageUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        URI homepageUriInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            homepageUriInstance = new URI(xmlPullParser.getText());
+                                            resourceExtensionInstance.setHomepageUri(homepageUriInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
                                 }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "IsJsonExtension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "IsJsonExtension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        boolean isJsonExtensionInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            isJsonExtensionInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                            resourceExtensionInstance.setIsJsonExtension(isJsonExtensionInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
                     }
+                    
+                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();

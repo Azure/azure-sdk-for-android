@@ -23,7 +23,8 @@ import junit.framework.Assert;
 import com.microsoft.azure.management.compute.models.*;
 
 public class VirtualMachineVMImagesOperationsTests extends ComputeManagementIntegrationTestBase {    
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         createComputeManagementClient();
     }
 

@@ -170,6 +170,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -425,6 +426,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -551,6 +553,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -759,6 +762,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -801,83 +805,87 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
                             ServerFarmListResponse.ServerFarm serverFarmInstance = new ServerFarmListResponse.ServerFarm();
                             result.getServerFarms().add(serverFarmInstance);
                             
-                            if (eventType == XmlPullParser.START_TAG && "CurrentNumberOfWorkers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "CurrentNumberOfWorkers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    int currentNumberOfWorkersInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        currentNumberOfWorkersInstance = Integer.parseInt(xmlPullParser.getText());
-                                        serverFarmInstance.setCurrentNumberOfWorkers(currentNumberOfWorkersInstance);
+                            while ((eventType == XmlPullParser.END_TAG && "ServerFarm".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "CurrentNumberOfWorkers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "CurrentNumberOfWorkers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        int currentNumberOfWorkersInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            currentNumberOfWorkersInstance = Integer.parseInt(xmlPullParser.getText());
+                                            serverFarmInstance.setCurrentNumberOfWorkers(currentNumberOfWorkersInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "CurrentWorkerSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "CurrentWorkerSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    ServerFarmWorkerSize currentWorkerSizeInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        currentWorkerSizeInstance = ServerFarmWorkerSize.valueOf(xmlPullParser.getText());
-                                        serverFarmInstance.setCurrentWorkerSize(currentWorkerSizeInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "CurrentWorkerSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "CurrentWorkerSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        ServerFarmWorkerSize currentWorkerSizeInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            currentWorkerSizeInstance = ServerFarmWorkerSize.valueOf(xmlPullParser.getText());
+                                            serverFarmInstance.setCurrentWorkerSize(currentWorkerSizeInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String nameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        nameInstance = xmlPullParser.getText();
-                                        serverFarmInstance.setName(nameInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String nameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            nameInstance = xmlPullParser.getText();
+                                            serverFarmInstance.setName(nameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "NumberOfWorkers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "NumberOfWorkers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    int numberOfWorkersInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        numberOfWorkersInstance = Integer.parseInt(xmlPullParser.getText());
-                                        serverFarmInstance.setNumberOfWorkers(numberOfWorkersInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "NumberOfWorkers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "NumberOfWorkers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        int numberOfWorkersInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            numberOfWorkersInstance = Integer.parseInt(xmlPullParser.getText());
+                                            serverFarmInstance.setNumberOfWorkers(numberOfWorkersInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "WorkerSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "WorkerSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    ServerFarmWorkerSize workerSizeInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        workerSizeInstance = ServerFarmWorkerSize.valueOf(xmlPullParser.getText());
-                                        serverFarmInstance.setWorkerSize(workerSizeInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "WorkerSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "WorkerSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        ServerFarmWorkerSize workerSizeInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            workerSizeInstance = ServerFarmWorkerSize.valueOf(xmlPullParser.getText());
+                                            serverFarmInstance.setWorkerSize(workerSizeInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    ServerFarmStatus statusInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        statusInstance = ServerFarmStatus.valueOf(xmlPullParser.getText());
-                                        serverFarmInstance.setStatus(statusInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Status".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        ServerFarmStatus statusInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            statusInstance = ServerFarmStatus.valueOf(xmlPullParser.getText());
+                                            serverFarmInstance.setStatus(statusInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
                     }
+                    
+                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();
@@ -985,6 +993,7 @@ public class ServerFarmOperationsImpl implements ServiceOperations<WebSiteManage
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);

@@ -16,6 +16,7 @@
 package com.microsoft.azure.core;
 
 import com.microsoft.azure.core.TimeSpan8601Converter;
+import com.microsoft.azure.core.datatype.DatatypeFactoryImpl;
 
 import junit.framework.TestCase;
 
@@ -24,7 +25,7 @@ import javax.xml.datatype.Duration;
 
 public class TimeSpan8601ConverterTests extends TestCase {
     public void formatShouldWork() throws Exception {
-        DatatypeFactory dataTypeFactory = DatatypeFactory.newInstance();
+        DatatypeFactory dataTypeFactory = DatatypeFactoryImpl.newInstance();
         Duration duration = dataTypeFactory.newDurationDayTime(true, 0, 3, 10,
                 2);
         String durationString = TimeSpan8601Converter.format(duration);

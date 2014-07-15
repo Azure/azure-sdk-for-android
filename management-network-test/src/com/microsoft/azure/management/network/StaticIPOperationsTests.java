@@ -21,7 +21,8 @@ import com.microsoft.azure.exception.ServiceException;
 import java.net.InetAddress;
 
 public class StaticIPOperationsTests extends NetworkManagementIntegrationTestBase {
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         createService();
         networkOperations = networkManagementClient.getNetworksOperations();
         testNetworkName = testNetworkPrefix + randomString(10);
@@ -29,7 +30,8 @@ public class StaticIPOperationsTests extends NetworkManagementIntegrationTestBas
         staticIPOperations = networkManagementClient.getStaticIPsOperations();
     }
 
-    public static void cleanup() {
+    @Override
+    public void tearDown() {
         deleteNetwork(testNetworkName);
     }
 

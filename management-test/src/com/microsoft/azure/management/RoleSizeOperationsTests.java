@@ -4,8 +4,9 @@ import junit.framework.Assert;
 
 import com.microsoft.azure.management.models.RoleSizeListResponse;
 
-public class RoleSizeOperationsTest  extends ManagementIntegrationTestBase {
-    public static void setup() throws Exception {
+public class RoleSizeOperationsTests  extends ManagementIntegrationTestBase {
+    @Override
+    public void setUp() throws Exception {
         createService();
     }
 

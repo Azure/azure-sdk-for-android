@@ -36,7 +36,8 @@ public class VirtualMachineDiskOperationsTests extends ComputeManagementIntegrat
 
     static VirtualMachineDiskOperations diskOperation;
 
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         //create storage service for storage account creation
         createStorageManagementClient();
         //create compute management service for all compute management operation
@@ -51,7 +52,8 @@ public class VirtualMachineDiskOperationsTests extends ComputeManagementIntegrat
         uploadFileToBlob(storageAccountName, storageContainer, vhdfileName, filePath);
     }
 
-    public static void cleanup() {
+    @Override
+    public void tearDown() {
         deletDisks();
         cleanBlob(storageAccountName, storageContainer);
         cleanStorageAccount(storageAccountName);

@@ -37,14 +37,16 @@ public class DatabaseOperationOperationsIntegrationTest extends SqlManagementInt
     private static Map<String, String> databaseToBeRemoved = new HashMap<String, String>();
     private static DatabaseOperationOperations databaseOperationOperations;
 
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         createService();
         databaseOperations = sqlManagementClient.getDatabasesOperations();
         serverOperations = sqlManagementClient.getServersOperations();
         databaseOperationOperations = sqlManagementClient.getDatabaseOperationsOperations();
     }
 
-    public static void cleanup() throws Exception {
+    @Override
+    public void tearDown() throws Exception {
         for (String databaseName : databaseToBeRemoved.keySet()) {
             String serverName = databaseToBeRemoved.get(databaseName);
             databaseOperations.delete(serverName, databaseName);

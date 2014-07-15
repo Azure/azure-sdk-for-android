@@ -266,10 +266,11 @@ public interface HostedServiceOperations {
     * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
+    * @throws DatatypeConfigurationException Invalid datatype configuration
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse create(HostedServiceCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException;
+    OperationResponse create(HostedServiceCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException, DatatypeConfigurationException;
     
     /**
     * The Create Hosted Service operation creates a new cloud service in Azure.
@@ -686,10 +687,11 @@ public interface HostedServiceOperations {
     * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
+    * @throws DatatypeConfigurationException Invalid datatype configuration
     * @return A standard service response including an HTTP status code and
     * request ID.
     */
-    OperationResponse update(String serviceName, HostedServiceUpdateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException;
+    OperationResponse update(String serviceName, HostedServiceUpdateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException, DatatypeConfigurationException;
     
     /**
     * The Update Hosted Service operation can update the label or description

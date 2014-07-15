@@ -25,6 +25,7 @@ package com.microsoft.azure.management.network;
 
 import com.microsoft.azure.AzureHttpStatus;
 import com.microsoft.azure.core.ServiceOperations;
+import com.microsoft.azure.core.datatype.DatatypeFactoryImpl;
 import com.microsoft.azure.core.utils.BOMInputStream;
 import com.microsoft.azure.core.utils.StreamUtils;
 import com.microsoft.azure.exception.ServiceException;
@@ -46,7 +47,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -167,6 +167,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -328,6 +329,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -473,6 +475,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -586,6 +589,7 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -629,47 +633,51 @@ public class ClientRootCertificateOperationsImpl implements ServiceOperations<Ne
                             ClientRootCertificateListResponse.ClientRootCertificate clientRootCertificateInstance = new ClientRootCertificateListResponse.ClientRootCertificate();
                             result.getClientRootCertificates().add(clientRootCertificateInstance);
                             
-                            if (eventType == XmlPullParser.START_TAG && "ExpirationTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "ExpirationTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    Calendar expirationTimeInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        expirationTimeInstance = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
-                                        clientRootCertificateInstance.setExpirationTime(expirationTimeInstance);
+                            while ((eventType == XmlPullParser.END_TAG && "ClientRootCertificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "ExpirationTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "ExpirationTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        Calendar expirationTimeInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            expirationTimeInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                            clientRootCertificateInstance.setExpirationTime(expirationTimeInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Subject".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Subject".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String subjectInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        subjectInstance = xmlPullParser.getText();
-                                        clientRootCertificateInstance.setSubject(subjectInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Subject".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Subject".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String subjectInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            subjectInstance = xmlPullParser.getText();
+                                            clientRootCertificateInstance.setSubject(subjectInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Thumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Thumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String thumbprintInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        thumbprintInstance = xmlPullParser.getText();
-                                        clientRootCertificateInstance.setThumbprint(thumbprintInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Thumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Thumbprint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String thumbprintInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            thumbprintInstance = xmlPullParser.getText();
+                                            clientRootCertificateInstance.setThumbprint(thumbprintInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
                     }
+                    
+                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();

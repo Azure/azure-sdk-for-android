@@ -21,7 +21,10 @@ import java.security.InvalidKeyException;
 import java.util.ArrayList;
 import java.util.Random;
 
+import javax.xml.datatype.DatatypeConfigurationException;
+
 import junit.framework.Assert;
+import junit.framework.TestCase;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -45,7 +48,7 @@ import com.microsoft.azure.storage.blob.CloudBlobContainer;
 import com.microsoft.azure.storage.blob.CloudPageBlob;
 import com.microsoft.azure.storage.blob.ListBlobItem;
 
-public abstract class ComputeManagementIntegrationTestBase {
+public abstract class ComputeManagementIntegrationTestBase extends TestCase {
     protected static String testVMPrefix = "aztst";
     protected static String testStoragePrefix = "aztst";
     protected static String testHostedServicePrefix = "azhst";
@@ -228,6 +231,7 @@ public abstract class ComputeManagementIntegrationTestBase {
             storageAccountGetResponse = storageManagementClient.getStorageAccountsOperations().get(storageAccountName); 
         } catch (ServiceException e) {
         } catch (XmlPullParserException e) {
+        } catch (DatatypeConfigurationException e) {
         } catch (IOException e) {
         } catch (URISyntaxException e) {
         }

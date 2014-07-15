@@ -35,7 +35,8 @@ public class VirtualMachineOSImagesOperationsTests extends ComputeManagementInte
     static String vhdfileName = "oneGBFixedWS2008R2.vhd";
     static String filePath = "D:\\test\\vhdfile\\";
 
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         //create storage service for storage account creation
         createStorageManagementClient();
         //create compute management service for all compute management operation
@@ -50,7 +51,8 @@ public class VirtualMachineOSImagesOperationsTests extends ComputeManagementInte
         createVirtualMachineOSImage();
     }
 
-    public static void cleanup() throws Exception {
+    @Override
+    public void tearDown() throws Exception {
         deleteVirtualMachineOSImages();
         cleanBlob(storageAccountName, storageContainer);
         cleanStorageAccount(storageAccountName);

@@ -263,6 +263,7 @@ public class StorageManagementClientImpl extends ServiceClient<StorageManagement
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);

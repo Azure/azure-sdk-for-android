@@ -25,7 +25,8 @@ import com.microsoft.azure.exception.ServiceException;
 import com.microsoft.azure.management.network.models.*;
 
 public class ClientRootCertificateOperationsTests extends NetworkManagementIntegrationTestBase {
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         testNetworkName =  testNetworkPrefix + randomString(10);;
         createService();
         networkOperations = networkManagementClient.getNetworksOperations();
@@ -33,7 +34,8 @@ public class ClientRootCertificateOperationsTests extends NetworkManagementInteg
         clientRootCertificateOperations = networkManagementClient.getClientRootCertificatesOperations();
     }
 
-    public static void cleanup() throws Exception {
+    @Override
+    public void tearDown() throws Exception {
         try {
             ClientRootCertificateListResponse ClientRootCertificateListResponse = clientRootCertificateOperations.list(testNetworkName);
             ArrayList<ClientRootCertificateListResponse.ClientRootCertificate> clientRootCertificatelist = ClientRootCertificateListResponse.getClientRootCertificates();

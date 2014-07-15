@@ -156,7 +156,7 @@
             As such, method length is not a true representation
             of complexity / etc issues.
             <module name="MethodLength"/> -->
-        <module name="ParameterNumber"/>
+        <!-- <module name="ParameterNumber"/> -->
 
 
         <!-- Checks for whitespace                               -->

@@ -52,7 +52,7 @@ public class KeyStoreCredential {
 
     public KeyStoreCredential(String keyStorePath, String keyStorePassword)
             throws IOException {
-        this(keyStorePath, keyStorePassword, KeyStoreType.jks);
+        this(keyStorePath, keyStorePassword, KeyStoreType.bks);
     }
 
     /**

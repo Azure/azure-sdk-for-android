@@ -29,6 +29,7 @@ import com.microsoft.azure.core.OperationResponse;
 import com.microsoft.azure.core.OperationStatus;
 import com.microsoft.azure.core.OperationStatusResponse;
 import com.microsoft.azure.core.ServiceOperations;
+import com.microsoft.azure.core.datatype.DatatypeFactoryImpl;
 import com.microsoft.azure.core.utils.BOMInputStream;
 import com.microsoft.azure.exception.ServiceException;
 import com.microsoft.azure.management.compute.models.VirtualMachineOSImageCreateParameters;
@@ -61,7 +62,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -165,6 +165,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -278,6 +279,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -368,11 +370,12 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
     * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
+    * @throws DatatypeConfigurationException Invalid datatype configuration
     * @return Parameters returned from the Create Virtual Machine Image
     * operation.
     */
     @Override
-    public VirtualMachineOSImageCreateResponse create(VirtualMachineOSImageCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException {
+    public VirtualMachineOSImageCreateResponse create(VirtualMachineOSImageCreateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException, DatatypeConfigurationException {
         // Validate
         if (parameters == null) {
             throw new NullPointerException("parameters");
@@ -411,6 +414,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -668,6 +672,13 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                         
                         if (eventType == XmlPullParser.START_TAG && "PublishedDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "PublishedDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                Calendar publishedDateInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    publishedDateInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                    result.setPublishedDate(publishedDateInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -685,11 +696,25 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                         
                         if (eventType == XmlPullParser.START_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean isPremiumInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    isPremiumInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setIsPremium(isPremiumInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "ShowInGui".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "ShowInGui".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean showInGuiInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    showInGuiInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setShowInGui(showInGuiInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -855,6 +880,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -961,6 +987,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -1133,6 +1160,13 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                         
                         if (eventType == XmlPullParser.START_TAG && "ShowInGui".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "ShowInGui".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean showInGuiInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    showInGuiInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setShowInGui(showInGuiInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -1140,7 +1174,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                             while ((eventType == XmlPullParser.END_TAG && "PublishedDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 Calendar publishedDateInstance;
                                 if (eventType == XmlPullParser.TEXT) {
-                                    publishedDateInstance = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                    publishedDateInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
                                     result.setPublishedDate(publishedDateInstance);
                                 }
                                 
@@ -1150,6 +1184,13 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                         
                         if (eventType == XmlPullParser.START_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean isPremiumInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    isPremiumInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setIsPremium(isPremiumInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -1312,6 +1353,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -1352,6 +1394,13 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                     while ((eventType == XmlPullParser.END_TAG && "OSImageDetails".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "IsCorrupted".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "IsCorrupted".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean isCorruptedInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    isCorruptedInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setIsCorrupted(isCorruptedInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -1361,35 +1410,39 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                                     VirtualMachineOSImageGetDetailsResponse.ReplicationProgressElement replicationProgressElementInstance = new VirtualMachineOSImageGetDetailsResponse.ReplicationProgressElement();
                                     result.getReplicationProgress().add(replicationProgressElementInstance);
                                     
-                                    if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            String locationInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                locationInstance = xmlPullParser.getText();
-                                                replicationProgressElementInstance.setLocation(locationInstance);
+                                    while ((eventType == XmlPullParser.END_TAG && "ReplicationProgressElement".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                String locationInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    locationInstance = xmlPullParser.getText();
+                                                    replicationProgressElementInstance.setLocation(locationInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
-                                    }
-                                    
-                                    if (eventType == XmlPullParser.START_TAG && "Progress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                        while ((eventType == XmlPullParser.END_TAG && "Progress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                            String progressInstance;
-                                            if (eventType == XmlPullParser.TEXT) {
-                                                progressInstance = xmlPullParser.getText();
-                                                replicationProgressElementInstance.setProgress(progressInstance);
+                                        
+                                        if (eventType == XmlPullParser.START_TAG && "Progress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                            while ((eventType == XmlPullParser.END_TAG && "Progress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                String progressInstance;
+                                                if (eventType == XmlPullParser.TEXT) {
+                                                    progressInstance = xmlPullParser.getText();
+                                                    replicationProgressElementInstance.setProgress(progressInstance);
+                                                }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
                                 
                                 eventType = xmlPullParser.next();
                             }
+                            
+                            eventType = xmlPullParser.next();
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -1526,6 +1579,13 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                         
                         if (eventType == XmlPullParser.START_TAG && "ShowInGui".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "ShowInGui".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean showInGuiInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    showInGuiInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setShowInGui(showInGuiInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -1533,7 +1593,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                             while ((eventType == XmlPullParser.END_TAG && "PublishedDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 Calendar publishedDateInstance;
                                 if (eventType == XmlPullParser.TEXT) {
-                                    publishedDateInstance = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                    publishedDateInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
                                     result.setPublishedDate(publishedDateInstance);
                                 }
                                 
@@ -1543,6 +1603,13 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                         
                         if (eventType == XmlPullParser.START_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean isPremiumInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    isPremiumInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setIsPremium(isPremiumInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -1699,6 +1766,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -1741,232 +1809,243 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                             VirtualMachineOSImageListResponse.VirtualMachineOSImage oSImageInstance = new VirtualMachineOSImageListResponse.VirtualMachineOSImage();
                             result.getImages().add(oSImageInstance);
                             
-                            if (eventType == XmlPullParser.START_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String affinityGroupInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        affinityGroupInstance = xmlPullParser.getText();
-                                        oSImageInstance.setAffinityGroup(affinityGroupInstance);
+                            while ((eventType == XmlPullParser.END_TAG && "OSImage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String affinityGroupInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            affinityGroupInstance = xmlPullParser.getText();
+                                            oSImageInstance.setAffinityGroup(affinityGroupInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Category".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Category".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String categoryInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        categoryInstance = xmlPullParser.getText();
-                                        oSImageInstance.setCategory(categoryInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Category".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Category".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String categoryInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            categoryInstance = xmlPullParser.getText();
+                                            oSImageInstance.setCategory(categoryInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String labelInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        labelInstance = xmlPullParser.getText();
-                                        oSImageInstance.setLabel(labelInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String labelInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            labelInstance = xmlPullParser.getText();
+                                            oSImageInstance.setLabel(labelInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String locationInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        locationInstance = xmlPullParser.getText();
-                                        oSImageInstance.setLocation(locationInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String locationInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            locationInstance = xmlPullParser.getText();
+                                            oSImageInstance.setLocation(locationInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "LogicalSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "LogicalSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    double logicalSizeInGBInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        logicalSizeInGBInstance = Double.parseDouble(xmlPullParser.getText());
-                                        oSImageInstance.setLogicalSizeInGB(logicalSizeInGBInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "LogicalSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "LogicalSizeInGB".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        double logicalSizeInGBInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            logicalSizeInGBInstance = Double.parseDouble(xmlPullParser.getText());
+                                            oSImageInstance.setLogicalSizeInGB(logicalSizeInGBInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    URI mediaLinkInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        mediaLinkInstance = new URI(xmlPullParser.getText());
-                                        oSImageInstance.setMediaLinkUri(mediaLinkInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "MediaLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        URI mediaLinkInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            mediaLinkInstance = new URI(xmlPullParser.getText());
+                                            oSImageInstance.setMediaLinkUri(mediaLinkInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String nameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        nameInstance = xmlPullParser.getText();
-                                        oSImageInstance.setName(nameInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String nameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            nameInstance = xmlPullParser.getText();
+                                            oSImageInstance.setName(nameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "OS".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "OS".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String osInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        osInstance = xmlPullParser.getText();
-                                        oSImageInstance.setOperatingSystemType(osInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "OS".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "OS".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String osInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            osInstance = xmlPullParser.getText();
+                                            oSImageInstance.setOperatingSystemType(osInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Eula".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Eula".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String eulaInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        eulaInstance = xmlPullParser.getText();
-                                        oSImageInstance.setEula(eulaInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Eula".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Eula".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String eulaInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            eulaInstance = xmlPullParser.getText();
+                                            oSImageInstance.setEula(eulaInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String descriptionInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        descriptionInstance = xmlPullParser.getText();
-                                        oSImageInstance.setDescription(descriptionInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String descriptionInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            descriptionInstance = xmlPullParser.getText();
+                                            oSImageInstance.setDescription(descriptionInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "ImageFamily".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "ImageFamily".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String imageFamilyInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        imageFamilyInstance = xmlPullParser.getText();
-                                        oSImageInstance.setImageFamily(imageFamilyInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "ImageFamily".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "ImageFamily".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String imageFamilyInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            imageFamilyInstance = xmlPullParser.getText();
+                                            oSImageInstance.setImageFamily(imageFamilyInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "PublishedDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "PublishedDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    Calendar publishedDateInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        publishedDateInstance = DatatypeFactory.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
-                                        oSImageInstance.setPublishedDate(publishedDateInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "PublishedDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "PublishedDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        Calendar publishedDateInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            publishedDateInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                            oSImageInstance.setPublishedDate(publishedDateInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "PrivacyUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "PrivacyUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    URI privacyUriInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        privacyUriInstance = new URI(xmlPullParser.getText());
-                                        oSImageInstance.setPrivacyUri(privacyUriInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        boolean isPremiumInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            isPremiumInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                            oSImageInstance.setIsPremium(isPremiumInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "RecommendedVMSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "RecommendedVMSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String recommendedVMSizeInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        recommendedVMSizeInstance = xmlPullParser.getText();
-                                        oSImageInstance.setRecommendedVMSize(recommendedVMSizeInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "PrivacyUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "PrivacyUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        URI privacyUriInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            privacyUriInstance = new URI(xmlPullParser.getText());
+                                            oSImageInstance.setPrivacyUri(privacyUriInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "PublisherName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "PublisherName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String publisherNameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        publisherNameInstance = xmlPullParser.getText();
-                                        oSImageInstance.setPublisherName(publisherNameInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "RecommendedVMSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "RecommendedVMSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String recommendedVMSizeInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            recommendedVMSizeInstance = xmlPullParser.getText();
+                                            oSImageInstance.setRecommendedVMSize(recommendedVMSizeInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "PricingDetailLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "PricingDetailLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    URI pricingDetailLinkInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        pricingDetailLinkInstance = new URI(xmlPullParser.getText());
-                                        oSImageInstance.setPricingDetailUri(pricingDetailLinkInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "PublisherName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "PublisherName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String publisherNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            publisherNameInstance = xmlPullParser.getText();
+                                            oSImageInstance.setPublisherName(publisherNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "SmallIconUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "SmallIconUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    URI smallIconUriInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        smallIconUriInstance = new URI(xmlPullParser.getText());
-                                        oSImageInstance.setSmallIconUri(smallIconUriInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "PricingDetailLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "PricingDetailLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        URI pricingDetailLinkInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            pricingDetailLinkInstance = new URI(xmlPullParser.getText());
+                                            oSImageInstance.setPricingDetailUri(pricingDetailLinkInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String languageInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        languageInstance = xmlPullParser.getText();
-                                        oSImageInstance.setLanguage(languageInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "SmallIconUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "SmallIconUri".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        URI smallIconUriInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            smallIconUriInstance = new URI(xmlPullParser.getText());
+                                            oSImageInstance.setSmallIconUri(smallIconUriInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String languageInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            languageInstance = xmlPullParser.getText();
+                                            oSImageInstance.setLanguage(languageInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
+                                    }
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
                     }
+                    
+                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();
@@ -2057,6 +2136,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -2425,11 +2505,12 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
     * Pull Parser related faults.
     * @throws URISyntaxException Thrown if there was an error parsing a URI in
     * the response.
+    * @throws DatatypeConfigurationException Invalid datatype configuration
     * @return Parameters returned from the Create Virtual Machine Image
     * operation.
     */
     @Override
-    public VirtualMachineOSImageUpdateResponse update(String imageName, VirtualMachineOSImageUpdateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException {
+    public VirtualMachineOSImageUpdateResponse update(String imageName, VirtualMachineOSImageUpdateParameters parameters) throws InterruptedException, ExecutionException, ServiceException, MalformedURLException, ProtocolException, IOException, XmlPullParserException, URISyntaxException, DatatypeConfigurationException {
         // Validate
         if (imageName == null) {
             throw new NullPointerException("imageName");
@@ -2463,6 +2544,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -2712,6 +2794,13 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                         
                         if (eventType == XmlPullParser.START_TAG && "PublishedDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "PublishedDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                Calendar publishedDateInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    publishedDateInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
+                                    result.setPublishedDate(publishedDateInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -2729,11 +2818,25 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                         
                         if (eventType == XmlPullParser.START_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "IsPremium".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean isPremiumInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    isPremiumInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setIsPremium(isPremiumInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "ShowInGui".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "ShowInGui".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                boolean showInGuiInstance;
+                                if (eventType == XmlPullParser.TEXT) {
+                                    showInGuiInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                    result.setShowInGui(showInGuiInstance);
+                                }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         

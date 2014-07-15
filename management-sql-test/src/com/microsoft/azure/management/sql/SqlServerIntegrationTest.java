@@ -33,12 +33,14 @@ import org.xmlpull.v1.XmlPullParserException;
 public class SqlServerIntegrationTest extends SqlManagementIntegrationTestBase {
     private static ServerOperations serverOperations;
 
-    public static void setup() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         createService();
         serverOperations = sqlManagementClient.getServersOperations();
     }
 
-    public static void cleanup() throws Exception {
+    @Override
+    public void tearDown() throws Exception {
         for (String serverName : serverToBeRemoved) {
             try {
                 serverOperations.delete(serverName);

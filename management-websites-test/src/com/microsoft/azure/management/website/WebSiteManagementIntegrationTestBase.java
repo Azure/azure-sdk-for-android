@@ -16,7 +16,7 @@ package com.microsoft.azure.management.website;
 
 import java.net.URI;
 
-import android.test.AndroidTestCase;
+import junit.framework.TestCase;
 
 import com.microsoft.azure.Configuration;
 import com.microsoft.azure.core.utils.KeyStoreType;
@@ -24,7 +24,7 @@ import com.microsoft.azure.management.configuration.ManagementConfiguration;
 import com.microsoft.azure.management.websites.WebSiteManagementClient;
 import com.microsoft.azure.management.websites.WebSiteManagementService;
 
-public abstract class WebSiteManagementIntegrationTestBase extends AndroidTestCase {
+public abstract class WebSiteManagementIntegrationTestBase extends TestCase {
     protected static String testWebsitePrefix = "azuresdktestwebsite";
     protected static WebSiteManagementClient webSiteManagementClient;
 

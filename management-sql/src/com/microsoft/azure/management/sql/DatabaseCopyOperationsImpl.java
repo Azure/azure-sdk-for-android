@@ -159,6 +159,7 @@ public class DatabaseCopyOperationsImpl implements ServiceOperations<SqlManageme
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -515,6 +516,7 @@ public class DatabaseCopyOperationsImpl implements ServiceOperations<SqlManageme
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -630,6 +632,7 @@ public class DatabaseCopyOperationsImpl implements ServiceOperations<SqlManageme
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -950,6 +953,7 @@ public class DatabaseCopyOperationsImpl implements ServiceOperations<SqlManageme
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);
@@ -992,203 +996,207 @@ public class DatabaseCopyOperationsImpl implements ServiceOperations<SqlManageme
                             DatabaseCopy serviceResourceInstance = new DatabaseCopy();
                             result.getDatabaseCopies().add(serviceResourceInstance);
                             
-                            if (eventType == XmlPullParser.START_TAG && "SourceServerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "SourceServerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String sourceServerNameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        sourceServerNameInstance = xmlPullParser.getText();
-                                        serviceResourceInstance.setSourceServerName(sourceServerNameInstance);
+                            while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                if (eventType == XmlPullParser.START_TAG && "SourceServerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "SourceServerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String sourceServerNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            sourceServerNameInstance = xmlPullParser.getText();
+                                            serviceResourceInstance.setSourceServerName(sourceServerNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "SourceDatabaseName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "SourceDatabaseName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String sourceDatabaseNameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        sourceDatabaseNameInstance = xmlPullParser.getText();
-                                        serviceResourceInstance.setSourceDatabaseName(sourceDatabaseNameInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "SourceDatabaseName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "SourceDatabaseName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String sourceDatabaseNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            sourceDatabaseNameInstance = xmlPullParser.getText();
+                                            serviceResourceInstance.setSourceDatabaseName(sourceDatabaseNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "DestinationServerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "DestinationServerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String destinationServerNameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        destinationServerNameInstance = xmlPullParser.getText();
-                                        serviceResourceInstance.setDestinationServerName(destinationServerNameInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "DestinationServerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "DestinationServerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String destinationServerNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            destinationServerNameInstance = xmlPullParser.getText();
+                                            serviceResourceInstance.setDestinationServerName(destinationServerNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "DestinationDatabaseName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "DestinationDatabaseName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String destinationDatabaseNameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        destinationDatabaseNameInstance = xmlPullParser.getText();
-                                        serviceResourceInstance.setDestinationDatabaseName(destinationDatabaseNameInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "DestinationDatabaseName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "DestinationDatabaseName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String destinationDatabaseNameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            destinationDatabaseNameInstance = xmlPullParser.getText();
+                                            serviceResourceInstance.setDestinationDatabaseName(destinationDatabaseNameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "IsContinuous".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "IsContinuous".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    boolean isContinuousInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        isContinuousInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
-                                        serviceResourceInstance.setIsContinuous(isContinuousInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "IsContinuous".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "IsContinuous".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        boolean isContinuousInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            isContinuousInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                            serviceResourceInstance.setIsContinuous(isContinuousInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "ReplicationState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "ReplicationState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    byte replicationStateInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        replicationStateInstance = Byte.parseByte(xmlPullParser.getText());
-                                        serviceResourceInstance.setReplicationState(replicationStateInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "ReplicationState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "ReplicationState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        byte replicationStateInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            replicationStateInstance = Byte.parseByte(xmlPullParser.getText());
+                                            serviceResourceInstance.setReplicationState(replicationStateInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "ReplicationStateDescription".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "ReplicationStateDescription".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String replicationStateDescriptionInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        replicationStateDescriptionInstance = xmlPullParser.getText();
-                                        serviceResourceInstance.setReplicationStateDescription(replicationStateDescriptionInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "ReplicationStateDescription".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "ReplicationStateDescription".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String replicationStateDescriptionInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            replicationStateDescriptionInstance = xmlPullParser.getText();
+                                            serviceResourceInstance.setReplicationStateDescription(replicationStateDescriptionInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "LocalDatabaseId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "LocalDatabaseId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    int localDatabaseIdInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        localDatabaseIdInstance = Integer.parseInt(xmlPullParser.getText());
-                                        serviceResourceInstance.setLocalDatabaseId(localDatabaseIdInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "LocalDatabaseId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "LocalDatabaseId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        int localDatabaseIdInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            localDatabaseIdInstance = Integer.parseInt(xmlPullParser.getText());
+                                            serviceResourceInstance.setLocalDatabaseId(localDatabaseIdInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "IsLocalDatabaseReplicationTarget".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "IsLocalDatabaseReplicationTarget".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    boolean isLocalDatabaseReplicationTargetInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        isLocalDatabaseReplicationTargetInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
-                                        serviceResourceInstance.setIsLocalDatabaseReplicationTarget(isLocalDatabaseReplicationTargetInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "IsLocalDatabaseReplicationTarget".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "IsLocalDatabaseReplicationTarget".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        boolean isLocalDatabaseReplicationTargetInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            isLocalDatabaseReplicationTargetInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                            serviceResourceInstance.setIsLocalDatabaseReplicationTarget(isLocalDatabaseReplicationTargetInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "IsInterlinkConnected".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "IsInterlinkConnected".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    boolean isInterlinkConnectedInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        isInterlinkConnectedInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
-                                        serviceResourceInstance.setIsInterlinkConnected(isInterlinkConnectedInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "IsInterlinkConnected".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "IsInterlinkConnected".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        boolean isInterlinkConnectedInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            isInterlinkConnectedInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
+                                            serviceResourceInstance.setIsInterlinkConnected(isInterlinkConnectedInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "StartDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "StartDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String startDateInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        startDateInstance = xmlPullParser.getText();
-                                        serviceResourceInstance.setStartDate(startDateInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "StartDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "StartDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String startDateInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            startDateInstance = xmlPullParser.getText();
+                                            serviceResourceInstance.setStartDate(startDateInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "ModifyDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "ModifyDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String modifyDateInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        modifyDateInstance = xmlPullParser.getText();
-                                        serviceResourceInstance.setModifyDate(modifyDateInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "ModifyDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "ModifyDate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String modifyDateInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            modifyDateInstance = xmlPullParser.getText();
+                                            serviceResourceInstance.setModifyDate(modifyDateInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "PercentComplete".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "PercentComplete".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    float percentCompleteInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        percentCompleteInstance = Float.parseFloat(xmlPullParser.getText());
-                                        serviceResourceInstance.setPercentComplete(percentCompleteInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "PercentComplete".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "PercentComplete".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        float percentCompleteInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            percentCompleteInstance = Float.parseFloat(xmlPullParser.getText());
+                                            serviceResourceInstance.setPercentComplete(percentCompleteInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String nameInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        nameInstance = xmlPullParser.getText();
-                                        serviceResourceInstance.setName(nameInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String nameInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            nameInstance = xmlPullParser.getText();
+                                            serviceResourceInstance.setName(nameInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "Type".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "Type".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String typeInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        typeInstance = xmlPullParser.getText();
-                                        serviceResourceInstance.setType(typeInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "Type".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "Type".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String typeInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            typeInstance = xmlPullParser.getText();
+                                            serviceResourceInstance.setType(typeInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
-                            }
-                            
-                            if (eventType == XmlPullParser.START_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                while ((eventType == XmlPullParser.END_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                    String stateInstance;
-                                    if (eventType == XmlPullParser.TEXT) {
-                                        stateInstance = xmlPullParser.getText();
-                                        serviceResourceInstance.setState(stateInstance);
+                                
+                                if (eventType == XmlPullParser.START_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
+                                    while ((eventType == XmlPullParser.END_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                        String stateInstance;
+                                        if (eventType == XmlPullParser.TEXT) {
+                                            stateInstance = xmlPullParser.getText();
+                                            serviceResourceInstance.setState(stateInstance);
+                                        }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
                     }
+                    
+                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();
@@ -1290,6 +1298,7 @@ public class DatabaseCopyOperationsImpl implements ServiceOperations<SqlManageme
             url = url.substring(1);
         }
         url = baseUrl + "/" + url;
+        url = url.replace(" ", "%20");
         
         // Create HTTP transport objects
         URL serverAddress = new URL(url);

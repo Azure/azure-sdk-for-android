@@ -40,11 +40,13 @@ import com.microsoft.azure.management.websites.models.ServerFarmUpdateResponse;
 import com.microsoft.azure.management.websites.models.ServerFarmWorkerSize;
 
 public class ServerFarmOperationsTests extends WebSiteManagementIntegrationTestBase {
-    protected void setUp() throws Exception {
+    @Override
+    public void setUp() throws Exception {
         createService();
     }
 
-    protected void tearDown() throws Exception {
+    @Override
+    public void tearDown() throws Exception {
         deleteServerFarm("northcentraluswebspace");
         deleteServerFarm("eastuswebspace");
     }
