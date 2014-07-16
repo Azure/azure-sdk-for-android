@@ -39,6 +39,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -219,7 +220,9 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -900,7 +903,8 @@ public class ReservedIPOperationsImpl implements ServiceOperations<NetworkManage
                 if (eventType == XmlPullParser.START_TAG && "ReservedIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ReservedIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "ReservedIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            NetworkReservedIPListResponse.ReservedIP reservedIPInstance = new NetworkReservedIPListResponse.ReservedIP();
+                            NetworkReservedIPListResponse.ReservedIP reservedIPInstance;
+                            reservedIPInstance = new NetworkReservedIPListResponse.ReservedIP();
                             result.getReservedIPs().add(reservedIPInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "ReservedIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

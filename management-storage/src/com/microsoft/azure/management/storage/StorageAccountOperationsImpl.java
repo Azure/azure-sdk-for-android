@@ -50,6 +50,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -275,7 +276,9 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -773,8 +776,13 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "StorageService".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "StorageService".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                        StorageAccount storageServiceInstance = new StorageAccount();
-                        result.setStorageAccount(storageServiceInstance);
+                        StorageAccount storageServiceInstance;
+                        if (result.getStorageAccount() == null) {
+                            storageServiceInstance = new StorageAccount();
+                            result.setStorageAccount(storageServiceInstance);
+                        } else {
+                            storageServiceInstance = result.getStorageAccount();
+                        }
                         
                         if (eventType == XmlPullParser.START_TAG && "Url".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "Url".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -802,8 +810,13 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
                         
                         if (eventType == XmlPullParser.START_TAG && "StorageServiceProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "StorageServiceProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                StorageAccountProperties storageServicePropertiesInstance = new StorageAccountProperties();
-                                storageServiceInstance.setProperties(storageServicePropertiesInstance);
+                                StorageAccountProperties storageServicePropertiesInstance;
+                                if (storageServiceInstance.getProperties() == null) {
+                                    storageServicePropertiesInstance = new StorageAccountProperties();
+                                    storageServiceInstance.setProperties(storageServicePropertiesInstance);
+                                } else {
+                                    storageServicePropertiesInstance = storageServiceInstance.getProperties();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1149,6 +1162,8 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
                                         eventType = xmlPullParser.next();
                                     }
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -1273,7 +1288,8 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
                 if (eventType == XmlPullParser.START_TAG && "StorageServices".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "StorageServices".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "StorageService".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            StorageAccount storageServiceInstance = new StorageAccount();
+                            StorageAccount storageServiceInstance;
+                            storageServiceInstance = new StorageAccount();
                             result.getStorageAccounts().add(storageServiceInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "StorageService".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1303,8 +1319,13 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
                                 
                                 if (eventType == XmlPullParser.START_TAG && "StorageServiceProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "StorageServiceProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                        StorageAccountProperties storageServicePropertiesInstance = new StorageAccountProperties();
-                                        storageServiceInstance.setProperties(storageServicePropertiesInstance);
+                                        StorageAccountProperties storageServicePropertiesInstance;
+                                        if (storageServiceInstance.getProperties() == null) {
+                                            storageServicePropertiesInstance = new StorageAccountProperties();
+                                            storageServiceInstance.setProperties(storageServicePropertiesInstance);
+                                        } else {
+                                            storageServicePropertiesInstance = storageServiceInstance.getProperties();
+                                        }
                                         
                                         if (eventType == XmlPullParser.START_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "Description".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1621,7 +1642,9 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -1682,6 +1705,8 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
                                         eventType = xmlPullParser.next();
                                     }
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -1868,7 +1893,9 @@ public class StorageAccountOperationsImpl implements ServiceOperations<StorageMa
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());

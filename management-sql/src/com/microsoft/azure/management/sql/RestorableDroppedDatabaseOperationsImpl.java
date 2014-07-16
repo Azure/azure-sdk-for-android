@@ -185,8 +185,13 @@ public class RestorableDroppedDatabaseOperationsImpl implements ServiceOperation
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                        RestorableDroppedDatabase serviceResourceInstance = new RestorableDroppedDatabase();
-                        result.setDatabase(serviceResourceInstance);
+                        RestorableDroppedDatabase serviceResourceInstance;
+                        if (result.getDatabase() == null) {
+                            serviceResourceInstance = new RestorableDroppedDatabase();
+                            result.setDatabase(serviceResourceInstance);
+                        } else {
+                            serviceResourceInstance = result.getDatabase();
+                        }
                         
                         if (eventType == XmlPullParser.START_TAG && "EntityId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "EntityId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -433,7 +438,8 @@ public class RestorableDroppedDatabaseOperationsImpl implements ServiceOperation
                 if (eventType == XmlPullParser.START_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            RestorableDroppedDatabase serviceResourceInstance = new RestorableDroppedDatabase();
+                            RestorableDroppedDatabase serviceResourceInstance;
+                            serviceResourceInstance = new RestorableDroppedDatabase();
                             result.getDatabases().add(serviceResourceInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

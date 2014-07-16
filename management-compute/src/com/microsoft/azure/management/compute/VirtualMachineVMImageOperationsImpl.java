@@ -43,6 +43,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -699,8 +700,13 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
                         
                         if (eventType == XmlPullParser.START_TAG && "OSDiskConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "OSDiskConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                VirtualMachineVMImageListResponse.OSDiskConfiguration oSDiskConfigurationInstance = new VirtualMachineVMImageListResponse.OSDiskConfiguration();
-                                result.setOSDiskConfiguration(oSDiskConfigurationInstance);
+                                VirtualMachineVMImageListResponse.OSDiskConfiguration oSDiskConfigurationInstance;
+                                if (result.getOSDiskConfiguration() == null) {
+                                    oSDiskConfigurationInstance = new VirtualMachineVMImageListResponse.OSDiskConfiguration();
+                                    result.setOSDiskConfiguration(oSDiskConfigurationInstance);
+                                } else {
+                                    oSDiskConfigurationInstance = result.getOSDiskConfiguration();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -781,7 +787,8 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
                         if (eventType == XmlPullParser.START_TAG && "DataDiskConfigurations".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "DataDiskConfigurations".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "DataDiskConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    VirtualMachineVMImageListResponse.DataDiskConfiguration dataDiskConfigurationInstance = new VirtualMachineVMImageListResponse.DataDiskConfiguration();
+                                    VirtualMachineVMImageListResponse.DataDiskConfiguration dataDiskConfigurationInstance;
+                                    dataDiskConfigurationInstance = new VirtualMachineVMImageListResponse.DataDiskConfiguration();
                                     result.getDataDiskConfigurations().add(dataDiskConfigurationInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "DataDiskConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1122,7 +1129,8 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
                         if (eventType == XmlPullParser.START_TAG && "ReplicationProgress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "ReplicationProgress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "ReplicationProgressElement".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    VirtualMachineVMImageGetDetailsResponse.ReplicationProgressElement replicationProgressElementInstance = new VirtualMachineVMImageGetDetailsResponse.ReplicationProgressElement();
+                                    VirtualMachineVMImageGetDetailsResponse.ReplicationProgressElement replicationProgressElementInstance;
+                                    replicationProgressElementInstance = new VirtualMachineVMImageGetDetailsResponse.ReplicationProgressElement();
                                     result.getReplicationProgress().add(replicationProgressElementInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "ReplicationProgressElement".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1277,7 +1285,8 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
                 if (eventType == XmlPullParser.START_TAG && "VMImages".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "VMImages".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "VMImage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            VirtualMachineVMImageListResponse.VirtualMachineVMImage vMImageInstance = new VirtualMachineVMImageListResponse.VirtualMachineVMImage();
+                            VirtualMachineVMImageListResponse.VirtualMachineVMImage vMImageInstance;
+                            vMImageInstance = new VirtualMachineVMImageListResponse.VirtualMachineVMImage();
                             result.getVMImages().add(vMImageInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "VMImage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1331,8 +1340,13 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
                                 
                                 if (eventType == XmlPullParser.START_TAG && "OSDiskConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "OSDiskConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                        VirtualMachineVMImageListResponse.OSDiskConfiguration oSDiskConfigurationInstance = new VirtualMachineVMImageListResponse.OSDiskConfiguration();
-                                        vMImageInstance.setOSDiskConfiguration(oSDiskConfigurationInstance);
+                                        VirtualMachineVMImageListResponse.OSDiskConfiguration oSDiskConfigurationInstance;
+                                        if (vMImageInstance.getOSDiskConfiguration() == null) {
+                                            oSDiskConfigurationInstance = new VirtualMachineVMImageListResponse.OSDiskConfiguration();
+                                            vMImageInstance.setOSDiskConfiguration(oSDiskConfigurationInstance);
+                                        } else {
+                                            oSDiskConfigurationInstance = vMImageInstance.getOSDiskConfiguration();
+                                        }
                                         
                                         if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1413,7 +1427,8 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
                                 if (eventType == XmlPullParser.START_TAG && "DataDiskConfigurations".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "DataDiskConfigurations".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                         if (eventType == XmlPullParser.START_TAG && "DataDiskConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                            VirtualMachineVMImageListResponse.DataDiskConfiguration dataDiskConfigurationInstance = new VirtualMachineVMImageListResponse.DataDiskConfiguration();
+                                            VirtualMachineVMImageListResponse.DataDiskConfiguration dataDiskConfigurationInstance;
+                                            dataDiskConfigurationInstance = new VirtualMachineVMImageListResponse.DataDiskConfiguration();
                                             vMImageInstance.getDataDiskConfigurations().add(dataDiskConfigurationInstance);
                                             
                                             while ((eventType == XmlPullParser.END_TAG && "DataDiskConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1855,7 +1870,9 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -1881,6 +1898,7 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
                     while ((eventType == XmlPullParser.END_TAG && "VirtualMachineVMImageReplicateResponse".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "string".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "string".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -2356,7 +2374,9 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());

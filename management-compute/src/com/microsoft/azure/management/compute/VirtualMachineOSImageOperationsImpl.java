@@ -46,6 +46,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -526,7 +527,9 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -1407,7 +1410,8 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                         if (eventType == XmlPullParser.START_TAG && "ReplicationProgress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "ReplicationProgress".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "ReplicationProgressElement".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    VirtualMachineOSImageGetDetailsResponse.ReplicationProgressElement replicationProgressElementInstance = new VirtualMachineOSImageGetDetailsResponse.ReplicationProgressElement();
+                                    VirtualMachineOSImageGetDetailsResponse.ReplicationProgressElement replicationProgressElementInstance;
+                                    replicationProgressElementInstance = new VirtualMachineOSImageGetDetailsResponse.ReplicationProgressElement();
                                     result.getReplicationProgress().add(replicationProgressElementInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "ReplicationProgressElement".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1806,7 +1810,8 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                 if (eventType == XmlPullParser.START_TAG && "Images".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "Images".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "OSImage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            VirtualMachineOSImageListResponse.VirtualMachineOSImage oSImageInstance = new VirtualMachineOSImageListResponse.VirtualMachineOSImage();
+                            VirtualMachineOSImageListResponse.VirtualMachineOSImage oSImageInstance;
+                            oSImageInstance = new VirtualMachineOSImageListResponse.VirtualMachineOSImage();
                             result.getImages().add(oSImageInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "OSImage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -2178,7 +2183,9 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -2204,6 +2211,7 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
                     while ((eventType == XmlPullParser.END_TAG && "VirtualMachineOSImageReplicateResponse".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "string".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "string".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -2648,7 +2656,9 @@ public class VirtualMachineOSImageOperationsImpl implements ServiceOperations<Co
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());

@@ -38,6 +38,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -182,7 +183,9 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -330,7 +333,9 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -360,7 +365,9 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
                             }
                         }
                         
-                        result.setServerName(xmlPullParser.getText());
+                        if (eventType == XmlPullParser.TEXT) {
+                            result.setServerName(xmlPullParser.getText());
+                        }
                         
                         eventType = xmlPullParser.next();
                     }
@@ -577,7 +584,8 @@ public class ServerOperationsImpl implements ServiceOperations<SqlManagementClie
                 if (eventType == XmlPullParser.START_TAG && "Servers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "Servers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "Server".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) {
-                            Server serverInstance = new Server();
+                            Server serverInstance;
+                            serverInstance = new Server();
                             result.getServers().add(serverInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "Server".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/sqlazure/2010/12/".equals(xmlPullParser.getNamespace())) != true) {

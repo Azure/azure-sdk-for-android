@@ -40,6 +40,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -213,7 +214,9 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -502,7 +505,8 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
                         if (eventType == XmlPullParser.START_TAG && "HostedServices".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "HostedServices".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "HostedService".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    AffinityGroupGetResponse.HostedServiceReference hostedServiceInstance = new AffinityGroupGetResponse.HostedServiceReference();
+                                    AffinityGroupGetResponse.HostedServiceReference hostedServiceInstance;
+                                    hostedServiceInstance = new AffinityGroupGetResponse.HostedServiceReference();
                                     result.getHostedServices().add(hostedServiceInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "HostedService".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -543,7 +547,8 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
                         if (eventType == XmlPullParser.START_TAG && "StorageServices".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "StorageServices".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "StorageService".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    AffinityGroupGetResponse.StorageServiceReference storageServiceInstance = new AffinityGroupGetResponse.StorageServiceReference();
+                                    AffinityGroupGetResponse.StorageServiceReference storageServiceInstance;
+                                    storageServiceInstance = new AffinityGroupGetResponse.StorageServiceReference();
                                     result.getStorageServices().add(storageServiceInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "StorageService".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -605,8 +610,13 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
                         
                         if (eventType == XmlPullParser.START_TAG && "ComputeCapabilities".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "ComputeCapabilities".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                ComputeCapabilities computeCapabilitiesInstance = new ComputeCapabilities();
-                                result.setComputeCapabilities(computeCapabilitiesInstance);
+                                ComputeCapabilities computeCapabilitiesInstance;
+                                if (result.getComputeCapabilities() == null) {
+                                    computeCapabilitiesInstance = new ComputeCapabilities();
+                                    result.setComputeCapabilities(computeCapabilitiesInstance);
+                                } else {
+                                    computeCapabilitiesInstance = result.getComputeCapabilities();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "VirtualMachinesRoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "VirtualMachinesRoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -751,7 +761,8 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
                 if (eventType == XmlPullParser.START_TAG && "AffinityGroups".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "AffinityGroups".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            AffinityGroupListResponse.AffinityGroup affinityGroupInstance = new AffinityGroupListResponse.AffinityGroup();
+                            AffinityGroupListResponse.AffinityGroup affinityGroupInstance;
+                            affinityGroupInstance = new AffinityGroupListResponse.AffinityGroup();
                             result.getAffinityGroups().add(affinityGroupInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "AffinityGroup".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -827,8 +838,13 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
                                 
                                 if (eventType == XmlPullParser.START_TAG && "ComputeCapabilities".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "ComputeCapabilities".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                        ComputeCapabilities computeCapabilitiesInstance = new ComputeCapabilities();
-                                        affinityGroupInstance.setComputeCapabilities(computeCapabilitiesInstance);
+                                        ComputeCapabilities computeCapabilitiesInstance;
+                                        if (affinityGroupInstance.getComputeCapabilities() == null) {
+                                            computeCapabilitiesInstance = new ComputeCapabilities();
+                                            affinityGroupInstance.setComputeCapabilities(computeCapabilitiesInstance);
+                                        } else {
+                                            computeCapabilitiesInstance = affinityGroupInstance.getComputeCapabilities();
+                                        }
                                         
                                         if (eventType == XmlPullParser.START_TAG && "VirtualMachinesRoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "VirtualMachinesRoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1003,7 +1019,9 @@ public class AffinityGroupOperationsImpl implements ServiceOperations<Management
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());

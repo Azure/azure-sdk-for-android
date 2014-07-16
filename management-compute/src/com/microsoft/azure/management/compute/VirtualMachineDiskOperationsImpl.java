@@ -45,6 +45,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -402,7 +403,9 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -555,7 +558,9 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -677,8 +682,13 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
                         
                         if (eventType == XmlPullParser.START_TAG && "AttachedTo".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "AttachedTo".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                VirtualMachineDiskCreateResponse.VirtualMachineDiskUsageDetails attachedToInstance = new VirtualMachineDiskCreateResponse.VirtualMachineDiskUsageDetails();
-                                result.setUsageDetails(attachedToInstance);
+                                VirtualMachineDiskCreateResponse.VirtualMachineDiskUsageDetails attachedToInstance;
+                                if (result.getUsageDetails() == null) {
+                                    attachedToInstance = new VirtualMachineDiskCreateResponse.VirtualMachineDiskUsageDetails();
+                                    result.setUsageDetails(attachedToInstance);
+                                } else {
+                                    attachedToInstance = result.getUsageDetails();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "HostedServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "HostedServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1402,8 +1412,13 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
                         
                         if (eventType == XmlPullParser.START_TAG && "AttachedTo".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "AttachedTo".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                VirtualMachineDiskGetResponse.VirtualMachineDiskUsageDetails attachedToInstance = new VirtualMachineDiskGetResponse.VirtualMachineDiskUsageDetails();
-                                result.setUsageDetails(attachedToInstance);
+                                VirtualMachineDiskGetResponse.VirtualMachineDiskUsageDetails attachedToInstance;
+                                if (result.getUsageDetails() == null) {
+                                    attachedToInstance = new VirtualMachineDiskGetResponse.VirtualMachineDiskUsageDetails();
+                                    result.setUsageDetails(attachedToInstance);
+                                } else {
+                                    attachedToInstance = result.getUsageDetails();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "HostedServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "HostedServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1589,7 +1604,8 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
                 if (eventType == XmlPullParser.START_TAG && "Disks".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "Disks".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "Disk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            VirtualMachineDiskListResponse.VirtualMachineDisk diskInstance = new VirtualMachineDiskListResponse.VirtualMachineDisk();
+                            VirtualMachineDiskListResponse.VirtualMachineDisk diskInstance;
+                            diskInstance = new VirtualMachineDiskListResponse.VirtualMachineDisk();
                             result.getDisks().add(diskInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "Disk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1691,8 +1707,13 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
                                 
                                 if (eventType == XmlPullParser.START_TAG && "AttachedTo".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "AttachedTo".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                        VirtualMachineDiskListResponse.VirtualMachineDiskUsageDetails attachedToInstance = new VirtualMachineDiskListResponse.VirtualMachineDiskUsageDetails();
-                                        diskInstance.setUsageDetails(attachedToInstance);
+                                        VirtualMachineDiskListResponse.VirtualMachineDiskUsageDetails attachedToInstance;
+                                        if (diskInstance.getUsageDetails() == null) {
+                                            attachedToInstance = new VirtualMachineDiskListResponse.VirtualMachineDiskUsageDetails();
+                                            diskInstance.setUsageDetails(attachedToInstance);
+                                        } else {
+                                            attachedToInstance = diskInstance.getUsageDetails();
+                                        }
                                         
                                         if (eventType == XmlPullParser.START_TAG && "HostedServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "HostedServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1939,7 +1960,9 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -2103,7 +2126,9 @@ public class VirtualMachineDiskOperationsImpl implements ServiceOperations<Compu
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());

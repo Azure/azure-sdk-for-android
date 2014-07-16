@@ -180,8 +180,13 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                        ServiceObjective serviceResourceInstance = new ServiceObjective();
-                        result.setServiceObjective(serviceResourceInstance);
+                        ServiceObjective serviceResourceInstance;
+                        if (result.getServiceObjective() == null) {
+                            serviceResourceInstance = new ServiceObjective();
+                            result.setServiceObjective(serviceResourceInstance);
+                        } else {
+                            serviceResourceInstance = result.getServiceObjective();
+                        }
                         
                         if (eventType == XmlPullParser.START_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -246,7 +251,8 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
                         if (eventType == XmlPullParser.START_TAG && "DimensionSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "DimensionSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    ServiceObjective.DimensionSettingResponse serviceResourceInstance2 = new ServiceObjective.DimensionSettingResponse();
+                                    ServiceObjective.DimensionSettingResponse serviceResourceInstance2;
+                                    serviceResourceInstance2 = new ServiceObjective.DimensionSettingResponse();
                                     serviceResourceInstance.getDimensionSettings().add(serviceResourceInstance2);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -505,7 +511,8 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
                 if (eventType == XmlPullParser.START_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            ServiceObjective serviceResourceInstance = new ServiceObjective();
+                            ServiceObjective serviceResourceInstance;
+                            serviceResourceInstance = new ServiceObjective();
                             result.getServiceObjectives().add(serviceResourceInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -572,7 +579,8 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
                                 if (eventType == XmlPullParser.START_TAG && "DimensionSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "DimensionSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                         if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                            ServiceObjective.DimensionSettingResponse serviceResourceInstance2 = new ServiceObjective.DimensionSettingResponse();
+                                            ServiceObjective.DimensionSettingResponse serviceResourceInstance2;
+                                            serviceResourceInstance2 = new ServiceObjective.DimensionSettingResponse();
                                             serviceResourceInstance.getDimensionSettings().add(serviceResourceInstance2);
                                             
                                             while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

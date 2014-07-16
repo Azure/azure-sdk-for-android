@@ -25,7 +25,7 @@ import com.microsoft.azure.management.websites.WebSiteManagementClient;
 import com.microsoft.azure.management.websites.WebSiteManagementService;
 
 public abstract class WebSiteManagementIntegrationTestBase extends TestCase {
-    protected static String testWebsitePrefix = "azuresdktestwebsite";
+    protected static String testWebsitePrefix = "azuresdktstswebsite";
     protected static WebSiteManagementClient webSiteManagementClient;
 
     protected static void createService() throws Exception {
@@ -38,10 +38,10 @@ public abstract class WebSiteManagementIntegrationTestBase extends TestCase {
         String baseUri = System.getenv(ManagementConfiguration.URI);
         return ManagementConfiguration.configure(
             baseUri != null ? new URI(baseUri) : null,
-            System.getenv(ManagementConfiguration.SUBSCRIPTION_ID),
-            System.getenv(ManagementConfiguration.KEYSTORE_PATH),
-            System.getenv(ManagementConfiguration.KEYSTORE_PASSWORD),
-            KeyStoreType.fromString(System.getenv(ManagementConfiguration.KEYSTORE_TYPE))
+            "db1ab6f0-4769-4b27-930e-01e2ef9c123c",
+            "/assets/clientcert.bks",
+            "test123",
+            KeyStoreType.fromString("bks")
         );
     }
 }

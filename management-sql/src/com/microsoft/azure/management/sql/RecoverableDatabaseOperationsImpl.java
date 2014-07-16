@@ -187,8 +187,13 @@ public class RecoverableDatabaseOperationsImpl implements ServiceOperations<SqlM
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                        RecoverableDatabase serviceResourceInstance = new RecoverableDatabase();
-                        result.setDatabase(serviceResourceInstance);
+                        RecoverableDatabase serviceResourceInstance;
+                        if (result.getDatabase() == null) {
+                            serviceResourceInstance = new RecoverableDatabase();
+                            result.setDatabase(serviceResourceInstance);
+                        } else {
+                            serviceResourceInstance = result.getDatabase();
+                        }
                         
                         if (eventType == XmlPullParser.START_TAG && "EntityId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "EntityId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -405,7 +410,8 @@ public class RecoverableDatabaseOperationsImpl implements ServiceOperations<SqlM
                 if (eventType == XmlPullParser.START_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            RecoverableDatabase serviceResourceInstance = new RecoverableDatabase();
+                            RecoverableDatabase serviceResourceInstance;
+                            serviceResourceInstance = new RecoverableDatabase();
                             result.getDatabases().add(serviceResourceInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

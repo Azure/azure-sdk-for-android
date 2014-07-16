@@ -44,6 +44,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -227,7 +228,9 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -251,8 +254,13 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                        Database serviceResourceInstance = new Database();
-                        result.setDatabase(serviceResourceInstance);
+                        Database serviceResourceInstance;
+                        if (result.getDatabase() == null) {
+                            serviceResourceInstance = new Database();
+                            result.setDatabase(serviceResourceInstance);
+                        } else {
+                            serviceResourceInstance = result.getDatabase();
+                        }
                         
                         if (eventType == XmlPullParser.START_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -730,8 +738,13 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                        Database serviceResourceInstance = new Database();
-                        result.setDatabase(serviceResourceInstance);
+                        Database serviceResourceInstance;
+                        if (result.getDatabase() == null) {
+                            serviceResourceInstance = new Database();
+                            result.setDatabase(serviceResourceInstance);
+                        } else {
+                            serviceResourceInstance = result.getDatabase();
+                        }
                         
                         if (eventType == XmlPullParser.START_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1118,7 +1131,8 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                 if (eventType == XmlPullParser.START_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            DatabaseEventLog serviceResourceInstance = new DatabaseEventLog();
+                            DatabaseEventLog serviceResourceInstance;
+                            serviceResourceInstance = new DatabaseEventLog();
                             result.getEventLogs().add(serviceResourceInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1419,7 +1433,8 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
                 if (eventType == XmlPullParser.START_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            Database serviceResourceInstance = new Database();
+                            Database serviceResourceInstance;
+                            serviceResourceInstance = new Database();
                             result.getDatabases().add(serviceResourceInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1829,7 +1844,9 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -1853,8 +1870,13 @@ public class DatabaseOperationsImpl implements ServiceOperations<SqlManagementCl
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                        Database serviceResourceInstance = new Database();
-                        result.setDatabase(serviceResourceInstance);
+                        Database serviceResourceInstance;
+                        if (result.getDatabase() == null) {
+                            serviceResourceInstance = new Database();
+                            result.setDatabase(serviceResourceInstance);
+                        } else {
+                            serviceResourceInstance = result.getDatabase();
+                        }
                         
                         if (eventType == XmlPullParser.START_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

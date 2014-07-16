@@ -163,7 +163,8 @@ public class RoleSizeOperationsImpl implements ServiceOperations<ManagementClien
                 if (eventType == XmlPullParser.START_TAG && "RoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "RoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "RoleSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            RoleSizeListResponse.RoleSize roleSizeInstance = new RoleSizeListResponse.RoleSize();
+                            RoleSizeListResponse.RoleSize roleSizeInstance;
+                            roleSizeInstance = new RoleSizeListResponse.RoleSize();
                             result.getRoleSizes().add(roleSizeInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "RoleSize".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

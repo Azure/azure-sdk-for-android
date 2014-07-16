@@ -357,7 +357,8 @@ public class WebSiteManagementClientImpl extends ServiceClient<WebSiteManagement
                         if (eventType == XmlPullParser.START_TAG && "Errors".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "Errors".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "Error".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    WebSiteOperationStatusResponse.Error errorInstance = new WebSiteOperationStatusResponse.Error();
+                                    WebSiteOperationStatusResponse.Error errorInstance;
+                                    errorInstance = new WebSiteOperationStatusResponse.Error();
                                     result.getErrors().add(errorInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "Error".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

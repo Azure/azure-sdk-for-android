@@ -38,6 +38,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -202,7 +203,9 @@ public class ManagementCertificateOperationsImpl implements ServiceOperations<Ma
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -625,7 +628,8 @@ public class ManagementCertificateOperationsImpl implements ServiceOperations<Ma
                 if (eventType == XmlPullParser.START_TAG && "SubscriptionCertificates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "SubscriptionCertificates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "SubscriptionCertificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            ManagementCertificateListResponse.SubscriptionCertificate subscriptionCertificateInstance = new ManagementCertificateListResponse.SubscriptionCertificate();
+                            ManagementCertificateListResponse.SubscriptionCertificate subscriptionCertificateInstance;
+                            subscriptionCertificateInstance = new ManagementCertificateListResponse.SubscriptionCertificate();
                             result.getSubscriptionCertificates().add(subscriptionCertificateInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "SubscriptionCertificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

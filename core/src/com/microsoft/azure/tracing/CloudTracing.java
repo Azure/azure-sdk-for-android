@@ -69,7 +69,7 @@ public abstract class CloudTracing {
     }
 
     static {
-        isEnabled = true;
+        isEnabled = false;
         interceptors = Collections
                 .synchronizedList(new ArrayList<CloudTracingInterceptor>());
     }
