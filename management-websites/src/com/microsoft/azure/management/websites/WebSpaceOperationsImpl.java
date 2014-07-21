@@ -53,6 +53,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -222,7 +223,9 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -434,9 +437,9 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                                         currentNumberOfWorkersInstance = Integer.parseInt(xmlPullParser.getText());
                                         result.setCurrentNumberOfWorkers(currentNumberOfWorkersInstance);
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -454,9 +457,9 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                                         currentWorkerSizeInstance = WebSpaceWorkerSize.valueOf(xmlPullParser.getText());
                                         result.setCurrentWorkerSize(currentWorkerSizeInstance);
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -655,7 +658,9 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "string".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/2003/10/Serialization/".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "string".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/2003/10/Serialization/".equals(xmlPullParser.getNamespace())) != true) {
-                        result.setDnsSuffix(xmlPullParser.getText());
+                        if (eventType == XmlPullParser.TEXT) {
+                            result.setDnsSuffix(xmlPullParser.getText());
+                        }
                         
                         eventType = xmlPullParser.next();
                     }
@@ -775,7 +780,8 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                 if (eventType == XmlPullParser.START_TAG && "WebSpaces".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "WebSpaces".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "WebSpace".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            WebSpacesListResponse.WebSpace webSpaceInstance = new WebSpacesListResponse.WebSpace();
+                            WebSpacesListResponse.WebSpace webSpaceInstance;
+                            webSpaceInstance = new WebSpacesListResponse.WebSpace();
                             result.getWebSpaces().add(webSpaceInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "WebSpace".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -805,9 +811,9 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                                                 currentNumberOfWorkersInstance = Integer.parseInt(xmlPullParser.getText());
                                                 webSpaceInstance.setCurrentNumberOfWorkers(currentNumberOfWorkersInstance);
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
                                 }
                                 
@@ -825,9 +831,9 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                                                 currentWorkerSizeInstance = WebSpaceWorkerSize.valueOf(xmlPullParser.getText());
                                                 webSpaceInstance.setCurrentWorkerSize(currentWorkerSizeInstance);
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
                                 }
                                 
@@ -1033,7 +1039,8 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                 if (eventType == XmlPullParser.START_TAG && "GeoRegions".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "GeoRegions".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "GeoRegion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            WebSpacesListGeoRegionsResponse.GeoRegion geoRegionInstance = new WebSpacesListGeoRegionsResponse.GeoRegion();
+                            WebSpacesListGeoRegionsResponse.GeoRegion geoRegionInstance;
+                            geoRegionInstance = new WebSpacesListGeoRegionsResponse.GeoRegion();
                             result.getGeoRegions().add(geoRegionInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "GeoRegion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1075,9 +1082,9 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                                                 sortOrderInstance = Integer.parseInt(xmlPullParser.getText());
                                                 geoRegionInstance.setSortOrder(sortOrderInstance);
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
                                 }
                                 
@@ -1199,7 +1206,8 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                 if (eventType == XmlPullParser.START_TAG && "ArrayOfstring".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/2003/10/Serialization/Arrays".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ArrayOfstring".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/2003/10/Serialization/Arrays".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "string".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/2003/10/Serialization/Arrays".equals(xmlPullParser.getNamespace())) {
-                            WebSpacesListPublishingUsersResponse.User stringInstance = new WebSpacesListPublishingUsersResponse.User();
+                            WebSpacesListPublishingUsersResponse.User stringInstance;
+                            stringInstance = new WebSpacesListPublishingUsersResponse.User();
                             result.getUsers().add(stringInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "string".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/2003/10/Serialization/Arrays".equals(xmlPullParser.getNamespace())) != true) {
@@ -1208,8 +1216,6 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                                     stringInstance2 = xmlPullParser.getText();
                                     stringInstance.setName(stringInstance2);
                                 }
-                                
-                                eventType = xmlPullParser.next();
                                 
                                 eventType = xmlPullParser.next();
                             }
@@ -1350,7 +1356,8 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                 if (eventType == XmlPullParser.START_TAG && "Sites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "Sites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "Site".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            WebSite siteInstance = new WebSite();
+                            WebSite siteInstance;
+                            siteInstance = new WebSite();
                             result.getWebSites().add(siteInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "Site".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1415,7 +1422,8 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                                 if (eventType == XmlPullParser.START_TAG && "HostNameSslStates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "HostNameSslStates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                         if (eventType == XmlPullParser.START_TAG && "HostNameSslState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                            WebSite.WebSiteHostNameSslState hostNameSslStateInstance = new WebSite.WebSiteHostNameSslState();
+                                            WebSite.WebSiteHostNameSslState hostNameSslStateInstance;
+                                            hostNameSslStateInstance = new WebSite.WebSiteHostNameSslState();
                                             siteInstance.getHostNameSslStates().add(hostNameSslStateInstance);
                                             
                                             while ((eventType == XmlPullParser.END_TAG && "HostNameSslState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1550,7 +1558,8 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                                 if (eventType == XmlPullParser.START_TAG && "SSLCertificates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "SSLCertificates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                         if (eventType == XmlPullParser.START_TAG && "Certificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                            WebSite.WebSiteSslCertificate certificateInstance = new WebSite.WebSiteSslCertificate();
+                                            WebSite.WebSiteSslCertificate certificateInstance;
+                                            certificateInstance = new WebSite.WebSiteSslCertificate();
                                             siteInstance.getSslCertificates().add(certificateInstance);
                                             
                                             while ((eventType == XmlPullParser.END_TAG && "Certificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1568,9 +1577,9 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                                                                 expirationDateInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
                                                                 certificateInstance.setExpirationDate(expirationDateInstance);
                                                             }
-                                                            
-                                                            eventType = xmlPullParser.next();
                                                         }
+                                                        
+                                                        eventType = xmlPullParser.next();
                                                     }
                                                 }
                                                 
@@ -1610,9 +1619,9 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                                                                 issueDateInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
                                                                 certificateInstance.setIssueDate(issueDateInstance);
                                                             }
-                                                            
-                                                            eventType = xmlPullParser.next();
                                                         }
+                                                        
+                                                        eventType = xmlPullParser.next();
                                                     }
                                                 }
                                                 
@@ -1714,9 +1723,9 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                                                                 toDeleteInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
                                                                 certificateInstance.setIsToBeDeleted(toDeleteInstance);
                                                             }
-                                                            
-                                                            eventType = xmlPullParser.next();
                                                         }
+                                                        
+                                                        eventType = xmlPullParser.next();
                                                     }
                                                 }
                                                 
@@ -1734,9 +1743,9 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                                                                 validInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
                                                                 certificateInstance.setIsValid(validInstance);
                                                             }
-                                                            
-                                                            eventType = xmlPullParser.next();
                                                         }
+                                                        
+                                                        eventType = xmlPullParser.next();
                                                     }
                                                 }
                                                 
@@ -1788,8 +1797,13 @@ public class WebSpaceOperationsImpl implements ServiceOperations<WebSiteManageme
                                 
                                 if (eventType == XmlPullParser.START_TAG && "SiteProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "SiteProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                        WebSite.WebSiteProperties sitePropertiesInstance = new WebSite.WebSiteProperties();
-                                        siteInstance.setSiteProperties(sitePropertiesInstance);
+                                        WebSite.WebSiteProperties sitePropertiesInstance;
+                                        if (siteInstance.getSiteProperties() == null) {
+                                            sitePropertiesInstance = new WebSite.WebSiteProperties();
+                                            siteInstance.setSiteProperties(sitePropertiesInstance);
+                                        } else {
+                                            sitePropertiesInstance = siteInstance.getSiteProperties();
+                                        }
                                         
                                         if (eventType == XmlPullParser.START_TAG && "AppSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "AppSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

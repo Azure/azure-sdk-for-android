@@ -90,6 +90,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -372,7 +373,9 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -630,7 +633,9 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -908,7 +913,9 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -1293,7 +1300,9 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -1437,7 +1446,9 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -2103,7 +2114,9 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -2256,7 +2269,9 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -2406,7 +2421,9 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -2732,7 +2749,9 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -3055,7 +3074,9 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -3247,7 +3268,9 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -3436,7 +3459,9 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -4522,7 +4547,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         if (eventType == XmlPullParser.START_TAG && "RoleInstanceList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "RoleInstanceList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "RoleInstance".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    RoleInstance roleInstanceInstance = new RoleInstance();
+                                    RoleInstance roleInstanceInstance;
+                                    roleInstanceInstance = new RoleInstance();
                                     result.getRoleInstances().add(roleInstanceInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "RoleInstance".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -4637,7 +4663,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         if (eventType == XmlPullParser.START_TAG && "InstanceEndpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "InstanceEndpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "InstanceEndpoint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    InstanceEndpoint instanceEndpointInstance = new InstanceEndpoint();
+                                                    InstanceEndpoint instanceEndpointInstance;
+                                                    instanceEndpointInstance = new InstanceEndpoint();
                                                     roleInstanceInstance.getInstanceEndpoints().add(instanceEndpointInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "InstanceEndpoint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -4713,8 +4740,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         
                                         if (eventType == XmlPullParser.START_TAG && "GuestAgentStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "GuestAgentStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                GuestAgentStatus guestAgentStatusInstance = new GuestAgentStatus();
-                                                roleInstanceInstance.setGuestAgentStatus(guestAgentStatusInstance);
+                                                GuestAgentStatus guestAgentStatusInstance;
+                                                if (roleInstanceInstance.getGuestAgentStatus() == null) {
+                                                    guestAgentStatusInstance = new GuestAgentStatus();
+                                                    roleInstanceInstance.setGuestAgentStatus(guestAgentStatusInstance);
+                                                } else {
+                                                    guestAgentStatusInstance = roleInstanceInstance.getGuestAgentStatus();
+                                                }
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "ProtocolVersion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "ProtocolVersion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -4778,8 +4810,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                        GuestAgentMessage messageInstance = new GuestAgentMessage();
-                                                        guestAgentStatusInstance.setMessage(messageInstance);
+                                                        GuestAgentMessage messageInstance;
+                                                        if (guestAgentStatusInstance.getMessage() == null) {
+                                                            messageInstance = new GuestAgentMessage();
+                                                            guestAgentStatusInstance.setMessage(messageInstance);
+                                                        } else {
+                                                            messageInstance = guestAgentStatusInstance.getMessage();
+                                                        }
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -4809,8 +4846,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                        GuestAgentFormattedMessage formattedMessageInstance = new GuestAgentFormattedMessage();
-                                                        guestAgentStatusInstance.setFormattedMessage(formattedMessageInstance);
+                                                        GuestAgentFormattedMessage formattedMessageInstance;
+                                                        if (guestAgentStatusInstance.getFormattedMessage() == null) {
+                                                            formattedMessageInstance = new GuestAgentFormattedMessage();
+                                                            guestAgentStatusInstance.setFormattedMessage(formattedMessageInstance);
+                                                        } else {
+                                                            formattedMessageInstance = guestAgentStatusInstance.getFormattedMessage();
+                                                        }
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -4847,7 +4889,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         if (eventType == XmlPullParser.START_TAG && "ResourceExtensionStatusList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "ResourceExtensionStatusList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "ResourceExtensionStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    ResourceExtensionStatus resourceExtensionStatusInstance = new ResourceExtensionStatus();
+                                                    ResourceExtensionStatus resourceExtensionStatusInstance;
+                                                    resourceExtensionStatusInstance = new ResourceExtensionStatus();
                                                     roleInstanceInstance.getResourceExtensionStatusList().add(resourceExtensionStatusInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "ResourceExtensionStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -4901,8 +4944,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                GuestAgentMessage messageInstance3 = new GuestAgentMessage();
-                                                                resourceExtensionStatusInstance.setMessage(messageInstance3);
+                                                                GuestAgentMessage messageInstance3;
+                                                                if (resourceExtensionStatusInstance.getMessage() == null) {
+                                                                    messageInstance3 = new GuestAgentMessage();
+                                                                    resourceExtensionStatusInstance.setMessage(messageInstance3);
+                                                                } else {
+                                                                    messageInstance3 = resourceExtensionStatusInstance.getMessage();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -4932,8 +4980,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                GuestAgentFormattedMessage formattedMessageInstance2 = new GuestAgentFormattedMessage();
-                                                                resourceExtensionStatusInstance.setFormattedMessage(formattedMessageInstance2);
+                                                                GuestAgentFormattedMessage formattedMessageInstance2;
+                                                                if (resourceExtensionStatusInstance.getFormattedMessage() == null) {
+                                                                    formattedMessageInstance2 = new GuestAgentFormattedMessage();
+                                                                    resourceExtensionStatusInstance.setFormattedMessage(formattedMessageInstance2);
+                                                                } else {
+                                                                    formattedMessageInstance2 = resourceExtensionStatusInstance.getFormattedMessage();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -4965,8 +5018,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "ExtensionSettingStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "ExtensionSettingStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                ResourceExtensionConfigurationStatus extensionSettingStatusInstance = new ResourceExtensionConfigurationStatus();
-                                                                resourceExtensionStatusInstance.setExtensionSettingStatus(extensionSettingStatusInstance);
+                                                                ResourceExtensionConfigurationStatus extensionSettingStatusInstance;
+                                                                if (resourceExtensionStatusInstance.getExtensionSettingStatus() == null) {
+                                                                    extensionSettingStatusInstance = new ResourceExtensionConfigurationStatus();
+                                                                    resourceExtensionStatusInstance.setExtensionSettingStatus(extensionSettingStatusInstance);
+                                                                } else {
+                                                                    extensionSettingStatusInstance = resourceExtensionStatusInstance.getExtensionSettingStatus();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5042,8 +5100,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                        GuestAgentMessage messageInstance5 = new GuestAgentMessage();
-                                                                        extensionSettingStatusInstance.setMessage(messageInstance5);
+                                                                        GuestAgentMessage messageInstance5;
+                                                                        if (extensionSettingStatusInstance.getMessage() == null) {
+                                                                            messageInstance5 = new GuestAgentMessage();
+                                                                            extensionSettingStatusInstance.setMessage(messageInstance5);
+                                                                        } else {
+                                                                            messageInstance5 = extensionSettingStatusInstance.getMessage();
+                                                                        }
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                             while ((eventType == XmlPullParser.END_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5073,8 +5136,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                        GuestAgentFormattedMessage formattedMessageInstance3 = new GuestAgentFormattedMessage();
-                                                                        extensionSettingStatusInstance.setFormattedMessage(formattedMessageInstance3);
+                                                                        GuestAgentFormattedMessage formattedMessageInstance3;
+                                                                        if (extensionSettingStatusInstance.getFormattedMessage() == null) {
+                                                                            formattedMessageInstance3 = new GuestAgentFormattedMessage();
+                                                                            extensionSettingStatusInstance.setFormattedMessage(formattedMessageInstance3);
+                                                                        } else {
+                                                                            formattedMessageInstance3 = extensionSettingStatusInstance.getFormattedMessage();
+                                                                        }
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                             while ((eventType == XmlPullParser.END_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5107,7 +5175,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                 if (eventType == XmlPullParser.START_TAG && "SubStatusList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "SubStatusList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                         if (eventType == XmlPullParser.START_TAG && "SubStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                            ResourceExtensionSubStatus subStatusInstance = new ResourceExtensionSubStatus();
+                                                                            ResourceExtensionSubStatus subStatusInstance;
+                                                                            subStatusInstance = new ResourceExtensionSubStatus();
                                                                             extensionSettingStatusInstance.getSubStatusList().add(subStatusInstance);
                                                                             
                                                                             while ((eventType == XmlPullParser.END_TAG && "SubStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5149,8 +5218,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                                 
                                                                                 if (eventType == XmlPullParser.START_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                                     while ((eventType == XmlPullParser.END_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                                        GuestAgentMessage messageInstance7 = new GuestAgentMessage();
-                                                                                        subStatusInstance.setMessage(messageInstance7);
+                                                                                        GuestAgentMessage messageInstance7;
+                                                                                        if (subStatusInstance.getMessage() == null) {
+                                                                                            messageInstance7 = new GuestAgentMessage();
+                                                                                            subStatusInstance.setMessage(messageInstance7);
+                                                                                        } else {
+                                                                                            messageInstance7 = subStatusInstance.getMessage();
+                                                                                        }
                                                                                         
                                                                                         if (eventType == XmlPullParser.START_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                                             while ((eventType == XmlPullParser.END_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5180,8 +5254,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                                 
                                                                                 if (eventType == XmlPullParser.START_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                                     while ((eventType == XmlPullParser.END_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                                        GuestAgentFormattedMessage formattedMessageInstance4 = new GuestAgentFormattedMessage();
-                                                                                        subStatusInstance.setFormattedMessage(formattedMessageInstance4);
+                                                                                        GuestAgentFormattedMessage formattedMessageInstance4;
+                                                                                        if (subStatusInstance.getFormattedMessage() == null) {
+                                                                                            formattedMessageInstance4 = new GuestAgentFormattedMessage();
+                                                                                            subStatusInstance.setFormattedMessage(formattedMessageInstance4);
+                                                                                        } else {
+                                                                                            formattedMessageInstance4 = subStatusInstance.getFormattedMessage();
+                                                                                        }
                                                                                         
                                                                                         if (eventType == XmlPullParser.START_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                                             while ((eventType == XmlPullParser.END_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5274,7 +5353,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         if (eventType == XmlPullParser.START_TAG && "PublicIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "PublicIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "PublicIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    RoleInstance.PublicIP publicIPInstance = new RoleInstance.PublicIP();
+                                                    RoleInstance.PublicIP publicIPInstance;
+                                                    publicIPInstance = new RoleInstance.PublicIP();
                                                     roleInstanceInstance.getPublicIPs().add(publicIPInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "PublicIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5324,8 +5404,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         
                         if (eventType == XmlPullParser.START_TAG && "UpgradeStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "UpgradeStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                UpgradeStatus upgradeStatusInstance = new UpgradeStatus();
-                                result.setUpgradeStatus(upgradeStatusInstance);
+                                UpgradeStatus upgradeStatusInstance;
+                                if (result.getUpgradeStatus() == null) {
+                                    upgradeStatusInstance = new UpgradeStatus();
+                                    result.setUpgradeStatus(upgradeStatusInstance);
+                                } else {
+                                    upgradeStatusInstance = result.getUpgradeStatus();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "UpgradeType".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "UpgradeType".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5382,7 +5467,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         if (eventType == XmlPullParser.START_TAG && "RoleList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "RoleList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "Role".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    Role roleInstance = new Role();
+                                    Role roleInstance;
+                                    roleInstance = new Role();
                                     result.getRoles().add(roleInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "Role".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5425,7 +5511,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         if (eventType == XmlPullParser.START_TAG && "ConfigurationSets".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "ConfigurationSets".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "ConfigurationSet".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    ConfigurationSet configurationSetInstance = new ConfigurationSet();
+                                                    ConfigurationSet configurationSetInstance;
+                                                    configurationSetInstance = new ConfigurationSet();
                                                     roleInstance.getConfigurationSets().add(configurationSetInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "ConfigurationSet".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5444,7 +5531,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         if (eventType == XmlPullParser.START_TAG && "InputEndpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "InputEndpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                 if (eventType == XmlPullParser.START_TAG && "InputEndpoint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                    InputEndpoint inputEndpointInstance = new InputEndpoint();
+                                                                    InputEndpoint inputEndpointInstance;
+                                                                    inputEndpointInstance = new InputEndpoint();
                                                                     configurationSetInstance.getInputEndpoints().add(inputEndpointInstance);
                                                                     
                                                                     while ((eventType == XmlPullParser.END_TAG && "InputEndpoint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5498,8 +5586,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "LoadBalancerProbe".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                             while ((eventType == XmlPullParser.END_TAG && "LoadBalancerProbe".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                                LoadBalancerProbe loadBalancerProbeInstance = new LoadBalancerProbe();
-                                                                                inputEndpointInstance.setLoadBalancerProbe(loadBalancerProbeInstance);
+                                                                                LoadBalancerProbe loadBalancerProbeInstance;
+                                                                                if (inputEndpointInstance.getLoadBalancerProbe() == null) {
+                                                                                    loadBalancerProbeInstance = new LoadBalancerProbe();
+                                                                                    inputEndpointInstance.setLoadBalancerProbe(loadBalancerProbeInstance);
+                                                                                } else {
+                                                                                    loadBalancerProbeInstance = inputEndpointInstance.getLoadBalancerProbe();
+                                                                                }
                                                                                 
                                                                                 if (eventType == XmlPullParser.START_TAG && "Path".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                                     while ((eventType == XmlPullParser.END_TAG && "Path".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5615,13 +5708,19 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "EndpointAcl".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                             while ((eventType == XmlPullParser.END_TAG && "EndpointAcl".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                                EndpointAcl endpointAclInstance = new EndpointAcl();
-                                                                                inputEndpointInstance.setEndpointAcl(endpointAclInstance);
+                                                                                EndpointAcl endpointAclInstance;
+                                                                                if (inputEndpointInstance.getEndpointAcl() == null) {
+                                                                                    endpointAclInstance = new EndpointAcl();
+                                                                                    inputEndpointInstance.setEndpointAcl(endpointAclInstance);
+                                                                                } else {
+                                                                                    endpointAclInstance = inputEndpointInstance.getEndpointAcl();
+                                                                                }
                                                                                 
                                                                                 if (eventType == XmlPullParser.START_TAG && "Rules".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                                     while ((eventType == XmlPullParser.END_TAG && "Rules".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                                         if (eventType == XmlPullParser.START_TAG && "Rule".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                                            AccessControlListRule ruleInstance = new AccessControlListRule();
+                                                                                            AccessControlListRule ruleInstance;
+                                                                                            ruleInstance = new AccessControlListRule();
                                                                                             endpointAclInstance.getRules().add(ruleInstance);
                                                                                             
                                                                                             while ((eventType == XmlPullParser.END_TAG && "Rule".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5722,7 +5821,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         if (eventType == XmlPullParser.START_TAG && "PublicIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "PublicIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                 if (eventType == XmlPullParser.START_TAG && "PublicIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                    ConfigurationSet.PublicIP publicIPInstance2 = new ConfigurationSet.PublicIP();
+                                                                    ConfigurationSet.PublicIP publicIPInstance2;
+                                                                    publicIPInstance2 = new ConfigurationSet.PublicIP();
                                                                     configurationSetInstance.getPublicIPs().add(publicIPInstance2);
                                                                     
                                                                     while ((eventType == XmlPullParser.END_TAG && "PublicIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5810,13 +5910,23 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "DomainJoin".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "DomainJoin".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                DomainJoinSettings domainJoinInstance = new DomainJoinSettings();
-                                                                configurationSetInstance.setDomainJoin(domainJoinInstance);
+                                                                DomainJoinSettings domainJoinInstance;
+                                                                if (configurationSetInstance.getDomainJoin() == null) {
+                                                                    domainJoinInstance = new DomainJoinSettings();
+                                                                    configurationSetInstance.setDomainJoin(domainJoinInstance);
+                                                                } else {
+                                                                    domainJoinInstance = configurationSetInstance.getDomainJoin();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "Credentials".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "Credentials".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                        DomainJoinCredentials credentialsInstance = new DomainJoinCredentials();
-                                                                        domainJoinInstance.setCredentials(credentialsInstance);
+                                                                        DomainJoinCredentials credentialsInstance;
+                                                                        if (domainJoinInstance.getCredentials() == null) {
+                                                                            credentialsInstance = new DomainJoinCredentials();
+                                                                            domainJoinInstance.setCredentials(credentialsInstance);
+                                                                        } else {
+                                                                            credentialsInstance = domainJoinInstance.getCredentials();
+                                                                        }
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "Domain".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                             while ((eventType == XmlPullParser.END_TAG && "Domain".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5884,8 +5994,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "Provisioning".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "Provisioning".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                        DomainJoinProvisioning provisioningInstance = new DomainJoinProvisioning();
-                                                                        domainJoinInstance.setProvisioning(provisioningInstance);
+                                                                        DomainJoinProvisioning provisioningInstance;
+                                                                        if (domainJoinInstance.getProvisioning() == null) {
+                                                                            provisioningInstance = new DomainJoinProvisioning();
+                                                                            domainJoinInstance.setProvisioning(provisioningInstance);
+                                                                        } else {
+                                                                            provisioningInstance = domainJoinInstance.getProvisioning();
+                                                                        }
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "AccountData".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                             while ((eventType == XmlPullParser.END_TAG && "AccountData".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5910,12 +6025,14 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         if (eventType == XmlPullParser.START_TAG && "StoredCertificateSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "StoredCertificateSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                 if (eventType == XmlPullParser.START_TAG && "CertificateSetting".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                    StoredCertificateSettings certificateSettingInstance = new StoredCertificateSettings();
+                                                                    StoredCertificateSettings certificateSettingInstance;
+                                                                    certificateSettingInstance = new StoredCertificateSettings();
                                                                     configurationSetInstance.getStoredCertificateSettings().add(certificateSettingInstance);
                                                                     
                                                                     while ((eventType == XmlPullParser.END_TAG && "CertificateSetting".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                         if (eventType == XmlPullParser.START_TAG && "StoreLocation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                             while ((eventType == XmlPullParser.END_TAG && "StoreLocation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                                eventType = xmlPullParser.next();
                                                                             }
                                                                         }
                                                                         
@@ -5955,13 +6072,19 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "WinRM".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "WinRM".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                WindowsRemoteManagementSettings winRMInstance = new WindowsRemoteManagementSettings();
-                                                                configurationSetInstance.setWindowsRemoteManagement(winRMInstance);
+                                                                WindowsRemoteManagementSettings winRMInstance;
+                                                                if (configurationSetInstance.getWindowsRemoteManagement() == null) {
+                                                                    winRMInstance = new WindowsRemoteManagementSettings();
+                                                                    configurationSetInstance.setWindowsRemoteManagement(winRMInstance);
+                                                                } else {
+                                                                    winRMInstance = configurationSetInstance.getWindowsRemoteManagement();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "Listeners".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "Listeners".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                         if (eventType == XmlPullParser.START_TAG && "Listener".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                            WindowsRemoteManagementListener listenerInstance = new WindowsRemoteManagementListener();
+                                                                            WindowsRemoteManagementListener listenerInstance;
+                                                                            listenerInstance = new WindowsRemoteManagementListener();
                                                                             winRMInstance.getListeners().add(listenerInstance);
                                                                             
                                                                             while ((eventType == XmlPullParser.END_TAG && "Listener".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6065,13 +6188,19 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "SSH".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "SSH".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                SshSettings sSHInstance = new SshSettings();
-                                                                configurationSetInstance.setSshSettings(sSHInstance);
+                                                                SshSettings sSHInstance;
+                                                                if (configurationSetInstance.getSshSettings() == null) {
+                                                                    sSHInstance = new SshSettings();
+                                                                    configurationSetInstance.setSshSettings(sSHInstance);
+                                                                } else {
+                                                                    sSHInstance = configurationSetInstance.getSshSettings();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "PublicKeys".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "PublicKeys".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                         if (eventType == XmlPullParser.START_TAG && "PublicKey".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                            SshSettingPublicKey publicKeyInstance = new SshSettingPublicKey();
+                                                                            SshSettingPublicKey publicKeyInstance;
+                                                                            publicKeyInstance = new SshSettingPublicKey();
                                                                             sSHInstance.getPublicKeys().add(publicKeyInstance);
                                                                             
                                                                             while ((eventType == XmlPullParser.END_TAG && "PublicKey".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6112,7 +6241,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                 if (eventType == XmlPullParser.START_TAG && "KeyPairs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "KeyPairs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                         if (eventType == XmlPullParser.START_TAG && "KeyPair".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                            SshSettingKeyPair keyPairInstance = new SshSettingKeyPair();
+                                                                            SshSettingKeyPair keyPairInstance;
+                                                                            keyPairInstance = new SshSettingKeyPair();
                                                                             sSHInstance.getKeyPairs().add(keyPairInstance);
                                                                             
                                                                             while ((eventType == XmlPullParser.END_TAG && "KeyPair".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6179,7 +6309,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         if (eventType == XmlPullParser.START_TAG && "ResourceExtensionReferences".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "ResourceExtensionReferences".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "ResourceExtensionReference".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    ResourceExtensionReference resourceExtensionReferenceInstance = new ResourceExtensionReference();
+                                                    ResourceExtensionReference resourceExtensionReferenceInstance;
+                                                    resourceExtensionReferenceInstance = new ResourceExtensionReference();
                                                     roleInstance.getResourceExtensionReferences().add(resourceExtensionReferenceInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "ResourceExtensionReference".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6234,7 +6365,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         if (eventType == XmlPullParser.START_TAG && "ResourceExtensionParameterValues".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "ResourceExtensionParameterValues".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                 if (eventType == XmlPullParser.START_TAG && "ResourceExtensionParameterValue".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                    ResourceExtensionParameterValue resourceExtensionParameterValueInstance = new ResourceExtensionParameterValue();
+                                                                    ResourceExtensionParameterValue resourceExtensionParameterValueInstance;
+                                                                    resourceExtensionParameterValueInstance = new ResourceExtensionParameterValue();
                                                                     resourceExtensionReferenceInstance.getResourceExtensionParameterValues().add(resourceExtensionParameterValueInstance);
                                                                     
                                                                     while ((eventType == XmlPullParser.END_TAG && "ResourceExtensionParameterValue".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6345,7 +6477,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         if (eventType == XmlPullParser.START_TAG && "DataVirtualHardDisks".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "DataVirtualHardDisks".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "DataVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    DataVirtualHardDisk dataVirtualHardDiskInstance = new DataVirtualHardDisk();
+                                                    DataVirtualHardDisk dataVirtualHardDiskInstance;
+                                                    dataVirtualHardDiskInstance = new DataVirtualHardDisk();
                                                     roleInstance.getDataVirtualHardDisks().add(dataVirtualHardDiskInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "DataVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6457,8 +6590,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         
                                         if (eventType == XmlPullParser.START_TAG && "OSVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "OSVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                OSVirtualHardDisk oSVirtualHardDiskInstance = new OSVirtualHardDisk();
-                                                roleInstance.setOSVirtualHardDisk(oSVirtualHardDiskInstance);
+                                                OSVirtualHardDisk oSVirtualHardDiskInstance;
+                                                if (roleInstance.getOSVirtualHardDisk() == null) {
+                                                    oSVirtualHardDiskInstance = new OSVirtualHardDisk();
+                                                    roleInstance.setOSVirtualHardDisk(oSVirtualHardDiskInstance);
+                                                } else {
+                                                    oSVirtualHardDiskInstance = roleInstance.getOSVirtualHardDisk();
+                                                }
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "HostCaching".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "HostCaching".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6692,13 +6830,19 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         
                         if (eventType == XmlPullParser.START_TAG && "Dns".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "Dns".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                DnsSettings dnsInstance = new DnsSettings();
-                                result.setDnsSettings(dnsInstance);
+                                DnsSettings dnsInstance;
+                                if (result.getDnsSettings() == null) {
+                                    dnsInstance = new DnsSettings();
+                                    result.setDnsSettings(dnsInstance);
+                                } else {
+                                    dnsInstance = result.getDnsSettings();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "DnsServers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "DnsServers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                         if (eventType == XmlPullParser.START_TAG && "DnsServer".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                            DnsServer dnsServerInstance = new DnsServer();
+                                            DnsServer dnsServerInstance;
+                                            dnsServerInstance = new DnsServer();
                                             dnsInstance.getDnsServers().add(dnsServerInstance);
                                             
                                             while ((eventType == XmlPullParser.END_TAG && "DnsServer".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6742,8 +6886,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         
                         if (eventType == XmlPullParser.START_TAG && "PersistentVMDowntime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "PersistentVMDowntime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                PersistentVMDowntime persistentVMDowntimeInstance = new PersistentVMDowntime();
-                                result.setPersistentVMDowntime(persistentVMDowntimeInstance);
+                                PersistentVMDowntime persistentVMDowntimeInstance;
+                                if (result.getPersistentVMDowntime() == null) {
+                                    persistentVMDowntimeInstance = new PersistentVMDowntime();
+                                    result.setPersistentVMDowntime(persistentVMDowntimeInstance);
+                                } else {
+                                    persistentVMDowntimeInstance = result.getPersistentVMDowntime();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "StartTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "StartTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6788,7 +6937,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         if (eventType == XmlPullParser.START_TAG && "VirtualIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "VirtualIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "VirtualIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    VirtualIPAddress virtualIPInstance = new VirtualIPAddress();
+                                    VirtualIPAddress virtualIPInstance;
+                                    virtualIPInstance = new VirtualIPAddress();
                                     result.getVirtualIPAddresses().add(virtualIPInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "VirtualIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6840,13 +6990,19 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         
                         if (eventType == XmlPullParser.START_TAG && "ExtensionConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "ExtensionConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                ExtensionConfiguration extensionConfigurationInstance = new ExtensionConfiguration();
-                                result.setExtensionConfiguration(extensionConfigurationInstance);
+                                ExtensionConfiguration extensionConfigurationInstance;
+                                if (result.getExtensionConfiguration() == null) {
+                                    extensionConfigurationInstance = new ExtensionConfiguration();
+                                    result.setExtensionConfiguration(extensionConfigurationInstance);
+                                } else {
+                                    extensionConfigurationInstance = result.getExtensionConfiguration();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "AllRoles".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "AllRoles".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                         if (eventType == XmlPullParser.START_TAG && "Extension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                            ExtensionConfiguration.Extension extensionInstance = new ExtensionConfiguration.Extension();
+                                            ExtensionConfiguration.Extension extensionInstance;
+                                            extensionInstance = new ExtensionConfiguration.Extension();
                                             extensionConfigurationInstance.getAllRoles().add(extensionInstance);
                                             
                                             while ((eventType == XmlPullParser.END_TAG && "Extension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6875,7 +7031,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                 if (eventType == XmlPullParser.START_TAG && "NamedRoles".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "NamedRoles".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                         if (eventType == XmlPullParser.START_TAG && "Role".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                            ExtensionConfiguration.NamedRole roleInstance2 = new ExtensionConfiguration.NamedRole();
+                                            ExtensionConfiguration.NamedRole roleInstance2;
+                                            roleInstance2 = new ExtensionConfiguration.NamedRole();
                                             extensionConfigurationInstance.getNamedRoles().add(roleInstance2);
                                             
                                             while ((eventType == XmlPullParser.END_TAG && "Role".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6894,7 +7051,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                 if (eventType == XmlPullParser.START_TAG && "Extensions".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "Extensions".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                         if (eventType == XmlPullParser.START_TAG && "Extension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                            ExtensionConfiguration.Extension extensionInstance2 = new ExtensionConfiguration.Extension();
+                                                            ExtensionConfiguration.Extension extensionInstance2;
+                                                            extensionInstance2 = new ExtensionConfiguration.Extension();
                                                             roleInstance2.getExtensions().add(extensionInstance2);
                                                             
                                                             while ((eventType == XmlPullParser.END_TAG && "Extension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6949,7 +7107,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         if (eventType == XmlPullParser.START_TAG && "LoadBalancers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "LoadBalancers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "LoadBalancer".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    LoadBalancer loadBalancerInstance = new LoadBalancer();
+                                    LoadBalancer loadBalancerInstance;
+                                    loadBalancerInstance = new LoadBalancer();
                                     result.getLoadBalancers().add(loadBalancerInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "LoadBalancer".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6967,8 +7126,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         
                                         if (eventType == XmlPullParser.START_TAG && "FrontendIpConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "FrontendIpConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                FrontendIPConfiguration frontendIpConfigurationInstance = new FrontendIPConfiguration();
-                                                loadBalancerInstance.setFrontendIPConfiguration(frontendIpConfigurationInstance);
+                                                FrontendIPConfiguration frontendIpConfigurationInstance;
+                                                if (loadBalancerInstance.getFrontendIPConfiguration() == null) {
+                                                    frontendIpConfigurationInstance = new FrontendIPConfiguration();
+                                                    loadBalancerInstance.setFrontendIPConfiguration(frontendIpConfigurationInstance);
+                                                } else {
+                                                    frontendIpConfigurationInstance = loadBalancerInstance.getFrontendIPConfiguration();
+                                                }
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "Type".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "Type".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7236,7 +7400,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         if (eventType == XmlPullParser.START_TAG && "RoleInstanceList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "RoleInstanceList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "RoleInstance".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    RoleInstance roleInstanceInstance = new RoleInstance();
+                                    RoleInstance roleInstanceInstance;
+                                    roleInstanceInstance = new RoleInstance();
                                     result.getRoleInstances().add(roleInstanceInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "RoleInstance".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7351,7 +7516,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         if (eventType == XmlPullParser.START_TAG && "InstanceEndpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "InstanceEndpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "InstanceEndpoint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    InstanceEndpoint instanceEndpointInstance = new InstanceEndpoint();
+                                                    InstanceEndpoint instanceEndpointInstance;
+                                                    instanceEndpointInstance = new InstanceEndpoint();
                                                     roleInstanceInstance.getInstanceEndpoints().add(instanceEndpointInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "InstanceEndpoint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7427,8 +7593,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         
                                         if (eventType == XmlPullParser.START_TAG && "GuestAgentStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "GuestAgentStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                GuestAgentStatus guestAgentStatusInstance = new GuestAgentStatus();
-                                                roleInstanceInstance.setGuestAgentStatus(guestAgentStatusInstance);
+                                                GuestAgentStatus guestAgentStatusInstance;
+                                                if (roleInstanceInstance.getGuestAgentStatus() == null) {
+                                                    guestAgentStatusInstance = new GuestAgentStatus();
+                                                    roleInstanceInstance.setGuestAgentStatus(guestAgentStatusInstance);
+                                                } else {
+                                                    guestAgentStatusInstance = roleInstanceInstance.getGuestAgentStatus();
+                                                }
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "ProtocolVersion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "ProtocolVersion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7492,8 +7663,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                        GuestAgentMessage messageInstance = new GuestAgentMessage();
-                                                        guestAgentStatusInstance.setMessage(messageInstance);
+                                                        GuestAgentMessage messageInstance;
+                                                        if (guestAgentStatusInstance.getMessage() == null) {
+                                                            messageInstance = new GuestAgentMessage();
+                                                            guestAgentStatusInstance.setMessage(messageInstance);
+                                                        } else {
+                                                            messageInstance = guestAgentStatusInstance.getMessage();
+                                                        }
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7523,8 +7699,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                        GuestAgentFormattedMessage formattedMessageInstance = new GuestAgentFormattedMessage();
-                                                        guestAgentStatusInstance.setFormattedMessage(formattedMessageInstance);
+                                                        GuestAgentFormattedMessage formattedMessageInstance;
+                                                        if (guestAgentStatusInstance.getFormattedMessage() == null) {
+                                                            formattedMessageInstance = new GuestAgentFormattedMessage();
+                                                            guestAgentStatusInstance.setFormattedMessage(formattedMessageInstance);
+                                                        } else {
+                                                            formattedMessageInstance = guestAgentStatusInstance.getFormattedMessage();
+                                                        }
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7561,7 +7742,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         if (eventType == XmlPullParser.START_TAG && "ResourceExtensionStatusList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "ResourceExtensionStatusList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "ResourceExtensionStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    ResourceExtensionStatus resourceExtensionStatusInstance = new ResourceExtensionStatus();
+                                                    ResourceExtensionStatus resourceExtensionStatusInstance;
+                                                    resourceExtensionStatusInstance = new ResourceExtensionStatus();
                                                     roleInstanceInstance.getResourceExtensionStatusList().add(resourceExtensionStatusInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "ResourceExtensionStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7615,8 +7797,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                GuestAgentMessage messageInstance3 = new GuestAgentMessage();
-                                                                resourceExtensionStatusInstance.setMessage(messageInstance3);
+                                                                GuestAgentMessage messageInstance3;
+                                                                if (resourceExtensionStatusInstance.getMessage() == null) {
+                                                                    messageInstance3 = new GuestAgentMessage();
+                                                                    resourceExtensionStatusInstance.setMessage(messageInstance3);
+                                                                } else {
+                                                                    messageInstance3 = resourceExtensionStatusInstance.getMessage();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7646,8 +7833,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                GuestAgentFormattedMessage formattedMessageInstance2 = new GuestAgentFormattedMessage();
-                                                                resourceExtensionStatusInstance.setFormattedMessage(formattedMessageInstance2);
+                                                                GuestAgentFormattedMessage formattedMessageInstance2;
+                                                                if (resourceExtensionStatusInstance.getFormattedMessage() == null) {
+                                                                    formattedMessageInstance2 = new GuestAgentFormattedMessage();
+                                                                    resourceExtensionStatusInstance.setFormattedMessage(formattedMessageInstance2);
+                                                                } else {
+                                                                    formattedMessageInstance2 = resourceExtensionStatusInstance.getFormattedMessage();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7679,8 +7871,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "ExtensionSettingStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "ExtensionSettingStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                ResourceExtensionConfigurationStatus extensionSettingStatusInstance = new ResourceExtensionConfigurationStatus();
-                                                                resourceExtensionStatusInstance.setExtensionSettingStatus(extensionSettingStatusInstance);
+                                                                ResourceExtensionConfigurationStatus extensionSettingStatusInstance;
+                                                                if (resourceExtensionStatusInstance.getExtensionSettingStatus() == null) {
+                                                                    extensionSettingStatusInstance = new ResourceExtensionConfigurationStatus();
+                                                                    resourceExtensionStatusInstance.setExtensionSettingStatus(extensionSettingStatusInstance);
+                                                                } else {
+                                                                    extensionSettingStatusInstance = resourceExtensionStatusInstance.getExtensionSettingStatus();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7756,8 +7953,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                        GuestAgentMessage messageInstance5 = new GuestAgentMessage();
-                                                                        extensionSettingStatusInstance.setMessage(messageInstance5);
+                                                                        GuestAgentMessage messageInstance5;
+                                                                        if (extensionSettingStatusInstance.getMessage() == null) {
+                                                                            messageInstance5 = new GuestAgentMessage();
+                                                                            extensionSettingStatusInstance.setMessage(messageInstance5);
+                                                                        } else {
+                                                                            messageInstance5 = extensionSettingStatusInstance.getMessage();
+                                                                        }
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                             while ((eventType == XmlPullParser.END_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7787,8 +7989,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                        GuestAgentFormattedMessage formattedMessageInstance3 = new GuestAgentFormattedMessage();
-                                                                        extensionSettingStatusInstance.setFormattedMessage(formattedMessageInstance3);
+                                                                        GuestAgentFormattedMessage formattedMessageInstance3;
+                                                                        if (extensionSettingStatusInstance.getFormattedMessage() == null) {
+                                                                            formattedMessageInstance3 = new GuestAgentFormattedMessage();
+                                                                            extensionSettingStatusInstance.setFormattedMessage(formattedMessageInstance3);
+                                                                        } else {
+                                                                            formattedMessageInstance3 = extensionSettingStatusInstance.getFormattedMessage();
+                                                                        }
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                             while ((eventType == XmlPullParser.END_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7821,7 +8028,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                 if (eventType == XmlPullParser.START_TAG && "SubStatusList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "SubStatusList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                         if (eventType == XmlPullParser.START_TAG && "SubStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                            ResourceExtensionSubStatus subStatusInstance = new ResourceExtensionSubStatus();
+                                                                            ResourceExtensionSubStatus subStatusInstance;
+                                                                            subStatusInstance = new ResourceExtensionSubStatus();
                                                                             extensionSettingStatusInstance.getSubStatusList().add(subStatusInstance);
                                                                             
                                                                             while ((eventType == XmlPullParser.END_TAG && "SubStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7863,8 +8071,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                                 
                                                                                 if (eventType == XmlPullParser.START_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                                     while ((eventType == XmlPullParser.END_TAG && "Message".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                                        GuestAgentMessage messageInstance7 = new GuestAgentMessage();
-                                                                                        subStatusInstance.setMessage(messageInstance7);
+                                                                                        GuestAgentMessage messageInstance7;
+                                                                                        if (subStatusInstance.getMessage() == null) {
+                                                                                            messageInstance7 = new GuestAgentMessage();
+                                                                                            subStatusInstance.setMessage(messageInstance7);
+                                                                                        } else {
+                                                                                            messageInstance7 = subStatusInstance.getMessage();
+                                                                                        }
                                                                                         
                                                                                         if (eventType == XmlPullParser.START_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                                             while ((eventType == XmlPullParser.END_TAG && "MessageResourceId".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7894,8 +8107,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                                 
                                                                                 if (eventType == XmlPullParser.START_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                                     while ((eventType == XmlPullParser.END_TAG && "FormattedMessage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                                        GuestAgentFormattedMessage formattedMessageInstance4 = new GuestAgentFormattedMessage();
-                                                                                        subStatusInstance.setFormattedMessage(formattedMessageInstance4);
+                                                                                        GuestAgentFormattedMessage formattedMessageInstance4;
+                                                                                        if (subStatusInstance.getFormattedMessage() == null) {
+                                                                                            formattedMessageInstance4 = new GuestAgentFormattedMessage();
+                                                                                            subStatusInstance.setFormattedMessage(formattedMessageInstance4);
+                                                                                        } else {
+                                                                                            formattedMessageInstance4 = subStatusInstance.getFormattedMessage();
+                                                                                        }
                                                                                         
                                                                                         if (eventType == XmlPullParser.START_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                                             while ((eventType == XmlPullParser.END_TAG && "Language".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -7988,7 +8206,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         if (eventType == XmlPullParser.START_TAG && "PublicIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "PublicIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "PublicIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    RoleInstance.PublicIP publicIPInstance = new RoleInstance.PublicIP();
+                                                    RoleInstance.PublicIP publicIPInstance;
+                                                    publicIPInstance = new RoleInstance.PublicIP();
                                                     roleInstanceInstance.getPublicIPs().add(publicIPInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "PublicIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -8038,8 +8257,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         
                         if (eventType == XmlPullParser.START_TAG && "UpgradeStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "UpgradeStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                UpgradeStatus upgradeStatusInstance = new UpgradeStatus();
-                                result.setUpgradeStatus(upgradeStatusInstance);
+                                UpgradeStatus upgradeStatusInstance;
+                                if (result.getUpgradeStatus() == null) {
+                                    upgradeStatusInstance = new UpgradeStatus();
+                                    result.setUpgradeStatus(upgradeStatusInstance);
+                                } else {
+                                    upgradeStatusInstance = result.getUpgradeStatus();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "UpgradeType".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "UpgradeType".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -8096,7 +8320,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         if (eventType == XmlPullParser.START_TAG && "RoleList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "RoleList".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "Role".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    Role roleInstance = new Role();
+                                    Role roleInstance;
+                                    roleInstance = new Role();
                                     result.getRoles().add(roleInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "Role".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -8139,7 +8364,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         if (eventType == XmlPullParser.START_TAG && "ConfigurationSets".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "ConfigurationSets".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "ConfigurationSet".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    ConfigurationSet configurationSetInstance = new ConfigurationSet();
+                                                    ConfigurationSet configurationSetInstance;
+                                                    configurationSetInstance = new ConfigurationSet();
                                                     roleInstance.getConfigurationSets().add(configurationSetInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "ConfigurationSet".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -8158,7 +8384,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         if (eventType == XmlPullParser.START_TAG && "InputEndpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "InputEndpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                 if (eventType == XmlPullParser.START_TAG && "InputEndpoint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                    InputEndpoint inputEndpointInstance = new InputEndpoint();
+                                                                    InputEndpoint inputEndpointInstance;
+                                                                    inputEndpointInstance = new InputEndpoint();
                                                                     configurationSetInstance.getInputEndpoints().add(inputEndpointInstance);
                                                                     
                                                                     while ((eventType == XmlPullParser.END_TAG && "InputEndpoint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -8212,8 +8439,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "LoadBalancerProbe".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                             while ((eventType == XmlPullParser.END_TAG && "LoadBalancerProbe".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                                LoadBalancerProbe loadBalancerProbeInstance = new LoadBalancerProbe();
-                                                                                inputEndpointInstance.setLoadBalancerProbe(loadBalancerProbeInstance);
+                                                                                LoadBalancerProbe loadBalancerProbeInstance;
+                                                                                if (inputEndpointInstance.getLoadBalancerProbe() == null) {
+                                                                                    loadBalancerProbeInstance = new LoadBalancerProbe();
+                                                                                    inputEndpointInstance.setLoadBalancerProbe(loadBalancerProbeInstance);
+                                                                                } else {
+                                                                                    loadBalancerProbeInstance = inputEndpointInstance.getLoadBalancerProbe();
+                                                                                }
                                                                                 
                                                                                 if (eventType == XmlPullParser.START_TAG && "Path".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                                     while ((eventType == XmlPullParser.END_TAG && "Path".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -8329,13 +8561,19 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "EndpointAcl".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                             while ((eventType == XmlPullParser.END_TAG && "EndpointAcl".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                                EndpointAcl endpointAclInstance = new EndpointAcl();
-                                                                                inputEndpointInstance.setEndpointAcl(endpointAclInstance);
+                                                                                EndpointAcl endpointAclInstance;
+                                                                                if (inputEndpointInstance.getEndpointAcl() == null) {
+                                                                                    endpointAclInstance = new EndpointAcl();
+                                                                                    inputEndpointInstance.setEndpointAcl(endpointAclInstance);
+                                                                                } else {
+                                                                                    endpointAclInstance = inputEndpointInstance.getEndpointAcl();
+                                                                                }
                                                                                 
                                                                                 if (eventType == XmlPullParser.START_TAG && "Rules".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                                     while ((eventType == XmlPullParser.END_TAG && "Rules".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                                         if (eventType == XmlPullParser.START_TAG && "Rule".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                                            AccessControlListRule ruleInstance = new AccessControlListRule();
+                                                                                            AccessControlListRule ruleInstance;
+                                                                                            ruleInstance = new AccessControlListRule();
                                                                                             endpointAclInstance.getRules().add(ruleInstance);
                                                                                             
                                                                                             while ((eventType == XmlPullParser.END_TAG && "Rule".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -8436,7 +8674,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         if (eventType == XmlPullParser.START_TAG && "PublicIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "PublicIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                 if (eventType == XmlPullParser.START_TAG && "PublicIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                    ConfigurationSet.PublicIP publicIPInstance2 = new ConfigurationSet.PublicIP();
+                                                                    ConfigurationSet.PublicIP publicIPInstance2;
+                                                                    publicIPInstance2 = new ConfigurationSet.PublicIP();
                                                                     configurationSetInstance.getPublicIPs().add(publicIPInstance2);
                                                                     
                                                                     while ((eventType == XmlPullParser.END_TAG && "PublicIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -8524,13 +8763,23 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "DomainJoin".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "DomainJoin".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                DomainJoinSettings domainJoinInstance = new DomainJoinSettings();
-                                                                configurationSetInstance.setDomainJoin(domainJoinInstance);
+                                                                DomainJoinSettings domainJoinInstance;
+                                                                if (configurationSetInstance.getDomainJoin() == null) {
+                                                                    domainJoinInstance = new DomainJoinSettings();
+                                                                    configurationSetInstance.setDomainJoin(domainJoinInstance);
+                                                                } else {
+                                                                    domainJoinInstance = configurationSetInstance.getDomainJoin();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "Credentials".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "Credentials".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                        DomainJoinCredentials credentialsInstance = new DomainJoinCredentials();
-                                                                        domainJoinInstance.setCredentials(credentialsInstance);
+                                                                        DomainJoinCredentials credentialsInstance;
+                                                                        if (domainJoinInstance.getCredentials() == null) {
+                                                                            credentialsInstance = new DomainJoinCredentials();
+                                                                            domainJoinInstance.setCredentials(credentialsInstance);
+                                                                        } else {
+                                                                            credentialsInstance = domainJoinInstance.getCredentials();
+                                                                        }
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "Domain".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                             while ((eventType == XmlPullParser.END_TAG && "Domain".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -8598,8 +8847,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "Provisioning".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "Provisioning".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                        DomainJoinProvisioning provisioningInstance = new DomainJoinProvisioning();
-                                                                        domainJoinInstance.setProvisioning(provisioningInstance);
+                                                                        DomainJoinProvisioning provisioningInstance;
+                                                                        if (domainJoinInstance.getProvisioning() == null) {
+                                                                            provisioningInstance = new DomainJoinProvisioning();
+                                                                            domainJoinInstance.setProvisioning(provisioningInstance);
+                                                                        } else {
+                                                                            provisioningInstance = domainJoinInstance.getProvisioning();
+                                                                        }
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "AccountData".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                             while ((eventType == XmlPullParser.END_TAG && "AccountData".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -8624,12 +8878,14 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         if (eventType == XmlPullParser.START_TAG && "StoredCertificateSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "StoredCertificateSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                 if (eventType == XmlPullParser.START_TAG && "CertificateSetting".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                    StoredCertificateSettings certificateSettingInstance = new StoredCertificateSettings();
+                                                                    StoredCertificateSettings certificateSettingInstance;
+                                                                    certificateSettingInstance = new StoredCertificateSettings();
                                                                     configurationSetInstance.getStoredCertificateSettings().add(certificateSettingInstance);
                                                                     
                                                                     while ((eventType == XmlPullParser.END_TAG && "CertificateSetting".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                         if (eventType == XmlPullParser.START_TAG && "StoreLocation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                             while ((eventType == XmlPullParser.END_TAG && "StoreLocation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                                eventType = xmlPullParser.next();
                                                                             }
                                                                         }
                                                                         
@@ -8669,13 +8925,19 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "WinRM".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "WinRM".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                WindowsRemoteManagementSettings winRMInstance = new WindowsRemoteManagementSettings();
-                                                                configurationSetInstance.setWindowsRemoteManagement(winRMInstance);
+                                                                WindowsRemoteManagementSettings winRMInstance;
+                                                                if (configurationSetInstance.getWindowsRemoteManagement() == null) {
+                                                                    winRMInstance = new WindowsRemoteManagementSettings();
+                                                                    configurationSetInstance.setWindowsRemoteManagement(winRMInstance);
+                                                                } else {
+                                                                    winRMInstance = configurationSetInstance.getWindowsRemoteManagement();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "Listeners".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "Listeners".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                         if (eventType == XmlPullParser.START_TAG && "Listener".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                            WindowsRemoteManagementListener listenerInstance = new WindowsRemoteManagementListener();
+                                                                            WindowsRemoteManagementListener listenerInstance;
+                                                                            listenerInstance = new WindowsRemoteManagementListener();
                                                                             winRMInstance.getListeners().add(listenerInstance);
                                                                             
                                                                             while ((eventType == XmlPullParser.END_TAG && "Listener".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -8779,13 +9041,19 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "SSH".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "SSH".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                SshSettings sSHInstance = new SshSettings();
-                                                                configurationSetInstance.setSshSettings(sSHInstance);
+                                                                SshSettings sSHInstance;
+                                                                if (configurationSetInstance.getSshSettings() == null) {
+                                                                    sSHInstance = new SshSettings();
+                                                                    configurationSetInstance.setSshSettings(sSHInstance);
+                                                                } else {
+                                                                    sSHInstance = configurationSetInstance.getSshSettings();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "PublicKeys".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "PublicKeys".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                         if (eventType == XmlPullParser.START_TAG && "PublicKey".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                            SshSettingPublicKey publicKeyInstance = new SshSettingPublicKey();
+                                                                            SshSettingPublicKey publicKeyInstance;
+                                                                            publicKeyInstance = new SshSettingPublicKey();
                                                                             sSHInstance.getPublicKeys().add(publicKeyInstance);
                                                                             
                                                                             while ((eventType == XmlPullParser.END_TAG && "PublicKey".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -8826,7 +9094,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                                 if (eventType == XmlPullParser.START_TAG && "KeyPairs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "KeyPairs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                         if (eventType == XmlPullParser.START_TAG && "KeyPair".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                            SshSettingKeyPair keyPairInstance = new SshSettingKeyPair();
+                                                                            SshSettingKeyPair keyPairInstance;
+                                                                            keyPairInstance = new SshSettingKeyPair();
                                                                             sSHInstance.getKeyPairs().add(keyPairInstance);
                                                                             
                                                                             while ((eventType == XmlPullParser.END_TAG && "KeyPair".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -8893,7 +9162,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         if (eventType == XmlPullParser.START_TAG && "ResourceExtensionReferences".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "ResourceExtensionReferences".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "ResourceExtensionReference".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    ResourceExtensionReference resourceExtensionReferenceInstance = new ResourceExtensionReference();
+                                                    ResourceExtensionReference resourceExtensionReferenceInstance;
+                                                    resourceExtensionReferenceInstance = new ResourceExtensionReference();
                                                     roleInstance.getResourceExtensionReferences().add(resourceExtensionReferenceInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "ResourceExtensionReference".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -8948,7 +9218,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                         if (eventType == XmlPullParser.START_TAG && "ResourceExtensionParameterValues".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "ResourceExtensionParameterValues".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                 if (eventType == XmlPullParser.START_TAG && "ResourceExtensionParameterValue".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                    ResourceExtensionParameterValue resourceExtensionParameterValueInstance = new ResourceExtensionParameterValue();
+                                                                    ResourceExtensionParameterValue resourceExtensionParameterValueInstance;
+                                                                    resourceExtensionParameterValueInstance = new ResourceExtensionParameterValue();
                                                                     resourceExtensionReferenceInstance.getResourceExtensionParameterValues().add(resourceExtensionParameterValueInstance);
                                                                     
                                                                     while ((eventType == XmlPullParser.END_TAG && "ResourceExtensionParameterValue".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -9059,7 +9330,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         if (eventType == XmlPullParser.START_TAG && "DataVirtualHardDisks".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "DataVirtualHardDisks".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "DataVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    DataVirtualHardDisk dataVirtualHardDiskInstance = new DataVirtualHardDisk();
+                                                    DataVirtualHardDisk dataVirtualHardDiskInstance;
+                                                    dataVirtualHardDiskInstance = new DataVirtualHardDisk();
                                                     roleInstance.getDataVirtualHardDisks().add(dataVirtualHardDiskInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "DataVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -9171,8 +9443,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         
                                         if (eventType == XmlPullParser.START_TAG && "OSVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "OSVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                OSVirtualHardDisk oSVirtualHardDiskInstance = new OSVirtualHardDisk();
-                                                roleInstance.setOSVirtualHardDisk(oSVirtualHardDiskInstance);
+                                                OSVirtualHardDisk oSVirtualHardDiskInstance;
+                                                if (roleInstance.getOSVirtualHardDisk() == null) {
+                                                    oSVirtualHardDiskInstance = new OSVirtualHardDisk();
+                                                    roleInstance.setOSVirtualHardDisk(oSVirtualHardDiskInstance);
+                                                } else {
+                                                    oSVirtualHardDiskInstance = roleInstance.getOSVirtualHardDisk();
+                                                }
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "HostCaching".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "HostCaching".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -9406,13 +9683,19 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         
                         if (eventType == XmlPullParser.START_TAG && "Dns".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "Dns".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                DnsSettings dnsInstance = new DnsSettings();
-                                result.setDnsSettings(dnsInstance);
+                                DnsSettings dnsInstance;
+                                if (result.getDnsSettings() == null) {
+                                    dnsInstance = new DnsSettings();
+                                    result.setDnsSettings(dnsInstance);
+                                } else {
+                                    dnsInstance = result.getDnsSettings();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "DnsServers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "DnsServers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                         if (eventType == XmlPullParser.START_TAG && "DnsServer".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                            DnsServer dnsServerInstance = new DnsServer();
+                                            DnsServer dnsServerInstance;
+                                            dnsServerInstance = new DnsServer();
                                             dnsInstance.getDnsServers().add(dnsServerInstance);
                                             
                                             while ((eventType == XmlPullParser.END_TAG && "DnsServer".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -9456,8 +9739,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         
                         if (eventType == XmlPullParser.START_TAG && "PersistentVMDowntime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "PersistentVMDowntime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                PersistentVMDowntime persistentVMDowntimeInstance = new PersistentVMDowntime();
-                                result.setPersistentVMDowntime(persistentVMDowntimeInstance);
+                                PersistentVMDowntime persistentVMDowntimeInstance;
+                                if (result.getPersistentVMDowntime() == null) {
+                                    persistentVMDowntimeInstance = new PersistentVMDowntime();
+                                    result.setPersistentVMDowntime(persistentVMDowntimeInstance);
+                                } else {
+                                    persistentVMDowntimeInstance = result.getPersistentVMDowntime();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "StartTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "StartTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -9502,7 +9790,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         if (eventType == XmlPullParser.START_TAG && "VirtualIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "VirtualIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "VirtualIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    VirtualIPAddress virtualIPInstance = new VirtualIPAddress();
+                                    VirtualIPAddress virtualIPInstance;
+                                    virtualIPInstance = new VirtualIPAddress();
                                     result.getVirtualIPAddresses().add(virtualIPInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "VirtualIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -9554,13 +9843,19 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         
                         if (eventType == XmlPullParser.START_TAG && "ExtensionConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "ExtensionConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                ExtensionConfiguration extensionConfigurationInstance = new ExtensionConfiguration();
-                                result.setExtensionConfiguration(extensionConfigurationInstance);
+                                ExtensionConfiguration extensionConfigurationInstance;
+                                if (result.getExtensionConfiguration() == null) {
+                                    extensionConfigurationInstance = new ExtensionConfiguration();
+                                    result.setExtensionConfiguration(extensionConfigurationInstance);
+                                } else {
+                                    extensionConfigurationInstance = result.getExtensionConfiguration();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "AllRoles".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "AllRoles".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                         if (eventType == XmlPullParser.START_TAG && "Extension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                            ExtensionConfiguration.Extension extensionInstance = new ExtensionConfiguration.Extension();
+                                            ExtensionConfiguration.Extension extensionInstance;
+                                            extensionInstance = new ExtensionConfiguration.Extension();
                                             extensionConfigurationInstance.getAllRoles().add(extensionInstance);
                                             
                                             while ((eventType == XmlPullParser.END_TAG && "Extension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -9589,7 +9884,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                 if (eventType == XmlPullParser.START_TAG && "NamedRoles".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "NamedRoles".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                         if (eventType == XmlPullParser.START_TAG && "Role".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                            ExtensionConfiguration.NamedRole roleInstance2 = new ExtensionConfiguration.NamedRole();
+                                            ExtensionConfiguration.NamedRole roleInstance2;
+                                            roleInstance2 = new ExtensionConfiguration.NamedRole();
                                             extensionConfigurationInstance.getNamedRoles().add(roleInstance2);
                                             
                                             while ((eventType == XmlPullParser.END_TAG && "Role".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -9608,7 +9904,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                                 if (eventType == XmlPullParser.START_TAG && "Extensions".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "Extensions".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                         if (eventType == XmlPullParser.START_TAG && "Extension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                            ExtensionConfiguration.Extension extensionInstance2 = new ExtensionConfiguration.Extension();
+                                                            ExtensionConfiguration.Extension extensionInstance2;
+                                                            extensionInstance2 = new ExtensionConfiguration.Extension();
                                                             roleInstance2.getExtensions().add(extensionInstance2);
                                                             
                                                             while ((eventType == XmlPullParser.END_TAG && "Extension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -9663,7 +9960,8 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                         if (eventType == XmlPullParser.START_TAG && "LoadBalancers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "LoadBalancers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "LoadBalancer".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    LoadBalancer loadBalancerInstance = new LoadBalancer();
+                                    LoadBalancer loadBalancerInstance;
+                                    loadBalancerInstance = new LoadBalancer();
                                     result.getLoadBalancers().add(loadBalancerInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "LoadBalancer".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -9681,8 +9979,13 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
                                         
                                         if (eventType == XmlPullParser.START_TAG && "FrontendIpConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "FrontendIpConfiguration".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                FrontendIPConfiguration frontendIpConfigurationInstance = new FrontendIPConfiguration();
-                                                loadBalancerInstance.setFrontendIPConfiguration(frontendIpConfigurationInstance);
+                                                FrontendIPConfiguration frontendIpConfigurationInstance;
+                                                if (loadBalancerInstance.getFrontendIPConfiguration() == null) {
+                                                    frontendIpConfigurationInstance = new FrontendIPConfiguration();
+                                                    loadBalancerInstance.setFrontendIPConfiguration(frontendIpConfigurationInstance);
+                                                } else {
+                                                    frontendIpConfigurationInstance = loadBalancerInstance.getFrontendIPConfiguration();
+                                                }
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "Type".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "Type".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -10644,7 +10947,9 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -10796,7 +11101,9 @@ public class DeploymentOperationsImpl implements ServiceOperations<ComputeManage
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());

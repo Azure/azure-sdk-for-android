@@ -52,6 +52,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -224,7 +225,9 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -392,7 +395,9 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -672,7 +677,9 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -848,7 +855,9 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -1026,7 +1035,9 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -1665,7 +1676,9 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -1855,8 +1868,13 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
                         
                         if (eventType == XmlPullParser.START_TAG && "LastEvent".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "LastEvent".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                GatewayEvent lastEventInstance = new GatewayEvent();
-                                result.setLastEvent(lastEventInstance);
+                                GatewayEvent lastEventInstance;
+                                if (result.getLastEvent() == null) {
+                                    lastEventInstance = new GatewayEvent();
+                                    result.setLastEvent(lastEventInstance);
+                                } else {
+                                    lastEventInstance = result.getLastEvent();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -2227,8 +2245,13 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
                         
                         if (eventType == XmlPullParser.START_TAG && "Error".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "Error".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                GatewayGetOperationStatusResponse.ErrorDetails errorInstance = new GatewayGetOperationStatusResponse.ErrorDetails();
-                                result.setError(errorInstance);
+                                GatewayGetOperationStatusResponse.ErrorDetails errorInstance;
+                                if (result.getError() == null) {
+                                    errorInstance = new GatewayGetOperationStatusResponse.ErrorDetails();
+                                    result.setError(errorInstance);
+                                } else {
+                                    errorInstance = result.getError();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "Code".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "Code".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -2532,7 +2555,8 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
                 if (eventType == XmlPullParser.START_TAG && "Connections".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "Connections".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "Connection".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            GatewayListConnectionsResponse.GatewayConnection connectionInstance = new GatewayListConnectionsResponse.GatewayConnection();
+                            GatewayListConnectionsResponse.GatewayConnection connectionInstance;
+                            connectionInstance = new GatewayListConnectionsResponse.GatewayConnection();
                             result.getConnections().add(connectionInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "Connection".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -2562,8 +2586,13 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
                                 
                                 if (eventType == XmlPullParser.START_TAG && "LastEvent".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "LastEvent".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                        GatewayEvent lastEventInstance = new GatewayEvent();
-                                        connectionInstance.setLastEvent(lastEventInstance);
+                                        GatewayEvent lastEventInstance;
+                                        if (connectionInstance.getLastEvent() == null) {
+                                            lastEventInstance = new GatewayEvent();
+                                            connectionInstance.setLastEvent(lastEventInstance);
+                                        } else {
+                                            lastEventInstance = connectionInstance.getLastEvent();
+                                        }
                                         
                                         if (eventType == XmlPullParser.START_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "Timestamp".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -2795,7 +2824,8 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
                         if (eventType == XmlPullParser.START_TAG && "Vendors".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "Vendors".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "Vendor".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
-                                    GatewayListSupportedDevicesResponse.Vendor vendorInstance = new GatewayListSupportedDevicesResponse.Vendor();
+                                    GatewayListSupportedDevicesResponse.Vendor vendorInstance;
+                                    vendorInstance = new GatewayListSupportedDevicesResponse.Vendor();
                                     result.getVendors().add(vendorInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "Vendor".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
@@ -2808,7 +2838,8 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
                                         if (eventType == XmlPullParser.START_TAG && "Platforms".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "Platforms".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "Platform".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
-                                                    GatewayListSupportedDevicesResponse.Platform platformInstance = new GatewayListSupportedDevicesResponse.Platform();
+                                                    GatewayListSupportedDevicesResponse.Platform platformInstance;
+                                                    platformInstance = new GatewayListSupportedDevicesResponse.Platform();
                                                     vendorInstance.getPlatforms().add(platformInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "Platform".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
@@ -2821,7 +2852,8 @@ public class GatewayOperationsImpl implements ServiceOperations<NetworkManagemen
                                                         if (eventType == XmlPullParser.START_TAG && "OSFamilies".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "OSFamilies".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
                                                                 if (eventType == XmlPullParser.START_TAG && "OSFamily".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
-                                                                    GatewayListSupportedDevicesResponse.OSFamily oSFamilyInstance = new GatewayListSupportedDevicesResponse.OSFamily();
+                                                                    GatewayListSupportedDevicesResponse.OSFamily oSFamilyInstance;
+                                                                    oSFamilyInstance = new GatewayListSupportedDevicesResponse.OSFamily();
                                                                     platformInstance.getOSFamilies().add(oSFamilyInstance);
                                                                     
                                                                     while ((eventType == XmlPullParser.END_TAG && "OSFamily".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {

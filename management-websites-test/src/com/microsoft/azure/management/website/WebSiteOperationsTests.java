@@ -35,7 +35,8 @@ import org.xmlpull.v1.XmlPullParserException;
 
 public class WebSiteOperationsTests extends WebSiteManagementIntegrationTestBase {
     private static String websiteName = testWebsitePrefix + "01";
-    private static String webSpaceName = WebSpaceNames.NORTHEUROPEWEBSPACE; 
+    private static String webSpaceName = WebSpaceNames.WESTUSWEBSPACE; 
+    private static String georegionName = GeoRegionNames.WESTUS;
     private static String hostName = ".azurewebsites.net";
     
     @Override
@@ -89,7 +90,7 @@ public class WebSiteOperationsTests extends WebSiteManagementIntegrationTestBase
         hostNamesValue.add(websiteName + hostName); 
         
         WebSiteCreateParameters.WebSpaceDetails webSpaceDetails = new WebSiteCreateParameters.WebSpaceDetails();
-        webSpaceDetails.setGeoRegion(GeoRegionNames.NORTHCENTRALUS);
+        webSpaceDetails.setGeoRegion(georegionName);
         webSpaceDetails.setPlan(WebSpacePlanNames.VIRTUALDEDICATEDPLAN);
         webSpaceDetails.setName(webSpaceName);
         
@@ -114,7 +115,7 @@ public class WebSiteOperationsTests extends WebSiteManagementIntegrationTestBase
         hostNamesValue.add(webSiteName + hostName); 
         
         WebSiteCreateParameters.WebSpaceDetails webSpaceDetails = new WebSiteCreateParameters.WebSpaceDetails();
-        webSpaceDetails.setGeoRegion(GeoRegionNames.NORTHCENTRALUS);
+        webSpaceDetails.setGeoRegion(georegionName);
         webSpaceDetails.setPlan(WebSpacePlanNames.VIRTUALDEDICATEDPLAN);
         webSpaceDetails.setName(webSpaceName);
         

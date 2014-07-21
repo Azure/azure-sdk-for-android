@@ -475,8 +475,13 @@ public class ComputeManagementClientImpl extends ServiceClient<ComputeManagement
                         
                         if (eventType == XmlPullParser.START_TAG && "Error".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "Error".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                OperationStatusResponse.ErrorDetails errorInstance = new OperationStatusResponse.ErrorDetails();
-                                result.setError(errorInstance);
+                                OperationStatusResponse.ErrorDetails errorInstance;
+                                if (result.getError() == null) {
+                                    errorInstance = new OperationStatusResponse.ErrorDetails();
+                                    result.setError(errorInstance);
+                                } else {
+                                    errorInstance = result.getError();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "Code".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "Code".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

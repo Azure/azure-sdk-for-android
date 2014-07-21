@@ -186,7 +186,8 @@ public class OperatingSystemOperationsImpl implements ServiceOperations<ComputeM
                 if (eventType == XmlPullParser.START_TAG && "OperatingSystems".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "OperatingSystems".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "OperatingSystem".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            OperatingSystemListResponse.OperatingSystem operatingSystemInstance = new OperatingSystemListResponse.OperatingSystem();
+                            OperatingSystemListResponse.OperatingSystem operatingSystemInstance;
+                            operatingSystemInstance = new OperatingSystemListResponse.OperatingSystem();
                             result.getOperatingSystems().add(operatingSystemInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "OperatingSystem".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -394,7 +395,8 @@ public class OperatingSystemOperationsImpl implements ServiceOperations<ComputeM
                 if (eventType == XmlPullParser.START_TAG && "OperatingSystemFamilies".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "OperatingSystemFamilies".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "OperatingSystemFamily".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            OperatingSystemListFamiliesResponse.OperatingSystemFamily operatingSystemFamilyInstance = new OperatingSystemListFamiliesResponse.OperatingSystemFamily();
+                            OperatingSystemListFamiliesResponse.OperatingSystemFamily operatingSystemFamilyInstance;
+                            operatingSystemFamilyInstance = new OperatingSystemListFamiliesResponse.OperatingSystemFamily();
                             result.getOperatingSystemFamilies().add(operatingSystemFamilyInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "OperatingSystemFamily".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -425,7 +427,8 @@ public class OperatingSystemOperationsImpl implements ServiceOperations<ComputeM
                                 if (eventType == XmlPullParser.START_TAG && "OperatingSystems".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "OperatingSystems".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                         if (eventType == XmlPullParser.START_TAG && "OperatingSystem".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                            OperatingSystemListFamiliesResponse.OperatingSystem operatingSystemInstance = new OperatingSystemListFamiliesResponse.OperatingSystem();
+                                            OperatingSystemListFamiliesResponse.OperatingSystem operatingSystemInstance;
+                                            operatingSystemInstance = new OperatingSystemListFamiliesResponse.OperatingSystem();
                                             operatingSystemFamilyInstance.getOperatingSystems().add(operatingSystemInstance);
                                             
                                             while ((eventType == XmlPullParser.END_TAG && "OperatingSystem".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

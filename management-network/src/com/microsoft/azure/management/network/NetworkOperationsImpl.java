@@ -41,6 +41,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
 import java.net.MalformedURLException;
@@ -172,7 +173,9 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -398,7 +401,8 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
                 if (eventType == XmlPullParser.START_TAG && "VirtualNetworkSites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "VirtualNetworkSites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "VirtualNetworkSite".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            NetworkListResponse.VirtualNetworkSite virtualNetworkSiteInstance = new NetworkListResponse.VirtualNetworkSite();
+                            NetworkListResponse.VirtualNetworkSite virtualNetworkSiteInstance;
+                            virtualNetworkSiteInstance = new NetworkListResponse.VirtualNetworkSite();
                             result.getVirtualNetworkSites().add(virtualNetworkSiteInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "VirtualNetworkSite".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -464,8 +468,13 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
                                 
                                 if (eventType == XmlPullParser.START_TAG && "AddressSpace".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "AddressSpace".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                        NetworkListResponse.AddressSpace addressSpaceInstance = new NetworkListResponse.AddressSpace();
-                                        virtualNetworkSiteInstance.setAddressSpace(addressSpaceInstance);
+                                        NetworkListResponse.AddressSpace addressSpaceInstance;
+                                        if (virtualNetworkSiteInstance.getAddressSpace() == null) {
+                                            addressSpaceInstance = new NetworkListResponse.AddressSpace();
+                                            virtualNetworkSiteInstance.setAddressSpace(addressSpaceInstance);
+                                        } else {
+                                            addressSpaceInstance = virtualNetworkSiteInstance.getAddressSpace();
+                                        }
                                         
                                         if (eventType == XmlPullParser.START_TAG && "AddressPrefixes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "AddressPrefixes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -484,7 +493,8 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
                                 if (eventType == XmlPullParser.START_TAG && "Subnets".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "Subnets".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                         if (eventType == XmlPullParser.START_TAG && "Subnet".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                            NetworkListResponse.Subnet subnetInstance = new NetworkListResponse.Subnet();
+                                            NetworkListResponse.Subnet subnetInstance;
+                                            subnetInstance = new NetworkListResponse.Subnet();
                                             virtualNetworkSiteInstance.getSubnets().add(subnetInstance);
                                             
                                             while ((eventType == XmlPullParser.END_TAG && "Subnet".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -527,7 +537,8 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
                                         if (eventType == XmlPullParser.START_TAG && "DnsServers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "DnsServers".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "DnsServer".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    NetworkListResponse.DnsServer dnsServerInstance = new NetworkListResponse.DnsServer();
+                                                    NetworkListResponse.DnsServer dnsServerInstance;
+                                                    dnsServerInstance = new NetworkListResponse.DnsServer();
                                                     virtualNetworkSiteInstance.getDnsServers().add(dnsServerInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "DnsServer".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -564,13 +575,20 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
                                             
                                             eventType = xmlPullParser.next();
                                         }
+                                        
+                                        eventType = xmlPullParser.next();
                                     }
                                 }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "Gateway".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "Gateway".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                        NetworkListResponse.Gateway gatewayInstance = new NetworkListResponse.Gateway();
-                                        virtualNetworkSiteInstance.setGateway(gatewayInstance);
+                                        NetworkListResponse.Gateway gatewayInstance;
+                                        if (virtualNetworkSiteInstance.getGateway() == null) {
+                                            gatewayInstance = new NetworkListResponse.Gateway();
+                                            virtualNetworkSiteInstance.setGateway(gatewayInstance);
+                                        } else {
+                                            gatewayInstance = virtualNetworkSiteInstance.getGateway();
+                                        }
                                         
                                         if (eventType == XmlPullParser.START_TAG && "Profile".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "Profile".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -587,7 +605,8 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
                                         if (eventType == XmlPullParser.START_TAG && "Sites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "Sites".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "LocalNetworkSite".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    NetworkListResponse.LocalNetworkSite localNetworkSiteInstance = new NetworkListResponse.LocalNetworkSite();
+                                                    NetworkListResponse.LocalNetworkSite localNetworkSiteInstance;
+                                                    localNetworkSiteInstance = new NetworkListResponse.LocalNetworkSite();
                                                     gatewayInstance.getSites().add(localNetworkSiteInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "LocalNetworkSite".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -617,8 +636,13 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "AddressSpace".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "AddressSpace".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                NetworkListResponse.AddressSpace addressSpaceInstance2 = new NetworkListResponse.AddressSpace();
-                                                                localNetworkSiteInstance.setAddressSpace(addressSpaceInstance2);
+                                                                NetworkListResponse.AddressSpace addressSpaceInstance2;
+                                                                if (localNetworkSiteInstance.getAddressSpace() == null) {
+                                                                    addressSpaceInstance2 = new NetworkListResponse.AddressSpace();
+                                                                    localNetworkSiteInstance.setAddressSpace(addressSpaceInstance2);
+                                                                } else {
+                                                                    addressSpaceInstance2 = localNetworkSiteInstance.getAddressSpace();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "AddressPrefixes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "AddressPrefixes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -637,7 +661,8 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
                                                         if (eventType == XmlPullParser.START_TAG && "Connections".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "Connections".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                 if (eventType == XmlPullParser.START_TAG && "Connection".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                    NetworkListResponse.Connection connectionInstance = new NetworkListResponse.Connection();
+                                                                    NetworkListResponse.Connection connectionInstance;
+                                                                    connectionInstance = new NetworkListResponse.Connection();
                                                                     localNetworkSiteInstance.getConnections().add(connectionInstance);
                                                                     
                                                                     while ((eventType == XmlPullParser.END_TAG && "Connection".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -675,8 +700,13 @@ public class NetworkOperationsImpl implements ServiceOperations<NetworkManagemen
                                         
                                         if (eventType == XmlPullParser.START_TAG && "VPNClientAddressPool".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "VPNClientAddressPool".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                NetworkListResponse.VPNClientAddressPool vPNClientAddressPoolInstance = new NetworkListResponse.VPNClientAddressPool();
-                                                gatewayInstance.setVPNClientAddressPool(vPNClientAddressPoolInstance);
+                                                NetworkListResponse.VPNClientAddressPool vPNClientAddressPoolInstance;
+                                                if (gatewayInstance.getVPNClientAddressPool() == null) {
+                                                    vPNClientAddressPoolInstance = new NetworkListResponse.VPNClientAddressPool();
+                                                    gatewayInstance.setVPNClientAddressPool(vPNClientAddressPoolInstance);
+                                                } else {
+                                                    vPNClientAddressPoolInstance = gatewayInstance.getVPNClientAddressPool();
+                                                }
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "AddressPrefixes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "AddressPrefixes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

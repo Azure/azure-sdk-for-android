@@ -65,6 +65,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -261,7 +262,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         if (eventType == XmlPullParser.START_TAG && "Errors".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "Errors".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "Error".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    WebSiteOperationStatusResponse.Error errorInstance = new WebSiteOperationStatusResponse.Error();
+                                    WebSiteOperationStatusResponse.Error errorInstance;
+                                    errorInstance = new WebSiteOperationStatusResponse.Error();
                                     result.getErrors().add(errorInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "Error".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -614,7 +616,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK && statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -638,8 +642,13 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "Site".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "Site".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                        WebSite webSiteInstance = new WebSite();
-                        result.setWebSite(webSiteInstance);
+                        WebSite webSiteInstance;
+                        if (result.getWebSite() == null) {
+                            webSiteInstance = new WebSite();
+                            result.setWebSite(webSiteInstance);
+                        } else {
+                            webSiteInstance = result.getWebSite();
+                        }
                         
                         if (eventType == XmlPullParser.START_TAG && "AdminEnabled".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "AdminEnabled".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -702,7 +711,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         if (eventType == XmlPullParser.START_TAG && "HostNameSslStates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "HostNameSslStates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "HostNameSslState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    WebSite.WebSiteHostNameSslState hostNameSslStateInstance = new WebSite.WebSiteHostNameSslState();
+                                    WebSite.WebSiteHostNameSslState hostNameSslStateInstance;
+                                    hostNameSslStateInstance = new WebSite.WebSiteHostNameSslState();
                                     webSiteInstance.getHostNameSslStates().add(hostNameSslStateInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "HostNameSslState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -837,7 +847,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         if (eventType == XmlPullParser.START_TAG && "SSLCertificates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "SSLCertificates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "Certificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    WebSite.WebSiteSslCertificate certificateInstance = new WebSite.WebSiteSslCertificate();
+                                    WebSite.WebSiteSslCertificate certificateInstance;
+                                    certificateInstance = new WebSite.WebSiteSslCertificate();
                                     webSiteInstance.getSslCertificates().add(certificateInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "Certificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -855,9 +866,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                         expirationDateInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
                                                         certificateInstance.setExpirationDate(expirationDateInstance);
                                                     }
-                                                    
-                                                    eventType = xmlPullParser.next();
                                                 }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
                                         }
                                         
@@ -897,9 +908,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                         issueDateInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
                                                         certificateInstance.setIssueDate(issueDateInstance);
                                                     }
-                                                    
-                                                    eventType = xmlPullParser.next();
                                                 }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
                                         }
                                         
@@ -1001,9 +1012,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                         toDeleteInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
                                                         certificateInstance.setIsToBeDeleted(toDeleteInstance);
                                                     }
-                                                    
-                                                    eventType = xmlPullParser.next();
                                                 }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
                                         }
                                         
@@ -1021,9 +1032,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                         validInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
                                                         certificateInstance.setIsValid(validInstance);
                                                     }
-                                                    
-                                                    eventType = xmlPullParser.next();
                                                 }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
                                         }
                                         
@@ -1075,8 +1086,13 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         
                         if (eventType == XmlPullParser.START_TAG && "SiteProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "SiteProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                WebSite.WebSiteProperties sitePropertiesInstance = new WebSite.WebSiteProperties();
-                                webSiteInstance.setSiteProperties(sitePropertiesInstance);
+                                WebSite.WebSiteProperties sitePropertiesInstance;
+                                if (webSiteInstance.getSiteProperties() == null) {
+                                    sitePropertiesInstance = new WebSite.WebSiteProperties();
+                                    webSiteInstance.setSiteProperties(sitePropertiesInstance);
+                                } else {
+                                    sitePropertiesInstance = webSiteInstance.getSiteProperties();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "AppSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "AppSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1225,8 +1241,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 eventType = xmlPullParser.next();
                             }
                         }
-                        
-                        eventType = xmlPullParser.next();
                         
                         eventType = xmlPullParser.next();
                     }
@@ -1603,7 +1617,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "anyURI".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/2003/10/Serialization/".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "anyURI".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/2003/10/Serialization/".equals(xmlPullParser.getNamespace())) != true) {
-                        result.setUri(new URI(xmlPullParser.getText()));
+                        if (eventType == XmlPullParser.TEXT) {
+                            result.setUri(new URI(xmlPullParser.getText()));
+                        }
                         
                         eventType = xmlPullParser.next();
                     }
@@ -1865,8 +1881,13 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "Site".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "Site".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                        WebSite webSiteInstance = new WebSite();
-                        result.setWebSite(webSiteInstance);
+                        WebSite webSiteInstance;
+                        if (result.getWebSite() == null) {
+                            webSiteInstance = new WebSite();
+                            result.setWebSite(webSiteInstance);
+                        } else {
+                            webSiteInstance = result.getWebSite();
+                        }
                         
                         if (eventType == XmlPullParser.START_TAG && "AdminEnabled".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "AdminEnabled".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1929,7 +1950,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         if (eventType == XmlPullParser.START_TAG && "HostNameSslStates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "HostNameSslStates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "HostNameSslState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    WebSite.WebSiteHostNameSslState hostNameSslStateInstance = new WebSite.WebSiteHostNameSslState();
+                                    WebSite.WebSiteHostNameSslState hostNameSslStateInstance;
+                                    hostNameSslStateInstance = new WebSite.WebSiteHostNameSslState();
                                     webSiteInstance.getHostNameSslStates().add(hostNameSslStateInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "HostNameSslState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -2064,7 +2086,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         if (eventType == XmlPullParser.START_TAG && "SSLCertificates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "SSLCertificates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "Certificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    WebSite.WebSiteSslCertificate certificateInstance = new WebSite.WebSiteSslCertificate();
+                                    WebSite.WebSiteSslCertificate certificateInstance;
+                                    certificateInstance = new WebSite.WebSiteSslCertificate();
                                     webSiteInstance.getSslCertificates().add(certificateInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "Certificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -2082,9 +2105,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                         expirationDateInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
                                                         certificateInstance.setExpirationDate(expirationDateInstance);
                                                     }
-                                                    
-                                                    eventType = xmlPullParser.next();
                                                 }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
                                         }
                                         
@@ -2124,9 +2147,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                         issueDateInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
                                                         certificateInstance.setIssueDate(issueDateInstance);
                                                     }
-                                                    
-                                                    eventType = xmlPullParser.next();
                                                 }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
                                         }
                                         
@@ -2228,9 +2251,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                         toDeleteInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
                                                         certificateInstance.setIsToBeDeleted(toDeleteInstance);
                                                     }
-                                                    
-                                                    eventType = xmlPullParser.next();
                                                 }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
                                         }
                                         
@@ -2248,9 +2271,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                         validInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
                                                         certificateInstance.setIsValid(validInstance);
                                                     }
-                                                    
-                                                    eventType = xmlPullParser.next();
                                                 }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
                                         }
                                         
@@ -2302,8 +2325,13 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         
                         if (eventType == XmlPullParser.START_TAG && "SiteProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "SiteProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                WebSite.WebSiteProperties sitePropertiesInstance = new WebSite.WebSiteProperties();
-                                webSiteInstance.setSiteProperties(sitePropertiesInstance);
+                                WebSite.WebSiteProperties sitePropertiesInstance;
+                                if (webSiteInstance.getSiteProperties() == null) {
+                                    sitePropertiesInstance = new WebSite.WebSiteProperties();
+                                    webSiteInstance.setSiteProperties(sitePropertiesInstance);
+                                } else {
+                                    sitePropertiesInstance = webSiteInstance.getSiteProperties();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "AppSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "AppSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -2452,8 +2480,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 eventType = xmlPullParser.next();
                             }
                         }
-                        
-                        eventType = xmlPullParser.next();
                         
                         eventType = xmlPullParser.next();
                     }
@@ -2624,7 +2650,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         if (eventType == XmlPullParser.START_TAG && "ConnectionStrings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "ConnectionStrings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "ConnStringInfo".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    WebSiteGetConfigurationResponse.ConnectionStringInfo connStringInfoInstance = new WebSiteGetConfigurationResponse.ConnectionStringInfo();
+                                    WebSiteGetConfigurationResponse.ConnectionStringInfo connStringInfoInstance;
+                                    connStringInfoInstance = new WebSiteGetConfigurationResponse.ConnectionStringInfo();
                                     result.getConnectionStrings().add(connStringInfoInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "ConnStringInfo".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -2711,7 +2738,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         if (eventType == XmlPullParser.START_TAG && "HandlerMappings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "HandlerMappings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "HandlerMapping".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    WebSiteGetConfigurationResponse.HandlerMapping handlerMappingInstance = new WebSiteGetConfigurationResponse.HandlerMapping();
+                                    WebSiteGetConfigurationResponse.HandlerMapping handlerMappingInstance;
+                                    handlerMappingInstance = new WebSiteGetConfigurationResponse.HandlerMapping();
                                     result.getHandlerMappings().add(handlerMappingInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "HandlerMapping".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -2919,9 +2947,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                         remoteDebuggingVersionInstance = RemoteDebuggingVersion.valueOf(xmlPullParser.getText());
                                         result.setRemoteDebuggingVersion(remoteDebuggingVersionInstance);
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -2951,9 +2979,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                         requestTracingExpirationTimeInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
                                         result.setRequestTracingExpirationTime(requestTracingExpirationTimeInstance);
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
+                                
+                                eventType = xmlPullParser.next();
                             }
                         }
                         
@@ -3147,7 +3175,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         if (eventType == XmlPullParser.START_TAG && "UsageMetrics".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "UsageMetrics".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "MetricResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    WebSiteGetHistoricalUsageMetricsResponse.HistoricalUsageMetric metricResponseInstance = new WebSiteGetHistoricalUsageMetricsResponse.HistoricalUsageMetric();
+                                    WebSiteGetHistoricalUsageMetricsResponse.HistoricalUsageMetric metricResponseInstance;
+                                    metricResponseInstance = new WebSiteGetHistoricalUsageMetricsResponse.HistoricalUsageMetric();
                                     result.getUsageMetrics().add(metricResponseInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "MetricResponse".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -3165,8 +3194,13 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                         
                                         if (eventType == XmlPullParser.START_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "Data".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                WebSiteGetHistoricalUsageMetricsResponse.HistoricalUsageMetricData dataInstance = new WebSiteGetHistoricalUsageMetricsResponse.HistoricalUsageMetricData();
-                                                metricResponseInstance.setData(dataInstance);
+                                                WebSiteGetHistoricalUsageMetricsResponse.HistoricalUsageMetricData dataInstance;
+                                                if (metricResponseInstance.getData() == null) {
+                                                    dataInstance = new WebSiteGetHistoricalUsageMetricsResponse.HistoricalUsageMetricData();
+                                                    metricResponseInstance.setData(dataInstance);
+                                                } else {
+                                                    dataInstance = metricResponseInstance.getData();
+                                                }
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "DisplayName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "DisplayName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -3255,7 +3289,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                 if (eventType == XmlPullParser.START_TAG && "Values".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "Values".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                         if (eventType == XmlPullParser.START_TAG && "MetricSample".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                            WebSiteGetHistoricalUsageMetricsResponse.HistoricalUsageMetricSample metricSampleInstance = new WebSiteGetHistoricalUsageMetricsResponse.HistoricalUsageMetricSample();
+                                                            WebSiteGetHistoricalUsageMetricsResponse.HistoricalUsageMetricSample metricSampleInstance;
+                                                            metricSampleInstance = new WebSiteGetHistoricalUsageMetricsResponse.HistoricalUsageMetricSample();
                                                             dataInstance.getValues().add(metricSampleInstance);
                                                             
                                                             while ((eventType == XmlPullParser.END_TAG && "MetricSample".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -3622,7 +3657,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         if (eventType == XmlPullParser.START_TAG && "PublishProfiles".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "PublishProfiles".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "publishProfile".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
-                                    WebSiteGetPublishProfileResponse.PublishProfile publishProfileInstance = new WebSiteGetPublishProfileResponse.PublishProfile();
+                                    WebSiteGetPublishProfileResponse.PublishProfile publishProfileInstance;
+                                    publishProfileInstance = new WebSiteGetPublishProfileResponse.PublishProfile();
                                     result.getPublishProfiles().add(publishProfileInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "publishProfile".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
@@ -3668,7 +3704,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                         if (eventType == XmlPullParser.START_TAG && "databases".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "databases".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "add".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) {
-                                                    WebSiteGetPublishProfileResponse.Database addInstance = new WebSiteGetPublishProfileResponse.Database();
+                                                    WebSiteGetPublishProfileResponse.Database addInstance;
+                                                    addInstance = new WebSiteGetPublishProfileResponse.Database();
                                                     publishProfileInstance.getDatabases().add(addInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "add".equals(xmlPullParser.getName()) && "".equals(xmlPullParser.getNamespace())) != true) {
@@ -3842,7 +3879,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "anyURI".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/2003/10/Serialization/".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "anyURI".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/2003/10/Serialization/".equals(xmlPullParser.getNamespace())) != true) {
-                        result.setUri(new URI(xmlPullParser.getText()));
+                        if (eventType == XmlPullParser.TEXT) {
+                            result.setUri(new URI(xmlPullParser.getText()));
+                        }
                         
                         eventType = xmlPullParser.next();
                     }
@@ -3983,7 +4022,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         if (eventType == XmlPullParser.START_TAG && "UsageMetrics".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "UsageMetrics".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "Usage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    WebSiteGetUsageMetricsResponse.UsageMetric usageInstance = new WebSiteGetUsageMetricsResponse.UsageMetric();
+                                    WebSiteGetUsageMetricsResponse.UsageMetric usageInstance;
+                                    usageInstance = new WebSiteGetUsageMetricsResponse.UsageMetric();
                                     result.getUsageMetrics().add(usageInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "Usage".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -4819,7 +4859,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -4843,8 +4885,13 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "Site".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "Site".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                        WebSite webSiteInstance = new WebSite();
-                        result.setWebSite(webSiteInstance);
+                        WebSite webSiteInstance;
+                        if (result.getWebSite() == null) {
+                            webSiteInstance = new WebSite();
+                            result.setWebSite(webSiteInstance);
+                        } else {
+                            webSiteInstance = result.getWebSite();
+                        }
                         
                         if (eventType == XmlPullParser.START_TAG && "AdminEnabled".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "AdminEnabled".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -4907,7 +4954,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         if (eventType == XmlPullParser.START_TAG && "HostNameSslStates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "HostNameSslStates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "HostNameSslState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    WebSite.WebSiteHostNameSslState hostNameSslStateInstance = new WebSite.WebSiteHostNameSslState();
+                                    WebSite.WebSiteHostNameSslState hostNameSslStateInstance;
+                                    hostNameSslStateInstance = new WebSite.WebSiteHostNameSslState();
                                     webSiteInstance.getHostNameSslStates().add(hostNameSslStateInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "HostNameSslState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5042,7 +5090,8 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         if (eventType == XmlPullParser.START_TAG && "SSLCertificates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "SSLCertificates".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "Certificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    WebSite.WebSiteSslCertificate certificateInstance = new WebSite.WebSiteSslCertificate();
+                                    WebSite.WebSiteSslCertificate certificateInstance;
+                                    certificateInstance = new WebSite.WebSiteSslCertificate();
                                     webSiteInstance.getSslCertificates().add(certificateInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "Certificate".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5060,9 +5109,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                         expirationDateInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
                                                         certificateInstance.setExpirationDate(expirationDateInstance);
                                                     }
-                                                    
-                                                    eventType = xmlPullParser.next();
                                                 }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
                                         }
                                         
@@ -5102,9 +5151,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                         issueDateInstance = DatatypeFactoryImpl.newInstance().newXMLGregorianCalendar(xmlPullParser.getText()).toGregorianCalendar();
                                                         certificateInstance.setIssueDate(issueDateInstance);
                                                     }
-                                                    
-                                                    eventType = xmlPullParser.next();
                                                 }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
                                         }
                                         
@@ -5206,9 +5255,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                         toDeleteInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
                                                         certificateInstance.setIsToBeDeleted(toDeleteInstance);
                                                     }
-                                                    
-                                                    eventType = xmlPullParser.next();
                                                 }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
                                         }
                                         
@@ -5226,9 +5275,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                         validInstance = Boolean.parseBoolean(xmlPullParser.getText().toLowerCase());
                                                         certificateInstance.setIsValid(validInstance);
                                                     }
-                                                    
-                                                    eventType = xmlPullParser.next();
                                                 }
+                                                
+                                                eventType = xmlPullParser.next();
                                             }
                                         }
                                         
@@ -5280,8 +5329,13 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                         
                         if (eventType == XmlPullParser.START_TAG && "SiteProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "SiteProperties".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                WebSite.WebSiteProperties sitePropertiesInstance = new WebSite.WebSiteProperties();
-                                webSiteInstance.setSiteProperties(sitePropertiesInstance);
+                                WebSite.WebSiteProperties sitePropertiesInstance;
+                                if (webSiteInstance.getSiteProperties() == null) {
+                                    sitePropertiesInstance = new WebSite.WebSiteProperties();
+                                    webSiteInstance.setSiteProperties(sitePropertiesInstance);
+                                } else {
+                                    sitePropertiesInstance = webSiteInstance.getSiteProperties();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "AppSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "AppSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5430,8 +5484,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 eventType = xmlPullParser.next();
                             }
                         }
-                        
-                        eventType = xmlPullParser.next();
                         
                         eventType = xmlPullParser.next();
                     }
@@ -5771,7 +5823,9 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());

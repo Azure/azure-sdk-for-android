@@ -542,7 +542,8 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
                         if (eventType == XmlPullParser.START_TAG && "SubscriptionOperations".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "SubscriptionOperations".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "SubscriptionOperation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    SubscriptionListOperationsResponse.SubscriptionOperation subscriptionOperationInstance = new SubscriptionListOperationsResponse.SubscriptionOperation();
+                                    SubscriptionListOperationsResponse.SubscriptionOperation subscriptionOperationInstance;
+                                    subscriptionOperationInstance = new SubscriptionListOperationsResponse.SubscriptionOperation();
                                     result.getSubscriptionOperations().add(subscriptionOperationInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "SubscriptionOperation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -620,8 +621,13 @@ public class SubscriptionOperationsImpl implements ServiceOperations<ManagementC
                                         
                                         if (eventType == XmlPullParser.START_TAG && "OperationCaller".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "OperationCaller".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                SubscriptionListOperationsResponse.OperationCallerDetails operationCallerInstance = new SubscriptionListOperationsResponse.OperationCallerDetails();
-                                                subscriptionOperationInstance.setOperationCaller(operationCallerInstance);
+                                                SubscriptionListOperationsResponse.OperationCallerDetails operationCallerInstance;
+                                                if (subscriptionOperationInstance.getOperationCaller() == null) {
+                                                    operationCallerInstance = new SubscriptionListOperationsResponse.OperationCallerDetails();
+                                                    subscriptionOperationInstance.setOperationCaller(operationCallerInstance);
+                                                } else {
+                                                    operationCallerInstance = subscriptionOperationInstance.getOperationCaller();
+                                                }
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "UsedServiceManagementApi".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "UsedServiceManagementApi".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

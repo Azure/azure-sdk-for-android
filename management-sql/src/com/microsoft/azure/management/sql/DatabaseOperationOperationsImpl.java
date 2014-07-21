@@ -185,8 +185,13 @@ public class DatabaseOperationOperationsImpl implements ServiceOperations<SqlMan
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                        DatabaseOperation serviceResourceInstance = new DatabaseOperation();
-                        result.setDatabaseOperation(serviceResourceInstance);
+                        DatabaseOperation serviceResourceInstance;
+                        if (result.getDatabaseOperation() == null) {
+                            serviceResourceInstance = new DatabaseOperation();
+                            result.setDatabaseOperation(serviceResourceInstance);
+                        } else {
+                            serviceResourceInstance = result.getDatabaseOperation();
+                        }
                         
                         if (eventType == XmlPullParser.START_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "Id".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -488,7 +493,8 @@ public class DatabaseOperationOperationsImpl implements ServiceOperations<SqlMan
                 if (eventType == XmlPullParser.START_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            DatabaseOperation serviceResourceInstance = new DatabaseOperation();
+                            DatabaseOperation serviceResourceInstance;
+                            serviceResourceInstance = new DatabaseOperation();
                             result.getDatabaseOperations().add(serviceResourceInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -791,7 +797,8 @@ public class DatabaseOperationOperationsImpl implements ServiceOperations<SqlMan
                 if (eventType == XmlPullParser.START_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            DatabaseOperation serviceResourceInstance = new DatabaseOperation();
+                            DatabaseOperation serviceResourceInstance;
+                            serviceResourceInstance = new DatabaseOperation();
                             result.getDatabaseOperations().add(serviceResourceInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

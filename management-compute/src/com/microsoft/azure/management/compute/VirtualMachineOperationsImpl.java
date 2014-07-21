@@ -73,6 +73,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.InetAddress;
@@ -711,7 +712,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -871,7 +874,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -1668,7 +1673,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -2584,7 +2591,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -2834,7 +2843,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -2982,7 +2993,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -3138,7 +3151,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -3262,7 +3277,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -3412,7 +3429,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -4186,7 +4205,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -4457,7 +4478,9 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -5318,7 +5341,8 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                         if (eventType == XmlPullParser.START_TAG && "ConfigurationSets".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "ConfigurationSets".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "ConfigurationSet".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    ConfigurationSet configurationSetInstance = new ConfigurationSet();
+                                    ConfigurationSet configurationSetInstance;
+                                    configurationSetInstance = new ConfigurationSet();
                                     result.getConfigurationSets().add(configurationSetInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "ConfigurationSet".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5337,7 +5361,8 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                                         if (eventType == XmlPullParser.START_TAG && "InputEndpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "InputEndpoints".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "InputEndpoint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    InputEndpoint inputEndpointInstance = new InputEndpoint();
+                                                    InputEndpoint inputEndpointInstance;
+                                                    inputEndpointInstance = new InputEndpoint();
                                                     configurationSetInstance.getInputEndpoints().add(inputEndpointInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "InputEndpoint".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5391,8 +5416,13 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "LoadBalancerProbe".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "LoadBalancerProbe".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                LoadBalancerProbe loadBalancerProbeInstance = new LoadBalancerProbe();
-                                                                inputEndpointInstance.setLoadBalancerProbe(loadBalancerProbeInstance);
+                                                                LoadBalancerProbe loadBalancerProbeInstance;
+                                                                if (inputEndpointInstance.getLoadBalancerProbe() == null) {
+                                                                    loadBalancerProbeInstance = new LoadBalancerProbe();
+                                                                    inputEndpointInstance.setLoadBalancerProbe(loadBalancerProbeInstance);
+                                                                } else {
+                                                                    loadBalancerProbeInstance = inputEndpointInstance.getLoadBalancerProbe();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "Path".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "Path".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5508,13 +5538,19 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "EndpointAcl".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "EndpointAcl".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                                EndpointAcl endpointAclInstance = new EndpointAcl();
-                                                                inputEndpointInstance.setEndpointAcl(endpointAclInstance);
+                                                                EndpointAcl endpointAclInstance;
+                                                                if (inputEndpointInstance.getEndpointAcl() == null) {
+                                                                    endpointAclInstance = new EndpointAcl();
+                                                                    inputEndpointInstance.setEndpointAcl(endpointAclInstance);
+                                                                } else {
+                                                                    endpointAclInstance = inputEndpointInstance.getEndpointAcl();
+                                                                }
                                                                 
                                                                 if (eventType == XmlPullParser.START_TAG && "Rules".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                                     while ((eventType == XmlPullParser.END_TAG && "Rules".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                                         if (eventType == XmlPullParser.START_TAG && "Rule".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                                            AccessControlListRule ruleInstance = new AccessControlListRule();
+                                                                            AccessControlListRule ruleInstance;
+                                                                            ruleInstance = new AccessControlListRule();
                                                                             endpointAclInstance.getRules().add(ruleInstance);
                                                                             
                                                                             while ((eventType == XmlPullParser.END_TAG && "Rule".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5615,7 +5651,8 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                                         if (eventType == XmlPullParser.START_TAG && "PublicIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "PublicIPs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "PublicIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    ConfigurationSet.PublicIP publicIPInstance = new ConfigurationSet.PublicIP();
+                                                    ConfigurationSet.PublicIP publicIPInstance;
+                                                    publicIPInstance = new ConfigurationSet.PublicIP();
                                                     configurationSetInstance.getPublicIPs().add(publicIPInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "PublicIP".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5703,13 +5740,23 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                                         
                                         if (eventType == XmlPullParser.START_TAG && "DomainJoin".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "DomainJoin".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                DomainJoinSettings domainJoinInstance = new DomainJoinSettings();
-                                                configurationSetInstance.setDomainJoin(domainJoinInstance);
+                                                DomainJoinSettings domainJoinInstance;
+                                                if (configurationSetInstance.getDomainJoin() == null) {
+                                                    domainJoinInstance = new DomainJoinSettings();
+                                                    configurationSetInstance.setDomainJoin(domainJoinInstance);
+                                                } else {
+                                                    domainJoinInstance = configurationSetInstance.getDomainJoin();
+                                                }
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "Credentials".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "Credentials".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                        DomainJoinCredentials credentialsInstance = new DomainJoinCredentials();
-                                                        domainJoinInstance.setCredentials(credentialsInstance);
+                                                        DomainJoinCredentials credentialsInstance;
+                                                        if (domainJoinInstance.getCredentials() == null) {
+                                                            credentialsInstance = new DomainJoinCredentials();
+                                                            domainJoinInstance.setCredentials(credentialsInstance);
+                                                        } else {
+                                                            credentialsInstance = domainJoinInstance.getCredentials();
+                                                        }
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "Domain".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "Domain".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5777,8 +5824,13 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "Provisioning".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "Provisioning".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                        DomainJoinProvisioning provisioningInstance = new DomainJoinProvisioning();
-                                                        domainJoinInstance.setProvisioning(provisioningInstance);
+                                                        DomainJoinProvisioning provisioningInstance;
+                                                        if (domainJoinInstance.getProvisioning() == null) {
+                                                            provisioningInstance = new DomainJoinProvisioning();
+                                                            domainJoinInstance.setProvisioning(provisioningInstance);
+                                                        } else {
+                                                            provisioningInstance = domainJoinInstance.getProvisioning();
+                                                        }
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "AccountData".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "AccountData".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5803,12 +5855,14 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                                         if (eventType == XmlPullParser.START_TAG && "StoredCertificateSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "StoredCertificateSettings".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                 if (eventType == XmlPullParser.START_TAG && "CertificateSetting".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                    StoredCertificateSettings certificateSettingInstance = new StoredCertificateSettings();
+                                                    StoredCertificateSettings certificateSettingInstance;
+                                                    certificateSettingInstance = new StoredCertificateSettings();
                                                     configurationSetInstance.getStoredCertificateSettings().add(certificateSettingInstance);
                                                     
                                                     while ((eventType == XmlPullParser.END_TAG && "CertificateSetting".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                         if (eventType == XmlPullParser.START_TAG && "StoreLocation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                             while ((eventType == XmlPullParser.END_TAG && "StoreLocation".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
+                                                                eventType = xmlPullParser.next();
                                                             }
                                                         }
                                                         
@@ -5848,13 +5902,19 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                                         
                                         if (eventType == XmlPullParser.START_TAG && "WinRM".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "WinRM".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                WindowsRemoteManagementSettings winRMInstance = new WindowsRemoteManagementSettings();
-                                                configurationSetInstance.setWindowsRemoteManagement(winRMInstance);
+                                                WindowsRemoteManagementSettings winRMInstance;
+                                                if (configurationSetInstance.getWindowsRemoteManagement() == null) {
+                                                    winRMInstance = new WindowsRemoteManagementSettings();
+                                                    configurationSetInstance.setWindowsRemoteManagement(winRMInstance);
+                                                } else {
+                                                    winRMInstance = configurationSetInstance.getWindowsRemoteManagement();
+                                                }
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "Listeners".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "Listeners".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                         if (eventType == XmlPullParser.START_TAG && "Listener".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                            WindowsRemoteManagementListener listenerInstance = new WindowsRemoteManagementListener();
+                                                            WindowsRemoteManagementListener listenerInstance;
+                                                            listenerInstance = new WindowsRemoteManagementListener();
                                                             winRMInstance.getListeners().add(listenerInstance);
                                                             
                                                             while ((eventType == XmlPullParser.END_TAG && "Listener".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -5958,13 +6018,19 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                                         
                                         if (eventType == XmlPullParser.START_TAG && "SSH".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "SSH".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                                SshSettings sSHInstance = new SshSettings();
-                                                configurationSetInstance.setSshSettings(sSHInstance);
+                                                SshSettings sSHInstance;
+                                                if (configurationSetInstance.getSshSettings() == null) {
+                                                    sSHInstance = new SshSettings();
+                                                    configurationSetInstance.setSshSettings(sSHInstance);
+                                                } else {
+                                                    sSHInstance = configurationSetInstance.getSshSettings();
+                                                }
                                                 
                                                 if (eventType == XmlPullParser.START_TAG && "PublicKeys".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "PublicKeys".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                         if (eventType == XmlPullParser.START_TAG && "PublicKey".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                            SshSettingPublicKey publicKeyInstance = new SshSettingPublicKey();
+                                                            SshSettingPublicKey publicKeyInstance;
+                                                            publicKeyInstance = new SshSettingPublicKey();
                                                             sSHInstance.getPublicKeys().add(publicKeyInstance);
                                                             
                                                             while ((eventType == XmlPullParser.END_TAG && "PublicKey".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6005,7 +6071,8 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                                                 if (eventType == XmlPullParser.START_TAG && "KeyPairs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                                     while ((eventType == XmlPullParser.END_TAG && "KeyPairs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                                         if (eventType == XmlPullParser.START_TAG && "KeyPair".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                                            SshSettingKeyPair keyPairInstance = new SshSettingKeyPair();
+                                                            SshSettingKeyPair keyPairInstance;
+                                                            keyPairInstance = new SshSettingKeyPair();
                                                             sSHInstance.getKeyPairs().add(keyPairInstance);
                                                             
                                                             while ((eventType == XmlPullParser.END_TAG && "KeyPair".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6072,7 +6139,8 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                         if (eventType == XmlPullParser.START_TAG && "DataVirtualHardDisks".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "DataVirtualHardDisks".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "DataVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                                    DataVirtualHardDisk dataVirtualHardDiskInstance = new DataVirtualHardDisk();
+                                    DataVirtualHardDisk dataVirtualHardDiskInstance;
+                                    dataVirtualHardDiskInstance = new DataVirtualHardDisk();
                                     result.getDataVirtualHardDisks().add(dataVirtualHardDiskInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "DataVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -6172,8 +6240,13 @@ public class VirtualMachineOperationsImpl implements ServiceOperations<ComputeMa
                         
                         if (eventType == XmlPullParser.START_TAG && "OSVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "OSVirtualHardDisk".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                OSVirtualHardDisk oSVirtualHardDiskInstance = new OSVirtualHardDisk();
-                                result.setOSVirtualHardDisk(oSVirtualHardDiskInstance);
+                                OSVirtualHardDisk oSVirtualHardDiskInstance;
+                                if (result.getOSVirtualHardDisk() == null) {
+                                    oSVirtualHardDiskInstance = new OSVirtualHardDisk();
+                                    result.setOSVirtualHardDisk(oSVirtualHardDiskInstance);
+                                } else {
+                                    oSVirtualHardDiskInstance = result.getOSVirtualHardDisk();
+                                }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "HostCaching".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "HostCaching".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

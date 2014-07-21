@@ -40,6 +40,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -203,7 +204,9 @@ public class DatabaseCopyOperationsImpl implements ServiceOperations<SqlManageme
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.CREATED) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -227,8 +230,13 @@ public class DatabaseCopyOperationsImpl implements ServiceOperations<SqlManageme
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                        DatabaseCopy serviceResourceInstance = new DatabaseCopy();
-                        result.setDatabaseCopy(serviceResourceInstance);
+                        DatabaseCopy serviceResourceInstance;
+                        if (result.getDatabaseCopy() == null) {
+                            serviceResourceInstance = new DatabaseCopy();
+                            result.setDatabaseCopy(serviceResourceInstance);
+                        } else {
+                            serviceResourceInstance = result.getDatabaseCopy();
+                        }
                         
                         if (eventType == XmlPullParser.START_TAG && "SourceServerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "SourceServerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -671,8 +679,13 @@ public class DatabaseCopyOperationsImpl implements ServiceOperations<SqlManageme
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                        DatabaseCopy serviceResourceInstance = new DatabaseCopy();
-                        result.setDatabaseCopy(serviceResourceInstance);
+                        DatabaseCopy serviceResourceInstance;
+                        if (result.getDatabaseCopy() == null) {
+                            serviceResourceInstance = new DatabaseCopy();
+                            result.setDatabaseCopy(serviceResourceInstance);
+                        } else {
+                            serviceResourceInstance = result.getDatabaseCopy();
+                        }
                         
                         if (eventType == XmlPullParser.START_TAG && "SourceServerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "SourceServerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -993,7 +1006,8 @@ public class DatabaseCopyOperationsImpl implements ServiceOperations<SqlManageme
                 if (eventType == XmlPullParser.START_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResources".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            DatabaseCopy serviceResourceInstance = new DatabaseCopy();
+                            DatabaseCopy serviceResourceInstance;
+                            serviceResourceInstance = new DatabaseCopy();
                             result.getDatabaseCopies().add(serviceResourceInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -1336,7 +1350,9 @@ public class DatabaseCopyOperationsImpl implements ServiceOperations<SqlManageme
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -1360,8 +1376,13 @@ public class DatabaseCopyOperationsImpl implements ServiceOperations<SqlManageme
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ServiceResource".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                        DatabaseCopy serviceResourceInstance = new DatabaseCopy();
-                        result.setDatabaseCopy(serviceResourceInstance);
+                        DatabaseCopy serviceResourceInstance;
+                        if (result.getDatabaseCopy() == null) {
+                            serviceResourceInstance = new DatabaseCopy();
+                            result.setDatabaseCopy(serviceResourceInstance);
+                        } else {
+                            serviceResourceInstance = result.getDatabaseCopy();
+                        }
                         
                         if (eventType == XmlPullParser.START_TAG && "SourceServerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "SourceServerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

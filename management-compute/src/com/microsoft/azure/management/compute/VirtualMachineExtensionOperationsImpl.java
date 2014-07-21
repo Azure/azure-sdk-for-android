@@ -181,7 +181,8 @@ public class VirtualMachineExtensionOperationsImpl implements ServiceOperations<
                 if (eventType == XmlPullParser.START_TAG && "ResourceExtensions".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ResourceExtensions".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "ResourceExtension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            VirtualMachineExtensionListResponse.ResourceExtension resourceExtensionInstance = new VirtualMachineExtensionListResponse.ResourceExtension();
+                            VirtualMachineExtensionListResponse.ResourceExtension resourceExtensionInstance;
+                            resourceExtensionInstance = new VirtualMachineExtensionListResponse.ResourceExtension();
                             result.getResourceExtensions().add(resourceExtensionInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "ResourceExtension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -485,7 +486,8 @@ public class VirtualMachineExtensionOperationsImpl implements ServiceOperations<
                 if (eventType == XmlPullParser.START_TAG && "ResourceExtensions".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "ResourceExtensions".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "ResourceExtension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            VirtualMachineExtensionListResponse.ResourceExtension resourceExtensionInstance = new VirtualMachineExtensionListResponse.ResourceExtension();
+                            VirtualMachineExtensionListResponse.ResourceExtension resourceExtensionInstance;
+                            resourceExtensionInstance = new VirtualMachineExtensionListResponse.ResourceExtension();
                             result.getResourceExtensions().add(resourceExtensionInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "ResourceExtension".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

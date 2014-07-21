@@ -170,7 +170,8 @@ public class LocationOperationsImpl implements ServiceOperations<ManagementClien
                 if (eventType == XmlPullParser.START_TAG && "Locations".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "Locations".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
                         if (eventType == XmlPullParser.START_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
-                            LocationsListResponse.Location locationInstance = new LocationsListResponse.Location();
+                            LocationsListResponse.Location locationInstance;
+                            locationInstance = new LocationsListResponse.Location();
                             result.getLocations().add(locationInstance);
                             
                             while ((eventType == XmlPullParser.END_TAG && "Location".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
@@ -210,8 +211,13 @@ public class LocationOperationsImpl implements ServiceOperations<ManagementClien
                                 
                                 if (eventType == XmlPullParser.START_TAG && "ComputeCapabilities".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                     while ((eventType == XmlPullParser.END_TAG && "ComputeCapabilities".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {
-                                        ComputeCapabilities computeCapabilitiesInstance = new ComputeCapabilities();
-                                        locationInstance.setComputeCapabilities(computeCapabilitiesInstance);
+                                        ComputeCapabilities computeCapabilitiesInstance;
+                                        if (locationInstance.getComputeCapabilities() == null) {
+                                            computeCapabilitiesInstance = new ComputeCapabilities();
+                                            locationInstance.setComputeCapabilities(computeCapabilitiesInstance);
+                                        } else {
+                                            computeCapabilitiesInstance = locationInstance.getComputeCapabilities();
+                                        }
                                         
                                         if (eventType == XmlPullParser.START_TAG && "VirtualMachinesRoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
                                             while ((eventType == XmlPullParser.END_TAG && "VirtualMachinesRoleSizes".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) != true) {

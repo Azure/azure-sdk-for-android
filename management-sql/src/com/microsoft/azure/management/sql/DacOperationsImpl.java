@@ -39,6 +39,7 @@ import com.microsoft.azure.tracing.CloudTracing;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.StringWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -242,7 +243,9 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -266,7 +269,9 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "guid".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/2003/10/Serialization/".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "guid".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/2003/10/Serialization/".equals(xmlPullParser.getNamespace())) != true) {
-                        result.setGuid(xmlPullParser.getText());
+                        if (eventType == XmlPullParser.TEXT) {
+                            result.setGuid(xmlPullParser.getText());
+                        }
                         
                         eventType = xmlPullParser.next();
                     }
@@ -439,7 +444,8 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
                         if (eventType == XmlPullParser.START_TAG && "StatusInfo".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "StatusInfo".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "StatusInfo".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                    StatusInfo statusInfoInstance = new StatusInfo();
+                                    StatusInfo statusInfoInstance;
+                                    statusInfoInstance = new StatusInfo();
                                     result.getStatusInfoList().add(statusInfoInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "StatusInfo".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
@@ -718,7 +724,9 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -745,7 +753,8 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
                         if (eventType == XmlPullParser.START_TAG && "StatusInfo".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
                             while ((eventType == XmlPullParser.END_TAG && "StatusInfo".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
                                 if (eventType == XmlPullParser.START_TAG && "StatusInfo".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) {
-                                    StatusInfo statusInfoInstance = new StatusInfo();
+                                    StatusInfo statusInfoInstance;
+                                    statusInfoInstance = new StatusInfo();
                                     result.getStatusInfoList().add(statusInfoInstance);
                                     
                                     while ((eventType == XmlPullParser.END_TAG && "StatusInfo".equals(xmlPullParser.getName()) && "http://schemas.datacontract.org/2004/07/Microsoft.SqlServer.Management.Dac.ServiceTypes".equals(xmlPullParser.getNamespace())) != true) {
@@ -1060,7 +1069,9 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
         // Send Request
         try {
             httpRequest.setFixedLengthStreamingMode(requestContent.getBytes().length);
-            httpRequest.getOutputStream().write(requestContent.getBytes());
+            OutputStream outputStream = httpRequest.getOutputStream();
+            outputStream.write(requestContent.getBytes());
+            outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
                 ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
@@ -1084,7 +1095,9 @@ public class DacOperationsImpl implements ServiceOperations<SqlManagementClientI
             while ((eventType == XmlPullParser.END_DOCUMENT) != true) {
                 if (eventType == XmlPullParser.START_TAG && "guid".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/2003/10/Serialization/".equals(xmlPullParser.getNamespace())) {
                     while ((eventType == XmlPullParser.END_TAG && "guid".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/2003/10/Serialization/".equals(xmlPullParser.getNamespace())) != true) {
-                        result.setGuid(xmlPullParser.getText());
+                        if (eventType == XmlPullParser.TEXT) {
+                            result.setGuid(xmlPullParser.getText());
+                        }
                         
                         eventType = xmlPullParser.next();
                     }
