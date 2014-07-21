@@ -31,7 +31,7 @@ public final class ManagementConfiguration {
     }
 
     /**
-     * Defines the subscription cloud credentials object of the Windows Azure
+     * Defines the subscription cloud credentials object of the Microsoft Azure
      * account.
      */
     public static final String SUBSCRIPTION_CLOUD_CREDENTIALS = "com.microsoft.azure.Configuration.credentials";
@@ -60,7 +60,7 @@ public final class ManagementConfiguration {
     public static final String URI = "management.uri";
 
     /**
-     * Defines the subscription ID of the Windows Azure account.
+     * Defines the subscription ID of the Microsoft Azure account.
      */
     public static final String SUBSCRIPTION_ID = "management.subscription.id";
 

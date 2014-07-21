@@ -210,7 +210,7 @@ public class OperatingSystemListResponse extends OperationResponse implements It
         * Optional. The operating system version. This value corresponds to the
         * configuration value for specifying that your service is to run on a
         * particular version of the Azure guest operating system. See
-        * Configuring Settings for the Windows Azure Guest OS for additional
+        * Configuring Settings for the Microsoft Azure Guest OS for additional
         * details.
         * @return The Version value.
         */
@@ -222,7 +222,7 @@ public class OperatingSystemListResponse extends OperationResponse implements It
         * Optional. The operating system version. This value corresponds to the
         * configuration value for specifying that your service is to run on a
         * particular version of the Azure guest operating system. See
-        * Configuring Settings for the Windows Azure Guest OS for additional
+        * Configuring Settings for the Microsoft Azure Guest OS for additional
         * details.
         * @param versionValue The Version value.
         */

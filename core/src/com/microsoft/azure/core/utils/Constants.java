@@ -434,7 +434,7 @@ public final class Constants {
     }
 
     /**
-     * The master Windows Azure Storage header prefix.
+     * The master Microsoft Azure Storage header prefix.
      */
     public static final String PREFIX_FOR_STORAGE_HEADER = "x-ms-";
 

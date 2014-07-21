@@ -112,7 +112,7 @@ public interface VirtualMachineVMImageOperations {
     /**
     * Unreplicate an VM image to multiple target locations. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this. Note: The operation removes the
+    * Microsoft Azure to be able to call this. Note: The operation removes the
     * published copies of the user VM Image. It does not remove the actual
     * user VM Image. To remove the actual user VM Image, the publisher will
     * have to call Delete VM Image.
@@ -133,7 +133,7 @@ public interface VirtualMachineVMImageOperations {
     /**
     * Unreplicate an VM image to multiple target locations. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this. Note: The operation removes the
+    * Microsoft Azure to be able to call this. Note: The operation removes the
     * published copies of the user VM Image. It does not remove the actual
     * user VM Image. To remove the actual user VM Image, the publisher will
     * have to call Delete VM Image.
@@ -202,7 +202,7 @@ public interface VirtualMachineVMImageOperations {
     /**
     * Gets VMImage's properties and its replication details. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this.
+    * Microsoft Azure to be able to call this.
     *
     * @param vmImageName Required. The name of the virtual machine image to
     * replicate.
@@ -223,7 +223,7 @@ public interface VirtualMachineVMImageOperations {
     /**
     * Gets VMImage's properties and its replication details. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this.
+    * Microsoft Azure to be able to call this.
     *
     * @param vmImageName Required. The name of the virtual machine image to
     * replicate.
@@ -260,7 +260,7 @@ public interface VirtualMachineVMImageOperations {
     /**
     * Replicate an VM image to multiple target locations. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this.
+    * Microsoft Azure to be able to call this.
     *
     * @param vmImageName Required. The name of the virtual machine image to
     * replicate.
@@ -280,7 +280,7 @@ public interface VirtualMachineVMImageOperations {
     /**
     * Replicate an VM image to multiple target locations. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this.
+    * Microsoft Azure to be able to call this.
     *
     * @param vmImageName Required. The name of the virtual machine image to
     * replicate.
@@ -343,7 +343,7 @@ public interface VirtualMachineVMImageOperations {
     /**
     * Unreplicate an VM image to multiple target locations. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this. Note: The operation removes the
+    * Microsoft Azure to be able to call this. Note: The operation removes the
     * published copies of the user VM Image. It does not remove the actual
     * user VM Image. To remove the actual user VM Image, the publisher will
     * have to call Delete VM Image.
@@ -375,7 +375,7 @@ public interface VirtualMachineVMImageOperations {
     /**
     * Unreplicate an VM image to multiple target locations. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this. Note: The operation removes the
+    * Microsoft Azure to be able to call this. Note: The operation removes the
     * published copies of the user VM Image. It does not remove the actual
     * user VM Image. To remove the actual user VM Image, the publisher will
     * have to call Delete VM Image.

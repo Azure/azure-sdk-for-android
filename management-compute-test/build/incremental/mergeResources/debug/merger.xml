@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="0.3.0" >
+        <source path="C:\sources\azure-sdk-for-android\management-compute-test\build\exploded-aar\com.microsoft.azure.android\azure-storage-android\0.3.0\res" >
+            <file
+                path="C:\sources\azure-sdk-for-android\management-compute-test\build\exploded-aar\com.microsoft.azure.android\azure-storage-android\0.3.0\res\values\strings.xml"
+                qualifiers="" >
+                <string name="dummyString" >dummyStringToAllowMavenAARGeneratio
+                </string>
+            </file>
+        </source>
+    </dataSet>
+    <dataSet config="main" >
+        <source path="C:\sources\azure-sdk-for-android\management-compute-test\res" />
+        <source path="C:\sources\azure-sdk-for-android\management-compute-test\build\res\rs\debug" />
+        <source path="C:\sources\azure-sdk-for-android\management-compute-test\build\res\generated\debug" />
+    </dataSet>
+    <dataSet config="debug" >
+        <source path="C:\sources\azure-sdk-for-android\management-compute-test\src\debug\res" />
+    </dataSet>
+
+</merger>

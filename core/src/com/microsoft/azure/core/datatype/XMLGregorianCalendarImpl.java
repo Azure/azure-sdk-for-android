@@ -342,16 +342,4 @@ public class XMLGregorianCalendarImpl extends XMLGregorianCalendar {
         // TODO Auto-generated method stub
         return null;
     }
-
-    private void save() {
-        origYear = year;
-        origMonth = month;
-        origDay = day;
-        origHour = hour;
-        origMinute = minute;
-        origSecond = second;
-        origFracSeconds = fractionalSecond;
-        origTimezone = timezone;
-        origEon = eon;
-    }
 }

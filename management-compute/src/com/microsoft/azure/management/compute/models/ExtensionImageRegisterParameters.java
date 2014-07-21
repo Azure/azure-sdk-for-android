@@ -133,7 +133,7 @@ public class ExtensionImageRegisterParameters {
     /**
     * Optional. Optional. URL string pointing to the EULA (End User License
     * Agreement) of this version of extension. This is optionally specified by
-    * the third-party publishing the extension instead of Windows Azure. If
+    * the third-party publishing the extension instead of Microsoft Azure. If
     * the software requires any additional EULAs, a link to the EULA should be
     * provided.
     * @return The Eula value.
@@ -145,7 +145,7 @@ public class ExtensionImageRegisterParameters {
     /**
     * Optional. Optional. URL string pointing to the EULA (End User License
     * Agreement) of this version of extension. This is optionally specified by
-    * the third-party publishing the extension instead of Windows Azure. If
+    * the third-party publishing the extension instead of Microsoft Azure. If
     * the software requires any additional EULAs, a link to the EULA should be
     * provided.
     * @param eulaValue The Eula value.
@@ -315,7 +315,7 @@ public class ExtensionImageRegisterParameters {
     * extension. The ZIP package has to include the extension executable and
     * other supporting files, and the PluginManifest.xml manifest. MediaLink
     * value must point to a URL (either Http or Https) in a Azure blob storage
-    * and is downloadable. Windows Azure will copy the extension package from
+    * and is downloadable. Microsoft Azure will copy the extension package from
     * this source location and replicate it to all regions. The typical time
     * for replication to complete is 20 minutes.
     * @return The MediaLink value.
@@ -329,7 +329,7 @@ public class ExtensionImageRegisterParameters {
     * extension. The ZIP package has to include the extension executable and
     * other supporting files, and the PluginManifest.xml manifest. MediaLink
     * value must point to a URL (either Http or Https) in a Azure blob storage
-    * and is downloadable. Windows Azure will copy the extension package from
+    * and is downloadable. Microsoft Azure will copy the extension package from
     * this source location and replicate it to all regions. The typical time
     * for replication to complete is 20 minutes.
     * @param mediaLinkValue The MediaLink value.

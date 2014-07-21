@@ -54,8 +54,7 @@ public class ServerFarmOperationsTests extends WebSiteManagementIntegrationTestB
     private static void deleteServerFarm(String webSpaceName) throws IOException, ParserConfigurationException, SAXException {
         try {
             webSiteManagementClient.getServerFarmsOperations().delete(webSpaceName);
-        }
-        catch (ServiceException e) {
+        } catch (ServiceException e) {
             e.printStackTrace();
         }
     }
@@ -74,20 +73,20 @@ public class ServerFarmOperationsTests extends WebSiteManagementIntegrationTestB
 
     public void testCreateServerFarmSuccess() throws Exception {
         String webSpaceName = "northcentraluswebspace";
-        int currentNumberOfWorkersValue = 2; 
+        int currentNumberOfWorkersValue = 2;
         int numberOfWorkersValue = 2;
-        
+
         // Arrange
         ServerFarmCreateParameters createParameters = new ServerFarmCreateParameters();
-        createParameters.setCurrentNumberOfWorkers(currentNumberOfWorkersValue); 
+        createParameters.setCurrentNumberOfWorkers(currentNumberOfWorkersValue);
         createParameters.setCurrentWorkerSize(ServerFarmWorkerSize.Small);
         createParameters.setNumberOfWorkers(numberOfWorkersValue);
-        createParameters.setStatus(ServerFarmStatus.Pending);        
-        createParameters.setWorkerSize(ServerFarmWorkerSize.Small);       
-        
+        createParameters.setStatus(ServerFarmStatus.Pending);
+        createParameters.setWorkerSize(ServerFarmWorkerSize.Small);
+
         // Act
         ServerFarmCreateResponse serverFarmCreateResponse = webSiteManagementClient.getServerFarmsOperations().create(webSpaceName, createParameters);
-        
+
         // Assert
         Assert.assertEquals(200,  serverFarmCreateResponse.getStatusCode());
         Assert.assertNotNull(serverFarmCreateResponse.getRequestId());
@@ -108,47 +107,46 @@ public class ServerFarmOperationsTests extends WebSiteManagementIntegrationTestB
     }
 
     public void testListServerFarmSuccess() throws Exception {
-        String webSpaceName = "eastuswebspace"; 
-       
+        String webSpaceName = "eastuswebspace";
+
         // Act
         ServerFarmListResponse serverFarmListResponse = webSiteManagementClient.getServerFarmsOperations().list(webSpaceName);
 
         // Assert
         Assert.assertEquals(200, serverFarmListResponse.getStatusCode());
         Assert.assertNotNull(serverFarmListResponse.getRequestId());
-        
-         ArrayList<ServerFarmListResponse.ServerFarm> serverFarmslist = serverFarmListResponse.getServerFarms(); 
-           for (ServerFarmListResponse.ServerFarm serverFarm : serverFarmslist) { 
-                // Assert               
-             Assert.assertNotNull(serverFarm.getCurrentWorkerSize());
-             Assert.assertEquals("Default1", serverFarm.getName());  
-             Assert.assertNotNull(serverFarm.getStatus());
-             Assert.assertNotNull(serverFarm.getWorkerSize());             
-           }
+
+        ArrayList<ServerFarmListResponse.ServerFarm> serverFarmslist = serverFarmListResponse.getServerFarms(); 
+        for (ServerFarmListResponse.ServerFarm serverFarm : serverFarmslist) {
+            Assert.assertNotNull(serverFarm.getCurrentWorkerSize());
+            Assert.assertNotNull(serverFarm.getName());
+            Assert.assertNotNull(serverFarm.getStatus());
+            Assert.assertNotNull(serverFarm.getWorkerSize());
+        }
     }
 
     public void testUpdateServerFarmSuccess() throws Exception {
         String webSpaceName = "eastuswebspace"; 
-        
+
         int currentNumberOfWorkersValue = 3;
         int numberOfWorkersValue = 3;
-        
+
         // Arrange 
         createServerFarm(webSpaceName);
 
-        // Act             
+        // Act
         ServerFarmUpdateParameters updateParameters = new ServerFarmUpdateParameters();
         updateParameters.setCurrentNumberOfWorkers(currentNumberOfWorkersValue);
-        updateParameters.setCurrentWorkerSize(ServerFarmWorkerSize.Medium);       
+        updateParameters.setCurrentWorkerSize(ServerFarmWorkerSize.Medium);
         updateParameters.setNumberOfWorkers(numberOfWorkersValue); 
         updateParameters.setStatus(ServerFarmStatus.Ready);
         updateParameters.setWorkerSize(ServerFarmWorkerSize.Medium); 
         ServerFarmUpdateResponse updateOperationResponse = webSiteManagementClient.getServerFarmsOperations().update(webSpaceName, updateParameters);
-        
+
         // Assert
         Assert.assertEquals(200,  updateOperationResponse.getStatusCode());
         Assert.assertNotNull(updateOperationResponse.getRequestId());
-       
+
         Assert.assertEquals(3, updateOperationResponse.getCurrentNumberOfWorkers());
         Assert.assertEquals(3, updateOperationResponse.getNumberOfWorkers());
         Assert.assertEquals(ServerFarmWorkerSize.Medium, updateOperationResponse.getCurrentWorkerSize());

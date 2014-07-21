@@ -159,7 +159,12 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -346,8 +351,6 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -489,7 +492,12 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -674,8 +682,6 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
                                         
                                         eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "Name".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -720,8 +726,6 @@ public class ServiceObjectiveOperationsImpl implements ServiceOperations<SqlMana
                         
                         eventType = xmlPullParser.next();
                     }
-                    
-                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();

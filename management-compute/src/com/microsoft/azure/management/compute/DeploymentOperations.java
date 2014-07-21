@@ -683,7 +683,7 @@ public interface DeploymentOperations {
     * during an in-place update. For information on modifying the number of
     * update domains in the service definition file, see the Azure Service
     * Definition Schema (.csdef File). To determine the update domain in which
-    * a particular instance is running in Windows Azure, use the UpdateDomain
+    * a particular instance is running in Microsoft Azure, use the UpdateDomain
     * property of the RoleInstance class. See the Azure Managed Library
     * Reference at
     * http://msdn.microsoft.com/en-us/library/windowsazure/dd179380.aspx for
@@ -733,7 +733,7 @@ public interface DeploymentOperations {
     * during an in-place update. For information on modifying the number of
     * update domains in the service definition file, see the Azure Service
     * Definition Schema (.csdef File). To determine the update domain in which
-    * a particular instance is running in Windows Azure, use the UpdateDomain
+    * a particular instance is running in Microsoft Azure, use the UpdateDomain
     * property of the RoleInstance class. See the Azure Managed Library
     * Reference at
     * http://msdn.microsoft.com/en-us/library/windowsazure/dd179380.aspx for
@@ -778,7 +778,7 @@ public interface DeploymentOperations {
     * during an in-place update. For information on modifying the number of
     * update domains in the service definition file, see the Azure Service
     * Definition Schema (.csdef File). To determine the update domain in which
-    * a particular instance is running in Windows Azure, use the UpdateDomain
+    * a particular instance is running in Microsoft Azure, use the UpdateDomain
     * property of the RoleInstance class. See the Azure Managed Library
     * Reference at
     * http://msdn.microsoft.com/en-us/library/windowsazure/dd179380.aspx for
@@ -828,7 +828,7 @@ public interface DeploymentOperations {
     * during an in-place update. For information on modifying the number of
     * update domains in the service definition file, see the Azure Service
     * Definition Schema (.csdef File). To determine the update domain in which
-    * a particular instance is running in Windows Azure, use the UpdateDomain
+    * a particular instance is running in Microsoft Azure, use the UpdateDomain
     * property of the RoleInstance class. See the Azure Managed Library
     * Reference at
     * http://msdn.microsoft.com/en-us/library/windowsazure/dd179380.aspx for
@@ -2143,7 +2143,7 @@ public interface DeploymentOperations {
     * during an in-place update. For information on modifying the number of
     * update domains in the service definition file, see the Azure Service
     * Definition Schema (.csdef File). To determine the update domain in which
-    * a particular instance is running in Windows Azure, use the UpdateDomain
+    * a particular instance is running in Microsoft Azure, use the UpdateDomain
     * property of the RoleInstance class. See the Azure Managed Library
     * Reference at
     * http://msdn.microsoft.com/en-us/library/windowsazure/dd179380.aspx for
@@ -2204,7 +2204,7 @@ public interface DeploymentOperations {
     * during an in-place update. For information on modifying the number of
     * update domains in the service definition file, see the Azure Service
     * Definition Schema (.csdef File). To determine the update domain in which
-    * a particular instance is running in Windows Azure, use the UpdateDomain
+    * a particular instance is running in Microsoft Azure, use the UpdateDomain
     * property of the RoleInstance class. See the Azure Managed Library
     * Reference at
     * http://msdn.microsoft.com/en-us/library/windowsazure/dd179380.aspx for
@@ -2255,7 +2255,7 @@ public interface DeploymentOperations {
     * during an in-place update. For information on modifying the number of
     * update domains in the service definition file, see the Azure Service
     * Definition Schema (.csdef File). To determine the update domain in which
-    * a particular instance is running in Windows Azure, use the UpdateDomain
+    * a particular instance is running in Microsoft Azure, use the UpdateDomain
     * property of the RoleInstance class. See the Azure Managed Library
     * Reference at
     * http://msdn.microsoft.com/en-us/library/windowsazure/dd179380.aspx for
@@ -2316,7 +2316,7 @@ public interface DeploymentOperations {
     * during an in-place update. For information on modifying the number of
     * update domains in the service definition file, see the Azure Service
     * Definition Schema (.csdef File). To determine the update domain in which
-    * a particular instance is running in Windows Azure, use the UpdateDomain
+    * a particular instance is running in Microsoft Azure, use the UpdateDomain
     * property of the RoleInstance class. See the Azure Managed Library
     * Reference at
     * http://msdn.microsoft.com/en-us/library/windowsazure/dd179380.aspx for

@@ -49,12 +49,24 @@ public class DatabaseOperationOperationsIntegrationTest extends SqlManagementInt
     public void tearDown() throws Exception {
         for (String databaseName : databaseToBeRemoved.keySet()) {
             String serverName = databaseToBeRemoved.get(databaseName);
-            databaseOperations.delete(serverName, databaseName);
+
+            try {
+                databaseOperations.delete(serverName, databaseName);
+            } catch (IOException e) {
+            } catch (ServiceException e) {
+            }
         }
+        databaseToBeRemoved.clear();
 
         for (String serverName : serverToBeRemoved) {
-            serverOperations.delete(serverName);
+            try {
+                serverOperations.delete(serverName);
+            } catch (IOException e) {
+            } catch (ServiceException e) {
+            }
         }
+        
+        serverToBeRemoved.clear();
     }
 
     public void testListDatabaseOperationsOperationSuccess() throws ParserConfigurationException, SAXException, TransformerException, IOException, ServiceException, DatatypeConfigurationException, XmlPullParserException {

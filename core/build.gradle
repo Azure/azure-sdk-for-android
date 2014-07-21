@@ -34,19 +34,16 @@ apply plugin: 'android-library'
 android {
     compileSdkVersion 18
     buildToolsVersion "19.0.0"
-    
+
     defaultConfig {
-        packageName "microsoft.azure.android.core"
+        packageName "azure-core-android"
     }
-        
+
     sourceSets {
       main {
           manifest.srcFile 'AndroidManifest.xml'
           java.srcDirs = ['src']
           res.srcDirs = ['res']
-      }
-      androidTest{
-        java.srcDirs = ['test']
       }
   }
 }

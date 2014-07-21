@@ -17,16 +17,16 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.microsoft.azure</groupId>
-    <artifactId>microsoft-azure-android</artifactId>
+    <artifactId>azure-android</artifactId>
     <version>0.5.0</version>
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
 
-  <artifactId>microsoft-azure-android-management-sql</artifactId>
+  <artifactId>azure-management-sql-android</artifactId>
   <packaging>aar</packaging>
 
-  <name>Microsoft Windows Azure SQL Management Client API</name>
-  <description>Windows Azure SQL Management SDK Clients</description>
+  <name>Microsoft Azure SQL Management Client API</name>
+  <description>Microsoft Azure SQL Management SDK Clients</description>
   <url>https://github.com/WindowsAzure/azure-sdk-for-java</url>
 
   <licenses>
@@ -60,7 +60,7 @@
   <dependencies>
     <dependency> 
       <groupId>${project.groupId}</groupId>
-      <artifactId>microsoft-azure-android-core</artifactId>
+      <artifactId>azure-core-android</artifactId>
       <version>0.5.0</version>
       <type>aar</type>
     </dependency>

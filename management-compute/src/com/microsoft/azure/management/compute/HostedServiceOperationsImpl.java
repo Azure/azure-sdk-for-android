@@ -421,7 +421,12 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -525,7 +530,12 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -638,7 +648,12 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK && statusCode != AzureHttpStatus.ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -746,7 +761,12 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -987,7 +1007,12 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.CREATED) {
-                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1101,7 +1126,12 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1432,7 +1462,12 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1756,7 +1791,12 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -2059,8 +2099,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                 
                                                                 eventType = xmlPullParser.next();
                                                             }
-                                                            
-                                                            eventType = xmlPullParser.next();
                                                         }
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "GuestAgentStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -2621,8 +2659,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                                         
                                                                                         eventType = xmlPullParser.next();
                                                                                     }
-                                                                                    
-                                                                                    eventType = xmlPullParser.next();
                                                                                 }
                                                                                 
                                                                                 eventType = xmlPullParser.next();
@@ -2635,8 +2671,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                 
                                                                 eventType = xmlPullParser.next();
                                                             }
-                                                            
-                                                            eventType = xmlPullParser.next();
                                                         }
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "PowerState".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -2713,8 +2747,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                 
                                                                 eventType = xmlPullParser.next();
                                                             }
-                                                            
-                                                            eventType = xmlPullParser.next();
                                                         }
                                                         
                                                         eventType = xmlPullParser.next();
@@ -2723,8 +2755,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                 
                                                 eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
                                         
                                         if (eventType == XmlPullParser.START_TAG && "UpgradeStatus".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -3103,8 +3133,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                                                         
                                                                                                         eventType = xmlPullParser.next();
                                                                                                     }
-                                                                                                    
-                                                                                                    eventType = xmlPullParser.next();
                                                                                                 }
                                                                                                 
                                                                                                 eventType = xmlPullParser.next();
@@ -3117,8 +3145,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                                 
                                                                                 eventType = xmlPullParser.next();
                                                                             }
-                                                                            
-                                                                            eventType = xmlPullParser.next();
                                                                         }
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "SubnetNames".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -3169,8 +3195,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                                 
                                                                                 eventType = xmlPullParser.next();
                                                                             }
-                                                                            
-                                                                            eventType = xmlPullParser.next();
                                                                         }
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "ComputerName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -3391,8 +3415,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                                 
                                                                                 eventType = xmlPullParser.next();
                                                                             }
-                                                                            
-                                                                            eventType = xmlPullParser.next();
                                                                         }
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "WinRM".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -3443,8 +3465,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                                         
                                                                                         eventType = xmlPullParser.next();
                                                                                     }
-                                                                                    
-                                                                                    eventType = xmlPullParser.next();
                                                                                 }
                                                                                 
                                                                                 eventType = xmlPullParser.next();
@@ -3559,8 +3579,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                                         
                                                                                         eventType = xmlPullParser.next();
                                                                                     }
-                                                                                    
-                                                                                    eventType = xmlPullParser.next();
                                                                                 }
                                                                                 
                                                                                 if (eventType == XmlPullParser.START_TAG && "KeyPairs".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -3601,8 +3619,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                                         
                                                                                         eventType = xmlPullParser.next();
                                                                                     }
-                                                                                    
-                                                                                    eventType = xmlPullParser.next();
                                                                                 }
                                                                                 
                                                                                 eventType = xmlPullParser.next();
@@ -3627,8 +3643,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                 
                                                                 eventType = xmlPullParser.next();
                                                             }
-                                                            
-                                                            eventType = xmlPullParser.next();
                                                         }
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "ResourceExtensionReferences".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -3737,8 +3751,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                                 
                                                                                 eventType = xmlPullParser.next();
                                                                             }
-                                                                            
-                                                                            eventType = xmlPullParser.next();
                                                                         }
                                                                         
                                                                         if (eventType == XmlPullParser.START_TAG && "State".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -3759,8 +3771,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                 
                                                                 eventType = xmlPullParser.next();
                                                             }
-                                                            
-                                                            eventType = xmlPullParser.next();
                                                         }
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "VMImageName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -3897,8 +3907,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                                 
                                                                 eventType = xmlPullParser.next();
                                                             }
-                                                            
-                                                            eventType = xmlPullParser.next();
                                                         }
                                                         
                                                         if (eventType == XmlPullParser.START_TAG && "Label".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -4041,8 +4049,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                 
                                                 eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
                                         
                                         if (eventType == XmlPullParser.START_TAG && "SdkVersion".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -4253,8 +4259,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                 
                                                 eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
                                         
                                         if (eventType == XmlPullParser.START_TAG && "Dns".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -4305,8 +4309,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                                         
                                                         eventType = xmlPullParser.next();
                                                     }
-                                                    
-                                                    eventType = xmlPullParser.next();
                                                 }
                                                 
                                                 eventType = xmlPullParser.next();
@@ -4319,8 +4321,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "Url".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -4626,7 +4626,12 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -4830,7 +4835,12 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -5055,8 +5065,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                         
                         eventType = xmlPullParser.next();
                     }
-                    
-                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();
@@ -5078,7 +5086,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     
     /**
     * The List Available Extensions operation lists the extensions that are
-    * available to add to your cloud service. In Windows Azure, a process can
+    * available to add to your cloud service. In Microsoft Azure, a process can
     * run as an extension of a cloud service. For example, Remote Desktop
     * Access or the Azure Diagnostics Agent can run as extensions to the cloud
     * service.  (see
@@ -5099,7 +5107,7 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
     
     /**
     * The List Available Extensions operation lists the extensions that are
-    * available to add to your cloud service. In Windows Azure, a process can
+    * available to add to your cloud service. In Microsoft Azure, a process can
     * run as an extension of a cloud service. For example, Remote Desktop
     * Access or the Azure Diagnostics Agent can run as extensions to the cloud
     * service.  (see
@@ -5159,7 +5167,12 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -5384,8 +5397,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                         
                         eventType = xmlPullParser.next();
                     }
-                    
-                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();
@@ -5487,7 +5498,12 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -5604,8 +5620,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                         
                         eventType = xmlPullParser.next();
                     }
-                    
-                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();
@@ -5720,7 +5734,12 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -5945,8 +5964,6 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
                         
                         eventType = xmlPullParser.next();
                     }
-                    
-                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();
@@ -6129,7 +6146,12 @@ public class HostedServiceOperationsImpl implements ServiceOperations<ComputeMan
             outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }

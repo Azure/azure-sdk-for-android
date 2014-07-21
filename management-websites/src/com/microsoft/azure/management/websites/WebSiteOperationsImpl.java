@@ -226,7 +226,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
             httpRequest.setFixedLengthStreamingMode(0);
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -343,8 +348,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "ExpirationTime".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -621,7 +624,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
             outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK && statusCode != AzureHttpStatus.CREATED) {
-                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -770,8 +778,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "HostNames".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -1044,8 +1050,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "SelfLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -1355,7 +1359,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
             httpRequest.setFixedLengthStreamingMode(0);
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1480,7 +1489,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1596,7 +1610,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1740,7 +1759,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
             httpRequest.setFixedLengthStreamingMode(0);
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1860,7 +1884,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -2009,8 +2038,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "HostNames".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -2283,8 +2310,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "SelfLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -2590,7 +2615,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -2697,8 +2727,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "DefaultDocuments".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -2785,8 +2813,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "HttpLoggingEnabled".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -3151,7 +3177,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -3360,8 +3391,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                         
                                                         eventType = xmlPullParser.next();
                                                     }
-                                                    
-                                                    eventType = xmlPullParser.next();
                                                 }
                                                 
                                                 eventType = xmlPullParser.next();
@@ -3386,8 +3415,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
@@ -3498,7 +3525,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -3633,7 +3665,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -3730,8 +3767,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                                 
                                                 eventType = xmlPullParser.next();
                                             }
-                                            
-                                            eventType = xmlPullParser.next();
                                         }
                                         
                                         eventType = xmlPullParser.next();
@@ -3740,8 +3775,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
@@ -3858,7 +3891,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -3998,7 +4036,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -4141,8 +4184,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
@@ -4242,7 +4283,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -4376,7 +4422,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
             httpRequest.setFixedLengthStreamingMode(0);
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -4605,7 +4656,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
             httpRequest.setFixedLengthStreamingMode(0);
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -4864,7 +4920,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
             outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -5013,8 +5074,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "HostNames".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -5287,8 +5346,6 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "SelfLink".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -5828,7 +5885,12 @@ public class WebSiteOperationsImpl implements ServiceOperations<WebSiteManagemen
             outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }

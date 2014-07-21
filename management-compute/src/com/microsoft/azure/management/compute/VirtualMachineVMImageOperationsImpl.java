@@ -177,7 +177,12 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.ACCEPTED) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -292,7 +297,12 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
             httpRequest.setFixedLengthStreamingMode(0);
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -319,7 +329,7 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
     /**
     * Unreplicate an VM image to multiple target locations. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this. Note: The operation removes the
+    * Microsoft Azure to be able to call this. Note: The operation removes the
     * published copies of the user VM Image. It does not remove the actual
     * user VM Image. To remove the actual user VM Image, the publisher will
     * have to call Delete VM Image.
@@ -343,7 +353,7 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
     /**
     * Unreplicate an VM image to multiple target locations. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this. Note: The operation removes the
+    * Microsoft Azure to be able to call this. Note: The operation removes the
     * published copies of the user VM Image. It does not remove the actual
     * user VM Image. To remove the actual user VM Image, the publisher will
     * have to call Delete VM Image.
@@ -406,7 +416,12 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
             httpRequest.setFixedLengthStreamingMode(0);
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -548,7 +563,7 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
     /**
     * Gets VMImage's properties and its replication details. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this.
+    * Microsoft Azure to be able to call this.
     *
     * @param vmImageName Required. The name of the virtual machine image to
     * replicate.
@@ -567,7 +582,7 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
     /**
     * Gets VMImage's properties and its replication details. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this.
+    * Microsoft Azure to be able to call this.
     *
     * @param vmImageName Required. The name of the virtual machine image to
     * replicate.
@@ -629,7 +644,12 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -858,8 +878,6 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         if (eventType == XmlPullParser.START_TAG && "ServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -1164,8 +1182,6 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
                                 
                                 eventType = xmlPullParser.next();
                             }
-                            
-                            eventType = xmlPullParser.next();
                         }
                         
                         eventType = xmlPullParser.next();
@@ -1263,7 +1279,12 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -1498,8 +1519,6 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
                                         
                                         eventType = xmlPullParser.next();
                                     }
-                                    
-                                    eventType = xmlPullParser.next();
                                 }
                                 
                                 if (eventType == XmlPullParser.START_TAG && "ServiceName".equals(xmlPullParser.getName()) && "http://schemas.microsoft.com/windowsazure".equals(xmlPullParser.getNamespace())) {
@@ -1736,8 +1755,6 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
                         
                         eventType = xmlPullParser.next();
                     }
-                    
-                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();
@@ -1760,7 +1777,7 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
     /**
     * Replicate an VM image to multiple target locations. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this.
+    * Microsoft Azure to be able to call this.
     *
     * @param vmImageName Required. The name of the virtual machine image to
     * replicate.
@@ -1781,7 +1798,7 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
     /**
     * Replicate an VM image to multiple target locations. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this.
+    * Microsoft Azure to be able to call this.
     *
     * @param vmImageName Required. The name of the virtual machine image to
     * replicate.
@@ -1875,7 +1892,12 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
             outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -2038,7 +2060,7 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
     /**
     * Unreplicate an VM image to multiple target locations. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this. Note: The operation removes the
+    * Microsoft Azure to be able to call this. Note: The operation removes the
     * published copies of the user VM Image. It does not remove the actual
     * user VM Image. To remove the actual user VM Image, the publisher will
     * have to call Delete VM Image.
@@ -2068,7 +2090,7 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
     /**
     * Unreplicate an VM image to multiple target locations. This operation is
     * only for publishers. You have to be registered as image publisher with
-    * Windows Azure to be able to call this. Note: The operation removes the
+    * Microsoft Azure to be able to call this. Note: The operation removes the
     * published copies of the user VM Image. It does not remove the actual
     * user VM Image. To remove the actual user VM Image, the publisher will
     * have to call Delete VM Image.
@@ -2379,7 +2401,12 @@ public class VirtualMachineVMImageOperationsImpl implements ServiceOperations<Co
             outputStream.close();
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(requestContent, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
