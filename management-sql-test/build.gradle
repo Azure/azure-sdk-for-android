@@ -4,10 +4,6 @@ android {
   compileSdkVersion 18
   buildToolsVersion "20.0.0"
 
-  defaultConfig {
-    packageName "microsoft.azure.android.core"
-  }
-
   sourceSets {
     main {
         manifest.srcFile 'AndroidManifest.xml'
@@ -16,4 +12,8 @@ android {
         assets.srcDirs = ['assets']
     }
   }
+}
+
+dependencies {
+    compile project(':core')
 }

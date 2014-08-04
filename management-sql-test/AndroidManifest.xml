@@ -9,10 +9,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
-    <instrumentation
-        android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="com.microsoft.azure.management.sql.test" />
-
     <application>
         <uses-library android:name="android.test.runner" />
     </application>

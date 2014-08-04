@@ -30,8 +30,5 @@ android {
 
 dependencies {
     compile project(':core')
-    compile project(':management')
-    compile project(':management-compute')
-    compile project(':management-storage')
-    compile 'com.microsoft.azure.android:azure-storage-android:0.3.0@aar'
+    compile project(':management-network')
 }
