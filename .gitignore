@@ -44,3 +44,6 @@ Thumbs.db
 # Android #
 */bin/
 */gen/
+.gradle/
+*/build/*
+build/*

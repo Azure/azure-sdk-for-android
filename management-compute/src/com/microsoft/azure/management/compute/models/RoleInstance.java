@@ -89,7 +89,7 @@ public class RoleInstance {
     private String instanceErrorCode;
     
     /**
-    * Optional. An error code that can be provided to Windows Azure support to
+    * Optional. An error code that can be provided to Microsoft Azure support to
     * assist in resolution of errors. This field will typically be empty.
     * @return The InstanceErrorCode value.
     */
@@ -98,7 +98,7 @@ public class RoleInstance {
     }
     
     /**
-    * Optional. An error code that can be provided to Windows Azure support to
+    * Optional. An error code that can be provided to Microsoft Azure support to
     * assist in resolution of errors. This field will typically be empty.
     * @param instanceErrorCodeValue The InstanceErrorCode value.
     */

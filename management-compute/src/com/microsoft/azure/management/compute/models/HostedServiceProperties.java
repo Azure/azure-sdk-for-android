@@ -177,7 +177,7 @@ public class HostedServiceProperties {
     private String location;
     
     /**
-    * Optional. The geo-location of the cloud service in Windows Azure, if the
+    * Optional. The geo-location of the cloud service in Microsoft Azure, if the
     * service is not associated with an affinity group. If a location has been
     * specified, the AffinityGroup element is not returned.
     * @return The Location value.
@@ -187,7 +187,7 @@ public class HostedServiceProperties {
     }
     
     /**
-    * Optional. The geo-location of the cloud service in Windows Azure, if the
+    * Optional. The geo-location of the cloud service in Microsoft Azure, if the
     * service is not associated with an affinity group. If a location has been
     * specified, the AffinityGroup element is not returned.
     * @param locationValue The Location value.

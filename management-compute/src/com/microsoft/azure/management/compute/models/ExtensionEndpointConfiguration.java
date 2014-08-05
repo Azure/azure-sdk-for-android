@@ -97,7 +97,7 @@ public class ExtensionEndpointConfiguration {
         * Required. Required for each input endpoint. Specifies a port used for
         * internal connections on the endpoint. Its value has to be between
         * 1-65535 inclusive, or '*' indicating any port number automatically
-        * allocated by Windows Azure.
+        * allocated by Microsoft Azure.
         * @return The LocalPort value.
         */
         public int getLocalPort() {
@@ -108,7 +108,7 @@ public class ExtensionEndpointConfiguration {
         * Required. Required for each input endpoint. Specifies a port used for
         * internal connections on the endpoint. Its value has to be between
         * 1-65535 inclusive, or '*' indicating any port number automatically
-        * allocated by Windows Azure.
+        * allocated by Microsoft Azure.
         * @param localPortValue The LocalPort value.
         */
         public void setLocalPort(final int localPortValue) {

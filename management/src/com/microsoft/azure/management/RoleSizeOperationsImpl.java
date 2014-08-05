@@ -141,7 +141,12 @@ public class RoleSizeOperationsImpl implements ServiceOperations<ManagementClien
         try {
             int statusCode = httpRequest.getResponseCode();
             if (statusCode != AzureHttpStatus.OK) {
-                ServiceException ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                ServiceException ex = null;
+                if (httpRequest.getResponseCode() < 400) {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getInputStream());
+                } else {
+                    ex = ServiceException.createFromXml(null, httpRequest.getResponseMessage(), httpRequest.getResponseCode(), httpRequest.getContentType(), httpRequest.getErrorStream());
+                }
                 if (shouldTrace) {
                     CloudTracing.error(invocationId, ex);
                 }
@@ -282,8 +287,6 @@ public class RoleSizeOperationsImpl implements ServiceOperations<ManagementClien
                         
                         eventType = xmlPullParser.next();
                     }
-                    
-                    eventType = xmlPullParser.next();
                 }
                 
                 eventType = xmlPullParser.next();

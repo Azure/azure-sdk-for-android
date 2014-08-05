@@ -558,7 +558,7 @@ public interface HostedServiceOperations {
     
     /**
     * The List Available Extensions operation lists the extensions that are
-    * available to add to your cloud service. In Windows Azure, a process can
+    * available to add to your cloud service. In Microsoft Azure, a process can
     * run as an extension of a cloud service. For example, Remote Desktop
     * Access or the Azure Diagnostics Agent can run as extensions to the cloud
     * service.  (see
@@ -580,7 +580,7 @@ public interface HostedServiceOperations {
     
     /**
     * The List Available Extensions operation lists the extensions that are
-    * available to add to your cloud service. In Windows Azure, a process can
+    * available to add to your cloud service. In Microsoft Azure, a process can
     * run as an extension of a cloud service. For example, Remote Desktop
     * Access or the Azure Diagnostics Agent can run as extensions to the cloud
     * service.  (see

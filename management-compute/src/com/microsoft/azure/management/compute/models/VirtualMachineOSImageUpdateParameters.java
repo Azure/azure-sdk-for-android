@@ -233,7 +233,7 @@ public class VirtualMachineOSImageUpdateParameters {
     private Boolean showInGui;
     
     /**
-    * Optional. When published, should this image show up in the windows azure
+    * Optional. When published, should this image show up in the Microsoft Azure
     * image gallery or not. True by default.
     * @return The ShowInGui value.
     */
@@ -242,7 +242,7 @@ public class VirtualMachineOSImageUpdateParameters {
     }
     
     /**
-    * Optional. When published, should this image show up in the windows azure
+    * Optional. When published, should this image show up in the Microsoft Azure
     * image gallery or not. True by default.
     * @param showInGuiValue The ShowInGui value.
     */

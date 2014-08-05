@@ -38,9 +38,9 @@ import org.xmlpull.v1.XmlPullParserException;
 
 /**
 * The Web Sites Management API provides a RESTful set of web services that
-* interact with the Windows Azure Web Sites service to manage your web sites.
+* interact with the Microsoft Azure Web Sites service to manage your web sites.
 * The API has entities that capture the relationship between an end user and
-* Windows Azure Web Sites service.  (see
+* Microsoft Azure Web Sites service.  (see
 * http://msdn.microsoft.com/en-us/library/windowsazure/dn166981.aspx for more
 * information)
 */

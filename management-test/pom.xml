@@ -17,16 +17,16 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>com.microsoft.azure</groupId>
-    <artifactId>microsoft-azure-android</artifactId>
-    <version>0.5.0</version>
+    <artifactId>azure-android</artifactId>
+    <version>0.1.0</version>
     <relativePath>../parent/pom.xml</relativePath>
   </parent>
 
-  <artifactId>microsoft-azure-android-management-test</artifactId>
+  <artifactId>azure-management-android-test</artifactId>
 
-  <name>Microsoft Windows Azure Management Client API tests</name>
-  <description>Windows Azure Management SDK Clients</description>
-  <url>https://github.com/WindowsAzure/azure-sdk-for-java</url>
+  <name>Microsoft Azure Management Client API tests</name>
+  <description>Microsoft Azure Management SDK Clients</description>
+  <url>https://github.com/Azure/azure-sdk-for-android</url>
 
   <licenses>
     <license>
@@ -37,8 +37,8 @@
   </licenses>
 
   <scm>
-    <url>scm:git:https://github.com/WindowsAzure/azure-sdk-for-java</url>
-    <connection>scm:git:git://github.com/WindowsAzure/azure-sdk-for-java.git</connection>
+    <url>scm:git:https://github.com/Azure/azure-sdk-for-android</url>
+    <connection>scm:git:git://github.com/Azure/azure-sdk-for-android.git</connection>
   </scm>
 
   <properties>
@@ -58,53 +58,20 @@
   <dependencies>
     <dependency> 
       <groupId>${project.groupId}</groupId>
-      <artifactId>microsoft-azure-android-core</artifactId>
-      <version>0.5.0</version>
+      <artifactId>azure-core-android</artifactId>
+      <version>0.1.0</version>
       <type>aar</type>
     </dependency>
     <dependency> 
       <groupId>${project.groupId}</groupId>
-      <artifactId>microsoft-azure-android-management</artifactId>
-      <version>0.5.0</version>
+      <artifactId>azure-management-android</artifactId>
+      <version>0.1.0</version>
       <type>aar</type>
     </dependency>
     <dependency>
       <groupId>com.google.android</groupId>
       <artifactId>android</artifactId>
       <scope>provided</scope>
-    </dependency>
-
-    <!-- Test dependencies -->
-    <dependency>
-      <groupId>org.hamcrest</groupId>
-      <artifactId>hamcrest-all</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.mockito</groupId>
-      <artifactId>mockito-all</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.bouncycastle</groupId>
-      <artifactId>bcprov-jdk16</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>info.cukes</groupId>
-      <artifactId>cucumber-java</artifactId>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>info.cukes</groupId>
-      <artifactId>cucumber-junit</artifactId>
-      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>

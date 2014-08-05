@@ -159,7 +159,11 @@ public class WebSiteOperationsTests extends WebSiteManagementIntegrationTestBase
         WebSiteUpdateParameters updateParameters = new WebSiteUpdateParameters(); 
         updateParameters.setAvailabilityState(WebSpaceAvailabilityState.Limited);
         updateParameters.setSiteMode(WebSiteMode.Limited);
-
+        updateParameters.setHostNames(null);
+        updateParameters.setHostNameSslStates(null);
+        updateParameters.setSslCertificates(null);
+        
+        
         OperationResponse updateoperationResponse = webSiteManagementClient.getWebSitesOperations().update(webSpaceName, websiteName, updateParameters);            
         //Assert
         Assert.assertEquals(200, updateoperationResponse.getStatusCode());
@@ -223,7 +227,7 @@ public class WebSiteOperationsTests extends WebSiteManagementIntegrationTestBase
         Assert.assertEquals(200, webSiteGetConfigurationResponse.getStatusCode());
         Assert.assertNotNull(webSiteGetConfigurationResponse.getRequestId()); 
         Assert.assertEquals(false, (boolean)webSiteGetConfigurationResponse.isWebSocketsEnabled());  
-        Assert.assertEquals("", webSiteGetConfigurationResponse.getDocumentRoot()); 
+        Assert.assertNull(webSiteGetConfigurationResponse.getDocumentRoot()); 
         Assert.assertEquals(35, webSiteGetConfigurationResponse.getLogsDirectorySizeLimit().intValue());  
         
         Assert.assertEquals(Calendar.YEAR, webSiteGetConfigurationResponse.getRequestTracingExpirationTime().YEAR);

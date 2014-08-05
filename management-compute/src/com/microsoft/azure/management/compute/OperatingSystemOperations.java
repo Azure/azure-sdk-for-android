@@ -43,7 +43,7 @@ import org.xmlpull.v1.XmlPullParserException;
 public interface OperatingSystemOperations {
     /**
     * The List Operating Systems operation lists the versions of the guest
-    * operating system that are currently available in Windows Azure. The
+    * operating system that are currently available in Microsoft Azure. The
     * 2010-10-28 version of List Operating Systems also indicates what family
     * an operating system version belongs to. Currently Azure supports two
     * operating system families: the Azure guest operating system that is
@@ -69,7 +69,7 @@ public interface OperatingSystemOperations {
     
     /**
     * The List Operating Systems operation lists the versions of the guest
-    * operating system that are currently available in Windows Azure. The
+    * operating system that are currently available in Microsoft Azure. The
     * 2010-10-28 version of List Operating Systems also indicates what family
     * an operating system version belongs to. Currently Azure supports two
     * operating system families: the Azure guest operating system that is

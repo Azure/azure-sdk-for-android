@@ -76,7 +76,8 @@ public abstract class NetworkManagementIntegrationTestBase extends TestCase {
             System.getenv(ManagementConfiguration.SUBSCRIPTION_ID),
             System.getenv(ManagementConfiguration.KEYSTORE_PATH),
             System.getenv(ManagementConfiguration.KEYSTORE_PASSWORD),
-            KeyStoreType.fromString(System.getenv(ManagementConfiguration.KEYSTORE_TYPE)));
+            KeyStoreType.fromString(System.getenv(ManagementConfiguration.KEYSTORE_TYPE))
+        );
     }
     
     protected static void createNetwork(String networkName) throws Exception {

@@ -145,7 +145,7 @@ public class VirtualMachineVMImageListResponse extends OperationResponse impleme
         private URI mediaLink;
         
         /**
-        * Optional. Specifies the location of the disk in Windows Azure storage.
+        * Optional. Specifies the location of the disk in Microsoft Azure storage.
         * @return The MediaLink value.
         */
         public URI getMediaLink() {
@@ -153,7 +153,7 @@ public class VirtualMachineVMImageListResponse extends OperationResponse impleme
         }
         
         /**
-        * Optional. Specifies the location of the disk in Windows Azure storage.
+        * Optional. Specifies the location of the disk in Microsoft Azure storage.
         * @param mediaLinkValue The MediaLink value.
         */
         public void setMediaLink(final URI mediaLinkValue) {
@@ -234,7 +234,7 @@ public class VirtualMachineVMImageListResponse extends OperationResponse impleme
         private URI mediaLink;
         
         /**
-        * Optional. Specifies the location of the disk in Windows Azure storage.
+        * Optional. Specifies the location of the disk in Microsoft Azure storage.
         * @return The MediaLink value.
         */
         public URI getMediaLink() {
@@ -242,7 +242,7 @@ public class VirtualMachineVMImageListResponse extends OperationResponse impleme
         }
         
         /**
-        * Optional. Specifies the location of the disk in Windows Azure storage.
+        * Optional. Specifies the location of the disk in Microsoft Azure storage.
         * @param mediaLinkValue The MediaLink value.
         */
         public void setMediaLink(final URI mediaLinkValue) {

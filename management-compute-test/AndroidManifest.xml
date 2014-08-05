@@ -18,10 +18,6 @@
         android:targetSdkVersion="19" />
     
     <uses-permission android:name="android.permission.INTERNET" />
-    
-    <instrumentation
-        android:name="android.test.InstrumentationTestRunner"
-        android:targetPackage="com.microsoft.azure.management.compute.test" />
 
     <application>
         <uses-library android:name="android.test.runner" />
