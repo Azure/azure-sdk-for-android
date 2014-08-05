@@ -47,7 +47,7 @@ First, add mavenCentral to your repositories by adding the following to your gra
 Then, add a dependency by adding the following to your gradle build file:
 
     dependencies {
-        compile 'com.microsoft.azure.android:azure-storage-android:0.3.0@aar'
+        compile 'com.microsoft.azure.android:azure-android:0.1.0@aar'
     }
 
 ##Minimum Requirements
