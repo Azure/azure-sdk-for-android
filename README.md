@@ -39,14 +39,16 @@ To get the binaries of this library as distributed by Microsoft, ready for use w
 
 First, add mavenCentral to your repositories by adding the following to your gradle build file:
 
-repositories {
-    mavenCentral()
-}
+
+    repositories {
+        mavenCentral()
+    }
+
 Then, add a dependency by adding the following to your gradle build file:
 
-dependencies {
-    compile 'com.microsoft.azure.android:azure-android:0.1.0@aar'
-}
+    dependencies {
+        compile 'com.microsoft.azure.android:azure-storage-android:0.3.0@aar'
+    }
 
 ##Minimum Requirements
 
