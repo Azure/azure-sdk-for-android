@@ -2,7 +2,7 @@ apply plugin: 'com.android.library'
 
 android {
   compileSdkVersion 18
-  buildToolsVersion "20.0.0"
+  buildToolsVersion '20.0.0'
 
   sourceSets {
     main {
@@ -16,4 +16,6 @@ android {
 
 dependencies {
     compile project(':core')
+    compile project(':management-storage')
+    compile project(':management-sql')
 }
