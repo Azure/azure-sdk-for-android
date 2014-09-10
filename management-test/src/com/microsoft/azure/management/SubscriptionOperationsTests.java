@@ -47,7 +47,6 @@ public class SubscriptionOperationsTests  extends ManagementIntegrationTestBase 
         
          Assert.assertEquals(200, subscriptionListOperationsResponse.getStatusCode());
          Assert.assertNotNull(subscriptionListOperationsResponse.getRequestId());
-         Assert.assertEquals(50, subscriptionListOperationsResponse.getSubscriptionOperations().size());
     }
 }
     

@@ -83,8 +83,8 @@ public class WebSpaceOperationsTests extends WebSiteManagementIntegrationTestBas
         WebSpacesListPublishingUsersResponse webSpacesListPublishingUsersResponse = webSiteManagementClient.getWebSpacesOperations().listPublishingUsers();
 
         // Assert
-        Assert.assertEquals(200,   webSpacesListPublishingUsersResponse.getStatusCode());
-        Assert.assertNotNull( webSpacesListPublishingUsersResponse.getRequestId()); 
+        Assert.assertEquals(200,webSpacesListPublishingUsersResponse.getStatusCode());
+        Assert.assertNotNull(webSpacesListPublishingUsersResponse.getRequestId());
 
         ArrayList< WebSpacesListPublishingUsersResponse.User> userlist =  webSpacesListPublishingUsersResponse.getUsers(); 
         for (WebSpacesListPublishingUsersResponse.User user : userlist) { 

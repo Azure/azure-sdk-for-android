@@ -76,7 +76,7 @@ public class Configuration {
                 .currentThread()
                 .getContextClassLoader()
                 .getResourceAsStream(
-                        "META-INF/com.microsoft.azure.properties");
+                        "assets/com.microsoft.windowsazure.properties");
         if (stream != null) {
             final Properties properties = new Properties();
             properties.load(stream);
