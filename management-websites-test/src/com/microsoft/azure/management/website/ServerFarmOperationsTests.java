@@ -131,8 +131,8 @@ public class ServerFarmOperationsTests extends WebSiteManagementIntegrationTestB
         int currentNumberOfWorkersValue = 3;
         int numberOfWorkersValue = 3;
 
-        // Arrange 
-        createServerFarm(webSpaceName);
+        // Arrange
+        //createServerFarm(webSpaceName);
 
         // Act
         ServerFarmUpdateParameters updateParameters = new ServerFarmUpdateParameters();
@@ -150,7 +150,7 @@ public class ServerFarmOperationsTests extends WebSiteManagementIntegrationTestB
         Assert.assertEquals(3, updateOperationResponse.getCurrentNumberOfWorkers());
         Assert.assertEquals(3, updateOperationResponse.getNumberOfWorkers());
         Assert.assertEquals(ServerFarmWorkerSize.Medium, updateOperationResponse.getCurrentWorkerSize());
-        Assert.assertEquals("DefaultServerFarm", updateOperationResponse.getName());  
+        Assert.assertTrue(updateOperationResponse.getName().contains("Default"));
         Assert.assertEquals(ServerFarmStatus.Ready, updateOperationResponse.getStatus());
         Assert.assertEquals(ServerFarmWorkerSize.Medium, updateOperationResponse.getWorkerSize()); 
     }
