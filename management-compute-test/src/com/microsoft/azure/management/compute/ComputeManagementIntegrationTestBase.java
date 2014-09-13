@@ -76,13 +76,14 @@ public abstract class ComputeManagementIntegrationTestBase extends TestCase {
     }
    
     protected static Configuration createConfiguration() throws Exception {
+        Configuration configs = Configuration.load();
         String baseUri = System.getenv(ManagementConfiguration.URI);
         return ManagementConfiguration.configure(
-            baseUri != null ? new URI(baseUri) : null,
-            System.getenv(ManagementConfiguration.SUBSCRIPTION_ID),
-            System.getenv(ManagementConfiguration.KEYSTORE_PATH),
-            System.getenv(ManagementConfiguration.KEYSTORE_PASSWORD),
-            KeyStoreType.fromString(System.getenv(ManagementConfiguration.KEYSTORE_TYPE))
+                baseUri != null ? new URI(baseUri) : null,
+                configs.getProperty(ManagementConfiguration.SUBSCRIPTION_ID).toString(),
+                configs.getProperty(ManagementConfiguration.KEYSTORE_PATH).toString(),
+                configs.getProperty(ManagementConfiguration.KEYSTORE_PASSWORD).toString(),
+                KeyStoreType.fromString("bks")
         );
     }
     
