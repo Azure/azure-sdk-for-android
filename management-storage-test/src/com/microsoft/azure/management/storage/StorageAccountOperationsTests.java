@@ -23,15 +23,13 @@ import java.util.ArrayList;
 import javax.xml.datatype.DatatypeConfigurationException;
 
 import junit.framework.Assert;
-
 import com.microsoft.azure.core.OperationResponse;
 import com.microsoft.azure.exception.ServiceException;
 import com.microsoft.azure.management.storage.models.*;
 
 import org.xmlpull.v1.XmlPullParserException;
 
-public class StorageAccountOperationsTests extends
-		StorageManagementIntegrationTestBase {
+public class StorageAccountOperationsTests extends StorageManagementIntegrationTestBase {
 	// lower case only for storage account name, this is existed storage account
 	// with vhd-store container,
 	// need to create your own storage account and create container there to
@@ -41,16 +39,17 @@ public class StorageAccountOperationsTests extends
 	@Override
 	public void setUp() throws Exception {
 		storageAccountName = testStorageAccountPrefix + randomString(10);
-		createService();
-		createStorageAccount();
-	}
+        createManagementClient();
+        getLocation();
+        createService();
+        createStorageAccount();
+    }
 
 	@Override
 	public void tearDown() {
 		StorageAccountListResponse storageServiceListResponse = null;
 		try {
-			storageServiceListResponse = storageManagementClient
-					.getStorageAccountsOperations().list();
+			storageServiceListResponse = storageManagementClient.getStorageAccountsOperations().list();
 		} catch (IOException e) {
 		} catch (DatatypeConfigurationException e) {
 		} catch (ServiceException e) {
@@ -83,7 +82,7 @@ public class StorageAccountOperationsTests extends
 		createParameters.setName(storageAccountName);
 		createParameters.setLabel(storageAccountDescription);
 		createParameters.setGeoReplicationEnabled(false);
-		createParameters.setLocation(GeoRegionNames.SOUTHCENTRALUS);
+		createParameters.setLocation(storageLocation);
 
 		// act
 		OperationResponse operationResponse = storageManagementClient
@@ -95,7 +94,7 @@ public class StorageAccountOperationsTests extends
 	}
 
 	public void testCreateStorageAccountSuccess() throws Exception {
-		String storageAccountName = testStorageAccountPrefix + "csas";
+		String storageAccountName = testStorageAccountPrefix + "csas"+randomString(7);
 		String storageAccountDescription = "create storage account success";
 
 		// Arrange
@@ -103,7 +102,7 @@ public class StorageAccountOperationsTests extends
 		createParameters.setName(storageAccountName);
 		createParameters.setLabel(storageAccountDescription);
 		createParameters.setGeoReplicationEnabled(false);
-		createParameters.setLocation(GeoRegionNames.SOUTHCENTRALUS);
+		createParameters.setLocation(storageLocation);
 
 		// act
 		OperationResponse operationResponse = storageManagementClient
@@ -115,7 +114,7 @@ public class StorageAccountOperationsTests extends
 	}
 
 	public void testGetStorageAccountSuccess() throws Exception {
-		String storageAccountLocation = GeoRegionNames.SOUTHCENTRALUS;
+		String storageAccountLocation = storageLocation;
 
 		// Act
 		StorageAccountGetResponse storageAccountResponse = storageManagementClient
@@ -135,7 +134,7 @@ public class StorageAccountOperationsTests extends
 	}
 
 	public void testCheckAvailabilitySuccess() throws Exception {
-		String expectedStorageAccountName = testStorageAccountPrefix + "cas";
+		String expectedStorageAccountName = testStorageAccountPrefix + "cas"+randomString(8);
 		// Act
 		CheckNameAvailabilityResponse checkNameAvailabilityResponse = storageManagementClient
 				.getStorageAccountsOperations().checkNameAvailability(
@@ -145,76 +144,65 @@ public class StorageAccountOperationsTests extends
 		Assert.assertEquals(true, checkNameAvailabilityResponse.isAvailable());
 	}
 
-	public void testGetKeySuccess() throws Exception {
-		// Act
-		StorageAccountGetKeysResponse storageAccountGetKeysResponse = storageManagementClient
-				.getStorageAccountsOperations().getKeys(storageAccountName);
+    public void testGetKeySuccess() throws Exception {
+        //Act
+        StorageAccountGetKeysResponse  storageAccountGetKeysResponse = storageManagementClient.getStorageAccountsOperations().getKeys(storageAccountName);
 
-		// Assert
-		Assert.assertEquals(200, storageAccountGetKeysResponse.getStatusCode());
-		Assert.assertNotNull(storageAccountGetKeysResponse.getRequestId());
-		Assert.assertNotNull(storageAccountGetKeysResponse.getPrimaryKey());
-		Assert.assertNotNull(storageAccountGetKeysResponse.getSecondaryKey());
-	}
+        //Assert
+        Assert.assertEquals(200, storageAccountGetKeysResponse.getStatusCode());
+        Assert.assertNotNull(storageAccountGetKeysResponse.getRequestId());
+        Assert.assertNotNull(storageAccountGetKeysResponse.getPrimaryKey());
+        Assert.assertNotNull(storageAccountGetKeysResponse.getSecondaryKey());
+    }
 
-	public void testGenerateKeysSuccess() throws Exception {
-		StorageAccountRegenerateKeysParameters storageAccountRegenerateKeysParameters = new StorageAccountRegenerateKeysParameters();
-		storageAccountRegenerateKeysParameters.setName(storageAccountName);
-		storageAccountRegenerateKeysParameters
-				.setKeyType(StorageKeyType.Primary);
+    public void testGenerateKeysSuccess() throws Exception {
+        StorageAccountRegenerateKeysParameters storageAccountRegenerateKeysParameters = new StorageAccountRegenerateKeysParameters();
+        storageAccountRegenerateKeysParameters.setName(storageAccountName);
+        storageAccountRegenerateKeysParameters.setKeyType(StorageKeyType.Primary);
 
-		// Act
-		StorageAccountGetKeysResponse storageAccountGetKeysResponse = storageManagementClient
-				.getStorageAccountsOperations().getKeys(storageAccountName);
-		StorageAccountRegenerateKeysResponse storageAccountRegenerateKeysResponse = storageManagementClient
-				.getStorageAccountsOperations().regenerateKeys(
-						storageAccountRegenerateKeysParameters);
+        //Act
+        StorageAccountGetKeysResponse  storageAccountGetKeysResponse = storageManagementClient.getStorageAccountsOperations().getKeys(storageAccountName);
+        StorageAccountRegenerateKeysResponse  storageAccountRegenerateKeysResponse = storageManagementClient.getStorageAccountsOperations().regenerateKeys(storageAccountRegenerateKeysParameters);
 
-		// Assert
-		Assert.assertEquals(200, storageAccountGetKeysResponse.getStatusCode());
-		Assert.assertNotNull(storageAccountGetKeysResponse.getRequestId());
-		Assert.assertNotSame(storageAccountGetKeysResponse.getPrimaryKey(),
-				storageAccountRegenerateKeysResponse.getPrimaryKey());
-	}
+        //Assert
+        Assert.assertEquals(200, storageAccountGetKeysResponse.getStatusCode());
+        Assert.assertNotNull(storageAccountGetKeysResponse.getRequestId());
+        Assert.assertNotSame(storageAccountGetKeysResponse.getPrimaryKey(), storageAccountRegenerateKeysResponse.getPrimaryKey());
+    }
 
-	public void testListStorageAccountSuccess() throws Exception {
-		// Arrange
-		StorageAccountListResponse storageAccountListResponse = storageManagementClient
-				.getStorageAccountsOperations().list();
-		ArrayList<StorageAccount> storageAccountlist = storageAccountListResponse
-				.getStorageAccounts();
-		Assert.assertNotNull(storageAccountlist);
-	}
+    public void testListStorageAccountSuccess() throws Exception {
+        //Arrange
+        StorageAccountListResponse storageAccountListResponse = storageManagementClient.getStorageAccountsOperations().list();
+        ArrayList<StorageAccount> storageAccountlist =  storageAccountListResponse.getStorageAccounts();
+        Assert.assertNotNull(storageAccountlist);
+    }
 
-	public void testUpdateStorageAccountSuccess() throws Exception {
-		// Arrange
-		String expectedStorageAccountName = testStorageAccountPrefix + "03";
-		String expectedStorageAccountLabel = "testUpdateLabel3";
+    public void testUpdateStorageAccountSuccess() throws Exception {
+        //Arrange
+        String expectedStorageAccountName = testStorageAccountPrefix + "usas"+randomString(7);
+        String expectedStorageAccountLabel =  "testUpdateLabel3";
 
-		String expectedUpdatedStorageAccountLabel = "testStorageAccountUpdatedLabel3";
-		String expectedUpdatedDescription = "updatedStorageAccountsuccess3";
+        String expectedUpdatedStorageAccountLabel = "testStorageAccountUpdatedLabel3";
+        String expectedUpdatedDescription = "updatedStorageAccountsuccess3";
 
-		StorageAccountCreateParameters createParameters = new StorageAccountCreateParameters();
-		createParameters.setName(expectedStorageAccountName);
-		createParameters.setLocation(GeoRegionNames.SOUTHCENTRALUS);
-		createParameters.setLabel(expectedStorageAccountLabel);
-		createParameters.setGeoReplicationEnabled(true);
+        StorageAccountCreateParameters createParameters = new StorageAccountCreateParameters();
+        createParameters.setName(expectedStorageAccountName);
+        createParameters.setLocation(storageLocation);
+        createParameters.setLabel(expectedStorageAccountLabel);
+        createParameters.setGeoReplicationEnabled(true);
 
-		// Act
-		OperationResponse operationResponse = storageManagementClient
-				.getStorageAccountsOperations().create(createParameters);
-		Assert.assertEquals(200, operationResponse.getStatusCode());
+        //Act
+        OperationResponse operationResponse = storageManagementClient.getStorageAccountsOperations().create(createParameters);
+        Assert.assertEquals(200, operationResponse.getStatusCode());
 
-		StorageAccountUpdateParameters updateParameters = new StorageAccountUpdateParameters();
-		updateParameters.setLabel(expectedUpdatedStorageAccountLabel);
-		updateParameters.setGeoReplicationEnabled(false);
-		updateParameters.setDescription(expectedUpdatedDescription);
-		OperationResponse updateoperationResponse = storageManagementClient
-				.getStorageAccountsOperations().update(
-						expectedStorageAccountName, updateParameters);
+        StorageAccountUpdateParameters updateParameters = new StorageAccountUpdateParameters();
+        updateParameters.setLabel(expectedUpdatedStorageAccountLabel);
+        updateParameters.setGeoReplicationEnabled(false);
+        updateParameters.setDescription(expectedUpdatedDescription);
+        OperationResponse updateoperationResponse = storageManagementClient.getStorageAccountsOperations().update(expectedStorageAccountName, updateParameters);
 
-		// Assert
-		Assert.assertEquals(200, updateoperationResponse.getStatusCode());
-		Assert.assertNotNull(updateoperationResponse.getRequestId());
-	}
+        //Assert
+        Assert.assertEquals(200, updateoperationResponse.getStatusCode());
+        Assert.assertNotNull(updateoperationResponse.getRequestId());
+    }
 }
