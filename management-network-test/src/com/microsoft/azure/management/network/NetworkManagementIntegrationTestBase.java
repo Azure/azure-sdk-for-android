@@ -70,13 +70,13 @@ public abstract class NetworkManagementIntegrationTestBase extends TestCase {
     }
 
     protected static Configuration createConfiguration() throws Exception {
-        String baseUri = System.getenv(ManagementConfiguration.URI);
+        Configuration configs = Configuration.load();
         return ManagementConfiguration.configure(
-            baseUri != null ? new URI(baseUri) : null,
-            System.getenv(ManagementConfiguration.SUBSCRIPTION_ID),
-            System.getenv(ManagementConfiguration.KEYSTORE_PATH),
-            System.getenv(ManagementConfiguration.KEYSTORE_PASSWORD),
-            KeyStoreType.fromString(System.getenv(ManagementConfiguration.KEYSTORE_TYPE))
+                new URI(configs.getProperty(ManagementConfiguration.URI).toString()),
+                configs.getProperty(ManagementConfiguration.SUBSCRIPTION_ID).toString(),
+                configs.getProperty(ManagementConfiguration.KEYSTORE_PATH).toString(),
+                configs.getProperty(ManagementConfiguration.KEYSTORE_PASSWORD).toString(),
+                KeyStoreType.fromString(configs.getProperty(ManagementConfiguration.KEYSTORE_TYPE).toString())
         );
     }
     

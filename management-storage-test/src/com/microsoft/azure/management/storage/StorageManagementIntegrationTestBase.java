@@ -16,34 +16,67 @@ package com.microsoft.azure.management.storage;
 
 import java.net.URI;
 import java.util.Random;
-
+import java.util.ArrayList;
 import junit.framework.TestCase;
-
-import com.microsoft.azure.Configuration;
+import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import com.microsoft.azure.core.utils.KeyStoreType;
+import com.microsoft.azure.management.ManagementClient;
+import com.microsoft.azure.management.ManagementService;
 import com.microsoft.azure.management.configuration.ManagementConfiguration;
+import com.microsoft.azure.Configuration;
+import com.microsoft.azure.management.models.LocationAvailableServiceNames;
+import com.microsoft.azure.management.models.LocationsListResponse;
+
 
 public abstract class StorageManagementIntegrationTestBase extends TestCase {
 
     protected static String testStorageAccountPrefix = "aztst";
+    protected static String storageLocation = null;
 
     protected static StorageManagementClient storageManagementClient;
+    protected static ManagementClient managementClient;
 
     protected static void createService() throws Exception {
         // reinitialize configuration from known state
         Configuration config = createConfiguration();
         storageManagementClient = StorageManagementService.create(config);
     }
-  
+
+    protected static void createManagementClient() throws Exception {
+        Configuration config = createConfiguration();
+        managementClient = ManagementService.create(config);
+    }
+
     protected static Configuration createConfiguration() throws Exception {
-        String baseUri = System.getenv(ManagementConfiguration.URI);
+        Configuration configs = Configuration.load();
         return ManagementConfiguration.configure(
-            baseUri != null ? new URI(baseUri) : null,
-            System.getenv(ManagementConfiguration.SUBSCRIPTION_ID),
-            System.getenv(ManagementConfiguration.KEYSTORE_PATH),
-            System.getenv(ManagementConfiguration.KEYSTORE_PASSWORD),
-            KeyStoreType.fromString(System.getenv(ManagementConfiguration.KEYSTORE_TYPE))
+                new URI(configs.getProperty(ManagementConfiguration.URI).toString()),
+                configs.getProperty(ManagementConfiguration.SUBSCRIPTION_ID).toString(),
+                configs.getProperty(ManagementConfiguration.KEYSTORE_PATH).toString(),
+                configs.getProperty(ManagementConfiguration.KEYSTORE_PASSWORD).toString(),
+                KeyStoreType.fromString(configs.getProperty(ManagementConfiguration.KEYSTORE_TYPE).toString())
         );
+    }
+
+    protected static void getLocation() throws Exception {
+        ArrayList<String> serviceName = new ArrayList<String>();
+        serviceName.add(LocationAvailableServiceNames.STORAGE);
+
+        LocationsListResponse locationsListResponse = managementClient.getLocationsOperations().list();
+        for (LocationsListResponse.Location location : locationsListResponse) {
+            ArrayList<String> availableServicelist = location.getAvailableServices();
+            String locationName = location.getName();
+            if (availableServicelist.containsAll(serviceName)== true) {
+                if (locationName.contains("West US") == true)
+                {
+                    storageLocation = locationName;
+                }
+                if (storageLocation==null)
+                {
+                    storageLocation = locationName;
+                }
+            }
+        }
     }
     
     protected static String randomString(int length)
