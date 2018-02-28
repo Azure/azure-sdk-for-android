@@ -1,3 +1,5 @@
+/build
+
 # Built application files
 *.apk
 *.ap_
@@ -57,5 +59,3 @@ freeline_project_description.json
 
 Data/.idea/dictionaries/nater.xml
 .DS_Store
-
-/build
