@@ -1,5 +1,7 @@
 package com.azure.data.util;
 
+import java.util.function.Consumer;
+
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
