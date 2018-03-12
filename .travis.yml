@@ -1,0 +1,17 @@
+language: android
+jdk: oraclejdk8
+sudo: false
+
+branches:
+  only:
+    - master
+
+android:
+  components:
+    - tools
+    - platform-tools
+    - build-tools-27.0.3
+    - android-27
+    - extra-android-support
+    - extra-android-m2repository
+    - extra-google-m2repository
