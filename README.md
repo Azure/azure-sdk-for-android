@@ -42,7 +42,7 @@ More information on the features to be included in AzureAuth can be found the [R
 
 
 ## AzureData
-![Current State: Requirements](https://img.shields.io/badge/Current_State-Requirements-red.svg)
+![Current State: Development](https://img.shields.io/badge/Current_State-Development-blue.svg)
 
 [AzureData API Reference](https://github.com/Azure/Azure.Android/wiki/AzureData) and [samples](https://github.com/Azure/Azure.Android/wiki/AzureData) can be found on our [wiki](https://github.com/Azure/Azure.Android/wiki).
 
