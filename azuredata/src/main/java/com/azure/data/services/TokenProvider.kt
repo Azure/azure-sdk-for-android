@@ -1,7 +1,7 @@
 package com.azure.data.services
 
 import android.util.Base64
-import com.azure.data.constants.ApiValues
+import com.azure.core.http.HttpMethod
 import com.azure.data.constants.HmacAlgorithm
 import com.azure.data.constants.TokenType
 import com.azure.data.model.ResourceType
@@ -30,7 +30,7 @@ class TokenProvider(private var key: String, private var keyType: TokenType = To
     }
 
     // https://docs.microsoft.com/en-us/rest/api/documentdb/access-control-on-documentdb-resources#constructkeytoken
-    fun getToken(verb: ApiValues.HttpMethod, resourceType: ResourceType, resourceLink: String) : Token {
+    fun getToken(verb: HttpMethod, resourceType: ResourceType, resourceLink: String) : Token {
 
         val dateString = String.format("%s %s", dateFormatter.format(Date()), "GMT")
 

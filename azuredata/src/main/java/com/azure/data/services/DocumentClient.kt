@@ -1,9 +1,13 @@
 package com.azure.data.services
 
 import android.content.pm.PackageManager
-import com.azure.data.constants.ApiValues
+import com.azure.core.http.HttpMediaType
+import com.azure.core.http.HttpMethod
+import com.azure.core.http.HttpStatusCode
 import com.azure.data.constants.TokenType
 import com.azure.data.BuildConfig
+import com.azure.data.constants.HttpHeaderValue
+import com.azure.data.constants.MSHttpHeader
 import com.azure.data.model.*
 import com.google.gson.reflect.TypeToken
 import com.azure.data.model.indexing.IndexingPolicy
@@ -26,7 +30,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
         val builder = Headers.Builder()
 
         //set the accept encoding header
-        builder.add(ApiValues.HttpRequestHeader.AcceptEncoding.value, ApiValues.HttpRequestHeaderValue.AcceptEncoding.value)
+        builder.add(HttpHeader.AcceptEncoding.value, HttpHeaderValue.AcceptEncoding.value)
 
         val currentLocale = LocaleHelper.getCurrentLocale(ContextProvider.appContext)
 
@@ -36,7 +40,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
 //            "${locale};q=$rank"
 //        }.joinToString()
 
-        builder.add(ApiValues.HttpRequestHeader.AcceptLanguage.value, currentLocale.language)
+        builder.add(HttpHeader.AcceptLanguage.value, currentLocale.language)
 
         //set the user agent header
         try {
@@ -60,13 +64,13 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
 
             print(userAgent)
 
-            builder.add(ApiValues.HttpRequestHeader.UserAgent.value, userAgent)
+            builder.add(HttpHeader.UserAgent.value, userAgent)
         } catch (e: Exception) {
-            builder.add(ApiValues.HttpRequestHeader.UserAgent.value, "AzureMobile.Data")
+            builder.add(HttpHeader.UserAgent.value, "AzureMobile.Data")
         }
 
         //set the api version
-        builder.add(ApiValues.HttpRequestHeader.XMSVersion.value, ApiValues.HttpRequestHeaderValue.ApiVersion.value)
+        builder.add(MSHttpHeader.MSVersion.value, HttpHeaderValue.ApiVersion.value)
 
         builder.build()
     }
@@ -272,8 +276,8 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
 
         val resourceUri = baseUri.forAttachment(databaseId, collectionId, documentId)
         val headers = Headers.Builder()
-                .add(ApiValues.HttpRequestHeader.ContentType.value, contentType)
-                .add(ApiValues.HttpRequestHeader.Slug.value, attachmentId)
+                .add(HttpHeader.ContentType.value, contentType)
+                .add(HttpHeader.Slug.value, attachmentId)
                 .build()
 
         return createOrReplace(media, resourceUri, ResourceType.Attachment, additionalHeaders = headers, callback = callback)
@@ -292,8 +296,8 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
 
         val resourceUri = baseUri.forAttachment(document.selfLink!!)
         val headers = Headers.Builder()
-                .add(ApiValues.HttpRequestHeader.ContentType.value, contentType)
-                .add(ApiValues.HttpRequestHeader.Slug.value, attachmentId)
+                .add(HttpHeader.ContentType.value, contentType)
+                .add(HttpHeader.Slug.value, attachmentId)
                 .build()
 
         return createOrReplace(media, resourceUri, ResourceType.Attachment, additionalHeaders = headers, callback = callback)
@@ -344,8 +348,8 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
 
         val resourceUri = baseUri.forAttachment(databaseId, collectionId, documentId, attachmentId)
         val headers = Headers.Builder()
-                .add(ApiValues.HttpRequestHeader.ContentType.value, contentType)
-                .add(ApiValues.HttpRequestHeader.Slug.value, attachmentId)
+                .add(HttpHeader.ContentType.value, contentType)
+                .add(HttpHeader.Slug.value, attachmentId)
                 .build()
 
         return createOrReplace(media, resourceUri, ResourceType.Attachment, replacing = true, additionalHeaders = headers, callback = callback)
@@ -364,8 +368,8 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
 
         val resourceUri = baseUri.forAttachment(document.selfLink!!, attachmentResourceId)
         val headers = Headers.Builder()
-                .add(ApiValues.HttpRequestHeader.ContentType.value, contentType)
-                .add(ApiValues.HttpRequestHeader.Slug.value, attachmentId)
+                .add(HttpHeader.ContentType.value, contentType)
+                .add(HttpHeader.Slug.value, attachmentId)
                 .build()
 
         return createOrReplace(media, resourceUri, ResourceType.Attachment, replacing = true, additionalHeaders = headers, callback = callback)
@@ -773,7 +777,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     // list
     private fun <T : Resource> resources(resourceUri: UrlLink, resourceType: ResourceType, callback: (ResourceListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
 
-        val request = createRequest(ApiValues.HttpMethod.Get, resourceUri, resourceType)
+        val request = createRequest(HttpMethod.Get, resourceUri, resourceType)
 
         return sendResourceListRequest(request, resourceType, callback, resourceClass)
     }
@@ -781,7 +785,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     // get
     private fun <T : Resource> resource(resourceUri: UrlLink, resourceType: ResourceType, callback: (ResourceResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
 
-        val request = createRequest(ApiValues.HttpMethod.Get, resourceUri, resourceType)
+        val request = createRequest(HttpMethod.Get, resourceUri, resourceType)
 
         return sendResourceRequest(request, resourceType, callback, resourceClass)
     }
@@ -795,10 +799,10 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
             val resourceType = ResourceType.fromType(resource.javaClass)
 
             val headers = Headers.Builder()
-                    .add(ApiValues.HttpRequestHeader.IfNoneMatch.value, resource.etag!!)
+                    .add(HttpHeader.IfNoneMatch.value, resource.etag!!)
                     .build()
 
-            val request = createRequest(ApiValues.HttpMethod.Get, resourceUri, resourceType, headers)
+            val request = createRequest(HttpMethod.Get, resourceUri, resourceType, headers)
 
             sendResourceRequest(request, resourceType, resource, callback)
         } catch (e: Exception) {
@@ -809,7 +813,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     // delete
     private fun delete(resourceUri: UrlLink, resourceType: ResourceType, callback: (Response) -> Unit) {
 
-        val request = createRequest(ApiValues.HttpMethod.Delete, resourceUri, resourceType)
+        val request = createRequest(HttpMethod.Delete, resourceUri, resourceType)
 
         return sendRequest(request, callback)
     }
@@ -821,7 +825,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
             val resourceUri = baseUri.forResource(resource)
             val resourceType = ResourceType.fromType(resource.javaClass)
 
-            val request = createRequest(ApiValues.HttpMethod.Delete, resourceUri, resourceType)
+            val request = createRequest(HttpMethod.Delete, resourceUri, resourceType)
 
             sendRequest(request, callback)
         } catch (e: Exception) {
@@ -862,7 +866,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
         try {
             val jsonBody = gson.toJson(body)
 
-            val request = createRequest(if (replacing) ApiValues.HttpMethod.Put else ApiValues.HttpMethod.Post, resourceUri, resourceType, additionalHeaders, jsonBody)
+            val request = createRequest(if (replacing) HttpMethod.Put else HttpMethod.Post, resourceUri, resourceType, additionalHeaders, jsonBody)
 
             @Suppress("UNCHECKED_CAST")
             return sendResourceRequest(request, resourceType, callback, body::class.java as Class<T>)
@@ -878,7 +882,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
         try {
             val jsonBody = gson.toJson(body)
 
-            val request = createRequest(if (replacing) ApiValues.HttpMethod.Put else ApiValues.HttpMethod.Post, resourceUri, resourceType, additionalHeaders, jsonBody)
+            val request = createRequest(if (replacing) HttpMethod.Put else HttpMethod.Post, resourceUri, resourceType, additionalHeaders, jsonBody)
 
             return sendResourceRequest(request, resourceType, callback, resourceClass)
         } catch (e: Exception) {
@@ -890,7 +894,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     private fun <T : Resource> createOrReplace(body: ByteArray, resourceUri: UrlLink, resourceType: ResourceType, replacing: Boolean = false, additionalHeaders: Headers? = null, callback: (ResourceResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
 
         try {
-            val request = createRequest(if (replacing) ApiValues.HttpMethod.Put else ApiValues.HttpMethod.Post, resourceUri, resourceType, additionalHeaders, body)
+            val request = createRequest(if (replacing) HttpMethod.Put else HttpMethod.Post, resourceUri, resourceType, additionalHeaders, body)
 
             return sendResourceRequest(request, resourceType, callback, resourceClass)
         } catch (e: Exception) {
@@ -906,7 +910,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
         try {
             val json = gson.toJson(query.dictionary)
 
-            val request = createRequest(ApiValues.HttpMethod.Post, resourceUri, resourceType, forQuery = true, jsonBody = json)
+            val request = createRequest(HttpMethod.Post, resourceUri, resourceType, forQuery = true, jsonBody = json)
 
             return sendResourceListRequest(request, resourceType, callback, resourceClass)
 
@@ -921,7 +925,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
         try {
             val json = if (body != null) gson.toJson(body) else gson.toJson(arrayOf<String>())
 
-            val request = createRequest(ApiValues.HttpMethod.Post, resourceUri, resourceType, forQuery = true, jsonBody = json)
+            val request = createRequest(HttpMethod.Post, resourceUri, resourceType, forQuery = true, jsonBody = json)
 
             return sendRequest(request, callback)
 
@@ -934,15 +938,15 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
 
     //region Network plumbing
 
-    private fun createRequest(method: ApiValues.HttpMethod, resourceUri: UrlLink, resourceType: ResourceType, additionalHeaders: Headers? = null): Request {
+    private fun createRequest(method: HttpMethod, resourceUri: UrlLink, resourceType: ResourceType, additionalHeaders: Headers? = null): Request {
 
         try {
             val builder = createRequestBuilder(method, resourceUri, resourceType, additionalHeaders)
 
             when (method) {
-                ApiValues.HttpMethod.Get -> builder.get()
-                ApiValues.HttpMethod.Head -> builder.head()
-                ApiValues.HttpMethod.Delete -> builder.delete()
+                HttpMethod.Get -> builder.get()
+                HttpMethod.Head -> builder.head()
+                HttpMethod.Delete -> builder.delete()
                 else -> throw Exception("Post and Put requests must use an overload that provides the content body")
             }
 
@@ -955,7 +959,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
         }
     }
 
-    private fun createRequest(method: ApiValues.HttpMethod, resourceUri: UrlLink, resourceType: ResourceType, additionalHeaders: Headers? = null, jsonBody: String, forQuery: Boolean = false): Request {
+    private fun createRequest(method: HttpMethod, resourceUri: UrlLink, resourceType: ResourceType, additionalHeaders: Headers? = null, jsonBody: String, forQuery: Boolean = false): Request {
 
         try {
             val builder = createRequestBuilder(method, resourceUri, resourceType, additionalHeaders)
@@ -966,13 +970,13 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
             var mediaType = jsonMediaType
 
             if (forQuery) {
-                builder.addHeader(ApiValues.HttpRequestHeader.XMSDocumentDBIsQuery.value, "True")
-                builder.addHeader(ApiValues.HttpRequestHeader.ContentType.value, ApiValues.MediaTypes.QueryJson.value)
-                mediaType = MediaType.parse(ApiValues.MediaTypes.QueryJson.value)
+                builder.addHeader(MSHttpHeader.MSDocumentDBIsQuery.value, "True")
+                builder.addHeader(HttpHeader.ContentType.value, HttpMediaType.QueryJson.value)
+                mediaType = MediaType.parse(HttpMediaType.QueryJson.value)
             }
-            else if ((method == ApiValues.HttpMethod.Post || method == ApiValues.HttpMethod.Put) && resourceType != ResourceType.Attachment) {
+            else if ((method == HttpMethod.Post || method == HttpMethod.Put) && resourceType != ResourceType.Attachment) {
 
-                builder.addHeader(ApiValues.HttpRequestHeader.ContentType.value, ApiValues.MediaTypes.Json.value)
+                builder.addHeader(HttpHeader.ContentType.value, HttpMediaType.Json.value)
             }
 
             // we convert the json to bytes here rather than allowing OkHttp, as they will tack on
@@ -980,8 +984,8 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
             val body = jsonBody.toByteArray(Charsets.UTF_8)
 
             when (method) {
-                ApiValues.HttpMethod.Post -> builder.post(RequestBody.create(mediaType, body))
-                ApiValues.HttpMethod.Put -> builder.put(RequestBody.create(mediaType, body))
+                HttpMethod.Post -> builder.post(RequestBody.create(mediaType, body))
+                HttpMethod.Put -> builder.put(RequestBody.create(mediaType, body))
                 else -> throw Exception("Get, Head, and Delete requests must use an overload that without a content body")
             }
 
@@ -994,19 +998,19 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
         }
     }
 
-    private fun createRequest(method: ApiValues.HttpMethod, resourceUri: UrlLink, resourceType: ResourceType, additionalHeaders: Headers? = null, body: ByteArray): Request {
+    private fun createRequest(method: HttpMethod, resourceUri: UrlLink, resourceType: ResourceType, additionalHeaders: Headers? = null, body: ByteArray): Request {
 
         try {
             val builder = createRequestBuilder(method, resourceUri, resourceType, additionalHeaders)
             var mediaType = jsonMediaType
 
-            additionalHeaders?.get(ApiValues.HttpRequestHeader.ContentType.value)?.let {
+            additionalHeaders?.get(HttpHeader.ContentType.value)?.let {
                 mediaType = MediaType.parse(it)
             }
 
             when (method) {
-                ApiValues.HttpMethod.Post -> builder.post(RequestBody.create(mediaType, body))
-                ApiValues.HttpMethod.Put -> builder.put(RequestBody.create(mediaType, body))
+                HttpMethod.Post -> builder.post(RequestBody.create(mediaType, body))
+                HttpMethod.Put -> builder.put(RequestBody.create(mediaType, body))
                 else -> throw Exception("Get, Head, and Delete requests must use an overload that without a content body")
             }
 
@@ -1019,7 +1023,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
         }
     }
 
-    private fun createRequestBuilder(method: ApiValues.HttpMethod, resourceUri: UrlLink, resourceType: ResourceType, additionalHeaders: Headers? = null): Request.Builder {
+    private fun createRequestBuilder(method: HttpMethod, resourceUri: UrlLink, resourceType: ResourceType, additionalHeaders: Headers? = null): Request.Builder {
 
         val token = tokenProvider.getToken(method, resourceType, resourceUri.link)
 
@@ -1027,8 +1031,8 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
                 .headers(headers) //base headers
                 .url(resourceUri.url)
 
-        builder.addHeader(ApiValues.HttpRequestHeader.XMSDate.value, token.date)
-        builder.addHeader(ApiValues.HttpRequestHeader.Authorization.value, token.authString)
+        builder.addHeader(MSHttpHeader.MSDate.value, token.date)
+        builder.addHeader(HttpHeader.Authorization.value, token.authString)
 
         //if we have additional headers, let's add them in here
         additionalHeaders?.let {
@@ -1126,7 +1130,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
                 val returnedResource = gson.fromJson<T>(json, type) ?: return ResourceResponse(json.toError())
 
                 return ResourceResponse(request, response, json, Result(returnedResource))
-            } else if (response.code() == ApiValues.StatusCode.NotModified.code) {
+            } else if (response.code() == HttpStatusCode.NotModified.code) {
                 //return the original resource
                 return ResourceResponse(request, response, json, Result(resource))
             } else {
@@ -1202,6 +1206,6 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
 
         val client = OkHttpClient()
 
-        val jsonMediaType = MediaType.parse(ApiValues.MediaTypes.Json.value)
+        val jsonMediaType = MediaType.parse(HttpMediaType.Json.value)
     }
 }
