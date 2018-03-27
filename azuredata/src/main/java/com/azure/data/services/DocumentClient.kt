@@ -1,11 +1,9 @@
 package com.azure.data.services
 
-import android.content.pm.PackageManager
 import com.azure.core.http.HttpMediaType
 import com.azure.core.http.HttpMethod
 import com.azure.core.http.HttpStatusCode
 import com.azure.data.constants.TokenType
-import com.azure.data.BuildConfig
 import com.azure.data.constants.HttpHeaderValue
 import com.azure.data.constants.MSHttpHeader
 import com.azure.data.model.*
@@ -13,6 +11,7 @@ import com.google.gson.reflect.TypeToken
 import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.util.*
 import com.azure.data.util.json.gson
+import getDefaultHeaders
 import okhttp3.*
 import java.io.IOException
 
@@ -25,54 +24,9 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
 
     private val tokenProvider: TokenProvider = TokenProvider(key, keyType, "1.0")
 
+    // base headers... grab these once and then re-serve
     private val headers: Headers by lazy {
-
-        val builder = Headers.Builder()
-
-        //set the accept encoding header
-        builder.add(HttpHeader.AcceptEncoding.value, HttpHeaderValue.AcceptEncoding.value)
-
-        val currentLocale = LocaleHelper.getCurrentLocale(ContextProvider.appContext)
-
-        //set the accepted locales/languages
-//        val mappedLocales = .take(6).mapIndexed { index, locale ->
-//            val rank = 1.0 - (index * 0.1)
-//            "${locale};q=$rank"
-//        }.joinToString()
-
-        builder.add(HttpHeader.AcceptLanguage.value, currentLocale.language)
-
-        //set the user agent header
-        try {
-            val pkgManager = ContextProvider.appContext.packageManager
-            val pkgName = ContextProvider.appContext.packageName
-            val pInfo = pkgManager.getPackageInfo(pkgName, 0)
-
-            val appName = pInfo?.applicationInfo?.loadLabel(pkgManager) ?: "Unknown"
-            val appVersion = pInfo?.versionName ?: "Unknown"
-            val appVersionCode = pInfo?.versionCode ?: "Unknown"
-            var os = "Android"
-
-            if (pkgManager.hasSystemFeature(PackageManager.FEATURE_WATCH)) {
-                os += " Wear"
-            }
-
-            val osDetails = "$os ${android.os.Build.VERSION.RELEASE}"
-            val azureDataVersion = "AzureMobile.Data/${BuildConfig.VERSION_NAME}"
-
-            val userAgent = "$appName/$appVersion ($pkgName; build:$appVersionCode; $osDetails) $azureDataVersion"
-
-            print(userAgent)
-
-            builder.add(HttpHeader.UserAgent.value, userAgent)
-        } catch (e: Exception) {
-            builder.add(HttpHeader.UserAgent.value, "AzureMobile.Data")
-        }
-
-        //set the api version
-        builder.add(MSHttpHeader.MSVersion.value, HttpHeaderValue.ApiVersion.value)
-
-        builder.build()
+        ContextProvider.appContext.getDefaultHeaders()
     }
 
     //region Database
@@ -1031,10 +985,13 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
                 .headers(headers) //base headers
                 .url(resourceUri.url)
 
+        // set the api version
+        builder.addHeader(MSHttpHeader.MSVersion.value, HttpHeaderValue.apiVersion)
+        // and the token data
         builder.addHeader(MSHttpHeader.MSDate.value, token.date)
         builder.addHeader(HttpHeader.Authorization.value, token.authString)
 
-        //if we have additional headers, let's add them in here
+        // if we have additional headers, let's add them in here
         additionalHeaders?.let {
             for (headerName in additionalHeaders.names()) {
                 builder.addHeader(headerName, additionalHeaders[headerName]!!)
