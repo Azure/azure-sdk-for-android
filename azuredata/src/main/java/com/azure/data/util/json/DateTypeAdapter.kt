@@ -1,9 +1,9 @@
 package com.azure.data.util.json
 
+import com.azure.core.RoundtripDateConverter
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
-import com.azure.data.util.RoundtripDateConverter
 import java.util.*
 
 /**

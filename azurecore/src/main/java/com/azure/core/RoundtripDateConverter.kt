@@ -1,4 +1,4 @@
-package com.azure.data.util
+package com.azure.core
 
 import java.text.SimpleDateFormat
 import java.util.*
@@ -10,7 +10,7 @@ import kotlin.concurrent.getOrSet
  */
 
 // https://docs.microsoft.com/en-us/dotnet/standard/base-types/standard-date-and-time-format-strings#Roundtrip
-internal class RoundtripDateConverter {
+class RoundtripDateConverter {
 
     companion object {
 

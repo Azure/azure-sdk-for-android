@@ -1,11 +1,11 @@
 package com.azure.data.util.json
 
+import com.azure.core.RoundtripDateConverter
 import com.google.gson.*
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
 import com.azure.data.model.*
-import com.azure.data.util.RoundtripDateConverter
 import java.text.NumberFormat
 import kotlin.collections.ArrayList
 
