@@ -1,4 +1,4 @@
-package com.azure.data.util.json
+package com.azure.core.util
 
 import com.azure.core.RoundtripDateConverter
 import com.google.gson.TypeAdapter
@@ -11,7 +11,7 @@ import java.util.*
  * Licensed under the MIT License.
  */
 
-internal class DateTypeAdapter : TypeAdapter<Date>() {
+class DateTypeAdapter : TypeAdapter<Date>() {
 
     override fun read(`in`: JsonReader?): Date? {
 

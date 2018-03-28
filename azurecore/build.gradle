@@ -30,6 +30,7 @@ dependencies {
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+    implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
 }
 
 repositories {
