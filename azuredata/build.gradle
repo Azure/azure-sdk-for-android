@@ -42,7 +42,7 @@ dependencies {
     androidTestImplementation "com.android.support.test:rules:$testRulesVersion"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "org.awaitility:awaitility:$awaitilityVersion"
-    debugImplementation project(':azurecore')
+    implementation project(':azurecore')
     // release implementation will be released via jCenter/maven/etc.
 }
 
