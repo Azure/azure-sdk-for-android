@@ -18,6 +18,14 @@ class ResourceList<T: Resource> : ResourceBase() {
     val isPopuated: Boolean
             get() = resourceId != null && count > 0
 
+    fun setAltContentLinks(itemTypePath: String, contentPath: String?) {
+
+        items.forEach {item ->
+
+            item.setAltContentLink(itemTypePath, contentPath)
+        }
+    }
+
     companion object {
 
         object Keys {

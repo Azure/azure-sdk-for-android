@@ -1075,23 +1075,37 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     private fun <T : Resource> processResponse(request: Request, response: okhttp3.Response, resourceType: ResourceType, resource: T?, resourceClass: Class<T>? = null): ResourceResponse<T> {
 
         try {
-            val body = response.body() ?: return ResourceResponse(DataError("Empty response body received"))
+            val body = response.body()
+                    ?: return ResourceResponse(DataError("Empty response body received"))
             val json = body.string()
 
             logIfVerbose(json)
 
             //check http return code/success
-            if (response.isSuccessful) {
+            when {
+                response.isSuccessful -> {
 
-                val type = resourceClass ?: resource?.javaClass ?: resourceType.type
-                val returnedResource = gson.fromJson<T>(json, type) ?: return ResourceResponse(json.toError())
+                    val type = resourceClass ?: resource?.javaClass ?: resourceType.type
+                    val returnedResource = gson.fromJson<T>(json, type)
+                            ?: return ResourceResponse(json.toError())
+                    val altContentPath = response.header(MSHttpHeader.MSAltContentPath.value, null)
 
-                return ResourceResponse(request, response, json, Result(returnedResource))
-            } else if (response.code() == HttpStatusCode.NotModified.code) {
-                //return the original resource
-                return ResourceResponse(request, response, json, Result(resource))
-            } else {
-                return ResourceResponse(json.toError(), request, response, json)
+                    returnedResource.setAltContentLink(resourceType.path, altContentPath)
+
+                    return ResourceResponse(request, response, json, Result(returnedResource))
+                }
+
+                response.code() == HttpStatusCode.NotModified.code -> {
+
+                    val altContentPath = response.header(MSHttpHeader.MSAltContentPath.value, null)
+
+                    resource?.setAltContentLink(resourceType.path, altContentPath)
+
+                    //return the original resource
+                    return ResourceResponse(request, response, json, Result(resource))
+                }
+
+                else -> return ResourceResponse(json.toError(), request, response, json)
             }
         } catch (e: Exception) {
             return ResourceResponse(DataError(e), request, response)
@@ -1101,7 +1115,8 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     private fun <T : Resource> processListResponse(request: Request, response: okhttp3.Response, resourceType: ResourceType, resourceClass: Class<T>? = null): ResourceListResponse<T> {
 
         try {
-            val body = response.body() ?: return ResourceListResponse(DataError("Empty response body received"), request, response)
+            val body = response.body()
+                    ?: return ResourceListResponse(DataError("Empty response body received"), request, response)
             val json = body.string()
 
             logIfVerbose(json)
@@ -1111,7 +1126,12 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
                 //TODO: see if there's any benefit to caching these type tokens performance wise (or for any other reason)
                 val type = resourceClass ?: resourceType.type
                 val listType = TypeToken.getParameterized(ResourceList::class.java, type).type
-                val resourceList = gson.fromJson<ResourceList<T>>(json, listType) ?: return ResourceListResponse(json.toError(), request, response, json)
+                val resourceList = gson.fromJson<ResourceList<T>>(json, listType)
+                        ?: return ResourceListResponse(json.toError(), request, response, json)
+
+                val altContentPath = response.header(MSHttpHeader.MSAltContentPath.value, null)
+
+                resourceList.setAltContentLinks(resourceType.path, altContentPath)
 
                 return ResourceListResponse(request, response, json, Result(resourceList))
             } else {
@@ -1125,7 +1145,8 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     private fun processDataResponse(request: Request, response: okhttp3.Response): Response {
 
         try {
-            val body = response.body() ?: return Response(DataError("Empty response body received"), request, response)
+            val body = response.body()
+                    ?: return Response(DataError("Empty response body received"), request, response)
             val json = body.string()
 
             logIfVerbose(json)

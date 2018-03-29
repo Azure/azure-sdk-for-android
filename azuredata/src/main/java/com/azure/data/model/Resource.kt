@@ -26,6 +26,12 @@ abstract class Resource(id: String? = null) : ResourceBase() {
     var selfLink: String? = null
 
     /**
+     *  Gets the alt-link associated with the resource from the Azure Cosmos DB service.
+     */
+    @Transient
+    var altLink: String? = null
+
+    /**
      * Gets the entity tag associated with the resource from the Azure Cosmos DB service.
      */
     @SerializedName(Keys.etagKey)
@@ -36,6 +42,12 @@ abstract class Resource(id: String? = null) : ResourceBase() {
      */
     @SerializedName(Keys.timestampKey)
     var timestamp: Timestamp? = null
+
+    fun setAltContentLink(itemTypePath: String, contentPath: String?) {
+
+        val pathComponent = if (contentPath.isNullOrEmpty()) itemTypePath else "$contentPath/$itemTypePath"
+        this.altLink = "$pathComponent/$id"
+    }
 
     companion object {
 

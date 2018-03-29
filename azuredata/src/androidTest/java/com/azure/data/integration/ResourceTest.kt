@@ -44,7 +44,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
 
-
+            
         }
 
         deleteResources()
@@ -156,12 +156,14 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         assertNotNull(response.jsonData)
     }
 
-    fun assertResponseSuccess(response: ResourceResponse<*>?) {
+    fun <TResourceResponseType : Resource> assertResponseSuccess(response: ResourceResponse<TResourceResponseType>?) {
 
         assertResponsePopulated(response)
         assertNotNull(response!!.resource)
         assertTrue(response.isSuccessful)
         assertFalse(response.isErrored)
+
+        assertResourcePropertiesSet(response.resource!!)
     }
 
     fun assertResponseFailure(response: ResourceResponse<*>?) {
@@ -172,13 +174,17 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         assertTrue(response.isErrored)
     }
 
-    fun assertResponseSuccess(response: ResourceListResponse<*>?) {
+    fun <TResourceResponseType : Resource> assertResponseSuccess(response: ResourceListResponse<TResourceResponseType>?) {
 
         assertResponsePopulated(response)
         assertTrue(response!!.isSuccessful)
         assertFalse(response.isErrored)
         assertNotNull(response.resource)
         assertTrue(response.resource?.isPopuated!!)
+
+        response.resource?.items?.forEach { item ->
+            assertResourcePropertiesSet(item)
+        }
     }
 
     fun assertResponseSuccess(response: Response?) {
@@ -194,6 +200,16 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         assertNotNull(response!!.error)
         assertFalse(response.isSuccessful)
         assertTrue(response.isErrored)
+    }
+
+    private fun assertResourcePropertiesSet(resource: Resource) {
+
+        assertNotNull(resource.id)
+        assertNotNull(resource.resourceId)
+        assertNotNull(resource.selfLink)
+        assertNotNull(resource.altLink)
+        assertNotNull(resource.etag)
+        assertNotNull(resource.timestamp)
     }
 
     fun resetResponse() {
