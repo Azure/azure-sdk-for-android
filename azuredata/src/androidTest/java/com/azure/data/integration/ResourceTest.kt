@@ -35,9 +35,6 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
     var collection: DocumentCollection? = null
     var document: Document? = null
 
-    val idWith256Chars = "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345"
-    val idWithWhitespace = "id value with spaces"
-
     @Before
     open fun setUp() {
 
@@ -46,6 +43,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         if (!AzureData.isConfigured) {
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
+
 
         }
 

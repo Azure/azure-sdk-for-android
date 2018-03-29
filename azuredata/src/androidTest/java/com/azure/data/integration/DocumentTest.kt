@@ -56,6 +56,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
 
         val date = doc.getValue(customDateKey) as Date
 
+        // TODO: need to check this comparison as it seems to fail randomly every now and then
         assertEquals(customDateValue, date)
         assertEquals(customDateValue.time, date.time)
 
@@ -89,31 +90,37 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
     }
 
     @Test
-    fun createDocWithInvalidIds() {
+    fun testTryCreateDocWithInvalidIds() {
 
-        val doc1 = newDocument()
-        doc1.id = idWith256Chars //too long
+        val badIds = listOf("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345",
+                "My Id",
+                "My/Id",
+                "My?Id",
+                "My#Id")
 
-        var doc1Response : ResourceResponse<TDoc>? = null
-        var doc2Response : ResourceResponse<TDoc>? = null
+        var done = false
 
-        AzureData.createDocument(doc1, collectionId, databaseId) {
-            doc1Response = it
-        }
+        badIds.forEach { id ->
 
-        val doc2 = newDocument()
-        doc2.id = idWithWhitespace //no spaces allowed!
+            val doc = newDocument()
+            doc.id = id
 
-        AzureData.createDocument(doc2, collectionId, databaseId) {
-            doc2Response = it
+            var docResponse : ResourceResponse<TDoc>? = null
+
+            AzureData.createDocument(doc, collectionId, databaseId) {
+                docResponse = it
+
+                assertErrorResponse(docResponse)
+
+                if (id == badIds.last()) {
+                    done = true
+                }
+            }
         }
 
         await().until {
-            doc1Response != null && doc2Response != null
+            done
         }
-
-        assertErrorResponse(doc1Response)
-        assertErrorResponse(doc2Response)
     }
 
     @Test

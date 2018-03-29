@@ -10,11 +10,3 @@ import com.azure.data.util.json.gson
 
 fun String.toError(): DataError =
         gson.fromJson(this, DataError::class.java)
-
-fun String.isValidResourceId() : Boolean =
-        !this.isBlank() && this.matches(RegEx.whitespaceRegex) && this.length <= 255
-
-object RegEx {
-
-    val whitespaceRegex = kotlin.text.Regex("\\S+")
-}

@@ -708,7 +708,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     // create
     private fun <T : Resource> create(resource: T, resourceUri: UrlLink, resourceType: ResourceType, additionalHeaders: Headers? = null, callback: (ResourceResponse<T>) -> Unit) {
 
-        if (!resource.id.isValidResourceId()) {
+        if (!resource.hasValidId()) {
             return callback(ResourceResponse(DataError.fromType(ErrorType.InvalidId)))
         }
 
@@ -718,7 +718,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     // create
     private fun <T : Resource> create(resourceId: String, resourceUri: UrlLink, resourceType: ResourceType, data: MutableMap<String, String>? = null, additionalHeaders: Headers? = null, callback: (ResourceResponse<T>) -> Unit) {
 
-        if (!resourceId.isValidResourceId()) {
+        if (!resourceId.isValidIdForResource()) {
             return callback(ResourceResponse(DataError.fromType(ErrorType.InvalidId)))
         }
 
@@ -790,7 +790,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     // replace
     private fun <T : Resource> replace(resource: T, resourceUri: UrlLink, resourceType: ResourceType, additionalHeaders: Headers? = null, callback: (ResourceResponse<T>) -> Unit) {
 
-        if (!resource.id.isValidResourceId()) {
+        if (!resource.hasValidId()) {
             return callback(ResourceResponse(DataError.fromType(ErrorType.InvalidId)))
         }
 
@@ -804,7 +804,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     // replace
     private fun <T : Resource> replace(resourceId: String, data: MutableMap<String, Any>? = null, resourceUri: UrlLink, resourceType: ResourceType, additionalHeaders: Headers? = null, callback: (ResourceResponse<T>) -> Unit) {
 
-        if (!resourceId.isValidResourceId()) {
+        if (!resourceId.isValidIdForResource()) {
             return callback(ResourceResponse(DataError.fromType(ErrorType.InvalidId)))
         }
 
