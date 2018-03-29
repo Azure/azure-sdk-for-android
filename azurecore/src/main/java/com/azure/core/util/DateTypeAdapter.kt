@@ -1,6 +1,5 @@
 package com.azure.core.util
 
-import com.azure.core.RoundtripDateConverter
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter

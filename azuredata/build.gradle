@@ -33,8 +33,6 @@ dependencies {
     implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
-    // https://mvnrepository.com/artifact/commons-codec/commons-codec
-    implementation 'commons-codec:commons-codec:1.11'
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     testImplementation 'org.amshove.kluent:kluent:1.31'

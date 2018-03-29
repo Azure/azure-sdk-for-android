@@ -1,4 +1,4 @@
-package com.azure.data.constants
+package com.azure.core.crypto
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.

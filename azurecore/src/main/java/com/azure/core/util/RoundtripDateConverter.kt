@@ -1,4 +1,4 @@
-package com.azure.core
+package com.azure.core.util
 
 import java.text.SimpleDateFormat
 import java.util.*
