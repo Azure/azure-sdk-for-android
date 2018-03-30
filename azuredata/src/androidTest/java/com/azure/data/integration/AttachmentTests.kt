@@ -3,7 +3,7 @@ package com.azure.data.integration
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.*
 import com.azure.data.model.*
-import com.azure.data.services.ResourceResponse
+import com.azure.data.service.ResourceResponse
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import okhttp3.HttpUrl

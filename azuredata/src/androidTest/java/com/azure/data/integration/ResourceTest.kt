@@ -4,9 +4,9 @@ import android.support.test.InstrumentationRegistry
 import com.azure.data.AzureData
 import com.azure.data.constants.TokenType
 import com.azure.data.model.*
-import com.azure.data.services.ResourceListResponse
-import com.azure.data.services.ResourceResponse
-import com.azure.data.services.Response
+import com.azure.data.service.ResourceListResponse
+import com.azure.data.service.ResourceResponse
+import com.azure.data.service.Response
 import org.awaitility.Awaitility.await
 import org.junit.After
 import org.junit.Assert.*

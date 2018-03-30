@@ -1,9 +1,9 @@
 package com.azure.data
 
 import com.azure.data.model.*
-import com.azure.data.services.ResourceListResponse
-import com.azure.data.services.ResourceResponse
-import com.azure.data.services.Response
+import com.azure.data.service.ResourceListResponse
+import com.azure.data.service.ResourceResponse
+import com.azure.data.service.Response
 import okhttp3.HttpUrl
 import java.net.URL
 

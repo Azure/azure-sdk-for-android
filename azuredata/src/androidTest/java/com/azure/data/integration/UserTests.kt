@@ -5,12 +5,11 @@ import com.azure.data.*
 import com.azure.data.model.Database
 import com.azure.data.model.ResourceType
 import com.azure.data.model.User
-import com.azure.data.services.ResourceResponse
-import com.azure.data.services.Response
+import com.azure.data.service.ResourceResponse
+import com.azure.data.service.Response
 import junit.framework.Assert.assertEquals
 import org.awaitility.Awaitility.await
 import org.junit.After
-import org.junit.Assert
 import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Test

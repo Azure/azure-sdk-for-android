@@ -6,8 +6,8 @@ import com.azure.data.model.DocumentCollection
 import com.azure.data.model.Permission
 import com.azure.data.model.ResourceType
 import com.azure.data.model.User
-import com.azure.data.services.ResourceResponse
-import com.azure.data.services.Response
+import com.azure.data.service.ResourceResponse
+import com.azure.data.service.Response
 import junit.framework.Assert.assertEquals
 import org.awaitility.Awaitility.await
 import org.junit.After

@@ -1,4 +1,4 @@
-package com.azure.data.services
+package com.azure.data.service
 
 import com.azure.data.model.DataError
 import com.azure.data.model.ResourceBase

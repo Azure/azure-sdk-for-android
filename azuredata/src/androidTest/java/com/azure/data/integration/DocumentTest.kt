@@ -2,7 +2,7 @@ package com.azure.data.integration
 
 import com.azure.data.*
 import com.azure.data.model.*
-import com.azure.data.services.ResourceResponse
+import com.azure.data.service.ResourceResponse
 import com.azure.data.util.json.gson
 import junit.framework.Assert.*
 import org.awaitility.Awaitility.await
