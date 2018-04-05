@@ -18,5 +18,9 @@ class ContextProvider {
             this.appContext = context
             this.verboseLogging = verboseLogging
         }
+
+        fun verbose( logfun : () -> Unit ) {
+            if (verboseLogging) logfun()
+        }
     }
 }

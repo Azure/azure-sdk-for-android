@@ -12,6 +12,7 @@ import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.util.*
 import com.azure.data.util.json.gson
 import getDefaultHeaders
+import mu.KotlinLogging
 import okhttp3.*
 import java.io.IOException
 
@@ -19,6 +20,8 @@ import java.io.IOException
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
+
+private val logger = KotlinLogging.logger {}
 
 class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: TokenType = TokenType.MASTER) {
 
@@ -907,6 +910,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
             return builder.build()
         } catch (e: Exception) {
 
+            logger.error(e.message,e)
             e.printStackTrace()
 
             throw e
@@ -946,7 +950,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
             return builder.build()
         } catch (e: Exception) {
 
-            e.printStackTrace()
+            logger.error(e.message,e)
 
             throw e
         }
@@ -971,7 +975,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
             return builder.build()
         } catch (e: Exception) {
 
-            e.printStackTrace()
+            logger.error(e.message,e)
 
             throw e
         }
@@ -1166,18 +1170,12 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
 
     private fun logIfVerbose(thing: Any) {
 
-        if (ContextProvider.verboseLogging) {
-            println(thing)
-        }
+        ContextProvider.verbose { logger.info { thing } }
     }
 
     private fun logIfVerbose(vararg things: Any) {
 
-        if (ContextProvider.verboseLogging) {
-            things.forEach {
-                println(it)
-            }
-        }
+        ContextProvider.verbose { things.forEach { logger.info { it } } }
     }
 
     companion object {

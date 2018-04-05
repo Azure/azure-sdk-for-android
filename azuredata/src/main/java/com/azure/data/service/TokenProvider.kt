@@ -6,6 +6,7 @@ import com.azure.data.constants.TokenType
 import com.azure.data.model.ResourceType
 import com.azure.data.model.Token
 import com.azure.data.util.ContextProvider
+import mu.KotlinLogging
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
@@ -14,6 +15,8 @@ import java.util.*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
+
+private val logger = KotlinLogging.logger {}
 
 class TokenProvider(private var key: String, private var keyType: TokenType = TokenType.MASTER, private var tokenVersion: String = "1.0") {
 
@@ -34,9 +37,7 @@ class TokenProvider(private var key: String, private var keyType: TokenType = To
                 resourceLink,
                 dateString.toLowerCase(Locale.ROOT))
 
-        if (ContextProvider.verboseLogging) {
-            print(payload)
-        }
+        ContextProvider.verbose { logger.info { payload }}
 
         val signature = CryptoProvider.hmacEncrypt(payload, key)
 
