@@ -12,11 +12,9 @@ class ContextProvider {
     companion object {
 
         lateinit var appContext: Context
-        var verboseLogging: Boolean = false
 
-        fun init(context: Context, verboseLogging: Boolean = false) {
+        fun init(context: Context) {
             this.appContext = context
-            this.verboseLogging = verboseLogging
         }
     }
 }

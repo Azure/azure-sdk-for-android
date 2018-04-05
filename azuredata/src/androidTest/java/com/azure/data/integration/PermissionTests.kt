@@ -8,7 +8,9 @@ import com.azure.data.model.ResourceType
 import com.azure.data.model.User
 import com.azure.data.service.ResourceResponse
 import com.azure.data.service.Response
+import com.azure.data.util.ContextProvider
 import junit.framework.Assert.assertEquals
+import mu.KotlinLogging
 import org.awaitility.Awaitility.await
 import org.junit.After
 import org.junit.Before
@@ -19,6 +21,7 @@ import org.junit.runner.RunWith
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
+private val logger = KotlinLogging.logger {}
 
 @RunWith(AndroidJUnit4::class)
 class PermissionTests : ResourceTest<Permission>(ResourceType.Permission, true, true) {
@@ -31,7 +34,7 @@ class PermissionTests : ResourceTest<Permission>(ResourceType.Permission, true, 
         super.setUp()
 
         AzureData.deleteUser(userId, databaseId) { response ->
-            println("Attempted to delete test user.  Result: ${response.isSuccessful}")
+            logger.debug{ "Attempted to delete test user.  Result: ${response.isSuccessful}" }
 
             user = ensureUser()
         }
@@ -47,7 +50,7 @@ class PermissionTests : ResourceTest<Permission>(ResourceType.Permission, true, 
         var deleteResponse: Response? = null
 
         AzureData.deleteUser(userId, databaseId) { response ->
-            println("Attempted to delete test user.  Result: ${response.isSuccessful}")
+            logger.debug { "Attempted to delete test user.  Result: ${response.isSuccessful}" }
             deleteResponse = response
         }
 

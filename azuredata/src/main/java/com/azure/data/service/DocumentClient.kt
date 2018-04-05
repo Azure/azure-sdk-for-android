@@ -12,6 +12,7 @@ import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.util.*
 import com.azure.data.util.json.gson
 import getDefaultHeaders
+import mu.KotlinLogging
 import okhttp3.*
 import java.io.IOException
 
@@ -19,6 +20,8 @@ import java.io.IOException
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
+
+private val logger = KotlinLogging.logger {}
 
 class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: TokenType = TokenType.MASTER) {
 
@@ -859,7 +862,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     // query
     private fun <T : Resource> query(query: Query, resourceUri: UrlLink, resourceType: ResourceType, callback: (ResourceListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
 
-        logIfVerbose(query)
+        logger.debug{query}
 
         try {
             val json = gson.toJson(query.dictionary)
@@ -907,6 +910,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
             return builder.build()
         } catch (e: Exception) {
 
+            logger.error(e.message,e)
             e.printStackTrace()
 
             throw e
@@ -946,7 +950,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
             return builder.build()
         } catch (e: Exception) {
 
-            e.printStackTrace()
+            logger.error(e.message,e)
 
             throw e
         }
@@ -971,7 +975,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
             return builder.build()
         } catch (e: Exception) {
 
-            e.printStackTrace()
+            logger.error(e.message,e)
 
             throw e
         }
@@ -1006,14 +1010,14 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
 
     private fun <T : Resource> sendResourceRequest(request: Request, resourceType: ResourceType, resource: T?, callback: (ResourceResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
 
-        logIfVerbose("***", "Sending ${request.method()} request for Data to ${request.url()}", "\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}", "***")
+        logger.debug("***", "Sending ${request.method()} request for Data to ${request.url()}", "\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}", "***")
 
         try {
             client.newCall(request)
                     .enqueue(object : Callback {
 
                         override fun onFailure(call: Call, e: IOException) {
-                            logIfVerbose(e)
+                            logger.error("",e)
                             return callback(ResourceResponse(DataError(e), request))
                         }
 
@@ -1022,21 +1026,21 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
                                 callback(processResponse(request, response, resourceType, resource, resourceClass))
                     })
         } catch (e: Exception) {
-            logIfVerbose(e)
+            logger.error("",e)
             callback(ResourceResponse(DataError(e), request))
         }
     }
 
     private fun sendRequest(request: Request, callback: (Response) -> Unit) {
 
-        logIfVerbose("***", "Sending ${request.method()} request for Data to ${request.url()}", "\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}", "***")
+        logger.debug("***", "Sending ${request.method()} request for Data to ${request.url()}", "\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}", "***")
 
         try {
             client.newCall(request)
                     .enqueue(object : Callback {
 
                         override fun onFailure(call: Call, e: IOException) {
-                            logIfVerbose(e)
+                            logger.error("",e)
                             return callback(Response(DataError(e), request))
                         }
 
@@ -1045,14 +1049,14 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
                                 callback(processDataResponse(request, response))
                     })
         } catch (e: Exception) {
-            logIfVerbose(e)
+            logger.error("",e)
             callback(Response(DataError(e), request))
         }
     }
 
     private fun <T : Resource> sendResourceListRequest(request: Request, resourceType: ResourceType, callback: (ResourceListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
 
-        logIfVerbose("***", "Sending ${request.method()} request for Data to ${request.url()}", "\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}", "***")
+        logger.debug("***", "Sending ${request.method()} request for Data to ${request.url()}", "\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}", "***")
 
         try {
             client.newCall(request)
@@ -1067,7 +1071,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
                                 callback(processListResponse(request, response, resourceType, resourceClass))
                     })
         } catch (e: Exception) {
-            logIfVerbose(e)
+            logger.error("",e)
             callback(ResourceListResponse(DataError(e), request))
         }
     }
@@ -1079,7 +1083,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
                     ?: return ResourceResponse(DataError("Empty response body received"))
             val json = body.string()
 
-            logIfVerbose(json)
+            logger.debug(json)
 
             //check http return code/success
             when {
@@ -1119,7 +1123,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
                     ?: return ResourceListResponse(DataError("Empty response body received"), request, response)
             val json = body.string()
 
-            logIfVerbose(json)
+            logger.debug(json)
 
             if (response.isSuccessful) {
 
@@ -1149,7 +1153,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
                     ?: return Response(DataError("Empty response body received"), request, response)
             val json = body.string()
 
-            logIfVerbose(json)
+            logger.debug(json)
 
             //check http return code
             return if (response.isSuccessful) {
@@ -1163,22 +1167,6 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     }
 
     //endregion
-
-    private fun logIfVerbose(thing: Any) {
-
-        if (ContextProvider.verboseLogging) {
-            println(thing)
-        }
-    }
-
-    private fun logIfVerbose(vararg things: Any) {
-
-        if (ContextProvider.verboseLogging) {
-            things.forEach {
-                println(it)
-            }
-        }
-    }
 
     companion object {
 

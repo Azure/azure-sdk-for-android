@@ -7,6 +7,7 @@ import com.azure.data.model.*
 import com.azure.data.service.ResourceListResponse
 import com.azure.data.service.ResourceResponse
 import com.azure.data.service.Response
+import mu.KotlinLogging
 import org.awaitility.Awaitility.await
 import org.junit.After
 import org.junit.Assert.*
@@ -16,6 +17,8 @@ import org.junit.Before
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
+
+private val logger = KotlinLogging.logger {}
 
 open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
                                               private val ensureDatabase : Boolean = true,
@@ -38,13 +41,12 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
     @Before
     open fun setUp() {
 
-        println("********* Begin Test Setup *********")
+        logger.debug("********* Begin Test Setup *********")
 
         if (!AzureData.isConfigured) {
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
 
-            
         }
 
         deleteResources()
@@ -61,17 +63,17 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             ensureDocument()
         }
 
-        println("********* End Test Setup *********")
+        logger.debug("********* End Test Setup *********")
     }
 
     @After
     open fun tearDown() {
 
-        println("********* Begin Test Tear Down *********")
+        logger.debug{ "********* Begin Test Tear Down *********"}
 
         deleteResources()
 
-        println("********* End Test Tear Down *********")
+        logger.debug { "********* End Test Tear Down *********"}
     }
 
     fun ensureDatabase() : Database {
@@ -139,7 +141,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         //delete the DB - this should delete all attached resources
 
         AzureData.deleteDatabase(databaseId) { response ->
-            println("Attempted to delete test database.  Result: ${response.isSuccessful}")
+            logger.debug{ "Attempted to delete test database.  Result: ${response.isSuccessful}" }
             deleteResponse = response
         }
 
