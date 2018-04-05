@@ -7,7 +7,6 @@ import com.azure.data.model.*
 import com.azure.data.service.ResourceListResponse
 import com.azure.data.service.ResourceResponse
 import com.azure.data.service.Response
-import com.azure.data.util.ContextProvider
 import mu.KotlinLogging
 import org.awaitility.Awaitility.await
 import org.junit.After
@@ -26,8 +25,6 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
                                               private val ensureCollection : Boolean = true,
                                               private val ensureDocument : Boolean = false) {
 
-    val verboseLogging = false
-
     val databaseId = "AndroidTest${ResourceType.Database.name}"
     val collectionId = "AndroidTest${ResourceType.Collection.name}"
     val documentId = "AndroidTest${ResourceType.Document.name}"
@@ -44,15 +41,12 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
     @Before
     open fun setUp() {
 
-        if (verboseLogging){
-            logger.info("********* Begin Test Setup *********")
-        }
+        logger.debug("********* Begin Test Setup *********")
 
         if (!AzureData.isConfigured) {
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
 
-            
         }
 
         deleteResources()
@@ -69,19 +63,17 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             ensureDocument()
         }
 
-        if (verboseLogging){
-            logger.info("********* End Test Setup *********")
-        }
+        logger.debug("********* End Test Setup *********")
     }
 
     @After
     open fun tearDown() {
 
-        ContextProvider.verbose { logger.info { "********* Begin Test Tear Down *********"}}
+        logger.debug{ "********* Begin Test Tear Down *********"}
 
         deleteResources()
 
-        ContextProvider.verbose { logger.info { "********* End Test Tear Down *********"}}
+        logger.debug { "********* End Test Tear Down *********"}
     }
 
     fun ensureDatabase() : Database {
@@ -149,7 +141,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         //delete the DB - this should delete all attached resources
 
         AzureData.deleteDatabase(databaseId) { response ->
-            ContextProvider.verbose { logger.info { "Attempted to delete test database.  Result: ${response.isSuccessful}" } }
+            logger.debug{ "Attempted to delete test database.  Result: ${response.isSuccessful}" }
             deleteResponse = response
         }
 

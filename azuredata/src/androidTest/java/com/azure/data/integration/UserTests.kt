@@ -7,7 +7,6 @@ import com.azure.data.model.ResourceType
 import com.azure.data.model.User
 import com.azure.data.service.ResourceResponse
 import com.azure.data.service.Response
-import com.azure.data.util.ContextProvider
 import junit.framework.Assert.assertEquals
 import mu.KotlinLogging
 import org.awaitility.Awaitility.await
@@ -47,9 +46,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
         var deleteResponse: Response? = null
 
         AzureData.deleteUser(id, databaseId) { response ->
-            ContextProvider.verbose { logger.info {
-                "Attempted to delete test user.  Result: ${response.isSuccessful}"
-            } }
+            logger.debug { "Attempted to delete test user.  Result: ${response.isSuccessful}" }
             deleteResponse = response
         }
 

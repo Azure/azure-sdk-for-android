@@ -14,18 +14,8 @@ import java.util.*
 val gson: Gson =
         GsonBuilder()
                 .disableHtmlEscaping()
-                .checkVerboseMode()
+                .setPrettyPrinting()
                 .registerTypeAdapter(Date::class.java, DateTypeAdapter())
                 .registerTypeAdapter(Timestamp::class.java, TimestampAdapter())
                 .registerTypeAdapter(DictionaryDocument::class.java, DocumentAdapter())
                 .create()
-
-
-fun GsonBuilder.checkVerboseMode() : GsonBuilder {
-
-    if (ContextProvider.verboseLogging) {
-        this.setPrettyPrinting()
-    }
-
-    return this
-}

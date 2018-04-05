@@ -5,7 +5,6 @@ import com.azure.core.http.HttpMethod
 import com.azure.data.constants.TokenType
 import com.azure.data.model.ResourceType
 import com.azure.data.model.Token
-import com.azure.data.util.ContextProvider
 import mu.KotlinLogging
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
@@ -37,7 +36,7 @@ class TokenProvider(private var key: String, private var keyType: TokenType = To
                 resourceLink,
                 dateString.toLowerCase(Locale.ROOT))
 
-        ContextProvider.verbose { logger.info { payload }}
+        logger.debug { payload }
 
         val signature = CryptoProvider.hmacEncrypt(payload, key)
 

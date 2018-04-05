@@ -34,7 +34,7 @@ class PermissionTests : ResourceTest<Permission>(ResourceType.Permission, true, 
         super.setUp()
 
         AzureData.deleteUser(userId, databaseId) { response ->
-            ContextProvider.verbose { logger.info { "Attempted to delete test user.  Result: ${response.isSuccessful}" } }
+            logger.debug{ "Attempted to delete test user.  Result: ${response.isSuccessful}" }
 
             user = ensureUser()
         }
@@ -50,7 +50,7 @@ class PermissionTests : ResourceTest<Permission>(ResourceType.Permission, true, 
         var deleteResponse: Response? = null
 
         AzureData.deleteUser(userId, databaseId) { response ->
-            ContextProvider.verbose { logger.info { "Attempted to delete test user.  Result: ${response.isSuccessful}" } }
+            logger.debug { "Attempted to delete test user.  Result: ${response.isSuccessful}" }
             deleteResponse = response
         }
 
