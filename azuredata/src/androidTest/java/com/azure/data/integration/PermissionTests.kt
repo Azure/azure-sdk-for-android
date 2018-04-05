@@ -8,6 +8,7 @@ import com.azure.data.model.ResourceType
 import com.azure.data.model.User
 import com.azure.data.service.ResourceResponse
 import com.azure.data.service.Response
+import com.github.ajalt.timberkt.d
 import junit.framework.Assert.assertEquals
 import org.awaitility.Awaitility.await
 import org.junit.After
@@ -31,7 +32,7 @@ class PermissionTests : ResourceTest<Permission>(ResourceType.Permission, true, 
         super.setUp()
 
         AzureData.deleteUser(userId, databaseId) { response ->
-            println("Attempted to delete test user.  Result: ${response.isSuccessful}")
+            d{"Attempted to delete test user.  Result: ${response.isSuccessful}"}
 
             user = ensureUser()
         }
@@ -47,7 +48,7 @@ class PermissionTests : ResourceTest<Permission>(ResourceType.Permission, true, 
         var deleteResponse: Response? = null
 
         AzureData.deleteUser(userId, databaseId) { response ->
-            println("Attempted to delete test user.  Result: ${response.isSuccessful}")
+            d{"Attempted to delete test user.  Result: ${response.isSuccessful}"}
             deleteResponse = response
         }
 

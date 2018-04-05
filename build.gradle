@@ -22,6 +22,7 @@ allprojects {
     repositories {
         google()
         jcenter()
+        maven { url "https://jitpack.io" }
         maven {
             url "https://maven.google.com"
         }
@@ -34,6 +35,7 @@ allprojects {
         espressoVersion = "3.0.1"
         testRunnerVersion = "1.0.1"
         testRulesVersion = "1.0.1"
+        timberKtVersion = "1.4.0"
         awaitilityVersion = "3.0.0"
     }
 }

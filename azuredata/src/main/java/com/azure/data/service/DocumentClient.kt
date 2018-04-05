@@ -11,6 +11,8 @@ import com.google.gson.reflect.TypeToken
 import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.util.*
 import com.azure.data.util.json.gson
+import com.github.ajalt.timberkt.d
+import com.github.ajalt.timberkt.e
 import getDefaultHeaders
 import okhttp3.*
 import java.io.IOException
@@ -859,7 +861,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     // query
     private fun <T : Resource> query(query: Query, resourceUri: UrlLink, resourceType: ResourceType, callback: (ResourceListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
 
-        logIfVerbose(query)
+        d{query.toString()}
 
         try {
             val json = gson.toJson(query.dictionary)
@@ -905,11 +907,11 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
             }
 
             return builder.build()
-        } catch (e: Exception) {
+        } catch (ex: Exception) {
 
-            e.printStackTrace()
+            e(ex)
 
-            throw e
+            throw ex
         }
     }
 
@@ -944,11 +946,11 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
             }
 
             return builder.build()
-        } catch (e: Exception) {
+        } catch (ex: Exception) {
 
-            e.printStackTrace()
+            e(ex)
 
-            throw e
+            throw ex
         }
     }
 
@@ -969,11 +971,11 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
             }
 
             return builder.build()
-        } catch (e: Exception) {
+        } catch (ex: Exception) {
 
-            e.printStackTrace()
+            e(ex)
 
-            throw e
+            throw ex
         }
     }
 
@@ -1006,53 +1008,62 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
 
     private fun <T : Resource> sendResourceRequest(request: Request, resourceType: ResourceType, resource: T?, callback: (ResourceResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
 
-        logIfVerbose("***", "Sending ${request.method()} request for Data to ${request.url()}", "\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}", "***")
+        d{"***"}
+        d{"Sending ${request.method()} request for Data to ${request.url()}"}
+        d{"\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}"}
+        d{"***"}
 
         try {
             client.newCall(request)
                     .enqueue(object : Callback {
 
-                        override fun onFailure(call: Call, e: IOException) {
-                            logIfVerbose(e)
-                            return callback(ResourceResponse(DataError(e), request))
+                        override fun onFailure(call: Call, ex: IOException) {
+                            e(ex)
+                            return callback(ResourceResponse(DataError(ex), request))
                         }
 
                         @Throws(IOException::class)
                         override fun onResponse(call: Call, response: okhttp3.Response) =
                                 callback(processResponse(request, response, resourceType, resource, resourceClass))
                     })
-        } catch (e: Exception) {
-            logIfVerbose(e)
-            callback(ResourceResponse(DataError(e), request))
+        } catch (ex: Exception) {
+            e(ex)
+            callback(ResourceResponse(DataError(ex), request))
         }
     }
 
     private fun sendRequest(request: Request, callback: (Response) -> Unit) {
 
-        logIfVerbose("***", "Sending ${request.method()} request for Data to ${request.url()}", "\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}", "***")
+        d{"***"}
+        d{"Sending ${request.method()} request for Data to ${request.url()}"}
+        d{"\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}"}
+        d{"***"}
 
         try {
             client.newCall(request)
                     .enqueue(object : Callback {
 
-                        override fun onFailure(call: Call, e: IOException) {
-                            logIfVerbose(e)
-                            return callback(Response(DataError(e), request))
+                        override fun onFailure(call: Call, ex: IOException) {
+                            e(ex)
+                            return callback(Response(DataError(ex), request))
                         }
 
                         @Throws(IOException::class)
                         override fun onResponse(call: Call, response: okhttp3.Response) =
                                 callback(processDataResponse(request, response))
                     })
-        } catch (e: Exception) {
-            logIfVerbose(e)
-            callback(Response(DataError(e), request))
+        } catch (ex: Exception) {
+            e(ex)
+            callback(Response(DataError(ex), request))
         }
     }
 
     private fun <T : Resource> sendResourceListRequest(request: Request, resourceType: ResourceType, callback: (ResourceListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
 
-        logIfVerbose("***", "Sending ${request.method()} request for Data to ${request.url()}", "\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}", "***")
+        d{"***"}
+        d{"Sending ${request.method()} request for Data to ${request.url()}"}
+        d{"\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}"}
+        d{"***"}
 
         try {
             client.newCall(request)
@@ -1066,9 +1077,9 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
                         override fun onResponse(call: Call, response: okhttp3.Response) =
                                 callback(processListResponse(request, response, resourceType, resourceClass))
                     })
-        } catch (e: Exception) {
-            logIfVerbose(e)
-            callback(ResourceListResponse(DataError(e), request))
+        } catch (ex: Exception) {
+            e(ex)
+            callback(ResourceListResponse(DataError(ex), request))
         }
     }
 
@@ -1077,9 +1088,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
         try {
             val body = response.body()
                     ?: return ResourceResponse(DataError("Empty response body received"))
-            val json = body.string()
-
-            logIfVerbose(json)
+            val json = body.string().also{d{it}}
 
             //check http return code/success
             when {
@@ -1117,9 +1126,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
         try {
             val body = response.body()
                     ?: return ResourceListResponse(DataError("Empty response body received"), request, response)
-            val json = body.string()
-
-            logIfVerbose(json)
+            val json = body.string().also{d{it}}
 
             if (response.isSuccessful) {
 
@@ -1147,9 +1154,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
         try {
             val body = response.body()
                     ?: return Response(DataError("Empty response body received"), request, response)
-            val json = body.string()
-
-            logIfVerbose(json)
+            val json = body.string().also{d{it}}
 
             //check http return code
             return if (response.isSuccessful) {
@@ -1163,22 +1168,6 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     }
 
     //endregion
-
-    private fun logIfVerbose(thing: Any) {
-
-        if (ContextProvider.verboseLogging) {
-            println(thing)
-        }
-    }
-
-    private fun logIfVerbose(vararg things: Any) {
-
-        if (ContextProvider.verboseLogging) {
-            things.forEach {
-                println(it)
-            }
-        }
-    }
 
     companion object {
 

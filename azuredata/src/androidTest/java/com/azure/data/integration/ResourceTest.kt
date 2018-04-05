@@ -7,6 +7,9 @@ import com.azure.data.model.*
 import com.azure.data.service.ResourceListResponse
 import com.azure.data.service.ResourceResponse
 import com.azure.data.service.Response
+import com.github.ajalt.timberkt.Timber
+import com.github.ajalt.timberkt.Timber.DebugTree
+import com.github.ajalt.timberkt.d
 import org.awaitility.Awaitility.await
 import org.junit.After
 import org.junit.Assert.*
@@ -38,14 +41,17 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
     @Before
     open fun setUp() {
 
-        println("********* Begin Test Setup *********")
+        println("********* Pre Configuration *********")
 
         if (!AzureData.isConfigured) {
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
 
-            
+            Timber.plant(DebugTree())
+
         }
+
+        d{"********* Begin Test Setup *********"}
 
         deleteResources()
 
@@ -61,17 +67,17 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             ensureDocument()
         }
 
-        println("********* End Test Setup *********")
+        d{"********* End Test Setup *********"}
     }
 
     @After
     open fun tearDown() {
 
-        println("********* Begin Test Tear Down *********")
+        d{"********* Begin Test Tear Down *********"}
 
         deleteResources()
 
-        println("********* End Test Tear Down *********")
+        d{"********* End Test Tear Down *********"}
     }
 
     fun ensureDatabase() : Database {
@@ -139,7 +145,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         //delete the DB - this should delete all attached resources
 
         AzureData.deleteDatabase(databaseId) { response ->
-            println("Attempted to delete test database.  Result: ${response.isSuccessful}")
+            d{"Attempted to delete test database.  Result: ${response.isSuccessful}"}
             deleteResponse = response
         }
 
