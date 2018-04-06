@@ -40,7 +40,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
     @Before
     open fun setUp() {
 
-        startLogging(Log.ERROR)
+        startLogging(Log.WARN)
         v{"verbose"}
         d{"debug"}
         w{"warn"}
@@ -50,7 +50,6 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         if (!AzureData.isConfigured) {
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
-
 
         }
 

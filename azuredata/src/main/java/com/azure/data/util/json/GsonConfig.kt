@@ -1,9 +1,10 @@
 package com.azure.data.util.json
 
+import android.util.Log
+import com.azure.core.log.logLevel
 import com.azure.core.util.DateTypeAdapter
 import com.google.gson.*
 import com.azure.data.model.*
-import com.azure.data.util.ContextProvider
 import java.util.*
 
 /**
@@ -14,8 +15,15 @@ import java.util.*
 val gson: Gson =
         GsonBuilder()
                 .disableHtmlEscaping()
-                .setPrettyPrinting()
+                .checkVerboseMode()
                 .registerTypeAdapter(Date::class.java, DateTypeAdapter())
                 .registerTypeAdapter(Timestamp::class.java, TimestampAdapter())
                 .registerTypeAdapter(DictionaryDocument::class.java, DocumentAdapter())
                 .create()
+
+fun GsonBuilder.checkVerboseMode() : GsonBuilder {
+    if (logLevel <= Log.DEBUG) {
+        this.setPrettyPrinting()
+    }
+    return this
+}

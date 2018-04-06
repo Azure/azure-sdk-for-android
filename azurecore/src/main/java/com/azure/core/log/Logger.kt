@@ -34,19 +34,34 @@ inline fun wtf(message: () -> String)               = log(Log.ASSERT) { Timber.w
 inline fun wtf(t: Throwable)                        = log(Log.ASSERT) {Timber.wtf(t)}
 inline fun wtf(t: Throwable, message: () -> String) = log(Log.ASSERT) { Timber.wtf(t, message()) }
 
-fun startLogging(level: Int){
-    lowestLogLevel = level
-    if (Timber.treeCount()==0) {
-        Timber.plant(Timber.DebugTree())
-    }
+/**
+ * Start logging at the specified log level. Can be called more than once to change log level
+ */
+fun startLogging(level: Int = Log.VERBOSE){
+    logLevel = level
 }
 
-/** @suppress */
-@PublishedApi
-internal var lowestLogLevel = Integer.MAX_VALUE
+/**
+ * Stop logging.
+ */
+fun stopLogging(){
+    logLevel = Integer.MAX_VALUE
+}
+
+/**
+ * The current log level. Logs at this level or higher will be sent to the system log
+ */
+var logLevel = Log.ASSERT
+    get() = field
+    set(value) {
+        field = value
+        if (Timber.treeCount()==0) {
+            Timber.plant(Timber.DebugTree())
+        }
+    }
 
 /** @suppress */
 @PublishedApi
 internal inline fun log(level: Int, block: () -> Unit) {
-    if (level>=lowestLogLevel && Timber.treeCount() > 0) block()
+    if (level>=logLevel && Timber.treeCount() > 0) block()
 }
