@@ -22,8 +22,10 @@ val gson: Gson =
                 .create()
 
 fun GsonBuilder.checkVerboseMode() : GsonBuilder {
+
     if (logLevel <= Log.DEBUG) {
         this.setPrettyPrinting()
     }
+
     return this
 }
