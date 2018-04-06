@@ -3,6 +3,8 @@ package com.azure.data.service
 import com.azure.core.http.HttpMediaType
 import com.azure.core.http.HttpMethod
 import com.azure.core.http.HttpStatusCode
+import com.azure.core.log.d
+import com.azure.core.log.e
 import com.azure.data.constants.TokenType
 import com.azure.data.constants.HttpHeaderValue
 import com.azure.data.constants.MSHttpHeader
@@ -11,8 +13,6 @@ import com.google.gson.reflect.TypeToken
 import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.util.*
 import com.azure.data.util.json.gson
-import com.github.ajalt.timberkt.d
-import com.github.ajalt.timberkt.e
 import getDefaultHeaders
 import okhttp3.*
 import java.io.IOException

@@ -1,15 +1,14 @@
 package com.azure.data.integration
 
 import android.support.test.InstrumentationRegistry
+import android.util.Log
+import com.azure.core.log.*
 import com.azure.data.AzureData
 import com.azure.data.constants.TokenType
 import com.azure.data.model.*
 import com.azure.data.service.ResourceListResponse
 import com.azure.data.service.ResourceResponse
 import com.azure.data.service.Response
-import com.github.ajalt.timberkt.Timber
-import com.github.ajalt.timberkt.Timber.DebugTree
-import com.github.ajalt.timberkt.d
 import org.awaitility.Awaitility.await
 import org.junit.After
 import org.junit.Assert.*
@@ -41,13 +40,17 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
     @Before
     open fun setUp() {
 
-        println("********* Pre Configuration *********")
+        startLogging(Log.ERROR)
+        v{"verbose"}
+        d{"debug"}
+        w{"warn"}
+        e{"error"}
+        d{"********* Pre Configuration *********"}
 
         if (!AzureData.isConfigured) {
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
 
-            Timber.plant(DebugTree())
 
         }
 
