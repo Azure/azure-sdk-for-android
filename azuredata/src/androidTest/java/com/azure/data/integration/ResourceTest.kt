@@ -5,6 +5,7 @@ import android.util.Log
 import com.azure.core.log.d
 import com.azure.core.log.startLogging
 import com.azure.data.AzureData
+import com.azure.data.constants.TokenType
 import com.azure.data.model.*
 import com.azure.data.service.ResourceListResponse
 import com.azure.data.service.ResourceResponse

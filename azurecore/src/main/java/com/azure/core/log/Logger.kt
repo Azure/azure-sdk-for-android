@@ -10,7 +10,7 @@ package com.azure.core.log
 import android.util.Log
 import timber.log.Timber
 
-@PublishedApi internal val defaultLogLevel = Log.ASSERT
+@PublishedApi internal val defaultLogLevel = Log.VERBOSE
 @PublishedApi internal val defaultLogTree  = Timber.DebugTree()
 
 inline fun v(message: () -> String)                 = log(Log.VERBOSE) { Timber.v(message()) }
@@ -38,31 +38,46 @@ inline fun wtf(t: Throwable)                        = log(Log.ASSERT) {Timber.wt
 inline fun wtf(t: Throwable, message: () -> String) = log(Log.ASSERT) { Timber.wtf(t, message()) }
 
 /**
- * Start logging at the specified log level. Can be called more than once to change log level
+ * Start logging at the current log level
  */
-fun startLogging(level: Int = Log.VERBOSE, tree : Timber.Tree? = null){
-    if (tree!=null) {
-        Timber.plant(tree)
-    } else {
-        if (Timber.treeCount()==0) {
-            Timber.plant(defaultLogTree)
-        }
+fun startLogging(){
+    if (Timber.treeCount()==0){
+        Timber.plant(defaultLogTree)
     }
+}
+
+/**
+ * Start logging at this new log level.
+ */
+fun startLogging(level: Int = defaultLogLevel){
     logLevel = level
+    startLogging()
 }
 
 /**
  * Stop logging.
  */
 fun stopLogging(){
-    Timber.uprootAll()
     logLevel = defaultLogLevel
+    if (Timber.forest().contains(defaultLogTree)) {
+        Timber.uproot(defaultLogTree)
+    }
 }
 
 /**
  * The current log level. Logs at this level or higher will be sent to the system log
  */
 var logLevel = defaultLogLevel
+
+/** @suppress */
+fun startLogging(tree : Timber.Tree){
+    Timber.plant(tree)
+}
+
+/** @suppress */
+fun stopLogging(tree : Timber.Tree){
+    Timber.uproot(tree)
+}
 
 /** @suppress */
 @PublishedApi

@@ -45,12 +45,12 @@ class LogTest {
 
     @Before
     fun before() {
-        startLogging(Log.VERBOSE,tree)
+        startLogging(tree)
     }
 
     @After
     fun after() {
-        stopLogging()
+        stopLogging(tree)
     }
 
     @Test @Throws(Exception::class) fun can_log_each_level() {
