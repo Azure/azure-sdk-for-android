@@ -10,6 +10,9 @@ package com.azure.core.log
 import android.util.Log
 import timber.log.Timber
 
+@PublishedApi internal val defaultLogLevel = Log.ASSERT
+@PublishedApi internal val defaultLogTree  = Timber.DebugTree()
+
 inline fun v(message: () -> String)                 = log(Log.VERBOSE) { Timber.v(message()) }
 inline fun v(t: Throwable)                          = log(Log.VERBOSE) {Timber.v(t)}
 inline fun v(t: Throwable, message: () -> String)   = log(Log.VERBOSE) { Timber.v(t, message()) }
@@ -37,7 +40,14 @@ inline fun wtf(t: Throwable, message: () -> String) = log(Log.ASSERT) { Timber.w
 /**
  * Start logging at the specified log level. Can be called more than once to change log level
  */
-fun startLogging(level: Int = Log.VERBOSE){
+fun startLogging(level: Int = Log.VERBOSE, tree : Timber.Tree? = null){
+    if (tree!=null) {
+        Timber.plant(tree)
+    } else {
+        if (Timber.treeCount()==0) {
+            Timber.plant(defaultLogTree)
+        }
+    }
     logLevel = level
 }
 
@@ -45,20 +55,14 @@ fun startLogging(level: Int = Log.VERBOSE){
  * Stop logging.
  */
 fun stopLogging(){
-    logLevel = Integer.MAX_VALUE
+    Timber.uprootAll()
+    logLevel = defaultLogLevel
 }
 
 /**
  * The current log level. Logs at this level or higher will be sent to the system log
  */
-var logLevel = Log.ASSERT
-    get() = field
-    set(value) {
-        field = value
-        if (Timber.treeCount()==0) {
-            Timber.plant(Timber.DebugTree())
-        }
-    }
+var logLevel = defaultLogLevel
 
 /** @suppress */
 @PublishedApi
