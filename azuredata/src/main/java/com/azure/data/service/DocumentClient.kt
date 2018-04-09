@@ -5,6 +5,7 @@ import com.azure.core.http.HttpMethod
 import com.azure.core.http.HttpStatusCode
 import com.azure.core.log.d
 import com.azure.core.log.e
+import com.azure.core.util.isNetworkAvailable
 import com.azure.data.constants.TokenType
 import com.azure.data.constants.HttpHeaderValue
 import com.azure.data.constants.MSHttpHeader
@@ -710,6 +711,9 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
     // create
     private fun <T : Resource> create(resource: T, resourceUri: UrlLink, resourceType: ResourceType, additionalHeaders: Headers? = null, callback: (ResourceResponse<T>) -> Unit) {
 
+        if (!isNetworkAvailable(ContextProvider.appContext)){
+            return callback(ResourceResponse(DataError.fromType(ErrorType.NetworkUnavailable)))
+        }
         if (!resource.hasValidId()) {
             return callback(ResourceResponse(DataError.fromType(ErrorType.InvalidId)))
         }
