@@ -31,6 +31,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
+    implementation "com.jakewharton.timber:timber:$timberVersion"
     // https://mvnrepository.com/artifact/commons-codec/commons-codec
     implementation 'commons-codec:commons-codec:1.11'
 }

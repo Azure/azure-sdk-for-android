@@ -25,9 +25,9 @@ class AzureData {
         lateinit var documentClient: DocumentClient
 
         @JvmStatic
-        fun configure(context: Context, name: String, key: String, keyType: TokenType = TokenType.MASTER, verboseLogging: Boolean = false) {
+        fun configure(context: Context, name: String, key: String, keyType: TokenType = TokenType.MASTER) {
 
-            ContextProvider.init(context.applicationContext, verboseLogging)
+            ContextProvider.init(context.applicationContext)
 
             baseUri = ResourceUri(name)
             documentClient = DocumentClient(baseUri, key, keyType)
@@ -38,11 +38,6 @@ class AzureData {
         @JvmStatic
         var isConfigured: Boolean = false
             private set
-
-        var verboseLogging: Boolean
-            get() = ContextProvider.verboseLogging
-            set (value) { ContextProvider.verboseLogging = value }
-
 
         //region Databases
 

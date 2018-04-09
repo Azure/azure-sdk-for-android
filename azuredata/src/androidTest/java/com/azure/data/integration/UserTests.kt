@@ -1,6 +1,7 @@
 package com.azure.data.integration
 
 import android.support.test.runner.AndroidJUnit4
+import com.azure.core.log.d
 import com.azure.data.*
 import com.azure.data.model.Database
 import com.azure.data.model.ResourceType
@@ -43,7 +44,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
         var deleteResponse: Response? = null
 
         AzureData.deleteUser(id, databaseId) { response ->
-            println("Attempted to delete test user.  Result: ${response.isSuccessful}")
+            d{"Attempted to delete test user.  Result: ${response.isSuccessful}"}
             deleteResponse = response
         }
 

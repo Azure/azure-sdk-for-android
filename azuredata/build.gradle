@@ -40,7 +40,8 @@ dependencies {
     androidTestImplementation "com.android.support.test:rules:$testRulesVersion"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "org.awaitility:awaitility:$awaitilityVersion"
-    debugImplementation project(':azurecore')
+    // https://developer.android.com/studio/build/gradle-plugin-3-0-0-migration.html#variant_dependencies
+    implementation project(':azurecore')
     // release implementation will be released via jCenter/maven/etc.
 }
 

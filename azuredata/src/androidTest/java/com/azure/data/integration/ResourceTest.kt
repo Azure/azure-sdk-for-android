@@ -1,6 +1,9 @@
 package com.azure.data.integration
 
 import android.support.test.InstrumentationRegistry
+import android.util.Log
+import com.azure.core.log.d
+import com.azure.core.log.startLogging
 import com.azure.data.AzureData
 import com.azure.data.constants.TokenType
 import com.azure.data.model.*
@@ -38,13 +41,14 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
     @Before
     open fun setUp() {
 
-        println("********* Begin Test Setup *********")
+        startLogging(Log.VERBOSE)
+
+        d{"********* Begin Test Setup *********"}
 
         if (!AzureData.isConfigured) {
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
 
-            
         }
 
         deleteResources()
@@ -61,17 +65,17 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             ensureDocument()
         }
 
-        println("********* End Test Setup *********")
+        d{"********* End Test Setup *********"}
     }
 
     @After
     open fun tearDown() {
 
-        println("********* Begin Test Tear Down *********")
+        d{"********* Begin Test Tear Down *********"}
 
         deleteResources()
 
-        println("********* End Test Tear Down *********")
+        d{"********* End Test Tear Down *********"}
     }
 
     fun ensureDatabase() : Database {
@@ -139,7 +143,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         //delete the DB - this should delete all attached resources
 
         AzureData.deleteDatabase(databaseId) { response ->
-            println("Attempted to delete test database.  Result: ${response.isSuccessful}")
+            d{"Attempted to delete test database.  Result: ${response.isSuccessful}"}
             deleteResponse = response
         }
 

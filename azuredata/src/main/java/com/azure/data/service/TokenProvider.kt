@@ -2,10 +2,10 @@ package com.azure.data.service
 
 import com.azure.core.crypto.CryptoProvider
 import com.azure.core.http.HttpMethod
+import com.azure.core.log.d
 import com.azure.data.constants.TokenType
 import com.azure.data.model.ResourceType
 import com.azure.data.model.Token
-import com.azure.data.util.ContextProvider
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
@@ -33,10 +33,7 @@ class TokenProvider(private var key: String, private var keyType: TokenType = To
                 resourceType.path.toLowerCase(Locale.ROOT),
                 resourceLink,
                 dateString.toLowerCase(Locale.ROOT))
-
-        if (ContextProvider.verboseLogging) {
-            print(payload)
-        }
+                .also { d{it} }
 
         val signature = CryptoProvider.hmacEncrypt(payload, key)
 

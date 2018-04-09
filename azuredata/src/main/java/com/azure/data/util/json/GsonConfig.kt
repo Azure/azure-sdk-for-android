@@ -1,9 +1,10 @@
 package com.azure.data.util.json
 
+import android.util.Log
+import com.azure.core.log.logLevel
 import com.azure.core.util.DateTypeAdapter
 import com.google.gson.*
 import com.azure.data.model.*
-import com.azure.data.util.ContextProvider
 import java.util.*
 
 /**
@@ -20,10 +21,9 @@ val gson: Gson =
                 .registerTypeAdapter(DictionaryDocument::class.java, DocumentAdapter())
                 .create()
 
-
 fun GsonBuilder.checkVerboseMode() : GsonBuilder {
 
-    if (ContextProvider.verboseLogging) {
+    if (logLevel <= Log.DEBUG) {
         this.setPrettyPrinting()
     }
 
