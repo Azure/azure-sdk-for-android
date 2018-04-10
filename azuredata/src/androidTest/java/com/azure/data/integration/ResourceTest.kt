@@ -114,7 +114,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         return collection!!
     }
 
-    fun ensureDocument() : Document {
+    private fun ensureDocument() : Document {
 
         var docResponse: ResourceResponse<CustomDocument>? = null
         val doc = CustomDocument(documentId)
