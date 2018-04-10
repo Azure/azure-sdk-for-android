@@ -25,6 +25,10 @@ android {
         targetCompatibility 1.8
         sourceCompatibility 1.8
     }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
 }
 
 dependencies {
@@ -47,4 +51,10 @@ dependencies {
 
 repositories {
     mavenCentral()
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }

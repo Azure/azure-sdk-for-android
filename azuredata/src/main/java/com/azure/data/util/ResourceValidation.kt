@@ -10,7 +10,7 @@ import java.util.regex.Pattern
  */
 
     fun String.isValidIdForResource() : Boolean =
-            !this.isBlank() && this.length <= 255 && !invalidCharRegEx.matcher(this).find() // this.matches(RegEx.whitespaceRegex)
+            !this.isBlank() && this.length <= 255 && !invalidCharRegEx.matcher(this).find()
 
     fun Resource.hasValidId() : Boolean =
             this.id.isValidIdForResource()
