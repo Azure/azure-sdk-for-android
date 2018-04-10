@@ -1,6 +1,7 @@
 package com.azure.core.crypto
 
 import android.util.Base64
+import com.azure.core.log.e
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
@@ -24,8 +25,8 @@ class CryptoProvider {
 
                 return Base64.encodeToString(hashPayLoad, Base64.DEFAULT).replace("\n", "")
 
-            } catch (e: Exception) {
-                e.printStackTrace()
+            } catch (ex: Exception) {
+                e(ex)
             }
 
             return null

@@ -18,7 +18,7 @@ class ResourceList<T: Resource> : ResourceBase() {
     val isPopuated: Boolean
             get() = resourceId != null && count > 0
 
-    fun setAltContentLinks(itemTypePath: String, contentPath: String?) {
+    override fun setAltContentLink(itemTypePath: String, contentPath: String?) {
 
         items.forEach {item ->
 

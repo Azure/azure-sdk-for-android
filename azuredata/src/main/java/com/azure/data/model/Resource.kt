@@ -43,7 +43,7 @@ abstract class Resource(id: String? = null) : ResourceBase() {
     @SerializedName(Keys.timestampKey)
     var timestamp: Timestamp? = null
 
-    fun setAltContentLink(itemTypePath: String, contentPath: String?) {
+    override fun setAltContentLink(itemTypePath: String, contentPath: String?) {
 
         val pathComponent = if (contentPath.isNullOrEmpty()) itemTypePath else "$contentPath/$itemTypePath"
         this.altLink = "$pathComponent/$id"

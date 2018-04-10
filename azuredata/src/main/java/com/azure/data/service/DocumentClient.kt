@@ -1073,7 +1073,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
             client.newCall(request)
                     .enqueue(object : Callback {
 
-                        // only transpprt errors handled here
+                        // only transport errors handled here
                         override fun onFailure(call: Call, e: IOException) =
                                 callback(ResourceListResponse(DataError(e)))
 
@@ -1101,18 +1101,17 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
                     val type = resourceClass ?: resource?.javaClass ?: resourceType.type
                     val returnedResource = gson.fromJson<T>(json, type)
                             ?: return ResourceResponse(json.toError())
-                    val altContentPath = response.header(MSHttpHeader.MSAltContentPath.value, null)
 
-                    returnedResource.setAltContentLink(resourceType.path, altContentPath)
+                    setResourceMetadata(response, returnedResource, resourceType)
 
                     return ResourceResponse(request, response, json, Result(returnedResource))
                 }
 
                 response.code() == HttpStatusCode.NotModified.code -> {
 
-                    val altContentPath = response.header(MSHttpHeader.MSAltContentPath.value, null)
-
-                    resource?.setAltContentLink(resourceType.path, altContentPath)
+                    resource?.let {
+                        setResourceMetadata(response, it, resourceType)
+                    }
 
                     //return the original resource
                     return ResourceResponse(request, response, json, Result(resource))
@@ -1140,9 +1139,7 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
                 val resourceList = gson.fromJson<ResourceList<T>>(json, listType)
                         ?: return ResourceListResponse(json.toError(), request, response, json)
 
-                val altContentPath = response.header(MSHttpHeader.MSAltContentPath.value, null)
-
-                resourceList.setAltContentLinks(resourceType.path, altContentPath)
+                setResourceMetadata(response, resourceList, resourceType)
 
                 return ResourceListResponse(request, response, json, Result(resourceList))
             } else {
@@ -1151,6 +1148,14 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
         } catch (e: Exception) {
             return ResourceListResponse(DataError(e), request, response)
         }
+    }
+
+    private fun setResourceMetadata(response: okhttp3.Response, resource: ResourceBase, resourceType: ResourceType) {
+
+        //grab & store alt Link and persist alt link <-> self link mapping
+        val altContentPath = response.header(MSHttpHeader.MSAltContentPath.value, null)
+        resource.setAltContentLink(resourceType.path, altContentPath)
+        ResourceOracle.shared.storeLinks(resource)
     }
 
     private fun processDataResponse(request: Request, response: okhttp3.Response): Response {
@@ -1162,6 +1167,13 @@ class DocumentClient(private val baseUri: ResourceUri, key: String, keyType: Tok
 
             //check http return code
             return if (response.isSuccessful) {
+
+//                if (request.method() == HttpMethod.Delete.toString()) {
+////                    ResourceOracle.shared.removeLinks(request.)
+//                    //TODO: figure this out!
+//                    val i = 999
+//                }
+
                 Response(request, response, json, Result(json))
             } else {
                 Response(json.toError(), request, response, json)
