@@ -15,6 +15,8 @@ abstract class ResourceBase {
     @SerializedName(resourceIdKey)
     var resourceId: String? = null
 
+    abstract fun setAltContentLink(itemTypePath: String, contentPath: String?)
+
     companion object {
 
         const val resourceIdKey = "_rid"
