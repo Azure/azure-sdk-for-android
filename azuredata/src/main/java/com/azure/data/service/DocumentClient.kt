@@ -1,5 +1,6 @@
 package com.azure.data.service
 
+import com.azure.core.http.HttpHeader
 import com.azure.core.http.HttpMediaType
 import com.azure.core.http.HttpMethod
 import com.azure.core.http.HttpStatusCode

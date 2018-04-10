@@ -1,5 +1,6 @@
 package com.azure.data.service
 
+import com.azure.core.http.HttpHeader
 import com.azure.data.model.DataError
 import com.azure.data.model.Result
 import okhttp3.Request
@@ -19,6 +20,9 @@ open class Response(
         // The result of response deserialization.
         open val result: Result<*>
 ) {
+    val metadata : ResponseMetadata by lazy {
+        ResponseMetadata(response)
+    }
 
     constructor(
             // the error
