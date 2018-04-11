@@ -3,8 +3,6 @@ package com.azure.data.service
 import com.azure.core.http.HttpHeader
 import com.azure.core.util.dateFromRfc1123
 import com.azure.data.constants.MSHttpHeader
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
