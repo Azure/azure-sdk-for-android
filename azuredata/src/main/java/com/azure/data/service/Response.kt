@@ -1,6 +1,5 @@
 package com.azure.data.service
 
-import com.azure.core.http.HttpHeader
 import com.azure.data.model.DataError
 import com.azure.data.model.Result
 import okhttp3.Request
