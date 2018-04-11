@@ -19,6 +19,9 @@ open class Response(
         // The result of response deserialization.
         open val result: Result<*>
 ) {
+    val metadata : ResponseMetadata by lazy {
+        ResponseMetadata(response)
+    }
 
     constructor(
             // the error
