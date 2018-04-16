@@ -166,11 +166,11 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
     }
 
     @Test
-    fun deleteUDFFromCollectionByRId() {
+    fun deleteUDFFromCollectionById() {
 
         val udf = createNewUDF()
 
-        collection?.deleteUserDefinedFunction(udf.resourceId!!) {
+        collection?.deleteUserDefinedFunction(udf.id) {
             dataResponse = it
         }
 
@@ -204,64 +204,64 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
         assertEquals(udfBodyNew, response?.resource?.body)
     }
 
-//    @Test
-//    fun replaceUDF() {
-//
-//        val udf = createNewUDF()
-//
-//        AzureData.replaceUserDefinedFunction(udf.id, udf.createdResourceId!!, udfBodyNew, collection!!) {
-//            response = it
-//        }
-//
-//        await().until {
-//            response != null
-//        }
-//
-//        assertResourceResponseSuccess(response)
-//        assertEquals(createdResourceId, response?.resource?.id)
-//
-//        assertEquals(udfBodyNew, response?.resource?.body)
-//    }
+    @Test
+    fun replaceUDF() {
 
-//    @Test
-//    fun replaceUDFInCollection() {
-//
-//        var udf = createNewUDF()
-//
-//        collection?.replaceUserDefinedFunction(createdResourceId, udf.createdResourceId!!, udfBodyNew) {
-//            response = it
-//        }
-//
-//        await().until {
-//            response != null
-//        }
-//
-//        udf = response?.resource!!
-//
-//        assertResourceResponseSuccess(response)
-//        assertEquals(createdResourceId, udf.id)
-//
-//        assertEquals(udfBodyNew, udf.body)
-//
-//        resetResponse()
-//
-//        udf.body = udfBody
-//
-//        collection?.replaceUserDefinedFunction(udf) {
-//            response = it
-//        }
-//
-//        await().until {
-//            response != null
-//        }
-//
-//        udf = response?.resource!!
-//
-//        assertResourceResponseSuccess(response)
-//        assertEquals(createdResourceId, udf.id)
-//
-//        assertEquals(udfBody, udf.body)
-//    }
+        val udf = createNewUDF()
+
+        AzureData.replaceUserDefinedFunction(udf.id, udfBodyNew, collection!!) {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
+
+        assertEquals(udfBodyNew, response?.resource?.body)
+    }
+
+    @Test
+    fun replaceUDFInCollection() {
+
+        var udf = createNewUDF()
+
+        collection?.replaceUserDefinedFunction(udf.id, udfBodyNew) {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        udf = response?.resource!!
+
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, udf.id)
+
+        assertEquals(udfBodyNew, udf.body)
+
+        resetResponse()
+
+        udf.body = udfBody
+
+        collection?.replaceUserDefinedFunction(udf) {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        udf = response?.resource!!
+
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, udf.id)
+
+        assertEquals(udfBody, udf.body)
+    }
 
     //endregion
 }
