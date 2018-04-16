@@ -30,23 +30,23 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
     private fun createNewUDF(coll: DocumentCollection? = null) : UserDefinedFunction {
 
         if (coll != null) {
-            coll.createUserDefinedFunction(resourceId, udfBody) {
-                resourceResponse = it
+            coll.createUserDefinedFunction(createdResourceId, udfBody) {
+                response = it
             }
         } else {
-            AzureData.createUserDefinedFunction(resourceId, udfBody, collectionId, databaseId) {
-                resourceResponse = it
+            AzureData.createUserDefinedFunction(createdResourceId, udfBody, collectionId, databaseId) {
+                response = it
             }
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
 
-        val resource = resourceResponse!!.resource!!
+        val resource = response!!.resource!!
 
         resetResponse()
 
@@ -78,7 +78,7 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
             resourceListResponse != null
         }
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
     }
 
@@ -95,7 +95,7 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
             resourceListResponse != null
         }
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
     }
 
@@ -106,7 +106,7 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
 
         createNewUDF()
 
-        AzureData.deleteUserDefinedFunction(resourceId, collectionId, databaseId) {
+        AzureData.deleteUserDefinedFunction(createdResourceId, collectionId, databaseId) {
             dataResponse = it
         }
 
@@ -114,7 +114,7 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -130,7 +130,7 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -146,7 +146,7 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -162,15 +162,15 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
-    fun deleteUDFFromCollectionByRId() {
+    fun deleteUDFFromCollectionById() {
 
         val udf = createNewUDF()
 
-        collection?.deleteUserDefinedFunction(udf.resourceId!!) {
+        collection?.deleteUserDefinedFunction(udf.id) {
             dataResponse = it
         }
 
@@ -178,7 +178,7 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     //endregion
@@ -190,18 +190,18 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
 
         createNewUDF()
 
-        AzureData.replaceUserDefinedFunction(resourceId, udfBodyNew, collectionId, databaseId) {
-            resourceResponse = it
+        AzureData.replaceUserDefinedFunction(createdResourceId, udfBodyNew, collectionId, databaseId) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
 
-        assertEquals(udfBodyNew, resourceResponse?.resource?.body)
+        assertEquals(udfBodyNew, response?.resource?.body)
     }
 
     @Test
@@ -209,18 +209,18 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
 
         val udf = createNewUDF()
 
-        AzureData.replaceUserDefinedFunction(udf.id, udf.resourceId!!, udfBodyNew, collection!!) {
-            resourceResponse = it
+        AzureData.replaceUserDefinedFunction(udf.id, udfBodyNew, collection!!) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
 
-        assertEquals(udfBodyNew, resourceResponse?.resource?.body)
+        assertEquals(udfBodyNew, response?.resource?.body)
     }
 
     @Test
@@ -228,18 +228,18 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
 
         var udf = createNewUDF()
 
-        collection?.replaceUserDefinedFunction(resourceId, udf.resourceId!!, udfBodyNew) {
-            resourceResponse = it
+        collection?.replaceUserDefinedFunction(udf.id, udfBodyNew) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        udf = resourceResponse?.resource!!
+        udf = response?.resource!!
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, udf.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, udf.id)
 
         assertEquals(udfBodyNew, udf.body)
 
@@ -248,17 +248,17 @@ class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.
         udf.body = udfBody
 
         collection?.replaceUserDefinedFunction(udf) {
-            resourceResponse = it
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        udf = resourceResponse?.resource!!
+        udf = response?.resource!!
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, udf.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, udf.id)
 
         assertEquals(udfBody, udf.body)
     }

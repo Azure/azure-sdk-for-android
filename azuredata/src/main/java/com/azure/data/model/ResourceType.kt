@@ -34,6 +34,38 @@ enum class ResourceType(val path: String, fullname: String, val type: Type, val 
 
     val listName: String = "${fullname}s"
 
+    fun isDecendentOf(resourceType: ResourceType) : Boolean {
+
+        return when (this) {
+            Database,
+            Offer               -> false
+            User,
+            Collection          -> resourceType == Database
+            Document,
+            StoredProcedure,
+            Trigger,
+            Udf                 -> resourceType == Collection || resourceType == Database
+            Permission          -> resourceType == User || resourceType == Database
+            Attachment          -> resourceType == Document || resourceType == Collection || resourceType == Database
+        }
+    }
+
+    fun isAncestorOf(resourceType: ResourceType) : Boolean
+            = resourceType.isDecendentOf(this)
+
+    val supportsPermissionToken : Boolean
+        get() {
+            return when (this) {
+                Collection,
+                Document,
+                StoredProcedure,
+                Trigger,
+                Udf,
+                Attachment -> true
+                else -> false
+            }
+        }
+
     companion object {
 
         fun<T: Resource> fromType(clazz: Class<T>) : ResourceType {
@@ -54,5 +86,7 @@ enum class ResourceType(val path: String, fullname: String, val type: Type, val 
                 it.listName == name
             } ?: throw Exception("Unable to determine resource type requested")
         }
+
+        val ancestors = listOf(Database, User, Collection, Document)
     }
 }

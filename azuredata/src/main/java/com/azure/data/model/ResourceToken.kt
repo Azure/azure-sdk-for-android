@@ -5,4 +5,4 @@ package com.azure.data.model
  * Licensed under the MIT License.
  */
 
-data class Token(val authString: String, val date: String)
+data class ResourceToken(val token: String, val date: String)

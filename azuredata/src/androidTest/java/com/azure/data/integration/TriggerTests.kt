@@ -30,23 +30,23 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
     private fun createNewTrigger(coll: DocumentCollection? = null) : Trigger {
 
         if (coll != null) {
-            coll.createTrigger(resourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBody) {
-                resourceResponse = it
+            coll.createTrigger(createdResourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBody) {
+                response = it
             }
         } else {
-            AzureData.createTrigger(resourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBody, collectionId, databaseId) {
-                resourceResponse = it
+            AzureData.createTrigger(createdResourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBody, collectionId, databaseId) {
+                response = it
             }
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
 
-        val resource = resourceResponse!!.resource!!
+        val resource = response!!.resource!!
 
         assertEquals(triggerBody, resource.body)
 
@@ -80,7 +80,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             resourceListResponse != null
         }
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
     }
 
@@ -97,7 +97,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             resourceListResponse != null
         }
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
     }
 
@@ -108,7 +108,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
 
         createNewTrigger()
 
-        AzureData.deleteTrigger(resourceId, collectionId, databaseId) {
+        AzureData.deleteTrigger(createdResourceId, collectionId, databaseId) {
             dataResponse = it
         }
 
@@ -116,7 +116,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -132,7 +132,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -148,7 +148,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -164,15 +164,15 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
-    fun deleteTriggerFromCollectionByRId() {
+    fun deleteTriggerFromCollectionById() {
 
         val trigger = createNewTrigger()
 
-        collection?.deleteTrigger(trigger.resourceId!!) {
+        collection?.deleteTrigger(trigger.id) {
             dataResponse = it
         }
 
@@ -180,7 +180,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -196,7 +196,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     //endregion
@@ -208,18 +208,18 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
 
         createNewTrigger()
 
-        AzureData.replaceTrigger(resourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew, collectionId, databaseId) {
-            resourceResponse = it
+        AzureData.replaceTrigger(createdResourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew, collectionId, databaseId) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
 
-        assertEquals(triggerBodyNew, resourceResponse?.resource?.body)
+        assertEquals(triggerBodyNew, response?.resource?.body)
     }
 
     @Test
@@ -227,18 +227,18 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
 
         val trigger = createNewTrigger()
 
-        AzureData.replaceTrigger(trigger.id, trigger.resourceId!!, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew, collection!!) {
-            resourceResponse = it
+        AzureData.replaceTrigger(trigger.id, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew, collection!!) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
 
-        assertEquals(triggerBodyNew, resourceResponse?.resource?.body)
+        assertEquals(triggerBodyNew, response?.resource?.body)
     }
 
     @Test
@@ -246,18 +246,18 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
 
         var trigger = createNewTrigger()
 
-        collection?.replaceTrigger(resourceId, trigger.resourceId!!, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew) {
-            resourceResponse = it
+        collection?.replaceTrigger(trigger.id, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        trigger = resourceResponse?.resource!!
+        trigger = response?.resource!!
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, trigger.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, trigger.id)
 
         assertEquals(triggerBodyNew, trigger.body)
 
@@ -266,17 +266,17 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
         trigger.body = triggerBody
 
         collection?.replaceTrigger(trigger) {
-            resourceResponse = it
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        trigger = resourceResponse?.resource!!
+        trigger = response?.resource!!
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, trigger.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, trigger.id)
 
         assertEquals(triggerBody, trigger.body)
     }

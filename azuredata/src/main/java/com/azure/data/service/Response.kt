@@ -1,6 +1,7 @@
 package com.azure.data.service
 
 import com.azure.data.model.DataError
+import com.azure.data.model.ResourceList
 import com.azure.data.model.Result
 import okhttp3.Request
 
@@ -9,7 +10,10 @@ import okhttp3.Request
  * Licensed under the MIT License.
  */
 
-open class Response(
+typealias DataResponse = Response<String>
+typealias ListResponse<T> = Response<ResourceList<T>>
+
+open class Response<T>(
         // The request sent to the server.
         val request: Request? = null,
         // The server's response to the request.
@@ -17,7 +21,7 @@ open class Response(
         //  The json data returned by the server (if applicable)
         val jsonData: String? = null,
         // The result of response deserialization.
-        open val result: Result<*>
+        val result: Result<T>
 ) {
     val metadata : ResponseMetadata by lazy {
         ResponseMetadata(response)
@@ -31,7 +35,9 @@ open class Response(
             // The server's response to the URL request.
             response: okhttp3.Response? = null,
             // The json data returned by the server.
-            jsonData: String? = null) : this(request, response, jsonData, Result<Unit>(error))
+            jsonData: String? = null) : this(request, response, jsonData, Result<T>(error))
+
+    constructor(result: T) : this(result = Result(result))
 
     /**
      * Returns the associated error value if the result if it is a failure, null otherwise.
@@ -47,4 +53,9 @@ open class Response(
      * Returns `true` if the result is an error, `false` otherwise.
      */
     val isErrored get() = error != null
+
+    /**
+     * Returns the associated value of the result if it is a success, null otherwise.
+     */
+    val resource: T? = result.resource
 }

@@ -38,7 +38,7 @@ class DatabaseTests : ResourceTest<Database>(ResourceType.Database, false, false
             resourceListResponse != null
         }
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
     }
 
@@ -48,15 +48,15 @@ class DatabaseTests : ResourceTest<Database>(ResourceType.Database, false, false
         ensureDatabase()
 
         AzureData.getDatabase(databaseId) {
-            resourceResponse = it
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(databaseId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(databaseId, response?.resource?.id)
     }
 
     @Test
@@ -65,15 +65,15 @@ class DatabaseTests : ResourceTest<Database>(ResourceType.Database, false, false
         val db = ensureDatabase()
 
         db.refresh {
-            resourceResponse = it
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(databaseId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(databaseId, response?.resource?.id)
     }
 
     @Test
@@ -89,7 +89,7 @@ class DatabaseTests : ResourceTest<Database>(ResourceType.Database, false, false
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -105,7 +105,7 @@ class DatabaseTests : ResourceTest<Database>(ResourceType.Database, false, false
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -121,6 +121,6 @@ class DatabaseTests : ResourceTest<Database>(ResourceType.Database, false, false
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 }

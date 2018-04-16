@@ -3,7 +3,7 @@ package com.azure.data.integration
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.*
 import com.azure.data.model.*
-import com.azure.data.service.ResourceResponse
+import com.azure.data.service.Response
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import okhttp3.HttpUrl
@@ -42,14 +42,14 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
 
     private fun createNewBlobAttachment(imageData: ByteArray, doc: Document? = null) : Attachment {
 
-        var response: ResourceResponse<Attachment>? = null
+        var response: Response<Attachment>? = null
 
         if (doc != null) {
-            document?.createAttachment(resourceId, "image/jpeg", imageData) {
+            document?.createAttachment(createdResourceId, "image/jpeg", imageData) {
                 response = it
             }
         } else {
-            AzureData.createAttachment(resourceId, "image/jpeg", imageData, documentId, collectionId, databaseId) {
+            AzureData.createAttachment(createdResourceId, "image/jpeg", imageData, documentId, collectionId, databaseId) {
                 response = it
             }
         }
@@ -58,26 +58,26 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             response != null
         }
 
-        assertResponseSuccess(response)
-        Assert.assertEquals(resourceId, response?.resource?.id)
+        assertResourceResponseSuccess(response)
+        Assert.assertEquals(createdResourceId, response?.resource?.id)
 
         return response!!.resource!!
     }
 
     private fun createNewAttachment(theUrl: Any = url, doc: Document? = null) : Attachment {
 
-        var response: ResourceResponse<Attachment>? = null
+        var response: Response<Attachment>? = null
 
         when (theUrl) {
 
             is String -> {
 
                 if (doc != null) {
-                    document?.createAttachment(resourceId, "image/jpeg", theUrl) {
+                    document?.createAttachment(createdResourceId, "image/jpeg", theUrl) {
                         response = it
                     }
                 } else {
-                    AzureData.createAttachment(resourceId, "image/jpeg", theUrl, documentId, collectionId, databaseId) {
+                    AzureData.createAttachment(createdResourceId, "image/jpeg", theUrl, documentId, collectionId, databaseId) {
                         response = it
                     }
                 }
@@ -85,11 +85,11 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             is URL -> {
 
                 if (doc != null) {
-                    document?.createAttachment(resourceId, "image/jpeg", theUrl) {
+                    document?.createAttachment(createdResourceId, "image/jpeg", theUrl) {
                         response = it
                     }
                 } else {
-                    AzureData.createAttachment(resourceId, "image/jpeg", theUrl, documentId, collectionId, databaseId) {
+                    AzureData.createAttachment(createdResourceId, "image/jpeg", theUrl, documentId, collectionId, databaseId) {
                         response = it
                     }
                 }
@@ -97,11 +97,11 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             is HttpUrl -> {
 
                 if (doc != null) {
-                    document?.createAttachment(resourceId, "image/jpeg", theUrl) {
+                    document?.createAttachment(createdResourceId, "image/jpeg", theUrl) {
                         response = it
                     }
                 } else {
-                    AzureData.createAttachment(resourceId, "image/jpeg", theUrl, documentId, collectionId, databaseId) {
+                    AzureData.createAttachment(createdResourceId, "image/jpeg", theUrl, documentId, collectionId, databaseId) {
                         response = it
                     }
                 }
@@ -113,8 +113,8 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             response != null
         }
 
-        assertResponseSuccess(response)
-        Assert.assertEquals(resourceId, response?.resource?.id)
+        assertResourceResponseSuccess(response)
+        Assert.assertEquals(createdResourceId, response?.resource?.id)
 
         return response!!.resource!!
     }
@@ -173,7 +173,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             resourceListResponse != null
         }
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
     }
 
@@ -191,7 +191,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             resourceListResponse != null
         }
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
     }
 
@@ -200,42 +200,42 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
 
         createNewAttachment()
 
-        AzureData.replaceAttachment(resourceId, "image/jpeg", url, documentId, collectionId, databaseId) {
-            resourceResponse = it
+        AzureData.replaceAttachment(createdResourceId, "image/jpeg", url, documentId, collectionId, databaseId) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
 
         resetResponse()
 
-        AzureData.replaceAttachment(resourceId, "image/jpeg", HttpUrl.get(url)!!, documentId, collectionId, databaseId) {
-            resourceResponse = it
+        AzureData.replaceAttachment(createdResourceId, "image/jpeg", HttpUrl.get(url)!!, documentId, collectionId, databaseId) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
 
         resetResponse()
 
-        AzureData.replaceAttachment(resourceId, "image/jpeg", urlString, documentId, collectionId, databaseId) {
-            resourceResponse = it
+        AzureData.replaceAttachment(createdResourceId, "image/jpeg", urlString, documentId, collectionId, databaseId) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
     }
 
     @Test
@@ -243,16 +243,16 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
 
         val attachment = createNewAttachment(url, document)
 
-        document?.replaceAttachment(resourceId, attachment.resourceId!!, "image/jpeg", url) {
-            resourceResponse = it
+        document?.replaceAttachment(attachment.id, "image/jpeg", url) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
     }
 
     @Test
@@ -263,16 +263,16 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
         val bytes = getImageData()
         createNewBlobAttachment(bytes)
 
-        AzureData.replaceAttachment(resourceId, "image/jpeg", bytes, documentId, collectionId, databaseId) {
-            resourceResponse = it
+        AzureData.replaceAttachment(createdResourceId, "image/jpeg", bytes, documentId, collectionId, databaseId) {
+            response = it
         }
 
         await().forever().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
     }
 
     //region Deletes
@@ -282,7 +282,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
 
         createNewAttachment()
 
-        AzureData.deleteAttachment(resourceId, documentId, collectionId, databaseId) {
+        AzureData.deleteAttachment(createdResourceId, documentId, collectionId, databaseId) {
             dataResponse = it
         }
 
@@ -290,7 +290,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -306,7 +306,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -322,15 +322,15 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
-    fun deleteAttachmentFromDocumentByRId() {
+    fun deleteAttachmentFromDocumentById() {
 
         val attachment = createNewAttachment(url, document)
 
-        document?.deleteAttachment(attachment.resourceId!!) {
+        document?.deleteAttachment(attachment.id) {
             dataResponse = it
         }
 
@@ -338,7 +338,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     //endregion

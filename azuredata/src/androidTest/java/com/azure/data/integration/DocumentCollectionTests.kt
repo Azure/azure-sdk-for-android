@@ -26,16 +26,16 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Co
     @Test
     fun createCollectionFromDatabase() {
 
-        database?.createCollection(resourceId) {
-            resourceResponse = it
+        database?.createCollection(createdResourceId) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
     }
 
     @Test
@@ -51,7 +51,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Co
             resourceListResponse != null
         }
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
     }
 
@@ -68,7 +68,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Co
             resourceListResponse != null
         }
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
     }
 
@@ -77,16 +77,16 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Co
 
         ensureCollection()
 
-        AzureData.getCollection(resourceId, databaseId) {
-            resourceResponse = it
+        AzureData.getCollection(createdResourceId, databaseId) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
     }
 
     @Test
@@ -94,16 +94,16 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Co
 
         ensureCollection()
 
-        database?.getCollection(resourceId) {
-            resourceResponse = it
+        database?.getCollection(createdResourceId) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
     }
 
     @Test
@@ -112,19 +112,19 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Co
         val coll = ensureCollection()
 
         coll.refresh {
-            resourceResponse = it
+            response = it
         }
 
 //        AzureData.refresh(coll) {
-//            resourceResponse = it
+//            response = it
 //        }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(collectionId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(collectionId, response?.resource?.id)
     }
 
     //region Deletes
@@ -142,7 +142,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Co
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -158,7 +158,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Co
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -174,7 +174,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Co
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -190,7 +190,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Co
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     //endregion
@@ -224,18 +224,18 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Co
             }
         }
 
-        AzureData.replaceCollection(resourceId, databaseId, policy) {
-            resourceResponse = it
+        AzureData.replaceCollection(createdResourceId, databaseId, policy) {
+            response = it
         }
 
         await().forever().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
 
-        val newPolicy = resourceResponse?.resource?.indexingPolicy!!
+        val newPolicy = response?.resource?.indexingPolicy!!
 
         assertEquals(policy.automatic, newPolicy.automatic)
         assertEquals(policy.indexingMode, newPolicy.indexingMode)

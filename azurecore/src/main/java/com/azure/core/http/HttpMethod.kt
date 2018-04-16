@@ -6,9 +6,14 @@ package com.azure.core.http
  */
 
 enum class HttpMethod {
+
     Get,
     Head,
     Post,
     Put,
-    Delete
+    Delete;
+
+    fun isRead() : Boolean = this == Get || this == Head
+
+    fun isWrite() : Boolean = !isRead()
 }
