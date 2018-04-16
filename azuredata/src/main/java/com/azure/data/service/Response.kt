@@ -10,7 +10,7 @@ import okhttp3.Request
  * Licensed under the MIT License.
  */
 
-typealias DataResponse = Response<Unit>
+typealias DataResponse = Response<String>
 typealias ListResponse<T> = Response<ResourceList<T>>
 
 open class Response<T>(

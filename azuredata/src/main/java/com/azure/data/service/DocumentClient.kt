@@ -807,7 +807,7 @@ class DocumentClient {
         try {
             val json = if (body != null) gson.toJson(body) else gson.toJson(arrayOf<String>())
 
-            createRequest(HttpMethod.Post, resourceLocation, forQuery = true, jsonBody = json) {
+            createRequest(HttpMethod.Post, resourceLocation, jsonBody = json) {
 
                 sendRequest(it, callback)
             }
@@ -1129,7 +1129,7 @@ class DocumentClient {
         try {
             val body = response.body()
                     ?: return Response(DataError("Empty response body received"), request, response)
-            val json = body.string().also{d{it}}
+            val responseBodyString = body.string().also{d{it}}
 
             //check http return code
             return if (response.isSuccessful) {
@@ -1140,9 +1140,9 @@ class DocumentClient {
 //                    val i = 999
 //                }
 
-                DataResponse(request, response, json, Result.empty)
+                DataResponse(request, response, responseBodyString, Result(responseBodyString))
             } else {
-                Response(json.toError(), request, response, json)
+                Response(responseBodyString.toError(), request, response, responseBodyString)
             }
         } catch (e: Exception) {
             return Response(DataError(e), request, response)

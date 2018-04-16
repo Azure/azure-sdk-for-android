@@ -169,11 +169,11 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
     }
 
     @Test
-    fun deleteStoredProcedureFromCollectionByRId() {
+    fun deleteStoredProcedureFromCollectionById() {
 
         val sproc = createNewStoredProc()
 
-        collection?.deleteStoredProcedure(sproc.resourceId!!) {
+        collection?.deleteStoredProcedure(sproc.id) {
             dataResponse = it
         }
 
@@ -207,64 +207,64 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
         assertEquals(storedProcNewBody, response?.resource?.body)
     }
 
-//    @Test
-//    fun replaceStoredProcedure() {
-//
-//        val sProc = createNewStoredProc()
-//
-//        AzureData.replaceStoredProcedure(createdResourceId, sProc.createdResourceId!!, storedProcNewBody, collection!!) {
-//            response = it
-//        }
-//
-//        await().until {
-//            response != null
-//        }
-//
-//        assertResourceResponseSuccess(response)
-//        assertEquals(createdResourceId, response?.resource?.id)
-//
-//        assertEquals(storedProcNewBody, response?.resource?.body)
-//    }
+    @Test
+    fun replaceStoredProcedure() {
 
-//    @Test
-//    fun replaceStoredProcedureInCollection() {
-//
-//        var sProc = createNewStoredProc()
-//
-//        collection?.replaceStoredProcedure(createdResourceId, sProc.createdResourceId!!, storedProcNewBody) {
-//            response = it
-//        }
-//
-//        await().until {
-//            response != null
-//        }
-//
-//        sProc = response?.resource!!
-//
-//        assertResourceResponseSuccess(response)
-//        assertEquals(createdResourceId, sProc.id)
-//
-//        assertEquals(storedProcNewBody, sProc.body)
-//
-//        resetResponse()
-//
-//        sProc.body = storedProcedureBody
-//
-//        collection?.replaceStoredProcedure(sProc) {
-//            response = it
-//        }
-//
-//        await().until {
-//            response != null
-//        }
-//
-//        sProc = response?.resource!!
-//
-//        assertResourceResponseSuccess(response)
-//        assertEquals(createdResourceId, sProc.id)
-//
-//        assertEquals(storedProcedureBody, sProc.body)
-//    }
+        val sProc = createNewStoredProc()
+
+        AzureData.replaceStoredProcedure(sProc.id, storedProcNewBody, collection!!) {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
+
+        assertEquals(storedProcNewBody, response?.resource?.body)
+    }
+
+    @Test
+    fun replaceStoredProcedureInCollection() {
+
+        var sProc = createNewStoredProc()
+
+        collection?.replaceStoredProcedure(sProc.id, storedProcNewBody) {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        sProc = response?.resource!!
+
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, sProc.id)
+
+        assertEquals(storedProcNewBody, sProc.body)
+
+        resetResponse()
+
+        sProc.body = storedProcedureBody
+
+        collection?.replaceStoredProcedure(sProc) {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        sProc = response?.resource!!
+
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, sProc.id)
+
+        assertEquals(storedProcedureBody, sProc.body)
+    }
 
     //endregion
 
@@ -293,11 +293,11 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
 
         val sProc = createNewStoredProc()
 
-        AzureData.executeStoredProcedure(sProc.resourceId!!, null, collection!!) {
+        AzureData.executeStoredProcedure(sProc.id, null, collection!!) {
             dataResponse = it
         }
 
-        await().until {
+        await().forever().until {
             dataResponse != null
         }
 
@@ -311,7 +311,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
 
         val sProc = createNewStoredProc()
 
-        collection?.executeStoredProcedure(sProc.resourceId!!, null) {
+        collection?.executeStoredProcedure(sProc.id, null) {
             dataResponse = it
         }
 
