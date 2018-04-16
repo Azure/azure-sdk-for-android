@@ -6,6 +6,7 @@ import com.azure.data.*
 import com.azure.data.model.Database
 import com.azure.data.model.ResourceType
 import com.azure.data.model.User
+import com.azure.data.service.DataResponse
 import com.azure.data.service.Response
 import junit.framework.Assert.assertEquals
 import org.awaitility.Awaitility.await

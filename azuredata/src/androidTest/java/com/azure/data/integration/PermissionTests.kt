@@ -4,6 +4,7 @@ import android.support.test.runner.AndroidJUnit4
 import com.azure.core.log.d
 import com.azure.data.*
 import com.azure.data.model.*
+import com.azure.data.service.DataResponse
 import com.azure.data.service.Response
 import junit.framework.Assert.assertEquals
 import org.awaitility.Awaitility.await
