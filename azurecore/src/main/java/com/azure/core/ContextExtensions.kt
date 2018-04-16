@@ -7,6 +7,7 @@ import java.util.*
 import android.content.Context.UI_MODE_SERVICE
 import android.app.UiModeManager
 import android.content.res.Configuration
+import com.azure.core.http.HttpHeader
 
 
 /**
