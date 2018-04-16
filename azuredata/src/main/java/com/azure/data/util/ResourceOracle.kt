@@ -12,10 +12,10 @@ import com.azure.data.model.ResourceList
  * Licensed under the MIT License.
  */
 @SuppressLint("CommitPrefEdits")
-internal class ResourceOracle private constructor (appContext: Context) {
+internal class ResourceOracle private constructor (appContext: Context, host: String) {
 
-    private val altLinkLookupStorageKey = "com.azure.data.lookup.altlink"
-    private val selfLinkLookupStorageKey = "com.azure.data.lookup.selflink"
+    private val altLinkLookupStorageKey = "com.azure.data.lookup.altlink.$host"
+    private val selfLinkLookupStorageKey = "com.azure.data.lookup.selflink.$host"
 
     private lateinit var altLinkPrefsEditor: SharedPreferences.Editor
     private lateinit var selfLinkPrefsEditor: SharedPreferences.Editor
@@ -258,6 +258,11 @@ internal class ResourceOracle private constructor (appContext: Context) {
 
     companion object {
 
-        val shared: ResourceOracle = ResourceOracle(ContextProvider.appContext)
+        lateinit var shared: ResourceOracle
+
+        fun init(appContext: Context, host: String) {
+
+            shared = ResourceOracle(appContext, host)
+        }
     }
 }

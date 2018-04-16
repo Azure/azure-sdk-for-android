@@ -1,19 +1,35 @@
 package com.azure.data.util
 
-import com.google.gson.reflect.TypeToken
 import com.azure.data.model.Resource
-import com.azure.data.util.json.gson
+import com.azure.data.model.ResourceType
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
 
-class ResourceExtensions {
+fun Resource.ancestorIds(includingSelf: Boolean = false) : Map<ResourceType, String> {
 
-    fun Resource.toJson() : String =
-            gson.toJson(this)
+    val ancestors: MutableMap<ResourceType, String> = mutableMapOf()
 
-    fun<T: Resource> Resource.fromJson(json: String) : T =
-            gson.fromJson(json, object : TypeToken<T>() {}.type)
+    this.altLink?.split('/')?.let {
+
+        for (ancestor in ResourceType.ancestors) {
+
+            val ancestorPath = ancestor.path
+
+            val index = it.indexOf(ancestorPath)
+
+            if (index > -1 && index < it.size) {
+
+                ancestors[ancestor] = it[index + 1]
+            }
+        }
+    }
+
+    if (includingSelf) {
+        ancestors[ResourceType.fromType(this::class.java)] = this.id
+    }
+
+    return ancestors
 }

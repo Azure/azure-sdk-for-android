@@ -54,17 +54,4 @@ class Permission() : Resource() {
         const val tokenKey          = "_token"
         const val resourceLinkKey   = "resource"
     }
-
-    /**
-     * These are the access permissions for creating or replacing a Permission resource in the Azure Cosmos DB service.
-     *
-     * - read: All permission mode will provide the user with full access(read, insert, replace and delete)
-     *         to a resource.
-     * - all:  Read permission mode will provide the user with Read only access to a resource.
-     */
-    enum class PermissionMode {
-
-        Read,
-        All
-    }
 }
