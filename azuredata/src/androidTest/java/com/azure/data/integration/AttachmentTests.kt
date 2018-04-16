@@ -238,22 +238,22 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
         assertEquals(createdResourceId, response?.resource?.id)
     }
 
-//    @Test
-//    fun replaceAttachmentForDocument() {
-//
-//        val attachment = createNewAttachment(url, document)
-//
-//        document?.replaceAttachment(createdResourceId, attachment.createdResourceId!!, "image/jpeg", url) {
-//            response = it
-//        }
-//
-//        await().until {
-//            response != null
-//        }
-//
-//        assertResourceResponseSuccess(response)
-//        assertEquals(createdResourceId, response?.resource?.id)
-//    }
+    @Test
+    fun replaceAttachmentForDocument() {
+
+        val attachment = createNewAttachment(url, document)
+
+        document?.replaceAttachment(attachment.id, "image/jpeg", url) {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
+    }
 
     @Test
     fun replaceBlobAttachment() {
@@ -326,11 +326,11 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
     }
 
     @Test
-    fun deleteAttachmentFromDocumentByRId() {
+    fun deleteAttachmentFromDocumentById() {
 
         val attachment = createNewAttachment(url, document)
 
-        document?.deleteAttachment(attachment.resourceId!!) {
+        document?.deleteAttachment(attachment.id) {
             dataResponse = it
         }
 
