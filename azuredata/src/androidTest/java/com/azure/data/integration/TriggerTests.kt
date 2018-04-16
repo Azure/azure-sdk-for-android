@@ -168,11 +168,11 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
     }
 
     @Test
-    fun deleteTriggerFromCollectionByRId() {
+    fun deleteTriggerFromCollectionById() {
 
         val trigger = createNewTrigger()
 
-        collection?.deleteTrigger(trigger.resourceId!!) {
+        collection?.deleteTrigger(trigger.id) {
             dataResponse = it
         }
 
@@ -222,64 +222,64 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
         assertEquals(triggerBodyNew, response?.resource?.body)
     }
 
-//    @Test
-//    fun replaceTrigger() {
-//
-//        val trigger = createNewTrigger()
-//
-//        AzureData.replaceTrigger(trigger.id, trigger.createdResourceId!!, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew, collection!!) {
-//            response = it
-//        }
-//
-//        await().until {
-//            response != null
-//        }
-//
-//        assertResourceResponseSuccess(response)
-//        assertEquals(createdResourceId, response?.resource?.id)
-//
-//        assertEquals(triggerBodyNew, response?.resource?.body)
-//    }
+    @Test
+    fun replaceTrigger() {
 
-//    @Test
-//    fun replaceTriggerInCollection() {
-//
-//        var trigger = createNewTrigger()
-//
-//        collection?.replaceTrigger(createdResourceId, trigger.createdResourceId!!, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew) {
-//            response = it
-//        }
-//
-//        await().until {
-//            response != null
-//        }
-//
-//        trigger = response?.resource!!
-//
-//        assertResourceResponseSuccess(response)
-//        assertEquals(createdResourceId, trigger.id)
-//
-//        assertEquals(triggerBodyNew, trigger.body)
-//
-//        resetResponse()
-//
-//        trigger.body = triggerBody
-//
-//        collection?.replaceTrigger(trigger) {
-//            response = it
-//        }
-//
-//        await().until {
-//            response != null
-//        }
-//
-//        trigger = response?.resource!!
-//
-//        assertResourceResponseSuccess(response)
-//        assertEquals(createdResourceId, trigger.id)
-//
-//        assertEquals(triggerBody, trigger.body)
-//    }
+        val trigger = createNewTrigger()
+
+        AzureData.replaceTrigger(trigger.id, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew, collection!!) {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
+
+        assertEquals(triggerBodyNew, response?.resource?.body)
+    }
+
+    @Test
+    fun replaceTriggerInCollection() {
+
+        var trigger = createNewTrigger()
+
+        collection?.replaceTrigger(trigger.id, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew) {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        trigger = response?.resource!!
+
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, trigger.id)
+
+        assertEquals(triggerBodyNew, trigger.body)
+
+        resetResponse()
+
+        trigger.body = triggerBody
+
+        collection?.replaceTrigger(trigger) {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        trigger = response?.resource!!
+
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, trigger.id)
+
+        assertEquals(triggerBody, trigger.body)
+    }
 
     //endregion
 }
