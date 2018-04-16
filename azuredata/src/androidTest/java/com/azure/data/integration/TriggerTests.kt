@@ -30,23 +30,23 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
     private fun createNewTrigger(coll: DocumentCollection? = null) : Trigger {
 
         if (coll != null) {
-            coll.createTrigger(resourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBody) {
-                resourceResponse = it
+            coll.createTrigger(createdResourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBody) {
+                response = it
             }
         } else {
-            AzureData.createTrigger(resourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBody, collectionId, databaseId) {
-                resourceResponse = it
+            AzureData.createTrigger(createdResourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBody, collectionId, databaseId) {
+                response = it
             }
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
 
-        val resource = resourceResponse!!.resource!!
+        val resource = response!!.resource!!
 
         assertEquals(triggerBody, resource.body)
 
@@ -80,7 +80,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             resourceListResponse != null
         }
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
     }
 
@@ -97,7 +97,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             resourceListResponse != null
         }
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
     }
 
@@ -108,7 +108,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
 
         createNewTrigger()
 
-        AzureData.deleteTrigger(resourceId, collectionId, databaseId) {
+        AzureData.deleteTrigger(createdResourceId, collectionId, databaseId) {
             dataResponse = it
         }
 
@@ -116,7 +116,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -132,7 +132,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -148,7 +148,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -164,7 +164,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -180,7 +180,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -196,7 +196,7 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     //endregion
@@ -208,78 +208,78 @@ class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
 
         createNewTrigger()
 
-        AzureData.replaceTrigger(resourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew, collectionId, databaseId) {
-            resourceResponse = it
+        AzureData.replaceTrigger(createdResourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew, collectionId, databaseId) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
 
-        assertEquals(triggerBodyNew, resourceResponse?.resource?.body)
+        assertEquals(triggerBodyNew, response?.resource?.body)
     }
 
-    @Test
-    fun replaceTrigger() {
+//    @Test
+//    fun replaceTrigger() {
+//
+//        val trigger = createNewTrigger()
+//
+//        AzureData.replaceTrigger(trigger.id, trigger.createdResourceId!!, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew, collection!!) {
+//            response = it
+//        }
+//
+//        await().until {
+//            response != null
+//        }
+//
+//        assertResourceResponseSuccess(response)
+//        assertEquals(createdResourceId, response?.resource?.id)
+//
+//        assertEquals(triggerBodyNew, response?.resource?.body)
+//    }
 
-        val trigger = createNewTrigger()
-
-        AzureData.replaceTrigger(trigger.id, trigger.resourceId!!, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew, collection!!) {
-            resourceResponse = it
-        }
-
-        await().until {
-            resourceResponse != null
-        }
-
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
-
-        assertEquals(triggerBodyNew, resourceResponse?.resource?.body)
-    }
-
-    @Test
-    fun replaceTriggerInCollection() {
-
-        var trigger = createNewTrigger()
-
-        collection?.replaceTrigger(resourceId, trigger.resourceId!!, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew) {
-            resourceResponse = it
-        }
-
-        await().until {
-            resourceResponse != null
-        }
-
-        trigger = resourceResponse?.resource!!
-
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, trigger.id)
-
-        assertEquals(triggerBodyNew, trigger.body)
-
-        resetResponse()
-
-        trigger.body = triggerBody
-
-        collection?.replaceTrigger(trigger) {
-            resourceResponse = it
-        }
-
-        await().until {
-            resourceResponse != null
-        }
-
-        trigger = resourceResponse?.resource!!
-
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, trigger.id)
-
-        assertEquals(triggerBody, trigger.body)
-    }
+//    @Test
+//    fun replaceTriggerInCollection() {
+//
+//        var trigger = createNewTrigger()
+//
+//        collection?.replaceTrigger(createdResourceId, trigger.createdResourceId!!, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew) {
+//            response = it
+//        }
+//
+//        await().until {
+//            response != null
+//        }
+//
+//        trigger = response?.resource!!
+//
+//        assertResourceResponseSuccess(response)
+//        assertEquals(createdResourceId, trigger.id)
+//
+//        assertEquals(triggerBodyNew, trigger.body)
+//
+//        resetResponse()
+//
+//        trigger.body = triggerBody
+//
+//        collection?.replaceTrigger(trigger) {
+//            response = it
+//        }
+//
+//        await().until {
+//            response != null
+//        }
+//
+//        trigger = response?.resource!!
+//
+//        assertResourceResponseSuccess(response)
+//        assertEquals(createdResourceId, trigger.id)
+//
+//        assertEquals(triggerBody, trigger.body)
+//    }
 
     //endregion
 }

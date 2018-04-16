@@ -28,7 +28,7 @@ class OfferTests : ResourceTest<Offer>(ResourceType.Offer, false, false) {
             resourceListResponse != null
         }
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assert(resourceListResponse?.resource?.count!! > 0) //can we assume there will always be > 0 offers?
     }
 
@@ -41,15 +41,15 @@ class OfferTests : ResourceTest<Offer>(ResourceType.Offer, false, false) {
             offer = it.resource?.items?.first()
 
             AzureData.getOffer(offer!!.id) {
-                resourceResponse = it
+                response = it
             }
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(offer?.id, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(offer?.id, response?.resource?.id)
     }
 }

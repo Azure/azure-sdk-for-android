@@ -5,10 +5,9 @@ import android.util.Log
 import com.azure.core.log.d
 import com.azure.core.log.startLogging
 import com.azure.data.AzureData
-import com.azure.data.constants.TokenType
 import com.azure.data.model.*
-import com.azure.data.service.ResourceListResponse
-import com.azure.data.service.ResourceResponse
+import com.azure.data.service.DataResponse
+import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
 import org.awaitility.Awaitility.await
 import org.junit.After
@@ -28,11 +27,11 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
     val databaseId = "AndroidTest${ResourceType.Database.name}"
     val collectionId = "AndroidTest${ResourceType.Collection.name}"
     val documentId = "AndroidTest${ResourceType.Document.name}"
-    val resourceId = "AndroidTest${resourceType.name}"
+    val createdResourceId = "AndroidTest${resourceType.name}"
 
-    var resourceResponse: ResourceResponse<TResource>? = null
-    var resourceListResponse: ResourceListResponse<TResource>? = null
-    var dataResponse: Response? = null
+    var response: Response<TResource>? = null
+    var resourceListResponse: ListResponse<TResource>? = null
+    var dataResponse: DataResponse? = null
 
     var database: Database? = null
     var collection: DocumentCollection? = null
@@ -48,6 +47,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         if (!AzureData.isConfigured) {
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
+
 
         }
 
@@ -80,7 +80,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
 
     fun ensureDatabase() : Database {
 
-        var dbResponse: ResourceResponse<Database>? = null
+        var dbResponse: Response<Database>? = null
 
         AzureData.createDatabase(databaseId) {
             dbResponse = it
@@ -90,7 +90,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             dbResponse != null
         }
 
-        assertResponseSuccess(dbResponse)
+        assertResourceResponseSuccess(dbResponse)
         assertEquals(databaseId, dbResponse?.resource?.id)
 
         database = dbResponse!!.resource!!
@@ -100,7 +100,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
 
     fun ensureCollection() : DocumentCollection {
 
-        var collectionResponse: ResourceResponse<DocumentCollection>? = null
+        var collectionResponse: Response<DocumentCollection>? = null
 
         AzureData.createCollection(collectionId, databaseId) {
             collectionResponse = it
@@ -110,7 +110,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             collectionResponse != null
         }
 
-        assertResponseSuccess(collectionResponse)
+        assertResourceResponseSuccess(collectionResponse)
         assertEquals(collectionId, collectionResponse?.resource?.id)
 
         collection = collectionResponse!!.resource!!
@@ -120,7 +120,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
 
     private fun ensureDocument() : Document {
 
-        var docResponse: ResourceResponse<CustomDocument>? = null
+        var docResponse: Response<CustomDocument>? = null
         val doc = CustomDocument(documentId)
 
         AzureData.createDocument(doc, collection!!) {
@@ -138,7 +138,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
 
     private fun deleteResources() {
 
-        var deleteResponse: Response? = null
+        var deleteResponse: DataResponse? = null
 
         //delete the DB - this should delete all attached resources
 
@@ -152,7 +152,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         }
     }
 
-    private fun assertResponsePopulated(response: ResourceResponse<*>?) {
+    private fun assertResponsePopulated(response: Response<*>?) {
 
         assertNotNull(response)
         assertNotNull(response!!.request)
@@ -160,17 +160,42 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         assertNotNull(response.jsonData)
     }
 
-    fun <TResourceResponseType : Resource> assertResponseSuccess(response: ResourceResponse<TResourceResponseType>?) {
+    fun <TResource : Resource> assertListResponseSuccess(response: ListResponse<TResource>?) {
 
-        assertResponsePopulated(response)
-        assertNotNull(response!!.resource)
+        assertNotNull(response)
+        assertResponsePopulated(response!!)
+        assertTrue(response.isSuccessful)
+        assertFalse(response.isErrored)
+        assertNotNull(response.resource)
+
+        val list = response.resource as ResourceList<*>
+
+        assertTrue(list.isPopuated)
+
+        list.items.forEach { item ->
+            assertResourcePropertiesSet(item)
+        }
+    }
+
+    fun assertDataResponseSuccess(response: DataResponse?) {
+
+        assertNotNull(response)
+        assertResponsePopulated(response!!)
+        assertTrue(response.isSuccessful)
+        assertFalse(response.isErrored)
+    }
+
+    fun assertResourceResponseSuccess(response: Response<*>?) {
+
+        assertNotNull(response)
+        assertResponsePopulated(response!!)
         assertTrue(response.isSuccessful)
         assertFalse(response.isErrored)
 
-        assertResourcePropertiesSet(response.resource!!)
+        assertResourcePropertiesSet(response.resource as Resource)
     }
 
-    fun assertResponseFailure(response: ResourceResponse<*>?) {
+    fun assertResponseFailure(response: Response<*>?) {
 
         assertResponsePopulated(response)
         assertNotNull(response!!.error)
@@ -178,27 +203,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         assertTrue(response.isErrored)
     }
 
-    fun <TResourceResponseType : Resource> assertResponseSuccess(response: ResourceListResponse<TResourceResponseType>?) {
-
-        assertResponsePopulated(response)
-        assertTrue(response!!.isSuccessful)
-        assertFalse(response.isErrored)
-        assertNotNull(response.resource)
-        assertTrue(response.resource?.isPopuated!!)
-
-        response.resource?.items?.forEach { item ->
-            assertResourcePropertiesSet(item)
-        }
-    }
-
-    fun assertResponseSuccess(response: Response?) {
-
-        assertNotNull(response)
-        assertTrue(response!!.isSuccessful)
-        assertFalse(response.isErrored)
-    }
-
-    fun assertErrorResponse(response: ResourceResponse<*>?) {
+    fun assertErrorResponse(response: Response<*>?) {
 
         assertNotNull(response)
         assertNotNull(response!!.error)
@@ -218,6 +223,6 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
 
     fun resetResponse() {
 
-        resourceResponse = null
+        response = null
     }
 }

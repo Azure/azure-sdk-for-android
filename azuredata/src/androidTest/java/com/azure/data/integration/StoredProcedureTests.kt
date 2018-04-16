@@ -33,23 +33,23 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
     private fun createNewStoredProc(coll: DocumentCollection? = null) : StoredProcedure {
 
         if (coll != null) {
-            coll.createStoredProcedure(resourceId, storedProcedureBody) {
-                resourceResponse = it
+            coll.createStoredProcedure(createdResourceId, storedProcedureBody) {
+                response = it
             }
         } else {
-            AzureData.createStoredProcedure(resourceId, storedProcedureBody, collectionId, databaseId) {
-                resourceResponse = it
+            AzureData.createStoredProcedure(createdResourceId, storedProcedureBody, collectionId, databaseId) {
+                response = it
             }
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
 
-        val resource = resourceResponse!!.resource!!
+        val resource = response!!.resource!!
 
         resetResponse()
 
@@ -81,7 +81,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
             resourceListResponse != null
         }
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
     }
 
@@ -98,7 +98,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
             resourceListResponse != null
         }
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
     }
 
@@ -109,7 +109,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
 
         createNewStoredProc()
 
-        AzureData.deleteStoredProcedure(resourceId, collectionId, databaseId) {
+        AzureData.deleteStoredProcedure(createdResourceId, collectionId, databaseId) {
             dataResponse = it
         }
 
@@ -117,7 +117,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -133,7 +133,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -149,7 +149,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -165,7 +165,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -181,7 +181,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     //endregion
@@ -193,78 +193,78 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
 
         createNewStoredProc()
 
-        AzureData.replaceStoredProcedure(resourceId, storedProcNewBody, collectionId, databaseId) {
-            resourceResponse = it
+        AzureData.replaceStoredProcedure(createdResourceId, storedProcNewBody, collectionId, databaseId) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
 
-        assertEquals(storedProcNewBody, resourceResponse?.resource?.body)
+        assertEquals(storedProcNewBody, response?.resource?.body)
     }
 
-    @Test
-    fun replaceStoredProcedure() {
+//    @Test
+//    fun replaceStoredProcedure() {
+//
+//        val sProc = createNewStoredProc()
+//
+//        AzureData.replaceStoredProcedure(createdResourceId, sProc.createdResourceId!!, storedProcNewBody, collection!!) {
+//            response = it
+//        }
+//
+//        await().until {
+//            response != null
+//        }
+//
+//        assertResourceResponseSuccess(response)
+//        assertEquals(createdResourceId, response?.resource?.id)
+//
+//        assertEquals(storedProcNewBody, response?.resource?.body)
+//    }
 
-        val sProc = createNewStoredProc()
-
-        AzureData.replaceStoredProcedure(resourceId, sProc.resourceId!!, storedProcNewBody, collection!!) {
-            resourceResponse = it
-        }
-
-        await().until {
-            resourceResponse != null
-        }
-
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, resourceResponse?.resource?.id)
-
-        assertEquals(storedProcNewBody, resourceResponse?.resource?.body)
-    }
-
-    @Test
-    fun replaceStoredProcedureInCollection() {
-
-        var sProc = createNewStoredProc()
-
-        collection?.replaceStoredProcedure(resourceId, sProc.resourceId!!, storedProcNewBody) {
-            resourceResponse = it
-        }
-
-        await().until {
-            resourceResponse != null
-        }
-
-        sProc = resourceResponse?.resource!!
-
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, sProc.id)
-
-        assertEquals(storedProcNewBody, sProc.body)
-
-        resetResponse()
-
-        sProc.body = storedProcedureBody
-
-        collection?.replaceStoredProcedure(sProc) {
-            resourceResponse = it
-        }
-
-        await().until {
-            resourceResponse != null
-        }
-
-        sProc = resourceResponse?.resource!!
-
-        assertResponseSuccess(resourceResponse)
-        assertEquals(resourceId, sProc.id)
-
-        assertEquals(storedProcedureBody, sProc.body)
-    }
+//    @Test
+//    fun replaceStoredProcedureInCollection() {
+//
+//        var sProc = createNewStoredProc()
+//
+//        collection?.replaceStoredProcedure(createdResourceId, sProc.createdResourceId!!, storedProcNewBody) {
+//            response = it
+//        }
+//
+//        await().until {
+//            response != null
+//        }
+//
+//        sProc = response?.resource!!
+//
+//        assertResourceResponseSuccess(response)
+//        assertEquals(createdResourceId, sProc.id)
+//
+//        assertEquals(storedProcNewBody, sProc.body)
+//
+//        resetResponse()
+//
+//        sProc.body = storedProcedureBody
+//
+//        collection?.replaceStoredProcedure(sProc) {
+//            response = it
+//        }
+//
+//        await().until {
+//            response != null
+//        }
+//
+//        sProc = response?.resource!!
+//
+//        assertResourceResponseSuccess(response)
+//        assertEquals(createdResourceId, sProc.id)
+//
+//        assertEquals(storedProcedureBody, sProc.body)
+//    }
 
     //endregion
 
@@ -275,7 +275,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
 
         createNewStoredProc()
 
-        AzureData.executeStoredProcedure(resourceId, null, collectionId, databaseId) {
+        AzureData.executeStoredProcedure(createdResourceId, null, collectionId, databaseId) {
             dataResponse = it
         }
 
@@ -283,7 +283,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
 
         assertEquals(storedProcResult, dataResponse?.result?.resource.toString())
     }
@@ -301,7 +301,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
 
         assertEquals(storedProcResult, dataResponse?.result?.resource.toString())
     }
@@ -319,7 +319,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
 
         assertEquals(storedProcResult, dataResponse?.result?.resource.toString())
     }

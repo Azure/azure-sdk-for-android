@@ -2,7 +2,7 @@ package com.azure.data.integration
 
 import com.azure.data.*
 import com.azure.data.model.*
-import com.azure.data.service.ResourceResponse
+import com.azure.data.service.Response
 import com.azure.data.util.json.gson
 import junit.framework.Assert.*
 import org.awaitility.Awaitility.await
@@ -105,7 +105,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
             val doc = newDocument()
             doc.id = id
 
-            var docResponse : ResourceResponse<TDoc>? = null
+            var docResponse : Response<TDoc>? = null
 
             AzureData.createDocument(doc, collectionId, databaseId) {
                 docResponse = it
@@ -220,15 +220,15 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
 
         createNewDocument()
 
-        AzureData.getDocument(resourceId, collectionId, databaseId, docType) {
-            resourceResponse = it
+        AzureData.getDocument(createdResourceId, collectionId, databaseId, docType) {
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        val createdDoc = resourceResponse!!.resource!!
+        val createdDoc = response!!.resource!!
         verifyDocument(createdDoc)
     }
 
@@ -237,15 +237,15 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
 
         val doc = createNewDocument()
 
-        collection?.getDocument(doc.resourceId!!, docType) {
-            resourceResponse = it
+        collection?.getDocument(doc.id, docType) {
+            response = it
         }
 
-        await().until {
-            resourceResponse != null
+        await().forever().until {
+            response != null
         }
 
-        val createdDoc = resourceResponse!!.resource!!
+        val createdDoc = response!!.resource!!
         verifyDocument(createdDoc)
     }
 
@@ -255,14 +255,14 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         val doc = createNewDocument()
 
         doc.refresh {
-            resourceResponse = it
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        val createdDoc = resourceResponse!!.resource!!
+        val createdDoc = response!!.resource!!
         verifyDocument(createdDoc)
     }
 
@@ -281,7 +281,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -297,7 +297,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -305,7 +305,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
 
         createNewDocument()
 
-        AzureData.deleteDocument(resourceId, collectionId, databaseId) {
+        AzureData.deleteDocument(createdResourceId, collectionId, databaseId) {
             dataResponse = it
         }
 
@@ -313,7 +313,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -329,7 +329,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
@@ -345,15 +345,15 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     @Test
-    fun deleteDocumentFromCollectionByResourceId() {
+    fun deleteDocumentFromCollectionById() {
 
         val doc = createNewDocument()
 
-        collection?.deleteDocument(doc.resourceId!!) {
+        collection?.deleteDocument(doc.id) {
             dataResponse = it
         }
 
@@ -361,7 +361,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
             dataResponse != null
         }
 
-        assertResponseSuccess(dataResponse)
+        assertDataResponseSuccess(dataResponse)
     }
 
     //endregion
@@ -374,14 +374,14 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         doc.setValue(customStringKey, replacedStringValue)
 
         AzureData.replaceDocument(doc, collectionId, databaseId) {
-            resourceResponse = it
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        val replacedDoc = resourceResponse!!.resource!!
+        val replacedDoc = response!!.resource!!
         verifyDocument(replacedDoc, replacedStringValue)
     }
 
@@ -393,14 +393,14 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         doc.setValue(customStringKey, replacedStringValue)
 
         collection?.replaceDocument(doc) {
-            resourceResponse = it
+            response = it
         }
 
         await().until {
-            resourceResponse != null
+            response != null
         }
 
-        val replacedDoc = resourceResponse!!.resource!!
+        val replacedDoc = response!!.resource!!
         verifyDocument(replacedDoc, replacedStringValue)
     }
 
@@ -409,7 +409,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
     private fun newDocument() : TDoc {
 
         val doc = docType.newInstance()
-        doc.id = resourceId
+        doc.id = createdResourceId
         doc.setValue(customStringKey, customStringValue)
         doc.setValue(customNumberKey, customNumberValue)
 
@@ -418,7 +418,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
 
     private fun createNewDocument(coll: DocumentCollection? = null) : TDoc {
 
-        var docResponse: ResourceResponse<TDoc>? = null
+        var docResponse: Response<TDoc>? = null
         val doc = newDocument()
 
         if (coll != null) {
@@ -435,8 +435,8 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
             docResponse != null
         }
 
-        assertResponseSuccess(docResponse)
-        assertEquals(resourceId, docResponse?.resource?.id)
+        assertResourceResponseSuccess(docResponse)
+        assertEquals(createdResourceId, docResponse?.resource?.id)
 
         val createdDoc = docResponse!!.resource!!
 
@@ -455,7 +455,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
 
     private fun verifyListDocuments() {
 
-        assertResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
 
         resourceListResponse?.resource?.items?.forEach {
