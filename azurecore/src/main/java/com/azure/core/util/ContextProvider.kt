@@ -16,13 +16,22 @@ class ContextProvider {
 
         lateinit var appContext: Context
 
+        private var onChangedCallback : (()->Unit)? = null
+
         @JvmStatic
         var isOffline = false
-            get() {
-                Connectivity.addOnChangedCallback {
-                    field = false
+            @Synchronized
+            set(value){
+                if (value==true && onChangedCallback==null){
+                    // I've gone offline. Connectivity will tell me when my status changes.
+                    onChangedCallback = {field = false}
+                    Connectivity.addOnChangedCallback { onChangedCallback }
+                } else if (value==false && onChangedCallback!=null){
+                    // I'm now back online. No need for Connectivity to keep telling me.
+                    Connectivity.removeOnChangedCallback { onChangedCallback }
+                    onChangedCallback = null
                 }
-                return field
+                field = value
             }
 
         fun init(context: Context) {
