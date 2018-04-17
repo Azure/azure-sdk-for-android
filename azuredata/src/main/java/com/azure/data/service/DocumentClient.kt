@@ -5,7 +5,7 @@ import com.azure.core.http.HttpMethod
 import com.azure.core.http.HttpStatusCode
 import com.azure.core.log.d
 import com.azure.core.log.e
-import com.azure.core.util.isNetworkAvailable
+import com.azure.core.network.isNetworkAvailable
 import com.azure.data.constants.TokenType
 import com.azure.data.constants.HttpHeaderValue
 import com.azure.data.constants.MSHttpHeader
