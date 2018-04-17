@@ -6,7 +6,9 @@ import com.azure.core.http.HttpMethod
 import com.azure.core.http.HttpStatusCode
 import com.azure.core.log.d
 import com.azure.core.log.e
+import com.azure.core.log.i
 import com.azure.core.util.DateUtil
+import com.azure.data.AzureData
 import com.azure.data.constants.HttpHeaderValue
 import com.azure.data.constants.MSHttpHeader
 import com.azure.data.model.*
@@ -638,6 +640,12 @@ class DocumentClient {
     // list
     private fun <T : Resource> resources(resourceLocation: ResourceLocation, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
 
+        if (AzureData.isOffline) {
+            i{"offline, calling back with cached data"}
+            // todo: callback with cached data ...
+            // todo: ... then return
+        }
+
         createRequest(HttpMethod.Get, resourceLocation) {
 
             sendResourceListRequest(it, resourceLocation, callback, resourceClass)
@@ -1041,8 +1049,11 @@ class DocumentClient {
                     .enqueue(object : Callback {
 
                         // only transport errors handled here
-                        override fun onFailure(call: Call, e: IOException) =
-                                callback(ListResponse(DataError(e)))
+                        override fun onFailure(call: Call, e: IOException) {
+                            AzureData.isOffline = true
+                            // todo: callback with cached data instead of the callback with the error below
+                            callback(ListResponse(DataError(e)))
+                        }
 
                         @Throws(IOException::class)
                         override fun onResponse(call: Call, response: okhttp3.Response) =
