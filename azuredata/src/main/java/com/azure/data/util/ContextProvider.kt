@@ -1,6 +1,8 @@
 package com.azure.data.util
 
 import android.content.Context
+import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
+import io.reactivex.schedulers.Schedulers
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -12,6 +14,17 @@ class ContextProvider {
     companion object {
 
         lateinit var appContext: Context
+
+        @JvmStatic
+        var isOffline = false
+            get() {
+                ReactiveNetwork.observeNetworkConnectivity(appContext)
+                        .subscribeOn(Schedulers.io())
+                        .subscribe{
+                            field = false
+                        }
+                return field
+            }
 
         fun init(context: Context) {
             this.appContext = context

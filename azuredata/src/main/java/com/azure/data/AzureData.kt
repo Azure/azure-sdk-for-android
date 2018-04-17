@@ -5,8 +5,6 @@ import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.service.*
 import com.azure.data.util.ContextProvider
-import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
-import io.reactivex.schedulers.Schedulers
 import okhttp3.HttpUrl
 import java.net.URL
 
@@ -35,17 +33,6 @@ class AzureData {
         @JvmStatic
         val isConfigured: Boolean
             get() = configured && documentClient.isConfigured
-
-        @JvmStatic
-        var isOffline = false
-            get() {
-                ReactiveNetwork.observeNetworkConnectivity(ContextProvider.appContext)
-                        .subscribeOn(Schedulers.io())
-                        .subscribe{
-                            field = false
-                        }
-                return field
-            }
 
         //region Databases
 

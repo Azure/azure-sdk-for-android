@@ -640,7 +640,7 @@ class DocumentClient {
     // list
     private fun <T : Resource> resources(resourceLocation: ResourceLocation, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
 
-        if (AzureData.isOffline) {
+        if (ContextProvider.isOffline) {
             i{"offline, calling back with cached data"}
             // todo: callback with cached data ...
             // todo: ... then return
@@ -1050,7 +1050,7 @@ class DocumentClient {
 
                         // only transport errors handled here
                         override fun onFailure(call: Call, e: IOException) {
-                            AzureData.isOffline = true
+                            ContextProvider.isOffline = true
                             // todo: callback with cached data instead of the callback with the error below
                             callback(ListResponse(DataError(e)))
                         }
