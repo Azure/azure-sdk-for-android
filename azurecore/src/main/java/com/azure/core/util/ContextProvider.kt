@@ -26,7 +26,7 @@ class ContextProvider {
             }
 
         fun init(context: Context) {
-            appContext = context
+            appContext = context.applicationContext
         }
     }
 }
