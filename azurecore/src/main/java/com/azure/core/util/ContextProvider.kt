@@ -1,6 +1,7 @@
 package com.azure.core.util
 
 import android.content.Context
+import com.azure.core.network.Connectivity
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import io.reactivex.schedulers.Schedulers
 
@@ -18,11 +19,9 @@ class ContextProvider {
         @JvmStatic
         var isOffline = false
             get() {
-                ReactiveNetwork.observeNetworkConnectivity(appContext)
-                        .subscribeOn(Schedulers.io())
-                        .subscribe{
-                            field = false
-                        }
+                Connectivity.addOnChangedCallback {
+                    field = false
+                }
                 return field
             }
 
