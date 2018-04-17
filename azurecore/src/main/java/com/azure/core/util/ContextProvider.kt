@@ -1,4 +1,4 @@
-package com.azure.data.util
+package com.azure.core.util
 
 import android.content.Context
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
@@ -27,7 +27,7 @@ class ContextProvider {
             }
 
         fun init(context: Context) {
-            this.appContext = context
+            appContext = context
         }
     }
 }

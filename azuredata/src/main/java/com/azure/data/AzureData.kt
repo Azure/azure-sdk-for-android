@@ -4,7 +4,7 @@ import android.content.Context
 import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.service.*
-import com.azure.data.util.ContextProvider
+import com.azure.core.util.ContextProvider
 import okhttp3.HttpUrl
 import java.net.URL
 

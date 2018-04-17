@@ -4,7 +4,7 @@ import android.support.test.runner.AndroidJUnit4
 import com.azure.data.model.DocumentCollection
 import com.azure.data.model.Resource
 import com.azure.data.model.ResourceType
-import com.azure.data.util.ContextProvider
+import com.azure.core.util.ContextProvider
 import com.azure.data.util.ResourceOracle
 import junit.framework.Assert.assertEquals
 import org.junit.AfterClass
