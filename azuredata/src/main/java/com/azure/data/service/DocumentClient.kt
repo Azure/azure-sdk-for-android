@@ -1055,6 +1055,8 @@ class DocumentClient {
 
                         override fun onFailure(call: Call, ex: IOException) {
                             e(ex)
+                            ContextProvider.isOffline = true
+                            // todo: callback with cached data instead of the callback with the error below
                             return callback(Response(DataError(ex), request))
                         }
 
@@ -1081,6 +1083,8 @@ class DocumentClient {
 
                         override fun onFailure(call: Call, ex: IOException) {
                             e(ex)
+                            ContextProvider.isOffline = true
+                            // todo: callback with cached data instead of the callback with the error below
                             return callback(Response(DataError(ex), request))
                         }
 
