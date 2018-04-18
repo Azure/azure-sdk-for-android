@@ -658,6 +658,12 @@ class DocumentClient {
     // get
     private fun <T : Resource> resource(resourceLocation: ResourceLocation, callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null) {
 
+        if (ContextProvider.isOffline) {
+            i{"offline, calling back with cached data"}
+            // todo: callback with cached data ...
+            // todo: ... then return
+        }
+
         createRequest(HttpMethod.Get, resourceLocation) {
 
             sendResourceRequest(it, resourceLocation, callback, resourceClass)
@@ -666,6 +672,12 @@ class DocumentClient {
 
     // refresh
     fun <T : Resource> refresh(resource: T, callback: (Response<T>) -> Unit) {
+
+        if (ContextProvider.isOffline) {
+            i{"offline, calling back with cached data"}
+            // todo: callback with cached data ...
+            // todo: ... then return
+        }
 
         return try {
 
@@ -698,6 +710,12 @@ class DocumentClient {
     // delete
     private fun delete(resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
 
+        if (ContextProvider.isOffline) {
+            i{"offline, calling back with cached data"}
+            // todo: callback with cached data ...
+            // todo: ... then return
+        }
+
         createRequest(HttpMethod.Delete, resourceLocation) {
 
             sendRequest(it, callback)
@@ -705,6 +723,12 @@ class DocumentClient {
     }
 
     fun <TResource : Resource> delete(resource: TResource, callback: (DataResponse) -> Unit) {
+
+        if (ContextProvider.isOffline) {
+            i{"offline, calling back with cached data"}
+            // todo: callback with cached data ...
+            // todo: ... then return
+        }
 
         return try {
 
@@ -751,6 +775,12 @@ class DocumentClient {
     // create or replace
     private fun <T : Resource> createOrReplace(body: T, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit) {
 
+        if (ContextProvider.isOffline) {
+            i{"offline, calling back with cached data"}
+            // todo: callback with cached data ...
+            // todo: ... then return
+        }
+
         try {
             val jsonBody = gson.toJson(body)
 
@@ -768,6 +798,12 @@ class DocumentClient {
     // create or replace
     private fun <T : Resource> createOrReplace(body: Map<String, Any>, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null) {
 
+        if (ContextProvider.isOffline) {
+            i{"offline, calling back with cached data"}
+            // todo: callback with cached data ...
+            // todo: ... then return
+        }
+
         try {
             val jsonBody = gson.toJson(body)
 
@@ -783,6 +819,12 @@ class DocumentClient {
 
     // create or replace
     private fun <T : Resource> createOrReplace(body: ByteArray, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null) {
+
+        if (ContextProvider.isOffline) {
+            i{"offline, calling back with cached data"}
+            // todo: callback with cached data ...
+            // todo: ... then return
+        }
 
         try {
             createRequest(if (replacing) HttpMethod.Put else HttpMethod.Post, resourceLocation, additionalHeaders, body) {
@@ -800,6 +842,12 @@ class DocumentClient {
 
         d{query.toString()}
 
+        if (ContextProvider.isOffline) {
+            i{"offline, calling back with cached data"}
+            // todo: callback with cached data ...
+            // todo: ... then return
+        }
+
         try {
             val json = gson.toJson(query.dictionary)
 
@@ -815,6 +863,12 @@ class DocumentClient {
 
     // execute
     private fun <T> execute(body: T? = null, resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
+
+        if (ContextProvider.isOffline) {
+            i{"offline, calling back with cached data"}
+            // todo: callback with cached data ...
+            // todo: ... then return
+        }
 
         try {
             val json = if (body != null) gson.toJson(body) else gson.toJson(arrayOf<String>())
