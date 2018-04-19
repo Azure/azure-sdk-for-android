@@ -43,8 +43,8 @@ class AzureData {
 
         // list
         @JvmStatic
-        fun getDatabases(callback: (ListResponse<Database>) -> Unit) =
-                documentClient.getDatabases(callback)
+        fun getDatabases(maxPerPage: Int? = null, callback: (ListResponse<Database>) -> Unit) =
+                documentClient.getDatabases(maxPerPage, callback)
 
         // get
         @JvmStatic
@@ -77,8 +77,8 @@ class AzureData {
 
         // list
         @JvmStatic
-        fun getCollections(databaseId: String, callback: (ListResponse<DocumentCollection>) -> Unit) =
-                documentClient.getCollectionsIn(databaseId, callback)
+        fun getCollections(databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<DocumentCollection>) -> Unit) =
+                documentClient.getCollectionsIn(databaseId, maxPerPage, callback)
 
         // get
         @JvmStatic
@@ -120,13 +120,13 @@ class AzureData {
 
         // list
         @JvmStatic
-        fun <T : Document> getDocuments(collectionId: String, databaseId: String, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) =
-                documentClient.getDocumentsAs(collectionId, databaseId, documentClass, callback)
+        fun <T : Document> getDocuments(collectionId: String, databaseId: String, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) =
+                documentClient.getDocumentsAs(collectionId, databaseId, documentClass, maxPerPage, callback)
 
         // list
         @JvmStatic
-        fun <T : Document> getDocuments(collection: DocumentCollection, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) =
-                documentClient.getDocumentsAs(collection, documentClass, callback)
+        fun <T : Document> getDocuments(collection: DocumentCollection, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) =
+                documentClient.getDocumentsAs(collection, documentClass, maxPerPage, callback)
 
         // get
         @JvmStatic
@@ -170,13 +170,13 @@ class AzureData {
 
         // query
         @JvmStatic
-        fun <T : Document> queryDocuments(collectionId: String, databaseId: String, query: Query, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) =
-                documentClient.queryDocuments(collectionId, databaseId, query, documentClass, callback)
+        fun <T : Document> queryDocuments(collectionId: String, databaseId: String, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) =
+                documentClient.queryDocuments(collectionId, databaseId, query, documentClass, maxPerPage, callback)
 
         // query
         @JvmStatic
-        fun <T : Document> queryDocuments(collection: DocumentCollection, query: Query, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) =
-                documentClient.queryDocuments(collection, query, documentClass, callback)
+        fun <T : Document> queryDocuments(collection: DocumentCollection, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) =
+                documentClient.queryDocuments(collection, query, documentClass, maxPerPage, callback)
 
         //endregion
 
@@ -224,13 +224,13 @@ class AzureData {
 
         // list
         @JvmStatic
-        fun getAttachments(documentId: String, collectionId: String, databaseId: String, callback: (ListResponse<Attachment>) -> Unit) =
-                documentClient.getAttachments(documentId, collectionId, databaseId, callback)
+        fun getAttachments(documentId: String, collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<Attachment>) -> Unit) =
+                documentClient.getAttachments(documentId, collectionId, databaseId, maxPerPage, callback)
 
         // list
         @JvmStatic
-        fun getAttachments(document: Document, callback: (ListResponse<Attachment>) -> Unit) =
-                documentClient.getAttachments(document, callback)
+        fun getAttachments(document: Document, maxPerPage: Int? = null, callback: (ListResponse<Attachment>) -> Unit) =
+                documentClient.getAttachments(document, maxPerPage, callback)
 
         // delete
         @JvmStatic
@@ -308,13 +308,13 @@ class AzureData {
 
         // list
         @JvmStatic
-        fun getStoredProcedures(collectionId: String, databaseId: String, callback: (ListResponse<StoredProcedure>) -> Unit) =
-                documentClient.getStoredProcedures(collectionId, databaseId, callback)
+        fun getStoredProcedures(collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<StoredProcedure>) -> Unit) =
+                documentClient.getStoredProcedures(collectionId, databaseId, maxPerPage, callback)
 
         // list
         @JvmStatic
-        fun getStoredProcedures(collection: DocumentCollection, callback: (ListResponse<StoredProcedure>) -> Unit) =
-                documentClient.getStoredProcedures(collection, callback)
+        fun getStoredProcedures(collection: DocumentCollection, maxPerPage: Int? = null, callback: (ListResponse<StoredProcedure>) -> Unit) =
+                documentClient.getStoredProcedures(collection, maxPerPage, callback)
 
         // delete
         @JvmStatic
@@ -377,13 +377,13 @@ class AzureData {
 
         // list
         @JvmStatic
-        fun getUserDefinedFunctions(collectionId: String, databaseId: String, callback: (ListResponse<UserDefinedFunction>) -> Unit) =
-                documentClient.getUserDefinedFunctions(collectionId, databaseId, callback)
+        fun getUserDefinedFunctions(collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<UserDefinedFunction>) -> Unit) =
+                documentClient.getUserDefinedFunctions(collectionId, databaseId, maxPerPage, callback)
 
         // list
         @JvmStatic
-        fun getUserDefinedFunctions(collection: DocumentCollection, callback: (ListResponse<UserDefinedFunction>) -> Unit) =
-                documentClient.getUserDefinedFunctions(collection, callback)
+        fun getUserDefinedFunctions(collection: DocumentCollection, maxPerPage: Int? = null, callback: (ListResponse<UserDefinedFunction>) -> Unit) =
+                documentClient.getUserDefinedFunctions(collection, maxPerPage, callback)
 
         // delete
         @JvmStatic
@@ -436,13 +436,13 @@ class AzureData {
 
         // list
         @JvmStatic
-        fun getTriggers(collectionId: String, databaseId: String, callback: (ListResponse<Trigger>) -> Unit) =
-                documentClient.getTriggers(collectionId, databaseId, callback)
+        fun getTriggers(collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<Trigger>) -> Unit) =
+                documentClient.getTriggers(collectionId, databaseId, maxPerPage, callback)
 
         // list
         @JvmStatic
-        fun getTriggers(collection: DocumentCollection, callback: (ListResponse<Trigger>) -> Unit) =
-                documentClient.getTriggers(collection, callback)
+        fun getTriggers(collection: DocumentCollection, maxPerPage: Int? = null, callback: (ListResponse<Trigger>) -> Unit) =
+                documentClient.getTriggers(collection, maxPerPage, callback)
 
         // delete
         @JvmStatic
@@ -490,8 +490,8 @@ class AzureData {
 
         // list
         @JvmStatic
-        fun getUsers(databaseId: String, callback: (ListResponse<User>) -> Unit) =
-                documentClient.getUsers(databaseId, callback)
+        fun getUsers(databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<User>) -> Unit) =
+                documentClient.getUsers(databaseId, maxPerPage, callback)
 
         // get
         @JvmStatic
@@ -539,13 +539,13 @@ class AzureData {
 
         // list
         @JvmStatic
-        fun getPermissions(userId: String, databaseId: String, callback: (ListResponse<Permission>) -> Unit) =
-                documentClient.getPermissions(userId, databaseId, callback)
+        fun getPermissions(userId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<Permission>) -> Unit) =
+                documentClient.getPermissions(userId, databaseId, maxPerPage, callback)
 
         // list
         @JvmStatic
-        fun getPermissions(user: User, callback: (ListResponse<Permission>) -> Unit) =
-                documentClient.getPermissions(user, callback)
+        fun getPermissions(user: User, maxPerPage: Int? = null, callback: (ListResponse<Permission>) -> Unit) =
+                documentClient.getPermissions(user, maxPerPage, callback)
 
         // get
         @JvmStatic
@@ -608,8 +608,8 @@ class AzureData {
 
         // list
         @JvmStatic
-        fun getOffers(callback: (ListResponse<Offer>) -> Unit) =
-                documentClient.getOffers(callback)
+        fun getOffers(maxPerPage: Int? = null, callback: (ListResponse<Offer>) -> Unit) =
+                documentClient.getOffers(maxPerPage, callback)
 
         // get
         @JvmStatic
