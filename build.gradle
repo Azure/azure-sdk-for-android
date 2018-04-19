@@ -32,6 +32,7 @@ allprojects {
         gsonVersion = "2.8.2"
         jUnitVersion = "4.12"
         espressoVersion = "3.0.1"
+        reactiveNetworkVersion = "0.12.3"
         testRunnerVersion = "1.0.1"
         testRulesVersion = "1.0.1"
         timberVersion = "4.7.0"

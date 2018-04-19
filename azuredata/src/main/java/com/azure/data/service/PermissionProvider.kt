@@ -1,7 +1,7 @@
 package com.azure.data.service
 
 import com.azure.data.model.*
-import com.azure.data.util.ContextProvider
+import com.azure.core.util.ContextProvider
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
