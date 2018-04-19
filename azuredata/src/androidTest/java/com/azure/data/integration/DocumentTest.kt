@@ -170,6 +170,64 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
     }
 
     @Test
+    fun listDocumentsWithMaxPerPage() {
+
+        createNewDocuments(3)
+
+        // Test all at once
+        resourceListResponse = null
+        AzureData.getDocuments(collectionId, databaseId, docType) { resourceListResponse = it }
+        await().until { resourceListResponse != null }
+        verifyListDocuments(3)
+
+        // Test only 2
+        resourceListResponse = null
+        AzureData.getDocuments(collectionId, databaseId, docType, 2) { resourceListResponse = it }
+        await().until { resourceListResponse != null }
+        verifyListDocuments(2)
+
+        // Test only 1
+        resourceListResponse = null
+        AzureData.getDocuments(collectionId, databaseId, docType, 1) { resourceListResponse = it }
+        await().until { resourceListResponse != null }
+        verifyListDocuments(1)
+    }
+
+    @Test
+    fun listDocumentsWithInvalidMaxPerPage() {
+
+        createNewDocuments(3)
+
+        // Test 0
+        resourceListResponse = null
+        try {
+            AzureData.getDocuments(collectionId, databaseId, docType, 0) { resourceListResponse = it }
+        } catch (ex : DocumentClientError){
+            assertEquals(DocumentClientError.InvalidMaxPerPageError, ex)
+        }
+
+        // Test 1
+        resourceListResponse = null
+        AzureData.getDocuments(collectionId, databaseId, docType, 1) { resourceListResponse = it }
+        await().until { resourceListResponse != null }
+        verifyListDocuments(1)
+
+        // Test 1000
+        resourceListResponse = null
+        AzureData.getDocuments(collectionId, databaseId, docType, 1000) { resourceListResponse = it }
+        await().until { resourceListResponse != null }
+        verifyListDocuments(3)
+
+        // Test 1001
+        resourceListResponse = null
+        try {
+            AzureData.getDocuments(collectionId, databaseId, docType, 1001) { resourceListResponse = it }
+        } catch (ex : DocumentClientError){
+            assertEquals(DocumentClientError.InvalidMaxPerPageError, ex)
+        }
+    }
+
+    @Test
     fun queryDocuments() {
 
         //ensure at least 1 doc
@@ -406,10 +464,10 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
 
     //endregion
 
-    private fun newDocument() : TDoc {
+    private fun newDocument(count : Int=1) : TDoc {
 
         val doc = docType.newInstance()
-        doc.id = createdResourceId
+        doc.id = createdResourceId(count)
         doc.setValue(customStringKey, customStringValue)
         doc.setValue(customNumberKey, customNumberValue)
 
@@ -419,6 +477,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
     private fun createNewDocument(coll: DocumentCollection? = null) : TDoc {
 
         var docResponse: Response<TDoc>? = null
+
         val doc = newDocument()
 
         if (coll != null) {
@@ -443,6 +502,21 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         return verifyDocument(createdDoc)
     }
 
+    private fun createNewDocuments(count : Int) : List<TDoc> {
+        val docs = mutableListOf<TDoc>()
+        for(i in 1..count) {
+            AzureData.createDocument(newDocument(i), collectionId, databaseId) {
+                assertResourceResponseSuccess(it)
+                assertEquals(createdResourceId(i), it?.resource?.id)
+                docs.add(verifyDocument(it!!.resource!!))
+            }
+        }
+        await().until {
+            docs.count() == count
+        }
+        return docs
+    }
+
     private fun verifyDocument(createdDoc: TDoc, stringValue: String? = null) : TDoc {
 
         assertNotNull(createdDoc.getValue(customStringKey))
@@ -453,10 +527,10 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         return createdDoc
     }
 
-    private fun verifyListDocuments() {
+    private fun verifyListDocuments(count : Int = 1) {
 
         assertListResponseSuccess(resourceListResponse)
-        assertTrue(resourceListResponse?.resource?.count!! > 0)
+        assertTrue(resourceListResponse?.resource?.count!! == count)
 
         resourceListResponse?.resource?.items?.forEach {
 

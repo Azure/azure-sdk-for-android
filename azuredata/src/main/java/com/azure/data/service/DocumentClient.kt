@@ -649,7 +649,7 @@ class DocumentClient {
             // todo: ... then return
         }
 
-        createRequest(HttpMethod.Get, resourceLocation) {
+        createRequest(HttpMethod.Get, resourceLocation, maxPerPage = maxPerPage) {
 
             sendResourceListRequest(it, resourceLocation, callback, resourceClass)
         }
@@ -1025,7 +1025,11 @@ class DocumentClient {
 
                     // add the count
                     maxPerPage?.let {
-                        builder.addHeader(MSHttpHeader.MSMaxItemCount.value,it.toString())
+                        if ((1..1000).contains(it)) {
+                            builder.addHeader(MSHttpHeader.MSMaxItemCount.value, it.toString())
+                        } else {
+                            throw DocumentClientError.InvalidMaxPerPageError
+                        }
                     }
 
                     // if we have additional headers, let's add them in here

@@ -29,6 +29,11 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
     val documentId = "AndroidTest${ResourceType.Document.name}"
     val createdResourceId = "AndroidTest${resourceType.name}"
 
+    fun databaseId(count : Int = 0) = "$databaseId${if (count<2) "" else count.toString()}"
+    fun collectionId(count : Int = 0) = "$collectionId${if (count<2) "" else count.toString()}"
+    fun documentId(count : Int = 0) = "$documentId${if (count<2) "" else count.toString()}"
+    fun createdResourceId(count : Int = 0) = "$createdResourceId${if (count<2) "" else count.toString()}"
+
     var response: Response<TResource>? = null
     var resourceListResponse: ListResponse<TResource>? = null
     var dataResponse: DataResponse? = null
@@ -47,7 +52,6 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         if (!AzureData.isConfigured) {
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
-
 
         }
 
@@ -96,6 +100,28 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         database = dbResponse!!.resource!!
 
         return database!!
+    }
+
+    fun ensureDatabase(count : Int) : List<Database> {
+
+        var dbResponse: Response<Database>? = null
+        val databases = mutableListOf<Database>()
+
+        for(i in 1..count) {
+            AzureData.createDatabase(databaseId(i)) {
+                dbResponse = it
+            }
+
+            await().until {
+                dbResponse != null
+            }
+
+            assertResourceResponseSuccess(dbResponse)
+            assertEquals(databaseId(i), dbResponse?.resource?.id)
+
+            databases.add(dbResponse!!.resource!!)
+        }
+        return databases
     }
 
     fun ensureCollection() : DocumentCollection {
