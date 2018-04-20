@@ -892,7 +892,7 @@ class DocumentClient {
         DateUtil.getDateFromatter(DateUtil.Format.Rfc1123Format)
     }
 
-    private fun getTokenforResource(resourceLocation: ResourceLocation, method: HttpMethod, callback: (Response<ResourceToken>) -> Unit) {
+    private inline fun getTokenforResource(resourceLocation: ResourceLocation, method: HttpMethod, crossinline callback: (Response<ResourceToken>) -> Unit) {
 
         if (!isConfigured) {
             return callback(Response(DataError(DocumentClientError.ConfigureError)))
@@ -915,16 +915,17 @@ class DocumentClient {
 
             permissionProvider?.getPermission(resourceLocation, if (method.isWrite()) PermissionMode.All else PermissionMode.Read) {
 
-                if (it.isErrored) {
-                    return callback(Response(it.error!!))
-                }
+                if (it.isSuccessful) {
 
-                val dateString = String.format("%s %s", dateFormatter.format(Date()), "GMT")
+                    val dateString = String.format("%s %s", dateFormatter.format(Date()), "GMT")
 
-                it.resource?.token?.let {
+                    it.resource?.token?.let {
 
-                    return callback(Response(ResourceToken(dateString, it)))
-                    //val authStringEncoded = URLEncoder.encode(String.format("type=master&ver=%s&sig=%s", tokenVersion, signature), "UTF-8")
+                        callback(Response(ResourceToken(dateString, it)))
+                        //val authStringEncoded = URLEncoder.encode(String.format("type=master&ver=%s&sig=%s", tokenVersion, signature), "UTF-8")
+                    } ?: callback(Response(DataError(DocumentClientError.PermissionError)))
+                } else {
+                    callback(Response(it.error!!))
                 }
             }
         }
