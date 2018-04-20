@@ -1,12 +1,15 @@
 package com.azure.data.integration
 
+import com.azure.core.log.d
 import com.azure.data.*
 import com.azure.data.model.*
 import com.azure.data.service.Response
 import com.azure.data.util.json.gson
 import junit.framework.Assert.*
 import org.awaitility.Awaitility.await
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExpectedException
 import java.util.*
 
 /**
@@ -16,6 +19,10 @@ import java.util.*
 
 abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
     : ResourceTest<TDoc>(ResourceType.Document, true, true) {
+
+    @Rule
+    @JvmField
+    var thrown = ExpectedException.none()!!
 
     //region Tests
 
@@ -194,37 +201,52 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
     }
 
     @Test
-    fun listDocumentsWithInvalidMaxPerPage() {
+    fun listDocumentsWithMaxPerPageTooSmall() {
+        thrown.expect(DocumentClientError::class.java)
+        AzureData.getDocuments(collectionId, databaseId, docType, 0) { resourceListResponse = it }
+    }
+
+    @Test
+    fun listDocumentsWithMaxPerPageTooBig() {
+        thrown.expect(DocumentClientError::class.java)
+        AzureData.getDocuments(collectionId, databaseId, docType, 1001) { resourceListResponse = it }
+    }
+
+    @Test
+    fun listDocumentsPaging() {
+
+        resourceListResponse = null
 
         createNewDocuments(3)
 
-        // Test 0
-        resourceListResponse = null
-        try {
-            AzureData.getDocuments(collectionId, databaseId, docType, 0) { resourceListResponse = it }
-        } catch (ex : DocumentClientError){
-            assertEquals(DocumentClientError.InvalidMaxPerPageError, ex)
-        }
-
-        // Test 1
-        resourceListResponse = null
+        // Get the first one
         AzureData.getDocuments(collectionId, databaseId, docType, 1) { resourceListResponse = it }
         await().until { resourceListResponse != null }
+        resourceListResponse.let {
+            d{
+                resourceListResponse.toString()
+            }
+            assertNotNull(it?.metadata?.continuation)
+            assertTrue(it!!.hasMoreResults)
+        }
         verifyListDocuments(1)
 
-        // Test 1000
-        resourceListResponse = null
-        AzureData.getDocuments(collectionId, databaseId, docType, 1000) { resourceListResponse = it }
-        await().until { resourceListResponse != null }
-        verifyListDocuments(3)
+        // Get the next one
+//        resourceListResponse.next {
+//            assertNotNull(it?.metadata?.continuation)
+//            assertTrue(it!!.hasMoreResults)
+//        }
+//
+//        // Get the last one
+//        resourceListResponse.next {
+//            assertNull(it?.metadata?.continuation)
+//            assertFalse(it!!.hasMoreResults)
+//        }
+//
+//        // Try to get one more
+//        thrown.expect(DocumentClientError::class.java)
+//        resourceListResponse.next {}
 
-        // Test 1001
-        resourceListResponse = null
-        try {
-            AzureData.getDocuments(collectionId, databaseId, docType, 1001) { resourceListResponse = it }
-        } catch (ex : DocumentClientError){
-            assertEquals(DocumentClientError.InvalidMaxPerPageError, ex)
-        }
     }
 
     @Test

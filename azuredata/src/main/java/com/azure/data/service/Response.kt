@@ -58,4 +58,11 @@ open class Response<T>(
      * Returns the associated value of the result if it is a success, null otherwise.
      */
     val resource: T? = result.resource
+
+    /**
+     * Returns `true` if there are more paged results available
+     */
+    val hasMoreResults : Boolean get() {
+        return !metadata.continuation.isNullOrEmpty()
+    }
 }
