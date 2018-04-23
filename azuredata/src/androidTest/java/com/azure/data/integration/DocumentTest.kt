@@ -217,8 +217,6 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
     @Test
     fun listDocumentsPaging() {
 
-//        val listOfDocType = TypeToken.getParameterized(ResourceList::class.java, docType).type
-
         resourceListResponse = null
 
         createNewDocuments(3)
@@ -227,12 +225,11 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         AzureData.getDocuments(collectionId, databaseId, docType, 1) { resourceListResponse = it }
         await().until { resourceListResponse != null }
         resourceListResponse.let {
-            d{
-                "JLSTUFF ONE $resourceListResponse"
-            }
-            println("JLSTUFF ONE $resourceListResponse")
             assertNotNull(it?.metadata?.continuation)
             assertTrue(it!!.hasMoreResults)
+            assertNotNull(it.resource?.items)
+            assertEquals(1,it.resource?.items?.size)
+            assertEquals("AndroidTestDocument",it.resource?.items?.get(0)?.id)
         }
         verifyListDocuments(1)
 
@@ -247,15 +244,15 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
             AzureData.nextDocuments(response!!, docType) {
                 assertNotNull(it.metadata.continuation)
                 assertTrue(it.hasMoreResults)
+                assertNotNull(it.resource?.items)
+                assertEquals(1,it.resource?.items?.size)
+                assertEquals("AndroidTestDocument2",it.resource?.items?.get(0)?.id)
                 resourceListResponse = response
-                d{
-                    "JLSTUFF TWO ${resourceListResponse}"
-                }
-                println("JLSTUFF TWO $resourceListResponse")
             }
         }
-        await().until { resourceListResponse != null }
-        verifyListDocuments(1)
+//        await().until { resourceListResponse != null }
+//        verifyListDocuments(1)
+        Thread.sleep(1000000)
 
 //        // Get the next one
 //        resourceListResponse.let { response ->
