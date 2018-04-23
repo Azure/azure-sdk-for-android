@@ -16,66 +16,66 @@ open class ResponseMetadata(response: okhttp3.Response?) {
     /**
      * The unique identifier of the operation.
      */
-    val activityId : String? = response?.header(MSHttpHeader.MSActivityId.name)
+    val activityId : String? = response?.header(MSHttpHeader.MSActivityId.value)
 
     /**
      * The alternate path to the resource constructed using user-supplied IDs.
      */
-    val alternateContentPath: String? = response?.header(MSHttpHeader.MSAltContentPath.name)
+    val alternateContentPath: String? = response?.header(MSHttpHeader.MSAltContentPath.value)
 
     /**
      * The Content-Type is always `application/json`.
      */
-    val contentType: String? = response?.header(HttpHeader.ContentType.name)
+    val contentType: String? = response?.header(HttpHeader.ContentType.value)
 
     /**
      * Represents the intermediate state of query or read-feed execution and is returned when
      * there are additional results aside from what was returned in the response. Clients can
      * resubmit the request with the request header `x-ms-continuation` containing this value.
      */
-    val continuation: String? = response?.header(MSHttpHeader.MSContinuation.name)
+    val continuation: String? = response?.header(MSHttpHeader.MSContinuation.value)
 
     /**
      * The date time of the response operation.
      */
-    val date: Date? = response?.header(HttpHeader.Date.name)?.let{dateFromRfc1123(it)}
+    val date: Date? = response?.header(HttpHeader.Date.value)?.let{dateFromRfc1123(it)}
 
     /**
      * The `etag` of the resource retrieved.
      */
-    val etag: String? = response?.header(HttpHeader.ETag.name)
+    val etag: String? = response?.header(HttpHeader.ETag.value)
 
     /**
      * The number of items returned for a query or a read-feed request.
      */
-    val itemCount: Int? = response?.header(MSHttpHeader.MSItemCount.name)?.toInt()
+    val itemCount: Int? = response?.header(MSHttpHeader.MSItemCount.value)?.toInt()
 
     /**
      * The number of request units for the operation.
      */
-    val requestCharge: Double? = response?.header(MSHttpHeader.MSRequestCharge.name)?.toDouble()
+    val requestCharge: Double? = response?.header(MSHttpHeader.MSRequestCharge.value)?.toDouble()
 
     /**
      * The allotted quota for a resource in a Azure CosmosDB account.
      */
-    val resourceQuota: Metrics? = Metrics(response?.header(MSHttpHeader.MSResourceQuota.name))
+    val resourceQuota: Metrics? = Metrics(response?.header(MSHttpHeader.MSResourceQuota.value))
 
     /**
      * The current usage of a resource in a Azure CosmosDB account.
      */
-    val resourceUsage: Metrics? = Metrics(response?.header(MSHttpHeader.MSResourceUsage.name))
+    val resourceUsage: Metrics? = Metrics(response?.header(MSHttpHeader.MSResourceUsage.value))
 
     /**
      * The number of seconds to wait to retry the operation after an initial operation received the
      * HTTP status code 429 and was throttled.
      */
-    val retryAfter: Long? = response?.header(MSHttpHeader.MSRetryAfterMs.name)?.toLong()
+    val retryAfter: Long? = response?.header(MSHttpHeader.MSRetryAfterMs.value)?.toLong()
 
 
     /**
      * The resource schema version.
      */
-    val schemaVersion: String? = response?.header(MSHttpHeader.MSSchemaVersion.name)
+    val schemaVersion: String? = response?.header(MSHttpHeader.MSSchemaVersion.value)
             ?.split("=")
             ?.let { when {
                 (it.size==1) -> it[0]
@@ -86,7 +86,7 @@ open class ResponseMetadata(response: okhttp3.Response?) {
     /**
      * The service version number.
      */
-    val serviceVersion: String? = response?.header(MSHttpHeader.MSServiceVersion.name)
+    val serviceVersion: String? = response?.header(MSHttpHeader.MSServiceVersion.value)
             ?.split("=")
             ?.let { when {
                 (it.size==1) -> it[0]
@@ -97,7 +97,7 @@ open class ResponseMetadata(response: okhttp3.Response?) {
     /**
      * The session token of the request.
      */
-    val sessionToken: String? = response?.header(MSHttpHeader.MSSessionToken.name)
+    val sessionToken: String? = response?.header(MSHttpHeader.MSSessionToken.value)
 
     class Metrics(usage : String?) {
 
