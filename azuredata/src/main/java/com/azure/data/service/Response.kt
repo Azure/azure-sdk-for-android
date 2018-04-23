@@ -2,6 +2,7 @@ package com.azure.data.service
 
 import com.azure.data.model.DataError
 import com.azure.data.model.ResourceList
+import com.azure.data.model.ResourceLocation
 import com.azure.data.model.Result
 import okhttp3.Request
 
@@ -21,7 +22,8 @@ open class Response<T>(
         //  The json data returned by the server (if applicable)
         val jsonData: String? = null,
         // The result of response deserialization.
-        val result: Result<T>
+        val result: Result<T>,
+        val resourceLocation: ResourceLocation? = null
 ) {
     val metadata : ResponseMetadata by lazy {
         ResponseMetadata(response)
@@ -65,4 +67,22 @@ open class Response<T>(
     val hasMoreResults : Boolean get() {
         return !metadata.continuation.isNullOrEmpty()
     }
+
+//    fun next(resourceType: ResourceType, callback: (List<Response<T>>) -> Unit) {
+//        if (request==null || response==null){
+//            throw DocumentClientError.NextCalledTooEarlyError
+//        }
+//
+//        val continuation = metadata.continuation
+//        if (continuation==null){
+//            d{"No more items to fetch."}
+//            callback(ListResponse(DataError(DocumentClientError.NoMoreResultsError)))
+//            return
+//        }
+//
+//        val newRequest = request.newBuilder()
+//                .header(MSHttpHeader.MSContinuation.value,continuation)
+//
+//        return AzureData.next(newRequest.build(), resourceType, classT!!, callback)
+//    }
 }

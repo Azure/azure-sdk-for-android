@@ -6,6 +6,8 @@ import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.service.*
 import com.azure.core.util.ContextProvider
 import okhttp3.HttpUrl
+import okhttp3.Request
+import java.lang.reflect.Type
 import java.net.URL
 
 /**
@@ -178,7 +180,20 @@ class AzureData {
         fun <T : Document> queryDocuments(collection: DocumentCollection, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) =
                 documentClient.queryDocuments(collection, query, documentClass, maxPerPage, callback)
 
+        // next
+        @JvmStatic
+        fun <T : Document> nextDocuments(response : ListResponse<T>, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) =
+                documentClient.nextDocuments(response, documentClass, callback)
+
         //endregion
+
+//        // next
+//        @JvmStatic
+//        fun <T> next(request: Request, resourceType: ResourceType, classT: Class<T>, callback: (Response<T>) -> Unit) =
+//                documentClient.next(request, resourceType, classT, callback)
+//
+//        //endregion
+
 
         //region Attachments
 

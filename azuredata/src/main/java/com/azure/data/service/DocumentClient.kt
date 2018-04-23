@@ -22,6 +22,7 @@ import com.google.gson.reflect.TypeToken
 import getDefaultHeaders
 import okhttp3.*
 import java.io.IOException
+import java.lang.reflect.Type
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
@@ -229,6 +230,12 @@ class DocumentClient {
     fun <T: Document> queryDocuments (collection: DocumentCollection, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
         return query(query, ResourceLocation.Child(ResourceType.Document, collection), maxPerPage, callback, documentClass)
+    }
+
+    // query
+    fun <T: Document> nextDocuments (response : ListResponse<T>, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
+
+        return next(response, documentClass, callback)
     }
 
     //endregion
@@ -861,6 +868,163 @@ class DocumentClient {
         }
     }
 
+    // next
+    private fun <T : Resource> next(response : ListResponse<T>, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
+
+        if (ContextProvider.isOffline) {
+            i{"offline, calling back with cached data"}
+            // todo: callback with cached data ...
+            // todo: ... then return
+        }
+
+        try {
+            val request = response.request
+                ?: return callback(Response(DataError(DocumentClientError.NextCalledTooEarlyError)))
+
+            val resourceLocation = response.resourceLocation
+                ?: return callback(Response(DataError(DocumentClientError.NextCalledTooEarlyError)))
+
+            val continuation = response.metadata.continuation
+            if (continuation==null){
+                d{"No more items to fetch."}
+                callback(ListResponse(DataError(DocumentClientError.NoMoreResultsError)))
+                return
+            }
+
+            val newRequest = request.newBuilder()
+                    .header(MSHttpHeader.MSContinuation.value,continuation)
+                    .build()
+
+            client.newCall(newRequest)
+                    .enqueue(object : Callback {
+
+                        // only transport errors handled here
+                        override fun onFailure(call: Call, e: IOException) {
+                            ContextProvider.isOffline = true
+                            // todo: callback with cached data instead of the callback with the error below
+                            callback(Response(DataError(e)))
+                        }
+
+                        @Throws(IOException::class)
+                        override fun onResponse(call: Call, response: okhttp3.Response) =
+                                callback(processListResponse(request, response, resourceLocation, resourceClass))
+                    })
+//            val json = gson.toJson(query.dictionary)
+//
+//            createRequest(HttpMethod.Post, resourceLocation, forQuery = true, jsonBody = json, maxPerPage = maxPerPage) {
+//
+//                sendResourceListRequest(it, resourceLocation, callback, resourceClass)
+//            }
+        } catch (ex: Exception) {
+            e(ex)
+            callback(ListResponse(DataError(ex)))
+        }
+    }
+
+    /*
+    private inline fun <T : Resource> sendResourceListRequest(request: Request, resourceLocation: ResourceLocation, crossinline callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
+
+        d{"***"}
+        d{"Sending ${request.method()} request for Data to ${request.url()}"}
+        d{"\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}"}
+        d{"***"}
+
+        try {
+            client.newCall(request)
+                    .enqueue(object : Callback {
+
+                        // only transport errors handled here
+                        override fun onFailure(call: Call, e: IOException) {
+                            ContextProvider.isOffline = true
+                            // todo: callback with cached data instead of the callback with the error below
+                            callback(ListResponse(DataError(e)))
+                        }
+
+                        @Throws(IOException::class)
+                        override fun onResponse(call: Call, response: okhttp3.Response) =
+                                callback(processListResponse(request, response, resourceLocation.resourceType, resourceClass))
+                    })
+        } catch (ex: Exception) {
+            e(ex)
+            callback(ListResponse(DataError(ex), request))
+        }
+    }
+
+     */
+
+
+
+//    fun next(resourceType: ResourceType, callback: (List<Response<T>>) -> Unit) {
+//        if (request==null || response==null){
+//            throw DocumentClientError.NextCalledTooEarlyError
+//        }
+//
+//        val continuation = metadata.continuation
+//        if (continuation==null){
+//            d{"No more items to fetch."}
+//            callback(ListResponse(DataError(DocumentClientError.NoMoreResultsError)))
+//            return
+//        }
+//
+//        val newRequest = request.newBuilder()
+//                .header(MSHttpHeader.MSContinuation.value,continuation)
+//
+//        return AzureData.next(newRequest.build(), resourceType, classT!!, callback)
+//    }
+
+    /**
+     *
+     *
+     *
+     * Here's the thing, we're passing Class<T> around which is hard to convert to Class<ResourceList<T>>. Eventually, we need Type to pass to gson -- so let's build the
+     * Type early instead of trying to convert it from a Class<T> late.
+     *
+     * Research difference between Class<T> and Type
+     *
+     *
+     *
+     *
+     *
+     *
+     */
+
+
+//    // next
+//    fun <T : Resource> next(request: Request, resourceType: ResourceType, classT: Class<T>, callback: (ListResponse<T>) -> Unit) {
+//
+//        d{"***"}
+//        d{"Sending (next) ${request.method()} request for Data to ${request.url()}"}
+//        d{"\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}"}
+//        d{"***"}
+//
+//        if (ContextProvider.isOffline) {
+//            i{"offline, calling back with cached data"}
+//            // todo: callback with cached data ...
+//            // todo: ... then return
+//        }
+//
+//        try {
+//            client.newCall(request)
+//                    .enqueue(object : Callback {
+//
+//                        // only transport errors handled here
+//                        override fun onFailure(call: Call, e: IOException) {
+//                            ContextProvider.isOffline = true
+//                            // todo: callback with cached data instead of the callback with the error below
+//                            callback(Response(DataError(e)))
+//                        }
+//
+//                        @Throws(IOException::class)
+//                        override fun onResponse(call: Call, response: okhttp3.Response) =
+//                                callback(processListResponse(request, response, resourceType, classT))
+//                    })
+//        } catch (ex: Exception) {
+//            e(ex)
+//            callback(ListResponse(DataError(ex), request))
+//        }
+//
+//    }
+
     // execute
     private fun <T> execute(body: T? = null, resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
 
@@ -1127,7 +1291,7 @@ class DocumentClient {
 
                         @Throws(IOException::class)
                         override fun onResponse(call: Call, response: okhttp3.Response) =
-                                callback(processListResponse(request, response, resourceLocation.resourceType, resourceClass))
+                                callback(processListResponse(request, response, resourceLocation, resourceClass))
                     })
         } catch (ex: Exception) {
             e(ex)
@@ -1172,7 +1336,7 @@ class DocumentClient {
         }
     }
 
-    private fun <T : Resource> processListResponse(request: Request, response: okhttp3.Response, resourceType: ResourceType, resourceClass: Class<T>? = null): ListResponse<T> {
+    private fun <T : Resource> processListResponse(request: Request, response: okhttp3.Response, resourceLocation: ResourceLocation, resourceClass: Class<T>? = null): ListResponse<T> {
 
         try {
             val body = response.body()
@@ -1182,14 +1346,14 @@ class DocumentClient {
             if (response.isSuccessful) {
 
                 //TODO: see if there's any benefit to caching these type tokens performance wise (or for any other reason)
-                val type = resourceClass ?: resourceType.type
+                val type = resourceClass ?: resourceLocation.resourceType.type
                 val listType = TypeToken.getParameterized(ResourceList::class.java, type).type
                 val resourceList = gson.fromJson<ResourceList<T>>(json, listType)
                         ?: return ListResponse(json.toError(), request, response, json)
 
-                setResourceMetadata(response, resourceList, resourceType)
+                setResourceMetadata(response, resourceList, resourceLocation.resourceType)
 
-                return ListResponse(request, response, json, Result(resourceList))
+                return ListResponse(request, response, json, Result(resourceList), resourceLocation)
             } else {
                 return ListResponse(json.toError(), request, response, json)
             }

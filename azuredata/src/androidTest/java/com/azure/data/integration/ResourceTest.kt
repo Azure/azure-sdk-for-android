@@ -53,6 +53,11 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
 
+            AzureData.configure(
+                    appContext,
+                    "database2qsajkeozsjio",
+                    "Da5HXCXI5o63VAuADVpyY3ZSMkldiGke8pQQqmIxBQXZOAKVD4tCVn2TXYNzJcCTvOeM4l9OJtdq8Q1tYfocHA==",
+                    PermissionMode.All)
         }
 
         deleteResources()

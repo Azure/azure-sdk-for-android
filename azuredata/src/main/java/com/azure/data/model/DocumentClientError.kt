@@ -17,5 +17,6 @@ class DocumentClientError private constructor(msg: String) : Error(msg) {
         val PermissionError = DocumentClientError("Configuring AzureData using a PermissionProvider implements access control based on resource-specific Permissions. This authorization model only supports accessing application resources (Collections, Stored Procedures, Triggers, UDFs, Documents, and Attachments). In order to access administrative resources (Database Accounts, Databases, Users, Permission, and Offers) require AzureData is configured using a master key.")
         val NoMoreResultsError = DocumentClientError("Response.next() has been called but there are no more results to fetch. Must check that Response.hasMoreResults is true before calling Response.next().")
         val InvalidMaxPerPageError = DocumentClientError("The maxPerPage parameter must be between 1 and 1000 inclusive")
+        val NextCalledTooEarlyError = DocumentClientError("`next` must be called after an initial set of items have been fetched.")
     }
 }

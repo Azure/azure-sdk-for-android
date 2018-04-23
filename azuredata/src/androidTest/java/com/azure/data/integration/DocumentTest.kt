@@ -5,11 +5,13 @@ import com.azure.data.*
 import com.azure.data.model.*
 import com.azure.data.service.Response
 import com.azure.data.util.json.gson
+import com.google.gson.reflect.TypeToken
 import junit.framework.Assert.*
 import org.awaitility.Awaitility.await
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
+import java.lang.reflect.Type
 import java.util.*
 
 /**
@@ -215,6 +217,8 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
     @Test
     fun listDocumentsPaging() {
 
+//        val listOfDocType = TypeToken.getParameterized(ResourceList::class.java, docType).type
+
         resourceListResponse = null
 
         createNewDocuments(3)
@@ -224,18 +228,47 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         await().until { resourceListResponse != null }
         resourceListResponse.let {
             d{
-                resourceListResponse.toString()
+                "JLSTUFF ONE $resourceListResponse"
             }
+            println("JLSTUFF ONE $resourceListResponse")
             assertNotNull(it?.metadata?.continuation)
             assertTrue(it!!.hasMoreResults)
         }
         verifyListDocuments(1)
 
         // Get the next one
-//        resourceListResponse.next {
-//            assertNotNull(it?.metadata?.continuation)
-//            assertTrue(it!!.hasMoreResults)
+//        AzureData.nextDocuments(resourceListResponse!!, docType) {
+//            assertNotNull(it.metadata.continuation)
+//            assertTrue(it.hasMoreResults)
 //        }
+
+        resourceListResponse.let { response ->
+            resourceListResponse = null
+            AzureData.nextDocuments(response!!, docType) {
+                assertNotNull(it.metadata.continuation)
+                assertTrue(it.hasMoreResults)
+                resourceListResponse = response
+                d{
+                    "JLSTUFF TWO ${resourceListResponse}"
+                }
+                println("JLSTUFF TWO $resourceListResponse")
+            }
+        }
+        await().until { resourceListResponse != null }
+        verifyListDocuments(1)
+
+//        // Get the next one
+//        resourceListResponse.let { response ->
+//            resourceListResponse = null
+//            response?.next(ResourceType.Document) {
+//                assertNotNull(it.metadata.continuation)
+//                assertTrue(it.hasMoreResults)
+//                resourceListResponse = response
+//            }
+//        }
+//        await().until { resourceListResponse != null }
+//        verifyListDocuments(1)
+
 //
 //        // Get the last one
 //        resourceListResponse.next {
