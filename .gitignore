@@ -50,6 +50,9 @@ freeline.py
 freeline/
 freeline_project_description.json
 
+# Sensitive information storage files
+azuredata/src/androidTest/java/com/azure/data/integration/DoNotDistribute.kt
+
 
 Data/.idea/dictionaries/nater.xml
 .DS_Store
