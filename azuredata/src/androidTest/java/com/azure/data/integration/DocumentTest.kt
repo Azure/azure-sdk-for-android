@@ -3,6 +3,7 @@ package com.azure.data.integration
 import com.azure.core.log.d
 import com.azure.data.*
 import com.azure.data.model.*
+import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
 import com.azure.data.util.json.gson
 import com.google.gson.reflect.TypeToken
@@ -217,54 +218,62 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
     @Test
     fun listDocumentsPaging() {
 
-        resourceListResponse = null
+        val idsFound = mutableListOf<String>()
+        var waitForResponse : ListResponse<TDoc>? = null
 
         createNewDocuments(3)
 
         // Get the first one
-        AzureData.getDocuments(collectionId, databaseId, docType, 1) { resourceListResponse = it }
-        await().until { resourceListResponse != null }
-        resourceListResponse.let {
-            assertNotNull(it?.metadata?.continuation)
-            assertTrue(it!!.hasMoreResults)
+        AzureData.getDocuments(collectionId, databaseId, docType, 1) { waitForResponse = it }
+        await().until { waitForResponse != null }
+        waitForResponse.let {
+            assertNotNull(it!!.metadata?.continuation)
             assertNotNull(it.resource?.items)
             assertEquals(1,it.resource?.items?.size)
-            assertEquals("AndroidTestDocument",it.resource?.items?.get(0)?.id)
+            val id = it.resource?.items?.get(0)?.id!!
+            assertTrue(id.startsWith("AndroidTestDocument"))
+            assertFalse(idsFound.contains(id))
+            idsFound.add(id)
+            assertTrue(it.hasMoreResults)
         }
-        verifyListDocuments(1)
+        d{ "jlcont1=${waitForResponse?.metadata?.continuation}" }
 
-        // Get the next one
-//        AzureData.nextDocuments(resourceListResponse!!, docType) {
-//            assertNotNull(it.metadata.continuation)
-//            assertTrue(it.hasMoreResults)
-//        }
-
-        resourceListResponse.let { response ->
-            resourceListResponse = null
+        // Get the second one
+        waitForResponse.let { response ->
+            waitForResponse = null
             AzureData.nextDocuments(response!!, docType) {
                 assertNotNull(it.metadata.continuation)
-                assertTrue(it.hasMoreResults)
                 assertNotNull(it.resource?.items)
                 assertEquals(1,it.resource?.items?.size)
-                assertEquals("AndroidTestDocument2",it.resource?.items?.get(0)?.id)
-                resourceListResponse = response
+                val id = it.resource?.items?.get(0)?.id!!
+                assertTrue(id.startsWith("AndroidTestDocument"))
+                assertFalse(idsFound.contains(id))
+                idsFound.add(id)
+                assertTrue(it.hasMoreResults)
+                waitForResponse = it
             }
         }
-//        await().until { resourceListResponse != null }
-//        verifyListDocuments(1)
-        Thread.sleep(1000000)
+        await().until { waitForResponse != null }
+        d{ "jlcont2=${waitForResponse?.metadata?.continuation}" }
+//        Thread.sleep(1000000)
 
-//        // Get the next one
-//        resourceListResponse.let { response ->
-//            resourceListResponse = null
-//            response?.next(ResourceType.Document) {
-//                assertNotNull(it.metadata.continuation)
-//                assertTrue(it.hasMoreResults)
-//                resourceListResponse = response
-//            }
-//        }
-//        await().until { resourceListResponse != null }
-//        verifyListDocuments(1)
+        // Get the third one
+        waitForResponse.let { response ->
+            waitForResponse = null
+            AzureData.nextDocuments(response!!, docType) {
+                assertNotNull(it.resource?.items)
+                assertEquals(1,it.resource?.items?.size)
+                val id = it.resource?.items?.get(0)?.id!!
+                assertTrue(id.startsWith("AndroidTestDocument"))
+                assertFalse(idsFound.contains(id))
+                idsFound.add(id)
+                assertFalse(it.hasMoreResults)
+                waitForResponse = it
+            }
+        }
+        await().until { waitForResponse != null }
+        d{ "jlcont3=${waitForResponse?.metadata?.continuation}" }
+//        Thread.sleep(100000)
 
 //
 //        // Get the last one

@@ -869,13 +869,14 @@ class DocumentClient {
     }
 
     // next
-    private fun <T : Resource> next(response : ListResponse<T>, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
+    private fun <T : Resource> next(response : ListResponse<T>, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
 
         if (ContextProvider.isOffline) {
             i{"offline, calling back with cached data"}
             // todo: callback with cached data ...
             // todo: ... then return
         }
+
 
         try {
             val request = response.request
@@ -890,6 +891,12 @@ class DocumentClient {
                 callback(ListResponse(DataError(DocumentClientError.NoMoreResultsError)))
                 return
             }
+
+            d{"***"}
+            d{"Continuing ${request.url()}"}
+            d{"   hasMoreResults = ${response.hasMoreResults}"}
+            d{"   continuation   = ${continuation}"}
+            d{"***"}
 
             val newRequest = request.newBuilder()
                     .header(MSHttpHeader.MSContinuation.value,continuation)
@@ -906,8 +913,11 @@ class DocumentClient {
                         }
 
                         @Throws(IOException::class)
-                        override fun onResponse(call: Call, response: okhttp3.Response) =
-                                callback(processListResponse(request, response, resourceLocation, resourceClass))
+                        override fun onResponse(call: Call, resp: okhttp3.Response) {
+                            d{"orig response: ${response.metadata.continuation}"}
+                            callback(processListResponse(request, resp, resourceLocation, documentClass))
+                        }
+
                     })
 //            val json = gson.toJson(query.dictionary)
 //
@@ -1353,7 +1363,9 @@ class DocumentClient {
 
                 setResourceMetadata(response, resourceList, resourceLocation.resourceType)
 
-                return ListResponse(request, response, json, Result(resourceList), resourceLocation)
+                val resp = ListResponse(request, response, json, Result(resourceList), resourceLocation)
+                d{"new  response: ${resp.metadata.continuation}"}
+                return resp
             } else {
                 return ListResponse(json.toError(), request, response, json)
             }
