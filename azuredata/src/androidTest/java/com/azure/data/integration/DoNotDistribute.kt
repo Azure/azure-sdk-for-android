@@ -7,6 +7,9 @@ command to ensure that any changes to this file will be ignored by git:
 
 git update-index --assume-unchanged azuredata/src/androidTest/java/com/azure/data/integration/DoNotDistribute.kt
 
+if you need to undo this change, execute the following command:
+
+git update-index --no-assume-unchanged azuredata/src/androidTest/java/com/azure/data/integration/DoNotDistribute.kt
  */
 
 val azureCosmosDbAccount  = "" // Usually matches "database2<12MoreLowerCaseCharacters>"
