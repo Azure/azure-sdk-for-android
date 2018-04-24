@@ -1,18 +1,15 @@
 package com.azure.data.integration
 
-import com.azure.core.log.d
 import com.azure.data.*
 import com.azure.data.model.*
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
 import com.azure.data.util.json.gson
-import com.google.gson.reflect.TypeToken
 import junit.framework.Assert.*
 import org.awaitility.Awaitility.await
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
-import java.lang.reflect.Type
 import java.util.*
 
 /**
