@@ -879,23 +879,13 @@ class DocumentClient {
 
         try {
             val request = response.request
-                ?: return callback(Response(DataError(DocumentClientError.NextCalledTooEarlyError)))
+                ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
 
             val resourceLocation = response.resourceLocation
-                ?: return callback(Response(DataError(DocumentClientError.NextCalledTooEarlyError)))
+                ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
 
             val continuation = response.metadata.continuation
-            if (continuation==null){
-                d{"No more items to fetch."}
-                callback(ListResponse(DataError(DocumentClientError.NoMoreResultsError)))
-                return
-            }
-
-            d{"***"}
-            d{"Continuing ${request.url()}"}
-            d{"   hasMoreResults = ${response.hasMoreResults}"}
-            d{"   continuation   = ${continuation}"}
-            d{"***"}
+                ?: return callback(ListResponse(DataError(DocumentClientError.NoMoreResultsError)))
 
             val newRequest = request.newBuilder()
                     .header(MSHttpHeader.MSContinuation.value,continuation)

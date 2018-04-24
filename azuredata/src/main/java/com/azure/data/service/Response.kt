@@ -23,6 +23,7 @@ open class Response<T>(
         val jsonData: String? = null,
         // The result of response deserialization.
         val result: Result<T>,
+        // The resourceLocation, filled out when there could be more results
         val resourceLocation: ResourceLocation? = null
 ) {
     val metadata : ResponseMetadata by lazy {
