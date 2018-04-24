@@ -1,13 +1,14 @@
 package com.azure.data
 
 import android.content.Context
+import com.azure.core.util.ContextProvider
 import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
-import com.azure.data.service.*
-import com.azure.core.util.ContextProvider
+import com.azure.data.service.DataResponse
+import com.azure.data.service.DocumentClient
+import com.azure.data.service.ListResponse
+import com.azure.data.service.Response
 import okhttp3.HttpUrl
-import okhttp3.Request
-import java.lang.reflect.Type
 import java.net.URL
 
 /**
@@ -186,14 +187,6 @@ class AzureData {
                 documentClient.nextDocuments(response, documentClass, callback)
 
         //endregion
-
-//        // next
-//        @JvmStatic
-//        fun <T> next(request: Request, resourceType: ResourceType, classT: Class<T>, callback: (Response<T>) -> Unit) =
-//                documentClient.next(request, resourceType, classT, callback)
-//
-//        //endregion
-
 
         //region Attachments
 
