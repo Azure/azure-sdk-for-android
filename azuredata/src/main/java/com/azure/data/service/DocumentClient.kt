@@ -231,12 +231,6 @@ class DocumentClient {
         return query(query, ResourceLocation.Child(ResourceType.Document, collection), maxPerPage, callback, documentClass)
     }
 
-    // query
-    fun <T: Document> nextDocuments (response : ListResponse<T>, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
-
-        return next(response, documentClass, callback)
-    }
-
     //endregion
 
     //region Attachments

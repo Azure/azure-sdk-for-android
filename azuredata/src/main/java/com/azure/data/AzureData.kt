@@ -181,11 +181,6 @@ class AzureData {
         fun <T : Document> queryDocuments(collection: DocumentCollection, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) =
                 documentClient.queryDocuments(collection, query, documentClass, maxPerPage, callback)
 
-        // next
-        @JvmStatic
-        fun <T : Document> nextDocuments(response : ListResponse<T>, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) =
-                documentClient.nextDocuments(response, documentClass, callback)
-
         //endregion
 
         //region Attachments
