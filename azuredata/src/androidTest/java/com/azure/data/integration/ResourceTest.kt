@@ -48,6 +48,11 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
 
+            AzureData.configure(
+                    appContext,
+                    azureCosmosDbAccount,
+                    azureCosmosPrimaryKey,
+                    PermissionMode.All)
 
         }
 
