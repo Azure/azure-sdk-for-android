@@ -868,7 +868,7 @@ class DocumentClient {
     }
 
     // next
-    private fun <T : Resource> next(response : ListResponse<T>, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
+    fun <T : Resource> next(response : ListResponse<T>, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
 
         if (ContextProvider.isOffline) {
             i{"offline, calling back with cached data"}
@@ -1240,7 +1240,7 @@ class DocumentClient {
 
                 setResourceMetadata(response, resourceList, resourceLocation.resourceType)
 
-                return ListResponse(request, response, json, Result(resourceList), resourceLocation)
+                return ListResponse(request, response, json, Result(resourceList), resourceLocation, resourceClass, this)
             } else {
                 return ListResponse(json.toError(), request, response, json)
             }

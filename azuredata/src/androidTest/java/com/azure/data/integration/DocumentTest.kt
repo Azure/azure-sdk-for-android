@@ -237,7 +237,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         // Get the second one
         waitForResponse.let { response ->
             waitForResponse = null
-            AzureData.nextDocuments(response!!, docType) {
+            response!!.next<TDoc> {
                 assertNotNull(it.metadata.continuation)
                 assertNotNull(it.resource?.items)
                 assertEquals(1,it.resource?.items?.size)
@@ -254,7 +254,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         // Get the third one
         waitForResponse.let { response ->
             waitForResponse = null
-            AzureData.nextDocuments(response!!, docType) {
+            response!!.next<TDoc> {
                 assertNotNull(it.resource?.items)
                 assertEquals(1,it.resource?.items?.size)
                 val id = it.resource?.items?.get(0)?.id!!
@@ -268,7 +268,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         await().until { waitForResponse != null }
 
         // Try to get one more
-        AzureData.nextDocuments(waitForResponse!!, docType) {
+        waitForResponse!!.next<TDoc> {
             assertErrorResponse(it)
         }
     }

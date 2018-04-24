@@ -1,9 +1,6 @@
 package com.azure.data.service
 
-import com.azure.data.model.DataError
-import com.azure.data.model.ResourceList
-import com.azure.data.model.ResourceLocation
-import com.azure.data.model.Result
+import com.azure.data.model.*
 import okhttp3.Request
 
 /**
@@ -24,7 +21,11 @@ open class Response<T>(
         // The result of response deserialization.
         val result: Result<T>,
         // The resourceLocation, filled out when there could be more results
-        val resourceLocation: ResourceLocation? = null
+        val resourceLocation: ResourceLocation? = null,
+        // The class of the document
+        val documentClass: Class<*>? = null,
+        // The DocumentClient used to acquire this Response
+        val documentClient: DocumentClient? = null
 ) {
     val metadata : ResponseMetadata by lazy {
         ResponseMetadata(response)
@@ -69,21 +70,14 @@ open class Response<T>(
         return !metadata.continuation.isNullOrEmpty()
     }
 
-//    fun next(resourceType: ResourceType, callback: (List<Response<T>>) -> Unit) {
-//        if (request==null || response==null){
-//            throw DocumentClientError.NextCalledTooEarlyError
-//        }
-//
-//        val continuation = metadata.continuation
-//        if (continuation==null){
-//            d{"No more items to fetch."}
-//            callback(ListResponse(DataError(DocumentClientError.NoMoreResultsError)))
-//            return
-//        }
-//
-//        val newRequest = request.newBuilder()
-//                .header(MSHttpHeader.MSContinuation.value,continuation)
-//
-//        return AzureData.next(newRequest.build(), resourceType, classT!!, callback)
-//    }
+    fun <T : Resource> next(callback: (ListResponse<T>) -> Unit) {
+        val documentClient = documentClient
+                ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
+
+        val listResponse : ListResponse<T> = this as ListResponse<T>
+
+        val documentClass: Class<T> = documentClass as Class<T>
+
+        documentClient.next(listResponse, documentClass, callback)
+    }
 }
