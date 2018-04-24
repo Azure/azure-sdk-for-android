@@ -22,7 +22,6 @@ import com.google.gson.reflect.TypeToken
 import getDefaultHeaders
 import okhttp3.*
 import java.io.IOException
-import java.lang.reflect.Type
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
@@ -913,10 +912,8 @@ class DocumentClient {
                         }
 
                         @Throws(IOException::class)
-                        override fun onResponse(call: Call, resp: okhttp3.Response) {
-                            d{"orig response: ${response.metadata.continuation}"}
-                            callback(processListResponse(request, resp, resourceLocation, documentClass))
-                        }
+                        override fun onResponse(call: Call, resp: okhttp3.Response)  =
+                                callback(processListResponse(request, resp, resourceLocation, documentClass))
 
                     })
 //            val json = gson.toJson(query.dictionary)
@@ -1363,9 +1360,7 @@ class DocumentClient {
 
                 setResourceMetadata(response, resourceList, resourceLocation.resourceType)
 
-                val resp = ListResponse(request, response, json, Result(resourceList), resourceLocation)
-                d{"new  response: ${resp.metadata.continuation}"}
-                return resp
+                return ListResponse(request, response, json, Result(resourceList), resourceLocation)
             } else {
                 return ListResponse(json.toError(), request, response, json)
             }

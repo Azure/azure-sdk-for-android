@@ -227,7 +227,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         AzureData.getDocuments(collectionId, databaseId, docType, 1) { waitForResponse = it }
         await().until { waitForResponse != null }
         waitForResponse.let {
-            assertNotNull(it!!.metadata?.continuation)
+            assertNotNull(it!!.metadata.continuation)
             assertNotNull(it.resource?.items)
             assertEquals(1,it.resource?.items?.size)
             val id = it.resource?.items?.get(0)?.id!!
@@ -236,7 +236,6 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
             idsFound.add(id)
             assertTrue(it.hasMoreResults)
         }
-        d{ "jlcont1=${waitForResponse?.metadata?.continuation}" }
 
         // Get the second one
         waitForResponse.let { response ->
@@ -254,8 +253,6 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
             }
         }
         await().until { waitForResponse != null }
-        d{ "jlcont2=${waitForResponse?.metadata?.continuation}" }
-//        Thread.sleep(1000000)
 
         // Get the third one
         waitForResponse.let { response ->
@@ -272,20 +269,11 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
             }
         }
         await().until { waitForResponse != null }
-        d{ "jlcont3=${waitForResponse?.metadata?.continuation}" }
-//        Thread.sleep(100000)
 
-//
-//        // Get the last one
-//        resourceListResponse.next {
-//            assertNull(it?.metadata?.continuation)
-//            assertFalse(it!!.hasMoreResults)
-//        }
-//
-//        // Try to get one more
-//        thrown.expect(DocumentClientError::class.java)
-//        resourceListResponse.next {}
-
+        // Try to get one more
+        AzureData.nextDocuments(waitForResponse!!, docType) {
+            assertErrorResponse(it)
+        }
     }
 
     @Test
