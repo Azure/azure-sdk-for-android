@@ -20,7 +20,7 @@ class AzureData {
 
     companion object {
 
-        private lateinit var documentClient: DocumentClient
+        internal lateinit var documentClient: DocumentClient
         private var configured = false
 
         @JvmStatic

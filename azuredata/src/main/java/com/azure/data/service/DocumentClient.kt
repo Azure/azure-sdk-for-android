@@ -1234,7 +1234,7 @@ class DocumentClient {
 
                 setResourceMetadata(response, resourceList, resourceLocation.resourceType)
 
-                return ListResponse(request, response, json, Result(resourceList), resourceLocation, resourceClass, this)
+                return ListResponse(request, response, json, Result(resourceList), resourceLocation, resourceClass)
             } else {
                 return ListResponse(json.toError(), request, response, json)
             }

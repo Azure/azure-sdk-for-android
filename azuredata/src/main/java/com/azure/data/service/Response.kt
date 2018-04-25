@@ -1,5 +1,6 @@
 package com.azure.data.service
 
+import com.azure.data.AzureData
 import com.azure.data.model.*
 import okhttp3.Request
 
@@ -23,9 +24,7 @@ open class Response<T>(
         // The resourceLocation, filled out when there could be more results
         val resourceLocation: ResourceLocation? = null,
         // The class of the document
-        val documentClass: Class<*>? = null,
-        // The DocumentClient used to acquire this Response
-        val documentClient: DocumentClient? = null
+        val documentClass: Class<*>? = null
 ) {
     val metadata : ResponseMetadata by lazy {
         ResponseMetadata(response)
@@ -71,7 +70,7 @@ open class Response<T>(
     }
 
     fun <T : Resource> next(callback: (ListResponse<T>) -> Unit) {
-        val documentClient = documentClient
+        val documentClient = AzureData.documentClient
                 ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
 
         val listResponse : ListResponse<T> = this as ListResponse<T>
