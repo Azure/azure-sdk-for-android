@@ -69,12 +69,7 @@ open class Response<T>(
     val hasMoreResults : Boolean get() {
         return !metadata.continuation.isNullOrEmpty()
     }
-
-    @Suppress("UNCHECKED_CAST")
-    fun <T : Resource> next(callback: (ListResponse<T>) -> Unit) =
-            AzureData.documentClient.next(
-                    this as ListResponse<T>,
-                    resourceType,
-                    callback
-            )
 }
+
+fun <T : Resource> ListResponse<T>.next(callback: (ListResponse<T>) -> Unit) =
+        AzureData.documentClient.next(this, resourceType, callback)

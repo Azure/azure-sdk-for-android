@@ -5,6 +5,7 @@ import com.azure.data.AzureData
 import com.azure.data.model.Offer
 import com.azure.data.model.ResourceType
 import com.azure.data.service.ListResponse
+import com.azure.data.service.next
 import org.awaitility.Awaitility.await
 import org.junit.Assert.*
 import org.junit.Test
@@ -50,7 +51,7 @@ class OfferTests : ResourceTest<Offer>(ResourceType.Offer, false, false) {
         while(waitForResponse?.hasMoreResults == true) {
             waitForResponse.let { response ->
                 waitForResponse = null
-                response!!.next<Offer> {
+                response!!.next {
                     if (it.hasMoreResults) {
                         assertPageN(idsFound, it)
                     } else {
@@ -63,7 +64,7 @@ class OfferTests : ResourceTest<Offer>(ResourceType.Offer, false, false) {
         }
 
         // Try to get one more
-        waitForResponse!!.next<Offer> {
+        waitForResponse!!.next {
             assertPageOnePastLast(it)
         }
     }

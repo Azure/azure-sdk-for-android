@@ -9,6 +9,7 @@ import com.azure.data.model.User
 import com.azure.data.service.DataResponse
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
+import com.azure.data.service.next
 import junit.framework.Assert
 import junit.framework.Assert.assertEquals
 import org.awaitility.Awaitility.await
@@ -141,7 +142,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
         // Get the second one
         waitForResponse.let { response ->
             waitForResponse = null
-            response!!.next<User> {
+            response!!.next {
                 assertPageN(idsFound,it)
                 waitForResponse = it
             }
@@ -151,7 +152,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
         // Get the third one
         waitForResponse.let { response ->
             waitForResponse = null
-            response!!.next<User> {
+            response!!.next {
                 assertPageLast(idsFound,it)
                 waitForResponse = it
             }
@@ -159,7 +160,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
         await().until { waitForResponse != null }
 
         // Try to get one more
-        waitForResponse!!.next<User> {
+        waitForResponse!!.next {
             assertPageOnePastLast(it)
         }
     }

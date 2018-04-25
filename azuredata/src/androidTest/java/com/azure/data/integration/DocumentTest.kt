@@ -4,6 +4,7 @@ import com.azure.data.*
 import com.azure.data.model.*
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
+import com.azure.data.service.next
 import com.azure.data.util.json.gson
 import junit.framework.Assert.*
 import org.awaitility.Awaitility.await
@@ -230,7 +231,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         // Get the second one
         waitForResponse.let { response ->
             waitForResponse = null
-            response!!.next<TDoc> {
+            response!!.next {
                 assertPageN(idsFound,it)
                 waitForResponse = it
             }
@@ -240,7 +241,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         // Get the third one
         waitForResponse.let { response ->
             waitForResponse = null
-            response!!.next<TDoc> {
+            response!!.next {
                 assertPageLast(idsFound,it)
                 waitForResponse = it
             }
@@ -248,7 +249,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         await().until { waitForResponse != null }
 
         // Try to get one more
-        waitForResponse!!.next<TDoc> {
+        waitForResponse!!.next {
             assertPageOnePastLast(it)
         }
     }

@@ -5,6 +5,7 @@ import com.azure.data.*
 import com.azure.data.model.*
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
+import com.azure.data.service.next
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import okhttp3.HttpUrl
@@ -216,7 +217,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
         // Get the second one
         waitForResponse.let { response ->
             waitForResponse = null
-            response!!.next<Attachment> {
+            response!!.next {
                 assertPageN(idsFound,it)
                 waitForResponse = it
             }
@@ -226,7 +227,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
         // Get the third one
         waitForResponse.let { response ->
             waitForResponse = null
-            response!!.next<Attachment> {
+            response!!.next {
                 assertPageLast(idsFound,it)
                 waitForResponse = it
             }
@@ -234,7 +235,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
         await().until { waitForResponse != null }
 
         // Try to get one more
-        waitForResponse!!.next<Attachment> {
+        waitForResponse!!.next {
             assertPageOnePastLast(it)
         }
     }
