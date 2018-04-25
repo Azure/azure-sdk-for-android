@@ -24,7 +24,7 @@ open class Response<T>(
         val result: Result<T>,
         // The resourceLocation, filled out when there could be more results
         val resourceLocation: ResourceLocation? = null,
-        // The class of the Resource
+        // The Type of the Resource
         val resourceType: Type? = null
 ) {
     val metadata : ResponseMetadata by lazy {

@@ -9,7 +9,6 @@ import com.azure.data.service.DocumentClient
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
 import okhttp3.HttpUrl
-import java.lang.reflect.Type
 import java.net.URL
 
 /**
