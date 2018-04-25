@@ -135,28 +135,14 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
         AzureData.getUsers(databaseId, 1) { waitForResponse = it }
         await().until { waitForResponse != null }
         waitForResponse.let {
-            Assert.assertNotNull(it!!.metadata.continuation)
-            Assert.assertNotNull(it.resource?.items)
-            assertEquals(1,it.resource?.items?.size)
-            val id = it.resource?.items?.get(0)?.id!!
-            Assert.assertTrue(id.startsWith(createdResourceId))
-            Assert.assertFalse(idsFound.contains(id))
-            idsFound.add(id)
-            Assert.assertTrue(it.hasMoreResults)
+            assertPage1(idsFound,it)
         }
 
         // Get the second one
         waitForResponse.let { response ->
             waitForResponse = null
             response!!.next<User> {
-                Assert.assertNotNull(it.metadata.continuation)
-                Assert.assertNotNull(it.resource?.items)
-                assertEquals(1,it.resource?.items?.size)
-                val id = it.resource?.items?.get(0)?.id!!
-                Assert.assertTrue(id.startsWith(createdResourceId))
-                Assert.assertFalse(idsFound.contains(id))
-                idsFound.add(id)
-                Assert.assertTrue(it.hasMoreResults)
+                assertPageN(idsFound,it)
                 waitForResponse = it
             }
         }
@@ -166,13 +152,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
         waitForResponse.let { response ->
             waitForResponse = null
             response!!.next<User> {
-                Assert.assertNotNull(it.resource?.items)
-                assertEquals(1,it.resource?.items?.size)
-                val id = it.resource?.items?.get(0)?.id!!
-                Assert.assertTrue(id.startsWith(createdResourceId))
-                Assert.assertFalse(idsFound.contains(id))
-                idsFound.add(id)
-                Assert.assertFalse(it.hasMoreResults)
+                assertPageLast(idsFound,it)
                 waitForResponse = it
             }
         }
@@ -180,7 +160,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
 
         // Try to get one more
         waitForResponse!!.next<User> {
-            assertErrorResponse(it)
+            assertPageOnePastLast(it)
         }
     }
 

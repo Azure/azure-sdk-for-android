@@ -224,28 +224,14 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         AzureData.getDocuments(collectionId, databaseId, docType, 1) { waitForResponse = it }
         await().until { waitForResponse != null }
         waitForResponse.let {
-            assertNotNull(it!!.metadata.continuation)
-            assertNotNull(it.resource?.items)
-            assertEquals(1,it.resource?.items?.size)
-            val id = it.resource?.items?.get(0)?.id!!
-            assertTrue(id.startsWith(createdResourceId))
-            assertFalse(idsFound.contains(id))
-            idsFound.add(id)
-            assertTrue(it.hasMoreResults)
+            assertPage1(idsFound,it)
         }
 
         // Get the second one
         waitForResponse.let { response ->
             waitForResponse = null
             response!!.next<TDoc> {
-                assertNotNull(it.metadata.continuation)
-                assertNotNull(it.resource?.items)
-                assertEquals(1,it.resource?.items?.size)
-                val id = it.resource?.items?.get(0)?.id!!
-                assertTrue(id.startsWith(createdResourceId))
-                assertFalse(idsFound.contains(id))
-                idsFound.add(id)
-                assertTrue(it.hasMoreResults)
+                assertPageN(idsFound,it)
                 waitForResponse = it
             }
         }
@@ -255,13 +241,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         waitForResponse.let { response ->
             waitForResponse = null
             response!!.next<TDoc> {
-                assertNotNull(it.resource?.items)
-                assertEquals(1,it.resource?.items?.size)
-                val id = it.resource?.items?.get(0)?.id!!
-                assertTrue(id.startsWith(createdResourceId))
-                assertFalse(idsFound.contains(id))
-                idsFound.add(id)
-                assertFalse(it.hasMoreResults)
+                assertPageLast(idsFound,it)
                 waitForResponse = it
             }
         }
@@ -269,7 +249,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
 
         // Try to get one more
         waitForResponse!!.next<TDoc> {
-            assertErrorResponse(it)
+            assertPageOnePastLast(it)
         }
     }
 

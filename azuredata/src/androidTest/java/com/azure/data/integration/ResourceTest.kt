@@ -9,6 +9,7 @@ import com.azure.data.model.*
 import com.azure.data.service.DataResponse
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
+import junit.framework.Assert
 import org.awaitility.Awaitility.await
 import org.junit.After
 import org.junit.Assert.*
@@ -241,6 +242,41 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         assertNotNull(response!!.error)
         assertFalse(response.isSuccessful)
         assertTrue(response.isErrored)
+    }
+
+    fun <T : Resource> assertPage1(idsFound: MutableList<String>, response: ListResponse<T>?) {
+        Assert.assertNotNull(response!!.metadata.continuation)
+        Assert.assertNotNull(response.resource?.items)
+        Assert.assertEquals(1, response.resource?.items?.size)
+        val id = response.resource?.items?.get(0)?.id!!
+        Assert.assertTrue(id.startsWith(createdResourceId))
+        Assert.assertTrue(response.hasMoreResults)
+        idsFound.add(id)
+    }
+
+    fun <T : Resource> assertPageN(idsFound: MutableList<String>, response: ListResponse<T>?) {
+        Assert.assertNotNull(response!!.metadata.continuation)
+        Assert.assertNotNull(response.resource?.items)
+        Assert.assertEquals(1, response.resource?.items?.size)
+        val id = response.resource?.items?.get(0)?.id!!
+        Assert.assertTrue(id.startsWith(createdResourceId))
+        Assert.assertFalse(idsFound.contains(id))
+        Assert.assertTrue(response.hasMoreResults)
+        idsFound.add(id)
+    }
+
+    fun <T : Resource> assertPageLast(idsFound: MutableList<String>, response: ListResponse<T>?) {
+        Assert.assertNotNull(response!!.resource?.items)
+        Assert.assertEquals(1, response.resource?.items?.size)
+        val id = response.resource?.items?.get(0)?.id!!
+        Assert.assertTrue(id.startsWith(createdResourceId))
+        Assert.assertFalse(idsFound.contains(id))
+        idsFound.add(id)
+        Assert.assertFalse(response.hasMoreResults)
+    }
+
+    fun <T : Resource> assertPageOnePastLast(response: ListResponse<T>?) {
+        assertErrorResponse(response)
     }
 
     private fun assertResourcePropertiesSet(resource: Resource) {
