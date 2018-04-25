@@ -69,14 +69,11 @@ open class Response<T>(
         return !metadata.continuation.isNullOrEmpty()
     }
 
-    fun <T : Resource> next(callback: (ListResponse<T>) -> Unit) {
-        val documentClient = AzureData.documentClient
-                ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
-
-        val listResponse : ListResponse<T> = this as ListResponse<T>
-
-        val documentClass: Class<T> = documentClass as Class<T>
-
-        documentClient.next(listResponse, documentClass, callback)
-    }
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Resource> next(callback: (ListResponse<T>) -> Unit) =
+            AzureData.documentClient.next(
+                    this as ListResponse<T>,
+                    documentClass as Class<T>,
+                    callback
+            )
 }
