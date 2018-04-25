@@ -862,7 +862,7 @@ class DocumentClient {
     }
 
     // next
-    fun <T : Resource> next(response : ListResponse<T>, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
+    fun <T : Resource> next(response : ListResponse<T>, resourceClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
 
         if (ContextProvider.isOffline) {
             i{"offline, calling back with cached data"}
@@ -897,7 +897,7 @@ class DocumentClient {
 
                         @Throws(IOException::class)
                         override fun onResponse(call: Call, resp: okhttp3.Response)  =
-                                callback(processListResponse(request, resp, resourceLocation, documentClass))
+                                callback(processListResponse(request, resp, resourceLocation, resourceClass))
 
                     })
         } catch (ex: Exception) {

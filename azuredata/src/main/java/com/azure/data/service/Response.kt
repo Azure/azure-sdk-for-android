@@ -23,8 +23,8 @@ open class Response<T>(
         val result: Result<T>,
         // The resourceLocation, filled out when there could be more results
         val resourceLocation: ResourceLocation? = null,
-        // The class of the document
-        val documentClass: Class<*>? = null
+        // The class of the Resource
+        val resourceClass: Class<*>? = null
 ) {
     val metadata : ResponseMetadata by lazy {
         ResponseMetadata(response)
@@ -73,7 +73,7 @@ open class Response<T>(
     fun <T : Resource> next(callback: (ListResponse<T>) -> Unit) =
             AzureData.documentClient.next(
                     this as ListResponse<T>,
-                    documentClass as Class<T>,
+                    resourceClass as Class<T>,
                     callback
             )
 }
