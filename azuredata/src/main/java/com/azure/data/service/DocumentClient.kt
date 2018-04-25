@@ -22,6 +22,7 @@ import com.google.gson.reflect.TypeToken
 import getDefaultHeaders
 import okhttp3.*
 import java.io.IOException
+import java.lang.reflect.Type
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
@@ -178,9 +179,9 @@ class DocumentClient {
     }
 
     // list
-    fun <T : Document> getDocumentsAs(collection: DocumentCollection, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
+    fun <T : Document> getDocumentsAs(collection: DocumentCollection, documentType: Type, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Document, collection), callback, documentClass, maxPerPage)
+        return resources(ResourceLocation.Child(ResourceType.Document, collection), callback, documentType, maxPerPage)
     }
 
     // get
@@ -641,7 +642,7 @@ class DocumentClient {
     }
 
     // list
-    private fun <T : Resource> resources(resourceLocation: ResourceLocation, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null, maxPerPage: Int? = null) {
+    private fun <T : Resource> resources(resourceLocation: ResourceLocation, callback: (ListResponse<T>) -> Unit, resourceType: Type? = null, maxPerPage: Int? = null) {
 
         if (ContextProvider.isOffline) {
             i{"offline, calling back with cached data"}
@@ -651,7 +652,7 @@ class DocumentClient {
 
         createRequest(HttpMethod.Get, resourceLocation, maxPerPage = maxPerPage) {
 
-            sendResourceListRequest(it, resourceLocation, callback, resourceClass)
+            sendResourceListRequest(it, resourceLocation, callback, resourceType)
         }
     }
 
@@ -862,7 +863,7 @@ class DocumentClient {
     }
 
     // next
-    fun <T : Resource> next(response : ListResponse<T>, resourceClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
+    fun <T : Resource> next(response : ListResponse<T>, resourceType: Type?, callback: (ListResponse<T>) -> Unit) {
 
         if (ContextProvider.isOffline) {
             i{"offline, calling back with cached data"}
@@ -877,6 +878,9 @@ class DocumentClient {
 
             val resourceLocation = response.resourceLocation
                 ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
+
+            val type = resourceType
+                    ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
 
             val continuation = response.metadata.continuation
                 ?: return callback(ListResponse(DataError(DocumentClientError.NoMoreResultsError)))
@@ -897,7 +901,7 @@ class DocumentClient {
 
                         @Throws(IOException::class)
                         override fun onResponse(call: Call, resp: okhttp3.Response)  =
-                                callback(processListResponse(request, resp, resourceLocation, resourceClass))
+                                callback(processListResponse(request, resp, resourceLocation, type))
 
                     })
         } catch (ex: Exception) {
@@ -1152,7 +1156,7 @@ class DocumentClient {
         }
     }
 
-    private inline fun <T : Resource> sendResourceListRequest(request: Request, resourceLocation: ResourceLocation, crossinline callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
+    private inline fun <T : Resource> sendResourceListRequest(request: Request, resourceLocation: ResourceLocation, crossinline callback: (ListResponse<T>) -> Unit, resourceType: Type? = null) {
 
         d{"***"}
         d{"Sending ${request.method()} request for Data to ${request.url()}"}
@@ -1172,7 +1176,7 @@ class DocumentClient {
 
                         @Throws(IOException::class)
                         override fun onResponse(call: Call, response: okhttp3.Response) =
-                                callback(processListResponse(request, response, resourceLocation, resourceClass))
+                                callback(processListResponse(request, response, resourceLocation, resourceType))
                     })
         } catch (ex: Exception) {
             e(ex)
@@ -1217,7 +1221,7 @@ class DocumentClient {
         }
     }
 
-    private fun <T : Resource> processListResponse(request: Request, response: okhttp3.Response, resourceLocation: ResourceLocation, resourceClass: Class<T>? = null): ListResponse<T> {
+    private fun <T : Resource> processListResponse(request: Request, response: okhttp3.Response, resourceLocation: ResourceLocation, resourceType: Type? = null): ListResponse<T> {
 
         try {
             val body = response.body()
@@ -1227,14 +1231,14 @@ class DocumentClient {
             if (response.isSuccessful) {
 
                 //TODO: see if there's any benefit to caching these type tokens performance wise (or for any other reason)
-                val type = resourceClass ?: resourceLocation.resourceType.type
+                val type = resourceType ?: resourceLocation.resourceType.type
                 val listType = TypeToken.getParameterized(ResourceList::class.java, type).type
                 val resourceList = gson.fromJson<ResourceList<T>>(json, listType)
                         ?: return ListResponse(json.toError(), request, response, json)
 
                 setResourceMetadata(response, resourceList, resourceLocation.resourceType)
 
-                return ListResponse(request, response, json, Result(resourceList), resourceLocation, resourceClass)
+                return ListResponse(request, response, json, Result(resourceList), resourceLocation, type)
             } else {
                 return ListResponse(json.toError(), request, response, json)
             }

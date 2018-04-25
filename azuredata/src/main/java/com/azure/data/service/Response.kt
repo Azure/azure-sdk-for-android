@@ -3,6 +3,7 @@ package com.azure.data.service
 import com.azure.data.AzureData
 import com.azure.data.model.*
 import okhttp3.Request
+import java.lang.reflect.Type
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -24,7 +25,7 @@ open class Response<T>(
         // The resourceLocation, filled out when there could be more results
         val resourceLocation: ResourceLocation? = null,
         // The class of the Resource
-        val resourceClass: Class<*>? = null
+        val resourceType: Type? = null
 ) {
     val metadata : ResponseMetadata by lazy {
         ResponseMetadata(response)
@@ -73,7 +74,7 @@ open class Response<T>(
     fun <T : Resource> next(callback: (ListResponse<T>) -> Unit) =
             AzureData.documentClient.next(
                     this as ListResponse<T>,
-                    resourceClass as Class<T>,
+                    resourceType,
                     callback
             )
 }

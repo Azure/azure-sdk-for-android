@@ -9,6 +9,7 @@ import com.azure.data.service.DocumentClient
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
 import okhttp3.HttpUrl
+import java.lang.reflect.Type
 import java.net.URL
 
 /**
@@ -129,7 +130,7 @@ class AzureData {
         // list
         @JvmStatic
         fun <T : Document> getDocuments(collection: DocumentCollection, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) =
-                documentClient.getDocumentsAs(collection, documentClass, maxPerPage, callback)
+                documentClient.getDocumentsAs(collection, documentClass as Type, maxPerPage, callback)
 
         // get
         @JvmStatic
