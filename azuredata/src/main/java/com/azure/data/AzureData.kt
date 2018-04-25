@@ -130,7 +130,7 @@ class AzureData {
         // list
         @JvmStatic
         fun <T : Document> getDocuments(collection: DocumentCollection, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) =
-                documentClient.getDocumentsAs(collection, documentClass as Type, maxPerPage, callback)
+                documentClient.getDocumentsAs(collection, documentClass, maxPerPage, callback)
 
         // get
         @JvmStatic

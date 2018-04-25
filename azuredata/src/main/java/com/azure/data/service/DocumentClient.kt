@@ -179,9 +179,9 @@ class DocumentClient {
     }
 
     // list
-    fun <T : Document> getDocumentsAs(collection: DocumentCollection, documentType: Type, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
+    fun <T : Document> getDocumentsAs(collection: DocumentCollection, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Document, collection), callback, documentType, maxPerPage)
+        return resources(ResourceLocation.Child(ResourceType.Document, collection), callback, documentClass, maxPerPage)
     }
 
     // get
@@ -642,7 +642,7 @@ class DocumentClient {
     }
 
     // list
-    private fun <T : Resource> resources(resourceLocation: ResourceLocation, callback: (ListResponse<T>) -> Unit, resourceType: Type? = null, maxPerPage: Int? = null) {
+    private fun <T : Resource> resources(resourceLocation: ResourceLocation, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null, maxPerPage: Int? = null) {
 
         if (ContextProvider.isOffline) {
             i{"offline, calling back with cached data"}
@@ -652,7 +652,7 @@ class DocumentClient {
 
         createRequest(HttpMethod.Get, resourceLocation, maxPerPage = maxPerPage) {
 
-            sendResourceListRequest(it, resourceLocation, callback, resourceType)
+            sendResourceListRequest(it, resourceLocation, callback, resourceClass)
         }
     }
 
@@ -1156,7 +1156,7 @@ class DocumentClient {
         }
     }
 
-    private inline fun <T : Resource> sendResourceListRequest(request: Request, resourceLocation: ResourceLocation, crossinline callback: (ListResponse<T>) -> Unit, resourceType: Type? = null) {
+    private inline fun <T : Resource> sendResourceListRequest(request: Request, resourceLocation: ResourceLocation, crossinline callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
 
         d{"***"}
         d{"Sending ${request.method()} request for Data to ${request.url()}"}
@@ -1176,7 +1176,7 @@ class DocumentClient {
 
                         @Throws(IOException::class)
                         override fun onResponse(call: Call, response: okhttp3.Response) =
-                                callback(processListResponse(request, response, resourceLocation, resourceType))
+                                callback(processListResponse(request, response, resourceLocation, resourceClass))
                     })
         } catch (ex: Exception) {
             e(ex)
