@@ -130,6 +130,28 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
     }
 
     @Test
+    fun createOrReplaceDocument() {
+
+        val doc = createNewDocument()
+        doc.setValue(customNumberKey, customNumberValue+1)
+
+        var docResponse: Response<TDoc>? = null
+        AzureData.createOrReplaceDocument(doc, collectionId, databaseId) {
+            docResponse = it
+        }
+        await().until { docResponse != null }
+
+        assertResourceResponseSuccess(docResponse)
+        assertEquals(createdResourceId, docResponse?.resource?.id)
+
+        val updatedDoc = docResponse!!.resource!!
+
+        assertNotNull(updatedDoc.getValue(customStringKey))
+        assertNotNull(updatedDoc.getValue(customNumberKey))
+        assertEquals(customNumberValue+1, (updatedDoc.getValue(customNumberKey) as Number).toInt())
+    }
+
+    @Test
     fun createDocumentInCollection() {
 
         createNewDocument(collection)

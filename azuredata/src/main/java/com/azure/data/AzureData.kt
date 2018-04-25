@@ -118,6 +118,16 @@ class AzureData {
         fun <T : Document> createDocument(document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
                 documentClient.createDocument(document, collection, callback)
 
+        // createOrReplace
+        @JvmStatic
+        fun <T : Document> createOrReplaceDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
+                documentClient.createOrReplaceDocument(document, collectionId, databaseId, callback)
+
+        // createOrReplace
+        @JvmStatic
+        fun <T : Document> createOrReplaceDocument(document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
+                documentClient.createOrReplaceDocument(document, collection, callback)
+
         // list
         @JvmStatic
         fun <T : Document> getDocuments(collectionId: String, databaseId: String, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) =
