@@ -33,7 +33,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
     fun databaseId(count : Int = 0) = "$databaseId${if (count<2) "" else count.toString()}"
     fun collectionId(count : Int = 0) = "$collectionId${if (count<2) "" else count.toString()}"
     fun documentId(count : Int = 0) = "$documentId${if (count<2) "" else count.toString()}"
-    fun createdResourceId(count : Int = 0) = "$createdResourceId${if (count<2) "" else count.toString()}"
+    fun createdResourceId(count : Int? = 0) = "$createdResourceId${if (count==null) "" else if (count<2) "" else count.toString()}"
 
     var response: Response<TResource>? = null
     var resourceListResponse: ListResponse<TResource>? = null
