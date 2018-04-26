@@ -22,6 +22,7 @@ import com.google.gson.reflect.TypeToken
 import getDefaultHeaders
 import okhttp3.*
 import java.io.IOException
+import java.lang.reflect.Type
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
@@ -104,9 +105,9 @@ class DocumentClient {
             = create(databaseId, ResourceLocation.Database(), callback = callback)
 
     // list
-    fun getDatabases(callback: (ListResponse<Database>) -> Unit) {
+    fun getDatabases(maxPerPage: Int? = null, callback: (ListResponse<Database>) -> Unit) {
 
-        return resources(ResourceLocation.Database(), callback)
+        return resources(ResourceLocation.Database(), callback, maxPerPage = maxPerPage)
     }
 
     // get
@@ -132,9 +133,9 @@ class DocumentClient {
     }
 
     // list
-    fun getCollectionsIn(databaseId: String, callback: (ListResponse<DocumentCollection>) -> Unit) {
+    fun getCollectionsIn(databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<DocumentCollection>) -> Unit) {
 
-        return resources(ResourceLocation.Collection(databaseId), callback)
+        return resources(ResourceLocation.Collection(databaseId), callback, maxPerPage = maxPerPage)
     }
 
     // get
@@ -172,15 +173,15 @@ class DocumentClient {
     }
 
     // list
-    fun <T : Document> getDocumentsAs(collectionId: String, databaseId: String, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
+    fun <T : Document> getDocumentsAs(collectionId: String, databaseId: String, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
-        return resources(ResourceLocation.Document(databaseId, collectionId), callback, documentClass)
+        return resources(ResourceLocation.Document(databaseId, collectionId), callback, documentClass, maxPerPage)
     }
 
     // list
-    fun <T : Document> getDocumentsAs(collection: DocumentCollection, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
+    fun <T : Document> getDocumentsAs(collection: DocumentCollection, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Document, collection), callback, documentClass)
+        return resources(ResourceLocation.Child(ResourceType.Document, collection), callback, documentClass, maxPerPage)
     }
 
     // get
@@ -220,15 +221,15 @@ class DocumentClient {
     }
 
     // query
-    fun <T: Document> queryDocuments (collectionId: String, databaseId: String, query: Query, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
+    fun <T: Document> queryDocuments (collectionId: String, databaseId: String, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
-        return query(query, ResourceLocation.Document(databaseId, collectionId), callback, documentClass)
+        return query(query, ResourceLocation.Document(databaseId, collectionId), maxPerPage, callback, documentClass)
     }
 
     // query
-    fun <T: Document> queryDocuments (collection: DocumentCollection, query: Query, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
+    fun <T: Document> queryDocuments (collection: DocumentCollection, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
-        return query(query, ResourceLocation.Child(ResourceType.Document, collection), callback, documentClass)
+        return query(query, ResourceLocation.Child(ResourceType.Document, collection), maxPerPage, callback, documentClass)
     }
 
     //endregion
@@ -270,15 +271,15 @@ class DocumentClient {
     }
 
     // list
-    fun getAttachments(documentId: String, collectionId: String, databaseId: String, callback: (ListResponse<Attachment>) -> Unit) {
+    fun getAttachments(documentId: String, collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<Attachment>) -> Unit) {
 
-        return resources(ResourceLocation.Attachment(databaseId, collectionId, documentId), callback)
+        return resources(ResourceLocation.Attachment(databaseId, collectionId, documentId), callback, maxPerPage = maxPerPage)
     }
 
     // list
-    fun getAttachments(document: Document, callback: (ListResponse<Attachment>) -> Unit) {
+    fun getAttachments(document: Document, maxPerPage: Int? = null, callback: (ListResponse<Attachment>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Attachment, document), callback)
+        return resources(ResourceLocation.Child(ResourceType.Attachment, document), callback, maxPerPage = maxPerPage)
     }
 
     // delete
@@ -344,15 +345,15 @@ class DocumentClient {
     }
 
     // list
-    fun getStoredProcedures(collectionId: String, databaseId: String, callback: (ListResponse<StoredProcedure>) -> Unit) {
+    fun getStoredProcedures(collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<StoredProcedure>) -> Unit) {
 
-        return resources(ResourceLocation.StoredProcedure(databaseId, collectionId), callback)
+        return resources(ResourceLocation.StoredProcedure(databaseId, collectionId), callback, maxPerPage = maxPerPage)
     }
 
     // list
-    fun getStoredProcedures(collection: DocumentCollection, callback: (ListResponse<StoredProcedure>) -> Unit) {
+    fun getStoredProcedures(collection: DocumentCollection, maxPerPage: Int? = null, callback: (ListResponse<StoredProcedure>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.StoredProcedure, collection), callback)
+        return resources(ResourceLocation.Child(ResourceType.StoredProcedure, collection), callback, maxPerPage = maxPerPage)
     }
 
     // delete
@@ -408,15 +409,15 @@ class DocumentClient {
     }
 
     // list
-    fun getUserDefinedFunctions(collectionId: String, databaseId: String, callback: (ListResponse<UserDefinedFunction>) -> Unit) {
+    fun getUserDefinedFunctions(collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<UserDefinedFunction>) -> Unit) {
 
-        return resources(ResourceLocation.Udf(databaseId, collectionId), callback)
+        return resources(ResourceLocation.Udf(databaseId, collectionId), callback, maxPerPage = maxPerPage)
     }
 
     // list
-    fun getUserDefinedFunctions(collection: DocumentCollection, callback: (ListResponse<UserDefinedFunction>) -> Unit) {
+    fun getUserDefinedFunctions(collection: DocumentCollection, maxPerPage: Int? = null, callback: (ListResponse<UserDefinedFunction>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Udf, collection), callback)
+        return resources(ResourceLocation.Child(ResourceType.Udf, collection), callback, maxPerPage = maxPerPage)
     }
 
     // delete
@@ -460,15 +461,15 @@ class DocumentClient {
     }
 
     // list
-    fun getTriggers(collectionId: String, databaseId: String, callback: (ListResponse<Trigger>) -> Unit) {
+    fun getTriggers(collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<Trigger>) -> Unit) {
 
-        return resources(ResourceLocation.Trigger(databaseId, collectionId), callback)
+        return resources(ResourceLocation.Trigger(databaseId, collectionId), callback, maxPerPage = maxPerPage)
     }
 
     // list
-    fun getTriggers(collection: DocumentCollection, callback: (ListResponse<Trigger>) -> Unit) {
+    fun getTriggers(collection: DocumentCollection, maxPerPage: Int? = null, callback: (ListResponse<Trigger>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Trigger, collection), callback)
+        return resources(ResourceLocation.Child(ResourceType.Trigger, collection), callback, maxPerPage = maxPerPage)
     }
 
     // delete
@@ -506,9 +507,9 @@ class DocumentClient {
     }
 
     // list
-    fun getUsers(databaseId: String, callback: (ListResponse<User>) -> Unit) {
+    fun getUsers(databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<User>) -> Unit) {
 
-        return resources(ResourceLocation.User(databaseId), callback)
+        return resources(ResourceLocation.User(databaseId), callback, maxPerPage = maxPerPage)
     }
 
     // get
@@ -550,15 +551,15 @@ class DocumentClient {
     }
 
     // list
-    fun getPermissions(userId: String, databaseId: String, callback: (ListResponse<Permission>) -> Unit) {
+    fun getPermissions(userId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<Permission>) -> Unit) {
 
-        return resources(ResourceLocation.Permission(databaseId, userId), callback)
+        return resources(ResourceLocation.Permission(databaseId, userId), callback, maxPerPage = maxPerPage)
     }
 
     // list
-    fun getPermissions(user: User, callback: (ListResponse<Permission>) -> Unit) {
+    fun getPermissions(user: User, maxPerPage: Int? = null, callback: (ListResponse<Permission>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Permission, user), callback)
+        return resources(ResourceLocation.Child(ResourceType.Permission, user), callback, maxPerPage = maxPerPage)
     }
 
     // get
@@ -602,9 +603,9 @@ class DocumentClient {
     //region Offers
 
     // list
-    fun getOffers(callback: (ListResponse<Offer>) -> Unit) {
+    fun getOffers(maxPerPage: Int? = null, callback: (ListResponse<Offer>) -> Unit) {
 
-        return resources(ResourceLocation.Offer(), callback)
+        return resources(ResourceLocation.Offer(), callback, maxPerPage = maxPerPage)
     }
 
     // get
@@ -641,7 +642,7 @@ class DocumentClient {
     }
 
     // list
-    private fun <T : Resource> resources(resourceLocation: ResourceLocation, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
+    private fun <T : Resource> resources(resourceLocation: ResourceLocation, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null, maxPerPage: Int? = null) {
 
         if (ContextProvider.isOffline) {
             i{"offline, calling back with cached data"}
@@ -649,7 +650,7 @@ class DocumentClient {
             // todo: ... then return
         }
 
-        createRequest(HttpMethod.Get, resourceLocation) {
+        createRequest(HttpMethod.Get, resourceLocation, maxPerPage = maxPerPage) {
 
             sendResourceListRequest(it, resourceLocation, callback, resourceClass)
         }
@@ -838,7 +839,7 @@ class DocumentClient {
     }
 
     // query
-    private fun <T : Resource> query(query: Query, resourceLocation: ResourceLocation, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
+    private fun <T : Resource> query(query: Query, resourceLocation: ResourceLocation, maxPerPage: Int?, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
 
         d{query.toString()}
 
@@ -851,10 +852,58 @@ class DocumentClient {
         try {
             val json = gson.toJson(query.dictionary)
 
-            createRequest(HttpMethod.Post, resourceLocation, forQuery = true, jsonBody = json) {
+            createRequest(HttpMethod.Post, resourceLocation, forQuery = true, jsonBody = json, maxPerPage = maxPerPage) {
 
                 sendResourceListRequest(it, resourceLocation, callback, resourceClass)
             }
+        } catch (ex: Exception) {
+            e(ex)
+            callback(ListResponse(DataError(ex)))
+        }
+    }
+
+    // next
+    fun <T : Resource> next(response : ListResponse<T>, resourceType: Type?, callback: (ListResponse<T>) -> Unit) {
+
+        if (ContextProvider.isOffline) {
+            i{"offline, calling back with cached data"}
+            // todo: callback with cached data ...
+            // todo: ... then return
+        }
+
+
+        try {
+            val request = response.request
+                ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
+
+            val resourceLocation = response.resourceLocation
+                ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
+
+            val type = resourceType
+                    ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
+
+            val continuation = response.metadata.continuation
+                ?: return callback(ListResponse(DataError(DocumentClientError.NoMoreResultsError)))
+
+            val newRequest = request.newBuilder()
+                    .header(MSHttpHeader.MSContinuation.value,continuation)
+                    .build()
+
+            client.newCall(newRequest)
+                    .enqueue(object : Callback {
+
+                        // only transport errors handled here
+                        override fun onFailure(call: Call, e: IOException) {
+                            ContextProvider.isOffline = true
+                            // todo: callback with cached data instead of the callback with the error below
+                            callback(Response(DataError(e)))
+                        }
+
+                        @Throws(IOException::class)
+                        override fun onResponse(call: Call, resp: okhttp3.Response)  =
+                                callback(processListResponse(request, resp, resourceLocation, type))
+
+                    })
         } catch (ex: Exception) {
             e(ex)
             callback(ListResponse(DataError(ex)))
@@ -932,9 +981,9 @@ class DocumentClient {
         return callback(Response(DataError(DocumentClientError.UnknownError)))
     }
 
-    private inline fun createRequest(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, crossinline callback: (Request) -> Unit) {
+    private inline fun createRequest(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, maxPerPage: Int? = null, crossinline callback: (Request) -> Unit) {
 
-        createRequestBuilder(method, resourceLocation, additionalHeaders) {
+        createRequestBuilder(method, resourceLocation, additionalHeaders, maxPerPage) {
 
             when (method) {
                 HttpMethod.Get -> it.get()
@@ -947,9 +996,9 @@ class DocumentClient {
         }
     }
 
-    private inline fun createRequest(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, jsonBody: String, forQuery: Boolean = false, crossinline callback: (Request) -> Unit) {
+    private inline fun createRequest(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, jsonBody: String, forQuery: Boolean = false, maxPerPage: Int? = null, crossinline callback: (Request) -> Unit) {
 
-        createRequestBuilder(method, resourceLocation, additionalHeaders) {
+        createRequestBuilder(method, resourceLocation, additionalHeaders, maxPerPage) {
 
             // For Post on query operations, it must be application/query+json
             // For attachments, must be set to the Mime type of the attachment.
@@ -980,9 +1029,9 @@ class DocumentClient {
         }
     }
 
-    private inline fun createRequest(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, body: ByteArray, crossinline callback: (Request) -> Unit) {
+    private inline fun createRequest(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, body: ByteArray, maxPerPage: Int? = null, crossinline callback: (Request) -> Unit) {
 
-        createRequestBuilder(method, resourceLocation, additionalHeaders) {
+        createRequestBuilder(method, resourceLocation, additionalHeaders, maxPerPage) {
 
             var mediaType = jsonMediaType
 
@@ -1000,7 +1049,7 @@ class DocumentClient {
         }
     }
 
-    private inline fun createRequestBuilder(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, crossinline callback: (Request.Builder) -> Unit) {
+    private inline fun createRequestBuilder(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, maxPerPage: Int? = null, crossinline callback: (Request.Builder) -> Unit) {
 
         getTokenforResource(resourceLocation, method) {
 
@@ -1022,6 +1071,15 @@ class DocumentClient {
                     // and the token data
                     builder.addHeader(MSHttpHeader.MSDate.value, it.date)
                     builder.addHeader(HttpHeader.Authorization.value, it.token)
+
+                    // add the count
+                    maxPerPage?.let {
+                        if ((1..1000).contains(it)) {
+                            builder.addHeader(MSHttpHeader.MSMaxItemCount.value, it.toString())
+                        } else {
+                            throw DocumentClientError.InvalidMaxPerPageError
+                        }
+                    }
 
                     // if we have additional headers, let's add them in here
                     additionalHeaders?.let {
@@ -1118,7 +1176,7 @@ class DocumentClient {
 
                         @Throws(IOException::class)
                         override fun onResponse(call: Call, response: okhttp3.Response) =
-                                callback(processListResponse(request, response, resourceLocation.resourceType, resourceClass))
+                                callback(processListResponse(request, response, resourceLocation, resourceClass))
                     })
         } catch (ex: Exception) {
             e(ex)
@@ -1163,7 +1221,7 @@ class DocumentClient {
         }
     }
 
-    private fun <T : Resource> processListResponse(request: Request, response: okhttp3.Response, resourceType: ResourceType, resourceClass: Class<T>? = null): ListResponse<T> {
+    private fun <T : Resource> processListResponse(request: Request, response: okhttp3.Response, resourceLocation: ResourceLocation, resourceType: Type? = null): ListResponse<T> {
 
         try {
             val body = response.body()
@@ -1173,14 +1231,14 @@ class DocumentClient {
             if (response.isSuccessful) {
 
                 //TODO: see if there's any benefit to caching these type tokens performance wise (or for any other reason)
-                val type = resourceClass ?: resourceType.type
+                val type = resourceType ?: resourceLocation.resourceType.type
                 val listType = TypeToken.getParameterized(ResourceList::class.java, type).type
                 val resourceList = gson.fromJson<ResourceList<T>>(json, listType)
                         ?: return ListResponse(json.toError(), request, response, json)
 
-                setResourceMetadata(response, resourceList, resourceType)
+                setResourceMetadata(response, resourceList, resourceLocation.resourceType)
 
-                return ListResponse(request, response, json, Result(resourceList))
+                return ListResponse(request, response, json, Result(resourceList), resourceLocation, type)
             } else {
                 return ListResponse(json.toError(), request, response, json)
             }
