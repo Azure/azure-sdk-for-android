@@ -1,9 +1,9 @@
 package com.azure.data.service
 
-import com.azure.data.model.DataError
-import com.azure.data.model.ResourceList
-import com.azure.data.model.Result
+import com.azure.data.AzureData
+import com.azure.data.model.*
 import okhttp3.Request
+import java.lang.reflect.Type
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -21,7 +21,11 @@ open class Response<T>(
         //  The json data returned by the server (if applicable)
         val jsonData: String? = null,
         // The result of response deserialization.
-        val result: Result<T>
+        val result: Result<T>,
+        // The resourceLocation, filled out when there could be more results
+        val resourceLocation: ResourceLocation? = null,
+        // The Type of the Resource
+        val resourceType: Type? = null
 ) {
     val metadata : ResponseMetadata by lazy {
         ResponseMetadata(response)
@@ -58,4 +62,14 @@ open class Response<T>(
      * Returns the associated value of the result if it is a success, null otherwise.
      */
     val resource: T? = result.resource
+
+    /**
+     * Returns `true` if there are more paged results available
+     */
+    val hasMoreResults : Boolean get() {
+        return !metadata.continuation.isNullOrEmpty()
+    }
 }
+
+fun <T : Resource> ListResponse<T>.next(callback: (ListResponse<T>) -> Unit) =
+        AzureData.documentClient.next(this, resourceType, callback)
