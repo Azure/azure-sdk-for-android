@@ -17,6 +17,7 @@ enum class MSHttpHeader(val value: String, val description: String = "") {
     MSContinuation("x-ms-continuation", "x-ms-continuation: This header represents the intermediate state of query (or read-feed) execution, and is returned when there are additional results aside from what was returned in the response. Clients can resubmitted the request with a request header containingthe value of x-ms-continuation."),
     MSDate("x-ms-date"),
     MSDocumentDBIsQuery("x-ms-documentdb-isquery"),
+    MSDocumentDBIsUpsert("x-ms-documentdb-is-upsert"),
     MSDocumentDBPartitionKey("x-ms-documentdb-partitionkey"),
     MSDocumentDBPartitionKeyRangeId("x-ms-documentdb-partitionkeyrangeid"),
     MSItemCount("x-ms-item-count", "x-ms-item-count: The number of items returned for a query or read-feed request."),

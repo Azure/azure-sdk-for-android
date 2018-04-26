@@ -172,6 +172,18 @@ class DocumentClient {
         return create(document, ResourceLocation.Child(ResourceType.Document, collection), callback = callback)
     }
 
+    // createOrReplace
+    fun <T : Document> createOrReplaceDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) {
+
+        return create(document, ResourceLocation.Document(databaseId, collectionId), replace = true, callback = callback)
+    }
+
+    // createOrReplace
+    fun <T : Document> createOrReplaceDocument (document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) {
+
+        return create(document, ResourceLocation.Child(ResourceType.Document, collection), replace = true, callback = callback)
+    }
+
     // list
     fun <T : Document> getDocumentsAs(collectionId: String, databaseId: String, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
@@ -619,17 +631,17 @@ class DocumentClient {
     //region Resource operations
 
     // create
-    private fun <T : Resource> create(resource: T, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit) {
+    private fun <T : Resource> create(resource: T, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, replace: Boolean = false, callback: (Response<T>) -> Unit) {
 
         if (!resource.hasValidId()) {
             return callback(Response(DataError(DocumentClientError.InvalidId)))
         }
 
-        createOrReplace(resource, resourceLocation, false, additionalHeaders, callback)
+        createOrReplace(resource, resourceLocation, replace, additionalHeaders, callback)
     }
 
     // create
-    private fun <T : Resource> create(resourceId: String, resourceLocation: ResourceLocation, data: MutableMap<String, String>? = null, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit) {
+    private fun <T : Resource> create(resourceId: String, resourceLocation: ResourceLocation, data: MutableMap<String, String>? = null, additionalHeaders: Headers? = null, replace: Boolean = false, callback: (Response<T>) -> Unit) {
 
         if (!resourceId.isValidIdForResource()) {
             return callback(Response(DataError(DocumentClientError.InvalidId)))
@@ -638,7 +650,7 @@ class DocumentClient {
         val map = data ?: mutableMapOf()
         map["id"] = resourceId
 
-        createOrReplace(map, resourceLocation, false, additionalHeaders, callback)
+        createOrReplace(map, resourceLocation, replace, additionalHeaders, callback)
     }
 
     // list
@@ -784,8 +796,15 @@ class DocumentClient {
 
         try {
             val jsonBody = gson.toJson(body)
+            var headers = additionalHeaders
 
-            createRequest(if (replacing) HttpMethod.Put else HttpMethod.Post, resourceLocation, additionalHeaders, jsonBody) {
+            if (replacing) {
+                val builder = headers?.newBuilder() ?: Headers.Builder()
+                builder.add(MSHttpHeader.MSDocumentDBIsUpsert.value,"true")
+                headers = builder.build()
+            }
+
+            createRequest(HttpMethod.Post, resourceLocation, headers, jsonBody) {
 
                 @Suppress("UNCHECKED_CAST")
                 sendResourceRequest(it, resourceLocation, callback, body::class.java as Class<T>)
