@@ -27,8 +27,8 @@ fun Database.getCollection (collectionId: String, callback: (Response<DocumentCo
 }
 
 // list
-fun Database.getCollections (callback: (ListResponse<DocumentCollection>) -> Unit) {
-    return AzureData.getCollections(this.id, callback)
+fun Database.getCollections (maxPerPage: Int? = null, callback: (ListResponse<DocumentCollection>) -> Unit) {
+    return AzureData.getCollections(this.id, maxPerPage, callback)
 }
 
 // delete
@@ -51,8 +51,8 @@ fun Database.createUser (userId: String, callback: (Response<User>) -> Unit) {
 }
 
 // list
-fun Database.getUsers (callback: (ListResponse<User>) -> Unit) {
-    return AzureData.getUsers(this.id, callback)
+fun Database.getUsers (maxPerPage: Int? = null, callback: (ListResponse<User>) -> Unit) {
+    return AzureData.getUsers(this.id, maxPerPage, callback)
 }
 
 // get
@@ -85,8 +85,8 @@ fun Database.replaceUser (userId: String, newUserId: String, callback: (Response
 //region DocumentCollection -> Documents
 
 // list
-fun <T : Document> DocumentCollection.getDocuments (documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
-    return AzureData.getDocuments(this, documentClass, callback)
+fun <T : Document> DocumentCollection.getDocuments (documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
+    return AzureData.getDocuments(this, documentClass, maxPerPage, callback)
 }
 
 // create
@@ -115,8 +115,8 @@ fun <T : Document> DocumentCollection.replaceDocument (document: T, callback: (R
 }
 
 // query
-fun <T : Document> DocumentCollection.queryDocuments (query: Query, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
-    return AzureData.queryDocuments(this, query, documentClass, callback)
+fun <T : Document> DocumentCollection.queryDocuments (query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
+    return AzureData.queryDocuments(this, query, documentClass, maxPerPage, callback)
 }
 
 //endregion
@@ -129,8 +129,8 @@ fun DocumentCollection.createStoredProcedure (storedProcedureId: String, procedu
 }
 
 // list
-fun DocumentCollection.getStoredProcedures (callback: (ListResponse<StoredProcedure>) -> Unit) {
-    return AzureData.getStoredProcedures(this, callback)
+fun DocumentCollection.getStoredProcedures (maxPerPage: Int? = null, callback: (ListResponse<StoredProcedure>) -> Unit) {
+    return AzureData.getStoredProcedures(this, maxPerPage, callback)
 }
 
 // delete
@@ -168,8 +168,8 @@ fun DocumentCollection.createUserDefinedFunction (userDefinedFunctionId: String,
 }
 
 // list
-fun DocumentCollection.getUserDefinedFunctions (callback: (ListResponse<UserDefinedFunction>) -> Unit) {
-    return AzureData.getUserDefinedFunctions(this, callback)
+fun DocumentCollection.getUserDefinedFunctions (maxPerPage: Int? = null, callback: (ListResponse<UserDefinedFunction>) -> Unit) {
+    return AzureData.getUserDefinedFunctions(this, maxPerPage, callback)
 }
 
 // delete
@@ -202,8 +202,8 @@ fun DocumentCollection.createTrigger (triggerId: String, operation: Trigger.Trig
 }
 
 // list
-fun DocumentCollection.getTriggers (callback: (ListResponse<Trigger>) -> Unit) {
-    return AzureData.getTriggers(this, callback)
+fun DocumentCollection.getTriggers (maxPerPage: Int? = null, callback: (ListResponse<Trigger>) -> Unit) {
+    return AzureData.getTriggers(this, maxPerPage, callback)
 }
 
 // delete
@@ -254,8 +254,8 @@ fun Document.createAttachment (attachmentId: String, contentType: String, data: 
 }
 
 // list
-fun Document.getAttachments (callback: (ListResponse<Attachment>) -> Unit) {
-    return AzureData.getAttachments(this, callback)
+fun Document.getAttachments (maxPerPage: Int? = null, callback: (ListResponse<Attachment>) -> Unit) {
+    return AzureData.getAttachments(this, maxPerPage, callback)
 }
 
 // delete
@@ -296,8 +296,8 @@ fun <TResource : Resource> User.createPermission (permissionId: String, permissi
 }
 
 // list
-fun User.getPermissions (callback: (ListResponse<Permission>) -> Unit) {
-    return AzureData.getPermissions(this, callback)
+fun User.getPermissions (maxPerPage: Int? = null, callback: (ListResponse<Permission>) -> Unit) {
+    return AzureData.getPermissions(this, maxPerPage, callback)
 }
 
 // get
