@@ -42,7 +42,7 @@ publishing {
 Properties properties = new Properties()
 File propertiesFile = project.rootProject.file('local.properties')
 
-if (!propertiesFile.exists()) {
+if (propertiesFile.exists()) {
     properties.load(propertiesFile.newDataInputStream())
 }
 
