@@ -40,7 +40,11 @@ publishing {
 }
 
 Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
+File propertiesFile = project.file('local.properties')
+
+if (!propertiesFile.exists()) {
+    properties.load(propertiesFile.newDataInputStream())
+}
 
 bintray {
     user = properties.getProperty("bintray.user") ?: System.getenv('BINTRAY_USER')
