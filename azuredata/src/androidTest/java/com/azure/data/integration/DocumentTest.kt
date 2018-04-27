@@ -2,11 +2,15 @@ package com.azure.data.integration
 
 import com.azure.data.*
 import com.azure.data.model.*
+import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
+import com.azure.data.service.next
 import com.azure.data.util.json.gson
 import junit.framework.Assert.*
 import org.awaitility.Awaitility.await
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.ExpectedException
 import java.util.*
 
 /**
@@ -16,6 +20,10 @@ import java.util.*
 
 abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
     : ResourceTest<TDoc>(ResourceType.Document, true, true) {
+
+    @Rule
+    @JvmField
+    var thrown = ExpectedException.none()!!
 
     //region Tests
 
@@ -130,6 +138,28 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
     }
 
     @Test
+    fun createOrReplaceDocument() {
+
+        val doc = createNewDocument()
+        doc.setValue(customNumberKey, customNumberValue+1)
+
+        var docResponse: Response<TDoc>? = null
+        AzureData.createOrReplaceDocument(doc, collectionId, databaseId) {
+            docResponse = it
+        }
+        await().until { docResponse != null }
+
+        assertResourceResponseSuccess(docResponse)
+        assertEquals(createdResourceId, docResponse?.resource?.id)
+
+        val updatedDoc = docResponse!!.resource!!
+
+        assertNotNull(updatedDoc.getValue(customStringKey))
+        assertNotNull(updatedDoc.getValue(customNumberKey))
+        assertEquals(customNumberValue+1, (updatedDoc.getValue(customNumberKey) as Number).toInt())
+    }
+
+    @Test
     fun createDocumentInCollection() {
 
         createNewDocument(collection)
@@ -167,6 +197,83 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         }
 
         verifyListDocuments()
+    }
+
+    @Test
+    fun listDocumentsWithMaxPerPage() {
+
+        createNewDocuments(3)
+
+        // Test all at once
+        resourceListResponse = null
+        AzureData.getDocuments(collectionId, databaseId, docType) { resourceListResponse = it }
+        await().until { resourceListResponse != null }
+        verifyListDocuments(3)
+
+        // Test only 2
+        resourceListResponse = null
+        AzureData.getDocuments(collectionId, databaseId, docType, 2) { resourceListResponse = it }
+        await().until { resourceListResponse != null }
+        verifyListDocuments(2)
+
+        // Test only 1
+        resourceListResponse = null
+        AzureData.getDocuments(collectionId, databaseId, docType, 1) { resourceListResponse = it }
+        await().until { resourceListResponse != null }
+        verifyListDocuments(1)
+    }
+
+    @Test
+    fun listDocumentsWithMaxPerPageTooSmall() {
+        thrown.expect(DocumentClientError::class.java)
+        AzureData.getDocuments(collectionId, databaseId, docType, 0) { resourceListResponse = it }
+    }
+
+    @Test
+    fun listDocumentsWithMaxPerPageTooBig() {
+        thrown.expect(DocumentClientError::class.java)
+        AzureData.getDocuments(collectionId, databaseId, docType, 1001) { resourceListResponse = it }
+    }
+
+    @Test
+    fun listDocumentsPaging() {
+
+        val idsFound = mutableListOf<String>()
+        var waitForResponse : ListResponse<TDoc>? = null
+
+        createNewDocuments(3)
+
+        // Get the first one
+        AzureData.getDocuments(collectionId, databaseId, docType, 1) { waitForResponse = it }
+        await().until { waitForResponse != null }
+        waitForResponse.let {
+            assertPage1(idsFound,it)
+        }
+
+        // Get the second one
+        waitForResponse.let { response ->
+            waitForResponse = null
+            response!!.next {
+                assertPageN(idsFound,it)
+                waitForResponse = it
+            }
+        }
+        await().until { waitForResponse != null }
+
+        // Get the third one
+        waitForResponse.let { response ->
+            waitForResponse = null
+            response!!.next {
+                assertPageLast(idsFound,it)
+                waitForResponse = it
+            }
+        }
+        await().until { waitForResponse != null }
+
+        // Try to get one more
+        waitForResponse!!.next {
+            assertPageOnePastLast(it)
+        }
     }
 
     @Test
@@ -406,10 +513,10 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
 
     //endregion
 
-    private fun newDocument() : TDoc {
+    private fun newDocument(count : Int=1) : TDoc {
 
         val doc = docType.newInstance()
-        doc.id = createdResourceId
+        doc.id = createdResourceId(count)
         doc.setValue(customStringKey, customStringValue)
         doc.setValue(customNumberKey, customNumberValue)
 
@@ -419,6 +526,7 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
     private fun createNewDocument(coll: DocumentCollection? = null) : TDoc {
 
         var docResponse: Response<TDoc>? = null
+
         val doc = newDocument()
 
         if (coll != null) {
@@ -443,6 +551,21 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         return verifyDocument(createdDoc)
     }
 
+    private fun createNewDocuments(count : Int) : List<TDoc> {
+        val docs = mutableListOf<TDoc>()
+        for(i in 1..count) {
+            AzureData.createDocument(newDocument(i), collectionId, databaseId) {
+                assertResourceResponseSuccess(it)
+                assertEquals(createdResourceId(i), it?.resource?.id)
+                docs.add(verifyDocument(it!!.resource!!))
+            }
+        }
+        await().until {
+            docs.count() == count
+        }
+        return docs
+    }
+
     private fun verifyDocument(createdDoc: TDoc, stringValue: String? = null) : TDoc {
 
         assertNotNull(createdDoc.getValue(customStringKey))
@@ -453,10 +576,10 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         return createdDoc
     }
 
-    private fun verifyListDocuments() {
+    private fun verifyListDocuments(count : Int = 1) {
 
         assertListResponseSuccess(resourceListResponse)
-        assertTrue(resourceListResponse?.resource?.count!! > 0)
+        assertTrue(resourceListResponse?.resource?.count!! == count)
 
         resourceListResponse?.resource?.items?.forEach {
 

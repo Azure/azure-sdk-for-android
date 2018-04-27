@@ -3,7 +3,9 @@ package com.azure.data.integration
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.*
 import com.azure.data.model.*
+import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
+import com.azure.data.service.next
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
 import okhttp3.HttpUrl
@@ -64,7 +66,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
         return response!!.resource!!
     }
 
-    private fun createNewAttachment(theUrl: Any = url, doc: Document? = null) : Attachment {
+    private fun createNewAttachment(theUrl: Any = url, doc: Document? = null, id: Int? = null) : Attachment {
 
         var response: Response<Attachment>? = null
 
@@ -73,11 +75,11 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             is String -> {
 
                 if (doc != null) {
-                    document?.createAttachment(createdResourceId, "image/jpeg", theUrl) {
+                    document?.createAttachment(createdResourceId(id), "image/jpeg", theUrl) {
                         response = it
                     }
                 } else {
-                    AzureData.createAttachment(createdResourceId, "image/jpeg", theUrl, documentId, collectionId, databaseId) {
+                    AzureData.createAttachment(createdResourceId(id), "image/jpeg", theUrl, documentId, collectionId, databaseId) {
                         response = it
                     }
                 }
@@ -85,11 +87,11 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             is URL -> {
 
                 if (doc != null) {
-                    document?.createAttachment(createdResourceId, "image/jpeg", theUrl) {
+                    document?.createAttachment(createdResourceId(id), "image/jpeg", theUrl) {
                         response = it
                     }
                 } else {
-                    AzureData.createAttachment(createdResourceId, "image/jpeg", theUrl, documentId, collectionId, databaseId) {
+                    AzureData.createAttachment(createdResourceId(id), "image/jpeg", theUrl, documentId, collectionId, databaseId) {
                         response = it
                     }
                 }
@@ -97,11 +99,11 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             is HttpUrl -> {
 
                 if (doc != null) {
-                    document?.createAttachment(createdResourceId, "image/jpeg", theUrl) {
+                    document?.createAttachment(createdResourceId(id), "image/jpeg", theUrl) {
                         response = it
                     }
                 } else {
-                    AzureData.createAttachment(createdResourceId, "image/jpeg", theUrl, documentId, collectionId, databaseId) {
+                    AzureData.createAttachment(createdResourceId(id), "image/jpeg", theUrl, documentId, collectionId, databaseId) {
                         response = it
                     }
                 }
@@ -114,7 +116,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
         }
 
         assertResourceResponseSuccess(response)
-        Assert.assertEquals(createdResourceId, response?.resource?.id)
+        Assert.assertEquals(createdResourceId(id), response?.resource?.id)
 
         return response!!.resource!!
     }
@@ -193,6 +195,49 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
 
         assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
+    }
+
+    @Test
+    fun listAttachmentsPaging() {
+
+        val idsFound = mutableListOf<String>()
+        var waitForResponse : ListResponse<Attachment>? = null
+
+        createNewAttachment("http://www.bing.com",id = 1)
+        createNewAttachment("http://www.google.com",id = 2)
+        createNewAttachment("http://www.yahoo.com",id = 3)
+
+        // Get the first one
+        AzureData.getAttachments(documentId, collectionId, databaseId, 1) { waitForResponse = it }
+        await().until { waitForResponse != null }
+        waitForResponse.let {
+            assertPage1(idsFound,it)
+        }
+
+        // Get the second one
+        waitForResponse.let { response ->
+            waitForResponse = null
+            response!!.next {
+                assertPageN(idsFound,it)
+                waitForResponse = it
+            }
+        }
+        await().until { waitForResponse != null }
+
+        // Get the third one
+        waitForResponse.let { response ->
+            waitForResponse = null
+            response!!.next {
+                assertPageLast(idsFound,it)
+                waitForResponse = it
+            }
+        }
+        await().until { waitForResponse != null }
+
+        // Try to get one more
+        waitForResponse!!.next {
+            assertPageOnePastLast(it)
+        }
     }
 
     @Test

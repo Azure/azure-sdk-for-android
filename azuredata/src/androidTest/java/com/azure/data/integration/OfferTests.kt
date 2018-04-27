@@ -4,6 +4,8 @@ import android.support.test.runner.AndroidJUnit4
 import com.azure.data.AzureData
 import com.azure.data.model.Offer
 import com.azure.data.model.ResourceType
+import com.azure.data.service.ListResponse
+import com.azure.data.service.next
 import org.awaitility.Awaitility.await
 import org.junit.Assert.*
 import org.junit.Test
@@ -30,6 +32,41 @@ class OfferTests : ResourceTest<Offer>(ResourceType.Offer, false, false) {
 
         assertListResponseSuccess(resourceListResponse)
         assert(resourceListResponse?.resource?.count!! > 0) //can we assume there will always be > 0 offers?
+    }
+
+    @Test
+    fun listOffersPaging() {
+
+        val idsFound = mutableListOf<String>()
+        var waitForResponse : ListResponse<Offer>? = null
+
+        // Get the first one
+        AzureData.getOffers(1) { waitForResponse = it }
+        await().until { waitForResponse != null }
+        waitForResponse.let {
+            assertPage1(idsFound,it)
+        }
+
+        // Get the remaining
+        while(waitForResponse?.hasMoreResults == true) {
+            waitForResponse.let { response ->
+                waitForResponse = null
+                response!!.next {
+                    if (it.hasMoreResults) {
+                        assertPageN(idsFound, it)
+                    } else {
+                        assertPageLast(idsFound,it)
+                    }
+                    waitForResponse = it
+                }
+            }
+            await().until { waitForResponse != null }
+        }
+
+        // Try to get one more
+        waitForResponse!!.next {
+            assertPageOnePastLast(it)
+        }
     }
 
     @Test

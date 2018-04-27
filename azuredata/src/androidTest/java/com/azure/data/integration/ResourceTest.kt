@@ -9,6 +9,7 @@ import com.azure.data.model.*
 import com.azure.data.service.DataResponse
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
+import junit.framework.Assert
 import org.awaitility.Awaitility.await
 import org.junit.After
 import org.junit.Assert.*
@@ -29,6 +30,11 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
     val documentId = "AndroidTest${ResourceType.Document.name}"
     val createdResourceId = "AndroidTest${resourceType.name}"
 
+    fun databaseId(count : Int = 0) = "$databaseId${if (count<2) "" else count.toString()}"
+    fun collectionId(count : Int = 0) = "$collectionId${if (count<2) "" else count.toString()}"
+    fun documentId(count : Int = 0) = "$documentId${if (count<2) "" else count.toString()}"
+    fun createdResourceId(count : Int? = 0) = "$createdResourceId${if (count==null) "" else if (count<2) "" else count.toString()}"
+
     var response: Response<TResource>? = null
     var resourceListResponse: ListResponse<TResource>? = null
     var dataResponse: DataResponse? = null
@@ -48,6 +54,11 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
 
+            AzureData.configure(
+                    appContext,
+                    azureCosmosDbAccount,
+                    azureCosmosPrimaryKey,
+                    PermissionMode.All)
 
         }
 
@@ -96,6 +107,28 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         database = dbResponse!!.resource!!
 
         return database!!
+    }
+
+    fun ensureDatabase(count : Int) : List<Database> {
+
+        var dbResponse: Response<Database>? = null
+        val databases = mutableListOf<Database>()
+
+        for(i in 1..count) {
+            AzureData.createDatabase(databaseId(i)) {
+                dbResponse = it
+            }
+
+            await().until {
+                dbResponse != null
+            }
+
+            assertResourceResponseSuccess(dbResponse)
+            assertEquals(databaseId(i), dbResponse?.resource?.id)
+
+            databases.add(dbResponse!!.resource!!)
+        }
+        return databases
     }
 
     fun ensureCollection() : DocumentCollection {
@@ -209,6 +242,41 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         assertNotNull(response!!.error)
         assertFalse(response.isSuccessful)
         assertTrue(response.isErrored)
+    }
+
+    fun <T : Resource> assertPage1(idsFound: MutableList<String>, response: ListResponse<T>?) {
+        Assert.assertNotNull(response!!.metadata.continuation)
+        Assert.assertNotNull(response.resource?.items)
+        Assert.assertEquals(1, response.resource?.items?.size)
+        val id = response.resource?.items?.get(0)?.id!!
+        Assert.assertTrue(id.startsWith(createdResourceId))
+        Assert.assertTrue(response.hasMoreResults)
+        idsFound.add(id)
+    }
+
+    fun <T : Resource> assertPageN(idsFound: MutableList<String>, response: ListResponse<T>?) {
+        Assert.assertNotNull(response!!.metadata.continuation)
+        Assert.assertNotNull(response.resource?.items)
+        Assert.assertEquals(1, response.resource?.items?.size)
+        val id = response.resource?.items?.get(0)?.id!!
+        Assert.assertTrue(id.startsWith(createdResourceId))
+        Assert.assertFalse(idsFound.contains(id))
+        Assert.assertTrue(response.hasMoreResults)
+        idsFound.add(id)
+    }
+
+    fun <T : Resource> assertPageLast(idsFound: MutableList<String>, response: ListResponse<T>?) {
+        Assert.assertNotNull(response!!.resource?.items)
+        Assert.assertEquals(1, response.resource?.items?.size)
+        val id = response.resource?.items?.get(0)?.id!!
+        Assert.assertTrue(id.startsWith(createdResourceId))
+        Assert.assertFalse(idsFound.contains(id))
+        idsFound.add(id)
+        Assert.assertFalse(response.hasMoreResults)
+    }
+
+    fun <T : Resource> assertPageOnePastLast(response: ListResponse<T>?) {
+        assertErrorResponse(response)
     }
 
     private fun assertResourcePropertiesSet(resource: Resource) {

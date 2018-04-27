@@ -7,7 +7,10 @@ import com.azure.data.model.Database
 import com.azure.data.model.ResourceType
 import com.azure.data.model.User
 import com.azure.data.service.DataResponse
+import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
+import com.azure.data.service.next
+import junit.framework.Assert
 import junit.framework.Assert.assertEquals
 import org.awaitility.Awaitility.await
 import org.junit.After
@@ -51,6 +54,20 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
         await().until {
             deleteResponse != null
         }
+    }
+
+    private fun createNewUsers(count: Int, db: Database? = null) : List<User> {
+        val users = mutableListOf<User>()
+        for(i in 1..count){
+            val userId = "$createdResourceId${if (i==1) "" else i.toString()}"
+            AzureData.createUser(userId, databaseId){
+                assertResourceResponseSuccess(it)
+                assertEquals(userId, it.resource?.id)
+                users.add(it.resource!!)
+            }
+        }
+        await().until { users.count() == count }
+        return users
     }
 
     private fun createNewUser(db: Database? = null) : User {
@@ -105,6 +122,47 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
         }
 
         assertListResponseSuccess(resourceListResponse)
+    }
+
+    @Test
+    fun listUsersPaging() {
+
+        val idsFound = mutableListOf<String>()
+        var waitForResponse : ListResponse<User>? = null
+
+        createNewUsers(3)
+
+        // Get the first one
+        AzureData.getUsers(databaseId, 1) { waitForResponse = it }
+        await().until { waitForResponse != null }
+        waitForResponse.let {
+            assertPage1(idsFound,it)
+        }
+
+        // Get the second one
+        waitForResponse.let { response ->
+            waitForResponse = null
+            response!!.next {
+                assertPageN(idsFound,it)
+                waitForResponse = it
+            }
+        }
+        await().until { waitForResponse != null }
+
+        // Get the third one
+        waitForResponse.let { response ->
+            waitForResponse = null
+            response!!.next {
+                assertPageLast(idsFound,it)
+                waitForResponse = it
+            }
+        }
+        await().until { waitForResponse != null }
+
+        // Try to get one more
+        waitForResponse!!.next {
+            assertPageOnePastLast(it)
+        }
     }
 
     @Test
