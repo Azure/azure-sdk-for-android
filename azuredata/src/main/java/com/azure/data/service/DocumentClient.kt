@@ -960,7 +960,7 @@ class DocumentClient {
         DateUtil.getDateFromatter(DateUtil.Format.Rfc1123Format)
     }
 
-    private fun getTokenforResource(resourceLocation: ResourceLocation, method: HttpMethod, callback: (Response<ResourceToken>) -> Unit) {
+    private inline fun getTokenforResource(resourceLocation: ResourceLocation, method: HttpMethod, crossinline callback: (Response<ResourceToken>) -> Unit) {
 
         if (!isConfigured) {
             return callback(Response(DataError(DocumentClientError.ConfigureError)))
@@ -983,16 +983,17 @@ class DocumentClient {
 
             permissionProvider?.getPermission(resourceLocation, if (method.isWrite()) PermissionMode.All else PermissionMode.Read) {
 
-                if (it.isErrored) {
-                    return callback(Response(it.error!!))
-                }
+                if (it.isSuccessful) {
 
-                val dateString = String.format("%s %s", dateFormatter.format(Date()), "GMT")
+                    val dateString = String.format("%s %s", dateFormatter.format(Date()), "GMT")
 
-                it.resource?.token?.let {
+                    it.resource?.token?.let {
 
-                    return callback(Response(ResourceToken(dateString, it)))
-                    //val authStringEncoded = URLEncoder.encode(String.format("type=master&ver=%s&sig=%s", tokenVersion, signature), "UTF-8")
+                        callback(Response(ResourceToken(dateString, it)))
+                        //val authStringEncoded = URLEncoder.encode(String.format("type=master&ver=%s&sig=%s", tokenVersion, signature), "UTF-8")
+                    } ?: callback(Response(DataError(DocumentClientError.PermissionError)))
+                } else {
+                    callback(Response(it.error!!))
                 }
             }
         }
@@ -1110,13 +1111,15 @@ class DocumentClient {
                     callback(builder)
 
                 } ?: throw DocumentClientError.UnknownError
+
                 it.isErrored -> throw it.error!!
+
                 else -> throw DocumentClientError.UnknownError
             }
         }
     }
 
-    private fun <T : Resource> sendResourceRequest(request: Request, resourceLocation: ResourceLocation, callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null)
+    private inline fun <T : Resource> sendResourceRequest(request: Request, resourceLocation: ResourceLocation, crossinline callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null)
             = sendResourceRequest(request, resourceLocation, null, callback = callback, resourceClass = resourceClass)
 
     private inline fun <T : Resource> sendResourceRequest(request: Request, resourceLocation: ResourceLocation, resource: T?, crossinline callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null) {
@@ -1212,6 +1215,14 @@ class DocumentClient {
 
             //check http return code/success
             when {
+            // HttpStatusCode.Created: // cache locally
+            // HttpStatusCode.NoContent: // DELETEing a resource remotely should delete the cached version (if the delete was successful indicated by a response status code of 204 No Content)
+            // HttpStatusCode.Unauthorized:
+            // HttpStatusCode.Forbidden: // reauth
+            // HttpStatusCode.Conflict: // conflict callback
+            // HttpStatusCode.NotFound: // (indicating the resource has been deleted/no longer exists in the remote database), confirm that resource does not exist locally, and if it does, delete it
+            // HttpStatusCode.PreconditionFailure: // The operation specified an eTag that is different from the version available at the server, that is, an optimistic concurrency error. Retry the request after reading the latest version of the resource and updating the eTag on the request.
+
                 response.isSuccessful -> {
 
                     val type = resourceClass ?: resource?.javaClass ?: resourceType.type
