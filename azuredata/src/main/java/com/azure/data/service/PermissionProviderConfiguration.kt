@@ -36,6 +36,8 @@ class PermissionProviderConfiguration {
 
     companion object {
 
-        val default: PermissionProviderConfiguration = PermissionProviderConfiguration()
+        val default: PermissionProviderConfiguration by lazy {
+            PermissionProviderConfiguration()
+        }
     }
 }
