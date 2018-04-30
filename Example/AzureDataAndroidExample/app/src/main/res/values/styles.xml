@@ -1,0 +1,32 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionModeOverlay">true</item>
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <!-- TabLayout style -->
+    <style
+        name="CustomTabLayout"
+        parent="Widget.Design.TabLayout">
+        <item
+            name="android:layout_width">match_parent</item>
+        <item
+            name="android:layout_height">@dimen/tab_height</item>
+        <item
+            name="tabIndicatorColor">@color/colorAccent</item>
+        <item
+            name="android:layout_alignParentBottom">true</item>
+        <item
+            name="tabMode">fixed</item>
+        <item
+            name="tabGravity">fill</item>
+    </style>
+
+</resources>
