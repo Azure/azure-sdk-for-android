@@ -12,9 +12,6 @@ task sourceJar(type: Jar) {
 publishing {
     publications {
         Production(MavenPublication) {
-//            artifact ("$buildDir/outputs/aar/azurecore-release.aar") {
-//                builtBy assembleRelease
-//            }
             artifact bundleRelease
             artifact(sourceJar)
             groupId 'com.azure.mobile'
