@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">AzureData Android Java Example</string>
+    <string name="button_run_scheduler">cosmos-db-example</string>
+    <string name="database_dialogue">Enter a name of the new database</string>
+    <string name="document_collection_dialogue">Enter a name of the new document collection</string>
+</resources>
