@@ -57,6 +57,13 @@ class DocumentClient {
         commonConfigure(accountUrl.host)
     }
 
+    constructor(accountUrl: HttpUrl, masterKey: String, permissionMode: PermissionMode) {
+
+        resourceTokenProvider = ResourceTokenProvider(masterKey, permissionMode)
+
+        commonConfigure(accountUrl.host())
+    }
+
     constructor(accountName: String, permissionProvider: PermissionProvider) {
 
         this.permissionProvider = permissionProvider
@@ -69,6 +76,13 @@ class DocumentClient {
         this.permissionProvider = permissionProvider
 
         commonConfigure(accountUrl.host)
+    }
+
+    constructor(accountUrl: HttpUrl, permissionProvider: PermissionProvider) {
+
+        this.permissionProvider = permissionProvider
+
+        commonConfigure(accountUrl.host())
     }
 
     val isConfigured: Boolean

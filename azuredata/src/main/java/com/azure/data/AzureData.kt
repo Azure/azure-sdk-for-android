@@ -4,10 +4,7 @@ import android.content.Context
 import com.azure.core.util.ContextProvider
 import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
-import com.azure.data.service.DataResponse
-import com.azure.data.service.DocumentClient
-import com.azure.data.service.ListResponse
-import com.azure.data.service.Response
+import com.azure.data.service.*
 import okhttp3.HttpUrl
 import java.net.URL
 
@@ -29,6 +26,56 @@ class AzureData {
             ContextProvider.init(context.applicationContext)
 
             documentClient = DocumentClient(accountName, masterKey, permissionMode)
+
+            configured = true
+        }
+
+        @JvmStatic
+        fun configure(context: Context, accountUrl: URL, masterKey: String, permissionMode: PermissionMode) {
+
+            ContextProvider.init(context.applicationContext)
+
+            documentClient = DocumentClient(accountUrl, masterKey, permissionMode)
+
+            configured = true
+        }
+
+        @JvmStatic
+        fun configure(context: Context, accountUrl: HttpUrl, masterKey: String, permissionMode: PermissionMode) {
+
+            ContextProvider.init(context.applicationContext)
+
+            documentClient = DocumentClient(accountUrl, masterKey, permissionMode)
+
+            configured = true
+        }
+
+        @JvmStatic
+        fun configure(context: Context, accountName: String, permissionProvider: PermissionProvider) {
+
+            ContextProvider.init(context.applicationContext)
+
+            documentClient = DocumentClient(accountName, permissionProvider)
+
+            configured = true
+        }
+
+        @JvmStatic
+        fun configure(context: Context, accountUrl: URL, permissionProvider: PermissionProvider) {
+
+            ContextProvider.init(context.applicationContext)
+
+            documentClient = DocumentClient(accountUrl, permissionProvider)
+
+            configured = true
+        }
+
+        @JvmStatic
+        fun configure(context: Context, accountUrl: HttpUrl, permissionProvider: PermissionProvider) {
+
+            ContextProvider.init(context.applicationContext)
+
+            documentClient = DocumentClient(accountUrl, permissionProvider)
 
             configured = true
         }
