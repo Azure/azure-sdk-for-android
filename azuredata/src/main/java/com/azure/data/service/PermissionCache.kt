@@ -25,7 +25,7 @@ class PermissionCache private constructor (host: String) {
 
     var isRestored: Boolean = false
 
-    fun commit() {
+    private fun commit() {
 
         permissionCachePrefsEditor.apply()
     }
@@ -80,6 +80,7 @@ class PermissionCache private constructor (host: String) {
 
         return if (altLink.trim(slashCharacter).isNotEmpty()) {
             cache[altLink] = permission
+            permissionCachePrefsEditor.putString(altLink, gson.toJson(permission))
             commit()
             true
         } else {
