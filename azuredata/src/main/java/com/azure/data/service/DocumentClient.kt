@@ -24,6 +24,7 @@ import okhttp3.*
 import java.io.IOException
 import java.lang.reflect.Type
 import java.net.URL
+import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -995,7 +996,7 @@ class DocumentClient {
                 return callback(Response(DataError(DocumentClientError.PermissionError)))
             }
 
-            permissionProvider?.getPermission(resourceLocation, if (method.isWrite()) PermissionMode.All else PermissionMode.Read) {
+            return permissionProvider?.getPermission(resourceLocation, if (method.isWrite()) PermissionMode.All else PermissionMode.Read) {
 
                 if (it.isSuccessful) {
 
@@ -1003,13 +1004,13 @@ class DocumentClient {
 
                     it.resource?.token?.let {
 
-                        callback(Response(ResourceToken(dateString, it)))
-                        //val authStringEncoded = URLEncoder.encode(String.format("type=master&ver=%s&sig=%s", tokenVersion, signature), "UTF-8")
+                        callback(Response(ResourceToken(URLEncoder.encode(it, "UTF-8"), dateString)))
+
                     } ?: callback(Response(DataError(DocumentClientError.PermissionError)))
                 } else {
                     callback(Response(it.error!!))
                 }
-            }
+            } ?: callback(Response(DataError(DocumentClientError.UnknownError)))
         }
 
         return callback(Response(DataError(DocumentClientError.UnknownError)))
@@ -1327,6 +1328,8 @@ class DocumentClient {
     //endregion
 
     companion object {
+
+//        val client : OkHttpClient = OkHttpClient.Builder().protocols(listOf(Protocol.HTTP_1_1)).build()
 
         val client = OkHttpClient()
 

@@ -71,7 +71,7 @@ internal fun PermissionProvider.getPermission(resourceLocation: ResourceLocation
 
             permission.timestamp?.let { timestamp ->
 
-                if (config.defaultTokenDuration - (Date().time - timestamp.time) > config.tokenRefreshThreshold) {
+                if (config.defaultTokenDuration - ((Date().time - timestamp.time) / 1000) > config.tokenRefreshThreshold) {
 
                     return completion(Response(permission))
                 }
