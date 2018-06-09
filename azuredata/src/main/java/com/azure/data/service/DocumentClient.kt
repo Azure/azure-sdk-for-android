@@ -1152,7 +1152,16 @@ class DocumentClient {
                         override fun onFailure(call: Call, ex: IOException) {
                             e(ex)
                             ContextProvider.isOffline = true
-                            // todo: callback with cached data instead of the callback with the error below
+
+                            resourceClass?.let {
+                                when (request.method()) {
+                                    HttpMethod.Get.toString() -> cachedResource(resourceLocation, null, callback, it)
+                                    else -> {
+                                        callback(Response(DataError(ex), request))
+                                    }
+                                }
+                            }
+
                             return callback(Response(DataError(ex), request))
                         }
 
@@ -1208,7 +1217,12 @@ class DocumentClient {
                         // only transport errors handled here
                         override fun onFailure(call: Call, e: IOException) {
                             ContextProvider.isOffline = true
-                            // todo: callback with cached data instead of the callback with the error below
+
+                            resourceClass?.let {
+                                cachedResources(resourceLocation, null, callback, it)
+                                return
+                            }
+
                             callback(ListResponse(DataError(e)))
                         }
 
@@ -1330,6 +1344,25 @@ class DocumentClient {
         } catch (e: Exception) {
             return Response(DataError(e), request, response)
         }
+    }
+
+    //endregion
+
+    //region Cache Responses
+
+    private inline fun <T: Resource> cachedResource(resourceLocation: ResourceLocation, response: Response<T>? = null, crossinline callback: (Response<T>) -> Unit, resourceClass: Class<T>) {
+        ResourceCache.shared.getResourceAt(resourceLocation, resourceClass)?.let {
+            callback(Response(response?.request, response?.response, response?.jsonData, Result(resource = it), resourceLocation, response?.resourceType))
+            return
+        }
+
+        callback(Response(response?.request, response?.response, response?.jsonData, Result(error = DataError(DocumentClientError.NotFound))))
+    }
+
+    private inline fun <T: Resource> cachedResources(resourceLocation: ResourceLocation, response: Response<T>? = null, crossinline callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>) {
+        val resources = ResourceCache.shared.getResourcesAt(resourceLocation, resourceClass)
+
+        callback(Response(response?.request, response?.response, response?.jsonData, Result(resources), resourceLocation, response?.resourceType))
     }
 
     //endregion
