@@ -10,3 +10,14 @@ import com.azure.data.util.json.gson
 
 fun String.toError(): DataError =
         gson.fromJson(this, DataError::class.java)
+
+fun String.extractId(resourceType: String): String? {
+    val components = split("/")
+    val index = components.indexOf(resourceType)
+
+    if (index >= 0 && index + 1 < components.count()) {
+        return components[index + 1]
+    }
+
+    return null
+}

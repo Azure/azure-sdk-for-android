@@ -746,7 +746,7 @@ class DocumentClient {
 
         createRequest(HttpMethod.Delete, resourceLocation) {
 
-            sendRequest(it, callback)
+            sendRequest(it, resourceLocation, callback)
         }
     }
 
@@ -762,10 +762,11 @@ class DocumentClient {
 
 //            val resourceUri = baseUri.forResource(resource)
 //            val resourceType = ResourceType.fromType(resource.javaClass)
+            val resourceLocation = ResourceLocation.Resource(resource)
 
-            createRequest(HttpMethod.Delete, ResourceLocation.Resource(resource)) {
+            createRequest(HttpMethod.Delete, resourceLocation) {
 
-                sendRequest(it, callback)
+                sendRequest(it, resourceLocation, callback)
             }
         } catch (ex: Exception) {
             e(ex)
@@ -958,7 +959,7 @@ class DocumentClient {
 
             createRequest(HttpMethod.Post, resourceLocation, jsonBody = json) {
 
-                sendRequest(it, callback)
+                sendRequest(it, resourceLocation, callback)
             }
 
         } catch (ex: Exception) {
@@ -1165,7 +1166,7 @@ class DocumentClient {
         }
     }
 
-    private inline fun sendRequest(request: Request, crossinline callback: (DataResponse) -> Unit) {
+    private inline fun sendRequest(request: Request, resourceLocation: ResourceLocation, crossinline callback: (DataResponse) -> Unit) {
 
         d{"***"}
         d{"Sending ${request.method()} request for Data to ${request.url()}"}
@@ -1185,7 +1186,7 @@ class DocumentClient {
 
                         @Throws(IOException::class)
                         override fun onResponse(call: Call, response: okhttp3.Response) =
-                                callback(processDataResponse(request, response))
+                                callback(processDataResponse(request, resourceLocation, response))
                     })
         } catch (ex: Exception) {
             e(ex)
@@ -1246,6 +1247,12 @@ class DocumentClient {
 
                     setResourceMetadata(response, returnedResource, resourceType)
 
+                    when (request.method()) {
+                        HttpMethod.Post.toString() -> ResourceCache.shared.cache(returnedResource)
+                        HttpMethod.Put.toString()  -> ResourceCache.shared.replace(returnedResource)
+                        else -> { }
+                    }
+
                     return Response(request, response, json, Result(returnedResource))
                 }
 
@@ -1283,6 +1290,8 @@ class DocumentClient {
 
                 setResourceMetadata(response, resourceList, resourceLocation.resourceType)
 
+                ResourceCache.shared.cache(resourceList)
+
                 return ListResponse(request, response, json, Result(resourceList), resourceLocation, type)
             } else {
                 return ListResponse(json.toError(), request, response, json)
@@ -1300,7 +1309,7 @@ class DocumentClient {
         ResourceOracle.shared.storeLinks(resource)
     }
 
-    private fun processDataResponse(request: Request, response: okhttp3.Response): DataResponse {
+    private fun processDataResponse(request: Request, resourceLocation: ResourceLocation, response: okhttp3.Response): DataResponse {
 
         try {
             val body = response.body()
@@ -1310,11 +1319,9 @@ class DocumentClient {
             //check http return code
             return if (response.isSuccessful) {
 
-//                if (request.method() == HttpMethod.Delete.toString()) {
-////                    ResourceOracle.shared.removeLinks(request.)
-//                    //TODO: figure this out!
-//                    val i = 999
-//                }
+                if (request.method() == HttpMethod.Delete.toString()) {
+                    ResourceCache.shared.remove(resourceLocation)
+                }
 
                 DataResponse(request, response, responseBodyString, Result(responseBodyString))
             } else {

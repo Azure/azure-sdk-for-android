@@ -203,7 +203,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
 
         val list = response.resource as ResourceList<*>
 
-        assertTrue(list.isPopuated)
+        assertTrue(list.isPopulated)
 
         list.items.forEach { item ->
             assertResourcePropertiesSet(item)
