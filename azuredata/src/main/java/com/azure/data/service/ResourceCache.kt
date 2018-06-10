@@ -16,7 +16,7 @@ import java.util.concurrent.Executors
  * Licensed under the MIT License.
  */
 
-class ResourceCache private constructor() {
+internal class ResourceCache private constructor() {
 
     companion object {
         var shared: ResourceCache = ResourceCache()
@@ -141,7 +141,7 @@ class ResourceCache private constructor() {
 
 //region Context
 
-internal fun Context.resourceCacheFile(resource: Resource): File? {
+private fun Context.resourceCacheFile(resource: Resource): File? {
     ResourceOracle.shared.getFilePath(resource)?.let {
         val directory = File(azureDataCacheDir(), it.directory)
 
@@ -155,7 +155,7 @@ internal fun Context.resourceCacheFile(resource: Resource): File? {
     return null
 }
 
-internal fun Context.resourceCacheFile(resourceLocation: ResourceLocation): File? {
+private fun Context.resourceCacheFile(resourceLocation: ResourceLocation): File? {
     ResourceOracle.shared.getFilePath(resourceLocation)?.let {
         val directory = File(azureDataCacheDir(), it.directory)
 
@@ -169,7 +169,7 @@ internal fun Context.resourceCacheFile(resourceLocation: ResourceLocation): File
     return null
 }
 
-internal fun Context.resourceCacheFiles(resourceLocation: ResourceLocation): List<File> {
+private fun Context.resourceCacheFiles(resourceLocation: ResourceLocation): List<File> {
     resourceCacheDir(resourceLocation)?.let {
         return it.listFiles().map { File(it, "$it.json") }
     }
@@ -177,7 +177,7 @@ internal fun Context.resourceCacheFiles(resourceLocation: ResourceLocation): Lis
     return emptyList()
 }
 
-internal fun Context.resourceCacheDir(resource: Resource): File? {
+private fun Context.resourceCacheDir(resource: Resource): File? {
     ResourceOracle.shared.getFilePath(resource)?.let {
         val directory = File(azureDataCacheDir(), it.directory)
 
@@ -191,7 +191,7 @@ internal fun Context.resourceCacheDir(resource: Resource): File? {
     return null
 }
 
-internal fun Context.resourceCacheDir(resourceLocation: ResourceLocation): File? {
+private fun Context.resourceCacheDir(resourceLocation: ResourceLocation): File? {
     ResourceOracle.shared.getDirectoryPath(resourceLocation)?.let {
         val directory = File(azureDataCacheDir(), it)
 
@@ -205,7 +205,7 @@ internal fun Context.resourceCacheDir(resourceLocation: ResourceLocation): File?
     return null
 }
 
-internal fun Context.azureDataCacheDir(): File {
+private fun Context.azureDataCacheDir(): File {
     val directory = File(cacheDir, "com.azuredata.data")
 
     if (!directory.exists()) {
