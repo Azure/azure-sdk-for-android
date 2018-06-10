@@ -19,5 +19,6 @@ class DocumentClientError private constructor(msg: String) : Error(msg) {
         val InvalidMaxPerPageError = DocumentClientError("The maxPerPage parameter must be between 1 and 1000 inclusive")
         val NextCalledTooEarlyError = DocumentClientError("`next` must be called after an initial set of items have been fetched.")
         val NotFound = DocumentClientError("The request resource was not found.")
+        val InternetConnectivityError = DocumentClientError("There is no internet connection to perform the request.")
     }
 }

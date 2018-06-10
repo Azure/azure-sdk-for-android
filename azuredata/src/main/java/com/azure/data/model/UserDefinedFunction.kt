@@ -14,7 +14,7 @@ package com.azure.data.model
  *    Refer to [javascript-integration](http://azure.microsoft.com/documentation/articles/documentdb-sql-query/#javascript-integration) for how to use UDFs within queries.
  *    Refer to [udf](http://azure.microsoft.com/documentation/articles/documentdb-programming/#udf) for more details about implementing UDFs in JavaScript.
  */
-class UserDefinedFunction : Resource() {
+class UserDefinedFunction(id: String? = null, body: String? = null) : Resource(id) {
 
     /**
      * Gets or sets the body of the user defined function for the Azure Cosmos DB service.
@@ -25,7 +25,7 @@ class UserDefinedFunction : Resource() {
      *  - Example:
      *    `"function (input) { return input.toLowerCase(); }"`
      */
-    var body: String? = null
+    var body: String? = body
 
     companion object {
 
