@@ -21,3 +21,20 @@ fun String.extractId(resourceType: String): String? {
 
     return null
 }
+
+fun String.lastPathComponent(): String {
+    val components = split("/")
+    val count = components.count()
+
+    return if (count > 1) components[count - 1] else this
+}
+
+fun String.lastPathComponentRemoved(): String {
+    val components = split("/")
+    return components.dropLast(1).joinToString("/")
+}
+
+fun String.ancestorPath(): String {
+    val components = split("/")
+    return components.dropLast(2).joinToString("/")
+}

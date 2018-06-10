@@ -17,7 +17,8 @@ class AzureData {
 
     companion object {
 
-        internal lateinit var documentClient: DocumentClient
+        internal var documentClient = DocumentClient.shared
+
         private var configured = false
 
         @JvmStatic
@@ -25,7 +26,7 @@ class AzureData {
 
             ContextProvider.init(context.applicationContext)
 
-            documentClient = DocumentClient(accountName, masterKey, permissionMode)
+            documentClient.configure(accountName, masterKey, permissionMode)
 
             configured = true
         }
@@ -35,7 +36,7 @@ class AzureData {
 
             ContextProvider.init(context.applicationContext)
 
-            documentClient = DocumentClient(accountUrl, masterKey, permissionMode)
+            documentClient.configure(accountUrl, masterKey, permissionMode)
 
             configured = true
         }
@@ -45,7 +46,7 @@ class AzureData {
 
             ContextProvider.init(context.applicationContext)
 
-            documentClient = DocumentClient(accountUrl, masterKey, permissionMode)
+            documentClient.configure(accountUrl, masterKey, permissionMode)
 
             configured = true
         }
@@ -55,7 +56,7 @@ class AzureData {
 
             ContextProvider.init(context.applicationContext)
 
-            documentClient = DocumentClient(accountName, permissionProvider)
+            documentClient.configure(accountName, permissionProvider)
 
             configured = true
         }
@@ -65,7 +66,7 @@ class AzureData {
 
             ContextProvider.init(context.applicationContext)
 
-            documentClient = DocumentClient(accountUrl, permissionProvider)
+            documentClient.configure(accountUrl, permissionProvider)
 
             configured = true
         }
@@ -75,7 +76,7 @@ class AzureData {
 
             ContextProvider.init(context.applicationContext)
 
-            documentClient = DocumentClient(accountUrl, permissionProvider)
+            documentClient.configure(accountUrl, permissionProvider)
 
             configured = true
         }

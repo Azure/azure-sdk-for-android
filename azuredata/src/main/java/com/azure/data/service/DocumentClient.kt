@@ -33,7 +33,7 @@ import java.util.*
  * Licensed under the MIT License.
  */
 
-class DocumentClient {
+class DocumentClient private constructor() {
 
     private var host: String? = null
 
@@ -44,42 +44,42 @@ class DocumentClient {
     val configuredWithMasterKey: Boolean
         get() = resourceTokenProvider != null
 
-    constructor(accountName: String, masterKey: String, permissionMode: PermissionMode) {
+    fun configure(accountName: String, masterKey: String, permissionMode: PermissionMode) {
 
         resourceTokenProvider = ResourceTokenProvider(masterKey, permissionMode)
 
         commonConfigure("$accountName.documents.azure.com")
     }
 
-    constructor(accountUrl: URL, masterKey: String, permissionMode: PermissionMode) {
+    fun configure(accountUrl: URL, masterKey: String, permissionMode: PermissionMode) {
 
         resourceTokenProvider = ResourceTokenProvider(masterKey, permissionMode)
 
         commonConfigure(accountUrl.host)
     }
 
-    constructor(accountUrl: HttpUrl, masterKey: String, permissionMode: PermissionMode) {
+    fun configure(accountUrl: HttpUrl, masterKey: String, permissionMode: PermissionMode) {
 
         resourceTokenProvider = ResourceTokenProvider(masterKey, permissionMode)
 
         commonConfigure(accountUrl.host())
     }
 
-    constructor(accountName: String, permissionProvider: PermissionProvider) {
+    fun configure(accountName: String, permissionProvider: PermissionProvider) {
 
         this.permissionProvider = permissionProvider
 
         commonConfigure("$accountName.documents.azure.com")
     }
 
-    constructor(accountUrl: URL, permissionProvider: PermissionProvider) {
+    fun configure(accountUrl: URL, permissionProvider: PermissionProvider) {
 
         this.permissionProvider = permissionProvider
 
         commonConfigure(accountUrl.host)
     }
 
-    constructor(accountUrl: HttpUrl, permissionProvider: PermissionProvider) {
+    fun configure(accountUrl: HttpUrl, permissionProvider: PermissionProvider) {
 
         this.permissionProvider = permissionProvider
 
@@ -666,7 +666,19 @@ class DocumentClient {
 
         createRequest(HttpMethod.Get, resourceLocation, maxPerPage = maxPerPage) {
 
-            sendResourceListRequest(it, resourceLocation, callback, resourceClass)
+            sendResourceListRequest(
+                request = it,
+                resourceLocation = resourceLocation,
+                callback = { response ->
+                    processResourceListResponse(
+                        resourceLocation = resourceLocation,
+                        response = response,
+                        callback = callback,
+                        resourceClass = resourceClass
+                    )
+                },
+                resourceClass = resourceClass
+            )
         }
     }
 
@@ -681,7 +693,19 @@ class DocumentClient {
 
         createRequest(HttpMethod.Get, resourceLocation) {
 
-            sendResourceRequest(it, resourceLocation, callback, resourceClass)
+            sendResourceRequest(
+                    request = it,
+                    resourceLocation = resourceLocation,
+                    callback = { response ->
+                        processResourceGetResponse(
+                            resourceLocation = resourceLocation,
+                            response = response,
+                            callback = callback,
+                            resourceClass = resourceClass
+                        )
+                    },
+                    resourceClass = resourceClass
+            )
         }
     }
 
@@ -723,7 +747,7 @@ class DocumentClient {
     }
 
     // delete
-    private fun delete(resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
+    internal fun delete(resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
 
         createRequest(HttpMethod.Delete, resourceLocation) {
 
@@ -781,7 +805,7 @@ class DocumentClient {
     }
 
     // create or replace
-    private fun <T : Resource> createOrReplace(body: T, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit) {
+    internal fun <T : Resource> createOrReplace(body: T, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit) {
 
         if (ContextProvider.isOffline) {
             i{"offline, calling back with cached data"}
@@ -1181,12 +1205,7 @@ class DocumentClient {
                         override fun onFailure(call: Call, e: IOException) {
                             ContextProvider.isOffline = true
 
-                            resourceClass?.let {
-                                cachedResources(resourceLocation, null, callback, it)
-                                return
-                            }
-
-                            callback(ListResponse(DataError(e)))
+                            callback(ListResponse(DataError(DocumentClientError.InternetConnectivityError)))
                         }
 
                         @Throws(IOException::class)
@@ -1296,6 +1315,48 @@ class DocumentClient {
         }
     }
 
+    private fun <T: Resource> processResourceGetResponse(resourceLocation: ResourceLocation, response: Response<T>, callback: (Response<T>) -> Unit, resourceClass: Class<T>?) {
+        when {
+            response.isSuccessful -> {
+                callback(response)
+
+                response.resource?.let { ResourceCache.shared.cache(it) }
+            }
+
+            response.isErrored -> {
+                if (response.error!!.isConnectivityError() && resourceClass != null)  {
+                    cachedResource(resourceLocation, response, callback, resourceClass)
+                    return
+                }
+
+                callback(response)
+            }
+
+            else -> { callback(response) }
+        }
+    }
+
+    private fun <T: Resource> processResourceListResponse(resourceLocation: ResourceLocation, response: ListResponse<T>, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>?) {
+        when {
+            response.isSuccessful -> {
+                callback(response)
+
+                response.resource?.let { ResourceCache.shared.cache(it) }
+            }
+
+            response.isErrored -> {
+                if (response.error!!.isConnectivityError() && resourceClass != null) {
+                    cachedResources(resourceLocation, response, callback, resourceClass)
+                    return
+                }
+
+                callback(response)
+            }
+
+            else -> { callback(response) }
+        }
+    }
+
     private fun processDeleteResponse(resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, response: DataResponse, callback: (DataResponse) -> Unit) {
         when {
             response.isSuccessful -> {
@@ -1350,26 +1411,26 @@ class DocumentClient {
 
     //region Cache Responses
 
-    private inline fun <T: Resource> cachedResource(resourceLocation: ResourceLocation, response: Response<T>? = null, crossinline callback: (Response<T>) -> Unit, resourceClass: Class<T>) {
+    private fun <T: Resource> cachedResource(resourceLocation: ResourceLocation, response: Response<T>? = null, callback: (Response<T>) -> Unit, resourceClass: Class<T>) {
         ResourceCache.shared.getResourceAt(resourceLocation, resourceClass)?.let {
-            callback(Response(response?.request, response?.response, response?.jsonData, Result(resource = it), resourceLocation, response?.resourceType))
+            callback(Response(response?.request, response?.response, response?.jsonData, Result(resource = it), resourceLocation, response?.resourceType, fromCache = true))
             return
         }
 
-        callback(Response(response?.request, response?.response, response?.jsonData, Result(error = DataError(DocumentClientError.NotFound))))
+        callback(Response(response?.request, response?.response, response?.jsonData, Result(error = DataError(DocumentClientError.NotFound)), fromCache = true))
     }
 
-    private inline fun <T: Resource> cachedResources(resourceLocation: ResourceLocation, response: Response<T>? = null, crossinline callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>) {
+    private fun <T: Resource> cachedResources(resourceLocation: ResourceLocation, response: ListResponse<T>? = null, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>) {
         val resources = ResourceCache.shared.getResourcesAt(resourceLocation, resourceClass)
 
-        callback(Response(response?.request, response?.response, response?.jsonData, Result(resources), resourceLocation, response?.resourceType))
+        callback(Response(response?.request, response?.response, response?.jsonData, Result(resources), resourceLocation, response?.resourceType, fromCache = true))
     }
 
     //endregion
 
     companion object {
 
-//        val client : OkHttpClient = OkHttpClient.Builder().protocols(listOf(Protocol.HTTP_1_1)).build()
+        val shared = DocumentClient()
 
         val client = OkHttpClient()
 

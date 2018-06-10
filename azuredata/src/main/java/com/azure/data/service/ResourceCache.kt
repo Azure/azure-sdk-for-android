@@ -205,7 +205,7 @@ private fun Context.resourceCacheDir(resourceLocation: ResourceLocation): File? 
     return null
 }
 
-private fun Context.azureDataCacheDir(): File {
+internal fun Context.azureDataCacheDir(): File {
     val directory = File(cacheDir, "com.azuredata.data")
 
     if (!directory.exists()) {
