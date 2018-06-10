@@ -30,7 +30,7 @@ class ResourceWriteOperationQueue {
         var shared = ResourceWriteOperationQueue()
     }
 
-    private constructor() {
+    init {
         load()
     }
 
@@ -42,7 +42,7 @@ class ResourceWriteOperationQueue {
 
     private var isSyncing = false
 
-    private val executor: ExecutorService = Executors.newCachedThreadPool()
+    private val executor: ExecutorService = Executors.newSingleThreadExecutor()
 
     //endregion
 
@@ -81,18 +81,20 @@ class ResourceWriteOperationQueue {
     }
 
     fun sync() {
-        if (isSyncing || writes.isEmpty()) {
-            return
+        executor.execute {
+            if (isSyncing || writes.isEmpty()) {
+                return@execute
+            }
+
+            val writes = this.writes.sortedByResourceType()
+
+            isSyncing = true
+
+            performWrites(writes, {
+                removeCachedResources()
+                isSyncing = false
+            })
         }
-
-        val writes = this.writes.sortedByResourceType()
-
-        isSyncing = true
-
-        performWrites(writes, {
-            removeCachedResources()
-            isSyncing = false
-        })
     }
 
     //endregion
@@ -100,9 +102,11 @@ class ResourceWriteOperationQueue {
     //region
 
     private fun load() {
-        writes = ContextProvider.appContext.pendingWritesFiles()
+        executor.execute {
+            writes = ContextProvider.appContext.pendingWritesFiles()
                     .map { it.bufferedReader().use { gson.fromJson(it.readText(), ResourceWriteOperation::class.java) } }
                     .toMutableList()
+        }
     }
 
     private fun performWrites(writes: MutableList<ResourceWriteOperation>, callback: (Boolean) -> Unit) {
@@ -132,41 +136,43 @@ class ResourceWriteOperationQueue {
     }
 
     private fun enqueueWrite(write: ResourceWriteOperation) {
-        val index = writes.indexOf(write)
+        executor.execute {
+            val index = writes.indexOf(write)
 
-        if (index < 0) {
-            writes.add(write)
-            persistWriteOnDisk(write)
-            return
-        }
-
-        val existingWrite = writes[index]
-
-        when (Pair(existingWrite.type, write.type)) {
-            Pair(ResourceWriteOperationType.Create, ResourceWriteOperationType.Replace) -> {
-                writes[index] = write.withType(ResourceWriteOperationType.Create)
-                removeWriteFromDisk(existingWrite)
+            if (index < 0) {
+                writes.add(write)
                 persistWriteOnDisk(write)
+                return@execute
             }
 
-            Pair(ResourceWriteOperationType.Create, ResourceWriteOperationType.Delete) -> {
-                writes.removeAt(index)
-                removeWriteFromDisk(existingWrite)
-            }
+            val existingWrite = writes[index]
 
-            Pair(ResourceWriteOperationType.Replace, ResourceWriteOperationType.Delete) -> {
-                writes[index] = write
-                removeWriteFromDisk(existingWrite)
-                persistWriteOnDisk(write)
-            }
+            when (Pair(existingWrite.type, write.type)) {
+                Pair(ResourceWriteOperationType.Create, ResourceWriteOperationType.Replace) -> {
+                    writes[index] = write.withType(ResourceWriteOperationType.Create)
+                    removeWriteFromDisk(existingWrite)
+                    persistWriteOnDisk(write)
+                }
 
-            Pair(ResourceWriteOperationType.Replace, ResourceWriteOperationType.Replace) -> {
-                writes[index] = write
-                removeWriteFromDisk(existingWrite)
-                persistWriteOnDisk(write)
-            }
+                Pair(ResourceWriteOperationType.Create, ResourceWriteOperationType.Delete) -> {
+                    writes.removeAt(index)
+                    removeWriteFromDisk(existingWrite)
+                }
 
-            else -> { }
+                Pair(ResourceWriteOperationType.Replace, ResourceWriteOperationType.Delete) -> {
+                    writes[index] = write
+                    removeWriteFromDisk(existingWrite)
+                    persistWriteOnDisk(write)
+                }
+
+                Pair(ResourceWriteOperationType.Replace, ResourceWriteOperationType.Replace) -> {
+                    writes[index] = write
+                    removeWriteFromDisk(existingWrite)
+                    persistWriteOnDisk(write)
+                }
+
+                else -> { }
+            }
         }
     }
 
