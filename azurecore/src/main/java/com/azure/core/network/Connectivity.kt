@@ -1,5 +1,7 @@
 package com.azure.core.network
 
+import android.net.Network
+import android.net.NetworkInfo
 import com.azure.core.util.ContextProvider
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import io.reactivex.disposables.Disposable
@@ -14,35 +16,28 @@ class Connectivity {
 
     companion object {
 
-        private val onChanged = mutableListOf<()->Unit>()
+        private var connectivityListener: ((Boolean) -> Unit)? = null
 
-        private var onChangedDisposable: Disposable? = null
+        private var connectivityListenerDisposable: Disposable? = null
 
-        fun addOnChangedCallback( callback : () -> Unit) {
-            synchronized(onChanged){
-                val count = onChanged.size
-                onChanged.add(callback)
-                if (count==0){
-                    onChangedDisposable = ReactiveNetwork.observeNetworkConnectivity(ContextProvider.appContext)
-                        .subscribeOn(Schedulers.io())
-                        .subscribe{
-                            onChanged.forEach { it.invoke() }
-                        }
-                }
-            }
+        fun registerListener(callback: (Boolean) -> Unit) {
+            connectivityListener = callback
         }
 
-        fun removeOnChangedCallback( callback : () -> Unit){
-            synchronized(onChanged){
-                onChanged.remove(callback)
-                val count = onChanged.size
-                if (count==0){
-                    onChangedDisposable?.dispose()
-                    onChangedDisposable = null
-                }
-            }
+        fun startListening() {
+            connectivityListenerDisposable = ReactiveNetwork.observeNetworkConnectivity(ContextProvider.appContext)
+                    .subscribeOn(Schedulers.io())
+                    .subscribe { connectivity ->
+                        connectivityListener?.let { it(connectivity.detailedState == NetworkInfo.DetailedState.CONNECTED) }
+                    }
         }
 
+        fun stopListening() {
+            synchronized(this) {
+                connectivityListener = null
+                connectivityListenerDisposable?.dispose()
+                connectivityListenerDisposable = null
+            }
+        }
     }
-
 }

@@ -7,6 +7,7 @@ import com.azure.core.http.HttpStatusCode
 import com.azure.core.log.d
 import com.azure.core.log.e
 import com.azure.core.log.i
+import com.azure.core.network.Connectivity
 import com.azure.core.util.ContextProvider
 import com.azure.core.util.DateUtil
 import com.azure.data.constants.HttpHeaderValue
@@ -40,6 +41,8 @@ class DocumentClient private constructor() {
     private var permissionProvider: PermissionProvider? = null
 
     private var resourceTokenProvider: ResourceTokenProvider? = null
+
+    private var isOffline = false
 
     val configuredWithMasterKey: Boolean
         get() = resourceTokenProvider != null
@@ -104,6 +107,8 @@ class DocumentClient private constructor() {
 
         ResourceOracle.init(ContextProvider.appContext, host)
         PermissionCache.init(host)
+        Connectivity.registerListener(networkConnectivityChanged)
+        Connectivity.startListening()
     }
 
     fun reset () {
@@ -112,6 +117,19 @@ class DocumentClient private constructor() {
         permissionProvider = null
         resourceTokenProvider = null
     }
+
+    //region Network Connectivity
+
+    private val networkConnectivityChanged: (Boolean) -> Unit = { isConnected ->
+        d { "Network Status Changed: ${if (isConnected) "Connected" else "Not Connected"}" }
+        this.isOffline = !isConnected
+
+        if (isConnected) {
+            ResourceWriteOperationQueue.shared.sync()
+        }
+    }
+
+    //endregion
 
     //region Database
 
@@ -658,12 +676,6 @@ class DocumentClient private constructor() {
     // list
     private fun <T : Resource> resources(resourceLocation: ResourceLocation, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null, maxPerPage: Int? = null) {
 
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
-
         createRequest(HttpMethod.Get, resourceLocation, maxPerPage = maxPerPage) {
 
             sendResourceListRequest(
@@ -685,12 +697,6 @@ class DocumentClient private constructor() {
     // get
     private fun <T : Resource> resource(resourceLocation: ResourceLocation, callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null) {
 
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
-
         createRequest(HttpMethod.Get, resourceLocation) {
 
             sendResourceRequest(
@@ -711,12 +717,6 @@ class DocumentClient private constructor() {
 
     // refresh
     fun <T : Resource> refresh(resource: T, callback: (Response<T>) -> Unit) {
-
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
 
         return try {
 
@@ -807,12 +807,6 @@ class DocumentClient private constructor() {
     // create or replace
     internal fun <T : Resource> createOrReplace(body: T, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit) {
 
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
-
         try {
             val jsonBody = gson.toJson(body)
             var headers = additionalHeaders
@@ -852,12 +846,6 @@ class DocumentClient private constructor() {
     // create or replace
     private fun <T : Resource> createOrReplace(body: ByteArray, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null) {
 
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
-
         try {
             createRequest(if (replacing) HttpMethod.Put else HttpMethod.Post, resourceLocation, additionalHeaders, body) {
 
@@ -874,12 +862,6 @@ class DocumentClient private constructor() {
 
         d{query.toString()}
 
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
-
         try {
             val json = gson.toJson(query.dictionary)
 
@@ -895,13 +877,6 @@ class DocumentClient private constructor() {
 
     // next
     fun <T : Resource> next(response : ListResponse<T>, resourceType: Type?, callback: (ListResponse<T>) -> Unit) {
-
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
-
 
         try {
             val request = response.request
@@ -925,7 +900,7 @@ class DocumentClient private constructor() {
 
                         // only transport errors handled here
                         override fun onFailure(call: Call, e: IOException) {
-                            ContextProvider.isOffline = true
+                            isOffline = true
                             // todo: callback with cached data instead of the callback with the error below
                             callback(Response(DataError(e)))
                         }
@@ -943,12 +918,6 @@ class DocumentClient private constructor() {
 
     // execute
     private fun <T> execute(body: T? = null, resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
-
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
 
         try {
             val json = if (body != null) gson.toJson(body) else gson.toJson(arrayOf<String>())
@@ -1147,7 +1116,7 @@ class DocumentClient private constructor() {
 
                         override fun onFailure(call: Call, ex: IOException) {
                             e(ex)
-                            ContextProvider.isOffline = true
+                            isOffline = true
 
                             callback(Response(error = DataError(DocumentClientError.InternetConnectivityError)))
                         }
@@ -1175,8 +1144,8 @@ class DocumentClient private constructor() {
 
                         override fun onFailure(call: Call, ex: IOException) {
                             e(ex)
-                            ContextProvider.isOffline = true
-                            // todo: callback with cached data instead of the callback with the error below
+                            isOffline = true
+
                             return callback(Response(DataError(ex), request))
                         }
 
@@ -1203,7 +1172,7 @@ class DocumentClient private constructor() {
 
                         // only transport errors handled here
                         override fun onFailure(call: Call, e: IOException) {
-                            ContextProvider.isOffline = true
+                            isOffline = true
 
                             callback(ListResponse(DataError(DocumentClientError.InternetConnectivityError)))
                         }
