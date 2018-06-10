@@ -85,6 +85,11 @@ class AzureData {
         val isConfigured: Boolean
             get() = configured && documentClient.isConfigured
 
+        @JvmStatic
+        var isOfflineDataEnabled: Boolean
+            get() = ResourceCache.shared.isEnabled
+            set(value) = { ResourceCache.shared.isEnabled = value }()
+
         //region Databases
 
         // create
