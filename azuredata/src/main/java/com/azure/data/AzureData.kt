@@ -90,6 +90,11 @@ class AzureData {
             get() = ResourceCache.shared.isEnabled
             set(value) = { ResourceCache.shared.isEnabled = value }()
 
+        @JvmStatic
+        var resourceEncryptor: ResourceEncryptor?
+            get() = ResourceCache.shared.resourceEncryptor
+            set(value) = { ResourceCache.shared.resourceEncryptor = value }()
+        
         //region Databases
 
         // create

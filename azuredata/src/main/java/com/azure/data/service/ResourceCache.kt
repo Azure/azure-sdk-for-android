@@ -26,6 +26,8 @@ internal class ResourceCache private constructor() {
 
     var isEnabled = true
 
+    var resourceEncryptor: ResourceEncryptor? = null
+
     private var executor: ExecutorService = Executors.newCachedThreadPool()
 
     //endregion
@@ -39,7 +41,7 @@ internal class ResourceCache private constructor() {
             executor.execute {
                 ContextProvider.appContext.resourceCacheFile(resource)?.let {
                     it.bufferedWriter().use {
-                        it.write(gson.toJson(resource))
+                        it.write(encrypt(gson.toJson(resource)))
                     }
                 }
             }
@@ -72,7 +74,7 @@ internal class ResourceCache private constructor() {
 
         ContextProvider.appContext.resourceCacheFile(location)?.let {
             it.bufferedReader().use {
-                return gson.fromJson<T>(it, resourceClass)
+                return gson.fromJson<T>(decrypt(it.readText()), resourceClass)
             }
         }
 
@@ -85,7 +87,7 @@ internal class ResourceCache private constructor() {
         if (isEnabled) {
             resources.items = ContextProvider.appContext.resourceCacheFiles(location).map {
                 it.bufferedReader().use {
-                    gson.fromJson<T>(it, resourceClass)
+                    gson.fromJson<T>(decrypt(it.readText()), resourceClass)
                 }
             }
 
@@ -134,6 +136,20 @@ internal class ResourceCache private constructor() {
         if (offersDir.exists() && offersDir.isDirectory) {
             offersDir.deleteRecursively()
         }
+    }
+
+    //endregion
+
+    //region
+
+    private fun encrypt(data: String): String {
+        resourceEncryptor?.let { return it.encrypt(data) }
+        return data
+    }
+
+    private fun decrypt(data: String): String {
+        resourceEncryptor?.let { return it.decrypt(data) }
+        return data
     }
 
     //endregion
