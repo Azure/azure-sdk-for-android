@@ -5,6 +5,7 @@ import com.azure.core.util.ContextProvider
 import com.azure.data.model.Resource
 import com.azure.data.model.ResourceList
 import com.azure.data.model.ResourceLocation
+import com.azure.data.model.ResourceType
 import com.azure.data.util.ResourceOracle
 import com.azure.data.util.json.gson
 import java.io.File
@@ -165,6 +166,8 @@ private fun Context.resourceCacheFile(resource: Resource): File? {
             directory.mkdirs()
         }
 
+        createEmptyChildDirectoriesIfNecessary(directory, ResourceType.fromType(resource::class.java))
+
         return File(directory, it.file)
     }
 
@@ -178,6 +181,8 @@ private fun Context.resourceCacheFile(resourceLocation: ResourceLocation): File?
         if (!directory.exists()) {
             directory.mkdirs()
         }
+
+        createEmptyChildDirectoriesIfNecessary(directory, resourceLocation.resourceType)
 
         return File(directory, it.file)
     }
@@ -230,3 +235,15 @@ internal fun Context.azureDataCacheDir(): File {
 
     return directory
 }
+
+private fun createEmptyChildDirectoriesIfNecessary(parent: File, resourceType: ResourceType) {
+    resourceType.children.forEach {
+        val childDirectory = File(parent, it.path)
+
+        if (!childDirectory.exists()) {
+            childDirectory.mkdirs()
+        }
+    }
+}
+
+//endregion

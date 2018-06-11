@@ -66,6 +66,22 @@ enum class ResourceType(val path: String, fullname: String, val type: Type, val 
             }
         }
 
+    val children: List<ResourceType>
+        get() {
+            return when (this) {
+                Database        -> listOf(ResourceType.Collection, ResourceType.User)
+                User            -> listOf(ResourceType.Permission)
+                Permission      -> listOf()
+                Collection      -> listOf(ResourceType.Document, ResourceType.StoredProcedure, ResourceType.Trigger, ResourceType.Udf)
+                Document        -> listOf(ResourceType.Attachment)
+                StoredProcedure -> listOf()
+                Trigger         -> listOf()
+                Udf             -> listOf()
+                Attachment      -> listOf()
+                else            -> listOf()
+            }
+        }
+
     companion object {
 
         fun<T: Resource> fromType(clazz: Class<T>) : ResourceType {
