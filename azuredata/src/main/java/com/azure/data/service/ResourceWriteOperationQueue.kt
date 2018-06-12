@@ -27,11 +27,11 @@ import java.util.concurrent.Executors
 class ResourceWriteOperationQueue {
 
     companion object {
-        var shared = ResourceWriteOperationQueue()
-    }
-
-    init {
-        load()
+        val shared by lazy {
+            val queue = ResourceWriteOperationQueue()
+            queue.load()
+            return@lazy queue
+        }
     }
 
     //region Properties
