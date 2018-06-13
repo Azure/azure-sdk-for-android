@@ -1266,8 +1266,8 @@ class DocumentClient private constructor() {
                 callback(response)
 
                 when (replace) {
-                    true  -> response.resource?.let { ResourceCache.shared.cache(it) }
-                    false -> response.resource?.let { ResourceCache.shared.replace(it) }
+                    true  -> response.resource?.let { ResourceCache.shared.replace(it) }
+                    false -> response.resource?.let { ResourceCache.shared.cache(it) }
                 }
             }
 

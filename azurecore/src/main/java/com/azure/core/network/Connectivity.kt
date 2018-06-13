@@ -21,15 +21,18 @@ class Connectivity {
         private var connectivityListenerDisposable: Disposable? = null
 
         fun registerListener(callback: (Boolean) -> Unit) {
-            connectivityListener = callback
+            synchronized(this) {
+                connectivityListener = callback
+            }
         }
 
         fun startListening() {
-            connectivityListenerDisposable = ReactiveNetwork.observeNetworkConnectivity(ContextProvider.appContext)
-                    .subscribeOn(Schedulers.io())
-                    .subscribe { connectivity ->
-                        connectivityListener?.let { it(connectivity.detailedState == NetworkInfo.DetailedState.CONNECTED) }
-                    }
+            synchronized(this) {
+                connectivityListenerDisposable = ReactiveNetwork.observeNetworkConnectivity(ContextProvider.appContext)
+                        .subscribe { connectivity ->
+                            connectivityListener?.let { it(connectivity.detailedState == NetworkInfo.DetailedState.CONNECTED) }
+                        }
+            }
         }
 
         fun stopListening() {
