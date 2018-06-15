@@ -119,6 +119,19 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
         getAltLink(resource)?.let {
 
             selfLinkLookup.remove(it)
+            selfLinkPrefsEditor.remove(it)
+        }
+    }
+
+    private fun doRemoveLinks(resourceLocation: ResourceLocation) {
+
+        getSelfLink(resourceLocation)?.let {
+
+            altLinkLookup.remove(it)?.let {
+                selfLinkLookup.remove(it)
+                selfLinkPrefsEditor.remove(it)
+            }
+
             altLinkPrefsEditor.remove(it)
         }
     }
@@ -126,6 +139,15 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
     fun removeLinks(resource: Resource, commit: Boolean = true) {
 
         doRemoveLinks(resource)
+
+        if (commit) {
+            commit()
+        }
+    }
+
+    fun removeLinks(resourceLocation: ResourceLocation, commit: Boolean = true) {
+
+        doRemoveLinks(resourceLocation)
 
         if (commit) {
             commit()

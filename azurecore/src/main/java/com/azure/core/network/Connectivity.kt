@@ -1,11 +1,9 @@
 package com.azure.core.network
 
-import android.net.Network
 import android.net.NetworkInfo
 import com.azure.core.util.ContextProvider
 import com.github.pwittchen.reactivenetwork.library.rx2.ReactiveNetwork
 import io.reactivex.disposables.Disposable
-import io.reactivex.schedulers.Schedulers
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -29,9 +27,9 @@ class Connectivity {
         fun startListening() {
             synchronized(this) {
                 connectivityListenerDisposable = ReactiveNetwork.observeNetworkConnectivity(ContextProvider.appContext)
-                        .subscribe { connectivity ->
-                            connectivityListener?.let { it(connectivity.detailedState == NetworkInfo.DetailedState.CONNECTED) }
-                        }
+                    .subscribe { connectivity ->
+                        connectivityListener?.let { it(connectivity.detailedState == NetworkInfo.DetailedState.CONNECTED) }
+                    }
             }
         }
 

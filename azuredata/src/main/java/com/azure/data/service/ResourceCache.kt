@@ -103,6 +103,8 @@ internal class ResourceCache private constructor() {
     //region remove
 
     fun remove(resource: Resource) {
+        ResourceOracle.shared.removeLinks(resource)
+
         if (isEnabled) {
             executor.execute {
                 ContextProvider.appContext.resourceCacheDir(resource)?.let {
@@ -113,6 +115,8 @@ internal class ResourceCache private constructor() {
     }
 
     fun remove(resourceLocation: ResourceLocation) {
+        ResourceOracle.shared.removeLinks(resourceLocation)
+
         if (isEnabled) {
             executor.execute {
                 ContextProvider.appContext.resourceCacheDir(resourceLocation)?.let {

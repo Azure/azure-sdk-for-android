@@ -6,7 +6,6 @@ import com.azure.core.http.HttpMethod
 import com.azure.core.http.HttpStatusCode
 import com.azure.core.log.d
 import com.azure.core.log.e
-import com.azure.core.log.i
 import com.azure.core.network.Connectivity
 import com.azure.core.util.ContextProvider
 import com.azure.core.util.DateUtil
@@ -941,7 +940,7 @@ class DocumentClient private constructor() {
         DateUtil.getDateFromatter(DateUtil.Format.Rfc1123Format)
     }
 
-    private inline fun getTokenforResource(resourceLocation: ResourceLocation, method: HttpMethod, crossinline callback: (Response<ResourceToken>) -> Unit) {
+    private inline fun getTokenForResource(resourceLocation: ResourceLocation, method: HttpMethod, crossinline callback: (Response<ResourceToken>) -> Unit) {
 
         if (!isConfigured) {
             return callback(Response(DataError(DocumentClientError.ConfigureError)))
@@ -1052,7 +1051,7 @@ class DocumentClient private constructor() {
 
     private inline fun createRequestBuilder(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, maxPerPage: Int? = null, crossinline callback: (Request.Builder) -> Unit) {
 
-        getTokenforResource(resourceLocation, method) {
+        getTokenForResource(resourceLocation, method) {
 
             when {
                 it.isSuccessful -> it.resource?.let {
