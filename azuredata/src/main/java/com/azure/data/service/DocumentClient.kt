@@ -185,7 +185,7 @@ class DocumentClient private constructor() {
     // replace
     fun replaceCollection(collectionId: String, databaseId: String, indexingPolicy: IndexingPolicy, callback: (Response<DocumentCollection>) -> Unit) {
 
-        return replace(DocumentCollection(collectionId), ResourceLocation.Collection(databaseId, collectionId), callback = callback)
+        return replace(DocumentCollection(collectionId, indexingPolicy), ResourceLocation.Collection(databaseId, collectionId), callback = callback)
     }
 
     //endregion
