@@ -40,7 +40,6 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     implementation "com.jakewharton.timber:timber:$timberVersion"
-    implementation "com.github.pwittchen:reactivenetwork-rx2:$reactiveNetworkVersion"
     // https://mvnrepository.com/artifact/commons-codec/commons-codec
     implementation 'commons-codec:commons-codec:1.11'
 }
