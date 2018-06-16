@@ -6,7 +6,7 @@ import com.azure.core.http.HttpMethod
 import com.azure.core.http.HttpStatusCode
 import com.azure.core.log.d
 import com.azure.core.log.e
-import com.azure.core.network.Connectivity
+import com.azure.core.network.NetworkConnectivity
 import com.azure.core.util.ContextProvider
 import com.azure.core.util.DateUtil
 import com.azure.data.constants.HttpHeaderValue
@@ -106,8 +106,8 @@ class DocumentClient private constructor() {
 
         ResourceOracle.init(ContextProvider.appContext, host)
         PermissionCache.init(host)
-        Connectivity.registerListener(networkConnectivityChanged)
-        Connectivity.startListening()
+        NetworkConnectivity.manager.registerListener(networkConnectivityChanged)
+        NetworkConnectivity.manager.startListening()
     }
 
     fun reset () {
