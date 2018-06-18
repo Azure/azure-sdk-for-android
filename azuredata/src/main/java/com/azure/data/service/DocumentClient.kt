@@ -207,13 +207,13 @@ class DocumentClient private constructor() {
     // createOrReplace
     fun <T : Document> createOrReplaceDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) {
 
-        return create(document, ResourceLocation.Document(databaseId, collectionId), replace = true, callback = callback)
+        return create(document, ResourceLocation.Document(databaseId, collectionId), additionalHeaders = Headers.of(mapOf(Pair(MSHttpHeader.MSDocumentDBIsUpsert.value, "true"))), callback = callback)
     }
 
     // createOrReplace
     fun <T : Document> createOrReplaceDocument (document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) {
 
-        return create(document, ResourceLocation.Child(ResourceType.Document, collection), replace = true, callback = callback)
+        return create(document, ResourceLocation.Child(ResourceType.Document, collection), additionalHeaders = Headers.of(mapOf(Pair(MSHttpHeader.MSDocumentDBIsUpsert.value, "true"))), callback = callback)
     }
 
     // list
@@ -816,7 +816,7 @@ class DocumentClient private constructor() {
                 headers = builder.build()
             }
 
-            createRequest(HttpMethod.Post, resourceLocation, headers, jsonBody) {
+            createRequest(if (replacing) HttpMethod.Put else HttpMethod.Post, resourceLocation, headers, jsonBody) {
 
                 @Suppress("UNCHECKED_CAST")
                 sendResourceRequest(
