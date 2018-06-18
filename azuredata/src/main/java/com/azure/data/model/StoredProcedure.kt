@@ -12,7 +12,7 @@ package com.azure.data.model
 *   the database engine under the database transaction.
 *   For additional details, refer to the server-side JavaScript API documentation.
 */
-class StoredProcedure : Resource() {
+class StoredProcedure(id: String? = null, body: String? = null) : Resource(id) {
 
     /** Gets or sets the body of the Azure Cosmos DB stored procedure.
     ///
@@ -22,7 +22,7 @@ class StoredProcedure : Resource() {
     /// - Example:
     ///   `"function () { getContext().getResponse().setBody('Hello World!'); }`
     */
-    var body: String? = null
+    var body: String? = body
 
     companion object {
 

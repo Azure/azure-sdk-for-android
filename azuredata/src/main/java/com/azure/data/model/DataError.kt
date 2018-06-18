@@ -15,4 +15,6 @@ class DataError(message: String?, val code: String? = null) : Error(message) {
 
     override fun toString(): String =
             "\r\nError\r\n\t$message\r\n${if (code != null) "\t$code\r\n" else ""}"
+
+    fun isConnectivityError(): Boolean = this.message.equals(DocumentClientError.InternetConnectivityError.message)
 }

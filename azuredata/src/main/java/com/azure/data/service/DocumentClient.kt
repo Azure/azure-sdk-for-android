@@ -6,7 +6,7 @@ import com.azure.core.http.HttpMethod
 import com.azure.core.http.HttpStatusCode
 import com.azure.core.log.d
 import com.azure.core.log.e
-import com.azure.core.log.i
+import com.azure.core.network.NetworkConnectivity
 import com.azure.core.util.ContextProvider
 import com.azure.core.util.DateUtil
 import com.azure.data.constants.HttpHeaderValue
@@ -33,7 +33,7 @@ import java.util.*
  * Licensed under the MIT License.
  */
 
-class DocumentClient {
+class DocumentClient private constructor() {
 
     private var host: String? = null
 
@@ -41,45 +41,47 @@ class DocumentClient {
 
     private var resourceTokenProvider: ResourceTokenProvider? = null
 
+    private var isOffline = false
+
     val configuredWithMasterKey: Boolean
         get() = resourceTokenProvider != null
 
-    constructor(accountName: String, masterKey: String, permissionMode: PermissionMode) {
+    fun configure(accountName: String, masterKey: String, permissionMode: PermissionMode) {
 
         resourceTokenProvider = ResourceTokenProvider(masterKey, permissionMode)
 
         commonConfigure("$accountName.documents.azure.com")
     }
 
-    constructor(accountUrl: URL, masterKey: String, permissionMode: PermissionMode) {
+    fun configure(accountUrl: URL, masterKey: String, permissionMode: PermissionMode) {
 
         resourceTokenProvider = ResourceTokenProvider(masterKey, permissionMode)
 
         commonConfigure(accountUrl.host)
     }
 
-    constructor(accountUrl: HttpUrl, masterKey: String, permissionMode: PermissionMode) {
+    fun configure(accountUrl: HttpUrl, masterKey: String, permissionMode: PermissionMode) {
 
         resourceTokenProvider = ResourceTokenProvider(masterKey, permissionMode)
 
         commonConfigure(accountUrl.host())
     }
 
-    constructor(accountName: String, permissionProvider: PermissionProvider) {
+    fun configure(accountName: String, permissionProvider: PermissionProvider) {
 
         this.permissionProvider = permissionProvider
 
         commonConfigure("$accountName.documents.azure.com")
     }
 
-    constructor(accountUrl: URL, permissionProvider: PermissionProvider) {
+    fun configure(accountUrl: URL, permissionProvider: PermissionProvider) {
 
         this.permissionProvider = permissionProvider
 
         commonConfigure(accountUrl.host)
     }
 
-    constructor(accountUrl: HttpUrl, permissionProvider: PermissionProvider) {
+    fun configure(accountUrl: HttpUrl, permissionProvider: PermissionProvider) {
 
         this.permissionProvider = permissionProvider
 
@@ -104,6 +106,8 @@ class DocumentClient {
 
         ResourceOracle.init(ContextProvider.appContext, host)
         PermissionCache.init(host)
+        NetworkConnectivity.manager.registerListener(networkConnectivityChanged)
+        NetworkConnectivity.manager.startListening()
     }
 
     fun reset () {
@@ -113,11 +117,24 @@ class DocumentClient {
         resourceTokenProvider = null
     }
 
+    //region Network Connectivity
+
+    private val networkConnectivityChanged: (Boolean) -> Unit = { isConnected ->
+        d { "Network Status Changed: ${if (isConnected) "Connected" else "Not Connected"}" }
+        this.isOffline = !isConnected
+
+        if (isConnected) {
+            ResourceWriteOperationQueue.shared.sync()
+        }
+    }
+
+    //endregion
+
     //region Database
 
     // create
     fun createDatabase(databaseId: String, callback: (Response<Database>) -> Unit)
-            = create(databaseId, ResourceLocation.Database(), callback = callback)
+            = create(Database(databaseId), ResourceLocation.Database(), callback = callback)
 
     // list
     fun getDatabases(maxPerPage: Int? = null, callback: (ListResponse<Database>) -> Unit) {
@@ -144,7 +161,7 @@ class DocumentClient {
     // create
     fun createCollection(collectionId: String, databaseId: String, callback: (Response<DocumentCollection>) -> Unit) {
 
-        return create(collectionId, ResourceLocation.Collection(databaseId), callback = callback)
+        return create(DocumentCollection(collectionId), ResourceLocation.Collection(databaseId), callback = callback)
     }
 
     // list
@@ -168,7 +185,7 @@ class DocumentClient {
     // replace
     fun replaceCollection(collectionId: String, databaseId: String, indexingPolicy: IndexingPolicy, callback: (Response<DocumentCollection>) -> Unit) {
 
-        return replace(collectionId, ResourceLocation.Collection(databaseId, collectionId), mutableMapOf<String, Any>("indexingPolicy" to indexingPolicy), callback = callback)
+        return replace(DocumentCollection(collectionId, indexingPolicy), ResourceLocation.Collection(databaseId, collectionId), callback = callback)
     }
 
     //endregion
@@ -190,13 +207,13 @@ class DocumentClient {
     // createOrReplace
     fun <T : Document> createOrReplaceDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) {
 
-        return create(document, ResourceLocation.Document(databaseId, collectionId), replace = true, callback = callback)
+        return create(document, ResourceLocation.Document(databaseId, collectionId), additionalHeaders = Headers.of(mapOf(Pair(MSHttpHeader.MSDocumentDBIsUpsert.value, "true"))), callback = callback)
     }
 
     // createOrReplace
     fun <T : Document> createOrReplaceDocument (document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) {
 
-        return create(document, ResourceLocation.Child(ResourceType.Document, collection), replace = true, callback = callback)
+        return create(document, ResourceLocation.Child(ResourceType.Document, collection), additionalHeaders = Headers.of(mapOf(Pair(MSHttpHeader.MSDocumentDBIsUpsert.value, "true"))), callback = callback)
     }
 
     // list
@@ -362,13 +379,13 @@ class DocumentClient {
     // create
     fun createStoredProcedure(storedProcedureId: String, procedure: String, collectionId: String, databaseId: String, callback: (Response<StoredProcedure>) -> Unit) {
 
-        return create(storedProcedureId, ResourceLocation.StoredProcedure(databaseId, collectionId), mutableMapOf("body" to procedure), callback = callback)
+        return create(StoredProcedure(storedProcedureId, procedure), ResourceLocation.StoredProcedure(databaseId, collectionId), callback = callback)
     }
 
     // create
     fun createStoredProcedure(storedProcedureId: String, procedure: String, collection: DocumentCollection, callback: (Response<StoredProcedure>) -> Unit) {
 
-        return create(storedProcedureId, ResourceLocation.Child(ResourceType.StoredProcedure, collection), mutableMapOf("body" to procedure), callback = callback)
+        return create(StoredProcedure(storedProcedureId, procedure), ResourceLocation.Child(ResourceType.StoredProcedure, collection), callback = callback)
     }
 
     // list
@@ -398,13 +415,13 @@ class DocumentClient {
     // replace
     fun replaceStoredProcedure(storedProcedureId: String, procedure: String, collectionId: String, databaseId: String, callback: (Response<StoredProcedure>) -> Unit) {
 
-        replace(storedProcedureId, ResourceLocation.StoredProcedure(databaseId, collectionId, storedProcedureId), mutableMapOf<String, Any>("body" to procedure), callback = callback)
+        return replace(StoredProcedure(storedProcedureId, procedure), ResourceLocation.StoredProcedure(databaseId, collectionId, storedProcedureId), callback = callback)
     }
 
     // replace
     fun replaceStoredProcedure(storedProcedureId: String, procedure: String, collection: DocumentCollection, callback: (Response<StoredProcedure>) -> Unit) {
 
-        replace(storedProcedureId, ResourceLocation.Child(ResourceType.StoredProcedure, collection, storedProcedureId), mutableMapOf<String, Any>("body" to procedure), callback = callback)
+        return replace(StoredProcedure(storedProcedureId, procedure), ResourceLocation.Child(ResourceType.StoredProcedure, collection, storedProcedureId), callback = callback)
     }
 
     // execute
@@ -426,13 +443,13 @@ class DocumentClient {
     // create
     fun createUserDefinedFunction(userDefinedFunctionId: String, functionBody: String, collectionId: String, databaseId: String, callback: (Response<UserDefinedFunction>) -> Unit) {
 
-        return create(userDefinedFunctionId, ResourceLocation.Udf(databaseId, collectionId), mutableMapOf("body" to functionBody), callback = callback)
+        return create(UserDefinedFunction(userDefinedFunctionId, functionBody), ResourceLocation.Udf(databaseId, collectionId), callback = callback)
     }
 
     // create
     fun createUserDefinedFunction(userDefinedFunctionId: String, functionBody: String, collection: DocumentCollection, callback: (Response<UserDefinedFunction>) -> Unit) {
 
-        return create(userDefinedFunctionId, ResourceLocation.Child(ResourceType.Udf, collection), mutableMapOf("body" to functionBody), callback = callback)
+        return create(UserDefinedFunction(userDefinedFunctionId, functionBody), ResourceLocation.Child(ResourceType.Udf, collection), callback = callback)
     }
 
     // list
@@ -462,13 +479,13 @@ class DocumentClient {
     // replace
     fun replaceUserDefinedFunction(userDefinedFunctionId: String, function: String, collectionId: String, databaseId: String, callback: (Response<UserDefinedFunction>) -> Unit) {
 
-        return replace(userDefinedFunctionId, ResourceLocation.Udf(databaseId, collectionId, userDefinedFunctionId), mutableMapOf<String, Any>("body" to function), callback = callback)
+        return replace(UserDefinedFunction(userDefinedFunctionId, function), ResourceLocation.Udf(databaseId, collectionId, userDefinedFunctionId), callback = callback)
     }
 
     // replace
     fun replaceUserDefinedFunction(userDefinedFunctionId: String, function: String, collection: DocumentCollection, callback: (Response<UserDefinedFunction>) -> Unit) {
 
-        return replace(userDefinedFunctionId, ResourceLocation.Child(ResourceType.Udf, collection, userDefinedFunctionId), mutableMapOf<String, Any>("body" to function), callback = callback)
+        return replace(UserDefinedFunction(userDefinedFunctionId, function), ResourceLocation.Child(ResourceType.Udf, collection, userDefinedFunctionId), callback = callback)
     }
 
     //endregion
@@ -530,7 +547,7 @@ class DocumentClient {
     // create
     fun createUser(userId: String, databaseId: String, callback: (Response<User>) -> Unit) {
 
-        return create(userId, ResourceLocation.User(databaseId), callback = callback)
+        return create(User(userId), ResourceLocation.User(databaseId), callback = callback)
     }
 
     // list
@@ -554,7 +571,7 @@ class DocumentClient {
     // replace
     fun replaceUser(userId: String, newUserId: String, databaseId: String, callback: (Response<User>) -> Unit) {
 
-        return replace(newUserId, ResourceLocation.User(databaseId, userId), callback)
+        return replace(User(newUserId), ResourceLocation.User(databaseId, userId), callback = callback)
     }
 
     //endregion
@@ -655,57 +672,50 @@ class DocumentClient {
         createOrReplace(resource, resourceLocation, replace, additionalHeaders, callback)
     }
 
-    // create
-    private fun <T : Resource> create(resourceId: String, resourceLocation: ResourceLocation, data: MutableMap<String, String>? = null, additionalHeaders: Headers? = null, replace: Boolean = false, callback: (Response<T>) -> Unit) {
-
-        if (!resourceId.isValidIdForResource()) {
-            return callback(Response(DataError(DocumentClientError.InvalidId)))
-        }
-
-        val map = data ?: mutableMapOf()
-        map["id"] = resourceId
-
-        createOrReplace(map, resourceLocation, replace, additionalHeaders, callback)
-    }
-
     // list
     private fun <T : Resource> resources(resourceLocation: ResourceLocation, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null, maxPerPage: Int? = null) {
 
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
-
         createRequest(HttpMethod.Get, resourceLocation, maxPerPage = maxPerPage) {
 
-            sendResourceListRequest(it, resourceLocation, callback, resourceClass)
+            sendResourceListRequest(
+                request = it,
+                resourceLocation = resourceLocation,
+                callback = { response ->
+                    processResourceListResponse(
+                        resourceLocation = resourceLocation,
+                        response = response,
+                        callback = callback,
+                        resourceClass = resourceClass
+                    )
+                },
+                resourceClass = resourceClass
+            )
         }
     }
 
     // get
     private fun <T : Resource> resource(resourceLocation: ResourceLocation, callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null) {
 
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
-
         createRequest(HttpMethod.Get, resourceLocation) {
 
-            sendResourceRequest(it, resourceLocation, callback, resourceClass)
+            sendResourceRequest(
+                    request = it,
+                    resourceLocation = resourceLocation,
+                    callback = { response ->
+                        processResourceGetResponse(
+                            resourceLocation = resourceLocation,
+                            response = response,
+                            callback = callback,
+                            resourceClass = resourceClass
+                        )
+                    },
+                    resourceClass = resourceClass
+            )
         }
     }
 
     // refresh
     fun <T : Resource> refresh(resource: T, callback: (Response<T>) -> Unit) {
-
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
 
         return try {
 
@@ -736,37 +746,47 @@ class DocumentClient {
     }
 
     // delete
-    private fun delete(resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
-
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
+    internal fun delete(resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
 
         createRequest(HttpMethod.Delete, resourceLocation) {
 
-            sendRequest(it, callback)
+            sendRequest(
+                request = it,
+                resourceLocation = resourceLocation,
+                callback = { response: DataResponse ->
+                    processDeleteResponse(
+                        resourceLocation = resourceLocation,
+                        additionalHeaders = null,
+                        response = response,
+                        callback = callback
+                    )
+                }
+            )
         }
     }
 
     fun <TResource : Resource> delete(resource: TResource, callback: (DataResponse) -> Unit) {
 
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
-
         return try {
 
-//            val resourceUri = baseUri.forResource(resource)
-//            val resourceType = ResourceType.fromType(resource.javaClass)
+            val resourceLocation = ResourceLocation.Resource(resource)
 
-            createRequest(HttpMethod.Delete, ResourceLocation.Resource(resource)) {
+            createRequest(HttpMethod.Delete, resourceLocation) {
 
-                sendRequest(it, callback)
+                sendRequest(
+                    request = it,
+                    resourceLocation = resourceLocation,
+                    callback = { response: DataResponse ->
+                        processDeleteResponse(
+                            resourceLocation = resourceLocation,
+                            additionalHeaders = null,
+                            response = response,
+                            callback = callback
+                        )
+                    }
+                )
             }
+
         } catch (ex: Exception) {
             e(ex)
             callback(Response(DataError(ex)))
@@ -783,31 +803,8 @@ class DocumentClient {
         createOrReplace(resource, resourceLocation, true, additionalHeaders, callback)
     }
 
-    // replace
-    private fun <T : Resource> replace(resourceId: String, resourceLocation: ResourceLocation, callback: (Response<T>) -> Unit)
-            = replace(resourceId, resourceLocation, data = null, additionalHeaders = null, callback = callback)
-
-    // replace
-    private fun <T : Resource> replace(resourceId: String, resourceLocation: ResourceLocation, data: MutableMap<String, Any>? = null, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit) {
-
-        if (!resourceId.isValidIdForResource()) {
-            return callback(Response(DataError(DocumentClientError.InvalidId)))
-        }
-
-        val map = data ?: mutableMapOf()
-        map["id"] = resourceId
-
-        createOrReplace(map, resourceLocation, true, additionalHeaders, callback)
-    }
-
     // create or replace
-    private fun <T : Resource> createOrReplace(body: T, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit) {
-
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
+    internal fun <T : Resource> createOrReplace(body: T, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit) {
 
         try {
             val jsonBody = gson.toJson(body)
@@ -819,33 +816,26 @@ class DocumentClient {
                 headers = builder.build()
             }
 
-            createRequest(HttpMethod.Post, resourceLocation, headers, jsonBody) {
+            createRequest(if (replacing) HttpMethod.Put else HttpMethod.Post, resourceLocation, headers, jsonBody) {
 
                 @Suppress("UNCHECKED_CAST")
-                sendResourceRequest(it, resourceLocation, callback, body::class.java as Class<T>)
+                sendResourceRequest(
+                        request = it,
+                        resourceLocation = resourceLocation,
+                        callback = { response: Response<T> ->
+                            processCreateOrReplaceResponse(
+                                 resource = body,
+                                 location = resourceLocation,
+                                 replace = replacing,
+                                 additionalHeaders = additionalHeaders,
+                                 response = response,
+                                 callback = callback
+                            )
+                        },
+                        resourceClass = body::class.java as Class<T>
+                )
             }
-        } catch (ex: Exception) {
-            e(ex)
-            callback(Response(DataError(ex)))
-        }
-    }
 
-    // create or replace
-    private fun <T : Resource> createOrReplace(body: Map<String, Any>, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null) {
-
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
-
-        try {
-            val jsonBody = gson.toJson(body)
-
-            createRequest(if (replacing) HttpMethod.Put else HttpMethod.Post, resourceLocation, additionalHeaders, jsonBody) {
-
-                sendResourceRequest(it, resourceLocation, callback, resourceClass)
-            }
         } catch (ex: Exception) {
             e(ex)
             callback(Response(DataError(ex)))
@@ -854,12 +844,6 @@ class DocumentClient {
 
     // create or replace
     private fun <T : Resource> createOrReplace(body: ByteArray, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null) {
-
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
 
         try {
             createRequest(if (replacing) HttpMethod.Put else HttpMethod.Post, resourceLocation, additionalHeaders, body) {
@@ -877,12 +861,6 @@ class DocumentClient {
 
         d{query.toString()}
 
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
-
         try {
             val json = gson.toJson(query.dictionary)
 
@@ -898,13 +876,6 @@ class DocumentClient {
 
     // next
     fun <T : Resource> next(response : ListResponse<T>, resourceType: Type?, callback: (ListResponse<T>) -> Unit) {
-
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
-
 
         try {
             val request = response.request
@@ -928,7 +899,7 @@ class DocumentClient {
 
                         // only transport errors handled here
                         override fun onFailure(call: Call, e: IOException) {
-                            ContextProvider.isOffline = true
+                            isOffline = true
                             // todo: callback with cached data instead of the callback with the error below
                             callback(Response(DataError(e)))
                         }
@@ -947,18 +918,12 @@ class DocumentClient {
     // execute
     private fun <T> execute(body: T? = null, resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
 
-        if (ContextProvider.isOffline) {
-            i{"offline, calling back with cached data"}
-            // todo: callback with cached data ...
-            // todo: ... then return
-        }
-
         try {
             val json = if (body != null) gson.toJson(body) else gson.toJson(arrayOf<String>())
 
             createRequest(HttpMethod.Post, resourceLocation, jsonBody = json) {
 
-                sendRequest(it, callback)
+                sendRequest(it, resourceLocation, callback)
             }
 
         } catch (ex: Exception) {
@@ -975,7 +940,7 @@ class DocumentClient {
         DateUtil.getDateFromatter(DateUtil.Format.Rfc1123Format)
     }
 
-    private inline fun getTokenforResource(resourceLocation: ResourceLocation, method: HttpMethod, crossinline callback: (Response<ResourceToken>) -> Unit) {
+    private inline fun getTokenForResource(resourceLocation: ResourceLocation, method: HttpMethod, crossinline callback: (Response<ResourceToken>) -> Unit) {
 
         if (!isConfigured) {
             return callback(Response(DataError(DocumentClientError.ConfigureError)))
@@ -1086,7 +1051,7 @@ class DocumentClient {
 
     private inline fun createRequestBuilder(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, maxPerPage: Int? = null, crossinline callback: (Request.Builder) -> Unit) {
 
-        getTokenforResource(resourceLocation, method) {
+        getTokenForResource(resourceLocation, method) {
 
             when {
                 it.isSuccessful -> it.resource?.let {
@@ -1150,9 +1115,9 @@ class DocumentClient {
 
                         override fun onFailure(call: Call, ex: IOException) {
                             e(ex)
-                            ContextProvider.isOffline = true
-                            // todo: callback with cached data instead of the callback with the error below
-                            return callback(Response(DataError(ex), request))
+                            isOffline = true
+
+                            callback(Response(error = DataError(DocumentClientError.InternetConnectivityError)))
                         }
 
                         @Throws(IOException::class)
@@ -1165,7 +1130,7 @@ class DocumentClient {
         }
     }
 
-    private inline fun sendRequest(request: Request, crossinline callback: (DataResponse) -> Unit) {
+    private inline fun sendRequest(request: Request, resourceLocation: ResourceLocation, crossinline callback: (DataResponse) -> Unit) {
 
         d{"***"}
         d{"Sending ${request.method()} request for Data to ${request.url()}"}
@@ -1178,14 +1143,14 @@ class DocumentClient {
 
                         override fun onFailure(call: Call, ex: IOException) {
                             e(ex)
-                            ContextProvider.isOffline = true
-                            // todo: callback with cached data instead of the callback with the error below
+                            isOffline = true
+
                             return callback(Response(DataError(ex), request))
                         }
 
                         @Throws(IOException::class)
                         override fun onResponse(call: Call, response: okhttp3.Response) =
-                                callback(processDataResponse(request, response))
+                                callback(processDataResponse(request, resourceLocation, response))
                     })
         } catch (ex: Exception) {
             e(ex)
@@ -1206,9 +1171,9 @@ class DocumentClient {
 
                         // only transport errors handled here
                         override fun onFailure(call: Call, e: IOException) {
-                            ContextProvider.isOffline = true
-                            // todo: callback with cached data instead of the callback with the error below
-                            callback(ListResponse(DataError(e)))
+                            isOffline = true
+
+                            callback(ListResponse(DataError(DocumentClientError.InternetConnectivityError)))
                         }
 
                         @Throws(IOException::class)
@@ -1283,12 +1248,99 @@ class DocumentClient {
 
                 setResourceMetadata(response, resourceList, resourceLocation.resourceType)
 
+                ResourceCache.shared.cache(resourceList)
+
                 return ListResponse(request, response, json, Result(resourceList), resourceLocation, type)
             } else {
                 return ListResponse(json.toError(), request, response, json)
             }
         } catch (e: Exception) {
             return ListResponse(DataError(e), request, response)
+        }
+    }
+
+    private fun <T: Resource> processCreateOrReplaceResponse(resource: T, location: ResourceLocation, replace: Boolean, additionalHeaders: Headers? = null, response: Response<T>, callback: (Response<T>) -> Unit) {
+        when {
+            response.isSuccessful -> {
+                callback(response)
+
+                when (replace) {
+                    true  -> response.resource?.let { ResourceCache.shared.replace(it) }
+                    false -> response.resource?.let { ResourceCache.shared.cache(it) }
+                }
+            }
+
+            response.isErrored -> {
+                if (response.error!!.isConnectivityError()) {
+                    ResourceWriteOperationQueue.shared.addCreateOrReplace(resource, location, additionalHeaders, replace, callback)
+                    return
+                }
+
+                callback(response)
+            }
+
+            else -> { callback(response) }
+        }
+    }
+
+    private fun <T: Resource> processResourceGetResponse(resourceLocation: ResourceLocation, response: Response<T>, callback: (Response<T>) -> Unit, resourceClass: Class<T>?) {
+        when {
+            response.isSuccessful -> {
+                callback(response)
+
+                response.resource?.let { ResourceCache.shared.cache(it) }
+            }
+
+            response.isErrored -> {
+                if (response.error!!.isConnectivityError() && resourceClass != null)  {
+                    cachedResource(resourceLocation, response, callback, resourceClass)
+                    return
+                }
+
+                callback(response)
+            }
+
+            else -> { callback(response) }
+        }
+    }
+
+    private fun <T: Resource> processResourceListResponse(resourceLocation: ResourceLocation, response: ListResponse<T>, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>?) {
+        when {
+            response.isSuccessful -> {
+                callback(response)
+
+                response.resource?.let { ResourceCache.shared.cache(it) }
+            }
+
+            response.isErrored -> {
+                if (response.error!!.isConnectivityError() && resourceClass != null) {
+                    cachedResources(resourceLocation, response, callback, resourceClass)
+                    return
+                }
+
+                callback(response)
+            }
+
+            else -> { callback(response) }
+        }
+    }
+
+    private fun processDeleteResponse(resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, response: DataResponse, callback: (DataResponse) -> Unit) {
+        when {
+            response.isSuccessful -> {
+                callback(response)
+
+                ResourceCache.shared.remove(resourceLocation)
+            }
+
+            response.isErrored -> {
+                if (response.error!!.isConnectivityError()) {
+                    ResourceWriteOperationQueue.shared.addDelete(resourceLocation, additionalHeaders, callback)
+                    return
+                }
+
+                callback(response)
+            }
         }
     }
 
@@ -1300,7 +1352,7 @@ class DocumentClient {
         ResourceOracle.shared.storeLinks(resource)
     }
 
-    private fun processDataResponse(request: Request, response: okhttp3.Response): DataResponse {
+    private fun processDataResponse(request: Request, resourceLocation: ResourceLocation, response: okhttp3.Response): DataResponse {
 
         try {
             val body = response.body()
@@ -1310,11 +1362,9 @@ class DocumentClient {
             //check http return code
             return if (response.isSuccessful) {
 
-//                if (request.method() == HttpMethod.Delete.toString()) {
-////                    ResourceOracle.shared.removeLinks(request.)
-//                    //TODO: figure this out!
-//                    val i = 999
-//                }
+                if (request.method() == HttpMethod.Delete.toString()) {
+                    ResourceCache.shared.remove(resourceLocation)
+                }
 
                 DataResponse(request, response, responseBodyString, Result(responseBodyString))
             } else {
@@ -1327,9 +1377,28 @@ class DocumentClient {
 
     //endregion
 
+    //region Cache Responses
+
+    private fun <T: Resource> cachedResource(resourceLocation: ResourceLocation, response: Response<T>? = null, callback: (Response<T>) -> Unit, resourceClass: Class<T>) {
+        ResourceCache.shared.getResourceAt(resourceLocation, resourceClass)?.let {
+            callback(Response(response?.request, response?.response, response?.jsonData, Result(resource = it), resourceLocation, response?.resourceType, fromCache = true))
+            return
+        }
+
+        callback(Response(response?.request, response?.response, response?.jsonData, Result(error = DataError(DocumentClientError.NotFound)), fromCache = true))
+    }
+
+    private fun <T: Resource> cachedResources(resourceLocation: ResourceLocation, response: ListResponse<T>? = null, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>) {
+        val resources = ResourceCache.shared.getResourcesAt(resourceLocation, resourceClass)
+
+        callback(Response(response?.request, response?.response, response?.jsonData, Result(resources), resourceLocation, response?.resourceType, fromCache = true))
+    }
+
+    //endregion
+
     companion object {
 
-//        val client : OkHttpClient = OkHttpClient.Builder().protocols(listOf(Protocol.HTTP_1_1)).build()
+        val shared = DocumentClient()
 
         val client = OkHttpClient()
 

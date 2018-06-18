@@ -5,6 +5,7 @@ import com.azure.core.log.logLevel
 import com.azure.core.util.DateTypeAdapter
 import com.google.gson.*
 import com.azure.data.model.*
+import com.azure.data.service.ResourceWriteOperation
 import java.util.*
 
 /**
@@ -19,6 +20,7 @@ val gson: Gson =
                 .registerTypeAdapter(Date::class.java, DateTypeAdapter())
                 .registerTypeAdapter(Timestamp::class.java, TimestampAdapter())
                 .registerTypeAdapter(DictionaryDocument::class.java, DocumentAdapter())
+                .registerTypeAdapter(ResourceWriteOperation::class.java, ResourceWriteOperationAdapter())
                 .create()
 
 fun GsonBuilder.checkVerboseMode() : GsonBuilder {

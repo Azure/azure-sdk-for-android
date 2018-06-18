@@ -2,6 +2,8 @@ package com.azure.data.model
 
 import com.azure.data.util.ResourceOracle
 import com.azure.data.util.ancestorIds
+import com.azure.data.util.lastPathComponent
+import com.azure.data.util.lastPathComponentRemoved
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -95,6 +97,16 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
         else ->                 mapOf()
     }
 
+    fun altLink(id: String): String = if (path().lastPathComponent().equals(id, ignoreCase = true)) path() else "${path()}/$id"
+
+    fun selfLink(resourceId: String): String? {
+        directory()?.let {
+            return "$it/$resourceId"
+        }
+
+        return null
+    }
+
     val supportsPermissionToken: Boolean
         get() = resourceType.supportsPermissionToken
 
@@ -120,5 +132,43 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
         }
 
         return ""
+    }
+
+    private fun directory(): String? {
+        parentSelfLink()?.let {
+            return when (this) {
+                is Database        -> it
+                is User            -> "$it/users"
+                is Collection      -> "$it/colls"
+                is StoredProcedure -> "$it/sprocs"
+                is Trigger         -> "$it/triggers"
+                is Udf             -> "$it/udfs"
+                is Document        -> "$it/docs"
+                is Attachment      -> "$it/attachments"
+                is Permission      -> "$it/permissions"
+                is Offer           -> it
+                is Child           -> "$it/${this.resourceType.path}"
+                is Resource        -> ResourceOracle.shared.getSelfLink(this.resource)?.lastPathComponentRemoved()
+            }
+        }
+
+        return null
+    }
+
+    private fun parentSelfLink(): String? {
+        return when (this) {
+            is Database        -> "dbs"
+            is User            -> ResourceOracle.shared.getSelfLink(Database(this.databaseId))
+            is Collection      -> ResourceOracle.shared.getSelfLink(Database(this.databaseId))
+            is StoredProcedure -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.collectionId))
+            is Trigger         -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.collectionId))
+            is Udf             -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.collectionId))
+            is Document        -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.collectionId))
+            is Attachment      -> ResourceOracle.shared.getSelfLink(Document(this.databaseId, this.collectionId, this.documentId))
+            is Permission      -> ResourceOracle.shared.getSelfLink(User(this.databaseId, this.userId))
+            is Offer           -> "offers"
+            is Child           -> ResourceOracle.shared.getSelfLink(this.resource)
+            is Resource        -> ResourceOracle.shared.getSelfLink(this.resource)?.lastPathComponentRemoved()?.lastPathComponentRemoved()
+        }
     }
 }

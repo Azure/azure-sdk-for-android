@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName
  * Licensed under the MIT License.
  */
 
-class Database : Resource() {
+class Database(id: String? = null) : Resource(id) {
 
     @SerializedName(collectionsLinkKey)
     var collectionsLink: String? = null

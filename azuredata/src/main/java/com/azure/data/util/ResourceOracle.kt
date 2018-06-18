@@ -6,6 +6,7 @@ import android.content.SharedPreferences
 import com.azure.data.model.Resource
 import com.azure.data.model.ResourceBase
 import com.azure.data.model.ResourceList
+import com.azure.data.model.ResourceLocation
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -118,6 +119,19 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
         getAltLink(resource)?.let {
 
             selfLinkLookup.remove(it)
+            selfLinkPrefsEditor.remove(it)
+        }
+    }
+
+    private fun doRemoveLinks(resourceLocation: ResourceLocation) {
+
+        getSelfLink(resourceLocation)?.let {
+
+            altLinkLookup.remove(it)?.let {
+                selfLinkLookup.remove(it)
+                selfLinkPrefsEditor.remove(it)
+            }
+
             altLinkPrefsEditor.remove(it)
         }
     }
@@ -125,6 +139,15 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
     fun removeLinks(resource: Resource, commit: Boolean = true) {
 
         doRemoveLinks(resource)
+
+        if (commit) {
+            commit()
+        }
+    }
+
+    fun removeLinks(resourceLocation: ResourceLocation, commit: Boolean = true) {
+
+        doRemoveLinks(resourceLocation)
 
         if (commit) {
             commit()
@@ -189,6 +212,19 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
         return selfLink
     }
 
+    fun getSelfLink(resourceLocation: ResourceLocation): String? {
+
+        val altLink = resourceLocation.link()
+
+        selfLinkLookup[altLink]?.let {
+            if (!it.isEmpty()) {
+                return it
+            }
+        }
+
+        return null
+    }
+
     fun getAltLink(selfLink: String): String? {
 
         if (selfLink.isNotEmpty()) {
@@ -243,17 +279,45 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
         return null
     }
 
-    fun getFilePath(resource: Resource): String? {
+    fun getFilePath(resource: Resource): ResourceFilePath? {
 
-        val selfLink = getSelfLink(resource)
-        val resourceId = getResourceId(resource, selfLink)
+        getSelfLink(resource)?.let { selfLink ->
 
-        resourceId?.let {
+            getResourceId(resource, selfLink)?.let { resourceId ->
 
-            return "$selfLink/$it.json"
+                return ResourceFilePath(directory = selfLink, file = "$resourceId.json")
+            }
         }
 
         return null
+    }
+
+    fun getFilePath(resourceLocation: ResourceLocation): ResourceFilePath? {
+
+        if (resourceLocation.isFeed) {
+            return null
+        }
+
+        getSelfLink(resourceLocation)?.let { selfLink ->
+
+            selfLink.extractId(resourceLocation.type())?.let { resourceId ->
+
+                return ResourceFilePath(directory = selfLink, file = resourceId)
+            }
+        }
+
+        return null
+    }
+
+    fun getDirectoryPath(resourceLocation: ResourceLocation): String? {
+
+        val selfLink = getSelfLink(resourceLocation) ?: return resourceLocation.type()
+
+        if (resourceLocation.isFeed) {
+            return "$selfLink/${resourceLocation.type()}"
+        }
+
+        return selfLink
     }
 
     companion object {
@@ -266,3 +330,5 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
         }
     }
 }
+
+internal data class ResourceFilePath(val directory: String, val file: String)

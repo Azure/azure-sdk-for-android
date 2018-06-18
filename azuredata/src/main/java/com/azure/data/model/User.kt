@@ -10,7 +10,7 @@ import com.google.gson.annotations.SerializedName
 /**
  * Represents a user in the Azure Cosmos DB service.
  */
-class User : Resource() {
+class User(id: String? = null) : Resource(id) {
 
     /**
      * Gets the self-link of the permissions associated with the user for the Azure Cosmos DB service.

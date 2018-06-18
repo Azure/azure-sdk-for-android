@@ -25,7 +25,9 @@ open class Response<T>(
         // The resourceLocation, filled out when there could be more results
         val resourceLocation: ResourceLocation? = null,
         // The Type of the Resource
-        val resourceType: Type? = null
+        val resourceType: Type? = null,
+        // Whether the response is from the local cache or not.
+        val fromCache: Boolean = false
 ) {
     val metadata : ResponseMetadata by lazy {
         ResponseMetadata(response)
@@ -73,3 +75,13 @@ open class Response<T>(
 
 fun <T : Resource> ListResponse<T>.next(callback: (ListResponse<T>) -> Unit) =
         AzureData.documentClient.next(this, resourceType, callback)
+
+fun <T, U> Response<T>.map(transform: (T) -> U): Response<U> {
+    return Response(request, response, jsonData, result.map(transform), resourceLocation, resourceType, fromCache)
+}
+
+fun <T, U> Result<T>.map(transform: (T) -> U): Result<U> {
+    resource?.let { return Result(transform(it)) }
+    error?.let { return Result(it) }
+    return Result(DataError(DocumentClientError.UnknownError))
+}

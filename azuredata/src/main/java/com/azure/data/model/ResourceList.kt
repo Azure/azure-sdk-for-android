@@ -13,9 +13,9 @@ class ResourceList<T: Resource> : ResourceBase() {
     var count: Int = 0
 
     @SerializedName(Document.listName, alternate = [Database.listName, Attachment.listName, DocumentCollection.listName, Offer.listName, Permission.listName, StoredProcedure.listName, Trigger.listName, User.listName, UserDefinedFunction.listName])
-    lateinit var items: Array<T>
+    lateinit var items: List<T>
 
-    val isPopuated: Boolean
+    val isPopulated: Boolean
             get() = resourceId != null && count > 0
 
     override fun setAltContentLink(itemTypePath: String, contentPath: String?) {

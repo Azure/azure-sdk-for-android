@@ -18,7 +18,7 @@ import com.azure.data.model.indexing.IndexingPolicy
  *   Since collections are application resources, they can be authorized using either the master key or resource keys.
  *   Refer to [collections](http://azure.microsoft.com/documentation/articles/documentdb-resources/#collections) for more details on collections.
  */
-class DocumentCollection : Resource() {
+class DocumentCollection(id: String? = null, policy: IndexingPolicy? = null) : Resource(id) {
 
     /**
      * Gets the self-link for conflicts in a collection from the Azure Cosmos DB service.
@@ -40,7 +40,7 @@ class DocumentCollection : Resource() {
     /**
      * Gets the `IndexingPolicy` associated with the collection from the Azure Cosmos DB service.
      */
-    var indexingPolicy: IndexingPolicy? = null
+    var indexingPolicy: IndexingPolicy? = policy
 
     /**
      * Gets or sets `PartitionKeyDefinition` object in the Azure Cosmos DB service.
