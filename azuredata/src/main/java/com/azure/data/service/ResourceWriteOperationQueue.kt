@@ -102,10 +102,12 @@ class ResourceWriteOperationQueue {
     //region
 
     private fun load() {
-        executor.execute {
-            writes = ContextProvider.appContext.pendingWritesFiles()
-                    .map { it.bufferedReader().use { gson.fromJson(it.readText(), ResourceWriteOperation::class.java) } }
-                    .toMutableList()
+        safeExecute {
+            executor.execute {
+                writes = ContextProvider.appContext.pendingWritesFiles()
+                        .map { it.bufferedReader().use { gson.fromJson(it.readText(), ResourceWriteOperation::class.java) } }
+                        .toMutableList()
+            }
         }
     }
 
@@ -177,18 +179,22 @@ class ResourceWriteOperationQueue {
     }
 
     private fun removeWrite(write: ResourceWriteOperation) {
-        val index = writes.indexOf(write)
+        safeExecute {
+            val index = writes.indexOf(write)
 
-        if (index < 0) {
-            writes.removeAt(index)
-            removeWriteFromDisk(write)
+            if (index < 0) {
+                writes.removeAt(index)
+                removeWriteFromDisk(write)
+            }
         }
     }
 
     private fun removeCachedResources() {
-        while (!processedWrites.isEmpty()) {
-            val write = processedWrites.removeAt(processedWrites.count() - 1)
-            File(URI("${ContextProvider.appContext.azureDataCacheDir().absolutePath}/${write.resourceLocalContentPath}")).deleteRecursively()
+        safeExecute {
+            while (!processedWrites.isEmpty()) {
+                val write = processedWrites.removeAt(processedWrites.count() - 1)
+                File(URI("${ContextProvider.appContext.azureDataCacheDir().absolutePath}/${write.resourceLocalContentPath}")).deleteRecursively()
+            }
         }
     }
 
@@ -251,15 +257,19 @@ class ResourceWriteOperationQueue {
     //region Disk Persistence
 
     private fun persistWriteOnDisk(write: ResourceWriteOperation) {
-        ContextProvider.appContext
-                .resourceWriteOperationFile(write)
-                .bufferedWriter().use { it.write(gson.toJson(write)) }
+        safeExecute {
+            ContextProvider.appContext
+                    .resourceWriteOperationFile(write)
+                    .bufferedWriter().use { it.write(gson.toJson(write)) }
+        }
     }
 
     private fun removeWriteFromDisk(write: ResourceWriteOperation) {
-        ContextProvider.appContext
-                .resourceWriteOperationFile(write)
-                .delete()
+        safeExecute {
+            ContextProvider.appContext
+                    .resourceWriteOperationFile(write)
+                    .delete()
+        }
     }
 
     //endregion

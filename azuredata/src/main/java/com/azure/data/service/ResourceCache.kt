@@ -1,6 +1,7 @@
 package com.azure.data.service
 
 import android.content.Context
+import com.azure.core.log.e
 import com.azure.core.util.ContextProvider
 import com.azure.data.model.Resource
 import com.azure.data.model.ResourceList
@@ -9,6 +10,7 @@ import com.azure.data.model.ResourceType
 import com.azure.data.util.ResourceOracle
 import com.azure.data.util.json.gson
 import java.io.File
+import java.lang.Exception
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -39,10 +41,12 @@ internal class ResourceCache private constructor() {
         ResourceOracle.shared.storeLinks(resource)
 
         if (isEnabled) {
-            executor.execute {
-                ContextProvider.appContext.resourceCacheFile(resource)?.let {
-                    it.bufferedWriter().use {
-                        it.write(encrypt(gson.toJson(resource)))
+            safeExecute {
+                executor.execute {
+                    ContextProvider.appContext.resourceCacheFile(resource)?.let {
+                        it.bufferedWriter().use {
+                            it.write(encrypt(gson.toJson(resource)))
+                        }
                     }
                 }
             }
@@ -73,26 +77,26 @@ internal class ResourceCache private constructor() {
     fun <T: Resource> getResourceAt(location: ResourceLocation, resourceClass: Class<T>): T? {
         if (!isEnabled) { return null }
 
-        ContextProvider.appContext.resourceCacheFile(location)?.let {
-            it.bufferedReader().use {
-                return gson.fromJson<T>(decrypt(it.readText()), resourceClass)
+        return safe {
+            ContextProvider.appContext.resourceCacheFile(location)?.let {
+                it.bufferedReader().use { gson.fromJson<T>(decrypt(it.readText()), resourceClass) }
             }
         }
-
-        return null
     }
 
     fun <T: Resource> getResourcesAt(location: ResourceLocation, resourceClass: Class<T>): ResourceList<T> {
         val resources = ResourceList<T>()
 
         if (isEnabled) {
-            resources.items = ContextProvider.appContext.resourceCacheFiles(location).map {
-                it.bufferedReader().use {
-                    gson.fromJson<T>(decrypt(it.readText()), resourceClass)
+            safeExecute {
+                resources.items = ContextProvider.appContext.resourceCacheFiles(location).map {
+                    it.bufferedReader().use {
+                        gson.fromJson<T>(decrypt(it.readText()), resourceClass)
+                    }
                 }
-            }
 
-            resources.count = resources.items.count()
+                resources.count = resources.items.count()
+            }
         }
 
         return resources
@@ -106,9 +110,11 @@ internal class ResourceCache private constructor() {
         ResourceOracle.shared.removeLinks(resource)
 
         if (isEnabled) {
-            executor.execute {
-                ContextProvider.appContext.resourceCacheDir(resource)?.let {
-                    it.deleteRecursively()
+            safeExecute {
+                executor.execute {
+                    ContextProvider.appContext.resourceCacheDir(resource)?.let {
+                        it.deleteRecursively()
+                    }
                 }
             }
         }
@@ -118,9 +124,11 @@ internal class ResourceCache private constructor() {
         ResourceOracle.shared.removeLinks(resourceLocation)
 
         if (isEnabled) {
-            executor.execute {
-                ContextProvider.appContext.resourceCacheDir(resourceLocation)?.let {
-                    it.deleteRecursively()
+            safeExecute {
+                executor.execute {
+                    ContextProvider.appContext.resourceCacheDir(resourceLocation)?.let {
+                        it.deleteRecursively()
+                    }
                 }
             }
         }
@@ -131,15 +139,17 @@ internal class ResourceCache private constructor() {
     //region purge
 
     fun purge() {
-        val databasesDir = File(ContextProvider.appContext.azureDataCacheDir(), "dbs")
-        val offersDir = File(ContextProvider.appContext.azureDataCacheDir(), "offers")
+        safeExecute {
+            val databasesDir = File(ContextProvider.appContext.azureDataCacheDir(), "dbs")
+            val offersDir = File(ContextProvider.appContext.azureDataCacheDir(), "offers")
 
-        if (databasesDir.exists() && databasesDir.isDirectory) {
-            databasesDir.deleteRecursively()
-        }
+            if (databasesDir.exists() && databasesDir.isDirectory) {
+                databasesDir.deleteRecursively()
+            }
 
-        if (offersDir.exists() && offersDir.isDirectory) {
-            offersDir.deleteRecursively()
+            if (offersDir.exists() && offersDir.isDirectory) {
+                offersDir.deleteRecursively()
+            }
         }
     }
 
@@ -248,6 +258,19 @@ private fun createEmptyChildDirectoriesIfNecessary(parent: File, resourceType: R
             childDirectory.mkdirs()
         }
     }
+}
+
+//endregion
+
+
+//region
+
+internal inline fun <T> safe(block: () -> T): T? {
+    return try { block() } catch (ex: Exception) { e(ex) ; null }
+}
+
+internal inline fun safeExecute(block: () -> Unit) {
+    return try { block() } catch (ex: Exception) { e(ex) }
 }
 
 //endregion
