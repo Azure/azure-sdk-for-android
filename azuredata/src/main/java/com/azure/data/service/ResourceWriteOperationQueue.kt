@@ -103,6 +103,14 @@ class ResourceWriteOperationQueue {
         }
     }
 
+    fun purge() {
+        safeExecute {
+            ContextProvider.appContext.pendingWritesDir()?.let {
+                it.deleteRecursively()
+            }
+        }
+    }
+
     //endregion
 
     //region
@@ -251,9 +259,8 @@ class ResourceWriteOperationQueue {
         }
 
         (knownSelfLink ?: location.selfLink(UUID.randomUUID().toString()))?.let { selfLink ->
+            ResourceOracle.shared.storeLinks(selfLink, altLink)
             resource.altLink = altLink
-            resource.selfLink = selfLink
-
             ResourceCache.shared.cache(resource)
 
             val request = okhttp3.Request.Builder()

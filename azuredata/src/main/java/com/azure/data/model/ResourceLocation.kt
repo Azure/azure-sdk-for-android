@@ -138,16 +138,16 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
         parentSelfLink()?.let {
             return when (this) {
                 is Database        -> it
-                is User            -> "$it/users"
-                is Collection      -> "$it/colls"
-                is StoredProcedure -> "$it/sprocs"
-                is Trigger         -> "$it/triggers"
-                is Udf             -> "$it/udfs"
-                is Document        -> "$it/docs"
-                is Attachment      -> "$it/attachments"
-                is Permission      -> "$it/permissions"
+                is User            -> "${it}users"
+                is Collection      -> "${it}colls"
+                is StoredProcedure -> "${it}sprocs"
+                is Trigger         -> "${it}triggers"
+                is Udf             -> "${it}udfs"
+                is Document        -> "${it}docs"
+                is Attachment      -> "${it}attachments"
+                is Permission      -> "${it}permissions"
                 is Offer           -> it
-                is Child           -> "$it/${this.resourceType.path}"
+                is Child           -> "$it${this.resourceType.path}"
                 is Resource        -> ResourceOracle.shared.getSelfLink(this.resource)?.lastPathComponentRemoved()
             }
         }

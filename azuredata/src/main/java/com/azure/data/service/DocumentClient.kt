@@ -7,6 +7,7 @@ import com.azure.core.http.HttpStatusCode
 import com.azure.core.log.d
 import com.azure.core.log.e
 import com.azure.core.network.NetworkConnectivity
+import com.azure.core.network.NetworkConnectivityManager
 import com.azure.core.util.ContextProvider
 import com.azure.core.util.DateUtil
 import com.azure.data.constants.HttpHeaderValue
@@ -42,6 +43,14 @@ class DocumentClient private constructor() {
     private var resourceTokenProvider: ResourceTokenProvider? = null
 
     private var isOffline = false
+
+    var connectivityManager: NetworkConnectivityManager? = null
+        set(value) {
+            if (isConfigured && value != null) {
+                value.registerListener(networkConnectivityChanged)
+                value.startListening()
+            }
+        }
 
     val configuredWithMasterKey: Boolean
         get() = resourceTokenProvider != null
@@ -106,8 +115,9 @@ class DocumentClient private constructor() {
 
         ResourceOracle.init(ContextProvider.appContext, host)
         PermissionCache.init(host)
-        NetworkConnectivity.manager.registerListener(networkConnectivityChanged)
-        NetworkConnectivity.manager.startListening()
+
+        connectivityManager = NetworkConnectivity.manager
+
     }
 
     fun reset () {

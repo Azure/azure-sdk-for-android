@@ -16,6 +16,7 @@ import okhttp3.OkHttpClient
 import org.junit.Before
 import org.junit.Test
 import org.awaitility.Awaitility.*
+import org.junit.After
 import org.junit.runner.RunWith
 import org.junit.Assert.*
 
@@ -38,6 +39,10 @@ class OfflineWriteTests {
         }
 
         turnOnInternetConnection()
+    }
+
+    @After
+    fun tearDown() {
         purgeCache()
     }
 
