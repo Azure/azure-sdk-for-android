@@ -1,6 +1,7 @@
 package com.azure.data.service
 
 import android.content.Context
+import android.content.Intent
 import com.azure.core.util.ContextProvider
 import com.azure.data.constants.MSHttpHeader
 import com.azure.data.model.DataError
@@ -91,7 +92,11 @@ class ResourceWriteOperationQueue {
 
             isSyncing = true
 
-            performWrites(writes, {
+            performWrites(writes, { isSuccess ->
+                if (isSuccess) {
+                    sendOfflineWriteQueueProcessedBroadcast()
+                }
+
                 removeCachedResources()
                 isSyncing = false
             })
@@ -123,6 +128,7 @@ class ResourceWriteOperationQueue {
         performWrite(write, { response ->
             if (!response.fromCache) {
                 processedWrites.add(write)
+                sendBroadcast(response)
                 removeWrite(write)
             }
 
@@ -321,6 +327,28 @@ class ResourceWriteOperationQueue {
                     .resourceWriteOperationFile(write)
                     .delete()
         }
+    }
+
+    //endregion
+
+    //region Broadcasting
+
+    private fun <T> sendBroadcast(response: Response<T>) {
+        val intent = Intent()
+
+        if (response.isSuccessful) {
+            intent.action = "com.azuredata.data.OFFLINE_RESOURCE_SYNC_SUCCEEDED"
+            intent.putExtra("data", response.jsonData)
+        }
+
+        intent.action = "com.azuredata.data.OFFLINE_RESOURCE_SYNC_FAILED"
+        intent.putExtra("error", response.jsonData)
+
+        ContextProvider.appContext.sendBroadcast(intent)
+    }
+
+    private fun sendOfflineWriteQueueProcessedBroadcast() {
+        ContextProvider.appContext.sendBroadcast(Intent("com.azuredata.data.OFFLINE_WRITE_OPERATION_QUEUE.PROCESSED"))
     }
 
     //endregion
