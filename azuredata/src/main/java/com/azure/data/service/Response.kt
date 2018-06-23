@@ -41,7 +41,9 @@ open class Response<T>(
             // The server's response to the URL request.
             response: okhttp3.Response? = null,
             // The json data returned by the server.
-            jsonData: String? = null) : this(request, response, jsonData, Result<T>(error))
+            jsonData: String? = null,
+            // Whether the response is from the local cache or not.
+            fromCache: Boolean = false) : this(request, response, jsonData, Result<T>(error), fromCache = fromCache)
 
     constructor(result: T) : this(result = Result(result))
 

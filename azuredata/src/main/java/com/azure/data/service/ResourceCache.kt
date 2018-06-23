@@ -140,6 +140,8 @@ internal class ResourceCache private constructor() {
 
     fun purge() {
         safeExecute {
+            ResourceOracle.shared.purge()
+
             val databasesDir = File(ContextProvider.appContext.azureDataCacheDir(), "dbs")
             val offersDir = File(ContextProvider.appContext.azureDataCacheDir(), "offers")
 
@@ -206,7 +208,7 @@ private fun Context.resourceCacheFile(resourceLocation: ResourceLocation): File?
 
 private fun Context.resourceCacheFiles(resourceLocation: ResourceLocation): List<File> {
     resourceCacheDir(resourceLocation)?.let {
-        return it.listFiles().map { File(it, "$it.json") }
+        return it.listFiles().map { File(it, "${it.name}.json") }
     }
 
     return emptyList()

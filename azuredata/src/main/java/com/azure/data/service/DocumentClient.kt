@@ -139,13 +139,13 @@ class DocumentClient private constructor() {
     // list
     fun getDatabases(maxPerPage: Int? = null, callback: (ListResponse<Database>) -> Unit) {
 
-        return resources(ResourceLocation.Database(), callback, maxPerPage = maxPerPage)
+        return resources(ResourceLocation.Database(), callback, maxPerPage = maxPerPage, resourceClass = Database::class.java)
     }
 
     // get
     fun getDatabase(databaseId: String, callback: (Response<Database>) -> Unit) {
 
-        return resource(ResourceLocation.Database(databaseId), callback)
+        return resource(ResourceLocation.Database(databaseId), callback, resourceClass = Database::class.java)
     }
 
     // delete
@@ -167,13 +167,13 @@ class DocumentClient private constructor() {
     // list
     fun getCollectionsIn(databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<DocumentCollection>) -> Unit) {
 
-        return resources(ResourceLocation.Collection(databaseId), callback, maxPerPage = maxPerPage)
+        return resources(ResourceLocation.Collection(databaseId), callback, maxPerPage = maxPerPage, resourceClass = DocumentCollection::class.java)
     }
 
     // get
     fun getCollection(collectionId: String, databaseId: String, callback: (Response<DocumentCollection>) -> Unit) {
 
-        return resource(ResourceLocation.Collection(databaseId, collectionId), callback)
+        return resource(ResourceLocation.Collection(databaseId, collectionId), callback, resourceClass = DocumentCollection::class.java)
     }
 
     // delete
@@ -317,13 +317,13 @@ class DocumentClient private constructor() {
     // list
     fun getAttachments(documentId: String, collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<Attachment>) -> Unit) {
 
-        return resources(ResourceLocation.Attachment(databaseId, collectionId, documentId), callback, maxPerPage = maxPerPage)
+        return resources(ResourceLocation.Attachment(databaseId, collectionId, documentId), callback, maxPerPage = maxPerPage, resourceClass = Attachment::class.java)
     }
 
     // list
     fun getAttachments(document: Document, maxPerPage: Int? = null, callback: (ListResponse<Attachment>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Attachment, document), callback, maxPerPage = maxPerPage)
+        return resources(ResourceLocation.Child(ResourceType.Attachment, document), callback, maxPerPage = maxPerPage, resourceClass = Attachment::class.java)
     }
 
     // delete
@@ -391,13 +391,13 @@ class DocumentClient private constructor() {
     // list
     fun getStoredProcedures(collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<StoredProcedure>) -> Unit) {
 
-        return resources(ResourceLocation.StoredProcedure(databaseId, collectionId), callback, maxPerPage = maxPerPage)
+        return resources(ResourceLocation.StoredProcedure(databaseId, collectionId), callback, maxPerPage = maxPerPage, resourceClass = StoredProcedure::class.java)
     }
 
     // list
     fun getStoredProcedures(collection: DocumentCollection, maxPerPage: Int? = null, callback: (ListResponse<StoredProcedure>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.StoredProcedure, collection), callback, maxPerPage = maxPerPage)
+        return resources(ResourceLocation.Child(ResourceType.StoredProcedure, collection), callback, maxPerPage = maxPerPage, resourceClass = StoredProcedure::class.java)
     }
 
     // delete
@@ -455,13 +455,13 @@ class DocumentClient private constructor() {
     // list
     fun getUserDefinedFunctions(collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<UserDefinedFunction>) -> Unit) {
 
-        return resources(ResourceLocation.Udf(databaseId, collectionId), callback, maxPerPage = maxPerPage)
+        return resources(ResourceLocation.Udf(databaseId, collectionId), callback, maxPerPage = maxPerPage, resourceClass = UserDefinedFunction::class.java)
     }
 
     // list
     fun getUserDefinedFunctions(collection: DocumentCollection, maxPerPage: Int? = null, callback: (ListResponse<UserDefinedFunction>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Udf, collection), callback, maxPerPage = maxPerPage)
+        return resources(ResourceLocation.Child(ResourceType.Udf, collection), callback, maxPerPage = maxPerPage, resourceClass = UserDefinedFunction::class.java)
     }
 
     // delete
@@ -507,13 +507,13 @@ class DocumentClient private constructor() {
     // list
     fun getTriggers(collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<Trigger>) -> Unit) {
 
-        return resources(ResourceLocation.Trigger(databaseId, collectionId), callback, maxPerPage = maxPerPage)
+        return resources(ResourceLocation.Trigger(databaseId, collectionId), callback, maxPerPage = maxPerPage, resourceClass = Trigger::class.java)
     }
 
     // list
     fun getTriggers(collection: DocumentCollection, maxPerPage: Int? = null, callback: (ListResponse<Trigger>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Trigger, collection), callback, maxPerPage = maxPerPage)
+        return resources(ResourceLocation.Child(ResourceType.Trigger, collection), callback, maxPerPage = maxPerPage, resourceClass = Trigger::class.java)
     }
 
     // delete
@@ -553,13 +553,13 @@ class DocumentClient private constructor() {
     // list
     fun getUsers(databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<User>) -> Unit) {
 
-        return resources(ResourceLocation.User(databaseId), callback, maxPerPage = maxPerPage)
+        return resources(ResourceLocation.User(databaseId), callback, maxPerPage = maxPerPage, resourceClass = User::class.java)
     }
 
     // get
     fun getUser(userId: String, databaseId: String, callback: (Response<User>) -> Unit) {
 
-        return resource(ResourceLocation.User(databaseId, userId), callback)
+        return resource(ResourceLocation.User(databaseId, userId), callback, resourceClass = User::class.java)
     }
 
     // delete
@@ -597,25 +597,25 @@ class DocumentClient private constructor() {
     // list
     fun getPermissions(userId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<Permission>) -> Unit) {
 
-        return resources(ResourceLocation.Permission(databaseId, userId), callback, maxPerPage = maxPerPage)
+        return resources(ResourceLocation.Permission(databaseId, userId), callback, maxPerPage = maxPerPage, resourceClass = Permission::class.java)
     }
 
     // list
     fun getPermissions(user: User, maxPerPage: Int? = null, callback: (ListResponse<Permission>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Permission, user), callback, maxPerPage = maxPerPage)
+        return resources(ResourceLocation.Child(ResourceType.Permission, user), callback, maxPerPage = maxPerPage, resourceClass = Permission::class.java)
     }
 
     // get
     fun getPermission(permissionId: String, userId: String, databaseId: String, callback: (Response<Permission>) -> Unit) {
 
-        return resource(ResourceLocation.Permission(databaseId, userId, permissionId), callback)
+        return resource(ResourceLocation.Permission(databaseId, userId, permissionId), callback, resourceClass = Permission::class.java)
     }
 
     // get
     fun getPermission(permissionId: String, user: User, callback: (Response<Permission>) -> Unit) {
 
-        return resource(ResourceLocation.Child(ResourceType.Permission, user, permissionId), callback)
+        return resource(ResourceLocation.Child(ResourceType.Permission, user, permissionId), callback, resourceClass = Permission::class.java)
     }
 
     // delete
@@ -649,13 +649,13 @@ class DocumentClient private constructor() {
     // list
     fun getOffers(maxPerPage: Int? = null, callback: (ListResponse<Offer>) -> Unit) {
 
-        return resources(ResourceLocation.Offer(), callback, maxPerPage = maxPerPage)
+        return resources(ResourceLocation.Offer(), callback, maxPerPage = maxPerPage, resourceClass = Offer::class.java)
     }
 
     // get
     fun getOffer(offerId: String, callback: (Response<Offer>) -> Unit): Any {
 
-        return resource(ResourceLocation.Offer(offerId), callback)
+        return resource(ResourceLocation.Offer(offerId), callback, resourceClass = Offer::class.java)
     }
 
     //endregion
@@ -1145,7 +1145,7 @@ class DocumentClient private constructor() {
                             e(ex)
                             isOffline = true
 
-                            return callback(Response(DataError(ex), request))
+                            return callback(Response(error = DataError(DocumentClientError.InternetConnectivityError)))
                         }
 
                         @Throws(IOException::class)
@@ -1400,7 +1400,7 @@ class DocumentClient private constructor() {
 
         val shared = DocumentClient()
 
-        val client = OkHttpClient()
+        var client = OkHttpClient()
 
         val jsonMediaType = MediaType.parse(HttpMediaType.Json.value)
     }
