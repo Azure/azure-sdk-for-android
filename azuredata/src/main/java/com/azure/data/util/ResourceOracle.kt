@@ -64,8 +64,13 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
 
     private fun doStoreLinks(resource: Resource) {
 
-        resource.selfLink?.let { selfLink ->
-            resource.altLink?.let { altLink ->
+        doStoreLinks(resource.selfLink, resource.altLink)
+    }
+
+    private fun doStoreLinks(selfLink: String?, altLink: String?) {
+
+        selfLink?.let { selfLink ->
+            altLink?.let { altLink ->
 
                 val altLinkSubstrings = altLink.split(slashCharacter)
                 val selfLinkSubstrings = selfLink.trimEnd('/').split(slashCharacter)
@@ -106,6 +111,10 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
         }
 
         commit()
+    }
+
+    fun storeLinks(selfLink: String, altLink: String) {
+        doStoreLinks(selfLink, altLink)
     }
 
     private fun doRemoveLinks(resource: Resource) {
@@ -302,7 +311,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
 
             selfLink.extractId(resourceLocation.type())?.let { resourceId ->
 
-                return ResourceFilePath(directory = selfLink, file = resourceId)
+                return ResourceFilePath(directory = selfLink, file = "$resourceId.json")
             }
         }
 

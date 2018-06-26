@@ -1,6 +1,7 @@
 package com.azure.data.service
 
 import android.content.Context
+import android.content.Intent
 import com.azure.core.util.ContextProvider
 import com.azure.data.constants.MSHttpHeader
 import com.azure.data.model.DataError
@@ -13,6 +14,7 @@ import com.azure.data.util.ancestorPath
 import com.azure.data.util.isValidIdForResource
 import com.azure.data.util.json.gson
 import okhttp3.Headers
+import okhttp3.Protocol
 import java.io.File
 import java.net.URI
 import java.util.UUID
@@ -90,10 +92,22 @@ class ResourceWriteOperationQueue {
 
             isSyncing = true
 
-            performWrites(writes, {
+            performWrites(writes, { isSuccess ->
+                if (isSuccess) {
+                    sendOfflineWriteQueueProcessedBroadcast()
+                }
+
                 removeCachedResources()
                 isSyncing = false
             })
+        }
+    }
+
+    fun purge() {
+        safeExecute {
+            ContextProvider.appContext.pendingWritesDir()?.let {
+                it.deleteRecursively()
+            }
         }
     }
 
@@ -122,6 +136,7 @@ class ResourceWriteOperationQueue {
         performWrite(write, { response ->
             if (!response.fromCache) {
                 processedWrites.add(write)
+                sendBroadcast(response)
                 removeWrite(write)
             }
 
@@ -212,25 +227,56 @@ class ResourceWriteOperationQueue {
         val knownSelfLink = ResourceOracle.shared.getSelfLink(altLink)
 
         if (replace && knownSelfLink.isNullOrEmpty()) {
-            callback(Response(DataError(DocumentClientError.NotFound)))
+            val request = okhttp3.Request.Builder()
+                    .url("https://localhost/$altLink")
+                    .build()
+
+            val response = okhttp3.Response.Builder()
+                    .request(request)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(404)
+                    .message(DocumentClientError.NotFound.message!!)
+                    .build()
+
+            callback(Response(error = DataError(DocumentClientError.NotFound), request = request, response = response, fromCache = true))
             return
         }
 
         if (!(replace || knownSelfLink.isNullOrEmpty())) {
-            callback(Response(DataError(DocumentClientError.Conflict)))
+            val request = okhttp3.Request.Builder()
+                    .url("https://localhost/$altLink")
+                    .build()
+
+            val response = okhttp3.Response.Builder()
+                    .request(request)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(409)
+                    .message(DocumentClientError.Conflict.message!!)
+                    .build()
+
+            callback(Response(error = DataError(DocumentClientError.Conflict), request = request, response = response, fromCache = true))
+            return
         }
 
         (knownSelfLink ?: location.selfLink(UUID.randomUUID().toString()))?.let { selfLink ->
-            resource.selfLink = selfLink
+            ResourceOracle.shared.storeLinks(selfLink, altLink)
+            resource.altLink = altLink
             ResourceCache.shared.cache(resource)
 
+            val request = okhttp3.Request.Builder()
+                    .url("https://localhost/$selfLink")
+                    .build()
+
             val response = okhttp3.Response.Builder()
+                    .request(request)
+                    .protocol(Protocol.HTTP_1_1)
                     .code(if (replace) 200 else 201)
                     .addHeader(MSHttpHeader.MSContentPath.name, selfLink)
                     .addHeader(MSHttpHeader.MSAltContentPath.name, altLink.ancestorPath())
+                    .message(gson.toJson(resource))
                     .build()
 
-            return callback(Response(request = null, response = response, result = Result(resource), resourceLocation = location, fromCache = true))
+            return callback(Response(request = request, response = response, result = Result(resource), resourceLocation = location, fromCache = true))
         }
 
         callback(Response(DataError(DocumentClientError.InternalError)))
@@ -240,16 +286,34 @@ class ResourceWriteOperationQueue {
         ResourceOracle.shared.getSelfLink(resourceLocation.link())?.let { selfLink ->
             ResourceCache.shared.remove(resourceLocation)
 
+            val request = okhttp3.Request.Builder()
+                    .url("https://com.azuredata.cache/$selfLink")
+                    .build()
+
             val response = okhttp3.Response.Builder()
+                    .request(request)
+                    .protocol(Protocol.HTTP_1_1)
                     .code(204)
                     .addHeader(MSHttpHeader.MSContentPath.name, selfLink)
                     .addHeader(MSHttpHeader.MSAltContentPath.name, resourceLocation.link().ancestorPath())
+                    .message("")
                     .build()
 
-            return callback(Response(request = null, response = response, result = Result(""), resourceLocation = resourceLocation, fromCache = true))
+            return callback(Response(request = request, response = response, result = Result(""), resourceLocation = resourceLocation, fromCache = true))
         }
 
-        callback(Response(DataError(DocumentClientError.NotFound)))
+        val request = okhttp3.Request.Builder()
+                .url("https://localhost/${resourceLocation.link()}")
+                .build()
+
+        val response = okhttp3.Response.Builder()
+                .request(request)
+                .protocol(Protocol.HTTP_1_1)
+                .code(404)
+                .message(DocumentClientError.NotFound.message!!)
+                .build()
+
+        callback(Response(error = DataError(DocumentClientError.NotFound), request = request, response = response, fromCache = true))
     }
 
     //endregion
@@ -270,6 +334,28 @@ class ResourceWriteOperationQueue {
                     .resourceWriteOperationFile(write)
                     .delete()
         }
+    }
+
+    //endregion
+
+    //region Broadcasting
+
+    private fun <T> sendBroadcast(response: Response<T>) {
+        val intent = Intent()
+
+        if (response.isSuccessful) {
+            intent.action = "com.azuredata.data.OFFLINE_RESOURCE_SYNC_SUCCEEDED"
+            intent.putExtra("data", response.jsonData)
+        } else {
+            intent.action = "com.azuredata.data.OFFLINE_RESOURCE_SYNC_FAILED"
+            intent.putExtra("error", response.jsonData)
+        }
+
+        ContextProvider.appContext.sendBroadcast(intent)
+    }
+
+    private fun sendOfflineWriteQueueProcessedBroadcast() {
+        ContextProvider.appContext.sendBroadcast(Intent("com.azuredata.data.OFFLINE_WRITE_OPERATION_QUEUE.PROCESSED"))
     }
 
     //endregion
