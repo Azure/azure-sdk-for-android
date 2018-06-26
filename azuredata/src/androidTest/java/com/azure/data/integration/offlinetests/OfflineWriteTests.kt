@@ -1,52 +1,17 @@
 package com.azure.data.integration.offlinetests
 
-import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4
-import android.util.Log
-import com.azure.core.log.startLogging
 import com.azure.data.AzureData
 import com.azure.data.integration.CustomDocument
-import com.azure.data.integration.azureCosmosDbAccount
-import com.azure.data.integration.azureCosmosPrimaryKey
 import com.azure.data.model.Database
-import com.azure.data.integration.offlinetests.mocks.MockOkHttpClient
-import com.azure.data.model.PermissionMode
 import com.azure.data.service.*
-import okhttp3.OkHttpClient
-import org.junit.Before
 import org.junit.Test
 import org.awaitility.Awaitility.*
-import org.junit.After
 import org.junit.runner.RunWith
 import org.junit.Assert.*
 
 @RunWith(AndroidJUnit4::class)
-class OfflineWriteTests {
-
-    private val resourceName = "OfflineWriteTests"
-    private val databaseId = "${resourceName}Database"
-    private val collectionId = "${resourceName}Collection"
-    private val documentId = "${resourceName}Document"
-
-    @Before
-    fun setUp() {
-        startLogging(Log.VERBOSE)
-
-        if (!AzureData.isConfigured) {
-            val appContext = InstrumentationRegistry.getTargetContext()
-
-            AzureData.configure(appContext, azureCosmosDbAccount, azureCosmosPrimaryKey, PermissionMode.All)
-        }
-
-        turnOnInternetConnection()
-    }
-
-    @After
-    fun tearDown() {
-        purgeCache()
-    }
-
-    //region Tests
+class OfflineWriteTests: OfflineTests("OfflineWriteTests") {
 
     @Test
     fun resourcesAreCreatedLocallyWhenTheNetworkIsNotReachable() {
@@ -143,25 +108,4 @@ class OfflineWriteTests {
         assertNotNull(deleteResponse!!.response)
         assertEquals(deleteResponse!!.response!!.code(), 404)
     }
-
-    //endregion
-
-    //region Private helpers
-
-    private fun turnOffInternetConnection() {
-        val client = MockOkHttpClient()
-        client.hasNetworkError = true
-
-        DocumentClient.client = client
-    }
-
-    private fun turnOnInternetConnection() {
-        DocumentClient.client = OkHttpClient()
-    }
-
-    private fun purgeCache() {
-        ResourceCache.shared.purge()
-    }
-
-    //endregion
 }

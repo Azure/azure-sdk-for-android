@@ -346,10 +346,10 @@ class ResourceWriteOperationQueue {
         if (response.isSuccessful) {
             intent.action = "com.azuredata.data.OFFLINE_RESOURCE_SYNC_SUCCEEDED"
             intent.putExtra("data", response.jsonData)
+        } else {
+            intent.action = "com.azuredata.data.OFFLINE_RESOURCE_SYNC_FAILED"
+            intent.putExtra("error", response.jsonData)
         }
-
-        intent.action = "com.azuredata.data.OFFLINE_RESOURCE_SYNC_FAILED"
-        intent.putExtra("error", response.jsonData)
 
         ContextProvider.appContext.sendBroadcast(intent)
     }

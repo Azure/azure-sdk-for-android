@@ -174,7 +174,7 @@ internal class ResourceCache private constructor() {
 
 //region Context
 
-private fun Context.resourceCacheFile(resource: Resource): File? {
+fun Context.resourceCacheFile(resource: Resource): File? {
     ResourceOracle.shared.getFilePath(resource)?.let {
         val directory = File(azureDataCacheDir(), it.directory)
 

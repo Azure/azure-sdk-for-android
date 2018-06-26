@@ -311,7 +311,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
 
             selfLink.extractId(resourceLocation.type())?.let { resourceId ->
 
-                return ResourceFilePath(directory = selfLink, file = resourceId)
+                return ResourceFilePath(directory = selfLink, file = "$resourceId.json")
             }
         }
 

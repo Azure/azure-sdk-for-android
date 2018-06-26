@@ -14,11 +14,8 @@ import com.azure.data.constants.HttpHeaderValue
 import com.azure.data.constants.MSHttpHeader
 import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
-import com.azure.data.util.ResourceOracle
-import com.azure.data.util.hasValidId
-import com.azure.data.util.isValidIdForResource
+import com.azure.data.util.*
 import com.azure.data.util.json.gson
-import com.azure.data.util.toError
 import com.google.gson.reflect.TypeToken
 import getDefaultHeaders
 import okhttp3.*
@@ -1305,6 +1302,10 @@ class DocumentClient private constructor() {
                 if (response.error!!.isConnectivityError() && resourceClass != null)  {
                     cachedResource(resourceLocation, response, callback, resourceClass)
                     return
+                }
+
+                if (response.is404()) {
+                    ResourceCache.shared.remove(resourceLocation)
                 }
 
                 callback(response)
