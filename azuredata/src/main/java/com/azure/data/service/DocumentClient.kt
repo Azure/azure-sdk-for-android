@@ -15,6 +15,7 @@ import com.azure.data.constants.MSHttpHeader
 import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.util.*
+import com.azure.data.util.json.ResourceListJsonDeserializer
 import com.azure.data.util.json.gson
 import com.google.gson.reflect.TypeToken
 import getDefaultHeaders
@@ -1249,9 +1250,7 @@ class DocumentClient private constructor() {
 
                 //TODO: see if there's any benefit to caching these type tokens performance wise (or for any other reason)
                 val type = resourceType ?: resourceLocation.resourceType.type
-                val listType = TypeToken.getParameterized(ResourceList::class.java, type).type
-                val resourceList = gson.fromJson<ResourceList<T>>(json, listType)
-                        ?: return ListResponse(json.toError(), request, response, json)
+                val resourceList = ResourceListJsonDeserializer<T>().deserialize(json, type)
 
                 setResourceMetadata(response, resourceList, resourceLocation.resourceType)
 

@@ -33,7 +33,7 @@ internal class ResourceWriteOperationAdapter: JsonSerializer<ResourceWriteOperat
     override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): ResourceWriteOperation? {
         json?.asJsonObject?.let {
             val type = it.getAsJsonPrimitive("type").asString
-            val resource = deserializeResource(it.get("resource"))
+            val resource = it.get("resource")?.let { deserializeResource(it) }
             val location = deserializeLocation(it.getAsJsonObject("location"))
             val path = it.getAsJsonPrimitive("path").asString
             val headers = deserializeHeaders(it.getAsJsonObject("headers"))
@@ -41,7 +41,7 @@ internal class ResourceWriteOperationAdapter: JsonSerializer<ResourceWriteOperat
 
             return ResourceWriteOperation(
                 type = ResourceWriteOperationType.valueOf(type),
-                resource = resource as Resource,
+                resource = resource,
                 resourceLocation = location,
                 resourceLocalContentPath = path,
                 httpHeaders = headers
