@@ -41,8 +41,8 @@ internal class ResourceCache private constructor() {
         ResourceOracle.shared.storeLinks(resource)
 
         if (isEnabled) {
-            safeExecute {
-                executor.execute {
+            executor.execute {
+                safeExecute {
                     ContextProvider.appContext.resourceCacheFile(resource)?.let {
                         it.bufferedWriter().use {
                             it.write(encrypt(gson.toJson(resource)))
