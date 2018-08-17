@@ -2,6 +2,7 @@ package com.azure.data.service
 
 import com.azure.data.model.*
 import com.azure.core.util.ContextProvider
+import com.azure.data.util.ResourceOracle
 import com.azure.data.util.ancestorIds
 import java.util.*
 
@@ -213,4 +214,8 @@ private fun PermissionProvider.doGetPermission(location: ResourceLocation, permi
 
         else -> completion(Response(DataError(PermissionProviderError.InvalidResourceType)))
     }
+}
+
+fun PermissionProvider.getSelfLink(altLink: String): String? {
+    return ResourceOracle.shared.getSelfLink(altLink)
 }
