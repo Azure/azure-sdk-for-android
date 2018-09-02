@@ -23,8 +23,8 @@ android {
     }
 
     compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     sourceSets {
@@ -39,10 +39,10 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
-    androidTestImplementation "com.android.support.test:runner:$testRunnerVersion"
-    androidTestImplementation "com.android.support.test:rules:$testRulesVersion"
+    testImplementation "com.android.support.test:runner:$testRunnerVersion"
+    testImplementation "com.android.support.test:rules:$testRulesVersion"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
-    androidTestImplementation "org.awaitility:awaitility:$awaitilityVersion"
+    testImplementation "org.awaitility:awaitility:$awaitilityVersion"
 
     implementation project(":azurecore")
     implementation project(":azuredata")
