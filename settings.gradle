@@ -1,1 +1,1 @@
-include ':app', ':azurecore', ':azureauth', ':azuredata', ':azurepush', ':azurestorage'
+include ':app', ':azurecore', ':azureauth', ':azuredata', ':azurepush', ':azurestorage', ':azuremobile'
