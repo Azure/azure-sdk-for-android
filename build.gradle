@@ -3,8 +3,8 @@
 buildscript {
 
     ext.azureandroid_release_version = '0.1.0'
-    ext.kotlin_version = '1.2.41'
-    ext.gradle_version = '3.1.2'
+    ext.kotlin_version = '1.2.61'
+    ext.gradle_version = '3.1.4'
 
     repositories {
         google()
