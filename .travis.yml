@@ -38,4 +38,4 @@ before_script:
   - android-wait-for-emulator
   - adb shell input keyevent 82 &
 
-script: ./gradlew build connectedAndroidTest -x :azuredata:compileReleaseKotlin -x :azuredata:compileReleaseUnitTestKotlin -x :azuredata:connectedAndroidTest -x :azurecore:connectedAndroidTest
+script: ./gradlew build assembleDebug
