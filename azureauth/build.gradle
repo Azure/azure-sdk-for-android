@@ -28,8 +28,24 @@ dependencies {
     testImplementation "junit:junit:$jUnitVersion"
     androidTestImplementation "com.android.support.test:runner:$testRunnerVersion"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
+    implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+
+    implementation project(':azuredata')
+    implementation project(':azurecore')
 }
+
 repositories {
     mavenCentral()
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+tasks.withType(Javadoc) {
+    enabled = false
 }
