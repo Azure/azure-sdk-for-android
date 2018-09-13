@@ -54,6 +54,6 @@ bintray {
     pkg {
         repo = 'Azure.Mobile'
         name = 'azurecore'
-        //    userOrg = 'hugo'
+        userOrg = 'azure'
     }
 }
