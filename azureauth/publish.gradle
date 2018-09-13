@@ -1,0 +1,59 @@
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+version "$azureandroid_release_version"
+group 'com.azure.mobile'
+
+task sourceJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier "sources"
+}
+
+publishing {
+    publications {
+        Production(MavenPublication) {
+            artifact bundleRelease
+            artifact(sourceJar)
+            groupId 'com.azure.mobile'
+            artifactId 'azureauth'
+            version this.version
+
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+
+                // Iterate over the implementation dependencies (we don't want the test ones), adding a <dependency> node for each
+                configurations.implementation.allDependencies.each {
+                    // Ensure dependencies such as fileTree are not included in the pom.
+                    if (it.name != 'unspecified') {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                    }
+                }
+            }
+        }
+    }
+}
+
+Properties properties = new Properties()
+File propertiesFile = project.rootProject.file('local.properties')
+
+if (propertiesFile.exists()) {
+    properties.load(propertiesFile.newDataInputStream())
+}
+
+bintray {
+    user = properties.getProperty("bintray.user") ?: System.getenv('BINTRAY_USER')
+    key = properties.getProperty("bintray.apikey") ?: System.getenv('BINTRAY_API_KEY')
+    publications = ['Production']
+    dryRun = false //[Default: false] Whether to run this as dry-run, without deploying
+    publish = true //[Default: false] Whether version should be auto published after an upload
+    override = true //[Default: false] Whether to override version artifacts already published
+    //Package configuration. The plugin will use the repo and name properties to check if the package already exists. In that case, there's no need to configure the other package properties (like userOrg, desc, etc).
+    pkg {
+        repo = 'Azure.Mobile'
+        name = 'azureauth'
+        //    userOrg = 'hugo'
+    }
+}

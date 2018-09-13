@@ -61,3 +61,5 @@ tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
 tasks.withType(Javadoc) {
     enabled = false
 }
+
+apply from: 'publish.gradle'
