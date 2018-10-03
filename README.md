@@ -12,8 +12,7 @@ The SDKs are broken out by function and are designed to work just as well indivi
 - [AzurePush](#azurepush)
 - [AzureStorage](#azurestorage)
 
-## AzureCore
-![Current State: Development](https://img.shields.io/badge/Current_State-Development-blue.svg)
+## AzureCore ![Current State: Development](https://img.shields.io/badge/Current_State-Development-blue.svg)
 
 [AzureCore API Reference](https://github.com/Azure/Azure.Android/wiki/AzureCore) and [samples](https://github.com/Azure/Azure.Android/wiki/AzureCore) can be found on our [wiki](https://github.com/Azure/Azure.Android/wiki).
 
@@ -29,8 +28,7 @@ AzureCore is a shared dependency of the other four SDKs. It will include the fol
 More information on the features to be included in AzureCore can be found the [Requirements](https://github.com/Azure/Azure.Android/wiki/Requirements-AzureCore) wiki document.
 
 
-## AzureAuth
-![Current State: Requirements](https://img.shields.io/badge/Current_State-Requirements-red.svg)
+## AzureAuth ![Current State: Requirements](https://img.shields.io/badge/Current_State-Requirements-red.svg)
 
 [AzureAuth API Reference](https://github.com/Azure/Azure.Android/wiki/AzureAuth) and [samples](https://github.com/Azure/Azure.Android/wiki/AzureAuth) can be found on our [wiki](https://github.com/Azure/Azure.Android/wiki).
 
@@ -41,16 +39,14 @@ Azure App Service uses federated identity, in which a third-party identity provi
 More information on the features to be included in AzureAuth can be found the [Requirements](https://github.com/Azure/Azure.Android/wiki/Requirements-AzureAuth) wiki document.
 
 
-## AzureData
-![Current State: Development](https://img.shields.io/badge/Current_State-Development-blue.svg)
+## AzureData ![Current State: Development](https://img.shields.io/badge/Current_State-Development-blue.svg)
 
 [AzureData API Reference](https://github.com/Azure/Azure.Android/wiki/AzureData) and [samples](https://github.com/Azure/Azure.Android/wiki/AzureData) can be found on our [wiki](https://github.com/Azure/Azure.Android/wiki).
 
 AzureData is an SDK for interfacing with [Azure Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-introduction) - A schema-less JSON database engine with rich SQL querying capabilities. It currently supports the full SQL (DocumentDB) API, and offline persistence (inluding read/write).
 
 
-## AzurePush
-![Current State: Requirements](https://img.shields.io/badge/Current_State-Requirements-red.svg)
+## AzurePush ![Current State: Requirements](https://img.shields.io/badge/Current_State-Requirements-red.svg)
 
 [AzurePush API Reference](https://github.com/Azure/Azure.Android/wiki/AzurePush) and [samples](https://github.com/Azure/Azure.Android/wiki/AzurePush) can be found on our [wiki](https://github.com/Azure/Azure.Android/wiki).
 
@@ -60,8 +56,7 @@ AzurePush will provide push notification functionality.  The current SDK for Azu
 More information on the features to be included in AzureData can be found the [Requirements](https://github.com/Azure/Azure.Android/wiki/Requirements-AzurePush) wiki document.
 
 
-## AzureStorage
-![Current State: Requirements](https://img.shields.io/badge/Current_State-Requirements-red.svg)
+## AzureStorage ![Current State: Requirements](https://img.shields.io/badge/Current_State-Requirements-red.svg)
 
 [AzurePush API Reference](https://github.com/Azure/Azure.Android/wiki/AzurePush) and [samples](https://github.com/Azure/Azure.Android/wiki/AzurePush) can be found on our [wiki](https://github.com/Azure/Azure.Android/wiki).
 
