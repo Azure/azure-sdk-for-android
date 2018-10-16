@@ -4,7 +4,7 @@ buildscript {
 
     ext.azureandroid_release_version = '0.1.0'
     ext.kotlin_version = '1.2.71'
-    ext.gradle_version = '3.2.0'
+    ext.gradle_version = '3.2.1'
 
     repositories {
         google()
@@ -31,13 +31,13 @@ allprojects {
 
     ext {
         okhttpVersion = "3.10.0"
-        gsonVersion = "2.8.2"
+        gsonVersion = "2.8.5"
         jUnitVersion = "4.12"
         espressoVersion = "3.0.1"
         reactiveNetworkVersion = "0.12.3"
         testRunnerVersion = "1.0.2"
         testRulesVersion = "1.0.2"
-        timberVersion = "4.7.0"
+        timberVersion = "4.7.1"
         awaitilityVersion = "3.0.0"
     }
 }
