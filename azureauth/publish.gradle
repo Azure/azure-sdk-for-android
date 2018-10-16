@@ -15,7 +15,7 @@ publishing {
             artifact bundleReleaseAar
             artifact(sourceJar)
             groupId 'com.azure.android'
-            artifactId 'azuredata'
+            artifactId 'azureauth'
             version this.version
 
             pom.withXml {
@@ -53,7 +53,7 @@ bintray {
     //Package configuration. The plugin will use the repo and name properties to check if the package already exists. In that case, there's no need to configure the other package properties (like userOrg, desc, etc).
     pkg {
         repo = 'Azure.Android'
-        name = 'azuredata'
+        name = 'azureauth'
         userOrg = 'azure'
     }
 }

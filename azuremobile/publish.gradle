@@ -15,7 +15,7 @@ publishing {
             artifact bundleReleaseAar
             artifact(sourceJar)
             groupId 'com.azure.android'
-            artifactId 'azuredata'
+            artifactId 'azuremobile'
             version this.version
 
             pom.withXml {
@@ -44,8 +44,8 @@ if (propertiesFile.exists()) {
 }
 
 bintray {
-    user = properties.getProperty("bintray.user") ?: System.getenv('BINTRAY_USER')
-    key = properties.getProperty("bintray.apikey") ?: System.getenv('BINTRAY_API_KEY')
+    user = properties.getProperty('bintray.user') ?: System.getenv('BINTRAY_USER')
+    key = properties.getProperty('bintray.apikey') ?: System.getenv('BINTRAY_API_KEY')
     publications = ['Production']
     dryRun = false //[Default: false] Whether to run this as dry-run, without deploying
     publish = true //[Default: false] Whether version should be auto published after an upload
@@ -53,7 +53,7 @@ bintray {
     //Package configuration. The plugin will use the repo and name properties to check if the package already exists. In that case, there's no need to configure the other package properties (like userOrg, desc, etc).
     pkg {
         repo = 'Azure.Android'
-        name = 'azuredata'
+        name = 'azuremobile'
         userOrg = 'azure'
     }
 }

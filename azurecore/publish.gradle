@@ -2,7 +2,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
 version "$azureandroid_release_version"
-group 'com.azure.mobile'
+group 'com.azure.android'
 
 task sourceJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
@@ -12,9 +12,9 @@ task sourceJar(type: Jar) {
 publishing {
     publications {
         Production(MavenPublication) {
-            artifact bundleRelease
+            artifact bundleReleaseAar
             artifact(sourceJar)
-            groupId 'com.azure.mobile'
+            groupId 'com.azure.android'
             artifactId 'azurecore'
             version this.version
 
@@ -52,8 +52,8 @@ bintray {
     override = true //[Default: false] Whether to override version artifacts already published
     //Package configuration. The plugin will use the repo and name properties to check if the package already exists. In that case, there's no need to configure the other package properties (like userOrg, desc, etc).
     pkg {
-        repo = 'Azure.Mobile'
+        repo = 'Azure.Android'
         name = 'azurecore'
-        //    userOrg = 'hugo'
+        userOrg = 'azure'
     }
 }
