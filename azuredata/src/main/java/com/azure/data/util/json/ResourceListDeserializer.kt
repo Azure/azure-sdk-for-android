@@ -8,7 +8,7 @@ internal class ResourceListJsonDeserializer<T: Resource> {
 
     fun deserialize(json: String, resourceType: Type): ResourceList<T> {
         val resourceList = ResourceList<T>()
-        var jsonObject = JsonParser().parse(json).asJsonObject
+        val jsonObject = JsonParser().parse(json).asJsonObject
 
         jsonObject.keySet().forEach {
             when (it) {
