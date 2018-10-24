@@ -103,7 +103,7 @@ public class DatabaseActivity extends Activity {
             {
                 final ProgressDialog dialog = ProgressDialog.show(DatabaseActivity.this, "", "Loading. Please wait...", true);
 
-                AzureData.getDatabases(onCallback(response -> {
+                AzureData.getDatabases(null, onCallback(response -> {
 
                     Log.e(TAG, "Database list result: " + response.isSuccessful());
 
