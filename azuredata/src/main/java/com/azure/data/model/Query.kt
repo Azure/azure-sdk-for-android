@@ -14,7 +14,7 @@ class Query(properties: ArrayList<String>? = null) {
     private var orderByCalled = false
 
     private var selectProperties: ArrayList<String> = ArrayList()
-    private var fromFragment: String? = null
+//    private var fromFragment: String? = null
     private var whereFragment: String? = null
     private var andFragments: ArrayList<String> = ArrayList()
     private var orderByFragment: String? = null
@@ -169,13 +169,13 @@ class Query(properties: ArrayList<String>? = null) {
             return Query()
         }
 
-        fun select(vararg strings: String) : Query {
-            //        assert(selectCalled, "you can only call `select` once")
-            //        selectCalled = true;
-
-            //        self.selectProperties = properties
-
-            return Query()
-        }
+//        fun select(vararg strings: String) : Query {
+//            //        assert(selectCalled, "you can only call `select` once")
+//            //        selectCalled = true;
+//
+//            //        self.selectProperties = properties
+//
+//            return Query()
+//        }
     }
 }
