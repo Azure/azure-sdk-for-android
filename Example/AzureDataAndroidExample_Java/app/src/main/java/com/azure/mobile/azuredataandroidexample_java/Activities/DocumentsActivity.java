@@ -119,16 +119,4 @@ public class DocumentsActivity extends Activity {
             }
         });
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        App.activityResumed();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        App.activityPaused();
-    }
 }
