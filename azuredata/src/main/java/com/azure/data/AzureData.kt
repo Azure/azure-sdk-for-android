@@ -5,6 +5,8 @@ import com.azure.core.util.ContextProvider
 import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.service.*
+import com.azure.data.util.json.gsonBuilder
+import com.google.gson.GsonBuilder
 import okhttp3.HttpUrl
 import java.net.URL
 
@@ -19,67 +21,83 @@ class AzureData {
 
         internal var documentClient = DocumentClient.shared
 
+        //region Configuration
+
         private var configured = false
 
         @JvmStatic
-        fun configure(context: Context, accountName: String, masterKey: String, permissionMode: PermissionMode) {
+        fun configure(context: Context, accountName: String, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
 
             ContextProvider.init(context.applicationContext)
 
             documentClient.configure(accountName, masterKey, permissionMode)
 
             configured = true
+
+            configureGsonBuilder(gsonBuilder)
         }
 
         @JvmStatic
-        fun configure(context: Context, accountUrl: URL, masterKey: String, permissionMode: PermissionMode) {
+        fun configure(context: Context, accountUrl: URL, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
 
             ContextProvider.init(context.applicationContext)
 
             documentClient.configure(accountUrl, masterKey, permissionMode)
 
             configured = true
+
+            configureGsonBuilder(gsonBuilder)
         }
 
         @JvmStatic
-        fun configure(context: Context, accountUrl: HttpUrl, masterKey: String, permissionMode: PermissionMode) {
+        fun configure(context: Context, accountUrl: HttpUrl, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
 
             ContextProvider.init(context.applicationContext)
 
             documentClient.configure(accountUrl, masterKey, permissionMode)
 
             configured = true
+
+            configureGsonBuilder(gsonBuilder)
         }
 
         @JvmStatic
-        fun configure(context: Context, accountName: String, permissionProvider: PermissionProvider) {
+        fun configure(context: Context, accountName: String, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
 
             ContextProvider.init(context.applicationContext)
 
             documentClient.configure(accountName, permissionProvider)
 
             configured = true
+
+            configureGsonBuilder(gsonBuilder)
         }
 
         @JvmStatic
-        fun configure(context: Context, accountUrl: URL, permissionProvider: PermissionProvider) {
+        fun configure(context: Context, accountUrl: URL, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
 
             ContextProvider.init(context.applicationContext)
 
             documentClient.configure(accountUrl, permissionProvider)
 
             configured = true
+
+            configureGsonBuilder(gsonBuilder)
         }
 
         @JvmStatic
-        fun configure(context: Context, accountUrl: HttpUrl, permissionProvider: PermissionProvider) {
+        fun configure(context: Context, accountUrl: HttpUrl, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
 
             ContextProvider.init(context.applicationContext)
 
             documentClient.configure(accountUrl, permissionProvider)
 
             configured = true
+
+            configureGsonBuilder(gsonBuilder)
         }
+
+        //endregion
 
         @JvmStatic
         val isConfigured: Boolean
