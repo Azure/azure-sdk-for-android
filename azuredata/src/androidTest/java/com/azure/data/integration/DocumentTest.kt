@@ -144,9 +144,11 @@ abstract class DocumentTest<TDoc : Document>(private val docType: Class<TDoc>)
         doc.setValue(customNumberKey, customNumberValue+1)
 
         var docResponse: Response<TDoc>? = null
+
         AzureData.createOrReplaceDocument(doc, collectionId, databaseId) {
             docResponse = it
         }
+        
         await().until { docResponse != null }
 
         assertResourceResponseSuccess(docResponse)

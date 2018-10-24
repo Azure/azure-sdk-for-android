@@ -59,7 +59,6 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
                     azureCosmosDbAccount,
                     azureCosmosPrimaryKey,
                     PermissionMode.All)
-
         }
 
         deleteResources()
