@@ -1,6 +1,4 @@
-# AzureData
-
- ![Current State: Preview Release](https://img.shields.io/badge/Current_State-Preview_Release-brightgreen.svg)[ ![Download](https://api.bintray.com/packages/azure/Azure.Android/azuredata/images/download.svg) ](https://bintray.com/azure/Azure.Android/azuredata/_latestVersion)
+# AzureData ![Current State: Preview Release](https://img.shields.io/badge/Current_State-Preview_Release-brightgreen.svg)[ ![Download](https://api.bintray.com/packages/azure/Azure.Android/azuredata/images/download.svg) ](https://bintray.com/azure/Azure.Android/azuredata/_latestVersion)
 
 AzureData is an Android client SDK for Microsoft's [Azure Cosmos DB](https://aka.ms/cosmosdb) [SQL API](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-introduction) (previously DocumentDB), written in Kotlin.
 
