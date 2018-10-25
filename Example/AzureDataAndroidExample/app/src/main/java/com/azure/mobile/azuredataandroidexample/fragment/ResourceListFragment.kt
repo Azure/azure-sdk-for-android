@@ -78,7 +78,7 @@ abstract class ResourceListFragment<TData: Resource> : RecyclerViewListFragment<
                     val items = response.resource?.items!!
 
                     activity?.runOnUiThread {
-                        typedAdapter.setItems(items.asList())
+                        typedAdapter.setItems(items)
                     }
                 }
                 else {

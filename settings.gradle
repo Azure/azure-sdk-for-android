@@ -1,1 +1,3 @@
-include ':app', ':azurecore', ':azureauth', ':azuredata', ':azurepush', ':azurestorage', ':azuremobile'
+include ':azurecore', ':azureauth', ':azuredata', ':azurepush', ':azurestorage', ':azuremobile', ':example_kotlin', ':example_java'
+project(':example_kotlin').projectDir = new File('Example/AzureDataAndroidExample/app')
+project(':example_java').projectDir = new File('Example/AzureDataAndroidExample_Java/app')

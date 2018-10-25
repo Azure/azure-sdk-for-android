@@ -97,7 +97,7 @@ public class DocumentsActivity extends Activity {
             {
                 final ProgressDialog dialog = ProgressDialog.show(DocumentsActivity.this, "", "Loading. Please wait...", true);
 
-                AzureData.getDocuments(_collectionId, _databaseId, DictionaryDocument.class, onCallback(response -> {
+                AzureData.getDocuments(_collectionId, _databaseId, DictionaryDocument.class, null, onCallback(response -> {
 
                     Log.e(TAG, "Document list result: " + response.isSuccessful());
 
@@ -118,17 +118,5 @@ public class DocumentsActivity extends Activity {
                 ex.printStackTrace();
             }
         });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        App.activityResumed();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        App.activityPaused();
     }
 }

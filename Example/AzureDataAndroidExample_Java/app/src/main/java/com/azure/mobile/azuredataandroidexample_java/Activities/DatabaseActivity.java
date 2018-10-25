@@ -103,7 +103,7 @@ public class DatabaseActivity extends Activity {
             {
                 final ProgressDialog dialog = ProgressDialog.show(DatabaseActivity.this, "", "Loading. Please wait...", true);
 
-                AzureData.getDatabases(onCallback(response -> {
+                AzureData.getDatabases(null, onCallback(response -> {
 
                     Log.e(TAG, "Database list result: " + response.isSuccessful());
 
@@ -122,22 +122,5 @@ public class DatabaseActivity extends Activity {
                 ex.printStackTrace();
             }
         });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (_adapter != null) {
-            _adapter.clear();
-        }
-
-        App.activityResumed();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        App.activityPaused();
     }
 }

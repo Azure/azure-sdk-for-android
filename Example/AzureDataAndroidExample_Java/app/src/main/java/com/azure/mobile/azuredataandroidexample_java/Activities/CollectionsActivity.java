@@ -100,7 +100,7 @@ public class CollectionsActivity extends Activity {
             {
                 final ProgressDialog dialog = ProgressDialog.show(CollectionsActivity.this, "", "Loading. Please wait...", true);
 
-                AzureData.getCollections(_databaseId, onCallback(response -> {
+                AzureData.getCollections(_databaseId, null, onCallback(response -> {
 
                     Log.e(TAG, "Collection list result: " + response.isSuccessful());
 
@@ -149,22 +149,5 @@ public class CollectionsActivity extends Activity {
                     .setNegativeButton("Cancel", (dialog, whichButton) -> {
                     }).show();
         });
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (_adapter != null) {
-            _adapter.clear();
-        }
-
-        App.activityResumed();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        App.activityPaused();
     }
 }

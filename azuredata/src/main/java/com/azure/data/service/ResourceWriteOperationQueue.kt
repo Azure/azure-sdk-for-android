@@ -51,7 +51,7 @@ class ResourceWriteOperationQueue {
     //region Public API
 
     fun <T: Resource> addCreateOrReplace(resource: T, location: ResourceLocation, headers: Headers? = null, replace: Boolean = false, callback: (Response<T>) -> Unit) {
-        createOrReplaceOffline(resource, location, replace, { response ->
+        createOrReplaceOffline(resource, location, replace) { response ->
             callback(response)
 
             if (response.isSuccessful) {
@@ -63,11 +63,11 @@ class ResourceWriteOperationQueue {
                         httpHeaders = headers ?: Headers.of(mutableMapOf())
                 ))
             }
-        })
+        }
     }
 
     fun addDelete(resourceLocation: ResourceLocation, headers: Headers? = null, callback: (DataResponse) -> Unit) {
-        deleteOffline(resourceLocation, { response ->
+        deleteOffline(resourceLocation) { response ->
             callback(response)
 
             if (response.isSuccessful) {
@@ -79,7 +79,7 @@ class ResourceWriteOperationQueue {
                         httpHeaders = headers ?: Headers.of(mutableMapOf())
                 ))
             }
-        })
+        }
     }
 
     fun sync() {
@@ -92,22 +92,20 @@ class ResourceWriteOperationQueue {
 
             isSyncing = true
 
-            performWrites(writes, { isSuccess ->
+            performWrites(writes) { isSuccess ->
                 if (isSuccess) {
                     sendOfflineWriteQueueProcessedBroadcast()
                 }
 
                 removeCachedResources()
                 isSyncing = false
-            })
+            }
         }
     }
 
     fun purge() {
         safeExecute {
-            ContextProvider.appContext.pendingWritesDir()?.let {
-                it.deleteRecursively()
-            }
+            ContextProvider.appContext.pendingWritesDir().deleteRecursively()
         }
     }
 
@@ -133,7 +131,7 @@ class ResourceWriteOperationQueue {
 
         val write = writes.removeAt(0)
 
-        performWrite(write, { response ->
+        performWrite(write) { response ->
             if (!response.fromCache) {
                 processedWrites.add(write)
                 sendBroadcast(response)
@@ -141,7 +139,7 @@ class ResourceWriteOperationQueue {
             }
 
             performWrites(writes, callback)
-        })
+        }
     }
 
     private fun performWrite(write: ResourceWriteOperation, callback: (Response<Unit>) -> Unit) {

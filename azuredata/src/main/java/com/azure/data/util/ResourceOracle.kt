@@ -69,8 +69,8 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
 
     private fun doStoreLinks(selfLink: String?, altLink: String?) {
 
-        selfLink?.let { selfLink ->
-            altLink?.let { altLink ->
+        selfLink?.let {
+            altLink?.let { _ ->
 
                 val altLinkSubstrings = altLink.split(slashCharacter)
                 val selfLinkSubstrings = selfLink.trimEnd('/').split(slashCharacter)

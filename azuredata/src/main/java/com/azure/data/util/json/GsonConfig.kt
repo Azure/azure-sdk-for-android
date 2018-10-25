@@ -13,15 +13,15 @@ import java.util.*
  * Licensed under the MIT License.
 */
 
-val gson: Gson =
-        GsonBuilder()
-                .disableHtmlEscaping()
-                .checkVerboseMode()
-                .registerTypeAdapter(Date::class.java, DateTypeAdapter())
-                .registerTypeAdapter(Timestamp::class.java, TimestampAdapter())
-                .registerTypeAdapter(DictionaryDocument::class.java, DocumentAdapter())
-                .registerTypeAdapter(ResourceWriteOperation::class.java, ResourceWriteOperationAdapter())
-                .create()
+internal val gsonBuilder = GsonBuilder()
+        .disableHtmlEscaping()
+        .checkVerboseMode()
+        .registerTypeAdapter(Date::class.java, DateTypeAdapter())
+        .registerTypeAdapter(Timestamp::class.java, TimestampAdapter())
+        .registerTypeAdapter(DictionaryDocument::class.java, DocumentAdapter())
+        .registerTypeAdapter(ResourceWriteOperation::class.java, ResourceWriteOperationAdapter())!!
+
+val gson: Gson = gsonBuilder.create()
 
 fun GsonBuilder.checkVerboseMode() : GsonBuilder {
 
