@@ -1,14 +1,12 @@
 # AzureData
 
-![Current State: Development](https://img.shields.io/badge/Current_State-Development-blue.svg)
+ ![Current State: Preview Release](https://img.shields.io/badge/Current_State-Preview_Release-brightgreen.svg)[ ![Download](https://api.bintray.com/packages/azure/Azure.Android/azuredata/images/download.svg) ](https://bintray.com/azure/Azure.Android/azuredata/_latestVersion)
 
-[AzureData API Reference](https://github.com/Azure/Azure.Android/wiki/AzureData) and [samples](https://github.com/Azure/Azure.Android/wiki/AzureData) can be found on our [wiki](https://github.com/Azure/Azure.Android/wiki).
-
-AzureData is an Android client SDK for Microsoft's [Azure Cosmos DB](https://aka.ms/cosmosdb) [DocumentDB API](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-introduction) written in Kotlin.
+AzureData is an Android client SDK for Microsoft's [Azure Cosmos DB](https://aka.ms/cosmosdb) [SQL API](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-introduction) (previously DocumentDB), written in Kotlin.
 
 # Configure
 
-Before making calls to AzureData, you'll need to call one of the `AzureData.configure` methods.  We recommend doing this in your application class or main activity's `OnCreate`, etc.
+Before making calls to AzureData, you'll need to call one of the `AzureData.configure` methods.  We recommend doing this in your application class or main activity's `OnCreate`, etc.:
 
 ```kotlin
 override fun onCreate() {
@@ -20,24 +18,6 @@ override fun onCreate() {
 
 
 # Usage
-
-## General Information
-
-Still using Java?  [See the below note](#using-from-java) about some needed syntactical differences.
-
-### Responses
-
-All operations defined below will return a response that has the following properties:
-
-| Property      |                    Value                 |
-| ------------- | -----------------------------------------|
-| `isSuccessful` | Returns `true` if the result is a success, `false` otherwise. |
-| `isErrored` | Returns `true` if the result is an error, `false` otherwise. |
-| `error` | Returns the associated error value if the result if it is a failure, null otherwise. |
-| `jsonData` | The json data returned by the server (if applicable) |
-| `request` | The (OkHttp) request object sent to the server. (If available) |
-| `response` | The (OkHttp) response object returned from the server. (If available) |
-| `resource` | For operations that return a resource or list of resources, this will contain that (typed) result. |
 
 ## Operations
 
@@ -979,8 +959,25 @@ AzureData.getOffer (offerId) {
 ```kotlin
 // TODO...
 ```
+   
 
-## Pagination of results
+## General Information
+
+### Responses
+
+All operations defined above will return a response that has the following properties:
+
+| Property      |                    Value                 |
+| ------------- | -----------------------------------------|
+| `isSuccessful` | Returns `true` if the result is a success, `false` otherwise. |
+| `isErrored` | Returns `true` if the result is an error, `false` otherwise. |
+| `error` | Returns the associated error value if the result if it is a failure, null otherwise. |
+| `jsonData` | The json data returned by the server (if applicable) |
+| `request` | The (OkHttp) request object sent to the server. (If available) |
+| `response` | The (OkHttp) response object returned from the server. (If available) |
+| `resource` | For operations that return a resource or list of resources, this will contain that (typed) result. |
+
+### Pagination of results
 
 All `list` and `get` functions support pagination through the optional `maxPerPage` parameter and the `next` function on the response object. The `maxPerPage`  parameter specifies the maximum number of items that can be returned by the function. This can be between 1 and 1000. If omitted, Azure CosmosDB uses a default of 100.
 
@@ -995,6 +992,57 @@ AzureData.getDocuments(collection, CustomDocument::class.java, maxPerPage = 20) 
     }
 }
 ```
+
+
+### Controlling Serialization
+
+AzureData constructs and maintains its own [Gson](https://github.com/google/gson) instance that handles serializing and deserializing all Cosmos DB data.  Some projects may need to provide custom type adapters or otherwise hook into the serialization process.  This can be accomplished at configure-time, by passing a callback to the `configure` method:
+
+```kotlin
+AzureData.configure(this, <Cosmos DB account name>, <Cosmos DB Key>, PermissionMode.All) { gsonBuilder ->
+    gsonBuilder.registerTypeAdapter(MyClass::class.java, MyTypeAdapter())
+    ...
+}
+```
+
+Any modifications made to the `GsonBuilder` during configuration will be used to construct the `Gson` instance.
+
+### Using from Java
+
+As noted, this library is written in and optimized for Kotlin.  If your app is written in Java, it's still possible to use this library (assuming [your app targets JDK 1.8](https://developer.android.com/studio/write/java8-support.html)), with a few syntactical differences to the sample code found above:
+
+* Callbacks in Java will be in lambda form and passed as an argument to the method.
+* Due to [some compiler intricacies](https://stackoverflow.com/questions/37828790/why-do-i-have-to-return-unit-instance-when-implementing-in-java-a-kotlin-functio) with the way lambdas returning `Unit` (void in Java) are interpreted in Java, the callbacks from the [operations](#operations) either need to return `Unit.INSTANCE` or be wrapped in something that handles that for you.
+
+Example: To get the [list of databases](#list), the call would look like:
+
+```java
+AzureData.getDatabases(response -> {
+    if (response.isSuccessful()) {
+        Database[] dbs = response.getResource().getItems();
+    }
+    ...
+    return Unit.INSTANCE;
+});
+```
+
+For an improved development experience, a functional wrapper has been added to make this a bit cleaner:
+
+```java
+AzureData.getDatabases(onCallback(response -> {
+    if (response.isSuccessful()) {
+        Database[] dbs = response.getResource().getItems();
+    }
+    ...
+}));
+```
+
+`onCallback()` is found in the `com.microsoft.azureandroid.data.util` package, and will in essence 'inject' the return statement for you and remove the need to end your callback with a returned `Unit.INSTANCE`.
+
+**Note:** `OnCallback` requires API level 24+
+
+[See here](https://github.com/NateRickard/cosmos_db_example) for a complete example using this library from Java.
+
 
 # Offline Capabilities
 
@@ -1031,42 +1079,3 @@ class AES128Encryptor: ResourceEncryptor {
 /// Data will be encrypted using AES128ResourceEncrytpor before it's cached locally.
 AzureData.resourceEncryptor = AES128ResourceEncryptor()
 ```
-
-## Using from Java
-
-As noted, this library is written in and optimized for Kotlin.  If your app is written in Java, it's still possible to use this library (assuming [your app targets JDK 1.8](https://developer.android.com/studio/write/java8-support.html)), with a few syntactical differences to the sample code found above:
-
-* Callbacks in Java will be in lambda form and passed as an argument to the method.
-* Due to [some compiler intricacies](https://stackoverflow.com/questions/37828790/why-do-i-have-to-return-unit-instance-when-implementing-in-java-a-kotlin-functio) with the way lambdas returning `Unit` (void in Java) are interpreted in Java, the callbacks from the [operations](#operations) either need to return `Unit.INSTANCE` or be wrapped in something that handles that for you.
-
-Example: To get the [list of databases](#list), the call would look like:
-
-```java
-AzureData.getDatabases(response -> {
-    if (response.isSuccessful()) {
-        Database[] dbs = response.getResource().getItems();
-    }
-    ...
-    return Unit.INSTANCE;
-});
-```
-
-For an improved development experience, a functional wrapper has been added to make this a bit cleaner:
-
-```java
-AzureData.getDatabases(onCallback(response -> {
-    if (response.isSuccessful()) {
-        Database[] dbs = response.getResource().getItems();
-    }
-    ...
-}));
-```
-
-`onCallback()` is found in the `com.microsoft.azureandroid.data.util` package, and will in essence 'inject' the return statement for you and remove the need to end your callback with a returned `Unit.INSTANCE`.
-
-**Note:** `OnCallback` required API level 24+
-
-[See here](https://github.com/NateRickard/cosmos_db_example) for a complete example using this library from Java.
-AzureData is an SDK for interfacing with [Azure Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-introduction) - A schema-less JSON database engine with rich SQL querying capabilities. It currently supports the full SQL (DocumentDB) API and development to add offline persistence will start very soon.
-
-More information on the features to be included in AzureData can be found the [Requirements](https://github.com/Azure/Azure.Android/wiki/Requirements-AzureData) wiki document.
