@@ -5,14 +5,15 @@ Azure.Android is a collection of SDKs for rapidly creating Android apps with mod
 _**This project is in active development and will change.** As the SDKs become ready for use, they will be versioned and released. We will do our best to conduct all development openly by posting detailed [requirements](https://github.com/Azure/Azure.Android/wiki/Requirements) and managing the project using [issues](https://github.com/Azure/Azure.Android/issues), [milestones](https://github.com/Azure/Azure.Android/milestones), and [projects](https://github.com/Azure/Azure.Android/projects)._
 
 # SDKs
-The SDKs are broken out by function and are designed to work just as well individually as they do together.
-- [AzureCore](#azurecore)
-- [AzureAuth](#azureauth)
-- [AzureData](#azuredata)
-- [AzurePush](#azurepush)
-- [AzureStorage](#azurestorage)
 
-## AzureCore ![Current State: Development](https://img.shields.io/badge/Current_State-Development-blue.svg)
+## [AzureData](AzureData) ![Current State: Preview Release](https://img.shields.io/badge/Current_State-Preview_Release-brightgreen.svg)[ ![Download](https://api.bintray.com/packages/azure/Azure.Android/azuredata/images/download.svg) ](https://bintray.com/azure/Azure.Android/azuredata/_latestVersion)
+
+[AzureData API Reference](https://github.com/Azure/Azure.Android/wiki/AzureData) and [samples](https://github.com/Azure/Azure.Android/wiki/AzureData) can be found on our [wiki](https://github.com/Azure/Azure.Android/wiki).
+
+AzureData is an SDK for interfacing with [Azure Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-introduction) - A schema-less JSON database engine with rich SQL querying capabilities. It currently supports the full SQL (DocumentDB) API, and offline persistence (including read/write).
+
+
+## [AzureCore](AzureCore) ![Current State: Preview Release](https://img.shields.io/badge/Current_State-Preview_Release-brightgreen.svg)[ ![Download](https://api.bintray.com/packages/azure/Azure.Android/azurecore/images/download.svg) ](https://bintray.com/azure/Azure.Android/azurecore/_latestVersion)
 
 [AzureCore API Reference](https://github.com/Azure/Azure.Android/wiki/AzureCore) and [samples](https://github.com/Azure/Azure.Android/wiki/AzureCore) can be found on our [wiki](https://github.com/Azure/Azure.Android/wiki).
 
@@ -28,7 +29,12 @@ AzureCore is a shared dependency of the other four SDKs. It will include the fol
 More information on the features to be included in AzureCore can be found the [Requirements](https://github.com/Azure/Azure.Android/wiki/Requirements-AzureCore) wiki document.
 
 
-## AzureAuth ![Current State: Requirements](https://img.shields.io/badge/Current_State-Requirements-red.svg)
+## [AzureMobile](AzureMobile) ![Current State: Development](https://img.shields.io/badge/Current_State-Development-blue.svg)
+
+AzureMobile is an SDK that connects to services deployed using [Azure.Mobile](https://aka.ms/mobile).
+
+
+## [AzureAuth](AzureAuth) ![Current State: Development](https://img.shields.io/badge/Current_State-Development-blue.svg)[ ![Download](https://api.bintray.com/packages/azure/Azure.Android/azureauth/images/download.svg) ](https://bintray.com/azure/Azure.Android/azureauth/_latestVersion)
 
 [AzureAuth API Reference](https://github.com/Azure/Azure.Android/wiki/AzureAuth) and [samples](https://github.com/Azure/Azure.Android/wiki/AzureAuth) can be found on our [wiki](https://github.com/Azure/Azure.Android/wiki).
 
@@ -39,14 +45,7 @@ Azure App Service uses federated identity, in which a third-party identity provi
 More information on the features to be included in AzureAuth can be found the [Requirements](https://github.com/Azure/Azure.Android/wiki/Requirements-AzureAuth) wiki document.
 
 
-## AzureData ![Current State: Development](https://img.shields.io/badge/Current_State-Development-blue.svg)
-
-[AzureData API Reference](https://github.com/Azure/Azure.Android/wiki/AzureData) and [samples](https://github.com/Azure/Azure.Android/wiki/AzureData) can be found on our [wiki](https://github.com/Azure/Azure.Android/wiki).
-
-AzureData is an SDK for interfacing with [Azure Cosmos DB](https://docs.microsoft.com/en-us/azure/cosmos-db/sql-api-introduction) - A schema-less JSON database engine with rich SQL querying capabilities. It currently supports the full SQL (DocumentDB) API, and offline persistence (inluding read/write).
-
-
-## AzurePush ![Current State: Requirements](https://img.shields.io/badge/Current_State-Requirements-red.svg)
+## [AzurePush](AzurePush) ![Current State: Development](https://img.shields.io/badge/Current_State-Development-blue.svg)[ ![Download](https://api.bintray.com/packages/azure/Azure.Android/azurepush/images/download.svg) ](https://bintray.com/azure/Azure.Android/azurepush/_latestVersion)
 
 [AzurePush API Reference](https://github.com/Azure/Azure.Android/wiki/AzurePush) and [samples](https://github.com/Azure/Azure.Android/wiki/AzurePush) can be found on our [wiki](https://github.com/Azure/Azure.Android/wiki).
 
@@ -56,13 +55,32 @@ AzurePush will provide push notification functionality.  The current SDK for Azu
 More information on the features to be included in AzureData can be found the [Requirements](https://github.com/Azure/Azure.Android/wiki/Requirements-AzurePush) wiki document.
 
 
-## AzureStorage ![Current State: Requirements](https://img.shields.io/badge/Current_State-Requirements-red.svg)
+## [AzureStorage](AzureStorage) ![Current State: Requirements](https://img.shields.io/badge/Current_State-Requirements-red.svg)
 
 [AzurePush API Reference](https://github.com/Azure/Azure.Android/wiki/AzurePush) and [samples](https://github.com/Azure/Azure.Android/wiki/AzurePush) can be found on our [wiki](https://github.com/Azure/Azure.Android/wiki).
 
 AzureStorage will provide cloud storage functionality.  The current SDK for Azure Storage can be found [here](https://github.com/Azure/azure-storage-android). The intent is to migrate that SDK to this repository, update it, and refactor the API to ensure it works seamlessly with the other SDKs in this project to provide the best possible developer experience.
 
 More information on the features to be included in AzureStorage can be found the [Requirements](https://github.com/Azure/Azure.Android/wiki/Requirements-AzureStorage) wiki document.
+
+
+# Installation
+
+## Gradle
+
+To integrate any of the Azure.Android packages into your project, specify it in your [Gradle file](https://developer.android.com/studio/build/dependencies), e.g.:
+
+```
+compile 'com.azure.android:azuredata:0.1.0'
+```
+
+The correct Gradle package specifier can be found by [navigating to the package](https://bintray.com/azure/Azure.Android) or clicking the above "Download" button for the SDK.  Then view the Maven/Gradle information and copy the Gradle snippet into your Gradle file.
+
+# Getting Started
+
+Once you [add the SDKs to your project](#installation)...
+
+// coming soon
 
 
 # About
