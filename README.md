@@ -2,7 +2,6 @@
 
 Azure.Android is a collection of SDKs for rapidly creating Android apps with modern, highly-scalable backends on Azure.
 
-_**This project is in active development and will change.** As the SDKs become ready for use, they will be versioned and released. We will do our best to conduct all development openly by posting detailed [requirements](https://github.com/Azure/Azure.Android/wiki/Requirements) and managing the project using [issues](https://github.com/Azure/Azure.Android/issues), [milestones](https://github.com/Azure/Azure.Android/milestones), and [projects](https://github.com/Azure/Azure.Android/projects)._
 
 # SDKs
 
