@@ -67,6 +67,8 @@ More information on the features to be included in AzureStorage can be found the
 
 ## Gradle
 
+The Azure.Android SDKs are packaged and available via [BinTray](https://bintray.com/azure/Azure.Android) and [JCenter](https://bintray.com/bintray/jcenter), so it's easy to add the SDKs to your Android project via Gradle.
+
 To integrate any of the Azure.Android packages into your project, specify it in your [Gradle file](https://developer.android.com/studio/build/dependencies), e.g.:
 
 ```
