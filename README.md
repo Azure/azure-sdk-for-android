@@ -1,4 +1,4 @@
-# Azure.Android [![Build Status](https://travis-ci.org/Azure/Azure.Android.svg?branch=master)](https://travis-ci.org/Azure/Azure.Android)
+# Azure.Android [![Build Status](https://travis-ci.org/Azure/Azure.Android.svg?branch=master)](https://travis-ci.org/Azure/Azure.Android) [![Build Status](https://dev.azure.com/MobileAzure/Azure.Android/_apis/build/status/Azure.Android)](https://dev.azure.com/MobileAzure/Azure.Android/_build/latest?definitionId=1)
 
 Azure.Android is a collection of SDKs for rapidly creating Android apps with modern, highly-scalable backends on Azure.
 
