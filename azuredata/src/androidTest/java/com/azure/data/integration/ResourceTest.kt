@@ -1,5 +1,6 @@
 package com.azure.data.integration
 
+import android.content.Context
 import android.support.test.InstrumentationRegistry
 import android.util.Log
 import com.azure.core.log.d
@@ -54,11 +55,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
 
-            AzureData.configure(
-                    appContext,
-                    azureCosmosDbAccount,
-                    azureCosmosPrimaryKey,
-                    PermissionMode.All)
+            configureAzureData(appContext)
         }
 
         deleteResources()
@@ -76,6 +73,15 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         }
 
         d{"********* End Test Setup *********"}
+    }
+
+    open fun configureAzureData(appContext: Context) {
+
+        AzureData.configure(
+                appContext,
+                azureCosmosDbAccount,
+                azureCosmosPrimaryKey,
+                PermissionMode.All)
     }
 
     @After
