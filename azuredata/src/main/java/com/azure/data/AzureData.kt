@@ -9,6 +9,7 @@ import com.azure.data.util.json.gsonBuilder
 import com.google.gson.GsonBuilder
 import okhttp3.HttpUrl
 import java.net.URL
+import com.azure.data.util.json.gson
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -35,6 +36,8 @@ class AzureData {
             configured = true
 
             configureGsonBuilder(gsonBuilder)
+
+            gson = gsonBuilder.create()
         }
 
         @JvmStatic
@@ -47,6 +50,8 @@ class AzureData {
             configured = true
 
             configureGsonBuilder(gsonBuilder)
+
+            gson = gsonBuilder.create()
         }
 
         @JvmStatic
@@ -59,6 +64,8 @@ class AzureData {
             configured = true
 
             configureGsonBuilder(gsonBuilder)
+
+            gson = gsonBuilder.create()
         }
 
         @JvmStatic
@@ -71,6 +78,8 @@ class AzureData {
             configured = true
 
             configureGsonBuilder(gsonBuilder)
+
+            gson = gsonBuilder.create()
         }
 
         @JvmStatic
@@ -83,6 +92,8 @@ class AzureData {
             configured = true
 
             configureGsonBuilder(gsonBuilder)
+
+            gson = gsonBuilder.create()
         }
 
         @JvmStatic
@@ -95,6 +106,8 @@ class AzureData {
             configured = true
 
             configureGsonBuilder(gsonBuilder)
+
+            gson = gsonBuilder.create()
         }
 
         //endregion

@@ -21,7 +21,7 @@ internal val gsonBuilder = GsonBuilder()
         .registerTypeAdapter(DictionaryDocument::class.java, DocumentAdapter())
         .registerTypeAdapter(ResourceWriteOperation::class.java, ResourceWriteOperationAdapter())!!
 
-val gson: Gson = gsonBuilder.create()
+var gson: Gson = gsonBuilder.create()
 
 fun GsonBuilder.checkVerboseMode() : GsonBuilder {
 
