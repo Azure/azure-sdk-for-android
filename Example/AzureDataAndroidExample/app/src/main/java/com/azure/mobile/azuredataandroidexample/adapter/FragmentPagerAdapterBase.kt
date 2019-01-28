@@ -13,7 +13,7 @@ import android.view.ViewGroup
 abstract class FragmentPagerAdapterBase(private val manager: FragmentManager) : FragmentPagerAdapter(manager) {
 
     private val tags: Array<String> by lazy {
-        Array(this.count, { _ -> "" })
+        Array(this.count) { "" }
     }
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
@@ -37,7 +37,7 @@ abstract class FragmentPagerAdapterBase(private val manager: FragmentManager) : 
         return item
     }
 
-    fun getFragmentAtPosition(position: Int) : Fragment {
+    fun getFragmentAtPosition(position: Int) : Fragment? {
 
         val tag = tags[position]
 
