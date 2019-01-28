@@ -3,6 +3,7 @@ package com.azure.data.util
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import com.azure.core.util.MapCompat
 import com.azure.data.model.Resource
 import com.azure.data.model.ResourceBase
 import com.azure.data.model.ResourceList
@@ -200,7 +201,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
         if (altLink.isNullOrEmpty()) {
             resource.selfLink?.let {
 
-                altLink = altLinkLookup.getOrDefault(it, null)
+                altLink = MapCompat.getOrDefault(altLinkLookup, it, null)
             }
         }
 
@@ -214,7 +215,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
         if (selfLink.isNullOrEmpty()) {
             resource.altLink?.trim(slashCharacter)?.let {
 
-                selfLink = selfLinkLookup.getOrDefault(it, null)
+                selfLink = MapCompat.getOrDefault(selfLinkLookup, it, null)
             }
         }
 
@@ -238,7 +239,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
 
         if (selfLink.isNotEmpty()) {
 
-            val altLink = altLinkLookup.getOrDefault(selfLink, null)
+            val altLink = MapCompat.getOrDefault(altLinkLookup, selfLink, null)
 
             if (altLink?.isEmpty() == false) {
 
@@ -255,7 +256,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
 
         if (trimmedLink.isNotEmpty()) {
 
-            val selfLink = selfLinkLookup.getOrDefault(trimmedLink, null)
+            val selfLink = MapCompat.getOrDefault(selfLinkLookup, trimmedLink, null)
 
             if (selfLink?.isEmpty() == false) {
 
