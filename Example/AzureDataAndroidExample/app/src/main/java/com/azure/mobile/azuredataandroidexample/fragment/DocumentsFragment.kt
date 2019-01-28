@@ -91,7 +91,7 @@ class DocumentsFragment : ResourceListFragment<DictionaryDocument>() {
 
         super.onItemClick(view, item, position)
 
-        val doc = typedAdapter.getItem(position)
+//        val doc = typedAdapter.getItem(position)
 
 //        val intent = Intent(activity.baseContext, CollectionActivity::class.java)
 //        intent.putExtra("db_id", databaseId)
