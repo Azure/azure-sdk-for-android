@@ -17,7 +17,7 @@ steps:
     jdkArchitectureOption: 'x64'
     publishJUnitResults: false
     testResultsFiles: '**/TEST-*.xml'
-    tasks: 'assembleDebug'
+    tasks: 'clean build bintrayUpload'
 
 - task: CopyFiles@2
   inputs:
