@@ -19,7 +19,8 @@ steps:
   inputs:
     workingDirectory: ''
     gradleWrapperFile: 'gradlew'
-    gradleOptions: '-Xmx3072m -Pbintray-user=$(bintray-user) -Pbintray-apikey=$(bintray-apikey)'
+    options: '-Pbintray-user=$(bintray-user) -Pbintray-apikey=$(bintray-apikey)'
+    gradleOptions: '-Xmx3072m'
     javaHomeOption: 'JDKVersion'
     jdkVersionOption: '1.10'
     jdkArchitectureOption: 'x64'
