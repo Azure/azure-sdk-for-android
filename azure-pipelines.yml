@@ -7,6 +7,14 @@ pool:
   vmImage: 'macOS-10.13'
 
 steps:
+# Azure Key Vault
+# Download Azure Key Vault Secrets
+- task: AzureKeyVault@1
+  inputs:
+    azureSubscription: 'ARM-Service-Connection'
+    keyVaultName: 'Azure-Mobile-Key-Vault'
+    #secretsFilter: '*'
+
 - task: Gradle@2
   inputs:
     workingDirectory: ''
