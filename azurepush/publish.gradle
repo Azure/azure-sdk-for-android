@@ -46,8 +46,8 @@ if (propertiesFile.exists()) {
 }
 
 bintray {
-    user = properties.getProperty("bintray.user") ?: System.getenv('BINTRAY-USER')
-    key = properties.getProperty("bintray.apikey") ?: System.getenv('BINTRAY-APIKEY')
+    user = properties.getProperty("bintray.user") ?: System.getenv('BINTRAY-USER') ?: BINTRAY-USER
+    key = properties.getProperty("bintray.apikey") ?: System.getenv('BINTRAY-APIKEY') ?: BINTRAY-APIKEY
     publications = ['Production']
     dryRun = false //[Default: false] Whether to run this as dry-run, without deploying
     publish = true //[Default: false] Whether version should be auto published after an upload
