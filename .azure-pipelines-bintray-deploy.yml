@@ -3,6 +3,9 @@
 # Add steps that analyze code, save build artifacts, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/java
 
+# a build with no CI
+trigger: none
+
 pool:
   vmImage: 'macOS-10.13'
 
