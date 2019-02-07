@@ -200,29 +200,9 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Co
 
         ensureCollection()
 
-        val policy = IndexingPolicy.create {
-            automatic = true
-            mode = IndexingMode.Lazy
-            includedPaths {
-                includedPath {
-                    path = "/*"
-                    indexes {
-                        index(Index.range(DataType.Number, -1))
-                        index {
-                            kind = IndexKind.Hash
-                            dataType = DataType.String
-                            precision = 3
-                        }
-                        index(Index.spatial(DataType.Point))
-                    }
-                }
-            }
-            excludedPaths {
-                excludedPath {
-                    path = "/test/*"
-                }
-            }
-        }
+        val policy = collection?.indexingPolicy!!
+
+        policy.excludedPaths?.add(IndexingPolicy.ExcludedPath("/customString/*"))
 
         AzureData.replaceCollection(createdResourceId, databaseId, policy) {
             response = it
