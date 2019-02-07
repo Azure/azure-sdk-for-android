@@ -16,13 +16,15 @@ import com.azure.mobile.azuredataandroidexample.fragment.UserDefinedFunctionsFra
 
 class CollectionActivity : BaseTabActivity() {
 
-    private lateinit var databaseId: String
-    private lateinit var collId: String
+    private var databaseId: String? = null
+    private var collId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        databaseId = intent.extras.getString("db_id")
-        collId = intent.extras.getString("coll_id")
+        intent?.extras?.let {
+            databaseId = it.getString("db_id")
+            collId = it.getString("coll_id")
+        }
 
         super.onCreate(savedInstanceState)
     }
