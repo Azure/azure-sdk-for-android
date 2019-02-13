@@ -33,6 +33,7 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
