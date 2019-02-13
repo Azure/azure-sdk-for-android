@@ -7,6 +7,8 @@ package com.azure.data.model
 
 class DataError(message: String?, val code: String? = null) : Error(message) {
 
+    constructor(serverError: ServerError) : this(serverError.message, serverError.code)
+
     constructor(error: Error) : this(error.message)
 
     constructor(error: Exception) : this(error.message)
@@ -14,7 +16,10 @@ class DataError(message: String?, val code: String? = null) : Error(message) {
     constructor() : this("")
 
     override fun toString(): String =
-            "\r\nError\r\n\t$message\r\n${if (code != null) "\t$code\r\n" else ""}"
+            "Error: ${if (code != null) "\n\tCode: $code" else ""} \n\tMessage: $message"
 
     fun isConnectivityError(): Boolean = this.message.equals(DocumentClientError.InternetConnectivityError.message)
 }
+
+// intermediary class used to deserialize DataErrors
+data class ServerError (val message: String?, val code: String? = null)
