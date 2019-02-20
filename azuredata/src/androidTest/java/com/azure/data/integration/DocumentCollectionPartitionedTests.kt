@@ -2,6 +2,7 @@ package com.azure.data.integration
 
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.*
+import com.azure.data.constants.HttpHeaderValue
 import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.*
 import com.azure.data.model.indexing.*
@@ -16,7 +17,11 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Collection, true, false) {
+class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(ResourceType.Collection, true, false) {
+
+    init {
+        partitionKeyPath = "/testKey"
+    }
 
     @Test
     fun createCollection() {
@@ -25,9 +30,44 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Co
     }
 
     @Test
+    fun createCollectionWithMinThroughput() {
+
+        ensureCollection(HttpHeaderValue.minDatabaseThroughput)
+    }
+
+    @Test
+    fun createCollectionWithMaxThroughput() {
+
+        ensureCollection(HttpHeaderValue.maxDatabaseThroughput)
+    }
+
+    @Test
+    fun createCollectionFailWithInvalidThroughput() {
+
+        val response = tryCreateCollection(750)
+
+        assertErrorResponse(response)
+    }
+
+    @Test
     fun createCollectionFromDatabase() {
 
-        database?.createCollection(createdResourceId) {
+        database?.createCollection(createdResourceId, partitionKeyPath!!) {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        assertResourceResponseSuccess(response)
+        assertEquals(createdResourceId, response?.resource?.id)
+    }
+
+    @Test
+    fun createCollectionFromDatabaseWithThroughput() {
+
+        database?.createCollection(createdResourceId, HttpHeaderValue.minDatabaseThroughput, partitionKeyPath!!) {
             response = it
         }
 

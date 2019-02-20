@@ -2,6 +2,7 @@ package com.azure.data.integration
 
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.*
+import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.*
 import junit.framework.Assert.assertEquals
 import junit.framework.Assert.assertTrue
@@ -16,6 +17,10 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredProcedure, true, true) {
+
+    init {
+        partitionKeyPath = "/testKey"
+    }
 
     private val storedProcedureBody = """
         function () {

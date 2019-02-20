@@ -3,10 +3,11 @@ package com.azure.data.integration
 import android.content.Context
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.AzureData
+import com.azure.data.integration.common.*
 import com.azure.data.model.PermissionMode
 import com.azure.data.model.ResourceType
 import com.azure.data.util.json.gson
-import junit.framework.Assert
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -38,10 +39,10 @@ class CustomTypeAdapterTests : ResourceTest<CustomDocument>(ResourceType.Documen
         // this adapter just returns "test" for the json and upon deserialization creates a doc with an Id of "test"
         val json = gson.toJson(newDocument)
 
-        Assert.assertEquals(json, "\"test\"")
+        assertEquals(json, "\"test\"")
 
         val doc = gson.fromJson(json, CustomDocument::class.java)
 
-        Assert.assertEquals(doc.id, "test")
+        assertEquals(doc.id, "test")
     }
 }

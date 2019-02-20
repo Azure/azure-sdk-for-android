@@ -2,7 +2,7 @@ package com.azure.data.integration.offlinetests
 
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.AzureData
-import com.azure.data.integration.CustomDocument
+import com.azure.data.integration.common.CustomDocument
 import com.azure.data.model.Database
 import com.azure.data.model.DocumentCollection
 import com.azure.data.model.Resource

@@ -5,6 +5,8 @@ import com.azure.data.model.DocumentCollection
 import com.azure.data.model.Resource
 import com.azure.data.model.ResourceType
 import com.azure.core.util.ContextProvider
+import com.azure.data.integration.common.CustomDocument
+import com.azure.data.integration.common.ResourceTest
 import com.azure.data.util.ResourceOracle
 import junit.framework.Assert.assertEquals
 import org.junit.AfterClass

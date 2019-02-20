@@ -3,6 +3,7 @@ package com.azure.data.integration
 import android.support.test.runner.AndroidJUnit4
 import com.azure.core.log.d
 import com.azure.data.*
+import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.Database
 import com.azure.data.model.ResourceType
 import com.azure.data.model.User
@@ -10,7 +11,6 @@ import com.azure.data.service.DataResponse
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
 import com.azure.data.service.next
-import junit.framework.Assert
 import junit.framework.Assert.assertEquals
 import org.awaitility.Awaitility.await
 import org.junit.After

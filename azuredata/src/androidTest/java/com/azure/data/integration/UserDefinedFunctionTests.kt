@@ -2,6 +2,7 @@ package com.azure.data.integration
 
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.*
+import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.DocumentCollection
 import com.azure.data.model.ResourceType
 import com.azure.data.model.UserDefinedFunction

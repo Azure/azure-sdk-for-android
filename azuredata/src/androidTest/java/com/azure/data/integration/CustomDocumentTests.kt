@@ -1,6 +1,7 @@
 package com.azure.data.integration
 
 import android.support.test.runner.AndroidJUnit4
+import com.azure.data.integration.common.CustomDocument
 import org.junit.runner.RunWith
 
 /**
@@ -9,4 +10,4 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class CustomDocumentTests : DocumentTest<CustomDocument>(CustomDocument::class.java)
+class CustomDocumentTests : DocumentTests<CustomDocument>(CustomDocument::class.java)

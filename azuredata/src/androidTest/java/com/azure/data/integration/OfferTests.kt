@@ -2,6 +2,7 @@ package com.azure.data.integration
 
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.AzureData
+import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.Offer
 import com.azure.data.model.ResourceType
 import com.azure.data.service.ListResponse
@@ -42,24 +43,30 @@ class OfferTests : ResourceTest<Offer>(ResourceType.Offer, false, false) {
 
         // Get the first one
         AzureData.getOffers(1) { waitForResponse = it }
+
         await().until { waitForResponse != null }
-        waitForResponse.let {
-            assertPage1(idsFound,it)
-        }
+
+        assertPage1(idsFound, waitForResponse, false)
 
         // Get the remaining
-        while(waitForResponse?.hasMoreResults == true) {
+        while (waitForResponse?.hasMoreResults == true) {
+
             waitForResponse.let { response ->
+
                 waitForResponse = null
+
                 response!!.next {
+
                     if (it.hasMoreResults) {
-                        assertPageN(idsFound, it)
+                        assertPageN(idsFound, it, false)
                     } else {
-                        assertPageLast(idsFound,it)
+                        assertPageLast(idsFound, it, false)
                     }
+
                     waitForResponse = it
                 }
             }
+
             await().until { waitForResponse != null }
         }
 
@@ -75,6 +82,7 @@ class OfferTests : ResourceTest<Offer>(ResourceType.Offer, false, false) {
         var offer: Offer? = null
 
         AzureData.getOffers {
+
             offer = it.resource?.items?.first()
 
             AzureData.getOffer(offer!!.id) {

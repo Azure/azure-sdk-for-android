@@ -1,13 +1,385 @@
 package com.azure.data.integration
 
-import android.support.test.runner.AndroidJUnit4
-import com.azure.data.model.DictionaryDocument
-import org.junit.runner.RunWith
+import com.azure.core.log.i
+import com.azure.data.*
+import com.azure.data.integration.common.CustomDocument
+import com.azure.data.integration.common.DocumentTest
+import com.azure.data.integration.common.PartitionedCustomDocment
+import com.azure.data.model.DocumentClientError
+import com.azure.data.service.ListResponse
+import com.azure.data.service.Response
+import com.azure.data.service.next
+import com.azure.data.util.json.gson
+import org.awaitility.Awaitility.await
+import org.junit.Assert.*
+import org.junit.Test
+import java.util.*
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
 
-@RunWith(AndroidJUnit4::class)
-class DocumentTests : DocumentTest<DictionaryDocument>(DictionaryDocument::class.java)
+abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : DocumentTest<TDoc>(docType) {
+
+    //region Tests
+
+    @Test
+    fun testDocumentDateHandling() {
+
+        val newDocument = newDocument()
+        newDocument.setValue(CustomDocument.customDateKey, customDateValue)
+
+        val json = gson.toJson(newDocument)
+        val doc = gson.fromJson(json, docType)
+
+        val date = doc.getValue(CustomDocument.customDateKey) as Date
+
+        val compareResult = customDateValue.compareTo(date)
+
+        if (compareResult != 0) {
+            i { "::DATE COMPARE FAILURE:: \n\tExpected: $customDateValue \n\tActual: $date" }
+        }
+
+        assertEquals("Round trip dates equal?", 0, compareResult)
+        assertEquals(customDateValue.time, date.time)
+    }
+
+    @Test
+    fun testTryCreateDocWithInvalidIds() {
+
+        val badIds = listOf("0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345",
+                "My Id",
+                "My/Id",
+                "My?Id",
+                "My#Id")
+
+        var done = false
+
+        badIds.forEach { id ->
+
+            val doc = newDocument()
+            doc.id = id
+
+            var docResponse : Response<TDoc>? = null
+
+            AzureData.createDocument(doc, collectionId, databaseId) {
+                docResponse = it
+
+                assertErrorResponse(docResponse)
+
+                if (id == badIds.last()) {
+                    done = true
+                }
+            }
+        }
+
+        await().until {
+            done
+        }
+    }
+
+    @Test
+    fun createDocument() {
+
+        createNewDocument()
+    }
+
+    @Test
+    fun createOrReplaceDocument() {
+
+        val doc = createNewDocument()
+
+        //change something
+        doc.setValue(CustomDocument.customNumberKey, DocumentTest.customNumberValue + 1)
+
+        var docResponse: Response<TDoc>? = null
+
+        AzureData.createOrReplaceDocument(doc, collectionId, databaseId) {
+            docResponse = it
+        }
+
+        await().until { docResponse != null }
+
+        assertResourceResponseSuccess(docResponse)
+        assertEquals(createdResourceId, docResponse?.resource?.id)
+
+        val updatedDoc = docResponse!!.resource!!
+
+        assertNotNull(updatedDoc.getValue(CustomDocument.customStringKey))
+        assertNotNull(updatedDoc.getValue(CustomDocument.customNumberKey))
+        assertEquals(DocumentTest.customNumberValue + 1, (updatedDoc.getValue(CustomDocument.customNumberKey) as Number).toInt())
+    }
+
+    @Test
+    fun createDocumentInCollection() {
+
+        createNewDocument(collection)
+    }
+
+    @Test
+    fun listDocuments() {
+
+        //ensure at least 1 doc
+        createNewDocument()
+
+        AzureData.getDocuments(collectionId, databaseId, docType) {
+            resourceListResponse = it
+        }
+
+        await().until {
+            resourceListResponse != null
+        }
+
+        verifyListDocuments()
+    }
+
+    @Test
+    fun listDocumentsInCollection() {
+
+        //ensure at least 1 doc
+        createNewDocument()
+
+        collection?.getDocuments(docType) {
+            resourceListResponse = it
+        }
+
+        await().until {
+            resourceListResponse != null
+        }
+
+        verifyListDocuments()
+    }
+
+    @Test
+    fun listDocumentsWithMaxPerPage() {
+
+        createNewDocuments(3)
+
+        // Test all at once
+        resourceListResponse = null
+        AzureData.getDocuments(collectionId, databaseId, docType) { resourceListResponse = it }
+        await().until { resourceListResponse != null }
+        verifyListDocuments(3)
+
+        // Test only 2
+        resourceListResponse = null
+        AzureData.getDocuments(collectionId, databaseId, docType, 2) { resourceListResponse = it }
+        await().until { resourceListResponse != null }
+        verifyListDocuments(2)
+
+        // Test only 1
+        resourceListResponse = null
+        AzureData.getDocuments(collectionId, databaseId, docType, 1) { resourceListResponse = it }
+        await().until { resourceListResponse != null }
+        verifyListDocuments(1)
+    }
+
+    @Test
+    fun listDocumentsWithMaxPerPageTooSmall() {
+        thrown.expect(DocumentClientError::class.java)
+        AzureData.getDocuments(collectionId, databaseId, docType, 0) { resourceListResponse = it }
+    }
+
+    @Test
+    fun listDocumentsWithMaxPerPageTooBig() {
+        thrown.expect(DocumentClientError::class.java)
+        AzureData.getDocuments(collectionId, databaseId, docType, 1001) { resourceListResponse = it }
+    }
+
+    @Test
+    fun listDocumentsPaging() {
+
+        val idsFound = mutableListOf<String>()
+        var waitForResponse : ListResponse<TDoc>? = null
+
+        createNewDocuments(3)
+
+        // Get the first one
+        AzureData.getDocuments(collectionId, databaseId, docType, 1) { waitForResponse = it }
+        await().until { waitForResponse != null }
+        waitForResponse.let {
+            assertPage1(idsFound,it)
+        }
+
+        // Get the second one
+        waitForResponse.let { response ->
+            waitForResponse = null
+            response!!.next {
+                assertPageN(idsFound,it)
+                waitForResponse = it
+            }
+        }
+
+        await().until { waitForResponse != null }
+
+        // Get the third one
+        waitForResponse.let { response ->
+            waitForResponse = null
+            response!!.next {
+                assertPageLast(idsFound,it)
+                waitForResponse = it
+            }
+        }
+
+        await().until { waitForResponse != null }
+
+        // Try to get one more
+        waitForResponse!!.next {
+            assertPageOnePastLast(it)
+        }
+    }
+
+    @Test
+    fun getDocument() {
+
+        val doc = createNewDocument()
+
+        if (doc is PartitionedCustomDocment) {
+
+            AzureData.getDocument(createdResourceId, doc.testKey, collectionId, databaseId, docType) {
+                response = it
+            }
+        }
+        else {
+
+            AzureData.getDocument(createdResourceId, collectionId, databaseId, docType) {
+                response = it
+            }
+        }
+
+        await().until {
+            response != null
+        }
+
+        assertResourceResponseSuccess(response)
+
+        val createdDoc = response!!.resource!!
+        verifyDocument(createdDoc)
+    }
+
+    @Test
+    fun getDocumentInCollection() {
+
+        val doc = createNewDocument()
+
+        if (doc is PartitionedCustomDocment) {
+
+            collection?.getDocument(doc.id, doc.testKey, docType) {
+                response = it
+            }
+        }
+        else {
+
+            collection?.getDocument(doc.id, docType) {
+                response = it
+            }
+        }
+
+        await().until {
+            response != null
+        }
+
+        assertResourceResponseSuccess(response)
+
+        val createdDoc = response!!.resource!!
+        verifyDocument(createdDoc)
+    }
+
+    @Test
+    fun refreshDocument() {
+
+        val doc = createNewDocument()
+
+        doc.refresh {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        val createdDoc = response!!.resource!!
+        verifyDocument(createdDoc)
+    }
+
+    //region Deletes
+
+    @Test
+    fun deleteDocument() {
+
+        val doc = createNewDocument()
+
+        doc.delete {
+            dataResponse = it
+        }
+
+        await().until {
+            dataResponse != null
+        }
+
+        assertDataResponseSuccess(dataResponse)
+    }
+
+    @Test
+    fun deleteDocumentFromCollection() {
+
+        val doc = createNewDocument()
+
+        collection?.deleteDocument(doc) {
+            dataResponse = it
+        }
+
+        await().until {
+            dataResponse != null
+        }
+
+        assertDataResponseSuccess(dataResponse)
+    }
+
+    //endregion
+
+    @Test
+    fun replaceDocument() {
+
+        val doc = createNewDocument()
+
+        doc.setValue(CustomDocument.customStringKey, DocumentTest.replacedStringValue)
+
+        AzureData.replaceDocument(doc, collectionId, databaseId) {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        assertResourceResponseSuccess(response)
+
+        val replacedDoc = response!!.resource!!
+        verifyDocument(replacedDoc, DocumentTest.replacedStringValue)
+    }
+
+    @Test
+    fun replaceDocumentInCollection() {
+
+        val doc = createNewDocument()
+
+        doc.setValue(CustomDocument.customStringKey, DocumentTest.replacedStringValue)
+
+        collection?.replaceDocument(doc) {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        assertResourceResponseSuccess(response)
+
+        val replacedDoc = response!!.resource!!
+        verifyDocument(replacedDoc, DocumentTest.replacedStringValue)
+    }
+
+    //endregion
+}

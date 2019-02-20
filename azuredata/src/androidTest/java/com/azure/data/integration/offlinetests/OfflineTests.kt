@@ -6,8 +6,8 @@ import android.support.test.runner.AndroidJUnit4
 import android.util.Log
 import com.azure.core.log.startLogging
 import com.azure.data.AzureData
-import com.azure.data.integration.azureCosmosDbAccount
-import com.azure.data.integration.azureCosmosPrimaryKey
+import com.azure.data.integration.common.azureCosmosDbAccount
+import com.azure.data.integration.common.azureCosmosPrimaryKey
 import com.azure.data.integration.offlinetests.mocks.MockOkHttpClient
 import com.azure.data.model.PermissionMode
 import com.azure.data.service.DocumentClient
