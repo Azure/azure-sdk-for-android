@@ -37,9 +37,10 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
-    implementation "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
+
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+
     androidTestImplementation "com.android.support.test:runner:$testRunnerVersion"
     androidTestImplementation "com.android.support.test:rules:$testRulesVersion"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"

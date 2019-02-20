@@ -1,5 +1,7 @@
 package com.azure.data.model
 
+import com.azure.data.constants.HttpHeaderValue
+
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -21,5 +23,6 @@ class DocumentClientError private constructor(msg: String) : Error(msg) {
         val NotFound = DocumentClientError("The request resource was not found.")
         val Conflict = DocumentClientError("The request could not be completed due to a conflict.")
         val InternetConnectivityError = DocumentClientError("There is no internet connection to perform the request.")
+        val InvalidThroughputError = DocumentClientError("Throughput must be between ${HttpHeaderValue.minDatabaseThroughput} and ${HttpHeaderValue.maxDatabaseThroughput} and be a multiple of ${HttpHeaderValue.databaseThroughputStep}")
     }
 }

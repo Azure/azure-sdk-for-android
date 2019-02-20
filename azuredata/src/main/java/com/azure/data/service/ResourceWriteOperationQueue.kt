@@ -50,7 +50,8 @@ class ResourceWriteOperationQueue {
 
     //region Public API
 
-    fun <T: Resource> addCreateOrReplace(resource: T, location: ResourceLocation, headers: Headers? = null, replace: Boolean = false, callback: (Response<T>) -> Unit) {
+    fun <T: Resource> addCreateOrReplace(resource: T, location: ResourceLocation, headers: MutableMap<String, String>? = null, replace: Boolean = false, callback: (Response<T>) -> Unit) {
+
         createOrReplaceOffline(resource, location, replace) { response ->
             callback(response)
 
@@ -60,13 +61,14 @@ class ResourceWriteOperationQueue {
                         resource = resource,
                         resourceLocation = location,
                         resourceLocalContentPath = response.response?.header(MSHttpHeader.MSContentPath.name) ?: "",
-                        httpHeaders = headers ?: Headers.of(mutableMapOf())
+                        httpHeaders = headers ?: mutableMapOf()
                 ))
             }
         }
     }
 
-    fun addDelete(resourceLocation: ResourceLocation, headers: Headers? = null, callback: (DataResponse) -> Unit) {
+    fun addDelete(resourceLocation: ResourceLocation, headers: MutableMap<String, String>? = null, callback: (DataResponse) -> Unit) {
+
         deleteOffline(resourceLocation) { response ->
             callback(response)
 
@@ -76,7 +78,7 @@ class ResourceWriteOperationQueue {
                         resource = null,
                         resourceLocation = resourceLocation,
                         resourceLocalContentPath = response.response?.header(MSHttpHeader.MSContentPath.name) ?: "",
-                        httpHeaders = headers ?: Headers.of(mutableMapOf())
+                        httpHeaders = headers ?: mutableMapOf()
                 ))
             }
         }
@@ -146,11 +148,12 @@ class ResourceWriteOperationQueue {
         when (write.type) {
             ResourceWriteOperationType.Create  -> DocumentClient.shared.createOrReplace(write.resource!!, write.resourceLocation, false, write.httpHeaders, { callback(it.map { Unit }) })
             ResourceWriteOperationType.Replace -> DocumentClient.shared.createOrReplace(write.resource!!, write.resourceLocation, true, write.httpHeaders, { callback(it.map { Unit }) })
-            ResourceWriteOperationType.Delete  -> DocumentClient.shared.delete(write.resourceLocation, { it.map { Unit } })
+            ResourceWriteOperationType.Delete  -> DocumentClient.shared.delete(write.resource!!, { it.map { Unit } })
         }
     }
 
     private fun enqueueWrite(write: ResourceWriteOperation) {
+
         executor.execute {
             val index = writes.indexOf(write)
 
@@ -281,6 +284,7 @@ class ResourceWriteOperationQueue {
     }
 
     private fun deleteOffline(resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
+
         ResourceOracle.shared.getSelfLink(resourceLocation.link())?.let { selfLink ->
             ResourceCache.shared.remove(resourceLocation)
 
