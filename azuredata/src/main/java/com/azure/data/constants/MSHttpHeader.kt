@@ -44,6 +44,10 @@ enum class MSHttpHeader(val value: String, val description: String = "") {
      */
     MSDocumentDBPartitionKey("x-ms-documentdb-partitionkey"),
     /**
+     * If the collection is partitioned, this must be set to True to allow execution across multiple partitions. Queries that filter against a single partition key, or against single-partitioned collections do not need to set the header.
+     */
+    MSDocumentDBQueryEnableCrossPartition("x-ms-documentdb-query-enablecrosspartition", "If the collection is partitioned, this must be set to True to allow execution across multiple partitions. Queries that filter against a single partition key, or against single-partitioned collections do not need to set the header."),
+    /**
      * Used in change feed requests. The partition key range ID for reading data.
      */
     MSDocumentDBPartitionKeyRangeId("x-ms-documentdb-partitionkeyrangeid"),
@@ -65,6 +69,10 @@ enum class MSHttpHeader(val value: String, val description: String = "") {
      * An integer indicating the maximum number of items to be returned per page. An x-ms-max-item-count of -1 can be specified to let the service determine the optimal item count. This is the recommended configuration value for x-ms-max-item-count.
      */
     MSMaxItemCount("x-ms-max-item-count"),
+    /**
+     * Used to set the throughput value upon Database creation; accepts a number that increments by units of 100
+     */
+    MSOfferThroughput("x-ms-offer-throughput", "Used to set the throughput value upon Database creation; accepts a number that increments by units of 100"),
     /**
      * This is the number of normalized requests a.k.a. request units (RU) for the operation.
      */

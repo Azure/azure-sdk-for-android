@@ -1,16 +1,15 @@
-package com.azure.data.integration
+package com.azure.data.integration.common
 
 import android.content.Context
 import android.support.test.InstrumentationRegistry
 import android.util.Log
-import com.azure.core.log.d
+import com.azure.core.log.i
 import com.azure.core.log.startLogging
 import com.azure.data.AzureData
 import com.azure.data.model.*
 import com.azure.data.service.DataResponse
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
-import junit.framework.Assert
 import org.awaitility.Awaitility.await
 import org.junit.After
 import org.junit.Assert.*
@@ -43,13 +42,14 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
     var database: Database? = null
     var collection: DocumentCollection? = null
     var document: Document? = null
+    var partitionKeyPath: String? = null
 
     @Before
     open fun setUp() {
 
         startLogging(Log.VERBOSE)
 
-        d{"********* Begin Test Setup *********"}
+        i { "********* Begin Test Setup *********" }
 
         if (!AzureData.isConfigured) {
             // Context of the app under test.
@@ -61,7 +61,12 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         deleteResources()
 
         if (ensureDatabase || ensureCollection || ensureDocument) {
-            ensureDatabase()
+            // Dbs with provisioned throughput REQUIRE partition keys
+            if (partitionKeyPath != null) {
+                ensureDatabase(1000)
+            } else {
+                ensureDatabase()
+            }
         }
 
         if (ensureCollection || ensureDocument) {
@@ -72,7 +77,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             ensureDocument()
         }
 
-        d{"********* End Test Setup *********"}
+        i { "********* End Test Setup *********" }
     }
 
     open fun configureAzureData(appContext: Context) {
@@ -87,24 +92,39 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
     @After
     open fun tearDown() {
 
-        d{"********* Begin Test Tear Down *********"}
+        i { "********* Begin Test Tear Down *********" }
 
         deleteResources()
 
-        d{"********* End Test Tear Down *********"}
+        i { "********* End Test Tear Down *********" }
     }
 
-    fun ensureDatabase() : Database {
+    fun tryCreateDatabase(throughput: Int? = null) : Response<Database>? {
 
         var dbResponse: Response<Database>? = null
 
-        AzureData.createDatabase(databaseId) {
-            dbResponse = it
+        throughput?.let {
+
+            AzureData.createDatabase(databaseId, throughput) {
+                dbResponse = it
+            }
+        } ?: run {
+
+            AzureData.createDatabase(databaseId) {
+                dbResponse = it
+            }
         }
 
         await().until {
             dbResponse != null
         }
+
+        return dbResponse
+    }
+
+    fun ensureDatabase(throughput: Int? = null) : Database {
+
+        val dbResponse = tryCreateDatabase(throughput)
 
         assertResourceResponseSuccess(dbResponse)
         assertEquals(databaseId, dbResponse?.resource?.id)
@@ -114,12 +134,12 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         return database!!
     }
 
-    fun ensureDatabase(count : Int) : List<Database> {
+    fun ensureDatabases(count : Int) : List<Database> {
 
         var dbResponse: Response<Database>? = null
         val databases = mutableListOf<Database>()
 
-        for(i in 1..count) {
+        for (i in 1..count) {
             AzureData.createDatabase(databaseId(i)) {
                 dbResponse = it
             }
@@ -133,20 +153,40 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
 
             databases.add(dbResponse!!.resource!!)
         }
+
         return databases
     }
 
-    fun ensureCollection() : DocumentCollection {
+    fun tryCreateCollection(throughput: Int? = null) : Response<DocumentCollection>? {
 
         var collectionResponse: Response<DocumentCollection>? = null
 
-        AzureData.createCollection(collectionId, databaseId) {
-            collectionResponse = it
+        if (!partitionKeyPath.isNullOrBlank()) {
+            throughput?.let {
+                AzureData.createCollection(collectionId, throughput, partitionKeyPath!!, databaseId) {
+                    collectionResponse = it
+                }
+            } ?: run {
+                AzureData.createCollection(collectionId, partitionKeyPath!!, databaseId) {
+                    collectionResponse = it
+                }
+            }
+        } else { //fixed collection - deprecated
+            AzureData.createCollection(collectionId, databaseId) {
+                collectionResponse = it
+            }
         }
 
         await().until {
             collectionResponse != null
         }
+
+        return collectionResponse
+    }
+
+    fun ensureCollection(throughput: Int? = null) : DocumentCollection {
+
+        val collectionResponse = tryCreateCollection(throughput)
 
         assertResourceResponseSuccess(collectionResponse)
         assertEquals(collectionId, collectionResponse?.resource?.id)
@@ -158,20 +198,43 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
 
     private fun ensureDocument() : Document {
 
-        var docResponse: Response<CustomDocument>? = null
-        val doc = CustomDocument(documentId)
+        return if (partitionKeyPath != null) {
 
-        AzureData.createDocument(doc, collection!!) {
-            docResponse = it
+            var docResponse: Response<PartitionedCustomDocment>? = null
+            val doc = PartitionedCustomDocment(documentId)
+
+            AzureData.createDocument(doc, collection!!) {
+                docResponse = it
+            }
+
+            await().until {
+                docResponse != null
+            }
+
+            assertResourceResponseSuccess(docResponse)
+
+            document = docResponse!!.resource!!
+
+            document!!
+        } else {
+
+            var docResponse: Response<CustomDocument>? = null
+            val doc = CustomDocument(documentId)
+
+            AzureData.createDocument(doc, collection!!) {
+                docResponse = it
+            }
+
+            await().until {
+                docResponse != null
+            }
+
+            assertResourceResponseSuccess(docResponse)
+
+            document = docResponse!!.resource!!
+
+            document!!
         }
-
-        await().until {
-            docResponse != null
-        }
-
-        document = docResponse!!.resource!!
-
-        return document!!
     }
 
     private fun deleteResources() {
@@ -181,7 +244,8 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         //delete the DB - this should delete all attached resources
 
         AzureData.deleteDatabase(databaseId) { response ->
-            d{"Attempted to delete test database.  Result: ${response.isSuccessful}"}
+
+            i { "Attempted to delete test database.  Result: ${response.isSuccessful}" }
             deleteResponse = response
         }
 
@@ -192,7 +256,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
 
     private fun assertResponsePopulated(response: Response<*>?) {
 
-        assertNotNull(response)
+        assertNotNull("Response was null", response)
         assertNotNull(response!!.request)
         assertNotNull(response.response)
         assertNotNull(response.jsonData)
@@ -200,15 +264,14 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
 
     fun <TResource : Resource> assertListResponseSuccess(response: ListResponse<TResource>?) {
 
-        assertNotNull(response)
         assertResponsePopulated(response!!)
-        assertTrue(response.isSuccessful)
-        assertFalse(response.isErrored)
-        assertNotNull(response.resource)
+        assertTrue("response.isSuccessful is not True", response.isSuccessful)
+        assertFalse("response.isErrored is not False", response.isErrored)
+        assertNotNull("response.resource is null", response.resource)
 
         val list = response.resource as ResourceList<*>
 
-        assertTrue(list.isPopulated)
+        assertTrue("Returned List<TResource> list.isPopulated is False", list.isPopulated)
 
         list.items.forEach { item ->
             assertResourcePropertiesSet(item)
@@ -249,49 +312,68 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         assertTrue(response.isErrored)
     }
 
-    fun <T : Resource> assertPage1(idsFound: MutableList<String>, response: ListResponse<T>?) {
-        Assert.assertNotNull(response!!.metadata.continuation)
-        Assert.assertNotNull(response.resource?.items)
-        Assert.assertEquals(1, response.resource?.items?.size)
+    fun <T : Resource> assertPage1(idsFound: MutableList<String>, response: ListResponse<T>?, checkCreatedId: Boolean = true) {
+
+        assertNotNull(response!!.metadata.continuation)
+        assertNotNull(response.resource?.items)
+        assertEquals(1, response.resource?.items?.size)
+
         val id = response.resource?.items?.get(0)?.id!!
-        Assert.assertTrue(id.startsWith(createdResourceId))
-        Assert.assertTrue(response.hasMoreResults)
+
+        if (checkCreatedId) {
+            assertTrue(id.startsWith(createdResourceId))
+        }
+
+        assertTrue(response.hasMoreResults)
         idsFound.add(id)
     }
 
-    fun <T : Resource> assertPageN(idsFound: MutableList<String>, response: ListResponse<T>?) {
-        Assert.assertNotNull(response!!.metadata.continuation)
-        Assert.assertNotNull(response.resource?.items)
-        Assert.assertEquals(1, response.resource?.items?.size)
+    fun <T : Resource> assertPageN(idsFound: MutableList<String>, response: ListResponse<T>?, checkCreatedId: Boolean = true) {
+
+        assertNotNull(response!!.metadata.continuation)
+        assertNotNull(response.resource?.items)
+        assertEquals(1, response.resource?.items?.size)
+
         val id = response.resource?.items?.get(0)?.id!!
-        Assert.assertTrue(id.startsWith(createdResourceId))
-        Assert.assertFalse(idsFound.contains(id))
-        Assert.assertTrue(response.hasMoreResults)
+
+        if (checkCreatedId) {
+            assertTrue(id.startsWith(createdResourceId))
+        }
+
+        assertFalse(idsFound.contains(id))
+        assertTrue(response.hasMoreResults)
         idsFound.add(id)
     }
 
-    fun <T : Resource> assertPageLast(idsFound: MutableList<String>, response: ListResponse<T>?) {
-        Assert.assertNotNull(response!!.resource?.items)
-        Assert.assertEquals(1, response.resource?.items?.size)
+    fun <T : Resource> assertPageLast(idsFound: MutableList<String>, response: ListResponse<T>?, checkCreatedId: Boolean = true) {
+
+        assertNotNull(response!!.resource?.items)
+        assertEquals(1, response.resource?.items?.size)
+
         val id = response.resource?.items?.get(0)?.id!!
-        Assert.assertTrue(id.startsWith(createdResourceId))
-        Assert.assertFalse(idsFound.contains(id))
+
+        if (checkCreatedId) {
+            assertTrue(id.startsWith(createdResourceId))
+        }
+
+        assertFalse(idsFound.contains(id))
         idsFound.add(id)
-        Assert.assertFalse(response.hasMoreResults)
+        assertFalse(response.hasMoreResults)
     }
 
     fun <T : Resource> assertPageOnePastLast(response: ListResponse<T>?) {
+
         assertErrorResponse(response)
     }
 
     private fun assertResourcePropertiesSet(resource: Resource) {
 
-        assertNotNull(resource.id)
-        assertNotNull(resource.resourceId)
-        assertNotNull(resource.selfLink)
-        assertNotNull(resource.altLink)
-        assertNotNull(resource.etag)
-        assertNotNull(resource.timestamp)
+        assertNotNull("resource.id is null", resource.id)
+        assertNotNull("resource.resourceId is null", resource.resourceId)
+        assertNotNull("resource.selfLink is null", resource.selfLink)
+        assertNotNull("resource.altLink is null", resource.altLink)
+        assertNotNull("resource.etag is null", resource.etag)
+        assertNotNull("resource.timestamp is null", resource.timestamp)
     }
 
     fun resetResponse() {

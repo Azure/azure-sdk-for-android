@@ -4,6 +4,7 @@ import com.azure.core.http.HttpHeader
 import com.azure.core.http.HttpMediaType
 import com.azure.core.http.HttpMethod
 import com.azure.core.http.HttpStatusCode
+import com.azure.core.log.configureNetworkLogging
 import com.azure.core.log.d
 import com.azure.core.log.e
 import com.azure.core.network.NetworkConnectivity
@@ -14,10 +15,10 @@ import com.azure.data.constants.HttpHeaderValue
 import com.azure.data.constants.MSHttpHeader
 import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
+import com.azure.data.model.partition.PartitionKeyResource
 import com.azure.data.util.*
 import com.azure.data.util.json.ResourceListJsonDeserializer
 import com.azure.data.util.json.gson
-import com.google.gson.reflect.TypeToken
 import getDefaultHeaders
 import okhttp3.*
 import java.io.IOException
@@ -26,6 +27,7 @@ import java.net.URL
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -99,7 +101,7 @@ class DocumentClient private constructor() {
         get() = !host.isNullOrEmpty() && (resourceTokenProvider != null || permissionProvider != null)
 
     // base headers... grab these once and then re-serve
-    private val headers: Headers by lazy {
+    private val defaultHeaders: Headers by lazy {
         ContextProvider.appContext.getDefaultHeaders()
     }
 
@@ -116,6 +118,12 @@ class DocumentClient private constructor() {
 
         connectivityManager = NetworkConnectivity.manager
 
+        // create client and configure OkHttp logging if logLevel is low enough
+        val builder = OkHttpClient.Builder()
+
+        configureNetworkLogging(builder)
+
+        client = builder.build()
     }
 
     fun reset () {
@@ -128,6 +136,7 @@ class DocumentClient private constructor() {
     //region Network Connectivity
 
     private val networkConnectivityChanged: (Boolean) -> Unit = { isConnected ->
+
         d { "Network Status Changed: ${if (isConnected) "Connected" else "Not Connected"}" }
         this.isOffline = !isConnected
 
@@ -141,25 +150,34 @@ class DocumentClient private constructor() {
     //region Database
 
     // create
-    fun createDatabase(databaseId: String, callback: (Response<Database>) -> Unit)
-            = create(Database(databaseId), ResourceLocation.Database(), callback = callback)
+    fun createDatabase(databaseId: String, throughput: Int?, callback: (Response<Database>) -> Unit) {
+
+        return throughput?.let {
+
+            if (!it.isValidThroughput()) {
+                return callback(Response(DataError(DocumentClientError.InvalidThroughputError)))
+            }
+
+            create(Database(databaseId), ResourceLocation.Database(), mutableMapOf(Pair(MSHttpHeader.MSOfferThroughput.value, "$it")), callback = callback)
+        } ?: create(Database(databaseId), ResourceLocation.Database(), callback = callback)
+    }
 
     // list
     fun getDatabases(maxPerPage: Int? = null, callback: (ListResponse<Database>) -> Unit) {
 
-        return resources(ResourceLocation.Database(), callback, maxPerPage = maxPerPage, resourceClass = Database::class.java)
+        return resources(ResourceLocation.Database(), Database::class.java, maxPerPage, null, callback)
     }
 
     // get
     fun getDatabase(databaseId: String, callback: (Response<Database>) -> Unit) {
 
-        return resource(ResourceLocation.Database(databaseId), callback, resourceClass = Database::class.java)
+        return resource(ResourceLocation.Database(databaseId), null, Database::class.java, callback)
     }
 
     // delete
     fun deleteDatabase(databaseId: String, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.Database(databaseId), callback)
+        return delete(ResourceLocation.Database(databaseId), null, callback)
     }
 
     //endregion
@@ -167,33 +185,49 @@ class DocumentClient private constructor() {
     //region Collections
 
     // create
+    @Deprecated("Creating a collection without a partition key is deprecated and will be removed in a future version of AzureData")
     fun createCollection(collectionId: String, databaseId: String, callback: (Response<DocumentCollection>) -> Unit) {
 
         return create(DocumentCollection(collectionId), ResourceLocation.Collection(databaseId), callback = callback)
     }
 
+    // create
+    fun createCollection(collectionId: String, throughput: Int? = null, partitionKey: String, databaseId: String, callback: (Response<DocumentCollection>) -> Unit) {
+
+        return throughput?.let {
+
+            if (!it.isValidThroughput()) {
+                return callback(Response(DataError(DocumentClientError.InvalidThroughputError)))
+            }
+
+            create(DocumentCollection(collectionId, partitionKey), ResourceLocation.Collection(databaseId), mutableMapOf(Pair(MSHttpHeader.MSOfferThroughput.value, "$it")), callback = callback)
+        } ?: create(DocumentCollection(collectionId, partitionKey), ResourceLocation.Collection(databaseId), callback = callback)
+    }
+
     // list
     fun getCollectionsIn(databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<DocumentCollection>) -> Unit) {
 
-        return resources(ResourceLocation.Collection(databaseId), callback, maxPerPage = maxPerPage, resourceClass = DocumentCollection::class.java)
+        return resources(ResourceLocation.Collection(databaseId), DocumentCollection::class.java, maxPerPage, null, callback)
     }
 
     // get
     fun getCollection(collectionId: String, databaseId: String, callback: (Response<DocumentCollection>) -> Unit) {
 
-        return resource(ResourceLocation.Collection(databaseId, collectionId), callback, resourceClass = DocumentCollection::class.java)
+        return resource(ResourceLocation.Collection(databaseId, collectionId), null, DocumentCollection::class.java, callback)
     }
 
     // delete
     fun deleteCollection(collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.Collection(databaseId, collectionId), callback)
+        return delete(ResourceLocation.Collection(databaseId, collectionId), null, callback)
     }
 
     // replace
-    fun replaceCollection(collectionId: String, databaseId: String, indexingPolicy: IndexingPolicy, callback: (Response<DocumentCollection>) -> Unit) {
+    fun replaceCollection(collection: DocumentCollection, databaseId: String, indexingPolicy: IndexingPolicy, callback: (Response<DocumentCollection>) -> Unit) {
 
-        return replace(DocumentCollection(collectionId, indexingPolicy), ResourceLocation.Collection(databaseId, collectionId), callback = callback)
+        collection.indexingPolicy = indexingPolicy
+
+        return replace(collection, ResourceLocation.Collection(databaseId, collection.id), callback = callback)
     }
 
     //endregion
@@ -215,49 +249,63 @@ class DocumentClient private constructor() {
     // createOrReplace
     fun <T : Document> createOrReplaceDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) {
 
-        return create(document, ResourceLocation.Document(databaseId, collectionId), additionalHeaders = Headers.of(mapOf(Pair(MSHttpHeader.MSDocumentDBIsUpsert.value, "true"))), callback = callback)
+        return create(document, ResourceLocation.Document(databaseId, collectionId), mutableMapOf(Pair(MSHttpHeader.MSDocumentDBIsUpsert.value, HttpHeaderValue.trueValue)), callback = callback)
     }
 
     // createOrReplace
     fun <T : Document> createOrReplaceDocument (document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) {
 
-        return create(document, ResourceLocation.Child(ResourceType.Document, collection), additionalHeaders = Headers.of(mapOf(Pair(MSHttpHeader.MSDocumentDBIsUpsert.value, "true"))), callback = callback)
+        return create(document, ResourceLocation.Child(ResourceType.Document, collection), mutableMapOf(Pair(MSHttpHeader.MSDocumentDBIsUpsert.value, HttpHeaderValue.trueValue)), callback = callback)
     }
 
     // list
     fun <T : Document> getDocumentsAs(collectionId: String, databaseId: String, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
-        return resources(ResourceLocation.Document(databaseId, collectionId), callback, documentClass, maxPerPage)
+        return resources(ResourceLocation.Document(databaseId, collectionId), documentClass, maxPerPage, null, callback)
     }
 
     // list
     fun <T : Document> getDocumentsAs(collection: DocumentCollection, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Document, collection), callback, documentClass, maxPerPage)
+        return resources(ResourceLocation.Child(ResourceType.Document, collection), documentClass, maxPerPage, null, callback)
     }
 
     // get
-    fun <T : Document> getDocument(documentId: String, collectionId: String, databaseId: String, documentClass: Class<T>, callback: (Response<T>) -> Unit) {
+    fun <T : Document> getDocument(documentId: String, partitionKey: String?, collectionId: String, databaseId: String, documentClass: Class<T>, callback: (Response<T>) -> Unit) {
 
-        return resource(ResourceLocation.Document(databaseId, collectionId, documentId), callback, documentClass)
+        return resource(ResourceLocation.Document(databaseId, collectionId, documentId), setPartitionKeyHeader(partitionKey), documentClass, callback)
     }
 
     // get
-    fun <T : Document> getDocument(documentId: String, collection: DocumentCollection, documentClass: Class<T>, callback: (Response<T>) -> Unit) {
+    fun <T : Document> getDocument(documentId: String, partitionKey: String?, collection: DocumentCollection, documentClass: Class<T>, callback: (Response<T>) -> Unit) {
 
-        return resource(ResourceLocation.Child(ResourceType.Document, collection, documentId), callback, documentClass)
+        return resource(ResourceLocation.Child(ResourceType.Document, collection, documentId), setPartitionKeyHeader(partitionKey), documentClass, callback)
     }
 
     // delete
+    @Deprecated("Deleting a document without a partition key is deprecated and will be removed in a future version of AzureData")
     fun deleteDocument(documentId: String, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.Document(databaseId, collectionId, documentId), callback)
+        return delete(ResourceLocation.Document(databaseId, collectionId, documentId), null, callback)
     }
 
     // delete
+    @Deprecated("Deleting a document without a partition key is deprecated and will be removed in a future version of AzureData")
     fun deleteDocument(documentId: String, collection: DocumentCollection, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.Child(ResourceType.Document, collection, documentId), callback)
+        return delete(ResourceLocation.Child(ResourceType.Document, collection, documentId), null, callback)
+    }
+
+    // delete
+    fun deleteDocument(documentId: String, partitionKey: String, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) {
+
+        return delete(ResourceLocation.Document(databaseId, collectionId, documentId), setPartitionKeyHeader(partitionKey), callback)
+    }
+
+    // delete
+    fun deleteDocument(documentId: String, partitionKey: String, collection: DocumentCollection, callback: (DataResponse) -> Unit) {
+
+        return delete(ResourceLocation.Child(ResourceType.Document, collection, documentId), setPartitionKeyHeader(partitionKey), callback)
     }
 
     // replace
@@ -275,13 +323,47 @@ class DocumentClient private constructor() {
     // query
     fun <T: Document> queryDocuments (collectionId: String, databaseId: String, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
-        return query(query, ResourceLocation.Document(databaseId, collectionId), maxPerPage, callback, documentClass)
+        return query(query, ResourceLocation.Document(databaseId, collectionId), maxPerPage, null, documentClass, callback)
+    }
+
+    // query
+    fun <T: Document> queryDocuments (collectionId: String, partitionKey: String, databaseId: String, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
+
+        return query(query, ResourceLocation.Document(databaseId, collectionId), maxPerPage, partitionKey, documentClass, callback)
     }
 
     // query
     fun <T: Document> queryDocuments (collection: DocumentCollection, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
-        return query(query, ResourceLocation.Child(ResourceType.Document, collection), maxPerPage, callback, documentClass)
+        return query(query, ResourceLocation.Child(ResourceType.Document, collection), maxPerPage, null, documentClass, callback)
+    }
+
+    // query
+    fun <T: Document> queryDocuments (collection: DocumentCollection, partitionKey: String, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
+
+        return query(query, ResourceLocation.Child(ResourceType.Document, collection), maxPerPage, partitionKey, documentClass, callback)
+    }
+
+    // get/query a single doc
+    fun <T : Document> findDocument(documentId: String, collectionId: String, databaseId: String, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
+
+        // create query
+        val query = Query.select()
+                .from(collectionId)
+                .where(Resource.Companion.Keys.idKey, documentId)
+
+        return query(query, ResourceLocation.Document(databaseId, collectionId), 1, null, documentClass, callback)
+    }
+
+    // get/query a single doc
+    fun <T : Document> findDocument(documentId: String, collection: DocumentCollection, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
+
+        // create query
+        val query = Query.select()
+                .from(collection.id)
+                .where(Resource.Companion.Keys.idKey, documentId)
+
+        return query(query, ResourceLocation.Child(ResourceType.Document, collection), 1, null, documentClass, callback)
     }
 
     //endregion
@@ -289,95 +371,83 @@ class DocumentClient private constructor() {
     //region Attachments
 
     // create
-    fun createAttachment(attachmentId: String, contentType: String, mediaUrl: HttpUrl, documentId: String, collectionId: String, databaseId: String, callback: (Response<Attachment>) -> Unit) {
+    fun createAttachment(attachmentId: String, contentType: String, mediaUrl: HttpUrl, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (Response<Attachment>) -> Unit) {
 
-        return create(Attachment(attachmentId, contentType, mediaUrl.toString()), ResourceLocation.Attachment(databaseId, collectionId, documentId), callback = callback)
+        return create(Attachment(attachmentId, contentType, mediaUrl.toString()), ResourceLocation.Attachment(databaseId, collectionId, documentId), setPartitionKeyHeader(partitionKey), callback = callback)
     }
 
     // create
-    fun createAttachment(attachmentId: String, contentType: String, media: ByteArray, documentId: String, collectionId: String, databaseId: String, callback: (Response<Attachment>) -> Unit) {
+    fun createAttachment(attachmentId: String, contentType: String, media: ByteArray, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (Response<Attachment>) -> Unit) {
 
-        val headers = Headers.Builder()
-                .add(HttpHeader.ContentType.value, contentType)
-                .add(HttpHeader.Slug.value, attachmentId)
-                .build()
+        val headers = mutableMapOf(Pair(HttpHeader.ContentType.value, contentType), Pair(HttpHeader.Slug.value, attachmentId))
 
-        return createOrReplace(media, ResourceLocation.Attachment(databaseId, collectionId, documentId), additionalHeaders = headers, callback = callback)
+        return createOrReplace(media, ResourceLocation.Attachment(databaseId, collectionId, documentId), false, setPartitionKeyHeader(partitionKey, headers), callback = callback)
     }
 
     // create
     fun createAttachment(attachmentId: String, contentType: String, mediaUrl: HttpUrl, document: Document, callback: (Response<Attachment>) -> Unit) {
 
-        return create(Attachment(attachmentId, contentType, mediaUrl.toString()), ResourceLocation.Child(ResourceType.Attachment, document), callback = callback)
+        return create(Attachment(attachmentId, contentType, mediaUrl.toString()), ResourceLocation.Child(ResourceType.Attachment, document), setResourcePartitionKey(document), callback = callback)
     }
 
     // create
     fun createAttachment(attachmentId: String, contentType: String, media: ByteArray, document: Document, callback: (Response<Attachment>) -> Unit) {
 
-        val headers = Headers.Builder()
-                .add(HttpHeader.ContentType.value, contentType)
-                .add(HttpHeader.Slug.value, attachmentId)
-                .build()
+        val headers = mutableMapOf(Pair(HttpHeader.ContentType.value, contentType), Pair(HttpHeader.Slug.value, attachmentId))
 
-        return createOrReplace(media, ResourceLocation.Child(ResourceType.Attachment, document), additionalHeaders = headers, callback = callback)
+        return createOrReplace(media, ResourceLocation.Child(ResourceType.Attachment, document), false, setResourcePartitionKey(document, headers), callback)
     }
 
     // list
-    fun getAttachments(documentId: String, collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<Attachment>) -> Unit) {
+    fun getAttachments(documentId: String, collectionId: String, databaseId: String, partitionKey: String, maxPerPage: Int? = null, callback: (ListResponse<Attachment>) -> Unit) {
 
-        return resources(ResourceLocation.Attachment(databaseId, collectionId, documentId), callback, maxPerPage = maxPerPage, resourceClass = Attachment::class.java)
+        return resources(ResourceLocation.Attachment(databaseId, collectionId, documentId), Attachment::class.java, maxPerPage, setPartitionKeyHeader(partitionKey), callback)
     }
 
     // list
     fun getAttachments(document: Document, maxPerPage: Int? = null, callback: (ListResponse<Attachment>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Attachment, document), callback, maxPerPage = maxPerPage, resourceClass = Attachment::class.java)
+        return resources(ResourceLocation.Child(ResourceType.Attachment, document), Attachment::class.java, maxPerPage, setResourcePartitionKey(document), callback)
     }
 
     // delete
-    fun deleteAttachment(attachmentId: String, documentId: String, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) {
+    fun deleteAttachment(attachmentId: String, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.Attachment(databaseId, collectionId, documentId, attachmentId), callback)
+        return delete(ResourceLocation.Attachment(databaseId, collectionId, documentId, attachmentId), setPartitionKeyHeader(partitionKey), callback)
     }
 
     // delete
     fun deleteAttachment(attachmentId: String, document: Document, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.Child(ResourceType.Attachment, document, attachmentId), callback)
+        return delete(ResourceLocation.Child(ResourceType.Attachment, document, attachmentId), setResourcePartitionKey(document), callback)
     }
 
     // replace
-    fun replaceAttachment(attachmentId: String, contentType: String, mediaUrl: HttpUrl, documentId: String, collectionId: String, databaseId: String, callback: (Response<Attachment>) -> Unit) {
+    fun replaceAttachment(attachmentId: String, contentType: String, mediaUrl: HttpUrl, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (Response<Attachment>) -> Unit) {
 
-        return replace(Attachment(attachmentId, contentType, mediaUrl.toString()), ResourceLocation.Attachment(databaseId, collectionId, documentId, attachmentId), callback = callback)
+        return replace(Attachment(attachmentId, contentType, mediaUrl.toString()), ResourceLocation.Attachment(databaseId, collectionId, documentId, attachmentId), setPartitionKeyHeader(partitionKey), callback)
     }
 
     // replace
-    fun replaceAttachment(attachmentId: String, contentType: String, media: ByteArray, documentId: String, collectionId: String, databaseId: String, callback: (Response<Attachment>) -> Unit) {
+    fun replaceAttachment(attachmentId: String, contentType: String, media: ByteArray, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (Response<Attachment>) -> Unit) {
 
-        val headers = Headers.Builder()
-                .add(HttpHeader.ContentType.value, contentType)
-                .add(HttpHeader.Slug.value, attachmentId)
-                .build()
+        val headers = mutableMapOf(Pair(HttpHeader.ContentType.value, contentType), Pair(HttpHeader.Slug.value, attachmentId))
 
-        return createOrReplace(media, ResourceLocation.Attachment(databaseId, collectionId, documentId, attachmentId), replacing = true, additionalHeaders = headers, callback = callback)
+        return createOrReplace(media, ResourceLocation.Attachment(databaseId, collectionId, documentId, attachmentId), true, setPartitionKeyHeader(partitionKey, headers), callback)
     }
 
     // replace
     fun replaceAttachment(attachmentId: String, contentType: String, mediaUrl: HttpUrl, document: Document, callback: (Response<Attachment>) -> Unit) {
 
-        return replace(Attachment(attachmentId, contentType, mediaUrl.toString()), ResourceLocation.Child(ResourceType.Attachment, document, attachmentId), callback = callback)
+        return replace(Attachment(attachmentId, contentType, mediaUrl.toString()), ResourceLocation.Child(ResourceType.Attachment, document, attachmentId), setResourcePartitionKey(document), callback)
     }
 
     // replace
     fun replaceAttachment(attachmentId: String, contentType: String, media: ByteArray, document: Document, callback: (Response<Attachment>) -> Unit) {
 
-        val headers = Headers.Builder()
-                .add(HttpHeader.ContentType.value, contentType)
-                .add(HttpHeader.Slug.value, attachmentId)
-                .build()
+        val headers = mutableMapOf(Pair(HttpHeader.ContentType.value, contentType),Pair(HttpHeader.Slug.value, attachmentId))
 
-        return createOrReplace(media, ResourceLocation.Child(ResourceType.Attachment, document, attachmentId), replacing = true, additionalHeaders = headers, callback = callback)
+        return createOrReplace(media, ResourceLocation.Child(ResourceType.Attachment, document, attachmentId), true, setResourcePartitionKey(document, headers), callback)
     }
 
     //endregion
@@ -399,25 +469,25 @@ class DocumentClient private constructor() {
     // list
     fun getStoredProcedures(collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<StoredProcedure>) -> Unit) {
 
-        return resources(ResourceLocation.StoredProcedure(databaseId, collectionId), callback, maxPerPage = maxPerPage, resourceClass = StoredProcedure::class.java)
+        return resources(ResourceLocation.StoredProcedure(databaseId, collectionId), StoredProcedure::class.java, maxPerPage,null, callback)
     }
 
     // list
     fun getStoredProcedures(collection: DocumentCollection, maxPerPage: Int? = null, callback: (ListResponse<StoredProcedure>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.StoredProcedure, collection), callback, maxPerPage = maxPerPage, resourceClass = StoredProcedure::class.java)
+        return resources(ResourceLocation.Child(ResourceType.StoredProcedure, collection), StoredProcedure::class.java, maxPerPage, null, callback)
     }
 
     // delete
     fun deleteStoredProcedure(storedProcedureId: String, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.StoredProcedure(databaseId, collectionId, storedProcedureId), callback)
+        return delete(ResourceLocation.StoredProcedure(databaseId, collectionId, storedProcedureId), null, callback)
     }
 
     // delete
     fun deleteStoredProcedure(storedProcedureId: String, collection: DocumentCollection, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.Child(ResourceType.StoredProcedure, collection, storedProcedureId), callback)
+        return delete(ResourceLocation.Child(ResourceType.StoredProcedure, collection, storedProcedureId), null, callback)
     }
 
     // replace
@@ -463,25 +533,25 @@ class DocumentClient private constructor() {
     // list
     fun getUserDefinedFunctions(collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<UserDefinedFunction>) -> Unit) {
 
-        return resources(ResourceLocation.Udf(databaseId, collectionId), callback, maxPerPage = maxPerPage, resourceClass = UserDefinedFunction::class.java)
+        return resources(ResourceLocation.Udf(databaseId, collectionId), UserDefinedFunction::class.java, maxPerPage, null, callback)
     }
 
     // list
     fun getUserDefinedFunctions(collection: DocumentCollection, maxPerPage: Int? = null, callback: (ListResponse<UserDefinedFunction>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Udf, collection), callback, maxPerPage = maxPerPage, resourceClass = UserDefinedFunction::class.java)
+        return resources(ResourceLocation.Child(ResourceType.Udf, collection), UserDefinedFunction::class.java, maxPerPage, null, callback)
     }
 
     // delete
     fun deleteUserDefinedFunction(userDefinedFunctionId: String, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.Udf(databaseId, collectionId, userDefinedFunctionId), callback)
+        return delete(ResourceLocation.Udf(databaseId, collectionId, userDefinedFunctionId), null, callback)
     }
 
     // delete
     fun deleteUserDefinedFunction(userDefinedFunctionId: String, collection: DocumentCollection, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.Child(ResourceType.Udf, collection, userDefinedFunctionId), callback)
+        return delete(ResourceLocation.Child(ResourceType.Udf, collection, userDefinedFunctionId), null, callback)
     }
 
     // replace
@@ -515,25 +585,25 @@ class DocumentClient private constructor() {
     // list
     fun getTriggers(collectionId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<Trigger>) -> Unit) {
 
-        return resources(ResourceLocation.Trigger(databaseId, collectionId), callback, maxPerPage = maxPerPage, resourceClass = Trigger::class.java)
+        return resources(ResourceLocation.Trigger(databaseId, collectionId), Trigger::class.java, maxPerPage, null, callback)
     }
 
     // list
     fun getTriggers(collection: DocumentCollection, maxPerPage: Int? = null, callback: (ListResponse<Trigger>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Trigger, collection), callback, maxPerPage = maxPerPage, resourceClass = Trigger::class.java)
+        return resources(ResourceLocation.Child(ResourceType.Trigger, collection), Trigger::class.java, maxPerPage, null, callback)
     }
 
     // delete
     fun deleteTrigger(triggerId: String, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.Trigger(databaseId, collectionId, triggerId), callback)
+        return delete(ResourceLocation.Trigger(databaseId, collectionId, triggerId), null, callback)
     }
 
     // delete
     fun deleteTrigger(triggerId: String, collection: DocumentCollection, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.Child(ResourceType.Trigger, collection, triggerId), callback)
+        return delete(ResourceLocation.Child(ResourceType.Trigger, collection, triggerId), null, callback)
     }
 
     // replace
@@ -561,19 +631,19 @@ class DocumentClient private constructor() {
     // list
     fun getUsers(databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<User>) -> Unit) {
 
-        return resources(ResourceLocation.User(databaseId), callback, maxPerPage = maxPerPage, resourceClass = User::class.java)
+        return resources(ResourceLocation.User(databaseId), User::class.java, maxPerPage, null, callback)
     }
 
     // get
     fun getUser(userId: String, databaseId: String, callback: (Response<User>) -> Unit) {
 
-        return resource(ResourceLocation.User(databaseId, userId), callback, resourceClass = User::class.java)
+        return resource(ResourceLocation.User(databaseId, userId), null, User::class.java, callback)
     }
 
     // delete
     fun deleteUser(userId: String, databaseId: String, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.User(databaseId, userId), callback)
+        return delete(ResourceLocation.User(databaseId, userId), null, callback)
     }
 
     // replace
@@ -605,37 +675,37 @@ class DocumentClient private constructor() {
     // list
     fun getPermissions(userId: String, databaseId: String, maxPerPage: Int? = null, callback: (ListResponse<Permission>) -> Unit) {
 
-        return resources(ResourceLocation.Permission(databaseId, userId), callback, maxPerPage = maxPerPage, resourceClass = Permission::class.java)
+        return resources(ResourceLocation.Permission(databaseId, userId), Permission::class.java, maxPerPage, null, callback)
     }
 
     // list
     fun getPermissions(user: User, maxPerPage: Int? = null, callback: (ListResponse<Permission>) -> Unit) {
 
-        return resources(ResourceLocation.Child(ResourceType.Permission, user), callback, maxPerPage = maxPerPage, resourceClass = Permission::class.java)
+        return resources(ResourceLocation.Child(ResourceType.Permission, user), Permission::class.java, maxPerPage, null, callback)
     }
 
     // get
     fun getPermission(permissionId: String, userId: String, databaseId: String, callback: (Response<Permission>) -> Unit) {
 
-        return resource(ResourceLocation.Permission(databaseId, userId, permissionId), callback, resourceClass = Permission::class.java)
+        return resource(ResourceLocation.Permission(databaseId, userId, permissionId), null, Permission::class.java, callback)
     }
 
     // get
     fun getPermission(permissionId: String, user: User, callback: (Response<Permission>) -> Unit) {
 
-        return resource(ResourceLocation.Child(ResourceType.Permission, user, permissionId), callback, resourceClass = Permission::class.java)
+        return resource(ResourceLocation.Child(ResourceType.Permission, user, permissionId), null, Permission::class.java, callback)
     }
 
     // delete
     fun deletePermission(permissionId: String, userId: String, databaseId: String, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.Permission(databaseId, userId, permissionId), callback)
+        return delete(ResourceLocation.Permission(databaseId, userId, permissionId), null, callback)
     }
 
     // delete
     fun deletePermission(permissionId: String, user: User, callback: (DataResponse) -> Unit) {
 
-        return delete(ResourceLocation.Child(ResourceType.Permission, user, permissionId), callback)
+        return delete(ResourceLocation.Child(ResourceType.Permission, user, permissionId), null, callback)
     }
 
     // replace
@@ -657,13 +727,13 @@ class DocumentClient private constructor() {
     // list
     fun getOffers(maxPerPage: Int? = null, callback: (ListResponse<Offer>) -> Unit) {
 
-        return resources(ResourceLocation.Offer(), callback, maxPerPage = maxPerPage, resourceClass = Offer::class.java)
+        return resources(ResourceLocation.Offer(), Offer::class.java, maxPerPage, null, callback)
     }
 
     // get
     fun getOffer(offerId: String, callback: (Response<Offer>) -> Unit): Any {
 
-        return resource(ResourceLocation.Offer(offerId), callback, resourceClass = Offer::class.java)
+        return resource(ResourceLocation.Offer(offerId), null, Offer::class.java, callback)
     }
 
     //endregion
@@ -671,7 +741,7 @@ class DocumentClient private constructor() {
     //region Resource operations
 
     // create
-    private fun <T : Resource> create(resource: T, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, replace: Boolean = false, callback: (Response<T>) -> Unit) {
+    private fun <T : Resource> create(resource: T, resourceLocation: ResourceLocation, additionalHeaders: MutableMap<String, String>? = null, replace: Boolean = false, callback: (Response<T>) -> Unit) {
 
         if (!resource.hasValidId()) {
             return callback(Response(DataError(DocumentClientError.InvalidId)))
@@ -681,9 +751,9 @@ class DocumentClient private constructor() {
     }
 
     // list
-    private fun <T : Resource> resources(resourceLocation: ResourceLocation, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null, maxPerPage: Int? = null) {
+    private fun <T : Resource> resources(resourceLocation: ResourceLocation, resourceClass: Class<T>? = null, maxPerPage: Int? = null, additionalHeaders: MutableMap<String, String>? = null, callback: (ListResponse<T>) -> Unit) {
 
-        createRequest(HttpMethod.Get, resourceLocation, maxPerPage = maxPerPage) {
+        createRequest(HttpMethod.Get, resourceLocation, additionalHeaders, maxPerPage) {
 
             sendResourceListRequest(
                 request = it,
@@ -702,9 +772,9 @@ class DocumentClient private constructor() {
     }
 
     // get
-    private fun <T : Resource> resource(resourceLocation: ResourceLocation, callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null) {
+    private fun <T : Resource> resource(resourceLocation: ResourceLocation, additionalHeaders: MutableMap<String, String>? = null, resourceClass: Class<T>? = null, callback: (Response<T>) -> Unit) {
 
-        createRequest(HttpMethod.Get, resourceLocation) {
+        createRequest(HttpMethod.Get, resourceLocation, additionalHeaders) {
 
             sendResourceRequest(
                     request = it,
@@ -729,23 +799,18 @@ class DocumentClient private constructor() {
 
             val resourceLocation = ResourceLocation.Resource(resource)
 
-            // create the request - if we have an etag, we'll set & send the IfNoneMatch header
+            //look for partition key property(ies) to send for this resource type
+            val headers = setResourcePartitionKey(resource) ?: mutableMapOf()
+
+            // if we have an etag, we'll set & send the IfNoneMatch header
             if (!resource.etag.isNullOrEmpty()) {
 
-                val headers = Headers.Builder()
-                        .add(HttpHeader.IfNoneMatch.value, resource.etag!!)
-                        .build()
+                headers[HttpHeader.IfNoneMatch.value] = resource.etag!!
+            }
 
-                createRequest(HttpMethod.Get, resourceLocation, headers) {
-                    //send the request!
-                    sendResourceRequest(it, resourceLocation, resource, callback)
-                }
-            } else {
-
-                createRequest(HttpMethod.Get, resourceLocation) {
-                    //send the request!
-                    sendResourceRequest(it, resourceLocation, resource, callback)
-                }
+            createRequest(HttpMethod.Get, resourceLocation, headers) {
+                //send the request!
+                sendResourceRequest(it, resourceLocation, resource, callback)
             }
         } catch (ex: Exception) {
             e(ex)
@@ -754,9 +819,9 @@ class DocumentClient private constructor() {
     }
 
     // delete
-    internal fun delete(resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
+    internal fun delete(resourceLocation: ResourceLocation, additionalHeaders: MutableMap<String, String>? = null, callback: (DataResponse) -> Unit) {
 
-        createRequest(HttpMethod.Delete, resourceLocation) {
+        createRequest(HttpMethod.Delete, resourceLocation, additionalHeaders) {
 
             sendRequest(
                 request = it,
@@ -764,7 +829,7 @@ class DocumentClient private constructor() {
                 callback = { response: DataResponse ->
                     processDeleteResponse(
                         resourceLocation = resourceLocation,
-                        additionalHeaders = null,
+                        additionalHeaders = additionalHeaders,
                         response = response,
                         callback = callback
                     )
@@ -777,23 +842,11 @@ class DocumentClient private constructor() {
 
         return try {
 
+            //look for partition key property(ies) to send for this resource type
+            val headers = setResourcePartitionKey(resource)
             val resourceLocation = ResourceLocation.Resource(resource)
 
-            createRequest(HttpMethod.Delete, resourceLocation) {
-
-                sendRequest(
-                    request = it,
-                    resourceLocation = resourceLocation,
-                    callback = { response: DataResponse ->
-                        processDeleteResponse(
-                            resourceLocation = resourceLocation,
-                            additionalHeaders = null,
-                            response = response,
-                            callback = callback
-                        )
-                    }
-                )
-            }
+            delete(resourceLocation, headers, callback)
 
         } catch (ex: Exception) {
             e(ex)
@@ -802,7 +855,7 @@ class DocumentClient private constructor() {
     }
 
     // replace
-    private fun <T : Resource> replace(resource: T, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit) {
+    private fun <T : Resource> replace(resource: T, resourceLocation: ResourceLocation, additionalHeaders: MutableMap<String, String>? = null, callback: (Response<T>) -> Unit) {
 
         if (!resource.hasValidId()) {
             return callback(Response(DataError(DocumentClientError.InvalidId)))
@@ -812,18 +865,16 @@ class DocumentClient private constructor() {
     }
 
     // create or replace
-    internal fun <T : Resource> createOrReplace(body: T, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit) {
+    internal fun <T : Resource> createOrReplace(body: T, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: MutableMap<String, String>? = null, callback: (Response<T>) -> Unit) {
 
         try {
+            //serialize the resource
             val jsonBody = gson.toJson(body)
-            var headers = additionalHeaders
 
-            if (replacing) {
-                val builder = headers?.newBuilder() ?: Headers.Builder()
-                builder.add(MSHttpHeader.MSDocumentDBIsUpsert.value,"true")
-                headers = builder.build()
-            }
+            //look for partition key property(ies) to send for this resource type
+            val headers = setResourcePartitionKey(body, additionalHeaders)
 
+            //create and send the request
             createRequest(if (replacing) HttpMethod.Put else HttpMethod.Post, resourceLocation, headers, jsonBody) {
 
                 @Suppress("UNCHECKED_CAST")
@@ -835,7 +886,7 @@ class DocumentClient private constructor() {
                                  resource = body,
                                  location = resourceLocation,
                                  replace = replacing,
-                                 additionalHeaders = additionalHeaders,
+                                 additionalHeaders = headers,
                                  response = response,
                                  callback = callback
                             )
@@ -843,7 +894,6 @@ class DocumentClient private constructor() {
                         resourceClass = body::class.java as Class<T>
                 )
             }
-
         } catch (ex: Exception) {
             e(ex)
             callback(Response(DataError(ex)))
@@ -851,7 +901,7 @@ class DocumentClient private constructor() {
     }
 
     // create or replace
-    private fun <T : Resource> createOrReplace(body: ByteArray, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: Headers? = null, callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null) {
+    private fun <T : Resource> createOrReplace(body: ByteArray, resourceLocation: ResourceLocation, replacing: Boolean = false, additionalHeaders: MutableMap<String, String>? = null, callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null) {
 
         try {
             createRequest(if (replacing) HttpMethod.Put else HttpMethod.Post, resourceLocation, additionalHeaders, body) {
@@ -865,14 +915,17 @@ class DocumentClient private constructor() {
     }
 
     // query
-    private fun <T : Resource> query(query: Query, resourceLocation: ResourceLocation, maxPerPage: Int?, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
+    private fun <T : Resource> query(query: Query, resourceLocation: ResourceLocation, maxPerPage: Int?, partitionKey: String?, resourceClass: Class<T>? = null, callback: (ListResponse<T>) -> Unit) {
 
-        d{query.toString()}
+        d { query.toString() }
 
         try {
             val json = gson.toJson(query.dictionary)
 
-            createRequest(HttpMethod.Post, resourceLocation, forQuery = true, jsonBody = json, maxPerPage = maxPerPage) {
+            // do we have a partition key to send?  If not, then this query will be a cross partition query
+            val headers = partitionKey?.let { setPartitionKeyHeader(partitionKey) } ?: mutableMapOf(Pair(MSHttpHeader.MSDocumentDBQueryEnableCrossPartition.value, HttpHeaderValue.trueValue))
+
+            createRequest(HttpMethod.Post, resourceLocation, headers, json, true, maxPerPage) {
 
                 sendResourceListRequest(it, resourceLocation, callback, resourceClass)
             }
@@ -948,6 +1001,42 @@ class DocumentClient private constructor() {
         DateUtil.getDateFromatter(DateUtil.Format.Rfc1123Format)
     }
 
+    private fun setPartitionKeyHeader(partitionKey: List<String>?, headers: MutableMap<String, String>? = null) : MutableMap<String, String>? {
+
+        return if (!partitionKey.isNullOrEmpty()) {
+
+            //send the partition key(s) in the form of header: x-ms-documentdb-partitionkey: ["<My Partition Key>"]
+            val partitionKeyValue = partitionKey.joinToString(prefix = "[\"", postfix = "\"]", separator = "\",\"")
+
+            if (headers != null) {
+                headers[MSHttpHeader.MSDocumentDBPartitionKey.value] = partitionKeyValue
+                headers
+            } else {
+                mutableMapOf(Pair(MSHttpHeader.MSDocumentDBPartitionKey.value, partitionKeyValue))
+            }
+        } else headers
+    }
+
+    private fun setPartitionKeyHeader(partitionKey: String?, headers: MutableMap<String, String>? = null) : MutableMap<String, String>? {
+
+        return if (partitionKey != null) {
+
+            setPartitionKeyHeader(listOf(partitionKey), headers)
+
+        } else headers
+    }
+
+    private fun <T : Resource> setResourcePartitionKey(resource: T, headers: MutableMap<String, String>? = null) : MutableMap<String, String>? {
+
+        return if (resource is PartitionKeyResource) {
+
+            val keyValues = PartitionKeyPropertyCache.getPartitionKeyValues(resource)
+
+            return setPartitionKeyHeader(keyValues, headers)
+
+        } else headers
+    }
+
     private inline fun getTokenForResource(resourceLocation: ResourceLocation, method: HttpMethod, crossinline callback: (Response<ResourceToken>) -> Unit) {
 
         if (!isConfigured) {
@@ -989,7 +1078,7 @@ class DocumentClient private constructor() {
         return callback(Response(DataError(DocumentClientError.UnknownError)))
     }
 
-    private inline fun createRequest(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, maxPerPage: Int? = null, crossinline callback: (Request) -> Unit) {
+    private inline fun createRequest(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: MutableMap<String, String>? = null, maxPerPage: Int? = null, crossinline callback: (Request) -> Unit) {
 
         createRequestBuilder(method, resourceLocation, additionalHeaders, maxPerPage) {
 
@@ -1004,7 +1093,7 @@ class DocumentClient private constructor() {
         }
     }
 
-    private inline fun createRequest(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, jsonBody: String, forQuery: Boolean = false, maxPerPage: Int? = null, crossinline callback: (Request) -> Unit) {
+    private inline fun createRequest(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: MutableMap<String, String>? = null, jsonBody: String, forQuery: Boolean = false, maxPerPage: Int? = null, crossinline callback: (Request) -> Unit) {
 
         createRequestBuilder(method, resourceLocation, additionalHeaders, maxPerPage) {
 
@@ -1014,13 +1103,15 @@ class DocumentClient private constructor() {
             var mediaType = jsonMediaType
 
             if (forQuery) {
-                it.addHeader(MSHttpHeader.MSDocumentDBIsQuery.value, "True")
+                it.addHeader(MSHttpHeader.MSDocumentDBIsQuery.value, HttpHeaderValue.trueValue)
                 it.addHeader(HttpHeader.ContentType.value, HttpMediaType.QueryJson.value)
                 mediaType = MediaType.parse(HttpMediaType.QueryJson.value)
             }
-            else if ((method == HttpMethod.Post || method == HttpMethod.Put) && resourceLocation.resourceType != ResourceType.Attachment) {
+            else if (method == HttpMethod.Post || method == HttpMethod.Put) {
 
-                it.addHeader(HttpHeader.ContentType.value, HttpMediaType.Json.value)
+                if (resourceLocation.resourceType != ResourceType.Attachment) {
+                    it.addHeader(HttpHeader.ContentType.value, HttpMediaType.Json.value)
+                }
             }
 
             // we convert the json to bytes here rather than allowing OkHttp, as they will tack on
@@ -1037,14 +1128,14 @@ class DocumentClient private constructor() {
         }
     }
 
-    private inline fun createRequest(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, body: ByteArray, maxPerPage: Int? = null, crossinline callback: (Request) -> Unit) {
+    private inline fun createRequest(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: MutableMap<String, String>? = null, body: ByteArray, maxPerPage: Int? = null, crossinline callback: (Request) -> Unit) {
 
         createRequestBuilder(method, resourceLocation, additionalHeaders, maxPerPage) {
 
             var mediaType = jsonMediaType
 
-            additionalHeaders?.get(HttpHeader.ContentType.value)?.let {
-                mediaType = MediaType.parse(it)
+            additionalHeaders?.get(HttpHeader.ContentType.value)?.let { contentType ->
+                mediaType = MediaType.parse(contentType)
             }
 
             when (method) {
@@ -1057,12 +1148,12 @@ class DocumentClient private constructor() {
         }
     }
 
-    private inline fun createRequestBuilder(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, maxPerPage: Int? = null, crossinline callback: (Request.Builder) -> Unit) {
+    private inline fun createRequestBuilder(method: HttpMethod, resourceLocation: ResourceLocation, additionalHeaders: MutableMap<String, String>? = null, maxPerPage: Int? = null, crossinline callback: (Request.Builder) -> Unit) {
 
         getTokenForResource(resourceLocation, method) {
 
             when {
-                it.isSuccessful -> it.resource?.let {
+                it.isSuccessful -> it.resource?.let { token ->
 
                     val url = HttpUrl.Builder()
                             .scheme("https")
@@ -1070,20 +1161,20 @@ class DocumentClient private constructor() {
                             .addPathSegment(resourceLocation.path())
                             .build()
 
-                    val builder = Request.Builder()
-                            .headers(headers) //base headers
-                            .url(url)
+                    val headersBuilder = Headers.Builder()
+                    // add base headers
+                    headersBuilder.addAll(defaultHeaders)
 
                     // set the api version
-                    builder.addHeader(MSHttpHeader.MSVersion.value, HttpHeaderValue.apiVersion)
+                    headersBuilder.add(MSHttpHeader.MSVersion.value, HttpHeaderValue.apiVersion)
                     // and the token data
-                    builder.addHeader(MSHttpHeader.MSDate.value, it.date)
-                    builder.addHeader(HttpHeader.Authorization.value, it.token)
+                    headersBuilder.add(MSHttpHeader.MSDate.value, token.date)
+                    headersBuilder.add(HttpHeader.Authorization.value, token.token)
 
                     // add the count
-                    maxPerPage?.let {
-                        if ((1..1000).contains(it)) {
-                            builder.addHeader(MSHttpHeader.MSMaxItemCount.value, it.toString())
+                    maxPerPage?.let { max ->
+                        if ((1..1000).contains(max)) {
+                            headersBuilder.add(MSHttpHeader.MSMaxItemCount.value, max.toString())
                         } else {
                             throw DocumentClientError.InvalidMaxPerPageError
                         }
@@ -1091,10 +1182,14 @@ class DocumentClient private constructor() {
 
                     // if we have additional headers, let's add them in here
                     additionalHeaders?.let {
-                        for (headerName in additionalHeaders.names()) {
-                            builder.addHeader(headerName, additionalHeaders[headerName]!!)
+                        for (headerName in additionalHeaders.keys) {
+                            headersBuilder.add(headerName, additionalHeaders[headerName]!!)
                         }
                     }
+
+                    val builder = Request.Builder()
+                            .headers(headersBuilder.build())
+                            .url(url)
 
                     callback(builder)
 
@@ -1111,11 +1206,6 @@ class DocumentClient private constructor() {
             = sendResourceRequest(request, resourceLocation, null, callback = callback, resourceClass = resourceClass)
 
     private inline fun <T : Resource> sendResourceRequest(request: Request, resourceLocation: ResourceLocation, resource: T?, crossinline callback: (Response<T>) -> Unit, resourceClass: Class<T>? = null) {
-
-        d{"***"}
-        d{"Sending ${request.method()} request for Data to ${request.url()}"}
-        d{"\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}"}
-        d{"***"}
 
         try {
             client.newCall(request)
@@ -1140,11 +1230,6 @@ class DocumentClient private constructor() {
 
     private inline fun sendRequest(request: Request, resourceLocation: ResourceLocation, crossinline callback: (DataResponse) -> Unit) {
 
-        d{"***"}
-        d{"Sending ${request.method()} request for Data to ${request.url()}"}
-        d{"\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}"}
-        d{"***"}
-
         try {
             client.newCall(request)
                     .enqueue(object : Callback {
@@ -1168,17 +1253,13 @@ class DocumentClient private constructor() {
 
     private inline fun <T : Resource> sendResourceListRequest(request: Request, resourceLocation: ResourceLocation, crossinline callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
 
-        d{"***"}
-        d{"Sending ${request.method()} request for Data to ${request.url()}"}
-        d{"\tContent : length = ${request.body()?.contentLength()}, type = ${request.body()?.contentType()}"}
-        d{"***"}
-
         try {
             client.newCall(request)
                     .enqueue(object : Callback {
 
                         // only transport errors handled here
-                        override fun onFailure(call: Call, e: IOException) {
+                        override fun onFailure(call: Call, ex: IOException) {
+                            e(ex)
                             isOffline = true
 
                             callback(ListResponse(DataError(DocumentClientError.InternetConnectivityError)))
@@ -1199,7 +1280,7 @@ class DocumentClient private constructor() {
         try {
             val body = response.body()
                     ?: return Response(DataError("Empty response body received"))
-            val json = body.string().also{d{it}}
+            val json = body.string()
 
             //check http return code/success
             when {
@@ -1241,10 +1322,10 @@ class DocumentClient private constructor() {
 
     private fun <T : Resource> processListResponse(request: Request, response: okhttp3.Response, resourceLocation: ResourceLocation, resourceType: Type? = null): ListResponse<T> {
 
-        try {
+        return try {
             val body = response.body()
                     ?: return ListResponse(DataError("Empty response body received"), request, response)
-            val json = body.string().also{d{it}}
+            val json = body.string()
 
             if (response.isSuccessful) {
 
@@ -1256,18 +1337,20 @@ class DocumentClient private constructor() {
 
                 ResourceCache.shared.cache(resourceList)
 
-                return ListResponse(request, response, json, Result(resourceList), resourceLocation, type)
+                ListResponse(request, response, json, Result(resourceList), resourceLocation, type)
             } else {
-                return ListResponse(json.toError(), request, response, json)
+                ListResponse(json.toError(), request, response, json)
             }
         } catch (e: Exception) {
-            return ListResponse(DataError(e), request, response)
+            ListResponse(DataError(e), request, response)
         }
     }
 
-    private fun <T: Resource> processCreateOrReplaceResponse(resource: T, location: ResourceLocation, replace: Boolean, additionalHeaders: Headers? = null, response: Response<T>, callback: (Response<T>) -> Unit) {
+    private fun <T: Resource> processCreateOrReplaceResponse(resource: T, location: ResourceLocation, replace: Boolean, additionalHeaders: MutableMap<String, String>? = null, response: Response<T>, callback: (Response<T>) -> Unit) {
+
         when {
             response.isSuccessful -> {
+
                 callback(response)
 
                 when (replace) {
@@ -1277,6 +1360,7 @@ class DocumentClient private constructor() {
             }
 
             response.isErrored -> {
+
                 if (response.error!!.isConnectivityError()) {
                     ResourceWriteOperationQueue.shared.addCreateOrReplace(resource, location, additionalHeaders, replace, callback)
                     return
@@ -1290,14 +1374,17 @@ class DocumentClient private constructor() {
     }
 
     private fun <T: Resource> processResourceGetResponse(resourceLocation: ResourceLocation, response: Response<T>, callback: (Response<T>) -> Unit, resourceClass: Class<T>?) {
+
         when {
             response.isSuccessful -> {
+
                 callback(response)
 
                 response.resource?.let { ResourceCache.shared.cache(it) }
             }
 
             response.isErrored -> {
+
                 if (response.error!!.isConnectivityError() && resourceClass != null)  {
                     cachedResource(resourceLocation, response, callback, resourceClass)
                     return
@@ -1315,14 +1402,17 @@ class DocumentClient private constructor() {
     }
 
     private fun <T: Resource> processResourceListResponse(resourceLocation: ResourceLocation, response: ListResponse<T>, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>?) {
+
         when {
             response.isSuccessful -> {
+
                 callback(response)
 
                 response.resource?.let { ResourceCache.shared.cache(it) }
             }
 
             response.isErrored -> {
+
                 if (response.error!!.isConnectivityError() && resourceClass != null) {
                     cachedResources(resourceLocation, response, callback, resourceClass)
                     return
@@ -1335,15 +1425,18 @@ class DocumentClient private constructor() {
         }
     }
 
-    private fun processDeleteResponse(resourceLocation: ResourceLocation, additionalHeaders: Headers? = null, response: DataResponse, callback: (DataResponse) -> Unit) {
+    private fun processDeleteResponse(resourceLocation: ResourceLocation, additionalHeaders: MutableMap<String, String>? = null, response: DataResponse, callback: (DataResponse) -> Unit) {
+
         when {
             response.isSuccessful -> {
+
                 callback(response)
 
                 ResourceCache.shared.remove(resourceLocation)
             }
 
             response.isErrored -> {
+
                 if (response.error!!.isConnectivityError()) {
                     ResourceWriteOperationQueue.shared.addDelete(resourceLocation, additionalHeaders, callback)
                     return
@@ -1367,7 +1460,7 @@ class DocumentClient private constructor() {
         try {
             val body = response.body()
                     ?: return Response(DataError("Empty response body received"), request, response)
-            val responseBodyString = body.string().also{d{it}}
+            val responseBodyString = body.string()
 
             //check http return code
             return if (response.isSuccessful) {
@@ -1390,6 +1483,7 @@ class DocumentClient private constructor() {
     //region Cache Responses
 
     private fun <T: Resource> cachedResource(resourceLocation: ResourceLocation, response: Response<T>? = null, callback: (Response<T>) -> Unit, resourceClass: Class<T>) {
+
         ResourceCache.shared.getResourceAt(resourceLocation, resourceClass)?.let {
             callback(Response(response?.request, response?.response, response?.jsonData, Result(resource = it), resourceLocation, response?.resourceType, fromCache = true))
             return
@@ -1399,6 +1493,7 @@ class DocumentClient private constructor() {
     }
 
     private fun <T: Resource> cachedResources(resourceLocation: ResourceLocation, response: ListResponse<T>? = null, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>) {
+
         val resources = ResourceCache.shared.getResourcesAt(resourceLocation, resourceClass)
 
         callback(Response(response?.request, response?.response, response?.jsonData, Result(resources), resourceLocation, response?.resourceType, fromCache = true))
@@ -1410,7 +1505,7 @@ class DocumentClient private constructor() {
 
         val shared = DocumentClient()
 
-        var client = OkHttpClient()
+        lateinit var client: OkHttpClient
 
         val jsonMediaType = MediaType.parse(HttpMediaType.Json.value)
     }

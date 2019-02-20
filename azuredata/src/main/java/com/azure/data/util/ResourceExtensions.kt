@@ -8,6 +8,7 @@ import com.azure.data.model.ResourceType
  * Licensed under the MIT License.
  */
 
+@JvmOverloads
 fun Resource.ancestorIds(includingSelf: Boolean = false) : Map<ResourceType, String> {
 
     val ancestors: MutableMap<ResourceType, String> = mutableMapOf()

@@ -33,16 +33,19 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+
     testImplementation "junit:junit:$jUnitVersion"
     androidTestImplementation "com.android.support.test:runner:$testRunnerVersion"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
     implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     implementation "com.jakewharton.timber:timber:$timberVersion"
-    // https://mvnrepository.com/artifact/commons-codec/commons-codec
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.3.21"
     implementation 'commons-codec:commons-codec:1.11'
     implementation 'com.android.support:support-annotations:28.0.0'
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
 }
 
 repositories {

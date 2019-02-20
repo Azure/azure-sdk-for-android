@@ -17,8 +17,19 @@ import java.net.URL
 //region Database -> Collections
 
 // create
+@Deprecated("Creating a collection without a partition key is deprecated and will be removed in a future version of AzureData")
 fun Database.createCollection (collectionId: String, callback: (Response<DocumentCollection>) -> Unit) {
     return AzureData.createCollection(collectionId, this.id, callback)
+}
+
+// create
+fun Database.createCollection (collectionId: String, partitionKey: String, callback: (Response<DocumentCollection>) -> Unit) {
+    return AzureData.createCollection(collectionId, partitionKey, this.id, callback)
+}
+
+// create
+fun Database.createCollection (collectionId: String, throughput: Int, partitionKey: String, callback: (Response<DocumentCollection>) -> Unit) {
+    return AzureData.createCollection(collectionId, throughput, partitionKey, this.id, callback)
 }
 
 // get
@@ -27,6 +38,7 @@ fun Database.getCollection (collectionId: String, callback: (Response<DocumentCo
 }
 
 // list
+@JvmOverloads
 fun Database.getCollections (maxPerPage: Int? = null, callback: (ListResponse<DocumentCollection>) -> Unit) {
     return AzureData.getCollections(this.id, maxPerPage, callback)
 }
@@ -51,6 +63,7 @@ fun Database.createUser (userId: String, callback: (Response<User>) -> Unit) {
 }
 
 // list
+@JvmOverloads
 fun Database.getUsers (maxPerPage: Int? = null, callback: (ListResponse<User>) -> Unit) {
     return AzureData.getUsers(this.id, maxPerPage, callback)
 }
@@ -85,6 +98,7 @@ fun Database.replaceUser (userId: String, newUserId: String, callback: (Response
 //region DocumentCollection -> Documents
 
 // list
+@JvmOverloads
 fun <T : Document> DocumentCollection.getDocuments (documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
     return AzureData.getDocuments(this, documentClass, maxPerPage, callback)
 }
@@ -95,18 +109,19 @@ fun <T : Document> DocumentCollection.createDocument (document: T, callback: (Re
 }
 
 // get
+@Deprecated("Getting a document without a partition key is deprecated and will be removed in a future version of AzureData")
 fun <T : Document> DocumentCollection.getDocument (documentId: String, documentClass: Class<T>, callback: (Response<T>) -> Unit) {
     return AzureData.getDocument(documentId, this, documentClass, callback)
 }
 
-// delete
-fun DocumentCollection.deleteDocument (document: Document, callback: (DataResponse) -> Unit) {
-    return AzureData.deleteDocument(document.id, this, callback)
+// get
+fun <T : Document> DocumentCollection.getDocument (documentId: String, partitionKey: String, documentClass: Class<T>, callback: (Response<T>) -> Unit) {
+    return AzureData.getDocument(documentId, partitionKey, this, documentClass, callback)
 }
 
 // delete
-fun DocumentCollection.deleteDocument (documentId: String, callback: (DataResponse) -> Unit) {
-    return AzureData.deleteDocument(documentId, this, callback)
+fun DocumentCollection.deleteDocument (document: Document, callback: (DataResponse) -> Unit) {
+    return AzureData.deleteDocument(document, callback)
 }
 
 // replace
@@ -115,8 +130,20 @@ fun <T : Document> DocumentCollection.replaceDocument (document: T, callback: (R
 }
 
 // query
+@JvmOverloads
 fun <T : Document> DocumentCollection.queryDocuments (query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
     return AzureData.queryDocuments(this, query, documentClass, maxPerPage, callback)
+}
+
+// query
+@JvmOverloads
+fun <T : Document> DocumentCollection.queryDocuments (query: Query, partitionKey: String, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
+    return AzureData.queryDocuments(this, partitionKey, query, documentClass, maxPerPage, callback)
+}
+
+// find
+fun <T : Document> DocumentCollection.findDocument (documentId: String, documentClass: Class<T>, callback: (ListResponse<T>) -> Unit) {
+    return AzureData.findDocument(documentId, this, documentClass, callback)
 }
 
 //endregion
@@ -129,6 +156,7 @@ fun DocumentCollection.createStoredProcedure (storedProcedureId: String, procedu
 }
 
 // list
+@JvmOverloads
 fun DocumentCollection.getStoredProcedures (maxPerPage: Int? = null, callback: (ListResponse<StoredProcedure>) -> Unit) {
     return AzureData.getStoredProcedures(this, maxPerPage, callback)
 }
@@ -168,6 +196,7 @@ fun DocumentCollection.createUserDefinedFunction (userDefinedFunctionId: String,
 }
 
 // list
+@JvmOverloads
 fun DocumentCollection.getUserDefinedFunctions (maxPerPage: Int? = null, callback: (ListResponse<UserDefinedFunction>) -> Unit) {
     return AzureData.getUserDefinedFunctions(this, maxPerPage, callback)
 }
@@ -202,6 +231,7 @@ fun DocumentCollection.createTrigger (triggerId: String, operation: Trigger.Trig
 }
 
 // list
+@JvmOverloads
 fun DocumentCollection.getTriggers (maxPerPage: Int? = null, callback: (ListResponse<Trigger>) -> Unit) {
     return AzureData.getTriggers(this, maxPerPage, callback)
 }
@@ -254,6 +284,7 @@ fun Document.createAttachment (attachmentId: String, contentType: String, data: 
 }
 
 // list
+@JvmOverloads
 fun Document.getAttachments (maxPerPage: Int? = null, callback: (ListResponse<Attachment>) -> Unit) {
     return AzureData.getAttachments(this, maxPerPage, callback)
 }
@@ -296,6 +327,7 @@ fun <TResource : Resource> User.createPermission (permissionId: String, permissi
 }
 
 // list
+@JvmOverloads
 fun User.getPermissions (maxPerPage: Int? = null, callback: (ListResponse<Permission>) -> Unit) {
     return AzureData.getPermissions(this, maxPerPage, callback)
 }

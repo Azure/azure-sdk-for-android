@@ -18,7 +18,6 @@ internal val gsonBuilder = GsonBuilder()
         .checkVerboseMode()
         .registerTypeAdapter(Date::class.java, DateTypeAdapter())
         .registerTypeAdapter(Timestamp::class.java, TimestampAdapter())
-        .registerTypeAdapter(DictionaryDocument::class.java, DocumentAdapter())
         .registerTypeAdapter(ResourceWriteOperation::class.java, ResourceWriteOperationAdapter())!!
 
 val gson: Gson by lazy {

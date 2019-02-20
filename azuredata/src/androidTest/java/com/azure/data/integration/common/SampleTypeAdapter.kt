@@ -1,4 +1,4 @@
-package com.azure.data.integration
+package com.azure.data.integration.common
 
 import com.google.gson.*
 import java.lang.reflect.Type

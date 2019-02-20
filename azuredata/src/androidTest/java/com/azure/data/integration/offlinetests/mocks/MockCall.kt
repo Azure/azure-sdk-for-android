@@ -4,6 +4,7 @@ import okhttp3.Call
 import okhttp3.Callback
 import okhttp3.Request
 import okhttp3.Response
+import okio.Timeout
 import java.io.IOException
 
 class MockCall(private val originalRequest: Request, private val client: MockOkHttpClient): Call {
@@ -51,5 +52,9 @@ class MockCall(private val originalRequest: Request, private val client: MockOkH
 
     override fun clone(): Call {
         return MockCall(this.originalRequest, this.client)
+    }
+
+    override fun timeout(): Timeout {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 }

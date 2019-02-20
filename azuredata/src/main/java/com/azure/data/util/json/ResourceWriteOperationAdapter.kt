@@ -5,7 +5,6 @@ import com.azure.data.model.ResourceLocation
 import com.azure.data.service.ResourceWriteOperation
 import com.azure.data.service.ResourceWriteOperationType
 import com.google.gson.*
-import okhttp3.Headers
 import java.lang.reflect.Type
 
 /**
@@ -16,6 +15,7 @@ import java.lang.reflect.Type
 internal class ResourceWriteOperationAdapter: JsonSerializer<ResourceWriteOperation>, JsonDeserializer<ResourceWriteOperation> {
 
     override fun serialize(src: ResourceWriteOperation?, typeOfSrc: Type?, context: JsonSerializationContext?): JsonElement {
+
         src?.let {
             val json = JsonObject()
             json.addProperty("type", it.type.toString())
@@ -31,6 +31,7 @@ internal class ResourceWriteOperationAdapter: JsonSerializer<ResourceWriteOperat
     }
 
     override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): ResourceWriteOperation? {
+
         json?.asJsonObject?.let {
             val type = it.getAsJsonPrimitive("type").asString
             val resource = it.get("resource")?.let { deserializeResource(it) }
@@ -40,11 +41,11 @@ internal class ResourceWriteOperationAdapter: JsonSerializer<ResourceWriteOperat
 
 
             return ResourceWriteOperation(
-                type = ResourceWriteOperationType.valueOf(type),
-                resource = resource,
-                resourceLocation = location,
-                resourceLocalContentPath = path,
-                httpHeaders = headers
+                    type = ResourceWriteOperationType.valueOf(type),
+                    resource = resource,
+                    resourceLocation = location,
+                    resourceLocalContentPath = path,
+                    httpHeaders = headers
             )
         }
 
@@ -52,6 +53,7 @@ internal class ResourceWriteOperationAdapter: JsonSerializer<ResourceWriteOperat
     }
 
     private fun serialize(resource: Resource?): JsonElement {
+
         resource?.let {
             val json = JsonObject()
             json.addProperty("_class", it::class.java.name)
@@ -64,8 +66,9 @@ internal class ResourceWriteOperationAdapter: JsonSerializer<ResourceWriteOperat
     }
 
     private fun deserializeResource(json: JsonElement): Resource? {
+
         return when (json) {
-            is JsonNull   -> null
+            is JsonNull -> null
             is JsonObject -> {
                 val resourceClass = Class.forName(json.getAsJsonPrimitive("_class").asString)
                 return gson.fromJson(json.getAsJsonPrimitive("resource").asString, resourceClass) as Resource
@@ -77,6 +80,7 @@ internal class ResourceWriteOperationAdapter: JsonSerializer<ResourceWriteOperat
     }
 
     private fun serialize(location: ResourceLocation): JsonElement {
+
         val json = JsonObject()
         json.addProperty("_class", location::class.java.name)
         json.addProperty("location", gson.toJson(location::class.java.cast(location)))
@@ -85,27 +89,30 @@ internal class ResourceWriteOperationAdapter: JsonSerializer<ResourceWriteOperat
     }
 
     private fun deserializeLocation(json: JsonObject): ResourceLocation {
+
         val locationClass = Class.forName(json.getAsJsonPrimitive("_class").asString)
         return gson.fromJson(json.getAsJsonPrimitive("location").asString, locationClass) as ResourceLocation
     }
 
-    private fun serialize(headers: Headers): JsonElement {
+    private fun serialize(headers: MutableMap<String, String>): JsonElement {
+
         val json = JsonObject()
 
-        headers.names().forEach { header: String ->
-            json.addProperty(header, headers.get(header))
+        headers.keys.forEach { header: String ->
+            json.addProperty(header, headers[header])
         }
 
         return json
     }
 
-    private fun deserializeHeaders(json: JsonObject): Headers {
+    private fun deserializeHeaders(json: JsonObject): MutableMap<String, String> {
+
         val headers = mutableMapOf<String, String>()
 
         json.keySet().forEach {
             headers[it] = json.getAsJsonPrimitive(it).asString
         }
 
-        return Headers.of(headers)
+        return headers
     }
 }

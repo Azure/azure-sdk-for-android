@@ -9,7 +9,6 @@ import android.app.UiModeManager
 import android.content.res.Configuration
 import com.azure.core.http.HttpHeader
 
-
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -54,7 +53,6 @@ fun Context.getDefaultHeaders() : Headers {
     // User-Agent Header; see https://tools.ietf.org/html/rfc7231#section-5.5.3
     // Example: `iOS Example/1.1.0 (com.azure.data; build:23; iOS 10.0.0) AzureData/2.0.0`
 
-    //            print(userAgent)
     builder.add(HttpHeader.UserAgent.value, this.getUserAgentString())
 
     return builder.build()
