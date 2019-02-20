@@ -6,6 +6,9 @@
 # a build with no CI
 trigger: none
 
+# no PR builds
+pr: none
+
 pool:
   vmImage: 'macOS-10.13'
 

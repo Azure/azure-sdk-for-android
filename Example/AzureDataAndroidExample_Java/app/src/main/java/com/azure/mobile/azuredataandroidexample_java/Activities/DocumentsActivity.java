@@ -10,13 +10,12 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.azure.data.AzureData;
-import com.azure.data.model.DictionaryDocument;
 import com.azure.data.model.Document;
 import com.azure.mobile.azuredataandroidexample_java.Adapter.Callback;
 import com.azure.mobile.azuredataandroidexample_java.Adapter.CardAdapter;
 import com.azure.mobile.azuredataandroidexample_java.Adapter.DocumentViewHolder;
-import com.azure.mobile.azuredataandroidexample_java.Controllers.App;
 import com.azure.mobile.azuredataandroidexample_java.R;
+import com.azure.mobile.azuredataandroidexample_java.model.MyDocument;
 
 import static com.azure.data.util.FunctionalUtils.onCallback;
 
@@ -97,7 +96,7 @@ public class DocumentsActivity extends Activity {
             {
                 final ProgressDialog dialog = ProgressDialog.show(DocumentsActivity.this, "", "Loading. Please wait...", true);
 
-                AzureData.getDocuments(_collectionId, _databaseId, DictionaryDocument.class, null, onCallback(response -> {
+                AzureData.getDocuments(_collectionId, _databaseId, MyDocument.class, 100, onCallback(response -> {
 
                     Log.e(TAG, "Document list result: " + response.isSuccessful());
 
