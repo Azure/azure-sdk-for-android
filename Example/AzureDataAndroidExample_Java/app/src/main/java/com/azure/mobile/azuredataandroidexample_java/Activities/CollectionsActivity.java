@@ -100,7 +100,7 @@ public class CollectionsActivity extends Activity {
             {
                 final ProgressDialog dialog = ProgressDialog.show(CollectionsActivity.this, "", "Loading. Please wait...", true);
 
-                AzureData.getCollections(_databaseId, null, onCallback(response -> {
+                AzureData.getCollections(_databaseId, onCallback(response -> {
 
                     Log.e(TAG, "Collection list result: " + response.isSuccessful());
 

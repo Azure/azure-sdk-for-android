@@ -96,7 +96,7 @@ public class DocumentsActivity extends Activity {
             {
                 final ProgressDialog dialog = ProgressDialog.show(DocumentsActivity.this, "", "Loading. Please wait...", true);
 
-                AzureData.getDocuments(_collectionId, _databaseId, MyDocument.class, 100, onCallback(response -> {
+                AzureData.getDocuments(_collectionId, _databaseId, MyDocument.class, onCallback(response -> {
 
                     Log.e(TAG, "Document list result: " + response.isSuccessful());
 
