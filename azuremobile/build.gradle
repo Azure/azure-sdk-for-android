@@ -36,12 +36,14 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
+
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
     testImplementation "com.android.support.test:runner:$testRunnerVersion"
     testImplementation "com.android.support.test:rules:$testRulesVersion"
+
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
-    testImplementation "org.awaitility:awaitility:$awaitilityVersion"
+    androidTestImplementation "org.awaitility:awaitility:$awaitilityVersion"
 
     implementation project(":azurecore")
     implementation project(":azuredata")
