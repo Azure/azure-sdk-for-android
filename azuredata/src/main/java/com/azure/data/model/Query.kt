@@ -14,7 +14,6 @@ class Query(properties: ArrayList<String>? = null) {
     private var orderByCalled = false
 
     private var selectProperties: ArrayList<String> = ArrayList()
-//    private var fromFragment: String? = null
     private var whereFragment: String? = null
     private var andFragments: ArrayList<String> = ArrayList()
     private var orderByFragment: String? = null
@@ -85,7 +84,7 @@ class Query(properties: ArrayList<String>? = null) {
         return this
     }
 
-    private fun whereAny(property: String, value: Any, operator: String = "=", quoteValue: Boolean = true) : Query {
+    private fun whereAny(property: String, value: Any, operator: String = "=", quoteValue: Boolean = value is String) : Query {
 
         if (whereCalled) throw Exception("you can only call `where` once, to add more constraints use `and`")
 
@@ -95,9 +94,11 @@ class Query(properties: ArrayList<String>? = null) {
         return this
     }
 
-    fun where(property: String, value: String) : Query = whereAny(property, value)
+    fun where(property: String, value: String) : Query = whereAny(property, value, quoteValue = true)
 
     fun where(property: String, value: Int) : Query = whereAny(property, value, quoteValue = false)
+
+    fun where(property: String, value: Any) : Query = whereAny(property, value)
 
     fun whereNot(property: String, value: String) : Query = whereAny(property, value, operator = "!=")
 
@@ -111,7 +112,7 @@ class Query(properties: ArrayList<String>? = null) {
 
     fun whereLessThan(property: String, value: Int) : Query = whereAny(property, value, operator = "<", quoteValue = false)
 
-    private fun andWhereAny(property: String, value: Any, operator: String = "=", quoteValue: Boolean = true) : Query {
+    private fun andWhereAny(property: String, value: Any, operator: String = "=", quoteValue: Boolean = value is String) : Query {
 
         if (!whereCalled) throw Exception("must call `where` before calling `and`")
 
@@ -121,9 +122,11 @@ class Query(properties: ArrayList<String>? = null) {
         return this
     }
 
-    fun andWhere(property: String, value: String) : Query = andWhereAny(property, value)
+    fun andWhere(property: String, value: String) : Query = andWhereAny(property, value, quoteValue = true)
 
-    fun andWhere(property: String, value: Int) : Query = andWhereAny(property, value, quoteValue = false)
+    fun andWhere(property: String, value: Int) : Query = whereAny(property, value, quoteValue = false)
+
+    fun andWhere(property: String, value: Any) : Query = andWhereAny(property, value)
 
     fun andWhereNot(property: String, value: String) : Query = andWhereAny(property, value, operator = "!=")
 
@@ -154,6 +157,8 @@ class Query(properties: ArrayList<String>? = null) {
         if (descending) {
             orderByFragment += " DESC"
         }
+
+        orderByCalled = true
 
         return this
     }

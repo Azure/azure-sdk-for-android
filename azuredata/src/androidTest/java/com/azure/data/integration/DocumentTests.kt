@@ -3,6 +3,7 @@ package com.azure.data.integration
 import com.azure.core.log.i
 import com.azure.data.*
 import com.azure.data.integration.common.CustomDocument
+import com.azure.data.integration.common.CustomDocument.Companion.customStringKey
 import com.azure.data.integration.common.DocumentTest
 import com.azure.data.integration.common.PartitionedCustomDocment
 import com.azure.data.model.DocumentClientError
@@ -114,7 +115,7 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
     @Test
     fun createDocumentInCollection() {
 
-        createNewDocument(collection)
+        createNewDocument(coll = collection)
     }
 
     @Test
@@ -197,14 +198,18 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
 
         // Get the first one
         AzureData.getDocuments(collectionId, databaseId, docType, 1) { waitForResponse = it }
+
         await().until { waitForResponse != null }
+
         waitForResponse.let {
             assertPage1(idsFound,it)
         }
 
         // Get the second one
         waitForResponse.let { response ->
+
             waitForResponse = null
+
             response!!.next {
                 assertPageN(idsFound,it)
                 waitForResponse = it
@@ -215,7 +220,9 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
 
         // Get the third one
         waitForResponse.let { response ->
+
             waitForResponse = null
+
             response!!.next {
                 assertPageLast(idsFound,it)
                 waitForResponse = it
@@ -255,7 +262,7 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
         assertResourceResponseSuccess(response)
 
         val createdDoc = response!!.resource!!
-        verifyDocument(createdDoc)
+        verifyDocument(createdDoc, doc)
     }
 
     @Test
@@ -283,7 +290,7 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
         assertResourceResponseSuccess(response)
 
         val createdDoc = response!!.resource!!
-        verifyDocument(createdDoc)
+        verifyDocument(createdDoc, doc)
     }
 
     @Test
@@ -300,7 +307,7 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
         }
 
         val createdDoc = response!!.resource!!
-        verifyDocument(createdDoc)
+        verifyDocument(createdDoc, doc)
     }
 
     //region Deletes
@@ -343,8 +350,7 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
     fun replaceDocument() {
 
         val doc = createNewDocument()
-
-        doc.setValue(CustomDocument.customStringKey, DocumentTest.replacedStringValue)
+        doc.customString = replacedStringValue
 
         AzureData.replaceDocument(doc, collectionId, databaseId) {
             response = it
@@ -357,15 +363,14 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
         assertResourceResponseSuccess(response)
 
         val replacedDoc = response!!.resource!!
-        verifyDocument(replacedDoc, DocumentTest.replacedStringValue)
+        verifyDocument(replacedDoc, doc)
     }
 
     @Test
     fun replaceDocumentInCollection() {
 
         val doc = createNewDocument()
-
-        doc.setValue(CustomDocument.customStringKey, DocumentTest.replacedStringValue)
+        doc.customString = replacedStringValue
 
         collection?.replaceDocument(doc) {
             response = it
@@ -378,7 +383,7 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
         assertResourceResponseSuccess(response)
 
         val replacedDoc = response!!.resource!!
-        verifyDocument(replacedDoc, DocumentTest.replacedStringValue)
+        verifyDocument(replacedDoc, doc)
     }
 
     //endregion

@@ -3,7 +3,8 @@ package com.azure.data.integration
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.AzureData
 import com.azure.data.findDocument
-import com.azure.data.integration.common.CustomDocument
+import com.azure.data.integration.common.CustomDocument.Companion.customNumberKey
+import com.azure.data.integration.common.CustomDocument.Companion.customStringKey
 import com.azure.data.integration.common.DocumentTest
 import com.azure.data.integration.common.PartitionedCustomDocment
 import com.azure.data.model.Query
@@ -25,32 +26,42 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
         partitionKeyPath = "/testKey"
     }
 
-    private fun queryDocuments(queryFunction: (partitionKey: String, query: Query) -> Unit) {
-
-        // ensure at least 1 doc to query
-        val doc = createNewDocument()
+    private fun queryDocuments(partitionKey: String? = null, expectedDocs: Int = 1,
+                               where: Map<String, Any> = mapOf(customStringKey to customStringValue, customNumberKey to customNumberValue),
+                               orderBy: String = "_etag", queryFunction: (partitionKey: String?, query: Query) -> Unit) {
 
         // create query
-        val query = Query.select()
+        var query = Query.select()
                 .from(collectionId)
-                .where(CustomDocument.customStringKey, DocumentTest.customStringValue)
-                .andWhere(CustomDocument.customNumberKey, DocumentTest.customNumberValue)
-                .orderBy("_etag", true)
 
-        queryFunction(doc.testKey, query)
+        for (i in 0 until where.count()) {
+
+            query = if (i == 0) {
+                query.where(where.keys.elementAt(i), where.values.elementAt(i))
+            } else {
+                query.andWhere(where.keys.elementAt(i), where.values.elementAt(i))
+            }
+        }
+
+        query = query.orderBy(orderBy, true)
+
+        queryFunction(partitionKey, query)
 
         await().until {
             resourceListResponse != null
         }
 
-        verifyListDocuments()
+        verifyListDocuments(expectedDocs, false)
     }
 
     @Test
     fun queryDocumentsWithPartition() {
 
-        queryDocuments { partitionKey, query ->
-            AzureData.queryDocuments(collectionId, partitionKey, databaseId, query, docType) {
+        // ensure at least 1 doc to query
+        val doc = createNewDocument()
+
+        queryDocuments(doc.testKey) { partitionKey, query ->
+            AzureData.queryDocuments(collectionId, partitionKey!!, databaseId, query, docType) {
                 resourceListResponse = it
             }
         }
@@ -58,6 +69,9 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
 
     @Test
     fun queryDocumentsCrossPartition() {
+
+        // ensure at least 1 doc to query
+        createNewDocument()
 
         queryDocuments { _, query ->
             AzureData.queryDocuments(collectionId, databaseId, query, docType) {
@@ -69,8 +83,11 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
     @Test
     fun queryDocumentsInCollectionWithPartition() {
 
-        queryDocuments { partitionKey, query ->
-            collection?.queryDocuments(query, partitionKey, docType) {
+        // ensure at least 1 doc to query
+        val doc = createNewDocument()
+
+        queryDocuments(doc.testKey) { partitionKey, query ->
+            collection?.queryDocuments(query, partitionKey!!, docType) {
                 resourceListResponse = it
             }
         }
@@ -78,6 +95,9 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
 
     @Test
     fun queryDocumentsInCollectionCrossPartition() {
+
+        // ensure at least 1 doc to query
+        createNewDocument()
 
         queryDocuments { _, query ->
             collection?.queryDocuments(query, docType) {
@@ -123,4 +143,72 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
 
         assertEquals("", doc.id, resourceListResponse?.resource?.items!![0].id)
     }
+
+    @Test
+    fun queryPartitionedDocumentsOrderByNumber() {
+
+        // create multiple docs so we can test the ordering
+        var doc = PartitionedCustomDocment()
+        doc.customNumber = 1
+        createNewDocument(doc)
+
+        doc = PartitionedCustomDocment()
+        doc.customNumber = 2
+        createNewDocument(doc)
+
+        doc = PartitionedCustomDocment()
+        doc.customNumber = 3
+        createNewDocument(doc)
+
+        queryDocuments(doc.testKey, 3, mapOf(), "customNumber") { partitionKey, query ->
+            collection?.queryDocuments(query, partitionKey!!, docType) {
+                resourceListResponse = it
+            }
+        }
+
+        await().until {
+            resourceListResponse != null
+        }
+
+        // verify we've returned 3 docs
+        verifyListDocuments(3, false)
+
+        assertEquals("Docs not ordered correctly", 3, resourceListResponse?.resource?.items!![0].customNumber)
+        assertEquals("Docs not ordered correctly", 2, resourceListResponse?.resource?.items!![1].customNumber)
+        assertEquals("Docs not ordered correctly", 1, resourceListResponse?.resource?.items!![2].customNumber)
+    }
+
+//    @Test
+//    fun queryCrossPartitionedDocumentsOrderByNumber() {
+//
+//        // create multiple docs so we can test the ordering
+//        var doc = PartitionedCustomDocment()
+//        doc.customNumber = 1
+//        createNewDocument(doc)
+//
+//        doc = PartitionedCustomDocment()
+//        doc.customNumber = 2
+//        createNewDocument(doc)
+//
+//        doc = PartitionedCustomDocment()
+//        doc.customNumber = 3
+//        createNewDocument(doc)
+//
+//        queryDocuments(doc.testKey, 3, mapOf(), "customNumber") { partitionKey, query ->
+//            collection?.queryDocuments(query, partitionKey!!, docType) {
+//                resourceListResponse = it
+//            }
+//        }
+//
+//        await().until {
+//            resourceListResponse != null
+//        }
+//
+//        // verify we've returned 3 docs
+//        verifyListDocuments(3, false)
+//
+//        assertEquals("Docs not ordered correctly", 3, resourceListResponse?.resource?.items!![0].customNumber)
+//        assertEquals("Docs not ordered correctly", 2, resourceListResponse?.resource?.items!![1].customNumber)
+//        assertEquals("Docs not ordered correctly", 1, resourceListResponse?.resource?.items!![2].customNumber)
+//    }
 }

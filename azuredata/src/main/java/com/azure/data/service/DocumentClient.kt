@@ -917,8 +917,6 @@ class DocumentClient private constructor() {
     // query
     private fun <T : Resource> query(query: Query, resourceLocation: ResourceLocation, maxPerPage: Int?, partitionKey: String?, resourceClass: Class<T>? = null, callback: (ListResponse<T>) -> Unit) {
 
-        d { query.toString() }
-
         try {
             val json = gson.toJson(query.dictionary)
 

@@ -33,11 +33,9 @@ abstract class DocumentTest<TDoc : CustomDocument>(val docType: Class<TDoc>)
         return doc as TDoc
     }
 
-    fun createNewDocument(coll: DocumentCollection? = null) : TDoc {
+    fun createNewDocument(doc: TDoc = newDocument(), coll: DocumentCollection? = null) : TDoc {
 
         var docResponse: Response<TDoc>? = null
-
-        val doc = newDocument()
 
         if (coll != null) {
 
@@ -56,11 +54,11 @@ abstract class DocumentTest<TDoc : CustomDocument>(val docType: Class<TDoc>)
         }
 
         assertResourceResponseSuccess(docResponse)
-        assertEquals(createdResourceId, docResponse?.resource?.id)
+        assertEquals(doc.id, docResponse?.resource?.id)
 
         val createdDoc = docResponse!!.resource!!
 
-        return verifyDocument(createdDoc)
+        return verifyDocument(createdDoc, doc)
     }
 
     fun createNewDocuments(count : Int) : List<TDoc> {
@@ -69,11 +67,13 @@ abstract class DocumentTest<TDoc : CustomDocument>(val docType: Class<TDoc>)
 
         for (i in 1..count) {
 
-            AzureData.createDocument(newDocument(i), collectionId, databaseId) {
+            val docToCreate = newDocument(i)
+
+            AzureData.createDocument(docToCreate, collectionId, databaseId) {
 
                 assertResourceResponseSuccess(it)
                 assertEquals(createdResourceId(i), it.resource?.id)
-                docs.add(verifyDocument(it.resource!!))
+                docs.add(verifyDocument(it.resource!!, docToCreate))
             }
         }
 
@@ -84,24 +84,27 @@ abstract class DocumentTest<TDoc : CustomDocument>(val docType: Class<TDoc>)
         return docs
     }
 
-    fun verifyDocument(createdDoc: TDoc, stringValue: String? = null) : TDoc {
+    fun verifyDocument(createdDoc: TDoc, referenceDoc: TDoc? = null, verifyDocValues: Boolean = true) : TDoc {
 
         assertNotNull(createdDoc.getValue(customStringKey))
         assertNotNull(createdDoc.getValue(customNumberKey))
-        assertEquals(stringValue ?: customStringValue, createdDoc.getValue(customStringKey))
-        assertEquals(customNumberValue, (createdDoc.getValue(customNumberKey) as Number).toInt())
+
+        if (verifyDocValues) {
+            assertEquals(referenceDoc?.customString ?: customStringValue, createdDoc.customString)
+            assertEquals(referenceDoc?.customNumber ?: customNumberValue, createdDoc.customNumber)
+        }
 
         return createdDoc
     }
 
-    fun verifyListDocuments(count : Int = 1) {
+    fun verifyListDocuments(count : Int = 1, verifyDocValues: Boolean = true) {
 
         assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! == count)
 
         resourceListResponse?.resource?.items?.forEach {
 
-            verifyDocument(it)
+            verifyDocument(it, verifyDocValues = verifyDocValues)
         }
     }
 
