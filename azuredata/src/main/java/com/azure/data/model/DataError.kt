@@ -1,5 +1,7 @@
 package com.azure.data.model
 
+import com.azure.core.http.HttpStatusCode
+
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -19,6 +21,9 @@ class DataError(message: String?, val code: String? = null) : Error(message) {
             "Error: ${if (code != null) "\n\tCode: $code" else ""} \n\tMessage: $message"
 
     fun isConnectivityError(): Boolean = this.message.equals(DocumentClientError.InternetConnectivityError.message)
+
+    fun isInvalidCrossPartitionQueryError(): Boolean = this.code == HttpStatusCode.BadRequest.name &&
+            this.message?.startsWith(DocumentClientError.InvalidCrossPartitionQueryError.message!!) ?: false
 }
 
 // intermediary class used to deserialize DataErrors

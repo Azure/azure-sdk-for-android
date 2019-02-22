@@ -1,5 +1,6 @@
 package com.azure.data.model
 
+import com.azure.data.model.partition.PartitionKeyRange
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -12,7 +13,7 @@ class ResourceList<T: Resource> : ResourceBase() {
     @SerializedName(Keys.countKey)
     var count: Int = 0
 
-    @SerializedName(Document.listName, alternate = [Database.listName, Attachment.listName, DocumentCollection.listName, Offer.listName, Permission.listName, StoredProcedure.listName, Trigger.listName, User.listName, UserDefinedFunction.listName])
+    @SerializedName(Document.listName, alternate = [Database.listName, Attachment.listName, DocumentCollection.listName, Offer.listName, Permission.listName, StoredProcedure.listName, Trigger.listName, User.listName, UserDefinedFunction.listName, PartitionKeyRange.listName])
     lateinit var items: List<T>
 
     val isPopulated: Boolean

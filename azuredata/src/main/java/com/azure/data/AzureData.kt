@@ -4,6 +4,7 @@ import android.content.Context
 import com.azure.core.util.ContextProvider
 import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
+import com.azure.data.model.partition.PartitionKeyRange
 import com.azure.data.service.*
 import com.azure.data.util.json.gsonBuilder
 import com.google.gson.GsonBuilder
@@ -218,6 +219,11 @@ class AzureData {
         @JvmStatic
         fun replaceCollection(collection: DocumentCollection, databaseId: String, indexingPolicy: IndexingPolicy, callback: (Response<DocumentCollection>) -> Unit) =
                 documentClient.replaceCollection(collection, databaseId, indexingPolicy, callback)
+
+        // list partition key ranges
+        @JvmStatic
+        fun getCollectionPartitionKeyRanges(collectionId: String, databaseId: String, callback: (ListResponse<PartitionKeyRange>) -> Unit) =
+                documentClient.getCollectionPartitionKeyRanges(collectionId, databaseId, callback)
 
         //endregion
 
