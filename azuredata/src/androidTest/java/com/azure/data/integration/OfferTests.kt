@@ -46,7 +46,7 @@ class OfferTests : ResourceTest<Offer>(ResourceType.Offer, false, false) {
 
         await().until { waitForResponse != null }
 
-        assertPage1(idsFound, waitForResponse, false)
+        assertPageN(idsFound, waitForResponse, checkCreatedId = false)
 
         // Get the remaining
         while (waitForResponse?.hasMoreResults == true) {
@@ -58,9 +58,9 @@ class OfferTests : ResourceTest<Offer>(ResourceType.Offer, false, false) {
                 response!!.next {
 
                     if (it.hasMoreResults) {
-                        assertPageN(idsFound, it, false)
+                        assertPageN(idsFound, it, checkCreatedId = false)
                     } else {
-                        assertPageLast(idsFound, it, false)
+                        assertPageLast(idsFound, it, checkCreatedId = false)
                     }
 
                     waitForResponse = it

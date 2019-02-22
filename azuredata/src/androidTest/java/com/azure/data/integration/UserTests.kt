@@ -11,9 +11,9 @@ import com.azure.data.service.DataResponse
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
 import com.azure.data.service.next
-import junit.framework.Assert.assertEquals
 import org.awaitility.Awaitility.await
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Test
@@ -135,32 +135,40 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
         // Get the first one
         AzureData.getUsers(databaseId, 1) { waitForResponse = it }
         await().until { waitForResponse != null }
-        waitForResponse.let {
-            assertPage1(idsFound,it)
-        }
+
+        assertPageN(idsFound, waitForResponse)
 
         // Get the second one
         waitForResponse.let { response ->
+
             waitForResponse = null
+
             response!!.next {
-                assertPageN(idsFound,it)
+
+                assertPageN(idsFound, it)
                 waitForResponse = it
             }
         }
+
         await().until { waitForResponse != null }
 
         // Get the third one
         waitForResponse.let { response ->
+
             waitForResponse = null
+
             response!!.next {
-                assertPageLast(idsFound,it)
+
+                assertPageLast(idsFound, it)
                 waitForResponse = it
             }
         }
+
         await().until { waitForResponse != null }
 
         // Try to get one more
         waitForResponse!!.next {
+
             assertPageOnePastLast(it)
         }
     }

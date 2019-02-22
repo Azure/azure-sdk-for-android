@@ -280,17 +280,15 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
 
     fun assertDataResponseSuccess(response: DataResponse?) {
 
-        assertNotNull(response)
-        assertResponsePopulated(response!!)
-        assertTrue(response.isSuccessful)
+        assertResponsePopulated(response)
+        assertTrue(response!!.isSuccessful)
         assertFalse(response.isErrored)
     }
 
     fun assertResourceResponseSuccess(response: Response<*>?) {
 
-        assertNotNull(response)
-        assertResponsePopulated(response!!)
-        assertTrue(response.isSuccessful)
+        assertResponsePopulated(response)
+        assertTrue(response!!.isSuccessful)
         assertFalse(response.isErrored)
 
         assertResourcePropertiesSet(response.resource as Resource)
@@ -312,52 +310,42 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         assertTrue(response.isErrored)
     }
 
-    fun <T : Resource> assertPage1(idsFound: MutableList<String>, response: ListResponse<T>?, checkCreatedId: Boolean = true) {
+    fun <T : Resource> assertPageN(idsFound: MutableList<String>, response: ListResponse<T>?, pageSize: Int = 1, checkCreatedId: Boolean = true) {
 
+        assertListResponseSuccess(response)
         assertNotNull(response!!.metadata.continuation)
         assertNotNull(response.resource?.items)
-        assertEquals(1, response.resource?.items?.size)
+        assertEquals(pageSize, response.resource?.items?.size)
 
-        val id = response.resource?.items?.get(0)?.id!!
+        for (item in response.resource?.items!!) {
 
-        if (checkCreatedId) {
-            assertTrue(id.startsWith(createdResourceId))
+            if (checkCreatedId) {
+                assertTrue(item.id.startsWith(createdResourceId))
+            }
+
+            assertFalse(idsFound.contains(item.id))
+            idsFound.add(item.id)
         }
 
         assertTrue(response.hasMoreResults)
-        idsFound.add(id)
     }
 
-    fun <T : Resource> assertPageN(idsFound: MutableList<String>, response: ListResponse<T>?, checkCreatedId: Boolean = true) {
+    fun <T : Resource> assertPageLast(idsFound: MutableList<String>, response: ListResponse<T>?, pageSize: Int = 1, checkCreatedId: Boolean = true) {
 
-        assertNotNull(response!!.metadata.continuation)
-        assertNotNull(response.resource?.items)
-        assertEquals(1, response.resource?.items?.size)
-
-        val id = response.resource?.items?.get(0)?.id!!
-
-        if (checkCreatedId) {
-            assertTrue(id.startsWith(createdResourceId))
-        }
-
-        assertFalse(idsFound.contains(id))
-        assertTrue(response.hasMoreResults)
-        idsFound.add(id)
-    }
-
-    fun <T : Resource> assertPageLast(idsFound: MutableList<String>, response: ListResponse<T>?, checkCreatedId: Boolean = true) {
-
+        assertListResponseSuccess(response)
         assertNotNull(response!!.resource?.items)
-        assertEquals(1, response.resource?.items?.size)
+        assertEquals(pageSize, response.resource?.items?.size)
 
-        val id = response.resource?.items?.get(0)?.id!!
+        for (item in response.resource?.items!!) {
 
-        if (checkCreatedId) {
-            assertTrue(id.startsWith(createdResourceId))
+            if (checkCreatedId) {
+                assertTrue(item.id.startsWith(createdResourceId))
+            }
+
+            assertFalse(idsFound.contains(item.id))
+            idsFound.add(item.id)
         }
 
-        assertFalse(idsFound.contains(id))
-        idsFound.add(id)
         assertFalse(response.hasMoreResults)
     }
 

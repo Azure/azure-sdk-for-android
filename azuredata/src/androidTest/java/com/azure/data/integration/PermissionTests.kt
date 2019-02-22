@@ -7,9 +7,9 @@ import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.*
 import com.azure.data.service.DataResponse
 import com.azure.data.service.Response
-import junit.framework.Assert.assertEquals
 import org.awaitility.Awaitility.await
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith

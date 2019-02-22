@@ -3,12 +3,12 @@ package com.azure.data.integration
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.AzureData
 import com.azure.data.findDocument
-import com.azure.data.integration.common.CustomDocument.Companion.customNumberKey
-import com.azure.data.integration.common.CustomDocument.Companion.customStringKey
+import com.azure.data.integration.common.CustomDocument
 import com.azure.data.integration.common.DocumentTest
 import com.azure.data.integration.common.PartitionedCustomDocment
 import com.azure.data.model.Query
 import com.azure.data.queryDocuments
+import com.azure.data.service.next
 import org.awaitility.Awaitility.await
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -27,7 +27,7 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
     }
 
     private fun queryDocuments(partitionKey: String? = null, expectedDocs: Int = 1,
-                               where: Map<String, Any> = mapOf(customStringKey to customStringValue, customNumberKey to customNumberValue),
+                               where: Map<String, Any> = mapOf(CustomDocument::customString.name to customStringValue, CustomDocument::customNumber.name to customNumberValue),
                                orderBy: String? = null, orderByAsc: Boolean = true, queryFunction: (partitionKey: String?, query: Query) -> Unit) {
 
         // create query
@@ -257,5 +257,53 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
         assertEquals("Docs not ordered correctly", 3, resourceListResponse?.resource?.items!![0].customNumber)
         assertEquals("Docs not ordered correctly", 2, resourceListResponse?.resource?.items!![1].customNumber)
         assertEquals("Docs not ordered correctly", 1, resourceListResponse?.resource?.items!![2].customNumber)
+    }
+
+    @Test
+    fun queryDocumentsPaging() {
+
+        val idsFound = mutableListOf<String>()
+
+        // let's create 12 docs and page them 4 at a time
+        createNewDocuments(12)
+        val pageSize = 4
+
+        // Get the first one
+        AzureData.getDocuments(collectionId, databaseId, docType, pageSize) { resourceListResponse = it }
+
+        await().until { resourceListResponse != null }
+
+        assertPageN(idsFound, resourceListResponse, pageSize)
+
+        // Get the second one
+        resourceListResponse?.let { response ->
+
+            resourceListResponse = null
+
+            response.next {
+                assertPageN(idsFound, it, pageSize)
+                resourceListResponse = it
+            }
+        }
+
+        await().until { resourceListResponse != null }
+
+        // Get the third one
+        resourceListResponse?.let { response ->
+
+            resourceListResponse = null
+
+            response.next {
+                assertPageLast(idsFound, it, pageSize)
+                resourceListResponse = it
+            }
+        }
+
+        await().until { resourceListResponse != null }
+
+        // Try to get one more - should fail
+        resourceListResponse!!.next {
+            assertPageOnePastLast(it)
+        }
     }
 }

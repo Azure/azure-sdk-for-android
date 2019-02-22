@@ -1,8 +1,6 @@
 package com.azure.data.integration.common
 
 import com.azure.data.*
-import com.azure.data.integration.common.CustomDocument.Companion.customNumberKey
-import com.azure.data.integration.common.CustomDocument.Companion.customStringKey
 import com.azure.data.model.*
 import com.azure.data.service.Response
 import org.junit.Assert.*
@@ -27,8 +25,8 @@ abstract class DocumentTest<TDoc : CustomDocument>(val docType: Class<TDoc>)
 
         val doc = docType.newInstance()
         doc.id = createdResourceId(count)
-        doc.setValue(customStringKey, customStringValue)
-        doc.setValue(customNumberKey, customNumberValue)
+        doc.customString = customStringValue
+        doc.customNumber = customNumberValue
 
         return doc as TDoc
     }
@@ -86,8 +84,8 @@ abstract class DocumentTest<TDoc : CustomDocument>(val docType: Class<TDoc>)
 
     fun verifyDocument(createdDoc: TDoc, referenceDoc: TDoc? = null, verifyDocValues: Boolean = true) : TDoc {
 
-        assertNotNull(createdDoc.getValue(customStringKey))
-        assertNotNull(createdDoc.getValue(customNumberKey))
+        assertNotNull(createdDoc.customString)
+        assertNotNull(createdDoc.customNumber)
 
         if (verifyDocValues) {
             assertEquals(referenceDoc?.customString ?: customStringValue, createdDoc.customString)

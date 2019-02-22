@@ -155,7 +155,6 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
                 is Child           -> "$it${this.resourceType.path}"
                 is Resource        -> ResourceOracle.shared.getSelfLink(this.resource)?.lastPathComponentRemoved()
                 is PkRanges        -> "${it}pkranges"
-                else               -> null
             }
         }
 
@@ -178,7 +177,6 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
             is Child           -> ResourceOracle.shared.getSelfLink(this.resource)
             is Resource        -> ResourceOracle.shared.getSelfLink(this.resource)?.lastPathComponentRemoved()?.lastPathComponentRemoved()
             is PkRanges        -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.id))
-            else               -> null
         }
     }
 }

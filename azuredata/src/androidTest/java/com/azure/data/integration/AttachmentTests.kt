@@ -225,9 +225,7 @@ open class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, t
 
         await().until { waitForResponse != null }
 
-        waitForResponse.let {
-            assertPage1(idsFound,it)
-        }
+        assertPageN(idsFound, waitForResponse)
 
         // Get the second one
         waitForResponse.let { response ->
@@ -236,7 +234,7 @@ open class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, t
 
             response!!.next {
 
-                assertPageN(idsFound,it)
+                assertPageN(idsFound, it)
                 waitForResponse = it
             }
         }
@@ -250,7 +248,7 @@ open class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, t
 
             response!!.next {
 
-                assertPageLast(idsFound,it)
+                assertPageLast(idsFound, it)
                 waitForResponse = it
             }
         }
