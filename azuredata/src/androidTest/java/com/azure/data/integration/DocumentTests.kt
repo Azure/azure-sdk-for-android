@@ -58,7 +58,7 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
             val doc = newDocument()
             doc.id = id
 
-            var docResponse : Response<TDoc>? = null
+            var docResponse : Response<TDoc>?
 
             AzureData.createDocument(doc, collectionId, databaseId) {
                 docResponse = it
@@ -197,17 +197,15 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
 
         await().until { waitForResponse != null }
 
-        waitForResponse.let {
-            assertPage1(idsFound,it)
-        }
+        assertPageN(idsFound, waitForResponse)
 
         // Get the second one
-        waitForResponse.let { response ->
+        waitForResponse?.let { response ->
 
             waitForResponse = null
 
-            response!!.next {
-                assertPageN(idsFound,it)
+            response.next {
+                assertPageN(idsFound, it)
                 waitForResponse = it
             }
         }
@@ -215,19 +213,19 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
         await().until { waitForResponse != null }
 
         // Get the third one
-        waitForResponse.let { response ->
+        waitForResponse?.let { response ->
 
             waitForResponse = null
 
-            response!!.next {
-                assertPageLast(idsFound,it)
+            response.next {
+                assertPageLast(idsFound, it)
                 waitForResponse = it
             }
         }
 
         await().until { waitForResponse != null }
 
-        // Try to get one more
+        // Try to get one more - should fail
         waitForResponse!!.next {
             assertPageOnePastLast(it)
         }

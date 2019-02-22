@@ -135,32 +135,40 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
         // Get the first one
         AzureData.getUsers(databaseId, 1) { waitForResponse = it }
         await().until { waitForResponse != null }
-        waitForResponse.let {
-            assertPage1(idsFound,it)
-        }
+
+        assertPageN(idsFound, waitForResponse)
 
         // Get the second one
         waitForResponse.let { response ->
+
             waitForResponse = null
+
             response!!.next {
-                assertPageN(idsFound,it)
+
+                assertPageN(idsFound, it)
                 waitForResponse = it
             }
         }
+
         await().until { waitForResponse != null }
 
         // Get the third one
         waitForResponse.let { response ->
+
             waitForResponse = null
+
             response!!.next {
-                assertPageLast(idsFound,it)
+
+                assertPageLast(idsFound, it)
                 waitForResponse = it
             }
         }
+
         await().until { waitForResponse != null }
 
         // Try to get one more
         waitForResponse!!.next {
+
             assertPageOnePastLast(it)
         }
     }
