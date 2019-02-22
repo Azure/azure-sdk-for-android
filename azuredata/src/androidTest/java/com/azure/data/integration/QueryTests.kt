@@ -3,8 +3,7 @@ package com.azure.data.integration
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.AzureData
 import com.azure.data.findDocument
-import com.azure.data.integration.common.CustomDocument.Companion.customNumberKey
-import com.azure.data.integration.common.CustomDocument.Companion.customStringKey
+import com.azure.data.integration.common.CustomDocument
 import com.azure.data.integration.common.DocumentTest
 import com.azure.data.integration.common.PartitionedCustomDocment
 import com.azure.data.model.Query
@@ -27,7 +26,7 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
     }
 
     private fun queryDocuments(partitionKey: String? = null, expectedDocs: Int = 1,
-                               where: Map<String, Any> = mapOf(customStringKey to customStringValue, customNumberKey to customNumberValue),
+                               where: Map<String, Any> = mapOf(CustomDocument::customString.name to customStringValue, CustomDocument::customNumber.name to customNumberValue),
                                orderBy: String? = null, orderByAsc: Boolean = true, queryFunction: (partitionKey: String?, query: Query) -> Unit) {
 
         // create query

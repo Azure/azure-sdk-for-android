@@ -11,9 +11,9 @@ import com.azure.data.service.DataResponse
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
 import com.azure.data.service.next
-import junit.framework.Assert.assertEquals
 import org.awaitility.Awaitility.await
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Test

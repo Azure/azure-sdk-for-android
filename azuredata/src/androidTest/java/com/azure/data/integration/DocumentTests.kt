@@ -3,7 +3,6 @@ package com.azure.data.integration
 import com.azure.core.log.i
 import com.azure.data.*
 import com.azure.data.integration.common.CustomDocument
-import com.azure.data.integration.common.CustomDocument.Companion.customStringKey
 import com.azure.data.integration.common.DocumentTest
 import com.azure.data.integration.common.PartitionedCustomDocment
 import com.azure.data.model.DocumentClientError
@@ -14,7 +13,6 @@ import com.azure.data.util.json.gson
 import org.awaitility.Awaitility.await
 import org.junit.Assert.*
 import org.junit.Test
-import java.util.*
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -29,21 +27,19 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
     fun testDocumentDateHandling() {
 
         val newDocument = newDocument()
-        newDocument.setValue(CustomDocument.customDateKey, customDateValue)
+        newDocument.customDate = customDateValue
 
         val json = gson.toJson(newDocument)
         val doc = gson.fromJson(json, docType)
 
-        val date = doc.getValue(CustomDocument.customDateKey) as Date
-
-        val compareResult = customDateValue.compareTo(date)
+        val compareResult = customDateValue.compareTo(doc.customDate)
 
         if (compareResult != 0) {
-            i { "::DATE COMPARE FAILURE:: \n\tExpected: $customDateValue \n\tActual: $date" }
+            i { "::DATE COMPARE FAILURE:: \n\tExpected: $customDateValue \n\tActual: $doc.customDate" }
         }
 
         assertEquals("Round trip dates equal?", 0, compareResult)
-        assertEquals(customDateValue.time, date.time)
+        assertEquals(customDateValue.time, doc.customDate.time)
     }
 
     @Test
@@ -92,7 +88,7 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
         val doc = createNewDocument()
 
         //change something
-        doc.setValue(CustomDocument.customNumberKey, DocumentTest.customNumberValue + 1)
+        doc.customNumber = customNumberValue + 1
 
         var docResponse: Response<TDoc>? = null
 
@@ -107,9 +103,9 @@ abstract class DocumentTests<TDoc : CustomDocument>(docType: Class<TDoc>) : Docu
 
         val updatedDoc = docResponse!!.resource!!
 
-        assertNotNull(updatedDoc.getValue(CustomDocument.customStringKey))
-        assertNotNull(updatedDoc.getValue(CustomDocument.customNumberKey))
-        assertEquals(DocumentTest.customNumberValue + 1, (updatedDoc.getValue(CustomDocument.customNumberKey) as Number).toInt())
+        assertNotNull(updatedDoc.customString)
+        assertNotNull(updatedDoc.customNumber)
+        assertEquals(customNumberValue + 1, updatedDoc.customNumber)
     }
 
     @Test

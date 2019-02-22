@@ -6,9 +6,9 @@ import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.DocumentCollection
 import com.azure.data.model.ResourceType
 import com.azure.data.model.UserDefinedFunction
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
 import org.awaitility.Awaitility.await
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
