@@ -28,7 +28,7 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
 
     private fun queryDocuments(partitionKey: String? = null, expectedDocs: Int = 1,
                                where: Map<String, Any> = mapOf(customStringKey to customStringValue, customNumberKey to customNumberValue),
-                               orderBy: String = "_etag", queryFunction: (partitionKey: String?, query: Query) -> Unit) {
+                               orderBy: String? = null, orderByAsc: Boolean = true, queryFunction: (partitionKey: String?, query: Query) -> Unit) {
 
         // create query
         var query = Query.select()
@@ -43,7 +43,9 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
             }
         }
 
-        query = query.orderBy(orderBy, true)
+        orderBy?.let {
+            query = query.orderBy(orderBy, !orderByAsc)
+        }
 
         queryFunction(partitionKey, query)
 
@@ -173,42 +175,87 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
         // verify we've returned 3 docs
         verifyListDocuments(3, false)
 
+        assertEquals("Docs not ordered correctly", 1, resourceListResponse?.resource?.items!![0].customNumber)
+        assertEquals("Docs not ordered correctly", 2, resourceListResponse?.resource?.items!![1].customNumber)
+        assertEquals("Docs not ordered correctly", 3, resourceListResponse?.resource?.items!![2].customNumber)
+
+        // let's sort the other direction now
+        resourceListResponse = null
+
+        queryDocuments(doc.testKey, 3, mapOf(), "customNumber", false) { partitionKey, query ->
+            collection?.queryDocuments(query, partitionKey!!, docType) {
+                resourceListResponse = it
+            }
+        }
+
+        await().until {
+            resourceListResponse != null
+        }
+
+        // verify we've returned 3 docs
+        verifyListDocuments(3, false)
+
         assertEquals("Docs not ordered correctly", 3, resourceListResponse?.resource?.items!![0].customNumber)
         assertEquals("Docs not ordered correctly", 2, resourceListResponse?.resource?.items!![1].customNumber)
         assertEquals("Docs not ordered correctly", 1, resourceListResponse?.resource?.items!![2].customNumber)
     }
 
-//    @Test
-//    fun queryCrossPartitionedDocumentsOrderByNumber() {
-//
-//        // create multiple docs so we can test the ordering
-//        var doc = PartitionedCustomDocment()
-//        doc.customNumber = 1
-//        createNewDocument(doc)
-//
-//        doc = PartitionedCustomDocment()
-//        doc.customNumber = 2
-//        createNewDocument(doc)
-//
-//        doc = PartitionedCustomDocment()
-//        doc.customNumber = 3
-//        createNewDocument(doc)
-//
-//        queryDocuments(doc.testKey, 3, mapOf(), "customNumber") { partitionKey, query ->
-//            collection?.queryDocuments(query, partitionKey!!, docType) {
-//                resourceListResponse = it
-//            }
-//        }
-//
-//        await().until {
-//            resourceListResponse != null
-//        }
-//
-//        // verify we've returned 3 docs
-//        verifyListDocuments(3, false)
-//
-//        assertEquals("Docs not ordered correctly", 3, resourceListResponse?.resource?.items!![0].customNumber)
-//        assertEquals("Docs not ordered correctly", 2, resourceListResponse?.resource?.items!![1].customNumber)
-//        assertEquals("Docs not ordered correctly", 1, resourceListResponse?.resource?.items!![2].customNumber)
-//    }
+    @Test
+    fun queryCrossPartitionDocumentsOrderByNumber() {
+
+        // create multiple docs so we can test the ordering
+        var doc = PartitionedCustomDocment()
+        doc.customNumber = 1
+        doc.testKey = "Partition1"
+        createNewDocument(doc)
+
+        doc = PartitionedCustomDocment()
+        doc.customNumber = 2
+        doc.testKey = "Partition2"
+        createNewDocument(doc)
+
+        doc = PartitionedCustomDocment()
+        doc.customNumber = 3
+        doc.testKey = "Partition1"
+        createNewDocument(doc)
+
+        // we'll omit the partition key, making this a cross partition query
+        queryDocuments(expectedDocs = 3, where = mapOf(), orderBy = "customNumber") { _, query ->
+            collection?.queryDocuments(query, docType) {
+                resourceListResponse = it
+            }
+        }
+
+        await().until {
+            resourceListResponse != null
+        }
+
+        // verify we've returned 3 docs
+        verifyListDocuments(3, false)
+
+        assertEquals("Docs not ordered correctly", 1, resourceListResponse?.resource?.items!![0].customNumber)
+        assertEquals("Docs not ordered correctly", 2, resourceListResponse?.resource?.items!![1].customNumber)
+        assertEquals("Docs not ordered correctly", 3, resourceListResponse?.resource?.items!![2].customNumber)
+
+        // let's sort the other direction now
+        resourceListResponse = null
+
+        // we'll omit the partition key, making this a cross partition query
+        queryDocuments(expectedDocs = 3, where = mapOf(), orderBy = "customNumber", orderByAsc = false) { _, query ->
+            collection?.queryDocuments(query, docType) {
+                resourceListResponse = it
+            }
+        }
+
+        await().until {
+            resourceListResponse != null
+        }
+
+        // verify we've returned 3 docs
+        verifyListDocuments(3, false)
+
+        assertEquals("Docs not ordered correctly", 3, resourceListResponse?.resource?.items!![0].customNumber)
+        assertEquals("Docs not ordered correctly", 2, resourceListResponse?.resource?.items!![1].customNumber)
+        assertEquals("Docs not ordered correctly", 1, resourceListResponse?.resource?.items!![2].customNumber)
+    }
 }

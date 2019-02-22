@@ -15,6 +15,7 @@ import com.azure.data.constants.HttpHeaderValue
 import com.azure.data.constants.MSHttpHeader
 import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
+import com.azure.data.model.partition.PartitionKeyRange
 import com.azure.data.model.partition.PartitionKeyResource
 import com.azure.data.util.*
 import com.azure.data.util.json.ResourceListJsonDeserializer
@@ -51,6 +52,8 @@ class DocumentClient private constructor() {
                 value.startListening()
             }
         }
+
+    //region Configuration
 
     val configuredWithMasterKey: Boolean
         get() = resourceTokenProvider != null
@@ -132,6 +135,8 @@ class DocumentClient private constructor() {
         permissionProvider = null
         resourceTokenProvider = null
     }
+
+    //endregion
 
     //region Network Connectivity
 
@@ -228,6 +233,12 @@ class DocumentClient private constructor() {
         collection.indexingPolicy = indexingPolicy
 
         return replace(collection, ResourceLocation.Collection(databaseId, collection.id), callback = callback)
+    }
+
+    // get partition key ranges
+    fun getCollectionPartitionKeyRanges(collectionId: String, databaseId: String, callback: (ListResponse<PartitionKeyRange>) -> Unit) {
+
+        return resources(ResourceLocation.PkRanges(databaseId, collectionId), PartitionKeyRange::class.java, null, null, callback)
     }
 
     //endregion
@@ -756,17 +767,17 @@ class DocumentClient private constructor() {
         createRequest(HttpMethod.Get, resourceLocation, additionalHeaders, maxPerPage) {
 
             sendResourceListRequest(
-                request = it,
-                resourceLocation = resourceLocation,
-                callback = { response ->
-                    processResourceListResponse(
-                        resourceLocation = resourceLocation,
-                        response = response,
-                        callback = callback,
-                        resourceClass = resourceClass
-                    )
-                },
-                resourceClass = resourceClass
+                    request = it,
+                    resourceLocation = resourceLocation,
+                    resourceClass = resourceClass,
+                    callback = { response ->
+                        processResourceListResponse(
+                                resourceLocation = resourceLocation,
+                                response = response,
+                                callback = callback,
+                                resourceClass = resourceClass
+                        )
+                    }
             )
         }
     }
@@ -781,10 +792,10 @@ class DocumentClient private constructor() {
                     resourceLocation = resourceLocation,
                     callback = { response ->
                         processResourceGetResponse(
-                            resourceLocation = resourceLocation,
-                            response = response,
-                            callback = callback,
-                            resourceClass = resourceClass
+                                resourceLocation = resourceLocation,
+                                response = response,
+                                callback = callback,
+                                resourceClass = resourceClass
                         )
                     },
                     resourceClass = resourceClass
@@ -923,9 +934,35 @@ class DocumentClient private constructor() {
             // do we have a partition key to send?  If not, then this query will be a cross partition query
             val headers = partitionKey?.let { setPartitionKeyHeader(partitionKey) } ?: mutableMapOf(Pair(MSHttpHeader.MSDocumentDBQueryEnableCrossPartition.value, HttpHeaderValue.trueValue))
 
-            createRequest(HttpMethod.Post, resourceLocation, headers, json, true, maxPerPage) {
+            createRequest(HttpMethod.Post, resourceLocation, headers, json, true, maxPerPage) { request ->
 
-                sendResourceListRequest(it, resourceLocation, callback, resourceClass)
+                sendResourceListRequest(request, resourceLocation, resourceClass) { response ->
+
+                    // if we've tried to query cross partition but have a TOP or ORDER BY, we'll get a specific error we can work around by using partition key range Ids
+                    // reference: https://stackoverflow.com/questions/50240232/cosmos-db-rest-api-order-by-with-partitioning
+                    if (response.isErrored && response.error!!.isInvalidCrossPartitionQueryError()) {
+
+                        // we will grab the partition key ranges for the collection we're querying
+                        val dbId = resourceLocation.ancestorIds().getValue(ResourceType.Database)
+                        val collId = resourceLocation.ancestorIds().getValue(ResourceType.Collection)
+
+                        getCollectionPartitionKeyRanges(collId, dbId) { pkRanges ->
+
+                            // THEN, we can retry our request after setting the range Id header
+                            // TODO:  Note, we may need to do more here if there are additional PartitionKeyRange items that come back... can't find docs on this format
+                            headers[MSHttpHeader.MSDocumentDBPartitionKeyRangeId.value] = "${pkRanges.resource!!.resourceId!!},${pkRanges.resource.items[0].id}"
+
+                            createRequest(HttpMethod.Post, resourceLocation, headers, json, true, maxPerPage) { retryRequest ->
+
+                                sendResourceListRequest(retryRequest, resourceLocation, resourceClass) { retryResponse ->
+
+                                    // DO NOT try to inline this into the method call above.  Bad. Things. Happen.
+                                    callback(retryResponse)
+                                }
+                            }
+                        }
+                    } else callback(response) //success case
+                }
             }
         } catch (ex: Exception) {
             e(ex)
@@ -1101,6 +1138,7 @@ class DocumentClient private constructor() {
             var mediaType = jsonMediaType
 
             if (forQuery) {
+
                 it.addHeader(MSHttpHeader.MSDocumentDBIsQuery.value, HttpHeaderValue.trueValue)
                 it.addHeader(HttpHeader.ContentType.value, HttpMediaType.QueryJson.value)
                 mediaType = MediaType.parse(HttpMediaType.QueryJson.value)
@@ -1108,12 +1146,13 @@ class DocumentClient private constructor() {
             else if (method == HttpMethod.Post || method == HttpMethod.Put) {
 
                 if (resourceLocation.resourceType != ResourceType.Attachment) {
+
                     it.addHeader(HttpHeader.ContentType.value, HttpMediaType.Json.value)
                 }
             }
 
             // we convert the json to bytes here rather than allowing OkHttp, as they will tack on
-            //  a charset string that does not work well with certain operations (Query)
+            //  a charset string that does not work well with certain operations (Query!)
             val body = jsonBody.toByteArray(Charsets.UTF_8)
 
             when (method) {
@@ -1249,7 +1288,7 @@ class DocumentClient private constructor() {
         }
     }
 
-    private inline fun <T : Resource> sendResourceListRequest(request: Request, resourceLocation: ResourceLocation, crossinline callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>? = null) {
+    private inline fun <T : Resource> sendResourceListRequest(request: Request, resourceLocation: ResourceLocation, resourceClass: Class<T>? = null, crossinline callback: (ListResponse<T>) -> Unit) {
 
         try {
             client.newCall(request)

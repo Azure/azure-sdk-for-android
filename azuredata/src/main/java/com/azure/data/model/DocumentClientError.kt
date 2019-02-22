@@ -24,5 +24,6 @@ class DocumentClientError private constructor(msg: String) : Error(msg) {
         val Conflict = DocumentClientError("The request could not be completed due to a conflict.")
         val InternetConnectivityError = DocumentClientError("There is no internet connection to perform the request.")
         val InvalidThroughputError = DocumentClientError("Throughput must be between ${HttpHeaderValue.minDatabaseThroughput} and ${HttpHeaderValue.maxDatabaseThroughput} and be a multiple of ${HttpHeaderValue.databaseThroughputStep}")
+        val InvalidCrossPartitionQueryError = DocumentClientError("The provided cross partition query can not be directly served by the gateway")
     }
 }

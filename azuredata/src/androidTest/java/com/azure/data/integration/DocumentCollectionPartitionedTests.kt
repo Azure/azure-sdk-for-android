@@ -6,6 +6,8 @@ import com.azure.data.constants.HttpHeaderValue
 import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.*
 import com.azure.data.model.indexing.*
+import com.azure.data.model.partition.PartitionKeyRange
+import com.azure.data.service.ListResponse
 import org.awaitility.Awaitility.await
 import org.junit.Assert.*
 import org.junit.Test
@@ -315,5 +317,24 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(Reso
                 }
             }
         }
+    }
+
+    @Test
+    fun testGetCollectionPartitionKeyRanges() {
+
+        ensureCollection()
+
+        var response: ListResponse<PartitionKeyRange>? = null
+
+        AzureData.getCollectionPartitionKeyRanges(collectionId, databaseId) {
+            response = it
+        }
+
+        await().until {
+            response != null
+        }
+
+        assertListResponseSuccess(response)
+        assertTrue(response?.resource?.count!! > 0)
     }
 }
