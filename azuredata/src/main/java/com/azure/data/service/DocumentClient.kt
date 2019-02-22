@@ -163,7 +163,7 @@ class DocumentClient private constructor() {
                 return callback(Response(DataError(DocumentClientError.InvalidThroughputError)))
             }
 
-            create(Database(databaseId), ResourceLocation.Database(), mutableMapOf(Pair(MSHttpHeader.MSOfferThroughput.value, "$it")), callback = callback)
+            create(Database(databaseId), ResourceLocation.Database(), mutableMapOf(MSHttpHeader.MSOfferThroughput.value to "$it"), callback = callback)
         } ?: create(Database(databaseId), ResourceLocation.Database(), callback = callback)
     }
 
@@ -205,7 +205,7 @@ class DocumentClient private constructor() {
                 return callback(Response(DataError(DocumentClientError.InvalidThroughputError)))
             }
 
-            create(DocumentCollection(collectionId, partitionKey), ResourceLocation.Collection(databaseId), mutableMapOf(Pair(MSHttpHeader.MSOfferThroughput.value, "$it")), callback = callback)
+            create(DocumentCollection(collectionId, partitionKey), ResourceLocation.Collection(databaseId), mutableMapOf(MSHttpHeader.MSOfferThroughput.value to "$it"), callback = callback)
         } ?: create(DocumentCollection(collectionId, partitionKey), ResourceLocation.Collection(databaseId), callback = callback)
     }
 
@@ -260,13 +260,13 @@ class DocumentClient private constructor() {
     // createOrReplace
     fun <T : Document> createOrReplaceDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) {
 
-        return create(document, ResourceLocation.Document(databaseId, collectionId), mutableMapOf(Pair(MSHttpHeader.MSDocumentDBIsUpsert.value, HttpHeaderValue.trueValue)), callback = callback)
+        return create(document, ResourceLocation.Document(databaseId, collectionId), mutableMapOf(MSHttpHeader.MSDocumentDBIsUpsert.value to HttpHeaderValue.trueValue), callback = callback)
     }
 
     // createOrReplace
     fun <T : Document> createOrReplaceDocument (document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) {
 
-        return create(document, ResourceLocation.Child(ResourceType.Document, collection), mutableMapOf(Pair(MSHttpHeader.MSDocumentDBIsUpsert.value, HttpHeaderValue.trueValue)), callback = callback)
+        return create(document, ResourceLocation.Child(ResourceType.Document, collection), mutableMapOf(MSHttpHeader.MSDocumentDBIsUpsert.value to HttpHeaderValue.trueValue), callback = callback)
     }
 
     // list
@@ -390,7 +390,7 @@ class DocumentClient private constructor() {
     // create
     fun createAttachment(attachmentId: String, contentType: String, media: ByteArray, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (Response<Attachment>) -> Unit) {
 
-        val headers = mutableMapOf(Pair(HttpHeader.ContentType.value, contentType), Pair(HttpHeader.Slug.value, attachmentId))
+        val headers = mutableMapOf(HttpHeader.ContentType.value to contentType, HttpHeader.Slug.value to attachmentId)
 
         return createOrReplace(media, ResourceLocation.Attachment(databaseId, collectionId, documentId), false, setPartitionKeyHeader(partitionKey, headers), callback = callback)
     }
@@ -404,7 +404,7 @@ class DocumentClient private constructor() {
     // create
     fun createAttachment(attachmentId: String, contentType: String, media: ByteArray, document: Document, callback: (Response<Attachment>) -> Unit) {
 
-        val headers = mutableMapOf(Pair(HttpHeader.ContentType.value, contentType), Pair(HttpHeader.Slug.value, attachmentId))
+        val headers = mutableMapOf(HttpHeader.ContentType.value to contentType, HttpHeader.Slug.value to attachmentId)
 
         return createOrReplace(media, ResourceLocation.Child(ResourceType.Attachment, document), false, setResourcePartitionKey(document, headers), callback)
     }
@@ -442,7 +442,7 @@ class DocumentClient private constructor() {
     // replace
     fun replaceAttachment(attachmentId: String, contentType: String, media: ByteArray, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (Response<Attachment>) -> Unit) {
 
-        val headers = mutableMapOf(Pair(HttpHeader.ContentType.value, contentType), Pair(HttpHeader.Slug.value, attachmentId))
+        val headers = mutableMapOf(HttpHeader.ContentType.value to contentType, HttpHeader.Slug.value to attachmentId)
 
         return createOrReplace(media, ResourceLocation.Attachment(databaseId, collectionId, documentId, attachmentId), true, setPartitionKeyHeader(partitionKey, headers), callback)
     }
@@ -456,7 +456,7 @@ class DocumentClient private constructor() {
     // replace
     fun replaceAttachment(attachmentId: String, contentType: String, media: ByteArray, document: Document, callback: (Response<Attachment>) -> Unit) {
 
-        val headers = mutableMapOf(Pair(HttpHeader.ContentType.value, contentType),Pair(HttpHeader.Slug.value, attachmentId))
+        val headers = mutableMapOf(HttpHeader.ContentType.value to contentType, HttpHeader.Slug.value to attachmentId)
 
         return createOrReplace(media, ResourceLocation.Child(ResourceType.Attachment, document, attachmentId), true, setResourcePartitionKey(document, headers), callback)
     }
@@ -932,7 +932,7 @@ class DocumentClient private constructor() {
             val json = gson.toJson(query.dictionary)
 
             // do we have a partition key to send?  If not, then this query will be a cross partition query
-            val headers = partitionKey?.let { setPartitionKeyHeader(partitionKey) } ?: mutableMapOf(Pair(MSHttpHeader.MSDocumentDBQueryEnableCrossPartition.value, HttpHeaderValue.trueValue))
+            val headers = partitionKey?.let { setPartitionKeyHeader(partitionKey) } ?: mutableMapOf(MSHttpHeader.MSDocumentDBQueryEnableCrossPartition.value to HttpHeaderValue.trueValue)
 
             createRequest(HttpMethod.Post, resourceLocation, headers, json, true, maxPerPage) { request ->
 
@@ -1047,7 +1047,7 @@ class DocumentClient private constructor() {
                 headers[MSHttpHeader.MSDocumentDBPartitionKey.value] = partitionKeyValue
                 headers
             } else {
-                mutableMapOf(Pair(MSHttpHeader.MSDocumentDBPartitionKey.value, partitionKeyValue))
+                mutableMapOf(MSHttpHeader.MSDocumentDBPartitionKey.value to partitionKeyValue)
             }
         } else headers
     }
