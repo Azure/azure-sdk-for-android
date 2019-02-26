@@ -14,6 +14,18 @@ override fun onCreate() {
 }
 ```
 
+Other `AzureData.configure()` overloads take a permission provider rather than requiring a master key.  The default permission provider is included with the [AzureMobile SDK](https://github.com/Azure/Azure.Android/tree/master/azuremobile) and works hand in hand with [the backend deployed by the ARM template found in the Azure.Mobile repo.](https://github.com/Azure/Azure.Mobile)
+
+To configure AzureData with a permission provider, you would pass in a constructed permission provider (note here that `functionUrl` is the URL of the backend Azure Function deployed with Azure.Mobile).
+
+```kotlin
+
+AzureData.configure(
+        appContext,
+        databaseName,
+        DefaultPermissionProvider(functionUrl))
+
+```
 
 # Usage
 
@@ -181,10 +193,6 @@ AzureData.replaceCollection(resourceId, databaseId, policy) {
 
 ### Documents
 
-There are two different classes you can use to interact with documents:
-
-#### Document
-
 The `Document` type is intended to be inherited by your custom document model types.
 
 Here is an example of a class `CustomDocument` that inherits from `Document`:
@@ -200,35 +208,6 @@ class CustomDocument(id: String? = null) : Document(id) {
     var customObject: User? = User()
 }
 ```
-
-#### DictionaryDocument
-
-The `DictionaryDocument` type behaves very much like a `<String, Any?>` Map while handling all properties required by the database.  This allows you to interact with the document directly using subscript/indexing syntax.  `DictionaryDocument` cannot be subclassed.
-
-Here is an example of using `DictionaryDocument` to create a document with the same properties as the `CustomDocument` above:
-
-```kotlin
-val document = DictionaryDocument()
-
-document["customString"] = "My Custom String"
-document["customNumber"] = 123000
-document["customDate"] = Date()
-document["customBool"] = true
-document["customArray"] = arrayOf(1, 2, 3)
-document["customObject"] = User()
-```
-
-##### Limitations
-
-When using `DictionaryDocument`, the data is subject to the limitations of json's lack of typing.  This means that when the above `DictionaryDocument` is deserialized, the deserializer won't know the specific types for your data.  In practice, this means the following types of data may appear differently once they've been "round tripped":
-
-| Data Type  |   Roundtrip Data Type       | Sample Conversion |
-| ---------- | --------------------------- | ----------------- |
-| Number types (Int, Long, etc.) | `Number` | `(document["customNumber"] as Number).toInt()` |
-| Array/List types | `ArrayList<*>`<br/>`ArrayList<Any?>` | `document["customArray"] as ArrayList<*>` |
-| Object types | `Map<*,*>`<br/>`Map<String, Any?>` | `document["customObject"] as Map<*,*>` |
-
-Due to these limitations, we recommend only using `DictionaryDocument` for simple data types and/or rapid prototyping.  Subclassing `Document`, as shown above, will yield much better results with proper typing based on the structure of your document class.
 
 #### Create
 
@@ -246,13 +225,6 @@ val document = CustomDocument() //optionally specify an Id here, otherwise it wi
 
 document.customDate = customDateValue
 document.customNumber = 1_000_000
-
-// or
-
-val document = DictionaryDocument() //optionally specify an Id here, otherwise it will be generated
-            
-document["customDate"] = customDateValue
-document["customNumber"] = 1_000_000
 
 // Document creation in CosmosDB
 
