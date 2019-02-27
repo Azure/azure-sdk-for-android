@@ -78,6 +78,9 @@ open class Response<T>(
 fun <T : Resource> ListResponse<T>.next(callback: (ListResponse<T>) -> Unit) =
         AzureData.documentClient.next(this, resourceType, callback)
 
+suspend fun <T : Resource> ListResponse<T>.next() =
+        AzureData.documentClient.next(this, resourceType)
+
 fun <T, U> Response<T>.map(transform: (T) -> U): Response<U> {
     return Response(request, response, jsonData, result.map(transform), resourceLocation, resourceType, fromCache)
 }
