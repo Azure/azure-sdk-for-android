@@ -28,6 +28,8 @@ import java.net.URL
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 
 /**
@@ -969,6 +971,16 @@ class DocumentClient private constructor() {
             callback(ListResponse(DataError(ex)))
         }
     }
+
+    suspend fun <T : Resource> next(response : ListResponse<T>, resourceType: Type?): ListResponse<T> =
+
+        suspendCoroutine { cont ->
+
+            next(response, resourceType) {
+
+                cont.resume(it)
+            }
+        }
 
     // next
     fun <T : Resource> next(response : ListResponse<T>, resourceType: Type?, callback: (ListResponse<T>) -> Unit) {
