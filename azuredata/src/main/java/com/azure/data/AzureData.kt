@@ -231,24 +231,48 @@ class AzureData {
 
         // create
         @JvmStatic
+        @Deprecated("Creating a document without a partition key is deprecated and will be removed in a future version of AzureData")
         fun <T : Document> createDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
                 documentClient.createDocument(document, collectionId, databaseId, callback)
 
         // create
         @JvmStatic
+        @Deprecated("Creating a document without a partition key is deprecated and will be removed in a future version of AzureData")
         fun <T : Document> createDocument(document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
                 documentClient.createDocument(document, collection, callback)
+        
+        // create
+        @JvmStatic
+        fun <T : Document> createDocument(document: T, partitionKey: String, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
+                documentClient.createDocument(document, partitionKey, collectionId, databaseId, callback)
+
+        // create
+        @JvmStatic
+        fun <T : Document> createDocument(document: T, partitionKey: String, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
+                documentClient.createDocument(document, partitionKey, collection, callback)
 
         // createOrReplace
         @JvmStatic
+        @Deprecated("Create or replacing a document without a partition key is deprecated and will be removed in a future version of AzureData")
         fun <T : Document> createOrReplaceDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
                 documentClient.createOrReplaceDocument(document, collectionId, databaseId, callback)
 
         // createOrReplace
         @JvmStatic
+        @Deprecated("Create or replacing a document without a partition key is deprecated and will be removed in a future version of AzureData")
         fun <T : Document> createOrReplaceDocument(document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
                 documentClient.createOrReplaceDocument(document, collection, callback)
 
+        // createOrReplace
+        @JvmStatic
+        fun <T : Document> createOrReplaceDocument(document: T, partitionKey: String, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
+                documentClient.createOrReplaceDocument(document, partitionKey, collectionId, databaseId, callback)
+
+        // createOrReplace
+        @JvmStatic
+        fun <T : Document> createOrReplaceDocument(document: T, partitionKey: String, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
+                documentClient.createOrReplaceDocument(document, partitionKey, collection, callback)
+    
         // list
         @JvmStatic
         @JvmOverloads
@@ -311,13 +335,25 @@ class AzureData {
 
         // replace
         @JvmStatic
+        @Deprecated("Replacing a document without a partition key is deprecated and will be removed in a future version of AzureData")
         fun <T : Document> replaceDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
                 documentClient.replaceDocument(document, collectionId, databaseId, callback)
 
         // replace
         @JvmStatic
+        @Deprecated("Replacing a document without a partition key is deprecated and will be removed in a future version of AzureData")
         fun <T : Document> replaceDocument(document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
                 documentClient.replaceDocument(document, collection, callback)
+
+        // replace
+        @JvmStatic
+        fun <T : Document> replaceDocument(document: T, partitionKey: String, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
+                documentClient.replaceDocument(document, partitionKey, collectionId, databaseId, callback)
+
+        // replace
+        @JvmStatic
+        fun <T : Document> replaceDocument(document: T, partitionKey: String, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
+                documentClient.replaceDocument(document, partitionKey, collection, callback)
 
         // query
         @JvmStatic
@@ -532,14 +568,27 @@ class AzureData {
 
         // execute
         @JvmStatic
+        @Deprecated("Executing a stored procedure without a partition key is deprecated and will be removed in a future version of AzureData")
         fun executeStoredProcedure(storedProcedureId: String, parameters: List<String>?, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) =
                 documentClient.executeStoredProcedure(storedProcedureId, parameters, collectionId, databaseId, callback)
 
         // execute
         @JvmStatic
+        @Deprecated("Executing a stored procedure without a partition key is deprecated and will be removed in a future version of AzureData")
         fun executeStoredProcedure(storedProcedureId: String, parameters: List<String>?, collection: DocumentCollection, callback: (DataResponse) -> Unit) =
                 documentClient.executeStoredProcedure(storedProcedureId, parameters, collection, callback)
 
+        // execute
+        @JvmStatic
+        fun executeStoredProcedure(storedProcedureId: String, partitionKey: String, parameters: List<String>?, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) =
+                documentClient.executeStoredProcedure(storedProcedureId, partitionKey, parameters, collectionId, databaseId, callback)
+
+        // execute
+        @JvmStatic
+        fun executeStoredProcedure(storedProcedureId: String, partitionKey: String, parameters: List<String>?, collection: DocumentCollection, callback: (DataResponse) -> Unit) =
+                documentClient.executeStoredProcedure(storedProcedureId, partitionKey, parameters, collection, callback)
+
+        
         //endregion
 
         //region User Defined Functions
