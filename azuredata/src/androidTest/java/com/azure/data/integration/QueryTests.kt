@@ -1,7 +1,6 @@
 package com.azure.data.integration
 
 import android.support.test.runner.AndroidJUnit4
-import com.azure.core.log.d
 import com.azure.data.AzureData
 import com.azure.data.findDocument
 import com.azure.data.integration.common.CustomDocument
@@ -9,12 +8,9 @@ import com.azure.data.integration.common.DocumentTest
 import com.azure.data.integration.common.PartitionedCustomDocment
 import com.azure.data.model.Query
 import com.azure.data.queryDocuments
-import com.azure.data.service.ListResponse
-import com.azure.data.service.next
 import kotlinx.coroutines.runBlocking
 import org.awaitility.Awaitility.await
 import org.junit.Assert.assertEquals
-import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -30,9 +26,8 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
         partitionKeyPath = "/testKey"
     }
 
-    private fun queryDocuments(partitionKey: String? = null, expectedDocs: Int = 1,
-                               where: Map<String, Any> = mapOf(CustomDocument::customString.name to customStringValue, CustomDocument::customNumber.name to customNumberValue),
-                               orderBy: String? = null, orderByAsc: Boolean = true, queryFunction: (partitionKey: String?, query: Query) -> Unit) {
+    private fun createQuery(where: Map<String, Any> = mapOf(CustomDocument::customString.name to customStringValue, CustomDocument::customNumber.name to customNumberValue),
+                            orderBy: String? = null, orderByAsc: Boolean = true) : Query {
 
         // create query
         var query = Query.select()
@@ -51,13 +46,7 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
             query = query.orderBy(orderBy, !orderByAsc)
         }
 
-        queryFunction(partitionKey, query)
-
-        await().until {
-            resourceListResponse != null
-        }
-
-        verifyListDocuments(expectedDocs, false)
+        return query
     }
 
     @Test
@@ -66,11 +55,16 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
         // ensure at least 1 doc to query
         val doc = createNewDocument()
 
-        queryDocuments(doc.testKey) { partitionKey, query ->
-            AzureData.queryDocuments(collectionId, partitionKey!!, databaseId, query, docType) {
-                resourceListResponse = it
-            }
+        // create query
+        val query = createQuery()
+
+        AzureData.queryDocuments(collectionId, doc.testKey, databaseId, query, docType) {
+            resourceListResponse = it
         }
+
+        await().until { resourceListResponse != null }
+
+        verifyListDocuments(verifyDocValues = false)
     }
 
     @Test
@@ -79,11 +73,16 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
         // ensure at least 1 doc to query
         createNewDocument()
 
-        queryDocuments { _, query ->
-            AzureData.queryDocuments(collectionId, databaseId, query, docType) {
-                resourceListResponse = it
-            }
+        // create query
+        val query = createQuery()
+
+        AzureData.queryDocuments(collectionId, databaseId, query, docType) {
+            resourceListResponse = it
         }
+
+        await().until { resourceListResponse != null }
+
+        verifyListDocuments(verifyDocValues = false)
     }
 
     @Test
@@ -92,11 +91,16 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
         // ensure at least 1 doc to query
         val doc = createNewDocument()
 
-        queryDocuments(doc.testKey) { partitionKey, query ->
-            collection?.queryDocuments(query, partitionKey!!, docType) {
-                resourceListResponse = it
-            }
+        // create query
+        val query = createQuery()
+
+        collection?.queryDocuments(query, doc.testKey, docType) {
+            resourceListResponse = it
         }
+
+        await().until { resourceListResponse != null }
+
+        verifyListDocuments(verifyDocValues = false)
     }
 
     @Test
@@ -105,11 +109,16 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
         // ensure at least 1 doc to query
         createNewDocument()
 
-        queryDocuments { _, query ->
-            collection?.queryDocuments(query, docType) {
-                resourceListResponse = it
-            }
+        // create query
+        val query = createQuery()
+
+        collection?.queryDocuments(query, docType) {
+            resourceListResponse = it
         }
+
+        await().until { resourceListResponse != null }
+
+        verifyListDocuments(verifyDocValues = false)
     }
 
     @Test
@@ -166,17 +175,15 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
         doc.customNumber = 3
         createNewDocument(doc)
 
-        queryDocuments(doc.testKey, 3, mapOf(), "customNumber") { partitionKey, query ->
-            collection?.queryDocuments(query, partitionKey!!, docType) {
-                resourceListResponse = it
-            }
+        // create query
+        var query = createQuery(mapOf(), "customNumber")
+
+        collection?.queryDocuments(query, doc.testKey, docType) {
+            resourceListResponse = it
         }
 
-        await().until {
-            resourceListResponse != null
-        }
+        await().until { resourceListResponse != null }
 
-        // verify we've returned 3 docs
         verifyListDocuments(3, false)
 
         assertEquals("Docs not ordered correctly", 1, resourceListResponse?.resource?.items!![0].customNumber)
@@ -186,15 +193,13 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
         // let's sort the other direction now
         resourceListResponse = null
 
-        queryDocuments(doc.testKey, 3, mapOf(), "customNumber", false) { partitionKey, query ->
-            collection?.queryDocuments(query, partitionKey!!, docType) {
-                resourceListResponse = it
-            }
+        query = createQuery(mapOf(), "customNumber", false)
+
+        collection?.queryDocuments(query, doc.testKey, docType) {
+            resourceListResponse = it
         }
 
-        await().until {
-            resourceListResponse != null
-        }
+        await().until { resourceListResponse != null }
 
         // verify we've returned 3 docs
         verifyListDocuments(3, false)
@@ -223,16 +228,14 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
         doc.testKey = "Partition1"
         createNewDocument(doc)
 
-        // we'll omit the partition key, making this a cross partition query
-        queryDocuments(expectedDocs = 3, where = mapOf(), orderBy = "customNumber") { _, query ->
-            collection?.queryDocuments(query, docType) {
-                resourceListResponse = it
-            }
+        // create query
+        var query = createQuery(mapOf(), "customNumber")
+
+        collection?.queryDocuments(query, docType) {
+            resourceListResponse = it
         }
 
-        await().until {
-            resourceListResponse != null
-        }
+        await().until { resourceListResponse != null }
 
         // verify we've returned 3 docs
         verifyListDocuments(3, false)
@@ -244,16 +247,13 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
         // let's sort the other direction now
         resourceListResponse = null
 
-        // we'll omit the partition key, making this a cross partition query
-        queryDocuments(expectedDocs = 3, where = mapOf(), orderBy = "customNumber", orderByAsc = false) { _, query ->
-            collection?.queryDocuments(query, docType) {
-                resourceListResponse = it
-            }
+        query = createQuery(mapOf(), "customNumber", false)
+
+        collection?.queryDocuments(query, docType) {
+            resourceListResponse = it
         }
 
-        await().until {
-            resourceListResponse != null
-        }
+        await().until { resourceListResponse != null }
 
         // verify we've returned 3 docs
         verifyListDocuments(3, false)
@@ -267,20 +267,22 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
     fun queryDocumentsPaging() {
 
         val idsFound = mutableListOf<String>()
+        val pageSize = 4
+        val totalDocs = pageSize * 3
 
         // let's create 12 docs and page them 4 at a time
-        createNewDocuments(12)
-        val pageSize = 4
+        createNewDocuments(totalDocs)
 
-        // Get the first page
-        queryDocuments(expectedDocs = pageSize, where = mapOf()) { _, query ->
-            collection?.queryDocuments(query, docType, pageSize) {
-                resourceListResponse = it
-            }
+        // create query
+        val query = createQuery(mapOf(), "customNumber")
+
+        collection?.queryDocuments(query, docType, pageSize) {
+            resourceListResponse = it
         }
 
         await().until { resourceListResponse != null }
 
+        verifyListDocuments(pageSize, false)
         assertPageN(idsFound, resourceListResponse, pageSize)
 
         // Get the second one
@@ -320,20 +322,21 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
 
         val idsFound = mutableListOf<String>()
         val pageSize = 4
-        val totalDocs = 12
+        val totalDocs = pageSize * 3
 
         // let's create 12 docs and page them 4 at a time
         createNewDocuments(totalDocs)
 
-        // Get the first page
-        queryDocuments(expectedDocs = pageSize, where = mapOf()) { _, query ->
-            collection?.queryDocuments(query, docType, pageSize) {
-                resourceListResponse = it
-            }
+        // create query
+        val query = createQuery(mapOf(), "customNumber")
+
+        collection?.queryDocuments(query, docType, pageSize) {
+            resourceListResponse = it
         }
 
         await().until { resourceListResponse != null }
 
+        verifyListDocuments(pageSize, false)
         assertPageN(idsFound, resourceListResponse, pageSize)
 
         // get all the other pages
@@ -359,62 +362,57 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocme
     }
 
     @Test
-    fun queryDocumentsPagingRecursion() {
+    fun queryDocumentsAndGetMorePages() {
 
         val idsFound = mutableListOf<String>()
         val pageSize = 4
-        val totalDocs = 12
+        val totalDocs = pageSize * 3
+        val docsToGet = pageSize * 2
 
         // let's create 12 docs and page them 4 at a time
         createNewDocuments(totalDocs)
 
-        fun getDocs(response: ListResponse<PartitionedCustomDocment>? = null, callback: () -> Unit) {
+        val query = createQuery(where = mapOf())
 
-            response?.let {
+        collection?.queryDocuments(query, docType, pageSize) {
 
-                d { "Getting another page of docs" }
+            it.getMorePages(1) {
 
-                if (response.hasMoreResults) {
+                assertPageN(idsFound, it, docsToGet) //checking for docsToGet here rather than pageSize
 
-                    assertPageN(idsFound, response, pageSize)
-
-                    response.next {
-
-                        getDocs(it, callback)
-                    }
-                } else {
-
-                    assertPageLast(idsFound, response, pageSize)
-
-                    callback() // we're done, return to the caller
-                }
-            } ?: run {
-
-                // Get the first page
-                queryDocuments(expectedDocs = pageSize, where = mapOf()) { _, query ->
-
-                    collection?.queryDocuments(query, docType, pageSize) {
-
-                        resourceListResponse = it //set this to stop waiting in queryDocuments()
-
-                        if (it.hasMoreResults) {
-
-                            getDocs(it, callback)
-                        } else {
-                            fail("Query returned only 1 page")
-                        }
-                    }
-                }
+                resourceListResponse = it
             }
         }
 
-        var finished = false
+        await().until { resourceListResponse != null }
 
-        // start the recursion to get all docs
-        getDocs { finished = true }
+        assertEquals("Expected $docsToGet docs but ended up with ${resourceListResponse?.resource?.items?.size}", docsToGet, resourceListResponse?.resource?.items?.size)
+    }
 
-        await().until { finished }
+    @Test
+    fun queryDocumentsAndGetAllPages() {
 
-        assertEquals("Expected 12 docs but only processed ${idsFound.size}", totalDocs, idsFound.size)
+        val idsFound = mutableListOf<String>()
+        val pageSize = 4
+        val totalDocs = pageSize * 3
+
+        // let's create 12 docs and page them 4 at a time
+        createNewDocuments(totalDocs)
+
+        val query = createQuery(where = mapOf())
+
+        collection?.queryDocuments(query, docType, pageSize) {
+
+            it.getAllPages {
+
+                assertPageLast(idsFound, it, totalDocs) //checking for docsToGet here rather than pageSize
+
+                resourceListResponse = it
+            }
+        }
+
+        await().until { resourceListResponse != null }
+
+        assertEquals("Expected $totalDocs docs but ended up with ${resourceListResponse?.resource?.items?.size}", totalDocs, resourceListResponse?.resource?.items?.size)
     }
 }
