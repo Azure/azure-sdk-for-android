@@ -533,12 +533,22 @@ class AzureData {
         // execute
         @JvmStatic
         fun executeStoredProcedure(storedProcedureId: String, parameters: List<String>?, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) =
-                documentClient.executeStoredProcedure(storedProcedureId, parameters, collectionId, databaseId, callback)
+                documentClient.executeStoredProcedure(storedProcedureId, parameters, null, collectionId, databaseId, callback)
+
+        // execute
+        @JvmStatic
+        fun executeStoredProcedure(storedProcedureId: String, parameters: List<String>?, partitionKey: String, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) =
+                documentClient.executeStoredProcedure(storedProcedureId, parameters, partitionKey, collectionId, databaseId, callback)
 
         // execute
         @JvmStatic
         fun executeStoredProcedure(storedProcedureId: String, parameters: List<String>?, collection: DocumentCollection, callback: (DataResponse) -> Unit) =
-                documentClient.executeStoredProcedure(storedProcedureId, parameters, collection, callback)
+                documentClient.executeStoredProcedure(storedProcedureId, parameters, null, collection, callback)
+
+        // execute
+        @JvmStatic
+        fun executeStoredProcedure(storedProcedureId: String, parameters: List<String>?, partitionKey: String, collection: DocumentCollection, callback: (DataResponse) -> Unit) =
+                documentClient.executeStoredProcedure(storedProcedureId, parameters, partitionKey, collection, callback)
 
         //endregion
 
