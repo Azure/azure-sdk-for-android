@@ -2,6 +2,7 @@ package com.azure.data.integration
 
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.*
+import com.azure.data.integration.common.PartitionedCustomDocment
 import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.*
 import org.awaitility.Awaitility.await
@@ -32,17 +33,17 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
         """
 
     private val storedProcNewBody = """function () {}"""
-
     private val storedProcResult = "\"Hello World!\""
+    private val partitionKeyValue = "PartitionKeyValue"
 
-    private fun createNewStoredProc(coll: DocumentCollection? = null) : StoredProcedure {
+    private fun createNewStoredProc(coll: DocumentCollection? = null, body: String = storedProcNewBody) : StoredProcedure {
 
         if (coll != null) {
-            coll.createStoredProcedure(createdResourceId, storedProcedureBody) {
+            coll.createStoredProcedure(createdResourceId, body) {
                 response = it
             }
         } else {
-            AzureData.createStoredProcedure(createdResourceId, storedProcedureBody, collectionId, databaseId) {
+            AzureData.createStoredProcedure(createdResourceId, body, collectionId, databaseId) {
                 response = it
             }
         }
@@ -302,7 +303,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
             dataResponse = it
         }
 
-        await().forever().until {
+        await().until {
             dataResponse != null
         }
 
@@ -329,5 +330,76 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredPr
         assertEquals(storedProcResult, dataResponse?.result?.resource.toString())
     }
 
+    @Test
+    fun executeStoredProcedureWithQuery() {
+
+        // this type of stored proc will require a partition key
+        createTestDocuments()
+
+        val body = """
+            function(arg) {
+                var collection = getContext().getCollection();
+
+                var isAccepted = collection.queryDocuments(
+                    collection.getSelfLink(),
+                    `SELECT * FROM $collectionId`,
+
+                    function (err, feed, options) {
+                        if (err) throw err;
+
+                        if (!feed || !feed.length) {
+                            var response = getContext().getResponse();
+                            response.setBody('no docs found');
+                        }
+                        else {
+                            var response = getContext().getResponse();
+                            var body = { feed: feed };
+                            response.setBody(JSON.stringify(body));
+                        }
+                    });
+
+                if (!isAccepted) throw new Error('The query was not accepted by the server.');
+            }
+        """.trimIndent()
+
+        createNewStoredProc(collection, body)
+
+        AzureData.executeStoredProcedure(createdResourceId, null, partitionKeyValue, collectionId, databaseId) {
+            dataResponse = it
+        }
+
+        await().until {
+            dataResponse != null
+        }
+
+        assertDataResponseSuccess(dataResponse)
+
+        assertTrue(!dataResponse?.result?.resource.toString().isEmpty())
+    }
+
     //endregion
+
+    private fun createTestDocuments(count: Int = 3) : List<PartitionedCustomDocment> {
+
+        val docs = mutableListOf<PartitionedCustomDocment>()
+
+        for (i in 1..count) {
+
+            val docToCreate = PartitionedCustomDocment(createdResourceId(i))
+            docToCreate.testKey = partitionKeyValue
+
+            AzureData.createDocument(docToCreate, collectionId, databaseId) {
+
+                assertResourceResponseSuccess(it)
+                assertEquals(createdResourceId(i), it.resource?.id)
+                docs.add(it.resource!!)
+            }
+        }
+
+        await().until {
+            docs.count() == count
+        }
+
+        return docs
+    }
 }

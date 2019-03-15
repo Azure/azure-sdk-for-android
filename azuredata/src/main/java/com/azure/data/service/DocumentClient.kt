@@ -516,15 +516,15 @@ class DocumentClient private constructor() {
     }
 
     // execute
-    fun executeStoredProcedure(storedProcedureId: String, parameters: List<String>?, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) {
+    fun executeStoredProcedure(storedProcedureId: String, parameters: List<String>?, partitionKey: String? = null, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) {
 
-        return execute(parameters, ResourceLocation.StoredProcedure(databaseId, collectionId, storedProcedureId), callback)
+        return execute(parameters, ResourceLocation.StoredProcedure(databaseId, collectionId, storedProcedureId), partitionKey, callback)
     }
 
     // execute
-    fun executeStoredProcedure(storedProcedureId: String, parameters: List<String>?, collection: DocumentCollection, callback: (DataResponse) -> Unit) {
+    fun executeStoredProcedure(storedProcedureId: String, parameters: List<String>?, partitionKey: String? = null, collection: DocumentCollection, callback: (DataResponse) -> Unit) {
 
-        return execute(parameters, ResourceLocation.Child(ResourceType.StoredProcedure, collection, storedProcedureId), callback)
+        return execute(parameters, ResourceLocation.Child(ResourceType.StoredProcedure, collection, storedProcedureId), partitionKey, callback)
     }
 
     //endregion
@@ -1024,12 +1024,14 @@ class DocumentClient private constructor() {
     }
 
     // execute
-    private fun <T> execute(body: T? = null, resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
+    private fun <T> execute(body: T? = null, resourceLocation: ResourceLocation, partitionKey: String? = null, callback: (DataResponse) -> Unit) {
 
         try {
             val json = if (body != null) gson.toJson(body) else gson.toJson(arrayOf<String>())
 
-            createRequest(HttpMethod.Post, resourceLocation, jsonBody = json) {
+            val headers = setPartitionKeyHeader(partitionKey)
+
+            createRequest(HttpMethod.Post, resourceLocation, headers, json) {
 
                 sendRequest(it, resourceLocation, callback)
             }
