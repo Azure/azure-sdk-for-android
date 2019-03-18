@@ -6,7 +6,6 @@ import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.Offer
 import com.azure.data.model.ResourceType
 import com.azure.data.service.ListResponse
-import com.azure.data.service.next
 import org.awaitility.Awaitility.await
 import org.junit.Assert.*
 import org.junit.Test

@@ -28,8 +28,6 @@ import java.net.URL
 import java.net.URLEncoder
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 
 /**
@@ -972,18 +970,8 @@ class DocumentClient private constructor() {
         }
     }
 
-    suspend fun <T : Resource> next(response : ListResponse<T>, resourceType: Type?): ListResponse<T> =
-
-        suspendCoroutine { cont ->
-
-            next(response, resourceType) {
-
-                cont.resume(it)
-            }
-        }
-
     // next
-    fun <T : Resource> next(response : ListResponse<T>, resourceType: Type?, callback: (ListResponse<T>) -> Unit) {
+    internal fun <T : Resource> next(response : ListResponse<T>, resourceType: Type?, callback: (ListResponse<T>) -> Unit) {
 
         try {
             val request = response.request
@@ -1009,7 +997,7 @@ class DocumentClient private constructor() {
                         override fun onFailure(call: Call, e: IOException) {
                             isOffline = true
                             // todo: callback with cached data instead of the callback with the error below
-                            callback(Response(DataError(e)))
+                            callback(ListResponse(DataError(e)))
                         }
 
                         @Throws(IOException::class)
@@ -1022,6 +1010,8 @@ class DocumentClient private constructor() {
             callback(ListResponse(DataError(ex)))
         }
     }
+
+
 
     // execute
     private fun <T> execute(body: T? = null, resourceLocation: ResourceLocation, partitionKey: String? = null, callback: (DataResponse) -> Unit) {
@@ -1547,7 +1537,7 @@ class DocumentClient private constructor() {
 
         val resources = ResourceCache.shared.getResourcesAt(resourceLocation, resourceClass)
 
-        callback(Response(response?.request, response?.response, response?.jsonData, Result(resources), resourceLocation, response?.resourceType, fromCache = true))
+        callback(ListResponse(response?.request, response?.response, response?.jsonData, Result(resources), resourceLocation, response?.resourceType, fromCache = true))
     }
 
     //endregion
