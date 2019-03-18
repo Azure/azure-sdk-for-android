@@ -108,6 +108,11 @@ fun <T : Document> DocumentCollection.createDocument (document: T, callback: (Re
     return AzureData.createDocument(document, this, callback)
 }
 
+// create
+fun <T : Document> DocumentCollection.createDocument (document: T, partitionKey: String, callback: (Response<T>) -> Unit) {
+    return AzureData.createDocument(document, partitionKey, this, callback)
+}
+
 // get
 @Deprecated("Getting a document without a partition key is deprecated and will be removed in a future version of AzureData")
 fun <T : Document> DocumentCollection.getDocument (documentId: String, documentClass: Class<T>, callback: (Response<T>) -> Unit) {
@@ -184,6 +189,11 @@ fun DocumentCollection.replaceStoredProcedure (storedProcedure: StoredProcedure,
 // execute
 fun DocumentCollection.executeStoredProcedure (storedProcedureId: String, parameters: List<String>?, callback: (DataResponse) -> Unit) {
     return AzureData.executeStoredProcedure(storedProcedureId, parameters, this, callback)
+}
+
+// execute
+fun DocumentCollection.executeStoredProcedure (storedProcedureId: String, parameters: List<String>?, partitionKey: String, callback: (DataResponse) -> Unit) {
+    return AzureData.executeStoredProcedure(storedProcedureId, parameters, partitionKey, this, callback)
 }
 
 //endregion

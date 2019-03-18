@@ -232,22 +232,42 @@ class AzureData {
         // create
         @JvmStatic
         fun <T : Document> createDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
-                documentClient.createDocument(document, collectionId, databaseId, callback)
+                documentClient.createDocument(document, null, collectionId, databaseId, callback)
+
+        // create
+        @JvmStatic
+        fun <T : Document> createDocument(document: T, partitionKey: String, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
+                documentClient.createDocument(document, partitionKey, collectionId, databaseId, callback)
 
         // create
         @JvmStatic
         fun <T : Document> createDocument(document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
-                documentClient.createDocument(document, collection, callback)
+                documentClient.createDocument(document, null, collection, callback)
+
+        // create
+        @JvmStatic
+        fun <T : Document> createDocument(document: T, partitionKey: String, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
+                documentClient.createDocument(document, partitionKey, collection, callback)
 
         // createOrReplace
         @JvmStatic
-        fun <T : Document> createOrReplaceDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
-                documentClient.createOrReplaceDocument(document, collectionId, databaseId, callback)
+        fun <T : Document> createOrUpdateDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
+                documentClient.createOrUpdateDocument(document, null, collectionId, databaseId, callback)
 
         // createOrReplace
         @JvmStatic
-        fun <T : Document> createOrReplaceDocument(document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
-                documentClient.createOrReplaceDocument(document, collection, callback)
+        fun <T : Document> createOrUpdateDocument(document: T, partitionKey: String, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
+                documentClient.createOrUpdateDocument(document, partitionKey, collectionId, databaseId, callback)
+
+        // createOrReplace
+        @JvmStatic
+        fun <T : Document> createOrUpdateDocument(document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
+                documentClient.createOrUpdateDocument(document, null, collection, callback)
+
+        // createOrReplace
+        @JvmStatic
+        fun <T : Document> createOrUpdateDocument(document: T, partitionKey: String, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
+                documentClient.createOrUpdateDocument(document, partitionKey, collection, callback)
 
         // list
         @JvmStatic
