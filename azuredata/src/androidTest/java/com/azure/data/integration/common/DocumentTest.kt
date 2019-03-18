@@ -31,23 +31,39 @@ abstract class DocumentTest<TDoc : CustomDocument>(val docType: Class<TDoc>)
         return doc as TDoc
     }
 
-    fun createNewDocument(doc: TDoc = newDocument(), coll: DocumentCollection? = null) : TDoc {
+    fun createNewDocument(doc: TDoc = newDocument(), partitionKey: String? = null, coll: DocumentCollection? = null) : TDoc {
 
         var docResponse: Response<TDoc>? = null
 
-        if (coll != null) {
+        partitionKey?.let {
 
-            coll.createDocument(doc) {
-                docResponse = it
+            if (coll != null) {
+
+                coll.createDocument(doc, partitionKey) {
+                    docResponse = it
+                }
+            } else {
+
+                AzureData.createDocument(doc, partitionKey, collectionId, databaseId) {
+                    docResponse = it
+                }
             }
-        } else {
+        } ?: run {
 
-            AzureData.createDocument(doc, collectionId, databaseId) {
-                docResponse = it
+            if (coll != null) {
+
+                coll.createDocument(doc) {
+                    docResponse = it
+                }
+            } else {
+
+                AzureData.createDocument(doc, collectionId, databaseId) {
+                    docResponse = it
+                }
             }
         }
 
-        await().until {
+        await().forever().until {
             docResponse != null
         }
 
