@@ -2,9 +2,9 @@
 
 buildscript {
 
-    ext.azureandroid_release_version = '0.2.2'
+    ext.azureandroid_release_version = '0.2.3'
     ext.kotlin_version = '1.3.21'
-    ext.gradle_version = '3.3.1'
+    ext.gradle_version = '3.3.2'
 
     repositories {
         google()
