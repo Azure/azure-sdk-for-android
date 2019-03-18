@@ -246,27 +246,27 @@ class DocumentClient private constructor() {
     //region Documents
 
     // create
-    fun <T : Document> createDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) {
+    fun <T : Document> createDocument(document: T, partitionKey: String? = null, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) {
 
-        return create(document, ResourceLocation.Document(databaseId, collectionId), callback = callback)
+        return create(document, ResourceLocation.Document(databaseId, collectionId), setPartitionKeyHeader(partitionKey), callback = callback)
     }
 
     // create
-    fun <T : Document> createDocument (document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) {
+    fun <T : Document> createDocument (document: T, partitionKey: String? = null, collection: DocumentCollection, callback: (Response<T>) -> Unit) {
 
-        return create(document, ResourceLocation.Child(ResourceType.Document, collection), callback = callback)
+        return create(document, ResourceLocation.Child(ResourceType.Document, collection), setPartitionKeyHeader(partitionKey), callback = callback)
     }
 
     // createOrReplace
-    fun <T : Document> createOrReplaceDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) {
+    fun <T : Document> createOrUpdateDocument(document: T, partitionKey: String? = null, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) {
 
-        return create(document, ResourceLocation.Document(databaseId, collectionId), mutableMapOf(MSHttpHeader.MSDocumentDBIsUpsert.value to HttpHeaderValue.trueValue), callback = callback)
+        return create(document, ResourceLocation.Document(databaseId, collectionId), setPartitionKeyHeader(partitionKey, mutableMapOf(MSHttpHeader.MSDocumentDBIsUpsert.value to HttpHeaderValue.trueValue)), callback = callback)
     }
 
     // createOrReplace
-    fun <T : Document> createOrReplaceDocument (document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) {
+    fun <T : Document> createOrUpdateDocument (document: T, partitionKey: String? = null, collection: DocumentCollection, callback: (Response<T>) -> Unit) {
 
-        return create(document, ResourceLocation.Child(ResourceType.Document, collection), mutableMapOf(MSHttpHeader.MSDocumentDBIsUpsert.value to HttpHeaderValue.trueValue), callback = callback)
+        return create(document, ResourceLocation.Child(ResourceType.Document, collection), setPartitionKeyHeader(partitionKey, mutableMapOf(MSHttpHeader.MSDocumentDBIsUpsert.value to HttpHeaderValue.trueValue)), callback = callback)
     }
 
     // list
@@ -332,25 +332,25 @@ class DocumentClient private constructor() {
     }
 
     // query
-    fun <T: Document> queryDocuments (collectionId: String, databaseId: String, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
+    fun <T : Document> queryDocuments (collectionId: String, databaseId: String, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
         return query(query, ResourceLocation.Document(databaseId, collectionId), maxPerPage, null, documentClass, callback)
     }
 
     // query
-    fun <T: Document> queryDocuments (collectionId: String, partitionKey: String, databaseId: String, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
+    fun <T : Document> queryDocuments (collectionId: String, partitionKey: String, databaseId: String, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
         return query(query, ResourceLocation.Document(databaseId, collectionId), maxPerPage, partitionKey, documentClass, callback)
     }
 
     // query
-    fun <T: Document> queryDocuments (collection: DocumentCollection, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
+    fun <T : Document> queryDocuments (collection: DocumentCollection, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
         return query(query, ResourceLocation.Child(ResourceType.Document, collection), maxPerPage, null, documentClass, callback)
     }
 
     // query
-    fun <T: Document> queryDocuments (collection: DocumentCollection, partitionKey: String, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
+    fun <T : Document> queryDocuments (collection: DocumentCollection, partitionKey: String, query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {
 
         return query(query, ResourceLocation.Child(ResourceType.Document, collection), maxPerPage, partitionKey, documentClass, callback)
     }
@@ -514,15 +514,15 @@ class DocumentClient private constructor() {
     }
 
     // execute
-    fun executeStoredProcedure(storedProcedureId: String, parameters: List<String>?, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) {
+    fun executeStoredProcedure(storedProcedureId: String, parameters: List<String>?, partitionKey: String? = null, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) {
 
-        return execute(parameters, ResourceLocation.StoredProcedure(databaseId, collectionId, storedProcedureId), callback)
+        return execute(parameters, ResourceLocation.StoredProcedure(databaseId, collectionId, storedProcedureId), partitionKey, callback)
     }
 
     // execute
-    fun executeStoredProcedure(storedProcedureId: String, parameters: List<String>?, collection: DocumentCollection, callback: (DataResponse) -> Unit) {
+    fun executeStoredProcedure(storedProcedureId: String, parameters: List<String>?, partitionKey: String? = null, collection: DocumentCollection, callback: (DataResponse) -> Unit) {
 
-        return execute(parameters, ResourceLocation.Child(ResourceType.StoredProcedure, collection, storedProcedureId), callback)
+        return execute(parameters, ResourceLocation.Child(ResourceType.StoredProcedure, collection, storedProcedureId), partitionKey, callback)
     }
 
     //endregion
@@ -1014,12 +1014,14 @@ class DocumentClient private constructor() {
 
 
     // execute
-    private fun <T> execute(body: T? = null, resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
+    private fun <T> execute(body: T? = null, resourceLocation: ResourceLocation, partitionKey: String? = null, callback: (DataResponse) -> Unit) {
 
         try {
             val json = if (body != null) gson.toJson(body) else gson.toJson(arrayOf<String>())
 
-            createRequest(HttpMethod.Post, resourceLocation, jsonBody = json) {
+            val headers = setPartitionKeyHeader(partitionKey)
+
+            createRequest(HttpMethod.Post, resourceLocation, headers, json) {
 
                 sendRequest(it, resourceLocation, callback)
             }
@@ -1065,7 +1067,7 @@ class DocumentClient private constructor() {
 
     private fun <T : Resource> setResourcePartitionKey(resource: T, headers: MutableMap<String, String>? = null) : MutableMap<String, String>? {
 
-        return if (resource is PartitionKeyResource) {
+        return if (resource is PartitionKeyResource && headers?.contains(MSHttpHeader.MSDocumentDBPartitionKey.value) != true) {
 
             val keyValues = PartitionKeyPropertyCache.getPartitionKeyValues(resource)
 
