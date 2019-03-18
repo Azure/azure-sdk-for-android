@@ -28,8 +28,8 @@ class StoredProceduresFragment : ResourceListFragment<StoredProcedure>() {
         super.onCreate(savedInstanceState)
 
         activity?.intent?.extras?.let {
-            databaseId = it.getString("db_id")
-            collectionId = it.getString("coll_id")
+            databaseId = it.getString("db_id")!!
+            collectionId = it.getString("coll_id")!!
         }
     }
 
