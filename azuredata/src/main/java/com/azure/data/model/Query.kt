@@ -163,6 +163,21 @@ class Query(properties: ArrayList<String>? = null) {
         return this
     }
 
+    override fun hashCode(): Int {
+
+        // generated query is what we want to determine equality from
+        return this.query.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+
+        if (other is Query) {
+            return this.query == other.query
+        }
+
+        return super.equals(other)
+    }
+
     override fun toString(): String = query
 
     companion object {

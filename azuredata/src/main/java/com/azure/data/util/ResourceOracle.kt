@@ -4,10 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import com.azure.core.util.MapCompat
-import com.azure.data.model.Resource
-import com.azure.data.model.ResourceBase
-import com.azure.data.model.ResourceList
-import com.azure.data.model.ResourceLocation
+import com.azure.data.model.*
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -328,6 +325,11 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
         }
 
         return selfLink
+    }
+
+    fun getDirectoryPath(query: Query): String {
+
+        return "queries\\${query.hashCode()}"
     }
 
     companion object {
