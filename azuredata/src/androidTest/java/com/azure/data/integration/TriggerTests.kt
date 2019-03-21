@@ -4,7 +4,6 @@ import android.support.test.runner.AndroidJUnit4
 import com.azure.data.*
 import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.DocumentCollection
-import com.azure.data.model.ResourceType
 import com.azure.data.model.Trigger
 import org.awaitility.Awaitility.await
 import org.junit.Assert.assertEquals
@@ -18,7 +17,7 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class TriggerTests : ResourceTest<Trigger>(ResourceType.Trigger, true, true) {
+class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
 
     private val triggerBody = """
         function updateMetadata() {}

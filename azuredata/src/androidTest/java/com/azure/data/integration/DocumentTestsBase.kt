@@ -8,7 +8,6 @@ import com.azure.data.integration.common.PartitionedCustomDocment
 import com.azure.data.model.DocumentClientError
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
-import com.azure.data.service.next
 import com.azure.data.util.json.gson
 import org.awaitility.Awaitility.await
 import org.junit.Assert.*
@@ -19,7 +18,7 @@ import org.junit.Test
  * Licensed under the MIT License.
  */
 
-abstract class DocumentTestsBase<TDoc : CustomDocument>(docType: Class<TDoc>) : DocumentTest<TDoc>(docType) {
+abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, docType: Class<TDoc>) : DocumentTest<TDoc>(resourceName, docType) {
 
     //region Tests
 

@@ -17,7 +17,7 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class StoredProcedureTests : ResourceTest<StoredProcedure>(ResourceType.StoredProcedure, true, true) {
+class StoredProcedureTests : ResourceTest<StoredProcedure>("StoredProcedureTests", true, true) {
 
     init {
         partitionKeyPath = "/testKey"

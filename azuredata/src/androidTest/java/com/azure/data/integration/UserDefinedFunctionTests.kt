@@ -4,7 +4,6 @@ import android.support.test.runner.AndroidJUnit4
 import com.azure.data.*
 import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.DocumentCollection
-import com.azure.data.model.ResourceType
 import com.azure.data.model.UserDefinedFunction
 import org.awaitility.Awaitility.await
 import org.junit.Assert.assertEquals
@@ -18,7 +17,7 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>(ResourceType.Udf, true, true) {
+class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>("UserDefinedFunctionTests", true, true) {
 
     private val udfBody = """
         function (input) { return input.toLowerCase(); }

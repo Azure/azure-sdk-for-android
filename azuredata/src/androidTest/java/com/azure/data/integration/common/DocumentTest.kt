@@ -14,8 +14,8 @@ import java.util.*
  * Licensed under the MIT License.
  */
 
-abstract class DocumentTest<TDoc : CustomDocument>(val docType: Class<TDoc>)
-    : ResourceTest<TDoc>(ResourceType.Document, true, true) {
+abstract class DocumentTest<TDoc : CustomDocument>(resourceName: String, val docType: Class<TDoc>)
+    : ResourceTest<TDoc>(resourceName, true, true) {
 
     @Rule
     @JvmField

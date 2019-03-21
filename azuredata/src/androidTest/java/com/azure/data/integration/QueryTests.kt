@@ -10,7 +10,7 @@ import com.azure.data.model.Query
 import com.azure.data.queryDocuments
 import kotlinx.coroutines.runBlocking
 import org.awaitility.Awaitility.await
-import org.junit.Assert.assertEquals
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -20,14 +20,14 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class QueryTests : DocumentTest<PartitionedCustomDocment>(PartitionedCustomDocment::class.java) {
+class QueryTests : DocumentTest<PartitionedCustomDocment>("QueryTests", PartitionedCustomDocment::class.java) {
 
     init {
         partitionKeyPath = "/testKey"
     }
 
     private fun createQuery(where: Map<String, Any> = mapOf(CustomDocument::customString.name to customStringValue, CustomDocument::customNumber.name to customNumberValue),
-                            orderBy: String? = null, orderByAsc: Boolean = true) : Query {
+                            orderBy: String? = null, orderByAsc: Boolean = true): Query {
 
         // create query
         var query = Query.select()
