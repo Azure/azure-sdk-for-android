@@ -20,10 +20,10 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class PermissionTests : ResourceTest<Permission>(ResourceType.Permission, true, true) {
+class PermissionTests : ResourceTest<Permission>("PermissionTests", true, true) {
 
     private val userId = "AndroidTest${ResourceType.User.name}"
-    var user: User? = null
+    private var user: User? = null
 
     @Before
     override fun setUp() {
@@ -154,7 +154,7 @@ class PermissionTests : ResourceTest<Permission>(ResourceType.Permission, true, 
 
         createNewPermission()
 
-        user?.getPermissions() {
+        user?.getPermissions {
             resourceListResponse = it
         }
 

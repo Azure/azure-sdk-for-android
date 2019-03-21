@@ -1,10 +1,14 @@
 package com.azure.data.integration.offlinetests
 
 import android.support.test.runner.AndroidJUnit4
+import com.azure.core.util.ContextProvider
 import com.azure.data.AzureData
 import com.azure.data.integration.common.CustomDocument
+import com.azure.data.integration.common.DocumentTest
+import com.azure.data.integration.common.PartitionedCustomDocment
 import com.azure.data.model.Database
 import com.azure.data.model.DocumentCollection
+import com.azure.data.model.Query
 import com.azure.data.model.Resource
 import com.azure.data.service.DataResponse
 import com.azure.data.service.ListResponse
@@ -17,10 +21,15 @@ import org.junit.runner.RunWith
 import org.junit.Assert.*
 
 @RunWith(AndroidJUnit4::class)
-class OfflineReadTests: OfflineTests("OfflineReadTests") {
+class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests", PartitionedCustomDocment::class.java) {
+
+    init {
+        partitionKeyPath = "/testKey"
+    }
 
     @Test
     fun fromCacheIsTrueForResourcesFetchedFromLocalCache() {
+
         var createResponse: Response<Database>? = null
         var listResponse: ListResponse<Database>? = null
 
@@ -42,6 +51,7 @@ class OfflineReadTests: OfflineTests("OfflineReadTests") {
 
     @Test
     fun fromCacheIsFalseForResourcesFetchedOnline() {
+
         var createResponse: Response<Database>? = null
         var listResponse: ListResponse<Database>? = null
 
@@ -61,6 +71,7 @@ class OfflineReadTests: OfflineTests("OfflineReadTests") {
 
     @Test
     fun fromCacheIsTrueForASingleResourceFetchedFromLocalCache() {
+
         var createResponse: Response<Database>? = null
         var getResponse: Response<Database>? = null
 
@@ -84,6 +95,7 @@ class OfflineReadTests: OfflineTests("OfflineReadTests") {
 
     @Test
     fun fromCacheIsFalseForAsSingleResourceFetchedOnline() {
+
         var createResponse: Response<Database>? = null
         var getResponse: Response<Database>? = null
 
@@ -103,12 +115,13 @@ class OfflineReadTests: OfflineTests("OfflineReadTests") {
 
     @Test
     fun deletingAResourceRemotelyAlsoDeletesItFromLocalCache() {
+
         var database: Database? = null
         var deleteResponse: DataResponse? = null
 
         deleteResources {
-            AzureData.createDatabase(databaseId) {
-                database = it.resource
+            AzureData.createDatabase(databaseId) { dbResponse ->
+                database = dbResponse.resource
 
                 AzureData.deleteDatabase(databaseId) {
                     deleteResponse = it
@@ -122,12 +135,13 @@ class OfflineReadTests: OfflineTests("OfflineReadTests") {
 
         assertNotNull(database)
 
-        assertNotNull(appContext.resourceCacheFile(database!!))
-        assertFalse(appContext.resourceCacheFile(database!!)!!.exists())
+        assertNotNull(ContextProvider.appContext.resourceCacheFile(database!!))
+        assertFalse(ContextProvider.appContext.resourceCacheFile(database!!)!!.exists())
     }
 
     @Test
     fun databasesAreCachedLocallyWhenNetworkIsReachable() {
+
         var createResponse: Response<Database>? = null
 
         deleteResources {
@@ -143,6 +157,7 @@ class OfflineReadTests: OfflineTests("OfflineReadTests") {
 
     @Test
     fun databasesAreFetchedFromLocalCacheWhenNetworkIsNotReachable() {
+
         var createResponse: Response<Database>? = null
 
         deleteResources {
@@ -158,6 +173,7 @@ class OfflineReadTests: OfflineTests("OfflineReadTests") {
 
     @Test
     fun collectionsAreCachedLocallyWhenNetworkIsReachable() {
+
         var createResponse: Response<DocumentCollection>? = null
 
         deleteResources {
@@ -177,6 +193,8 @@ class OfflineReadTests: OfflineTests("OfflineReadTests") {
 
     @Test
     fun collectionsAreFetchedFromLocalCacheWhenNetworkIsNotReachable() {
+
+
         var createResponse: Response<DocumentCollection>? = null
 
         deleteResources {
@@ -196,6 +214,7 @@ class OfflineReadTests: OfflineTests("OfflineReadTests") {
 
     @Test
     fun documentsAreCachedLocallyWhenNetworkIsReachable() {
+
         var createResponse: Response<CustomDocument>? = null
 
         deleteResources {
@@ -217,6 +236,7 @@ class OfflineReadTests: OfflineTests("OfflineReadTests") {
 
     @Test
     fun documentsAreFetchedFromLocalCacheWhenNetworkIsNotReachable() {
+
         var createResponse: Response<CustomDocument>? = null
 
         deleteResources {
@@ -236,11 +256,75 @@ class OfflineReadTests: OfflineTests("OfflineReadTests") {
         }
     }
 
-    //region
+    @Test
+    fun queryResultsAreCachedLocally() {
 
-    private fun <T: Resource> ensureResourcesAreCachedLocallyWhenNetworkIsReachable(
-        getResources: ((ListResponse<T>) -> Unit) -> Unit
-    ) {
+        createNewDocuments(2)
+
+        val query = Query().from(collectionId)
+
+        AzureData.queryDocuments(collection!!, query, docType) {
+
+            resourceListResponse = it
+        }
+
+        await().forever().until { resourceListResponse != null }
+
+        resourceListResponse!!.resource!!.items.forEach {
+
+            val file = ContextProvider.appContext.resourceCacheFile(it, query)
+
+            // resources are cached on a background thread so we want to be able to wait a bit
+            await().atMost(Duration.TWO_SECONDS).until { file.exists() }
+        }
+    }
+
+    @Test
+    fun queryResultsAreFetchedFromLocalCacheWhenNetworkIsNotReachable() {
+
+        createNewDocuments(2)
+
+        val query = Query().from(collectionId)
+
+        AzureData.queryDocuments(collectionId, databaseId, query, docType) {
+
+            resourceListResponse = it
+        }
+
+        await().until { resourceListResponse != null }
+
+        val onlineResources = resourceListResponse!!.resource!!.items
+
+        // now try offline
+        turnOffInternetConnection()
+        resourceListResponse = null
+
+        AzureData.queryDocuments(collectionId, databaseId, query, docType) {
+
+            resourceListResponse = it
+        }
+
+        await().until { resourceListResponse != null }
+
+        assertListResponseSuccess(resourceListResponse)
+        assertTrue(resourceListResponse!!.fromCache)
+
+        val offlineResources = resourceListResponse!!.resource!!.items
+
+        assertFalse(onlineResources.isEmpty())
+        assertFalse(offlineResources.isEmpty())
+        assertEquals(onlineResources.count(), offlineResources.count())
+
+        offlineResources.forEach {
+
+            assertTrue(onlineResources.any { resource -> resource.resourceId == it.resourceId })
+        }
+    }
+
+    //region Helpers
+
+    private fun <T: Resource> ensureResourcesAreCachedLocallyWhenNetworkIsReachable(getResources: ((ListResponse<T>) -> Unit) -> Unit) {
+
         var listResponse: ListResponse<T>? = null
 
         getResources { listResponse = it }
@@ -250,14 +334,14 @@ class OfflineReadTests: OfflineTests("OfflineReadTests") {
         assertNotNull(listResponse!!.resource)
 
         listResponse!!.resource!!.items.forEach {
-            assertNotNull(appContext.resourceCacheFile(it))
-            assertTrue(appContext.resourceCacheFile(it)!!.exists())
+
+            assertNotNull(ContextProvider.appContext.resourceCacheFile(it))
+            assertTrue(ContextProvider.appContext.resourceCacheFile(it)!!.exists())
         }
     }
 
-    private fun <T: Resource> ensureResourcesAreFetchedFromLocalCacheWhenNetworkIsNotReachable(
-        getResources: ((ListResponse<T>) -> Unit) -> Unit
-    ) {
+    private fun <T: Resource> ensureResourcesAreFetchedFromLocalCacheWhenNetworkIsNotReachable(getResources: ((ListResponse<T>) -> Unit) -> Unit) {
+
         var onlineResources: List<T>? = null
         var offlineResources: List<T>? = null
         var listResponse: ListResponse<T>? = null
@@ -269,10 +353,10 @@ class OfflineReadTests: OfflineTests("OfflineReadTests") {
 
             turnOffInternetConnection()
 
-            getResources {
-                offlineResources = it.resource?.items
+            getResources { offlineResponse ->
+                offlineResources = offlineResponse.resource?.items
 
-                listResponse = it
+                listResponse = offlineResponse
             }
         }
 
@@ -287,6 +371,7 @@ class OfflineReadTests: OfflineTests("OfflineReadTests") {
     }
 
     private fun deleteResources(callback: () -> Unit) {
+
         AzureData.deleteDatabase(databaseId) { callback() }
     }
 

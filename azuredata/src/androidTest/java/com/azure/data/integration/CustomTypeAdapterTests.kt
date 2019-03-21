@@ -5,7 +5,6 @@ import android.support.test.runner.AndroidJUnit4
 import com.azure.data.AzureData
 import com.azure.data.integration.common.*
 import com.azure.data.model.PermissionMode
-import com.azure.data.model.ResourceType
 import com.azure.data.util.json.gson
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -16,7 +15,7 @@ import org.junit.runner.RunWith
  * Licensed under the MIT License.
  */
 @RunWith(AndroidJUnit4::class)
-class CustomTypeAdapterTests : ResourceTest<CustomDocument>(ResourceType.Document, false, false) {
+class CustomTypeAdapterTests : ResourceTest<CustomDocument>("CustomTypeAdapterTests", false, false) {
 
     override fun configureAzureData(appContext: Context) {
 

@@ -4,7 +4,6 @@ import android.support.test.runner.AndroidJUnit4
 import com.azure.data.AzureData
 import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.Offer
-import com.azure.data.model.ResourceType
 import com.azure.data.service.ListResponse
 import org.awaitility.Awaitility.await
 import org.junit.Assert.*
@@ -17,7 +16,7 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class OfferTests : ResourceTest<Offer>(ResourceType.Offer, false, false) {
+class OfferTests : ResourceTest<Offer>("OfferTests", false, false) {
 
     @Test
     fun listOffers() {
@@ -84,14 +83,12 @@ class OfferTests : ResourceTest<Offer>(ResourceType.Offer, false, false) {
 
             offer = it.resource?.items?.first()
 
-            AzureData.getOffer(offer!!.id) {
-                response = it
+            AzureData.getOffer(offer!!.id) { offerResponse ->
+                response = offerResponse
             }
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(offer?.id, response?.resource?.id)

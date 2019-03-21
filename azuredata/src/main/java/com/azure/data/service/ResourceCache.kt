@@ -3,12 +3,10 @@ package com.azure.data.service
 import android.content.Context
 import com.azure.core.log.e
 import com.azure.core.util.ContextProvider
-import com.azure.data.model.Resource
-import com.azure.data.model.ResourceList
-import com.azure.data.model.ResourceLocation
-import com.azure.data.model.ResourceType
+import com.azure.data.model.*
 import com.azure.data.util.ResourceOracle
 import com.azure.data.util.json.gson
+import com.azure.data.util.lastPathComponent
 import java.io.File
 import java.lang.Exception
 import java.util.concurrent.ExecutorService
@@ -37,15 +35,18 @@ internal class ResourceCache private constructor() {
 
     //region cache
 
-    fun <T: Resource> cache(resource: T) {
+    fun <T : Resource> cache(resource: T) {
+
         ResourceOracle.shared.storeLinks(resource)
 
         if (isEnabled) {
             executor.execute {
                 safeExecute {
+
                     ContextProvider.appContext.resourceCacheFile(resource)?.let {
-                        it.bufferedWriter().use {
-                            it.write(encrypt(gson.toJson(resource)))
+
+                        it.bufferedWriter().use { writer ->
+                            writer.write(encrypt(gson.toJson(resource)))
                         }
                     }
                 }
@@ -53,10 +54,43 @@ internal class ResourceCache private constructor() {
         }
     }
 
-    fun <T: Resource> cache(resources: ResourceList<T>) {
+    fun <T : Resource> cache(resources: ResourceList<T>) {
+
         ResourceOracle.shared.storeLinks(resources)
 
         resources.items.forEach { cache(it) }
+    }
+
+    fun <T : Resource> cache(resources: ResourceList<T>, query: Query, contentPath: String) {
+
+        if (resources.count == 0) {
+            return
+        }
+
+        ResourceOracle.shared.storeLinks(resources)
+
+        if (isEnabled) {
+            executor.execute {
+                safeExecute {
+
+                    val metadata = ResourcesMetadata(resources.resourceId!!, contentPath)
+                    val metadataPath = ContextProvider.appContext.metadatafileUrl(query)
+
+                    metadataPath.bufferedWriter().use { writer ->
+                        writer.write(encrypt(gson.toJson(metadata)))
+                    }
+
+                    resources.items.forEach { resource ->
+
+                        val file = ContextProvider.appContext.resourceCacheFile(resource, query)
+
+                        file.bufferedWriter().use { writer ->
+                            writer.write(encrypt(gson.toJson(resource)))
+                        }
+                    }
+                }
+            }
+        }
     }
 
     //endregion
@@ -64,7 +98,8 @@ internal class ResourceCache private constructor() {
 
     //region replace
 
-    fun <T: Resource> replace(resource: T) {
+    fun <T : Resource> replace(resource: T) {
+
         remove(resource)
 
         cache(resource)
@@ -74,32 +109,73 @@ internal class ResourceCache private constructor() {
 
     //region get
 
-    fun <T: Resource> getResourceAt(location: ResourceLocation, resourceClass: Class<T>): T? {
-        if (!isEnabled) { return null }
+    fun <T : Resource> getResourceAt(location: ResourceLocation, resourceClass: Class<T>): T? {
+
+        if (!isEnabled) {
+            return null
+        }
 
         return safe {
-            ContextProvider.appContext.resourceCacheFile(location)?.let {
-                it.bufferedReader().use { gson.fromJson<T>(decrypt(it.readText()), resourceClass) }
+
+            ContextProvider.appContext.resourceCacheFile(location)?.let { file ->
+
+                file.bufferedReader().use { gson.fromJson<T>(decrypt(it.readText()), resourceClass) }
             }
         }
     }
 
-    fun <T: Resource> getResourcesAt(location: ResourceLocation, resourceClass: Class<T>): ResourceList<T> {
-        val resources = ResourceList<T>()
+    fun <T : Resource> getResourcesAt(location: ResourceLocation, resourceClass: Class<T>): ResourceList<T>? {
 
         if (isEnabled) {
             safeExecute {
-                resources.items = ContextProvider.appContext.resourceCacheFiles(location).map {
-                    it.bufferedReader().use {
+
+                val resources = ResourceList<T>()
+
+                resources.items = ContextProvider.appContext.resourceCacheFiles(location).map { file ->
+
+                    file.bufferedReader().use {
                         gson.fromJson<T>(decrypt(it.readText()), resourceClass)
                     }
                 }
 
                 resources.count = resources.items.count()
+
+                return resources
             }
         }
 
-        return resources
+        return null
+    }
+
+    fun <T : Resource> getResourcesForQuery(query: Query, resourceClass: Class<T>): ResourceList<T>? {
+
+        if (isEnabled) {
+            safeExecute {
+
+                val resources = ResourceList<T>()
+                val metadataPath = ContextProvider.appContext.metadatafileUrl(query)
+
+                val metadata = metadataPath.bufferedReader().use {
+                    gson.fromJson<ResourcesMetadata>(decrypt(it.readText()), ResourcesMetadata::class.java)
+                }
+
+                resources.resourceId = metadata.resourceId
+
+                resources.items = ContextProvider.appContext.resourceCacheFiles(query).map { file ->
+
+                    file.bufferedReader().use {
+                        gson.fromJson<T>(decrypt(it.readText()), resourceClass)
+                    }
+                }
+
+                resources.count = resources.items.count()
+                resources.setAltContentLink(ResourceType.fromType(resourceClass).path, metadata.contentPath)
+
+                return resources
+            }
+        }
+
+        return null
     }
 
     //endregion
@@ -107,28 +183,26 @@ internal class ResourceCache private constructor() {
     //region remove
 
     fun remove(resource: Resource) {
+
         ResourceOracle.shared.removeLinks(resource)
 
         if (isEnabled) {
             safeExecute {
                 executor.execute {
-                    ContextProvider.appContext.resourceCacheDir(resource)?.let {
-                        it.deleteRecursively()
-                    }
+                    ContextProvider.appContext.resourceCacheDir(resource)?.deleteRecursively()
                 }
             }
         }
     }
 
     fun remove(resourceLocation: ResourceLocation) {
+
         ResourceOracle.shared.removeLinks(resourceLocation)
 
-        if (isEnabled) {
+        if (isEnabled && !resourceLocation.isFeed) {
             safeExecute {
                 executor.execute {
-                    ContextProvider.appContext.resourceCacheDir(resourceLocation)?.let {
-                        it.deleteRecursively()
-                    }
+                    ContextProvider.appContext.resourceCacheDir(resourceLocation)?.deleteRecursively()
                 }
             }
         }
@@ -139,11 +213,14 @@ internal class ResourceCache private constructor() {
     //region purge
 
     fun purge() {
+
         safeExecute {
+
             ResourceOracle.shared.purge()
 
             val databasesDir = File(ContextProvider.appContext.azureDataCacheDir(), "dbs")
             val offersDir = File(ContextProvider.appContext.azureDataCacheDir(), "offers")
+            val queriesDir = File(ContextProvider.appContext.azureDataCacheDir(), "queries")
 
             if (databasesDir.exists() && databasesDir.isDirectory) {
                 databasesDir.deleteRecursively()
@@ -151,6 +228,10 @@ internal class ResourceCache private constructor() {
 
             if (offersDir.exists() && offersDir.isDirectory) {
                 offersDir.deleteRecursively()
+            }
+
+            if (queriesDir.exists() && queriesDir.isDirectory) {
+                queriesDir.deleteRecursively()
             }
         }
     }
@@ -170,12 +251,18 @@ internal class ResourceCache private constructor() {
     }
 
     //endregion
+    private data class ResourcesMetadata(
+            val resourceId: String,
+            val contentPath: String
+    )
 }
 
 //region Context
 
-fun Context.resourceCacheFile(resource: Resource): File? {
+internal fun Context.resourceCacheFile(resource: Resource): File? {
+
     ResourceOracle.shared.getFilePath(resource)?.let {
+
         val directory = File(azureDataCacheDir(), it.directory)
 
         if (!directory.exists()) {
@@ -190,8 +277,10 @@ fun Context.resourceCacheFile(resource: Resource): File? {
     return null
 }
 
-private fun Context.resourceCacheFile(resourceLocation: ResourceLocation): File? {
+internal fun Context.resourceCacheFile(resourceLocation: ResourceLocation): File? {
+
     ResourceOracle.shared.getFilePath(resourceLocation)?.let {
+
         val directory = File(azureDataCacheDir(), it.directory)
 
         if (!directory.exists()) {
@@ -206,16 +295,20 @@ private fun Context.resourceCacheFile(resourceLocation: ResourceLocation): File?
     return null
 }
 
-private fun Context.resourceCacheFiles(resourceLocation: ResourceLocation): List<File> {
-    resourceCacheDir(resourceLocation)?.let {
-        return it.listFiles().map { File(it, "${it.name}.json") }
+internal fun Context.resourceCacheFiles(resourceLocation: ResourceLocation): List<File> {
+
+    resourceCacheDir(resourceLocation)?.let { file ->
+
+        return file.listFiles().map { File(it, "${it.name}.json") }
     }
 
     return emptyList()
 }
 
-private fun Context.resourceCacheDir(resource: Resource): File? {
+internal fun Context.resourceCacheDir(resource: Resource): File? {
+
     ResourceOracle.shared.getFilePath(resource)?.let {
+
         val directory = File(azureDataCacheDir(), it.directory)
 
         if (!directory.exists()) {
@@ -228,8 +321,10 @@ private fun Context.resourceCacheDir(resource: Resource): File? {
     return null
 }
 
-private fun Context.resourceCacheDir(resourceLocation: ResourceLocation): File? {
+internal fun Context.resourceCacheDir(resourceLocation: ResourceLocation): File? {
+
     ResourceOracle.shared.getDirectoryPath(resourceLocation)?.let {
+
         val directory = File(azureDataCacheDir(), it)
 
         if (!directory.exists()) {
@@ -243,6 +338,7 @@ private fun Context.resourceCacheDir(resourceLocation: ResourceLocation): File? 
 }
 
 internal fun Context.azureDataCacheDir(): File {
+
     val directory = File(cacheDir, "com.azuredata.data")
 
     if (!directory.exists()) {
@@ -252,14 +348,62 @@ internal fun Context.azureDataCacheDir(): File {
     return directory
 }
 
-private fun createEmptyChildDirectoriesIfNecessary(parent: File, resourceType: ResourceType) {
+internal fun createEmptyChildDirectoriesIfNecessary(parent: File, resourceType: ResourceType) {
+
     resourceType.children.forEach {
+
         val childDirectory = File(parent, it.path)
 
         if (!childDirectory.exists()) {
             childDirectory.mkdirs()
         }
     }
+}
+
+internal fun Context.resourceCacheDir(query: Query) : File {
+
+    val queryPath = ResourceOracle.shared.getDirectoryPath(query)
+    val directory = File(azureDataCacheDir(), queryPath)
+
+    if (!directory.exists()) {
+        directory.mkdirs()
+    }
+
+    return directory
+}
+
+internal fun Context.metadatafileUrl(query: Query) : File {
+
+    val dir = this.resourceCacheDir(query)
+
+    return File(dir, "metadata.json")
+}
+
+internal fun Context.resultsCacheDir(query: Query) : File {
+
+    val dir = this.resourceCacheDir(query)
+    val resultsDir = File(dir, "results")
+
+    if (!resultsDir.exists()) {
+        resultsDir.mkdirs()
+    }
+
+    return resultsDir
+}
+
+internal fun Context.resourceCacheFile(resource: Resource, query: Query) : File {
+
+    val filename = "${resource.selfLink?.lastPathComponent() ?: resource.resourceId}.json"
+    val resultsPath = this.resultsCacheDir(query)
+
+    return File(resultsPath, filename)
+}
+
+internal fun Context.resourceCacheFiles(query: Query) : Array<File> {
+
+    val resultsPath = this.resultsCacheDir(query)
+
+    return resultsPath.listFiles()
 }
 
 //endregion

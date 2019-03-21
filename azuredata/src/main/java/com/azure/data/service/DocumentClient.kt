@@ -932,36 +932,47 @@ class DocumentClient private constructor() {
             val json = gson.toJson(query.dictionary)
 
             // do we have a partition key to send?  If not, then this query will be a cross partition query
-            val headers = partitionKey?.let { setPartitionKeyHeader(partitionKey) } ?: mutableMapOf(MSHttpHeader.MSDocumentDBQueryEnableCrossPartition.value to HttpHeaderValue.trueValue)
+            val headers = partitionKey?.let { setPartitionKeyHeader(partitionKey) }
+                    ?: mutableMapOf(MSHttpHeader.MSDocumentDBQueryEnableCrossPartition.value to HttpHeaderValue.trueValue)
 
             createRequest(HttpMethod.Post, resourceLocation, headers, json, true, maxPerPage) { request ->
 
                 sendResourceListRequest(request, resourceLocation, resourceClass) { response ->
 
-                    // if we've tried to query cross partition but have a TOP or ORDER BY, we'll get a specific error we can work around by using partition key range Ids
-                    // reference: https://stackoverflow.com/questions/50240232/cosmos-db-rest-api-order-by-with-partitioning
-                    if (response.isErrored && response.error!!.isInvalidCrossPartitionQueryError()) {
+                    processQueryResponse(query, resourceLocation, response, resourceClass) { processedResponse ->
 
-                        // we will grab the partition key ranges for the collection we're querying
-                        val dbId = resourceLocation.ancestorIds().getValue(ResourceType.Database)
-                        val collId = resourceLocation.ancestorIds().getValue(ResourceType.Collection)
+                        if (processedResponse.isSuccessful) { // success case
 
-                        getCollectionPartitionKeyRanges(collId, dbId) { pkRanges ->
+                            callback(processedResponse)
 
-                            // THEN, we can retry our request after setting the range Id header
-                            // TODO:  Note, we may need to do more here if there are additional PartitionKeyRange items that come back... can't find docs on this format
-                            headers[MSHttpHeader.MSDocumentDBPartitionKeyRangeId.value] = "${pkRanges.resource!!.resourceId!!},${pkRanges.resource.items[0].id}"
+                        } else if (processedResponse.isErrored && processedResponse.error!!.isInvalidCrossPartitionQueryError()) {
 
-                            createRequest(HttpMethod.Post, resourceLocation, headers, json, true, maxPerPage) { retryRequest ->
+                            // if we've tried to query cross partition but have a TOP or ORDER BY, we'll get a specific error we can work around by using partition key range Ids
+                            // reference: https://stackoverflow.com/questions/50240232/cosmos-db-rest-api-order-by-with-partitioning
 
-                                sendResourceListRequest(retryRequest, resourceLocation, resourceClass) { retryResponse ->
+                            // we will grab the partition key ranges for the collection we're querying
+                            val dbId = resourceLocation.ancestorIds().getValue(ResourceType.Database)
+                            val collId = resourceLocation.ancestorIds().getValue(ResourceType.Collection)
 
-                                    // DO NOT try to inline this into the method call above.  Bad. Things. Happen.
-                                    callback(retryResponse)
+                            getCollectionPartitionKeyRanges(collId, dbId) { pkRanges ->
+
+                                // THEN, we can retry our request after setting the range Id header
+                                // TODO:  Note, we may need to do more here if there are additional PartitionKeyRange items that come back... can't find docs on this format
+                                headers[MSHttpHeader.MSDocumentDBPartitionKeyRangeId.value] = "${pkRanges.resource!!.resourceId!!},${pkRanges.resource.items[0].id}"
+
+                                createRequest(HttpMethod.Post, resourceLocation, headers, json, true, maxPerPage) { retryRequest ->
+
+                                    sendResourceListRequest(retryRequest, resourceLocation, resourceClass) { retryResponse ->
+
+                                        processQueryResponse(query, resourceLocation, retryResponse, resourceClass) {
+                                            // DO NOT try to inline this into the method call above.  Bad. Things. Happen.
+                                            callback(it)
+                                        }
+                                    }
                                 }
                             }
                         }
-                    } else callback(response) //success case
+                    }
                 }
             }
         } catch (ex: Exception) {
@@ -1010,8 +1021,6 @@ class DocumentClient private constructor() {
             callback(ListResponse(DataError(ex)))
         }
     }
-
-
 
     // execute
     private fun <T> execute(body: T? = null, resourceLocation: ResourceLocation, partitionKey: String? = null, callback: (DataResponse) -> Unit) {
@@ -1256,7 +1265,7 @@ class DocumentClient private constructor() {
                             e(ex)
                             isOffline = true
 
-                            callback(Response(error = DataError(DocumentClientError.InternetConnectivityError)))
+                            callback(Response(DataError(DocumentClientError.InternetConnectivityError), request))
                         }
 
                         @Throws(IOException::class)
@@ -1279,7 +1288,7 @@ class DocumentClient private constructor() {
                             e(ex)
                             isOffline = true
 
-                            return callback(Response(error = DataError(DocumentClientError.InternetConnectivityError)))
+                            return callback(Response(DataError(DocumentClientError.InternetConnectivityError), request))
                         }
 
                         @Throws(IOException::class)
@@ -1303,7 +1312,7 @@ class DocumentClient private constructor() {
                             e(ex)
                             isOffline = true
 
-                            callback(ListResponse(DataError(DocumentClientError.InternetConnectivityError)))
+                            callback(ListResponse(DataError(DocumentClientError.InternetConnectivityError), request))
                         }
 
                         @Throws(IOException::class)
@@ -1387,7 +1396,7 @@ class DocumentClient private constructor() {
         }
     }
 
-    private fun <T: Resource> processCreateOrReplaceResponse(resource: T, location: ResourceLocation, replace: Boolean, additionalHeaders: MutableMap<String, String>? = null, response: Response<T>, callback: (Response<T>) -> Unit) {
+    private fun <T : Resource> processCreateOrReplaceResponse(resource: T, location: ResourceLocation, replace: Boolean, additionalHeaders: MutableMap<String, String>? = null, response: Response<T>, callback: (Response<T>) -> Unit) {
 
         when {
             response.isSuccessful -> {
@@ -1395,7 +1404,7 @@ class DocumentClient private constructor() {
                 callback(response)
 
                 when (replace) {
-                    true  -> response.resource?.let { ResourceCache.shared.replace(it) }
+                    true -> response.resource?.let { ResourceCache.shared.replace(it) }
                     false -> response.resource?.let { ResourceCache.shared.cache(it) }
                 }
             }
@@ -1410,11 +1419,13 @@ class DocumentClient private constructor() {
                 callback(response)
             }
 
-            else -> { callback(response) }
+            else -> {
+                callback(response)
+            }
         }
     }
 
-    private fun <T: Resource> processResourceGetResponse(resourceLocation: ResourceLocation, response: Response<T>, callback: (Response<T>) -> Unit, resourceClass: Class<T>?) {
+    private fun <T : Resource> processResourceGetResponse(resourceLocation: ResourceLocation, response: Response<T>, callback: (Response<T>) -> Unit, resourceClass: Class<T>?) {
 
         when {
             response.isSuccessful -> {
@@ -1442,7 +1453,7 @@ class DocumentClient private constructor() {
         }
     }
 
-    private fun <T: Resource> processResourceListResponse(resourceLocation: ResourceLocation, response: ListResponse<T>, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>?) {
+    private fun <T : Resource> processResourceListResponse(resourceLocation: ResourceLocation, response: ListResponse<T>, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>?) {
 
         when {
             response.isSuccessful -> {
@@ -1456,6 +1467,30 @@ class DocumentClient private constructor() {
 
                 if (response.error!!.isConnectivityError() && resourceClass != null) {
                     cachedResources(resourceLocation, response, callback, resourceClass)
+                    return
+                }
+
+                callback(response)
+            }
+
+            else -> { callback(response) }
+        }
+    }
+
+    private fun <T : Resource> processQueryResponse(query: Query, resourceLocation: ResourceLocation, response: ListResponse<T>, resourceClass: Class<T>?, callback: (ListResponse<T>) -> Unit) {
+
+        when {
+            response.isSuccessful -> {
+
+                callback(response)
+
+                response.resource?.let { ResourceCache.shared.cache(it, query, resourceLocation.link()) }
+            }
+
+            response.isErrored -> {
+
+                if (response.error!!.isConnectivityError() && resourceClass != null) {
+                    cachedResources(query, resourceLocation, response, callback, resourceClass)
                     return
                 }
 
@@ -1523,21 +1558,31 @@ class DocumentClient private constructor() {
 
     //region Cache Responses
 
-    private fun <T: Resource> cachedResource(resourceLocation: ResourceLocation, response: Response<T>? = null, callback: (Response<T>) -> Unit, resourceClass: Class<T>) {
+    private fun <T : Resource> cachedResource(resourceLocation: ResourceLocation, response: Response<T>? = null, callback: (Response<T>) -> Unit, resourceClass: Class<T>) {
 
-        ResourceCache.shared.getResourceAt(resourceLocation, resourceClass)?.let {
-            callback(Response(response?.request, response?.response, response?.jsonData, Result(resource = it), resourceLocation, response?.resourceType, fromCache = true))
-            return
-        }
+       return ResourceCache.shared.getResourceAt(resourceLocation, resourceClass)?.let { resource ->
 
-        callback(Response(response?.request, response?.response, response?.jsonData, Result(error = DataError(DocumentClientError.NotFound)), fromCache = true))
+            callback(Response(response?.request, response?.response, response?.jsonData, Result(resource), resourceLocation, response?.resourceType, true))
+
+        } ?: callback(Response(DataError(DocumentClientError.NotFound)))
     }
 
-    private fun <T: Resource> cachedResources(resourceLocation: ResourceLocation, response: ListResponse<T>? = null, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>) {
+    private fun <T : Resource> cachedResources(resourceLocation: ResourceLocation, response: ListResponse<T>? = null, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>) {
 
-        val resources = ResourceCache.shared.getResourcesAt(resourceLocation, resourceClass)
+        return ResourceCache.shared.getResourcesAt(resourceLocation, resourceClass)?.let { resources ->
 
-        callback(ListResponse(response?.request, response?.response, response?.jsonData, Result(resources), resourceLocation, response?.resourceType, fromCache = true))
+            callback(ListResponse(response?.request, response?.response, response?.jsonData, Result(resources), resourceLocation, response?.resourceType, true))
+
+        } ?: callback(ListResponse(DataError(DocumentClientError.SerciceUnavailableError)))
+    }
+
+    private fun <T : Resource> cachedResources(query: Query, resourceLocation: ResourceLocation, response: ListResponse<T>? = null, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>) {
+
+        return ResourceCache.shared.getResourcesForQuery(query, resourceClass)?.let { resources ->
+
+            callback(ListResponse(response?.request, response?.response, response?.jsonData, Result(resources), resourceLocation, response?.resourceType, true))
+
+        } ?: callback(ListResponse(DataError(DocumentClientError.SerciceUnavailableError)))
     }
 
     //endregion

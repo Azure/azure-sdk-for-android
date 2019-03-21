@@ -10,7 +10,4 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class DocumentTests : DocumentTestsBase<CustomDocument>(CustomDocument::class.java) {
-
-
-}
+class DocumentTests : DocumentTestsBase<CustomDocument>("DocumentTests", CustomDocument::class.java)

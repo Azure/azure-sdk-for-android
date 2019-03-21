@@ -6,10 +6,10 @@ import android.util.Log
 import com.azure.core.log.i
 import com.azure.core.log.startLogging
 import com.azure.data.AzureData
+import com.azure.data.integration.offlinetests.mocks.MockOkHttpClient
 import com.azure.data.model.*
-import com.azure.data.service.DataResponse
-import com.azure.data.service.ListResponse
-import com.azure.data.service.Response
+import com.azure.data.service.*
+import okhttp3.OkHttpClient
 import org.awaitility.Awaitility.await
 import org.junit.After
 import org.junit.Assert.*
@@ -20,15 +20,15 @@ import org.junit.Before
  * Licensed under the MIT License.
  */
 
-open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
+open class ResourceTest<TResource : Resource>(resourceName: String,
                                               private val ensureDatabase : Boolean = true,
                                               private val ensureCollection : Boolean = true,
                                               private val ensureDocument : Boolean = false) {
 
-    val databaseId = "AndroidTest${ResourceType.Database.name}"
-    val collectionId = "AndroidTest${ResourceType.Collection.name}"
-    val documentId = "AndroidTest${ResourceType.Document.name}"
-    val createdResourceId = "AndroidTest${resourceType.name}"
+    val databaseId = "AndroidTest$resourceName${ResourceType.Database.name}"
+    val collectionId = "AndroidTest$resourceName${ResourceType.Collection.name}"
+    val documentId = "AndroidTest$resourceName${ResourceType.Document.name}"
+    val createdResourceId = "AndroidTest$resourceName"
 
     fun databaseId(count : Int = 0) = "$databaseId${if (count<2) "" else count.toString()}"
     fun collectionId(count : Int = 0) = "$collectionId${if (count<2) "" else count.toString()}"
@@ -52,15 +52,21 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         i { "********* Begin Test Setup *********" }
 
         if (!AzureData.isConfigured) {
+
             // Context of the app under test.
             val appContext = InstrumentationRegistry.getTargetContext()
 
             configureAzureData(appContext)
+        } else {
+
+            turnOnInternetConnection()
         }
 
+        purgeCache()
         deleteResources()
 
         if (ensureDatabase || ensureCollection || ensureDocument) {
+
             // Dbs with provisioned throughput REQUIRE partition keys
             if (partitionKeyPath != null) {
                 ensureDatabase(1000)
@@ -80,6 +86,20 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         i { "********* End Test Setup *********" }
     }
 
+    @After
+    open fun tearDown() {
+
+        i { "********* Begin Test Tear Down *********" }
+
+        deleteResources()
+
+        purgeCache()
+
+        i { "********* End Test Tear Down *********" }
+    }
+
+    //region Config/setup/control flow
+
     open fun configureAzureData(appContext: Context) {
 
         AzureData.configure(
@@ -89,15 +109,36 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
                 PermissionMode.All)
     }
 
-    @After
-    open fun tearDown() {
+    fun turnOnInternetConnection() {
 
-        i { "********* Begin Test Tear Down *********" }
+        if (DocumentClient.client is MockOkHttpClient) {
 
-        deleteResources()
-
-        i { "********* End Test Tear Down *********" }
+            DocumentClient.client = OkHttpClient()
+        }
     }
+
+    fun turnOffInternetConnection() {
+
+        val client = MockOkHttpClient()
+        client.hasNetworkError = true
+
+        DocumentClient.client = client
+    }
+
+    private fun purgeCache() {
+
+        ResourceCache.shared.purge()
+        ResourceWriteOperationQueue.shared.purge()
+    }
+
+    fun resetResponse() {
+
+        response = null
+    }
+
+    //endregion
+
+    //region Resource creation
 
     fun tryCreateDatabase(throughput: Int? = null) : Response<Database>? {
 
@@ -115,9 +156,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             }
         }
 
-        await().until {
-            dbResponse != null
-        }
+        await().until { dbResponse != null }
 
         return dbResponse
     }
@@ -140,13 +179,12 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         val databases = mutableListOf<Database>()
 
         for (i in 1..count) {
+
             AzureData.createDatabase(databaseId(i)) {
                 dbResponse = it
             }
 
-            await().until {
-                dbResponse != null
-            }
+            await().until { dbResponse != null }
 
             assertResourceResponseSuccess(dbResponse)
             assertEquals(databaseId(i), dbResponse?.resource?.id)
@@ -162,6 +200,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         var collectionResponse: Response<DocumentCollection>? = null
 
         if (!partitionKeyPath.isNullOrBlank()) {
+
             throughput?.let {
                 AzureData.createCollection(collectionId, throughput, partitionKeyPath!!, databaseId) {
                     collectionResponse = it
@@ -177,9 +216,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             }
         }
 
-        await().until {
-            collectionResponse != null
-        }
+        await().until { collectionResponse != null }
 
         return collectionResponse
     }
@@ -207,15 +244,14 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
                 docResponse = it
             }
 
-            await().until {
-                docResponse != null
-            }
+            await().until { docResponse != null }
 
             assertResourceResponseSuccess(docResponse)
 
             document = docResponse!!.resource!!
 
             document!!
+
         } else {
 
             var docResponse: Response<CustomDocument>? = null
@@ -225,9 +261,7 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
                 docResponse = it
             }
 
-            await().until {
-                docResponse != null
-            }
+            await().until { docResponse != null }
 
             assertResourceResponseSuccess(docResponse)
 
@@ -249,17 +283,23 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
             deleteResponse = response
         }
 
-        await().until {
-            deleteResponse != null
-        }
+        await().until { deleteResponse != null }
     }
+
+    //endregion
+
+    //region Assertions
 
     private fun assertResponsePopulated(response: Response<*>?) {
 
         assertNotNull("Response was null", response)
         assertNotNull(response!!.request)
-        assertNotNull(response.response)
-        assertNotNull(response.jsonData)
+
+        // offline responses will not have the OkHttp response or Json data
+        if (!response.fromCache) {
+            assertNotNull(response.response)
+            assertNotNull(response.jsonData)
+        }
     }
 
     fun <TResource : Resource> assertListResponseSuccess(response: ListResponse<TResource>?) {
@@ -364,8 +404,5 @@ open class ResourceTest<TResource : Resource>(resourceType: ResourceType,
         assertNotNull("resource.timestamp is null", resource.timestamp)
     }
 
-    fun resetResponse() {
-
-        response = null
-    }
+    //endregion
 }

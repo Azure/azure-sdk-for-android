@@ -24,7 +24,7 @@ fun String.extractId(resourceType: String): String? {
 }
 
 fun String.lastPathComponent(): String {
-    val components = split("/")
+    val components = trimEnd('/').split("/")
     val count = components.count()
 
     return if (count > 1) components[count - 1] else this

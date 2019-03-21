@@ -6,7 +6,6 @@ import com.azure.data.constants.HttpHeaderValue
 import com.azure.data.delete
 import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.Database
-import com.azure.data.model.ResourceType
 import com.azure.data.refresh
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,7 +18,7 @@ import org.junit.Assert.*
  */
 
 @RunWith(AndroidJUnit4::class)
-class DatabaseTests : ResourceTest<Database>(ResourceType.Database, false, false) {
+class DatabaseTests : ResourceTest<Database>("DatabaseTests", false, false) {
 
     @Test
     fun createDatabase() {

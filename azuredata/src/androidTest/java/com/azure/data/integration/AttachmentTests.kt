@@ -1,15 +1,12 @@
 package com.azure.data.integration
 
 import android.support.test.runner.AndroidJUnit4
-import com.azure.core.util.getAnnotatedProperties
 import com.azure.data.*
 import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.*
-import com.azure.data.model.partition.PartitionKey
 import com.azure.data.service.ListResponse
 import com.azure.data.service.PartitionKeyPropertyCache
 import com.azure.data.service.Response
-import com.azure.data.service.next
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -26,7 +23,7 @@ import java.net.URL
  */
 
 @RunWith(AndroidJUnit4::class)
-open class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, true, true) {
+open class AttachmentTests : ResourceTest<Attachment>("AttachmentTests", true, true, true) {
 
     private val urlString = "https://lcsc.academyofmine.com/wp-content/uploads/2017/06/Test-Logo.svg.png"
     private val url: URL = URL("https", "lcsc.academyofmine.com", "/wp-content/uploads/2017/06/Test-Logo.svg.png")

@@ -21,7 +21,7 @@ class PartitionedDoc(id: String? = null) : CustomDocument(id) {
 }
 
 @RunWith(AndroidJUnit4::class)
-class DocumentManualPartitionKeyTests : DocumentTestsBase<PartitionedDoc>(PartitionedDoc::class.java) {
+class DocumentManualPartitionKeyTests : DocumentTestsBase<PartitionedDoc>("DocumentManualPartitionKeyTests", PartitionedDoc::class.java) {
 
     init {
         partitionKeyPath = "/testKey"

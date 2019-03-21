@@ -13,7 +13,7 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class DocumentPartitionedTests : DocumentTestsBase<PartitionedCustomDocment>(PartitionedCustomDocment::class.java) {
+class DocumentPartitionedTests : DocumentTestsBase<PartitionedCustomDocment>("DocumentPartitionedTests", PartitionedCustomDocment::class.java) {
 
     init {
         partitionKeyPath = "/testKey"

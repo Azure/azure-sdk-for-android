@@ -19,7 +19,7 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(ResourceType.Collection, true, false) {
+class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>("DocumentCollectionPartitionedTests", true, false) {
 
     init {
         partitionKeyPath = "/testKey"
@@ -58,9 +58,7 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(Reso
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(createdResourceId, response?.resource?.id)
@@ -73,9 +71,7 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(Reso
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(createdResourceId, response?.resource?.id)
@@ -90,9 +86,7 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(Reso
             resourceListResponse = it
         }
 
-        await().until {
-            resourceListResponse != null
-        }
+        await().until { resourceListResponse != null }
 
         assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
@@ -107,9 +101,7 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(Reso
             resourceListResponse = it
         }
 
-        await().until {
-            resourceListResponse != null
-        }
+        await().until { resourceListResponse != null }
 
         assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
@@ -124,9 +116,7 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(Reso
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(createdResourceId, response?.resource?.id)
@@ -141,9 +131,7 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(Reso
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(createdResourceId, response?.resource?.id)
@@ -162,9 +150,7 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(Reso
 //            response = it
 //        }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(collectionId, response?.resource?.id)
@@ -181,9 +167,7 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(Reso
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -197,9 +181,7 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(Reso
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -213,9 +195,7 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(Reso
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -229,9 +209,7 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(Reso
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -251,9 +229,7 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(Reso
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(createdResourceId, response?.resource?.id)
@@ -330,9 +306,7 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>(Reso
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertListResponseSuccess(response)
         assertTrue(response?.resource?.count!! > 0)

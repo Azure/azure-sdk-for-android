@@ -14,6 +14,7 @@ class DocumentClientError private constructor(msg: String) : Error(msg) {
         val UnknownError = DocumentClientError("An unknown error occured.")
         val InternalError = DocumentClientError("An internal error occured.")
         val ConfigureError = DocumentClientError("AzureData is not configured.  Must call AzureData.configure() before attempting CRUD operations on resources.")
+        val SerciceUnavailableError = DocumentClientError("The service is offline or unreachable.")
         val InvalidId = DocumentClientError("Cosmos DB Resource IDs must not exceed 255 characters and cannot contain whitespace")
         val IncompleteIds = DocumentClientError("This resource is missing the selfLink and/or resourceId properties.  Use an override that takes parent resource or ids instead")
         val PermissionError = DocumentClientError("Configuring AzureData using a PermissionProvider implements access control based on resource-specific Permissions. This authorization model only supports accessing application resources (Collections, Stored Procedures, Triggers, UDFs, Documents, and Attachments). In order to access administrative resources (Database Accounts, Databases, Users, Permission, and Offers) require AzureData is configured using a master key.")
