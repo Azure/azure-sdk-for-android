@@ -67,6 +67,8 @@ internal class ResourceCache private constructor() {
             return
         }
 
+        ResourceOracle.shared.storeLinks(resources)
+
         if (isEnabled) {
             executor.execute {
                 safeExecute {
@@ -80,18 +82,15 @@ internal class ResourceCache private constructor() {
 
                     resources.items.forEach { resource ->
 
-                        ContextProvider.appContext.resourceCacheFile(resource)?.let { resourcePath ->
+                        val file = ContextProvider.appContext.resourceCacheFile(resource, query)
 
-                            resourcePath.bufferedWriter().use { writer ->
-                                writer.write(encrypt(gson.toJson(resource)))
-                            }
+                        file.bufferedWriter().use { writer ->
+                            writer.write(encrypt(gson.toJson(resource)))
                         }
                     }
                 }
             }
         }
-
-//        ResourceOracle.shared.storeLinks(resources)
     }
 
     //endregion
@@ -260,7 +259,7 @@ internal class ResourceCache private constructor() {
 
 //region Context
 
-fun Context.resourceCacheFile(resource: Resource): File? {
+internal fun Context.resourceCacheFile(resource: Resource): File? {
 
     ResourceOracle.shared.getFilePath(resource)?.let {
 
@@ -278,7 +277,7 @@ fun Context.resourceCacheFile(resource: Resource): File? {
     return null
 }
 
-private fun Context.resourceCacheFile(resourceLocation: ResourceLocation): File? {
+internal fun Context.resourceCacheFile(resourceLocation: ResourceLocation): File? {
 
     ResourceOracle.shared.getFilePath(resourceLocation)?.let {
 
@@ -296,7 +295,7 @@ private fun Context.resourceCacheFile(resourceLocation: ResourceLocation): File?
     return null
 }
 
-private fun Context.resourceCacheFiles(resourceLocation: ResourceLocation): List<File> {
+internal fun Context.resourceCacheFiles(resourceLocation: ResourceLocation): List<File> {
 
     resourceCacheDir(resourceLocation)?.let { file ->
 
@@ -306,7 +305,7 @@ private fun Context.resourceCacheFiles(resourceLocation: ResourceLocation): List
     return emptyList()
 }
 
-private fun Context.resourceCacheDir(resource: Resource): File? {
+internal fun Context.resourceCacheDir(resource: Resource): File? {
 
     ResourceOracle.shared.getFilePath(resource)?.let {
 
@@ -322,7 +321,7 @@ private fun Context.resourceCacheDir(resource: Resource): File? {
     return null
 }
 
-private fun Context.resourceCacheDir(resourceLocation: ResourceLocation): File? {
+internal fun Context.resourceCacheDir(resourceLocation: ResourceLocation): File? {
 
     ResourceOracle.shared.getDirectoryPath(resourceLocation)?.let {
 
@@ -349,7 +348,7 @@ internal fun Context.azureDataCacheDir(): File {
     return directory
 }
 
-private fun createEmptyChildDirectoriesIfNecessary(parent: File, resourceType: ResourceType) {
+internal fun createEmptyChildDirectoriesIfNecessary(parent: File, resourceType: ResourceType) {
 
     resourceType.children.forEach {
 
@@ -361,7 +360,7 @@ private fun createEmptyChildDirectoriesIfNecessary(parent: File, resourceType: R
     }
 }
 
-private fun Context.resourceCacheDir(query: Query) : File {
+internal fun Context.resourceCacheDir(query: Query) : File {
 
     val queryPath = ResourceOracle.shared.getDirectoryPath(query)
     val directory = File(azureDataCacheDir(), queryPath)
@@ -373,14 +372,14 @@ private fun Context.resourceCacheDir(query: Query) : File {
     return directory
 }
 
-private fun Context.metadatafileUrl(query: Query) : File {
+internal fun Context.metadatafileUrl(query: Query) : File {
 
     val dir = this.resourceCacheDir(query)
 
     return File(dir, "metadata.json")
 }
 
-private fun Context.resultsCacheDir(query: Query) : File {
+internal fun Context.resultsCacheDir(query: Query) : File {
 
     val dir = this.resourceCacheDir(query)
     val resultsDir = File(dir, "results")
@@ -392,7 +391,7 @@ private fun Context.resultsCacheDir(query: Query) : File {
     return resultsDir
 }
 
-private fun Context.resourceCacheFile(resource: Resource, query: Query) : File {
+internal fun Context.resourceCacheFile(resource: Resource, query: Query) : File {
 
     val filename = "${resource.selfLink?.lastPathComponent() ?: resource.resourceId}.json"
     val resultsPath = this.resultsCacheDir(query)
@@ -400,7 +399,7 @@ private fun Context.resourceCacheFile(resource: Resource, query: Query) : File {
     return File(resultsPath, filename)
 }
 
-private fun Context.resourceCacheFiles(query: Query) : Array<File> {
+internal fun Context.resourceCacheFiles(query: Query) : Array<File> {
 
     val resultsPath = this.resultsCacheDir(query)
 

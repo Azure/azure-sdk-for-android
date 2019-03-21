@@ -67,10 +67,12 @@ open class Response<T>(
 }
 
 fun <T, U> Response<T>.map(transform: (T) -> U): Response<U> {
+
     return Response(request, response, jsonData, result.map(transform), resourceLocation, resourceType, fromCache)
 }
 
 fun <T, U> Result<T>.map(transform: (T) -> U): Result<U> {
+
     resource?.let { return Result(transform(it)) }
     error?.let { return Result(it) }
     return Result(DataError(DocumentClientError.UnknownError))

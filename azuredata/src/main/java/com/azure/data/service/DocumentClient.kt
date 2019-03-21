@@ -1265,7 +1265,7 @@ class DocumentClient private constructor() {
                             e(ex)
                             isOffline = true
 
-                            callback(Response(error = DataError(DocumentClientError.InternetConnectivityError)))
+                            callback(Response(DataError(DocumentClientError.InternetConnectivityError), request))
                         }
 
                         @Throws(IOException::class)
@@ -1288,7 +1288,7 @@ class DocumentClient private constructor() {
                             e(ex)
                             isOffline = true
 
-                            return callback(Response(error = DataError(DocumentClientError.InternetConnectivityError)))
+                            return callback(Response(DataError(DocumentClientError.InternetConnectivityError), request))
                         }
 
                         @Throws(IOException::class)
@@ -1312,7 +1312,7 @@ class DocumentClient private constructor() {
                             e(ex)
                             isOffline = true
 
-                            callback(ListResponse(DataError(DocumentClientError.InternetConnectivityError)))
+                            callback(ListResponse(DataError(DocumentClientError.InternetConnectivityError), request))
                         }
 
                         @Throws(IOException::class)
@@ -1490,7 +1490,7 @@ class DocumentClient private constructor() {
             response.isErrored -> {
 
                 if (response.error!!.isConnectivityError() && resourceClass != null) {
-                    cachedResources(query, response, callback, resourceClass)
+                    cachedResources(query, resourceLocation, response, callback, resourceClass)
                     return
                 }
 
@@ -1576,11 +1576,11 @@ class DocumentClient private constructor() {
         } ?: callback(ListResponse(DataError(DocumentClientError.SerciceUnavailableError)))
     }
 
-    private fun <T : Resource> cachedResources(query: Query, response: ListResponse<T>? = null, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>) {
+    private fun <T : Resource> cachedResources(query: Query, resourceLocation: ResourceLocation, response: ListResponse<T>? = null, callback: (ListResponse<T>) -> Unit, resourceClass: Class<T>) {
 
         return ResourceCache.shared.getResourcesForQuery(query, resourceClass)?.let { resources ->
 
-            callback(ListResponse(response?.request, response?.response, response?.jsonData, Result(resources), null, response?.resourceType, true))
+            callback(ListResponse(response?.request, response?.response, response?.jsonData, Result(resources), resourceLocation, response?.resourceType, true))
 
         } ?: callback(ListResponse(DataError(DocumentClientError.SerciceUnavailableError)))
     }

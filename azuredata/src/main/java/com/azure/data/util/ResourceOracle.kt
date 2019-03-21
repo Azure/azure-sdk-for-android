@@ -10,6 +10,7 @@ import com.azure.data.model.*
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
+
 @SuppressLint("CommitPrefEdits")
 internal class ResourceOracle private constructor (appContext: Context, host: String) {
 
@@ -68,7 +69,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
     private fun doStoreLinks(selfLink: String?, altLink: String?) {
 
         selfLink?.let {
-            altLink?.let { _ ->
+            altLink?.let {
 
                 val altLinkSubstrings = altLink.split(slashCharacter)
                 val selfLinkSubstrings = selfLink.trimEnd('/').split(slashCharacter)
@@ -132,14 +133,14 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
 
     private fun doRemoveLinks(resourceLocation: ResourceLocation) {
 
-        getSelfLink(resourceLocation)?.let {
+        getSelfLink(resourceLocation)?.let { selfLink ->
 
-            altLinkLookup.remove(it)?.let {
-                selfLinkLookup.remove(it)
-                selfLinkPrefsEditor.remove(it)
+            altLinkLookup.remove(selfLink)?.let { altLink ->
+                selfLinkLookup.remove(altLink)
+                selfLinkPrefsEditor.remove(altLink)
             }
 
-            altLinkPrefsEditor.remove(it)
+            altLinkPrefsEditor.remove(selfLink)
         }
     }
 
@@ -224,6 +225,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
         val altLink = resourceLocation.link()
 
         selfLinkLookup[altLink]?.let {
+
             if (!it.isEmpty()) {
                 return it
             }
@@ -329,7 +331,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
 
     fun getDirectoryPath(query: Query): String {
 
-        return "queries\\${query.hashCode()}"
+        return "queries/${query.hashCode()}"
     }
 
     companion object {
