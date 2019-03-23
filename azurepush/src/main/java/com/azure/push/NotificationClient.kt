@@ -24,7 +24,7 @@ internal class NotificationClient {
 
     companion object {
         private const val apiVersion = "2013-04"
-        private const val userAgent = ""
+        private val userAgent = "NOTIFICATIONHUBS/${NotificationClient.apiVersion}(api-origin=AndroidSdk; os=${android.os.Build.VERSION.CODENAME}; os_version=${android.os.Build.VERSION.RELEASE};)"
 
         val shared = NotificationClient()
     }
@@ -194,7 +194,7 @@ internal class NotificationClient {
     }
 
     private fun registrations(deviceToken: String, completion: (Response<List<Registration>>) -> Unit) {
-        val url = URL("$endpoint$path/Registrations/?filter=deviceToken+eq+'$deviceToken'&api-version=${NotificationClient.apiVersion}")
+        val url = URL("$endpoint$path/Registrations/?\$filter=GcmRegistrationId eq '$deviceToken'")
 
         sendRequest(url, HttpMethod.Get) {
             completion(it.map {

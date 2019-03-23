@@ -32,8 +32,8 @@ internal class TokenProvider(private val connectionParams: ConnectionParams) {
 
         return try {
             val expiresOn = Date().time + TokenProvider.defaultTokenTTLInSeconds
-            val audienceUri = URLEncoder.encode(url.toString().replace("https", "http"), "UTF-8")
-            val signature = CryptoProvider.hmacEncrypt("$audienceUri\n$expiresOn", connectionParams.sharedAccessKey.base64Encoded())
+            val audienceUri = URLEncoder.encode(url.toString().replace("https", "http"), "UTF-8").toLowerCase()
+            val signature = URLEncoder.encode(CryptoProvider.hmacEncrypt("$audienceUri\n$expiresOn", connectionParams.sharedAccessKey.base64Encoded()), "UTF-8")
             val token = "SharedAccessSignature sr=$audienceUri&sig=$signature&se=$expiresOn&skn=${connectionParams.sharedAccessKeyName}"
 
             cache[url] = Token(token, obtainedAt = Date(), timeToLiveInSeconds = defaultTokenTTLInSeconds)

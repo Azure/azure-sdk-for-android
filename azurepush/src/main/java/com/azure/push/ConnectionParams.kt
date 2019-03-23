@@ -7,16 +7,19 @@ import java.net.URL
  * Licensed under the MIT License.
  */
 
-internal class ConnectionParams(connectionString: String) {
+internal class ConnectionParams {
     private var params = mutableMapOf<String, Any>()
 
     //region
 
-    internal val endpoint: URL = params[ConnectionParams.endpoint] as URL
+    internal val endpoint: URL
+        get() = params[ConnectionParams.endpoint] as URL
 
-    internal val sharedAccessKeyName: String = params[ConnectionParams.sharedAccessKeyName] as String
+    internal val sharedAccessKeyName: String
+        get() = params[ConnectionParams.sharedAccessKeyName] as String
 
-    internal val sharedAccessKey: String = params[ConnectionParams.sharedAccessKey] as String
+    internal val sharedAccessKey: String
+        get() = params[ConnectionParams.sharedAccessKey] as String
 
     //endregion
 
@@ -26,10 +29,10 @@ internal class ConnectionParams(connectionString: String) {
         private const val sharedAccessKey = "SharedAccessKey"
     }
 
-    init {
+    constructor(connectionString: String) {
         val components = connectionString.split(";")
         val keyValuePairs = components
-                .map { it.split("=", limit = 1) }
+                .map { it.split("=", limit = 2) }
                 .filter { it.size == 2 }
                 .map { Pair(it[0], it[1]) }
 
@@ -47,7 +50,7 @@ internal class ConnectionParams(connectionString: String) {
     //region
 
     private fun replaceScheme(urlString: String, newScheme: String): String {
-        val previousScheme = urlString.split(":", limit = 1).firstOrNull() ?: return "$newScheme://$this"
+        val previousScheme = urlString.split(":").firstOrNull() ?: return "$newScheme://$this"
         val result = urlString.replace(previousScheme, newScheme)
 
         if (!result.endsWith("/")) {

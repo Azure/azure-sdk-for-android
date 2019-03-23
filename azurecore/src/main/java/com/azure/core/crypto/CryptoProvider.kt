@@ -35,5 +35,5 @@ class CryptoProvider {
 }
 
 fun String.base64Encoded(): String {
-    return org.apache.commons.codec.binary.Base64.encodeBase64String(this.toByteArray())
+    return String(org.apache.commons.codec.binary.Base64.encodeBase64(this.toByteArray()))
 }
