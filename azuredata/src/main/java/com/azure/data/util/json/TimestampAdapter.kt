@@ -13,13 +13,7 @@ internal class TimestampAdapter: JsonSerializer<Timestamp>, JsonDeserializer<Tim
 
     override fun serialize(src: Timestamp?, typeOfSrc: Type?, context: JsonSerializationContext): JsonElement {
 
-        return if (src != null) {
-            JsonPrimitive(src.time)
-        }
-        else {
-            @Suppress("DEPRECATION")
-            JsonNull()
-        }
+        return src?.let { JsonPrimitive(src.time) } ?: JsonNull.INSTANCE
     }
 
     override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Timestamp? {
