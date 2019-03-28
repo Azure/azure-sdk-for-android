@@ -192,11 +192,11 @@ abstract class ResourceListFragment<TData: Resource> : RecyclerViewListFragment<
                 activity?.runOnUiThread {
 
                     // Create an ArrayAdapter using the string array and a default spinner layout
-                    var adapter = ArrayAdapter<String>(activity, android.R.layout.simple_spinner_item, userNames)
+                    var adapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_spinner_item, userNames)
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                     dialogView.spinnerUsers.adapter = adapter
 
-                    adapter = ArrayAdapter(activity, android.R.layout.simple_spinner_item, modes)
+                    adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, modes)
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
                     dialogView.spinnerModes.adapter = adapter
 
