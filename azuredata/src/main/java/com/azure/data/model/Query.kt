@@ -202,6 +202,54 @@ class Query(properties: ArrayList<String>? = null) {
     fun andWhereDistanceGreaterThanEqualTo(property: String, toSpatial: SpatialObject, distance: Number) : Query =
             andWhereDistance(property, toSpatial, ">=", distance)
 
+    fun whereGeoIntersectsWith(spatialProperty: String, spatial: SpatialObject) : Query {
+
+        if (whereCalled) throw Exception("you can only call `where` once, to add more constraints use `and`")
+
+        val spatialJson = gson.toJson(spatial).replace("\n", "")
+
+        whereFragment = "ST_INTERSECTS($type.$spatialProperty, $spatialJson)"
+        whereCalled = true
+
+        return this
+    }
+
+    fun andWhereGeoIntersectsWith(spatialProperty: String, spatial: SpatialObject) : Query {
+
+        if (!whereCalled) throw Exception("must call `where` before calling `and`")
+
+        val spatialJson = gson.toJson(spatial).replace("\n", "")
+
+        andCalled = true
+        andFragments.add("ST_INTERSECTS($type.$spatialProperty, $spatialJson)")
+
+        return this
+    }
+
+    fun whereGeoWithin(spatialProperty: String, withinSpatial: SpatialObject) : Query {
+
+        if (whereCalled) throw Exception("you can only call `where` once, to add more constraints use `and`")
+
+        val spatialJson = gson.toJson(withinSpatial).replace("\n", "")
+
+        whereFragment = "ST_WITHIN($type.$spatialProperty, $spatialJson)"
+        whereCalled = true
+
+        return this
+    }
+
+    fun andWhereGeoWithin(spatialProperty: String, withinSpatial: SpatialObject) : Query {
+
+        if (!whereCalled) throw Exception("must call `where` before calling `and`")
+
+        val spatialJson = gson.toJson(withinSpatial).replace("\n", "")
+
+        andCalled = true
+        andFragments.add("ST_WITHIN($type.$spatialProperty, $spatialJson)")
+
+        return this
+    }
+
     fun orderBy(property: String, descending: Boolean = false) : Query {
 
         if (orderByCalled) throw Exception("you can only call `orderBy` once, to order on an additional level use `thenBy`")

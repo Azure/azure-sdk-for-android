@@ -187,4 +187,36 @@ class GeoQueryTests : DocumentTest<PartitionedCustomDocment>("GeoQueryTests", Pa
         assertEquals(lineString.coordinates[2][0], newLineString.coordinates[2][0], 0.0)
         assertEquals(lineString.coordinates[2][1], newLineString.coordinates[2][1], 0.0)
     }
+
+    @Test
+    fun testIntersectsQueryGeneration() {
+
+        val polygon = Polygon.start(42.12, 34.4)
+                .addCoordinate(52.5, 37.8)
+                .addCoordinate(57.25, 40.3)
+                .end()
+
+        val polyJson = gson.toJson(polygon).replace("\n", "")
+        val query = Query().from(collectionId)
+                .whereGeoIntersectsWith("myZipCode", polygon)
+                .query
+
+        assertEquals("SELECT * FROM $collectionId WHERE ST_INTERSECTS($collectionId.myZipCode, $polyJson)", query)
+    }
+
+    @Test
+    fun testWithinQueryGeneration() {
+
+        val polygon = Polygon.start(42.12, 34.4)
+                .addCoordinate(52.5, 37.8)
+                .addCoordinate(57.25, 40.3)
+                .end()
+
+        val polyJson = gson.toJson(polygon).replace("\n", "")
+        val query = Query().from(collectionId)
+                .whereGeoWithin("myZipCode", polygon)
+                .query
+
+        assertEquals("SELECT * FROM $collectionId WHERE ST_WITHIN($collectionId.myZipCode, $polyJson)", query)
+    }
 }
