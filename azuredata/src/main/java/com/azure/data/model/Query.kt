@@ -2,8 +2,6 @@ package com.azure.data.model
 
 import com.azure.data.model.spatial.SpatialObject
 import com.azure.data.util.json.gson
-import com.google.gson.GsonBuilder
-import com.google.gson.internal.GsonBuildConfig
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
