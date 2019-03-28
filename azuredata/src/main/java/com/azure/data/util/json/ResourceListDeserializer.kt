@@ -7,10 +7,12 @@ import java.lang.reflect.Type
 internal class ResourceListJsonDeserializer<T: Resource> {
 
     fun deserialize(json: String, resourceType: Type): ResourceList<T> {
+
         val resourceList = ResourceList<T>()
         val jsonObject = JsonParser().parse(json).asJsonObject
 
         jsonObject.keySet().forEach {
+
             when (it) {
                 ResourceList.Companion.Keys.countKey -> resourceList.count = jsonObject.get(it).asInt
                 ResourceBase.resourceIdKey -> resourceList.resourceId = jsonObject.get(it).asString

@@ -2,6 +2,7 @@ package com.azure.data.integration.common
 
 import com.azure.data.model.Document
 import com.azure.data.model.User
+import com.azure.data.model.spatial.Point
 import com.azure.data.model.partition.PartitionKey
 import java.util.*
 
@@ -18,6 +19,7 @@ open class CustomDocument(id: String? = null) : Document(id) {
     var customBool = false
     var customArray = arrayOf(1, 2, 3)
     var customObject: User? = null
+    var point: Point? = null
 }
 
 class PartitionedCustomDocment(id: String? = null) : CustomDocument(id) {
