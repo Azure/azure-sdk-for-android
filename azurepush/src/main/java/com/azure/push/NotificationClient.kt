@@ -23,6 +23,7 @@ internal class NotificationClient {
     //region
 
     companion object {
+
         private const val apiVersion = "2013-04"
         private val userAgent = "NOTIFICATIONHUBS/${NotificationClient.apiVersion}(api-origin=AndroidSdk; os=${android.os.Build.VERSION.CODENAME}; os_version=${android.os.Build.VERSION.RELEASE};)"
 
@@ -57,6 +58,7 @@ internal class NotificationClient {
 
     @Throws(AzurePushError::class)
     internal fun configure(context: Context, notificationHubName: String, connectionString: String) {
+
         val params = ConnectionParams(connectionString)
 
         this.endpoint = params.endpoint
@@ -67,7 +69,9 @@ internal class NotificationClient {
     }
 
     internal fun registerForRemoteNotifications(deviceToken: String, tags: List<String> = listOf(), completion: (Response<Registration>) -> Unit) {
+
         if (!isConfigured) {
+
             completion(Response(DataError(AzurePushError.notConfigured)))
             return
         }
@@ -76,13 +80,17 @@ internal class NotificationClient {
     }
 
     internal fun registerFormRemoteNotifications(deviceToken: String, template: Registration.Template, priority: String? = null, tags: List<String> = listOf(), completion: (Response<Registration>) -> Unit) {
+
         if (!isConfigured) {
+
             completion(Response(DataError(AzurePushError.notConfigured)))
             return
         }
 
         val error = Registration.validateTemplateName(template.name)
+
         if (error != null) {
+
             completion(Response(DataError(error)))
             return
         }
@@ -91,7 +99,9 @@ internal class NotificationClient {
     }
 
     internal fun cancelRegistration(registration: Registration, completion: (Response<String>) -> Unit) {
+
         if (!isConfigured) {
+
             completion(Response(DataError(AzurePushError.notConfigured)))
             return
         }
@@ -100,7 +110,9 @@ internal class NotificationClient {
     }
 
     internal fun cancelAllRegistrations(deviceToken: String, completion: (Response<String>) -> Unit) {
+
         if (!isConfigured) {
+
             completion(Response(DataError(AzurePushError.notConfigured)))
             return
         }
@@ -121,12 +133,15 @@ internal class NotificationClient {
     //region
 
     private fun registerForRemoteNotifications(deviceToken: String, name: String, payload: String, completion: (Response<Registration>) -> Unit) {
+
         if (!localStorage.needsRefresh) {
+
             createOrUpdate(name, payload, completion)
             return
         }
 
         val refreshedDeviceToken = this.refreshedDeviceToken(newDeviceToken = deviceToken)
+
         registrations(refreshedDeviceToken) { response ->
             when {
                 response.isSuccessful -> {
@@ -146,9 +161,11 @@ internal class NotificationClient {
     }
 
     private fun createOrUpdate(registrationName: String, payload: String, completion: (Response<Registration>) -> Unit) {
+
         val registration = localStorage[registrationName]
 
         if (registration == null) {
+
             createAndUpsert(registrationName, payload, completion)
             return
         }
@@ -167,12 +184,15 @@ internal class NotificationClient {
     }
 
     private fun createAndUpsert(registrationName: String, payload: String, completion: (Response<Registration>) -> Unit) {
+
         val url = URL("$endpoint$path/registrationids/?api-version=${NotificationClient.apiVersion}")
 
         sendRequest(url, HttpMethod.Post, payload) {
+
             val registrationId = it.response?.header(HttpHeader.Location.name)?.lastPathComponent()
 
             if (registrationId == null) {
+
                 completion(Response(DataError(AzurePushError.unexpected)))
                 return@sendRequest
             }
@@ -182,9 +202,11 @@ internal class NotificationClient {
     }
 
     private fun upsert(registrationId: String, name: String, payload: String, completion: (Response<Registration>) -> Unit) {
+
         val url = URL("$endpoint$path/Registrations/$registrationId?api-version=${NotificationClient.apiVersion}")
 
         sendRequest(url, HttpMethod.Put, payload) { response ->
+
             if (response.isSuccessful) {
                 this.localStorage[name] = this.registrationParser.parse(response.resource!!).first()
             }
@@ -194,9 +216,11 @@ internal class NotificationClient {
     }
 
     private fun registrations(deviceToken: String, completion: (Response<List<Registration>>) -> Unit) {
+
         val url = URL("$endpoint$path/Registrations/?\$filter=GcmRegistrationId eq '$deviceToken'")
 
         sendRequest(url, HttpMethod.Get) { response ->
+
             completion(response.map {
                 this.registrationParser.parse(it)
             })
@@ -204,6 +228,7 @@ internal class NotificationClient {
     }
 
     private fun delete(registration: Registration, completion: (Response<String>) -> Unit) {
+
         val url = URL("$endpoint$path/Registrations/${registration.id}?api-version=${NotificationClient.apiVersion}")
 
         sendRequest(url, HttpMethod.Delete, etag = "*") {
@@ -221,7 +246,9 @@ internal class NotificationClient {
     }
 
     private fun delete(registrations: MutableList<Registration>, completion: (Response<String>) -> Unit) {
+
         if (registrations.isEmpty()) {
+
             completion(Response(""))
             return
         }
@@ -246,9 +273,11 @@ internal class NotificationClient {
     //region
 
     private fun sendRequest(url: URL, method: HttpMethod, payload: String? = null, etag: String? = null, completion: (Response<String>) -> Unit) {
+
         val authToken = tokenProvider.getToken(url)
 
         if (authToken == null) {
+
             completion(Response(DataError(AzurePushError.failedToRetrieveAuthorizationToken)))
             return
         }
@@ -260,6 +289,7 @@ internal class NotificationClient {
                 .header(HttpHeader.UserAgent.name, NotificationClient.userAgent)
 
         if (etag != null) {
+
             builder.header(HttpHeader.ETag.name, etag)
         }
 
@@ -269,7 +299,9 @@ internal class NotificationClient {
             client.newCall(request)
                     .enqueue(object : Callback {
                         override fun onResponse(call: Call?, response: okhttp3.Response?) {
+
                             if (response == null) {
+
                                 completion(Response(DataError(AzurePushError.unexpected)))
                                 return
                             }
@@ -279,6 +311,7 @@ internal class NotificationClient {
                             when {
                                 response.isSuccessful -> {
                                     if (responseData == null) {
+
                                         completion(Response(DataError("No response body received"), request, response))
                                         return
                                     }
@@ -293,10 +326,12 @@ internal class NotificationClient {
                         }
 
                         override fun onFailure(call: Call?, e: IOException?) {
+
                             completion(Response(DataError(DocumentClientError.InternetConnectivityError), request))
                         }
                     })
         } catch (ex: Exception) {
+
             completion(Response(DataError(ex), request))
         }
     }
@@ -306,7 +341,9 @@ internal class NotificationClient {
     }
 
     private fun requestBody(payload: String?): RequestBody? {
+
         payload?.let {
+
             val contentType = if (it.startsWith("{")) "application/json" else "application/xml"
             return RequestBody.create(MediaType.parse(contentType), it)
         }
