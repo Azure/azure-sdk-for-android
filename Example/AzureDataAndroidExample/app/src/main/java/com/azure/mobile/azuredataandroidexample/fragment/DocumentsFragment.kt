@@ -4,12 +4,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.EditText
 import com.azure.data.AzureData
-import com.azure.data.model.DictionaryDocument
 import com.azure.data.model.User
 import com.azure.data.service.DataResponse
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
 import com.azure.mobile.azuredataandroidexample.R
+import com.azure.mobile.azuredataandroidexample.model.MyDocument
 import com.azure.mobile.azuredataandroidexample.model.ResourceAction
 import java.util.*
 
@@ -18,7 +18,7 @@ import java.util.*
  * Licensed under the MIT License.
  */
 
-class DocumentsFragment : ResourceListFragment<DictionaryDocument>() {
+class DocumentsFragment : ResourceListFragment<MyDocument>() {
 
     private lateinit var collectionId: String
 
@@ -29,51 +29,53 @@ class DocumentsFragment : ResourceListFragment<DictionaryDocument>() {
         super.onCreate(savedInstanceState)
 
         activity?.intent?.extras?.let {
-            databaseId = it.getString("db_id")
-            collectionId = it.getString("coll_id")
+            databaseId = it.getString("db_id")!!
+            collectionId = it.getString("coll_id")!!
         }
     }
 
-    override fun fetchData(callback: (ListResponse<DictionaryDocument>) -> Unit) {
+    override fun fetchData(callback: (ListResponse<MyDocument>) -> Unit) {
 
-        AzureData.getDocuments(collectionId, databaseId, DictionaryDocument::class.java) { response ->
+        AzureData.getDocuments(collectionId, databaseId, MyDocument::class.java) { response ->
             callback(response)
         }
     }
 
-    override fun getItem(id: String, callback: (Response<DictionaryDocument>) -> Unit) {
+    override fun getItem(id: String, callback: (Response<MyDocument>) -> Unit) {
 
-        AzureData.getDocument(id, collectionId, databaseId, DictionaryDocument::class.java) { response ->
+        AzureData.getDocument(id, collectionId, databaseId, MyDocument::class.java) { response ->
             callback(response)
 
             //test doc properties came back
             if (response.isSuccessful) {
-                response.result.let {
-                    it.resource?.let {
-                        println(it["testNumber"])
-                        println(it["testString"])
-                        println(it["testDate"])
-                        println(it["testArray"])
-                        println(it["testObject"])
+                response.result.let { result ->
+                    result.resource?.let {
+                        println(it.testNumber)
+                        println(it.testString)
+                        println(it.testDate)
+                        println(it.testBool)
+                        println(it.testArray)
+                        println(it.testObject)
                     }
                 }
             }
         }
     }
 
-    override fun createResource(dialogView: View, callback: (Response<DictionaryDocument>) -> Unit) {
+    override fun createResource(dialogView: View, callback: (Response<MyDocument>) -> Unit) {
 
         val editText = dialogView.findViewById<EditText>(R.id.editText)
         val resourceId = editText.text.toString()
 
-        val doc = DictionaryDocument(resourceId)
+        val doc = MyDocument(resourceId)
 
         //set some test doc properties
-        doc["testNumber"] = 1_000_000
-        doc["testString"] = "Yeah baby\nRock n Roll"
-        doc["testDate"]   = Date()
-        doc["testArray"]  = arrayOf(1, 2, 3, 4)
-        doc["testObject"] = User()
+        doc.testNumber = 1_000_000
+        doc.testString = "Yeah baby\nRock n Roll"
+        doc.testDate   = Date()
+        doc.testBool   = true
+        doc.testArray  = arrayOf(1, 2, 3, 4)
+        doc.testObject = User()
 
         AzureData.createDocument(doc, collectionId, databaseId) { response ->
             callback(response)
@@ -87,16 +89,16 @@ class DocumentsFragment : ResourceListFragment<DictionaryDocument>() {
         }
     }
 
-    override fun onItemClick(view: View, item: DictionaryDocument, position: Int) {
-
-        super.onItemClick(view, item, position)
-
-        val doc = typedAdapter.getItem(position)
-
-//        val intent = Intent(activity.baseContext, CollectionActivity::class.java)
-//        intent.putExtra("db_id", databaseId)
-//        intent.putExtra("coll_id", coll.id)
+//    override fun onItemClick(view: View, item: MyDocument, position: Int) {
 //
-//        startActivity(intent)
-    }
+//        super.onItemClick(view, item, position)
+//
+////        val doc = typedAdapter.getItem(position)
+//
+////        val intent = Intent(activity.baseContext, CollectionActivity::class.java)
+////        intent.putExtra("db_id", databaseId)
+////        intent.putExtra("coll_id", coll.id)
+////
+////        startActivity(intent)
+//    }
 }

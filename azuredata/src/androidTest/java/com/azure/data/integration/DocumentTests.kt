@@ -1,7 +1,7 @@
 package com.azure.data.integration
 
 import android.support.test.runner.AndroidJUnit4
-import com.azure.data.model.DictionaryDocument
+import com.azure.data.integration.common.CustomDocument
 import org.junit.runner.RunWith
 
 /**
@@ -10,4 +10,4 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class DocumentTests : DocumentTest<DictionaryDocument>(DictionaryDocument::class.java)
+class DocumentTests : DocumentTestsBase<CustomDocument>("DocumentTests", CustomDocument::class.java)

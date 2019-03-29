@@ -1,6 +1,7 @@
 package com.azure.data.util
 
 import com.azure.data.model.DataError
+import com.azure.data.model.ServerError
 import com.azure.data.util.json.gson
 
 /**
@@ -9,7 +10,7 @@ import com.azure.data.util.json.gson
  */
 
 fun String.toError(): DataError =
-        gson.fromJson(this, DataError::class.java)
+    DataError(gson.fromJson(this, ServerError::class.java))
 
 fun String.extractId(resourceType: String): String? {
     val components = split("/")
@@ -23,7 +24,7 @@ fun String.extractId(resourceType: String): String? {
 }
 
 fun String.lastPathComponent(): String {
-    val components = split("/")
+    val components = trimEnd('/').split("/")
     val count = components.count()
 
     return if (count > 1) components[count - 1] else this

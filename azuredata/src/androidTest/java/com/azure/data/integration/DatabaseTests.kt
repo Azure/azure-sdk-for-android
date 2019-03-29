@@ -2,9 +2,10 @@ package com.azure.data.integration
 
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.AzureData
+import com.azure.data.constants.HttpHeaderValue
 import com.azure.data.delete
+import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.Database
-import com.azure.data.model.ResourceType
 import com.azure.data.refresh
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -17,12 +18,32 @@ import org.junit.Assert.*
  */
 
 @RunWith(AndroidJUnit4::class)
-class DatabaseTests : ResourceTest<Database>(ResourceType.Database, false, false) {
+class DatabaseTests : ResourceTest<Database>("DatabaseTests", false, false) {
 
     @Test
     fun createDatabase() {
 
         ensureDatabase()
+    }
+
+    @Test
+    fun createDatabaseWithMinThroughput() {
+
+        ensureDatabase(HttpHeaderValue.minDatabaseThroughput)
+    }
+
+    @Test
+    fun createDatabaseWithMaxThroughput() {
+
+        ensureDatabase(HttpHeaderValue.maxDatabaseThroughput)
+    }
+
+    @Test
+    fun createDatabaseFailWithInvalidThroughput() {
+
+        val dbResponse = tryCreateDatabase(750)
+
+        assertErrorResponse(dbResponse)
     }
 
     @Test

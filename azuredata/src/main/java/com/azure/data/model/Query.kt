@@ -1,5 +1,8 @@
 package com.azure.data.model
 
+import com.azure.data.model.spatial.SpatialObject
+import com.azure.data.util.json.gson
+
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -14,7 +17,6 @@ class Query(properties: ArrayList<String>? = null) {
     private var orderByCalled = false
 
     private var selectProperties: ArrayList<String> = ArrayList()
-    private var fromFragment: String? = null
     private var whereFragment: String? = null
     private var andFragments: ArrayList<String> = ArrayList()
     private var orderByFragment: String? = null
@@ -40,17 +42,14 @@ class Query(properties: ArrayList<String>? = null) {
 
                 val selectFragment = if (selectProperties.isEmpty()) "*" else "$type.${selectProperties.joinToString(", $type.")}"
 
-                //fromFragment = type!
-
                 query = "SELECT $selectFragment FROM $type"
 
                 if (whereCalled && !whereFragment.isNullOrEmpty()) {
 
-                    query += " WHERE $type.$whereFragment"
+                    query += " WHERE $whereFragment"
 
                     if (andCalled && !andFragments.isEmpty()) {
-                        query += " AND $type."
-                        query += andFragments.joinToString(" AND $type.")
+                        query += " AND ${andFragments.joinToString(" AND ")}"
                     }
                 }
 
@@ -85,19 +84,21 @@ class Query(properties: ArrayList<String>? = null) {
         return this
     }
 
-    private fun whereAny(property: String, value: Any, operator: String = "=", quoteValue: Boolean = true) : Query {
+    private fun whereAny(property: String, value: Any, operator: String = "=", quoteValue: Boolean = value is String) : Query {
 
         if (whereCalled) throw Exception("you can only call `where` once, to add more constraints use `and`")
 
         whereCalled = true
-        whereFragment = if (quoteValue) "$property $operator '$value'" else "$property $operator $value"
+        whereFragment = if (quoteValue) "$type.$property $operator '$value'" else "$type.$property $operator $value"
 
         return this
     }
 
-    fun where(property: String, value: String) : Query = whereAny(property, value)
+    fun where(property: String, value: String) : Query = whereAny(property, value, quoteValue = true)
 
     fun where(property: String, value: Int) : Query = whereAny(property, value, quoteValue = false)
+
+    fun where(property: String, value: Any) : Query = whereAny(property, value)
 
     fun whereNot(property: String, value: String) : Query = whereAny(property, value, operator = "!=")
 
@@ -111,19 +112,21 @@ class Query(properties: ArrayList<String>? = null) {
 
     fun whereLessThan(property: String, value: Int) : Query = whereAny(property, value, operator = "<", quoteValue = false)
 
-    private fun andWhereAny(property: String, value: Any, operator: String = "=", quoteValue: Boolean = true) : Query {
+    private fun andWhereAny(property: String, value: Any, operator: String = "=", quoteValue: Boolean = value is String) : Query {
 
         if (!whereCalled) throw Exception("must call `where` before calling `and`")
 
         andCalled = true
-        andFragments.add(if (quoteValue) "$property $operator '$value'" else "$property $operator $value")
+        andFragments.add(if (quoteValue) "$type.$property $operator '$value'" else "$type.$property $operator $value")
 
         return this
     }
 
-    fun andWhere(property: String, value: String) : Query = andWhereAny(property, value)
+    fun andWhere(property: String, value: String) : Query = andWhereAny(property, value, quoteValue = true)
 
-    fun andWhere(property: String, value: Int) : Query = andWhereAny(property, value, quoteValue = false)
+    fun andWhere(property: String, value: Int) : Query = whereAny(property, value, quoteValue = false)
+
+    fun andWhere(property: String, value: Any) : Query = andWhereAny(property, value)
 
     fun andWhereNot(property: String, value: String) : Query = andWhereAny(property, value, operator = "!=")
 
@@ -145,6 +148,108 @@ class Query(properties: ArrayList<String>? = null) {
 
     fun andWhereLessThanEqualTo(property: String, value: Int) : Query = andWhereAny(property, value, operator = "<=", quoteValue = false)
 
+    private fun whereDistance(property: String, toSpatial: SpatialObject, operator: String = "=", distance: Number) : Query {
+
+        if (whereCalled) throw Exception("you can only call `where` once, to add more constraints use `and`")
+
+        val spatialJson = gson.toJson(toSpatial).replace("\n", "")
+
+        whereFragment = "ST_DISTANCE($type.$property, $spatialJson) $operator $distance"
+        whereCalled = true
+
+        return this
+    }
+
+    fun whereDistanceEqualTo(property: String, toSpatial: SpatialObject, distance: Number) : Query =
+            whereDistance(property, toSpatial, "=", distance)
+
+    fun whereDistanceLessThan(property: String, toSpatial: SpatialObject, distance: Number) : Query =
+            whereDistance(property, toSpatial, "<", distance)
+
+    fun whereDistanceLessThanEqualTo(property: String, toSpatial: SpatialObject, distance: Number) : Query =
+            whereDistance(property, toSpatial, "<=", distance)
+
+    fun whereDistanceGreaterThan(property: String, toSpatial: SpatialObject, distance: Number) : Query =
+            whereDistance(property, toSpatial, ">", distance)
+
+    fun whereDistanceGreaterThanEqualTo(property: String, toSpatial: SpatialObject, distance: Number) : Query =
+            whereDistance(property, toSpatial, ">=", distance)
+
+    private fun andWhereDistance(property: String, toSpatial: SpatialObject, operator: String = "=", distance: Number) : Query {
+
+        if (!whereCalled) throw Exception("must call `where` before calling `and`")
+
+        val spatialJson = gson.toJson(toSpatial).replace("\n", "")
+
+        andCalled = true
+        andFragments.add("ST_DISTANCE($type.$property, $spatialJson) $operator $distance")
+
+        return this
+    }
+
+    fun andWhereDistanceEqualTo(property: String, toSpatial: SpatialObject, distance: Number) : Query =
+            andWhereDistance(property, toSpatial, "=", distance)
+
+    fun andWhereDistanceLessThan(property: String, toSpatial: SpatialObject, distance: Number) : Query =
+            andWhereDistance(property, toSpatial, "<", distance)
+
+    fun andWhereDistanceLessThanEqualTo(property: String, toSpatial: SpatialObject, distance: Number) : Query =
+            andWhereDistance(property, toSpatial, "<=", distance)
+
+    fun andWhereDistanceGreaterThan(property: String, toSpatial: SpatialObject, distance: Number) : Query =
+            andWhereDistance(property, toSpatial, ">", distance)
+
+    fun andWhereDistanceGreaterThanEqualTo(property: String, toSpatial: SpatialObject, distance: Number) : Query =
+            andWhereDistance(property, toSpatial, ">=", distance)
+
+    fun whereGeoIntersectsWith(spatialProperty: String, spatial: SpatialObject) : Query {
+
+        if (whereCalled) throw Exception("you can only call `where` once, to add more constraints use `and`")
+
+        val spatialJson = gson.toJson(spatial).replace("\n", "")
+
+        whereFragment = "ST_INTERSECTS($type.$spatialProperty, $spatialJson)"
+        whereCalled = true
+
+        return this
+    }
+
+    fun andWhereGeoIntersectsWith(spatialProperty: String, spatial: SpatialObject) : Query {
+
+        if (!whereCalled) throw Exception("must call `where` before calling `and`")
+
+        val spatialJson = gson.toJson(spatial).replace("\n", "")
+
+        andCalled = true
+        andFragments.add("ST_INTERSECTS($type.$spatialProperty, $spatialJson)")
+
+        return this
+    }
+
+    fun whereGeoWithin(spatialProperty: String, withinSpatial: SpatialObject) : Query {
+
+        if (whereCalled) throw Exception("you can only call `where` once, to add more constraints use `and`")
+
+        val spatialJson = gson.toJson(withinSpatial).replace("\n", "")
+
+        whereFragment = "ST_WITHIN($type.$spatialProperty, $spatialJson)"
+        whereCalled = true
+
+        return this
+    }
+
+    fun andWhereGeoWithin(spatialProperty: String, withinSpatial: SpatialObject) : Query {
+
+        if (!whereCalled) throw Exception("must call `where` before calling `and`")
+
+        val spatialJson = gson.toJson(withinSpatial).replace("\n", "")
+
+        andCalled = true
+        andFragments.add("ST_WITHIN($type.$spatialProperty, $spatialJson)")
+
+        return this
+    }
+
     fun orderBy(property: String, descending: Boolean = false) : Query {
 
         if (orderByCalled) throw Exception("you can only call `orderBy` once, to order on an additional level use `thenBy`")
@@ -155,7 +260,24 @@ class Query(properties: ArrayList<String>? = null) {
             orderByFragment += " DESC"
         }
 
+        orderByCalled = true
+
         return this
+    }
+
+    override fun hashCode(): Int {
+
+        // generated query is what we want to determine equality from
+        return this.query.hashCode()
+    }
+
+    override fun equals(other: Any?): Boolean {
+
+        if (other is Query) {
+            return this.query == other.query
+        }
+
+        return super.equals(other)
     }
 
     override fun toString(): String = query
@@ -169,13 +291,13 @@ class Query(properties: ArrayList<String>? = null) {
             return Query()
         }
 
-        fun select(vararg strings: String) : Query {
-            //        assert(selectCalled, "you can only call `select` once")
-            //        selectCalled = true;
-
-            //        self.selectProperties = properties
-
-            return Query()
-        }
+//        fun select(vararg strings: String) : Query {
+//            //        assert(selectCalled, "you can only call `select` once")
+//            //        selectCalled = true;
+//
+//            //        self.selectProperties = properties
+//
+//            return Query()
+//        }
     }
 }

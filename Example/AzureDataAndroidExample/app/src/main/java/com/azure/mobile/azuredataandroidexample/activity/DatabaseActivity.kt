@@ -18,7 +18,9 @@ class DatabaseActivity : BaseTabActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        databaseId = intent.extras.getString("db_id")
+        intent?.extras?.let {
+            databaseId = it.getString("db_id")!!
+        }
 
         super.onCreate(savedInstanceState)
     }

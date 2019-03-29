@@ -1,5 +1,6 @@
 package com.azure.data.model
 
+import com.azure.data.model.partition.PartitionKeyResource
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -7,7 +8,7 @@ import com.google.gson.annotations.SerializedName
  * Licensed under the MIT License.
  */
 
-abstract class Document(id: String? = null) : Resource(id) {
+abstract class Document(id: String? = null) : Resource(id), PartitionKeyResource {
 
     // Gets the self-link corresponding to attachments of the document from the Azure Cosmos DB service.
     @SerializedName(Keys.attachmentsLinkKey)

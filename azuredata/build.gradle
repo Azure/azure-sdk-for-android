@@ -2,14 +2,14 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion "27.0.3"
+    compileSdkVersion 28
+    buildToolsVersion '28.0.3'
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 27
+        targetSdkVersion 28
         versionCode 1
-        versionName "0.1.0"
+        versionName "$azureandroid_release_version"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -22,7 +22,7 @@ android {
     }
 
     compileOptions {
-        targetCompatibility  JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
         sourceCompatibility JavaVersion.VERSION_1_8
     }
 
@@ -33,16 +33,19 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation group: 'com.google.code.gson', name: 'gson', version: "$gsonVersion"
     implementation "com.squareup.okhttp3:okhttp:$okhttpVersion"
-    implementation "com.squareup.okhttp3:logging-interceptor:$okhttpVersion"
+
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
+
     androidTestImplementation "com.android.support.test:runner:$testRunnerVersion"
     androidTestImplementation "com.android.support.test:rules:$testRulesVersion"
     androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "org.awaitility:awaitility:$awaitilityVersion"
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1"
 
     implementation project(':azurecore')
 }

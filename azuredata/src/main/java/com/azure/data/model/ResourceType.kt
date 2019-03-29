@@ -1,5 +1,6 @@
 package com.azure.data.model
 
+import com.azure.data.model.partition.PartitionKeyRange
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
 
@@ -13,6 +14,7 @@ typealias UDF = UserDefinedFunction
 typealias Doc = Document
 typealias Atch = Attachment
 typealias Ofr = Offer
+typealias Pkr = PartitionKeyRange
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -30,7 +32,8 @@ enum class ResourceType(val path: String, fullname: String, val type: Type, val 
     Udf("udfs",                 UDF.resourceName,   object : TypeToken<UDF>() {}.type,      object : TypeToken<ResourceList<UDF>>() {}.type),
     Document("docs",            Doc.resourceName,   object : TypeToken<Doc>() {}.type,      object : TypeToken<ResourceList<Doc>>() {}.type),
     Attachment("attachments",   Atch.resourceName,  object : TypeToken<Atch>() {}.type,     object : TypeToken<ResourceList<Atch>>() {}.type),
-    Offer("offers",             Ofr.resourceName,   object : TypeToken<Ofr>() {}.type,      object : TypeToken<ResourceList<Ofr>>() {}.type);
+    Offer("offers",             Ofr.resourceName,   object : TypeToken<Ofr>() {}.type,      object : TypeToken<ResourceList<Ofr>>() {}.type),
+    PkRanges("pkranges",        Pkr.resourceName,   object : TypeToken<Pkr>() {}.type,      object : TypeToken<ResourceList<Pkr>>() {}.type);
 
     val listName: String = "${fullname}s"
 
@@ -47,6 +50,7 @@ enum class ResourceType(val path: String, fullname: String, val type: Type, val 
             Udf                 -> resourceType == Collection || resourceType == Database
             Permission          -> resourceType == User || resourceType == Database
             Attachment          -> resourceType == Document || resourceType == Collection || resourceType == Database
+            PkRanges            -> resourceType == Collection
         }
     }
 

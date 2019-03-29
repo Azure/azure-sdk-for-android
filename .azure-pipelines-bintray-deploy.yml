@@ -1,0 +1,46 @@
+# Gradle
+# Build your Java project and run tests with Gradle using a Gradle wrapper script.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/java
+
+# a build with no CI
+trigger: none
+
+# no PR builds
+pr: none
+
+pool:
+  vmImage: 'macOS-10.13'
+
+steps:
+# Azure Key Vault
+# Download Azure Key Vault Secrets
+- task: AzureKeyVault@1
+  inputs:
+    azureSubscription: 'ARM-Service-Connection'
+    keyVaultName: 'Azure-Mobile-Key-Vault'
+    #secretsFilter: '*'
+
+- task: Gradle@2
+  inputs:
+    workingDirectory: ''
+    gradleWrapperFile: 'gradlew'
+    options: '-Pbintray-user=$(bintray-user) -Pbintray-apikey=$(bintray-apikey)'
+    gradleOptions: '-Xmx3072m'
+    javaHomeOption: 'JDKVersion'
+    jdkVersionOption: '1.10'
+    jdkArchitectureOption: 'x64'
+    publishJUnitResults: false
+    testResultsFiles: '**/TEST-*.xml'
+    tasks: 'clean build bintrayUpload'
+
+- task: CopyFiles@2
+  inputs:
+    contents: '**/*.aar'
+    targetFolder: '$(build.artifactStagingDirectory)'
+
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathToPublish: '$(build.artifactStagingDirectory)'
+    artifactName: 'aars'
+    artifactType: 'container'

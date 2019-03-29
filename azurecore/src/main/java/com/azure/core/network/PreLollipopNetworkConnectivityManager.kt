@@ -28,6 +28,9 @@ internal class PreLollipopNetworkConnectivityManager: NetworkConnectivityManager
     override fun startListening() {
         connectivityReceiver?.let {
             val filter = IntentFilter()
+
+            // ignore deprecation since this is for Pre-Lollipop only
+            @Suppress("DEPRECATION")
             filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION)
 
             ContextProvider.appContext.registerReceiver(it, filter)

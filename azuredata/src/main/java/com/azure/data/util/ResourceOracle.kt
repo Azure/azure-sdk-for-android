@@ -3,15 +3,14 @@ package com.azure.data.util
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
-import com.azure.data.model.Resource
-import com.azure.data.model.ResourceBase
-import com.azure.data.model.ResourceList
-import com.azure.data.model.ResourceLocation
+import com.azure.core.util.MapCompat
+import com.azure.data.model.*
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
+
 @SuppressLint("CommitPrefEdits")
 internal class ResourceOracle private constructor (appContext: Context, host: String) {
 
@@ -69,8 +68,8 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
 
     private fun doStoreLinks(selfLink: String?, altLink: String?) {
 
-        selfLink?.let { selfLink ->
-            altLink?.let { altLink ->
+        selfLink?.let {
+            altLink?.let {
 
                 val altLinkSubstrings = altLink.split(slashCharacter)
                 val selfLinkSubstrings = selfLink.trimEnd('/').split(slashCharacter)
@@ -134,14 +133,14 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
 
     private fun doRemoveLinks(resourceLocation: ResourceLocation) {
 
-        getSelfLink(resourceLocation)?.let {
+        getSelfLink(resourceLocation)?.let { selfLink ->
 
-            altLinkLookup.remove(it)?.let {
-                selfLinkLookup.remove(it)
-                selfLinkPrefsEditor.remove(it)
+            altLinkLookup.remove(selfLink)?.let { altLink ->
+                selfLinkLookup.remove(altLink)
+                selfLinkPrefsEditor.remove(altLink)
             }
 
-            altLinkPrefsEditor.remove(it)
+            altLinkPrefsEditor.remove(selfLink)
         }
     }
 
@@ -200,7 +199,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
         if (altLink.isNullOrEmpty()) {
             resource.selfLink?.let {
 
-                altLink = altLinkLookup.getOrDefault(it, null)
+                altLink = MapCompat.getOrDefault(altLinkLookup, it, null)
             }
         }
 
@@ -214,7 +213,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
         if (selfLink.isNullOrEmpty()) {
             resource.altLink?.trim(slashCharacter)?.let {
 
-                selfLink = selfLinkLookup.getOrDefault(it, null)
+                selfLink = MapCompat.getOrDefault(selfLinkLookup, it, null)
             }
         }
 
@@ -226,6 +225,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
         val altLink = resourceLocation.link()
 
         selfLinkLookup[altLink]?.let {
+
             if (!it.isEmpty()) {
                 return it
             }
@@ -238,7 +238,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
 
         if (selfLink.isNotEmpty()) {
 
-            val altLink = altLinkLookup.getOrDefault(selfLink, null)
+            val altLink = MapCompat.getOrDefault(altLinkLookup, selfLink, null)
 
             if (altLink?.isEmpty() == false) {
 
@@ -255,7 +255,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
 
         if (trimmedLink.isNotEmpty()) {
 
-            val selfLink = selfLinkLookup.getOrDefault(trimmedLink, null)
+            val selfLink = MapCompat.getOrDefault(selfLinkLookup, trimmedLink, null)
 
             if (selfLink?.isEmpty() == false) {
 
@@ -327,6 +327,11 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
         }
 
         return selfLink
+    }
+
+    fun getDirectoryPath(query: Query): String {
+
+        return "queries/${query.hashCode()}"
     }
 
     companion object {

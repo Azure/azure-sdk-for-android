@@ -150,21 +150,4 @@ public class CollectionsActivity extends Activity {
                     }).show();
         });
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        if (_adapter != null) {
-            _adapter.clear();
-        }
-
-        App.activityResumed();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        App.activityPaused();
-    }
 }

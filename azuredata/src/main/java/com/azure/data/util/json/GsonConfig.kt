@@ -5,6 +5,9 @@ import com.azure.core.log.logLevel
 import com.azure.core.util.DateTypeAdapter
 import com.google.gson.*
 import com.azure.data.model.*
+import com.azure.data.model.spatial.LineString
+import com.azure.data.model.spatial.Point
+import com.azure.data.model.spatial.Polygon
 import com.azure.data.service.ResourceWriteOperation
 import java.util.*
 
@@ -13,15 +16,19 @@ import java.util.*
  * Licensed under the MIT License.
 */
 
-val gson: Gson =
-        GsonBuilder()
-                .disableHtmlEscaping()
-                .checkVerboseMode()
-                .registerTypeAdapter(Date::class.java, DateTypeAdapter())
-                .registerTypeAdapter(Timestamp::class.java, TimestampAdapter())
-                .registerTypeAdapter(DictionaryDocument::class.java, DocumentAdapter())
-                .registerTypeAdapter(ResourceWriteOperation::class.java, ResourceWriteOperationAdapter())
-                .create()
+internal val gsonBuilder = GsonBuilder()
+        .disableHtmlEscaping()
+        .checkVerboseMode()
+        .registerTypeAdapter(Date::class.java, DateTypeAdapter())
+        .registerTypeAdapter(Timestamp::class.java, TimestampAdapter())
+        .registerTypeAdapter(Point::class.java, PointAdapter())
+        .registerTypeAdapter(Polygon::class.java, LineSegmentAdapter())
+        .registerTypeAdapter(LineString::class.java, LineSegmentAdapter())
+        .registerTypeAdapter(ResourceWriteOperation::class.java, ResourceWriteOperationAdapter())!!
+
+val gson: Gson by lazy {
+    gsonBuilder.create()
+}
 
 fun GsonBuilder.checkVerboseMode() : GsonBuilder {
 

@@ -3,12 +3,13 @@ package com.azure.data.integration
 import android.support.test.runner.AndroidJUnit4
 import com.azure.core.log.d
 import com.azure.data.*
+import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.*
 import com.azure.data.service.DataResponse
 import com.azure.data.service.Response
-import junit.framework.Assert.assertEquals
 import org.awaitility.Awaitility.await
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -19,10 +20,10 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class PermissionTests : ResourceTest<Permission>(ResourceType.Permission, true, true) {
+class PermissionTests : ResourceTest<Permission>("PermissionTests", true, true) {
 
     private val userId = "AndroidTest${ResourceType.User.name}"
-    var user: User? = null
+    private var user: User? = null
 
     @Before
     override fun setUp() {
@@ -153,7 +154,7 @@ class PermissionTests : ResourceTest<Permission>(ResourceType.Permission, true, 
 
         createNewPermission()
 
-        user?.getPermissions() {
+        user?.getPermissions {
             resourceListResponse = it
         }
 

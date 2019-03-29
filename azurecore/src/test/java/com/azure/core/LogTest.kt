@@ -58,15 +58,15 @@ class LogTest {
         tree.clear()
         assertEquals(0, tree.log.size)
         v{Lev.verbose.name}
-        tree.assert(index++,Log.VERBOSE,null,Lev.verbose.name,null)
+        tree.assert(index++, Log.VERBOSE,null, Lev.verbose.name,null)
         d{Lev.debug.name}
-        tree.assert(index++,Log.DEBUG,null,Lev.debug.name,null)
+        tree.assert(index++, Log.DEBUG,null, Lev.debug.name,null)
         i{Lev.info.name}
-        tree.assert(index++,Log.INFO,null,Lev.info.name,null)
+        tree.assert(index++, Log.INFO,null, Lev.info.name,null)
         w{Lev.warn.name}
         tree.assert(index++,Log.WARN,null,Lev.warn.name,null)
         e{Lev.error.name}
-        tree.assert(index++,Log.ERROR,null,Lev.error.name,null)
+        tree.assert(index,Log.ERROR,null,Lev.error.name,null)
     }
 
     @Test @Throws(Exception::class) fun can_change_levels() {

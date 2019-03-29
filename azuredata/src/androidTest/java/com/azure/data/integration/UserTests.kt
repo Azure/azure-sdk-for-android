@@ -3,17 +3,15 @@ package com.azure.data.integration
 import android.support.test.runner.AndroidJUnit4
 import com.azure.core.log.d
 import com.azure.data.*
+import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.Database
-import com.azure.data.model.ResourceType
 import com.azure.data.model.User
 import com.azure.data.service.DataResponse
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
-import com.azure.data.service.next
-import junit.framework.Assert
-import junit.framework.Assert.assertEquals
 import org.awaitility.Awaitility.await
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Before
 import org.junit.Test
@@ -25,7 +23,7 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
+class UserTests : ResourceTest<User>("UserTests", true, false) {
 
     @Before
     override fun setUp() {
@@ -51,22 +49,26 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
             deleteResponse = response
         }
 
-        await().until {
-            deleteResponse != null
-        }
+        await().until { deleteResponse != null }
     }
 
-    private fun createNewUsers(count: Int, db: Database? = null) : List<User> {
+    private fun createNewUsers(count: Int) : List<User> {
+
         val users = mutableListOf<User>()
-        for(i in 1..count){
+
+        for(i in 1..count) {
+
             val userId = "$createdResourceId${if (i==1) "" else i.toString()}"
-            AzureData.createUser(userId, databaseId){
+
+            AzureData.createUser(userId, databaseId) {
                 assertResourceResponseSuccess(it)
                 assertEquals(userId, it.resource?.id)
                 users.add(it.resource!!)
             }
         }
+
         await().until { users.count() == count }
+
         return users
     }
 
@@ -85,9 +87,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
             }
         }
 
-        await().until {
-            userResponse != null
-        }
+        await().until { userResponse != null }
 
         assertResourceResponseSuccess(userResponse)
         assertEquals(createdResourceId, userResponse?.resource?.id)
@@ -117,9 +117,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
             resourceListResponse = it
         }
 
-        await().until {
-            resourceListResponse != null
-        }
+        await().until { resourceListResponse != null }
 
         assertListResponseSuccess(resourceListResponse)
     }
@@ -135,32 +133,40 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
         // Get the first one
         AzureData.getUsers(databaseId, 1) { waitForResponse = it }
         await().until { waitForResponse != null }
-        waitForResponse.let {
-            assertPage1(idsFound,it)
-        }
+
+        assertPageN(idsFound, waitForResponse)
 
         // Get the second one
         waitForResponse.let { response ->
+
             waitForResponse = null
+
             response!!.next {
-                assertPageN(idsFound,it)
+
+                assertPageN(idsFound, it)
                 waitForResponse = it
             }
         }
+
         await().until { waitForResponse != null }
 
         // Get the third one
         waitForResponse.let { response ->
+
             waitForResponse = null
+
             response!!.next {
-                assertPageLast(idsFound,it)
+
+                assertPageLast(idsFound, it)
                 waitForResponse = it
             }
         }
+
         await().until { waitForResponse != null }
 
         // Try to get one more
         waitForResponse!!.next {
+
             assertPageOnePastLast(it)
         }
     }
@@ -175,9 +181,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
             resourceListResponse = it
         }
 
-        await().until {
-            resourceListResponse != null
-        }
+        await().until { resourceListResponse != null }
 
         assertListResponseSuccess(resourceListResponse)
     }
@@ -191,9 +195,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(createdResourceId, response?.resource?.id)
@@ -208,9 +210,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(createdResourceId, response?.resource?.id)
@@ -243,9 +243,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -259,9 +257,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -275,9 +271,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -291,9 +285,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -310,9 +302,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(replaceUserId, response?.resource?.id)
@@ -331,9 +321,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(replaceUserId, response?.resource?.id)
@@ -351,9 +339,7 @@ class UserTests : ResourceTest<User>(ResourceType.User, true, false) {
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(createdResourceId, response?.resource?.id)

@@ -2,7 +2,6 @@ package com.azure.data.service
 
 import com.azure.core.crypto.CryptoProvider
 import com.azure.core.http.HttpMethod
-import com.azure.core.log.d
 import com.azure.core.util.DateUtil
 import com.azure.data.model.PermissionMode
 import com.azure.data.model.ResourceLocation
@@ -35,7 +34,6 @@ class ResourceTokenProvider(private val masterKey: String, private val permissio
                 resourceLocation.type().toLowerCase(Locale.ROOT),
                 resourceLocation.link(),
                 dateString.toLowerCase(Locale.ROOT))
-                .also { d{it} }
 
         val signature = CryptoProvider.hmacEncrypt(payload, masterKey)
 

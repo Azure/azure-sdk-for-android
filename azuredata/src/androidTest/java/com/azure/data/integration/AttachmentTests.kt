@@ -2,17 +2,17 @@ package com.azure.data.integration
 
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.*
+import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.*
 import com.azure.data.service.ListResponse
+import com.azure.data.service.PartitionKeyPropertyCache
 import com.azure.data.service.Response
-import com.azure.data.service.next
-import junit.framework.Assert.assertEquals
-import junit.framework.Assert.assertTrue
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.awaitility.Awaitility.await
-import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.net.URL
@@ -23,10 +23,20 @@ import java.net.URL
  */
 
 @RunWith(AndroidJUnit4::class)
-class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, true, true) {
+open class AttachmentTests : ResourceTest<Attachment>("AttachmentTests", true, true, true) {
 
-    private val urlString = "https://azuredatatests.blob.core.windows.net/attachment-tests/youre%20welcome.jpeg?st=2017-11-07T14%3A00%3A00Z&se=2020-11-08T14%3A00%3A00Z&sp=rl&sv=2017-04-17&sr=c&sig=RAHr6Mee%2Bt7RrDnGHyjgSX3HSqJgj8guhy0IrEMh3KQ%3D"
-    private val url: URL = URL("https", "azuredatatests.blob.core.windows.net", "/attachment-tests/youre%20welcome.jpeg?st=2017-11-07T14%3A00%3A00Z&se=2020-11-08T14%3A00%3A00Z&sp=rl&sv=2017-04-17&sr=c&sig=RAHr6Mee%2Bt7RrDnGHyjgSX3HSqJgj8guhy0IrEMh3KQ%3D")
+    private val urlString = "https://lcsc.academyofmine.com/wp-content/uploads/2017/06/Test-Logo.svg.png"
+    private val url: URL = URL("https", "lcsc.academyofmine.com", "/wp-content/uploads/2017/06/Test-Logo.svg.png")
+    private val mimeType = "image/png"
+
+    init {
+        partitionKeyPath = "/testKey"
+    }
+
+    private fun getPartitionKeyValue() : String {
+
+        return PartitionKeyPropertyCache.getPartitionKeyValues(document!!).single()
+    }
 
     private fun getImageData() : ByteArray {
 
@@ -47,11 +57,11 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
         var response: Response<Attachment>? = null
 
         if (doc != null) {
-            document?.createAttachment(createdResourceId, "image/jpeg", imageData) {
+            document?.createAttachment(createdResourceId, mimeType, imageData) {
                 response = it
             }
         } else {
-            AzureData.createAttachment(createdResourceId, "image/jpeg", imageData, documentId, collectionId, databaseId) {
+            AzureData.createAttachment(createdResourceId, mimeType, imageData, documentId, collectionId, databaseId, getPartitionKeyValue()) {
                 response = it
             }
         }
@@ -61,7 +71,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
         }
 
         assertResourceResponseSuccess(response)
-        Assert.assertEquals(createdResourceId, response?.resource?.id)
+        assertEquals(createdResourceId, response?.resource?.id)
 
         return response!!.resource!!
     }
@@ -75,11 +85,11 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             is String -> {
 
                 if (doc != null) {
-                    document?.createAttachment(createdResourceId(id), "image/jpeg", theUrl) {
+                    document?.createAttachment(createdResourceId(id), mimeType, theUrl) {
                         response = it
                     }
                 } else {
-                    AzureData.createAttachment(createdResourceId(id), "image/jpeg", theUrl, documentId, collectionId, databaseId) {
+                    AzureData.createAttachment(createdResourceId(id), mimeType, theUrl, documentId, collectionId, databaseId, getPartitionKeyValue()) {
                         response = it
                     }
                 }
@@ -87,11 +97,11 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             is URL -> {
 
                 if (doc != null) {
-                    document?.createAttachment(createdResourceId(id), "image/jpeg", theUrl) {
+                    document?.createAttachment(createdResourceId(id), mimeType, theUrl) {
                         response = it
                     }
                 } else {
-                    AzureData.createAttachment(createdResourceId(id), "image/jpeg", theUrl, documentId, collectionId, databaseId) {
+                    AzureData.createAttachment(createdResourceId(id), mimeType, theUrl, documentId, collectionId, databaseId, getPartitionKeyValue()) {
                         response = it
                     }
                 }
@@ -99,11 +109,11 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
             is HttpUrl -> {
 
                 if (doc != null) {
-                    document?.createAttachment(createdResourceId(id), "image/jpeg", theUrl) {
+                    document?.createAttachment(createdResourceId(id), mimeType, theUrl) {
                         response = it
                     }
                 } else {
-                    AzureData.createAttachment(createdResourceId(id), "image/jpeg", theUrl, documentId, collectionId, databaseId) {
+                    AzureData.createAttachment(createdResourceId(id), mimeType, theUrl, documentId, collectionId, databaseId, getPartitionKeyValue()) {
                         response = it
                     }
                 }
@@ -116,7 +126,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
         }
 
         assertResourceResponseSuccess(response)
-        Assert.assertEquals(createdResourceId(id), response?.resource?.id)
+        assertEquals(createdResourceId(id), response?.resource?.id)
 
         return response!!.resource!!
     }
@@ -167,7 +177,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
         //ensure at least 1 attachment
         createNewAttachment()
 
-        AzureData.getAttachments(documentId, collectionId, databaseId) {
+        AzureData.getAttachments(documentId, collectionId, databaseId, getPartitionKeyValue()) {
             resourceListResponse = it
         }
 
@@ -203,35 +213,43 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
         val idsFound = mutableListOf<String>()
         var waitForResponse : ListResponse<Attachment>? = null
 
-        createNewAttachment("http://www.bing.com",id = 1)
-        createNewAttachment("http://www.google.com",id = 2)
-        createNewAttachment("http://www.yahoo.com",id = 3)
+        createNewAttachment("http://www.bing.com", id = 1)
+        createNewAttachment("http://www.google.com", id = 2)
+        createNewAttachment("http://www.yahoo.com", id = 3)
 
         // Get the first one
-        AzureData.getAttachments(documentId, collectionId, databaseId, 1) { waitForResponse = it }
+        AzureData.getAttachments(documentId, collectionId, databaseId, getPartitionKeyValue(), 1) { waitForResponse = it }
+
         await().until { waitForResponse != null }
-        waitForResponse.let {
-            assertPage1(idsFound,it)
-        }
+
+        assertPageN(idsFound, waitForResponse)
 
         // Get the second one
         waitForResponse.let { response ->
+
             waitForResponse = null
+
             response!!.next {
-                assertPageN(idsFound,it)
+
+                assertPageN(idsFound, it)
                 waitForResponse = it
             }
         }
+
         await().until { waitForResponse != null }
 
         // Get the third one
         waitForResponse.let { response ->
+
             waitForResponse = null
+
             response!!.next {
-                assertPageLast(idsFound,it)
+
+                assertPageLast(idsFound, it)
                 waitForResponse = it
             }
         }
+
         await().until { waitForResponse != null }
 
         // Try to get one more
@@ -245,7 +263,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
 
         createNewAttachment()
 
-        AzureData.replaceAttachment(createdResourceId, "image/jpeg", url, documentId, collectionId, databaseId) {
+        AzureData.replaceAttachment(createdResourceId, mimeType, url, documentId, collectionId, databaseId, getPartitionKeyValue()) {
             response = it
         }
 
@@ -258,7 +276,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
 
         resetResponse()
 
-        AzureData.replaceAttachment(createdResourceId, "image/jpeg", HttpUrl.get(url)!!, documentId, collectionId, databaseId) {
+        AzureData.replaceAttachment(createdResourceId, mimeType, HttpUrl.get(url)!!, documentId, collectionId, databaseId, getPartitionKeyValue()) {
             response = it
         }
 
@@ -271,7 +289,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
 
         resetResponse()
 
-        AzureData.replaceAttachment(createdResourceId, "image/jpeg", urlString, documentId, collectionId, databaseId) {
+        AzureData.replaceAttachment(createdResourceId, mimeType, urlString, documentId, collectionId, databaseId, getPartitionKeyValue()) {
             response = it
         }
 
@@ -288,7 +306,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
 
         val attachment = createNewAttachment(url, document)
 
-        document?.replaceAttachment(attachment.id, "image/jpeg", url) {
+        document?.replaceAttachment(attachment.id, mimeType, url) {
             response = it
         }
 
@@ -308,11 +326,11 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
         val bytes = getImageData()
         createNewBlobAttachment(bytes)
 
-        AzureData.replaceAttachment(createdResourceId, "image/jpeg", bytes, documentId, collectionId, databaseId) {
+        AzureData.replaceAttachment(createdResourceId, mimeType, bytes, documentId, collectionId, databaseId, getPartitionKeyValue()) {
             response = it
         }
 
-        await().forever().until {
+        await().until {
             response != null
         }
 
@@ -327,7 +345,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
 
         createNewAttachment()
 
-        AzureData.deleteAttachment(createdResourceId, documentId, collectionId, databaseId) {
+        AzureData.deleteAttachment(createdResourceId, documentId, collectionId, databaseId, getPartitionKeyValue()) {
             dataResponse = it
         }
 
@@ -343,7 +361,7 @@ class AttachmentTests : ResourceTest<Attachment>(ResourceType.Attachment, true, 
 
         val attachment = createNewAttachment()
 
-        AzureData.deleteAttachment(attachment, documentId, collectionId, databaseId) {
+        AzureData.deleteAttachment(attachment, documentId, collectionId, databaseId, getPartitionKeyValue()) {
             dataResponse = it
         }
 

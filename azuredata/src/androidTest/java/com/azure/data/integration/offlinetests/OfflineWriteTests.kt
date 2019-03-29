@@ -2,7 +2,9 @@ package com.azure.data.integration.offlinetests
 
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.AzureData
-import com.azure.data.integration.CustomDocument
+import com.azure.data.integration.common.CustomDocument
+import com.azure.data.integration.common.DocumentTest
+import com.azure.data.integration.common.PartitionedCustomDocment
 import com.azure.data.model.Database
 import com.azure.data.service.*
 import org.junit.Test
@@ -11,10 +13,11 @@ import org.junit.runner.RunWith
 import org.junit.Assert.*
 
 @RunWith(AndroidJUnit4::class)
-class OfflineWriteTests: OfflineTests("OfflineWriteTests") {
+class OfflineWriteTests: DocumentTest<PartitionedCustomDocment>("OfflineWriteTests", PartitionedCustomDocment::class.java) {
 
     @Test
     fun resourcesAreCreatedLocallyWhenTheNetworkIsNotReachable() {
+
         turnOffInternetConnection()
 
         var createResponse: Response<Database>? = null
@@ -43,6 +46,7 @@ class OfflineWriteTests: OfflineTests("OfflineWriteTests") {
 
     @Test
     fun conflictIsReturnedWhenTheSameResourceIsCreatedTwiceOffline() {
+
         turnOffInternetConnection()
 
         var createResponse: Response<Database>? = null
@@ -71,14 +75,15 @@ class OfflineWriteTests: OfflineTests("OfflineWriteTests") {
 
     @Test
     fun notFoundIsReturnedWhenTryingToReplaceANonExistingResourceWhileOffline() {
+
         turnOffInternetConnection()
 
         var replaceResponse: Response<CustomDocument>? = null
 
         AzureData.createDatabase(databaseId) {
             AzureData.createCollection(collectionId, databaseId) {
-                AzureData.replaceDocument(CustomDocument(documentId), it.resource!!) {
-                    replaceResponse = it
+                AzureData.replaceDocument(CustomDocument(documentId), it.resource!!) { replaceRsp ->
+                    replaceResponse = replaceRsp
                 }
             }
         }
@@ -93,6 +98,7 @@ class OfflineWriteTests: OfflineTests("OfflineWriteTests") {
 
     @Test
     fun notFoundIsReturnedWhenTryingToDeleteANonExistingResource() {
+
         turnOffInternetConnection()
 
         var deleteResponse: DataResponse? = null

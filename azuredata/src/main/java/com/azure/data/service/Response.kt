@@ -1,6 +1,5 @@
 package com.azure.data.service
 
-import com.azure.data.AzureData
 import com.azure.data.model.*
 import okhttp3.Request
 import java.lang.reflect.Type
@@ -11,7 +10,6 @@ import java.lang.reflect.Type
  */
 
 typealias DataResponse = Response<String>
-typealias ListResponse<T> = Response<ResourceList<T>>
 
 open class Response<T>(
         // The request sent to the server.
@@ -66,23 +64,15 @@ open class Response<T>(
      * Returns the associated value of the result if it is a success, null otherwise.
      */
     val resource: T? = result.resource
-
-    /**
-     * Returns `true` if there are more paged results available
-     */
-    val hasMoreResults : Boolean get() {
-        return !metadata.continuation.isNullOrEmpty()
-    }
 }
 
-fun <T : Resource> ListResponse<T>.next(callback: (ListResponse<T>) -> Unit) =
-        AzureData.documentClient.next(this, resourceType, callback)
-
 fun <T, U> Response<T>.map(transform: (T) -> U): Response<U> {
+
     return Response(request, response, jsonData, result.map(transform), resourceLocation, resourceType, fromCache)
 }
 
 fun <T, U> Result<T>.map(transform: (T) -> U): Result<U> {
+
     resource?.let { return Result(transform(it)) }
     error?.let { return Result(it) }
     return Result(DataError(DocumentClientError.UnknownError))

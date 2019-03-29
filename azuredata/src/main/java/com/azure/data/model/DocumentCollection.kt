@@ -2,6 +2,9 @@ package com.azure.data.model
 
 import com.google.gson.annotations.SerializedName
 import com.azure.data.model.indexing.IndexingPolicy
+import com.azure.data.model.partition.PartitionKeyDefinition
+import com.azure.data.util.isValidPartitionKeyPath
+import java.lang.Exception
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -18,7 +21,7 @@ import com.azure.data.model.indexing.IndexingPolicy
  *   Since collections are application resources, they can be authorized using either the master key or resource keys.
  *   Refer to [collections](http://azure.microsoft.com/documentation/articles/documentdb-resources/#collections) for more details on collections.
  */
-class DocumentCollection(id: String? = null, policy: IndexingPolicy? = null) : Resource(id) {
+class DocumentCollection(id: String? = null, partitionKey: String? = null, policy: IndexingPolicy? = null) : Resource(id) {
 
     /**
      * Gets the self-link for conflicts in a collection from the Azure Cosmos DB service.
@@ -65,6 +68,18 @@ class DocumentCollection(id: String? = null, policy: IndexingPolicy? = null) : R
     @SerializedName(userDefinedFunctionsLinkKey)
     var userDefinedFunctionsLink: String? = null
 
+    init {
+
+        partitionKey?.let {
+
+            if (!partitionKey.isValidPartitionKeyPath()) {
+                throw Exception("Invalid partition key; partition keys should be a / delimited path to a document property, e.g. /user/id")
+            }
+
+            this.partitionKey = PartitionKeyDefinition(partitionKey)
+        }
+    }
+
     fun childLink (resourceId: String? = null) : String {
 
         return if (resourceId == null || resourceId == "") {
@@ -85,21 +100,5 @@ class DocumentCollection(id: String? = null, policy: IndexingPolicy? = null) : R
         const val storedProceduresLinkKey         = "_sprocs"
         const val triggersLinkKey                 = "_triggers"
         const val userDefinedFunctionsLinkKey     = "_udfs"
-    }
-
-    /**
-     * Specifies a partition key definition for a particular path in the Azure Cosmos DB service.
-     */
-    class PartitionKeyDefinition {
-
-        /**
-         * Gets or sets the paths to be partitioned in the Azure Cosmos DB service.
-         */
-        var paths: Array<String>? = null
-
-        /**
-         * The algorithm used for partitioning. Only Hash is supported.
-         */
-        val kind = "Hash"
     }
 }

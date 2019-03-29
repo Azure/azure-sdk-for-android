@@ -41,6 +41,7 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
     class Offer(id: String? = null) : ResourceLocation(ResourceType.Offer, id)
     class Resource(val resource: com.azure.data.model.Resource) : ResourceLocation(ResourceType.fromType(resource::class.java), resource.id)
     class Child(resourceType: ResourceType, val resource: com.azure.data.model.Resource, id: String? = null) : ResourceLocation(resourceType, id)
+    class PkRanges(val databaseId: String, collectionId: String? = null) : ResourceLocation(ResourceType.PkRanges, collectionId)
 
     fun path() : String = when (this) {
 
@@ -56,6 +57,7 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
         is Offer ->             "offers${id.path()}"
         is Resource ->          ResourceOracle.shared.getAltLink(resource)!!
         is Child ->             ResourceOracle.shared.getAltLink(resource) + "/${resourceType.path}${id.path()}"
+        is PkRanges ->          "dbs/$databaseId/colls${id.path()}/pkranges"
     }
 
     fun link() : String = when (this) {
@@ -72,6 +74,7 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
         is Offer ->             id?.toLowerCase() ?: ""
         is Resource ->          ResourceOracle.shared.getAltLink(resource)!!
         is Child ->             ResourceOracle.shared.getAltLink(resource) + id.pathIn("/${resourceType.path}")
+        is PkRanges ->          "dbs/$databaseId${id.pathIn("/colls")}"
     }
 
     fun type() : String = resourceType.path
@@ -100,6 +103,7 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
     fun altLink(id: String): String = if (path().lastPathComponent().equals(id, ignoreCase = true)) path() else "${path()}/$id"
 
     fun selfLink(resourceId: String): String? {
+
         directory()?.let {
             return "$it/$resourceId"
         }
@@ -135,6 +139,7 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
     }
 
     private fun directory(): String? {
+
         parentSelfLink()?.let {
             return when (this) {
                 is Database        -> it
@@ -149,6 +154,7 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
                 is Offer           -> it
                 is Child           -> "$it${this.resourceType.path}"
                 is Resource        -> ResourceOracle.shared.getSelfLink(this.resource)?.lastPathComponentRemoved()
+                is PkRanges        -> "${it}pkranges"
             }
         }
 
@@ -156,6 +162,7 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
     }
 
     private fun parentSelfLink(): String? {
+
         return when (this) {
             is Database        -> "dbs"
             is User            -> ResourceOracle.shared.getSelfLink(Database(this.databaseId))
@@ -169,6 +176,7 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
             is Offer           -> "offers"
             is Child           -> ResourceOracle.shared.getSelfLink(this.resource)
             is Resource        -> ResourceOracle.shared.getSelfLink(this.resource)?.lastPathComponentRemoved()?.lastPathComponentRemoved()
+            is PkRanges        -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.id))
         }
     }
 }

@@ -1,15 +1,10 @@
 package com.azure.mobile.azuredataandroidexample.activity
 
 import android.os.Bundle
-import android.support.design.widget.TabLayout
 import android.support.v7.app.ActionBar
-import android.support.v7.app.AppCompatActivity
 import com.azure.mobile.azuredataandroidexample.R
 import com.azure.mobile.azuredataandroidexample.adapter.TabFragmentPagerAdapter
-import com.azure.mobile.azuredataandroidexample.fragment.CollectionsFragment
 import com.azure.mobile.azuredataandroidexample.fragment.PermissionsFragment
-import com.azure.mobile.azuredataandroidexample.fragment.UsersFragment
-import kotlinx.android.synthetic.main.tab_layout.*
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -23,8 +18,10 @@ class UserActivity : BaseTabActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        databaseId = intent.extras.getString("db_id")
-        userId = intent.extras.getString("user_id")
+        intent?.extras?.let {
+            databaseId = it.getString("db_id")!!
+            userId = it.getString("user_id")!!
+        }
 
         super.onCreate(savedInstanceState)
     }

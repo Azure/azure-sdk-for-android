@@ -29,8 +29,8 @@ class PermissionsFragment : ResourceListFragment<Permission>() {
         super.onCreate(savedInstanceState)
 
         activity?.intent?.extras?.let {
-            databaseId = it.getString("db_id")
-            userId = it.getString("user_id")
+            databaseId = it.getString("db_id")!!
+            userId = it.getString("user_id")!!
         }
     }
 

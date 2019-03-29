@@ -2,6 +2,7 @@ package com.azure.data.integration
 
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.*
+import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.*
 import com.azure.data.model.indexing.*
 import org.awaitility.Awaitility.await
@@ -15,7 +16,7 @@ import org.junit.runner.RunWith
  */
 
 @RunWith(AndroidJUnit4::class)
-class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Collection, true, false) {
+class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollectionTests", true, false) {
 
     @Test
     fun createCollection() {
@@ -196,39 +197,19 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>(ResourceType.Co
     //endregion
 
     @Test
-    fun replaceCollectionById() {
+    fun replaceCollection() {
 
-        ensureCollection()
+        val collection = ensureCollection()
 
-        val policy = IndexingPolicy.create {
-            automatic = true
-            mode = IndexingMode.Lazy
-            includedPaths {
-                includedPath {
-                    path = "/*"
-                    indexes {
-                        index(Index.range(DataType.Number, -1))
-                        index {
-                            kind = IndexKind.Hash
-                            dataType = DataType.String
-                            precision = 3
-                        }
-                        index(Index.spatial(DataType.Point))
-                    }
-                }
-            }
-            excludedPaths {
-                excludedPath {
-                    path = "/test/*"
-                }
-            }
-        }
+        val policy = collection.indexingPolicy!!
 
-        AzureData.replaceCollection(createdResourceId, databaseId, policy) {
+        policy.excludedPaths?.add(IndexingPolicy.ExcludedPath("/customString/*"))
+
+        AzureData.replaceCollection(collection, databaseId, policy) {
             response = it
         }
 
-        await().forever().until {
+        await().until {
             response != null
         }
 

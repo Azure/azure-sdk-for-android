@@ -50,8 +50,9 @@ class ResourceWriteOperationQueue {
 
     //region Public API
 
-    fun <T: Resource> addCreateOrReplace(resource: T, location: ResourceLocation, headers: Headers? = null, replace: Boolean = false, callback: (Response<T>) -> Unit) {
-        createOrReplaceOffline(resource, location, replace, { response ->
+    fun <T: Resource> addCreateOrReplace(resource: T, location: ResourceLocation, headers: MutableMap<String, String>? = null, replace: Boolean = false, callback: (Response<T>) -> Unit) {
+
+        createOrReplaceOffline(resource, location, replace) { response ->
             callback(response)
 
             if (response.isSuccessful) {
@@ -60,14 +61,15 @@ class ResourceWriteOperationQueue {
                         resource = resource,
                         resourceLocation = location,
                         resourceLocalContentPath = response.response?.header(MSHttpHeader.MSContentPath.name) ?: "",
-                        httpHeaders = headers ?: Headers.of(mutableMapOf())
+                        httpHeaders = headers ?: mutableMapOf()
                 ))
             }
-        })
+        }
     }
 
-    fun addDelete(resourceLocation: ResourceLocation, headers: Headers? = null, callback: (DataResponse) -> Unit) {
-        deleteOffline(resourceLocation, { response ->
+    fun addDelete(resourceLocation: ResourceLocation, headers: MutableMap<String, String>? = null, callback: (DataResponse) -> Unit) {
+
+        deleteOffline(resourceLocation) { response ->
             callback(response)
 
             if (response.isSuccessful) {
@@ -76,10 +78,10 @@ class ResourceWriteOperationQueue {
                         resource = null,
                         resourceLocation = resourceLocation,
                         resourceLocalContentPath = response.response?.header(MSHttpHeader.MSContentPath.name) ?: "",
-                        httpHeaders = headers ?: Headers.of(mutableMapOf())
+                        httpHeaders = headers ?: mutableMapOf()
                 ))
             }
-        })
+        }
     }
 
     fun sync() {
@@ -92,22 +94,20 @@ class ResourceWriteOperationQueue {
 
             isSyncing = true
 
-            performWrites(writes, { isSuccess ->
+            performWrites(writes) { isSuccess ->
                 if (isSuccess) {
                     sendOfflineWriteQueueProcessedBroadcast()
                 }
 
                 removeCachedResources()
                 isSyncing = false
-            })
+            }
         }
     }
 
     fun purge() {
         safeExecute {
-            ContextProvider.appContext.pendingWritesDir()?.let {
-                it.deleteRecursively()
-            }
+            ContextProvider.appContext.pendingWritesDir().deleteRecursively()
         }
     }
 
@@ -133,7 +133,7 @@ class ResourceWriteOperationQueue {
 
         val write = writes.removeAt(0)
 
-        performWrite(write, { response ->
+        performWrite(write) { response ->
             if (!response.fromCache) {
                 processedWrites.add(write)
                 sendBroadcast(response)
@@ -141,18 +141,19 @@ class ResourceWriteOperationQueue {
             }
 
             performWrites(writes, callback)
-        })
+        }
     }
 
     private fun performWrite(write: ResourceWriteOperation, callback: (Response<Unit>) -> Unit) {
         when (write.type) {
             ResourceWriteOperationType.Create  -> DocumentClient.shared.createOrReplace(write.resource!!, write.resourceLocation, false, write.httpHeaders, { callback(it.map { Unit }) })
             ResourceWriteOperationType.Replace -> DocumentClient.shared.createOrReplace(write.resource!!, write.resourceLocation, true, write.httpHeaders, { callback(it.map { Unit }) })
-            ResourceWriteOperationType.Delete  -> DocumentClient.shared.delete(write.resourceLocation, { it.map { Unit } })
+            ResourceWriteOperationType.Delete  -> DocumentClient.shared.delete(write.resource!!, { it.map { Unit } })
         }
     }
 
     private fun enqueueWrite(write: ResourceWriteOperation) {
+
         executor.execute {
             val index = writes.indexOf(write)
 
@@ -283,6 +284,7 @@ class ResourceWriteOperationQueue {
     }
 
     private fun deleteOffline(resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
+
         ResourceOracle.shared.getSelfLink(resourceLocation.link())?.let { selfLink ->
             ResourceCache.shared.remove(resourceLocation)
 

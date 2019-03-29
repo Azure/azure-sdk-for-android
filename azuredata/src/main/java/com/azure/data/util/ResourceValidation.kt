@@ -1,5 +1,6 @@
 package com.azure.data.util
 
+import com.azure.data.constants.HttpHeaderValue
 import com.azure.data.model.Resource
 import com.azure.data.util.ResourceValidationRegEx.invalidCharRegEx
 import java.util.regex.Pattern
@@ -9,13 +10,24 @@ import java.util.regex.Pattern
  * Licensed under the MIT License.
  */
 
-    fun String.isValidIdForResource() : Boolean =
-            !this.isBlank() && this.length <= 255 && !invalidCharRegEx.matcher(this).find()
+fun String.isValidIdForResource() : Boolean =
+        !this.isBlank() && this.length <= 255 && !ResourceValidationRegEx.invalidCharRegEx.matcher(this).find()
 
-    fun Resource.hasValidId() : Boolean =
-            this.id.isValidIdForResource()
+fun Resource.hasValidId() : Boolean =
+        this.id.isValidIdForResource()
 
-    object ResourceValidationRegEx {
+object ResourceValidationRegEx {
 
-        val invalidCharRegEx : Pattern = Pattern.compile("[/?#\\s+]")
-    }
+    val invalidCharRegEx : Pattern = Pattern.compile("[/?#\\s+]")
+}
+
+fun String.isValidPartitionKeyPath() : Boolean =
+    !this.isBlank() && this.length <= 255 && this.startsWith('/') && !PartitionKeyValidationRegEx.invalidCharRegEx.matcher(this).find()
+
+object PartitionKeyValidationRegEx {
+
+    val invalidCharRegEx : Pattern = Pattern.compile("[?#\\s+]")
+}
+
+fun Int.isValidThroughput() : Boolean =
+        this >= HttpHeaderValue.minDatabaseThroughput && this <= HttpHeaderValue.maxDatabaseThroughput && (this % HttpHeaderValue.databaseThroughputStep) == 0
