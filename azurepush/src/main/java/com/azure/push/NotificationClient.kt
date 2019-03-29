@@ -127,15 +127,15 @@ internal class NotificationClient {
         }
 
         val refreshedDeviceToken = this.refreshedDeviceToken(newDeviceToken = deviceToken)
-        registrations(refreshedDeviceToken) {
+        registrations(refreshedDeviceToken) { response ->
             when {
-                it.isSuccessful -> {
+                response.isSuccessful -> {
                     localStorage.refresh(deviceToken)
                     createOrUpdate(name, payload, completion)
                 }
 
-                it.isErrored -> {
-                    it.error?.let { completion(Response(it)) }
+                response.isErrored -> {
+                    response.error?.let { completion(Response(it)) }
                 }
 
                 else -> {
@@ -184,20 +184,20 @@ internal class NotificationClient {
     private fun upsert(registrationId: String, name: String, payload: String, completion: (Response<Registration>) -> Unit) {
         val url = URL("$endpoint$path/Registrations/$registrationId?api-version=${NotificationClient.apiVersion}")
 
-        sendRequest(url, HttpMethod.Put, payload) {
-            if (it.isSuccessful) {
-                this.localStorage[name] = this.registrationParser.parse(it.resource!!).first()
+        sendRequest(url, HttpMethod.Put, payload) { response ->
+            if (response.isSuccessful) {
+                this.localStorage[name] = this.registrationParser.parse(response.resource!!).first()
             }
 
-            completion(it.map { this.registrationParser.parse(it).first() })
+            completion(response.map { this.registrationParser.parse(it).first() })
         }
     }
 
     private fun registrations(deviceToken: String, completion: (Response<List<Registration>>) -> Unit) {
         val url = URL("$endpoint$path/Registrations/?\$filter=GcmRegistrationId eq '$deviceToken'")
 
-        sendRequest(url, HttpMethod.Get) {
-            completion(it.map {
+        sendRequest(url, HttpMethod.Get) { response ->
+            completion(response.map {
                 this.registrationParser.parse(it)
             })
         }
@@ -226,14 +226,12 @@ internal class NotificationClient {
             return
         }
 
-        var regs = registrations
-
-        delete(regs.removeAt(0)) {
+        delete(registrations.removeAt(0)) {
             when {
                 it.isErrored -> completion(it)
 
                 it.isSuccessful -> {
-                    delete(regs, completion)
+                    delete(registrations, completion)
                 }
 
                 else -> {
