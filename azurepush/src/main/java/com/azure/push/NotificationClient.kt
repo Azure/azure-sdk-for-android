@@ -2,6 +2,7 @@ package com.azure.push
 
 import android.content.Context
 import com.azure.core.http.HttpHeader
+import com.azure.core.http.HttpMediaType
 import com.azure.core.http.HttpMethod
 import com.azure.data.model.DataError
 import com.azure.data.model.DocumentClientError
@@ -203,7 +204,7 @@ internal class NotificationClient {
 
     private fun upsert(registrationId: String, name: String, payload: String, completion: (Response<Registration>) -> Unit) {
 
-        val url = URL("$endpoint$path/Registrations/$registrationId?api-version=${NotificationClient.apiVersion}")
+        val url = URL("$endpoint$path/registrations/$registrationId?api-version=${NotificationClient.apiVersion}")
 
         sendRequest(url, HttpMethod.Put, payload) { response ->
 
@@ -217,7 +218,7 @@ internal class NotificationClient {
 
     private fun registrations(deviceToken: String, completion: (Response<List<Registration>>) -> Unit) {
 
-        val url = URL("$endpoint$path/Registrations/?\$filter=GcmRegistrationId eq '$deviceToken'")
+        val url = URL("$endpoint$path/registrations/?\$filter=GcmRegistrationId eq '$deviceToken'&api-version=$apiVersion")
 
         sendRequest(url, HttpMethod.Get) { response ->
 
@@ -229,7 +230,7 @@ internal class NotificationClient {
 
     private fun delete(registration: Registration, completion: (Response<String>) -> Unit) {
 
-        val url = URL("$endpoint$path/Registrations/${registration.id}?api-version=${NotificationClient.apiVersion}")
+        val url = URL("$endpoint$path/registrations/${registration.id}?api-version=${NotificationClient.apiVersion}")
 
         sendRequest(url, HttpMethod.Delete, etag = "*") {
             when {
@@ -282,9 +283,15 @@ internal class NotificationClient {
             return
         }
 
-        val builder = Request.Builder()
+        val builder = when (method) {
+
+            HttpMethod.Get -> Request.Builder().get()
+            HttpMethod.Post -> Request.Builder().post(requestBody(payload!!))
+            HttpMethod.Put -> Request.Builder().put(requestBody(payload!!))
+            HttpMethod.Delete -> Request.Builder().delete()
+            HttpMethod.Head -> Request.Builder().head()
+        }
                 .url(url)
-                .method(method.name, requestBody(payload))
                 .header(HttpHeader.Authorization.name, authToken)
                 .header(HttpHeader.UserAgent.name, NotificationClient.userAgent)
 
@@ -340,15 +347,10 @@ internal class NotificationClient {
         return localStorage.deviceToken ?: return newDeviceToken
     }
 
-    private fun requestBody(payload: String?): RequestBody? {
+    private fun requestBody(payload: String): RequestBody {
 
-        payload?.let {
-
-            val contentType = if (it.startsWith("{")) "application/json" else "application/xml"
-            return RequestBody.create(MediaType.parse(contentType), it)
-        }
-
-        return null
+        val contentType = if (payload.startsWith("{")) HttpMediaType.Json else HttpMediaType.AtomXml
+        return RequestBody.create(MediaType.parse(contentType.value), payload)
     }
 
     //endregion

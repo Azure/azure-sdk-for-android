@@ -22,6 +22,7 @@ class AzurePush {
          * @param connectionString the `DefaultListenSharedAccess` connection string of the notification hub.
          * @exception  AzurePushError  if the connection string is invalid or malformed.
          */
+        @JvmStatic
         @Throws(AzurePushError::class)
         fun configure(context: Context, notificationHubName: String, connectionString: String) {
             NotificationClient.shared.configure(context, notificationHubName, connectionString)
@@ -43,6 +44,8 @@ class AzurePush {
          * @param completion a closure called after the registration is completed. The `Response` parameter in the closure informs whether
          *                   the registration was successful or not.
          */
+        @JvmStatic
+        @JvmOverloads
         fun registerForRemoteNotifications(deviceToken: String, tags: List<String> = listOf(), completion: (Response<Registration>) -> Unit) {
             NotificationClient.shared.registerForRemoteNotifications(deviceToken, tags, completion)
         }
@@ -60,6 +63,8 @@ class AzurePush {
          * @param completion a closure called after the registration is completed. The `Response` parameter in the closure informs whether
          *                   the registration was successful or not.
          */
+        @JvmStatic
+        @JvmOverloads
         fun registerForRemoteNotifications(deviceToken: String, template: Registration.Template, priority: String? = null, tags: List<String> = listOf(), completion: (Response<Registration>) -> Unit) {
             NotificationClient.shared.registerFormRemoteNotifications(deviceToken, template, priority, tags, completion)
         }
@@ -71,6 +76,7 @@ class AzurePush {
         /** Cancels the registration. Any push notification sent by the notification hub,
          *  matching this registration, will no longer be received by this device.
          */
+        @JvmStatic
         fun cancelRegistration(registration: Registration, completion: (Response<String>) -> Unit) {
             NotificationClient.shared.cancelRegistration(registration, completion)
         }
@@ -78,6 +84,7 @@ class AzurePush {
         /** Cancels all the registrations made with the specified device token. The device will no longer receive
          *  push notifications sent through the Azure Notification Hub.
          */
+        @JvmStatic
         fun cancelAllRegistrations(deviceToken: String, completion: (Response<String>) -> Unit) {
             NotificationClient.shared.cancelAllRegistrations(deviceToken, completion)
         }

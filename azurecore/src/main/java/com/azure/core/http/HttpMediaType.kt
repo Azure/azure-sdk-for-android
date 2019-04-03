@@ -8,5 +8,6 @@ package com.azure.core.http
 enum class HttpMediaType(val value: String) {
 
     Json("application/json"),
-    QueryJson("application/query+json")
+    QueryJson("application/query+json"),
+    AtomXml("application/atom+xml")
 }
