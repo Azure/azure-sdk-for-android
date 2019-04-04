@@ -6,6 +6,7 @@ import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.model.partition.PartitionKeyRange
 import com.azure.data.service.*
+import com.azure.data.util.json.gson
 import com.azure.data.util.json.gsonBuilder
 import com.google.gson.GsonBuilder
 import okhttp3.HttpUrl
@@ -28,7 +29,7 @@ class AzureData {
 
         @JvmStatic
         @JvmOverloads
-        fun configure(context: Context, accountName: String, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
+        fun configure(context: Context, accountName: String, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> GsonBuilder = {it}) {
 
             ContextProvider.init(context.applicationContext)
 
@@ -36,12 +37,12 @@ class AzureData {
 
             configured = true
 
-            configureGsonBuilder(gsonBuilder)
+            gson = configureGsonBuilder(gsonBuilder).create()
         }
 
         @JvmStatic
         @JvmOverloads
-        fun configure(context: Context, accountUrl: URL, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
+        fun configure(context: Context, accountUrl: URL, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> GsonBuilder = {it}) {
 
             ContextProvider.init(context.applicationContext)
 
@@ -49,12 +50,12 @@ class AzureData {
 
             configured = true
 
-            configureGsonBuilder(gsonBuilder)
+            gson = configureGsonBuilder(gsonBuilder).create()
         }
 
         @JvmStatic
         @JvmOverloads
-        fun configure(context: Context, accountUrl: HttpUrl, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
+        fun configure(context: Context, accountUrl: HttpUrl, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> GsonBuilder = {it}) {
 
             ContextProvider.init(context.applicationContext)
 
@@ -62,12 +63,12 @@ class AzureData {
 
             configured = true
 
-            configureGsonBuilder(gsonBuilder)
+            gson = configureGsonBuilder(gsonBuilder).create()
         }
 
         @JvmStatic
         @JvmOverloads
-        fun configure(context: Context, accountName: String, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
+        fun configure(context: Context, accountName: String, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> GsonBuilder = {it}) {
 
             ContextProvider.init(context.applicationContext)
 
@@ -75,12 +76,12 @@ class AzureData {
 
             configured = true
 
-            configureGsonBuilder(gsonBuilder)
+            gson = configureGsonBuilder(gsonBuilder).create()
         }
 
         @JvmStatic
         @JvmOverloads
-        fun configure(context: Context, accountUrl: URL, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
+        fun configure(context: Context, accountUrl: URL, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> GsonBuilder = {it}) {
 
             ContextProvider.init(context.applicationContext)
 
@@ -88,12 +89,12 @@ class AzureData {
 
             configured = true
 
-            configureGsonBuilder(gsonBuilder)
+            gson = configureGsonBuilder(gsonBuilder).create()
         }
 
         @JvmStatic
         @JvmOverloads
-        fun configure(context: Context, accountUrl: HttpUrl, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
+        fun configure(context: Context, accountUrl: HttpUrl, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> GsonBuilder = {it}) {
 
             ContextProvider.init(context.applicationContext)
 
@@ -101,7 +102,15 @@ class AzureData {
 
             configured = true
 
-            configureGsonBuilder(gsonBuilder)
+            gson = configureGsonBuilder(gsonBuilder).create()
+        }
+
+        @JvmStatic
+        fun reset() {
+
+            documentClient.reset()
+            gson = gsonBuilder.create()
+            configured = false
         }
 
         //endregion
