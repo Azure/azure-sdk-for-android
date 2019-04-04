@@ -77,7 +77,7 @@ class StoredProceduresFragment : ResourceListFragment<StoredProcedure>() {
 
         super.onItemClick(view, item, position)
 
-        val sproc = typedAdapter.getItem(position)
+//        val sproc = typedAdapter.getItem(position)
 
 //        val intent = Intent(activity.baseContext, CollectionActivity::class.java)
 //        intent.putExtra("db_id", databaseId)

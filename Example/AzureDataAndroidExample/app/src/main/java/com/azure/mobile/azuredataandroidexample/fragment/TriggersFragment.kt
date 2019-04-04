@@ -74,7 +74,7 @@ class TriggersFragment : ResourceListFragment<Trigger>() {
 
         super.onItemClick(view, item, position)
 
-        val trigger = typedAdapter.getItem(position)
+//        val trigger = typedAdapter.getItem(position)
 
 //        val intent = Intent(activity.baseContext, CollectionActivity::class.java)
 //        intent.putExtra("db_id", databaseId)

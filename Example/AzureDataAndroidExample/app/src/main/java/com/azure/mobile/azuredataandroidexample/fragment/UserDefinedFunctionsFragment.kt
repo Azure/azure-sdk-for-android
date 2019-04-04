@@ -74,7 +74,7 @@ class UserDefinedFunctionsFragment : ResourceListFragment<UserDefinedFunction>()
 
         super.onItemClick(view, item, position)
 
-        val udf = typedAdapter.getItem(position)
+//        val udf = typedAdapter.getItem(position)
 
 //        val intent = Intent(activity.baseContext, CollectionActivity::class.java)
 //        intent.putExtra("db_id", databaseId)
