@@ -9,6 +9,7 @@ package com.azure.data.model.partition
  * This Annotation should be applied to any Document property that will function as a partition key.
  * This should correspond with the partition key field path (e.g. /user/id) used when creating a DocumentCollection
  */
-@Target(AnnotationTarget.PROPERTY)
+@Target(AnnotationTarget.PROPERTY, AnnotationTarget.FIELD)
 @MustBeDocumented
 annotation class PartitionKey
+
