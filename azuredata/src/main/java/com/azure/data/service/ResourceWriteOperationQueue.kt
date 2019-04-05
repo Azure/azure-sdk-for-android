@@ -9,11 +9,11 @@ import com.azure.data.model.DocumentClientError
 import com.azure.data.model.Resource
 import com.azure.data.model.ResourceLocation
 import com.azure.data.model.Result
+import com.azure.data.model.service.RequestDetails
 import com.azure.data.util.ResourceOracle
 import com.azure.data.util.ancestorPath
 import com.azure.data.util.isValidIdForResource
 import com.azure.data.util.json.gson
-import okhttp3.Headers
 import okhttp3.Protocol
 import java.io.File
 import java.net.URI
@@ -145,10 +145,15 @@ class ResourceWriteOperationQueue {
     }
 
     private fun performWrite(write: ResourceWriteOperation, callback: (Response<Unit>) -> Unit) {
+
+        val requestDetails = RequestDetails(write.resourceLocation)
+        requestDetails.headers = write.httpHeaders
+
         when (write.type) {
-            ResourceWriteOperationType.Create  -> DocumentClient.shared.createOrReplace(write.resource!!, write.resourceLocation, false, write.httpHeaders, { callback(it.map { Unit }) })
-            ResourceWriteOperationType.Replace -> DocumentClient.shared.createOrReplace(write.resource!!, write.resourceLocation, true, write.httpHeaders, { callback(it.map { Unit }) })
-            ResourceWriteOperationType.Delete  -> DocumentClient.shared.delete(write.resource!!, { it.map { Unit } })
+
+            ResourceWriteOperationType.Create  -> DocumentClient.shared.createOrReplace(write.resource!!, requestDetails, false) { callback(it.map { Unit }) }
+            ResourceWriteOperationType.Replace -> DocumentClient.shared.createOrReplace(write.resource!!, requestDetails, true) { callback(it.map { Unit }) }
+            ResourceWriteOperationType.Delete  -> DocumentClient.shared.delete(write.resource!!) { it.map { Unit } }
         }
     }
 
