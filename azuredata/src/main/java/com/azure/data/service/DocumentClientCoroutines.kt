@@ -1,7 +1,6 @@
 package com.azure.data.service
 
 import com.azure.data.model.Resource
-import java.lang.reflect.Type
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
@@ -11,11 +10,11 @@ import kotlin.coroutines.suspendCoroutine
  */
 
 // next
-suspend fun <T : Resource> DocumentClient.next(response : ListResponse<T>, resourceType: Type?): ListResponse<T> =
+suspend fun <T : Resource> DocumentClient.next(response : ListResponse<T>): ListResponse<T> =
 
         suspendCoroutine { cont ->
 
-            this.next(response, resourceType) {
+            this.next(response) {
 
                 cont.resume(it)
             }

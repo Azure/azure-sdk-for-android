@@ -134,6 +134,11 @@ fun <T : Document> DocumentCollection.replaceDocument (document: T, callback: (R
     return AzureData.replaceDocument(document, this, callback)
 }
 
+// replace
+fun <T : Document> DocumentCollection.replaceDocument (document: T, partitionKey: String, callback: (Response<T>) -> Unit) {
+    return AzureData.replaceDocument(document, partitionKey, this, callback)
+}
+
 // query
 @JvmOverloads
 fun <T : Document> DocumentCollection.queryDocuments (query: Query, documentClass: Class<T>, maxPerPage: Int? = null, callback: (ListResponse<T>) -> Unit) {

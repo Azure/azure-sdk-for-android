@@ -4,8 +4,6 @@ import com.azure.data.AzureData
 import com.azure.data.model.*
 import okhttp3.Request
 import java.lang.reflect.Type
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -46,21 +44,22 @@ class ListResponse<T : Resource>(
     /**
      * Returns `true` if there are more paged results available
      */
-    val hasMoreResults : Boolean get() {
-        return !metadata.continuation.isNullOrEmpty()
-    }
+    val hasMoreResults: Boolean
+        get() {
+            return !metadata.continuation.isNullOrEmpty()
+        }
 
     /**
      * Uses the continuation found in the ListResponse metadata to fetch another page of resources from the server
      */
     fun next(callback: (ListResponse<T>) -> Unit) =
-            AzureData.documentClient.next(this, resourceType, callback)
+            AzureData.documentClient.next(this, callback)
 
     /**
      * Uses the continuation found in the ListResponse metadata to fetch another page of resources from the server
      */
     suspend fun next() =
-            AzureData.documentClient.next(this, resourceType)
+            AzureData.documentClient.next(this)
 
     /**
      * Recursively grab more pages from a ListResponse

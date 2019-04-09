@@ -21,19 +21,19 @@ typealias Pkr = PartitionKeyRange
  * Licensed under the MIT License.
  */
 
-enum class ResourceType(val path: String, fullname: String, val type: Type, val listType: Type) {
+enum class ResourceType(val path: String, fullname: String, val type: Type) {
 
-    Database("dbs",             Db.resourceName,    object : TypeToken<Db>() {}.type,       object : TypeToken<ResourceList<Db>>() {}.type),
-    User("users",               Usr.resourceName,   object : TypeToken<Usr>() {}.type,      object : TypeToken<ResourceList<Usr>>() {}.type),
-    Permission("permissions",   Perm.resourceName,  object : TypeToken<Perm>() {}.type,     object : TypeToken<ResourceList<Perm>>() {}.type),
-    Collection("colls",         Coll.resourceName,  object : TypeToken<Coll>() {}.type,     object : TypeToken<ResourceList<Coll>>() {}.type),
-    StoredProcedure("sprocs",   Sproc.resourceName, object : TypeToken<Sproc>() {}.type,    object : TypeToken<ResourceList<Sproc>>() {}.type),
-    Trigger("triggers",         Trggr.resourceName, object : TypeToken<Trggr>() {}.type,    object : TypeToken<ResourceList<Trggr>>() {}.type),
-    Udf("udfs",                 UDF.resourceName,   object : TypeToken<UDF>() {}.type,      object : TypeToken<ResourceList<UDF>>() {}.type),
-    Document("docs",            Doc.resourceName,   object : TypeToken<Doc>() {}.type,      object : TypeToken<ResourceList<Doc>>() {}.type),
-    Attachment("attachments",   Atch.resourceName,  object : TypeToken<Atch>() {}.type,     object : TypeToken<ResourceList<Atch>>() {}.type),
-    Offer("offers",             Ofr.resourceName,   object : TypeToken<Ofr>() {}.type,      object : TypeToken<ResourceList<Ofr>>() {}.type),
-    PkRanges("pkranges",        Pkr.resourceName,   object : TypeToken<Pkr>() {}.type,      object : TypeToken<ResourceList<Pkr>>() {}.type);
+    Database("dbs",             Db.resourceName,    object : TypeToken<Db>() {}.type),
+    User("users",               Usr.resourceName,   object : TypeToken<Usr>() {}.type),
+    Permission("permissions",   Perm.resourceName,  object : TypeToken<Perm>() {}.type),
+    Collection("colls",         Coll.resourceName,  object : TypeToken<Coll>() {}.type),
+    StoredProcedure("sprocs",   Sproc.resourceName, object : TypeToken<Sproc>() {}.type),
+    Trigger("triggers",         Trggr.resourceName, object : TypeToken<Trggr>() {}.type),
+    Udf("udfs",                 UDF.resourceName,   object : TypeToken<UDF>() {}.type),
+    Document("docs",            Doc.resourceName,   object : TypeToken<Doc>() {}.type),
+    Attachment("attachments",   Atch.resourceName,  object : TypeToken<Atch>() {}.type),
+    Offer("offers",             Ofr.resourceName,   object : TypeToken<Ofr>() {}.type),
+    PkRanges("pkranges",        Pkr.resourceName,   object : TypeToken<Pkr>() {}.type);
 
     val listName: String = "${fullname}s"
 
@@ -88,16 +88,11 @@ enum class ResourceType(val path: String, fullname: String, val type: Type, val 
 
     companion object {
 
-        fun<T: Resource> fromType(clazz: Class<T>) : ResourceType {
-
-            //is this a Document?
-            if (Doc::class.java.isAssignableFrom(clazz)) {
-                return Document
-            }
+        fun fromType(type: Type) : ResourceType {
 
             return ResourceType.values().find {
-                it.type == clazz
-            } ?: throw Exception("Unable to determine resource type requested")
+                it.type == type
+            } ?: Document // if no match, then we assume we're dealing with a document
         }
 
         fun fromListName(name: String) : ResourceType {

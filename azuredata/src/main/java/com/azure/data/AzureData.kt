@@ -327,7 +327,7 @@ class AzureData {
         // delete
         @JvmStatic
         fun deleteDocument(document: Document, callback: (DataResponse) -> Unit) =
-                documentClient.delete(document, callback)
+                documentClient.delete(document, null, callback)
 
         // delete
         @JvmStatic
@@ -341,12 +341,22 @@ class AzureData {
         // replace
         @JvmStatic
         fun <T : Document> replaceDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
-                documentClient.replaceDocument(document, collectionId, databaseId, callback)
+                documentClient.replaceDocument(document, null, collectionId, databaseId, callback)
+
+        // replace
+        @JvmStatic
+        fun <T : Document> replaceDocument(document: T, partitionKey: String, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
+                documentClient.replaceDocument(document, partitionKey, collectionId, databaseId, callback)
 
         // replace
         @JvmStatic
         fun <T : Document> replaceDocument(document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
-                documentClient.replaceDocument(document, collection, callback)
+                documentClient.replaceDocument(document, null, collection, callback)
+
+        // replace
+        @JvmStatic
+        fun <T : Document> replaceDocument(document: T, partitionKey: String, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
+                documentClient.replaceDocument(document, partitionKey, collection, callback)
 
         // query
         @JvmStatic
@@ -849,12 +859,22 @@ class AzureData {
         // delete
         @JvmStatic
         fun <T : Resource> delete(resource: T, callback: (DataResponse) -> Unit) =
-                documentClient.delete(resource, callback)
+                documentClient.delete(resource, null, callback)
 
         // refresh
         @JvmStatic
         fun <T : Resource> refresh(resource: T, callback: (Response<T>) -> Unit) =
-                documentClient.refresh(resource, callback)
+                documentClient.refresh(resource, null, callback)
+
+        // delete
+        @JvmStatic
+        fun <T : Resource> delete(resource: T, partitionKey: String, callback: (DataResponse) -> Unit) =
+                documentClient.delete(resource, partitionKey, callback)
+
+        // refresh
+        @JvmStatic
+        fun <T : Resource> refresh(resource: T, partitionKey: String, callback: (Response<T>) -> Unit) =
+                documentClient.refresh(resource, partitionKey, callback)
 
         //endregion
     }

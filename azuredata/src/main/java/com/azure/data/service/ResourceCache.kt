@@ -9,6 +9,7 @@ import com.azure.data.util.json.gson
 import com.azure.data.util.lastPathComponent
 import java.io.File
 import java.lang.Exception
+import java.lang.reflect.Type
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -40,6 +41,7 @@ internal class ResourceCache private constructor() {
         ResourceOracle.shared.storeLinks(resource)
 
         if (isEnabled) {
+
             executor.execute {
                 safeExecute {
 
@@ -70,6 +72,7 @@ internal class ResourceCache private constructor() {
         ResourceOracle.shared.storeLinks(resources)
 
         if (isEnabled) {
+
             executor.execute {
                 safeExecute {
 
@@ -109,7 +112,7 @@ internal class ResourceCache private constructor() {
 
     //region get
 
-    fun <T : Resource> getResourceAt(location: ResourceLocation, resourceClass: Class<T>): T? {
+    fun <T : Resource> getResourceAt(location: ResourceLocation, resourceType: Type): T? {
 
         if (!isEnabled) {
             return null
@@ -119,12 +122,12 @@ internal class ResourceCache private constructor() {
 
             ContextProvider.appContext.resourceCacheFile(location)?.let { file ->
 
-                file.bufferedReader().use { gson.fromJson<T>(decrypt(it.readText()), resourceClass) }
+                file.bufferedReader().use { gson.fromJson<T>(decrypt(it.readText()), resourceType) }
             }
         }
     }
 
-    fun <T : Resource> getResourcesAt(location: ResourceLocation, resourceClass: Class<T>): ResourceList<T>? {
+    fun <T : Resource> getResourcesAt(location: ResourceLocation, resourceType: Type): ResourceList<T>? {
 
         if (isEnabled) {
             safeExecute {
@@ -134,7 +137,7 @@ internal class ResourceCache private constructor() {
                 resources.items = ContextProvider.appContext.resourceCacheFiles(location).map { file ->
 
                     file.bufferedReader().use {
-                        gson.fromJson<T>(decrypt(it.readText()), resourceClass)
+                        gson.fromJson<T>(decrypt(it.readText()), resourceType)
                     }
                 }
 
@@ -147,7 +150,7 @@ internal class ResourceCache private constructor() {
         return null
     }
 
-    fun <T : Resource> getResourcesForQuery(query: Query, resourceClass: Class<T>): ResourceList<T>? {
+    fun <T : Resource> getResourcesForQuery(query: Query, resourceType: Type): ResourceList<T>? {
 
         if (isEnabled) {
             safeExecute {
@@ -164,12 +167,12 @@ internal class ResourceCache private constructor() {
                 resources.items = ContextProvider.appContext.resourceCacheFiles(query).map { file ->
 
                     file.bufferedReader().use {
-                        gson.fromJson<T>(decrypt(it.readText()), resourceClass)
+                        gson.fromJson<T>(decrypt(it.readText()), resourceType)
                     }
                 }
 
                 resources.count = resources.items.count()
-                resources.setAltContentLink(ResourceType.fromType(resourceClass).path, metadata.contentPath)
+                resources.setAltContentLink(ResourceType.fromType(resourceType).path, metadata.contentPath)
 
                 return resources
             }
@@ -187,6 +190,7 @@ internal class ResourceCache private constructor() {
         ResourceOracle.shared.removeLinks(resource)
 
         if (isEnabled) {
+
             safeExecute {
                 executor.execute {
                     ContextProvider.appContext.resourceCacheDir(resource)?.deleteRecursively()
@@ -200,6 +204,7 @@ internal class ResourceCache private constructor() {
         ResourceOracle.shared.removeLinks(resourceLocation)
 
         if (isEnabled && !resourceLocation.isFeed) {
+
             safeExecute {
                 executor.execute {
                     ContextProvider.appContext.resourceCacheDir(resourceLocation)?.deleteRecursively()

@@ -1,7 +1,9 @@
 package com.azure.data.model.service
 
 import com.azure.core.http.HttpMethod
+import com.azure.data.model.Resource
 import com.azure.data.model.ResourceLocation
+import java.lang.reflect.Type
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
@@ -20,7 +22,7 @@ data class RequestDetails(val resourceLocation: ResourceLocation) {
 
     var body: ByteArray? = null
 
-//    var resourceType: Type? = null
+    var resourceType: Type? = null
 
     constructor(resourceLocation: ResourceLocation, partitionKey: String?) : this(resourceLocation) {
 
@@ -35,6 +37,18 @@ data class RequestDetails(val resourceLocation: ResourceLocation) {
         } ?: run {
 
             headers = mutableMapOf(key to value)
+        }
+    }
+
+    companion object {
+
+        fun <T : Resource> fromResource(resource: T, partitionKey: String? = null): RequestDetails {
+
+            val details = RequestDetails(ResourceLocation.Resource(resource))
+            details.resourceType = resource::class.java
+            details.partitionKey = partitionKey
+
+            return details
         }
     }
 }
