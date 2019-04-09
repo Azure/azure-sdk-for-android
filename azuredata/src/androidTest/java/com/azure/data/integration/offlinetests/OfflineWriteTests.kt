@@ -1,6 +1,7 @@
 package com.azure.data.integration.offlinetests
 
 import android.support.test.runner.AndroidJUnit4
+import com.azure.core.http.HttpStatusCode
 import com.azure.data.AzureData
 import com.azure.data.integration.common.CustomDocument
 import com.azure.data.integration.common.DocumentTest
@@ -13,7 +14,7 @@ import org.junit.runner.RunWith
 import org.junit.Assert.*
 
 @RunWith(AndroidJUnit4::class)
-class OfflineWriteTests: DocumentTest<PartitionedCustomDocment>("OfflineWriteTests", PartitionedCustomDocment::class.java) {
+class OfflineWriteTests: DocumentTest<PartitionedCustomDocment>("OfflineWriteTests", PartitionedCustomDocment::class.java, false, false) {
 
     @Test
     fun resourcesAreCreatedLocallyWhenTheNetworkIsNotReachable() {
@@ -70,7 +71,7 @@ class OfflineWriteTests: DocumentTest<PartitionedCustomDocment>("OfflineWriteTes
         assertTrue(conflictResponse!!.isErrored)
         assertTrue(conflictResponse!!.fromCache)
         assertNotNull(conflictResponse!!.response)
-        assertEquals(conflictResponse!!.response!!.code(), 409)
+        assertEquals(HttpStatusCode.Conflict.code, conflictResponse!!.response!!.code())
     }
 
     @Test
@@ -93,7 +94,7 @@ class OfflineWriteTests: DocumentTest<PartitionedCustomDocment>("OfflineWriteTes
         assertTrue(replaceResponse!!.isErrored)
         assertTrue(replaceResponse!!.fromCache)
         assertNotNull(replaceResponse!!.response)
-        assertEquals(replaceResponse!!.response!!.code(), 404)
+        assertEquals(HttpStatusCode.NotFound.code, replaceResponse!!.response!!.code())
     }
 
     @Test
@@ -112,6 +113,6 @@ class OfflineWriteTests: DocumentTest<PartitionedCustomDocment>("OfflineWriteTes
         assertTrue(deleteResponse!!.isErrored)
         assertTrue(deleteResponse!!.fromCache)
         assertNotNull(deleteResponse!!.response)
-        assertEquals(deleteResponse!!.response!!.code(), 404)
+        assertEquals(HttpStatusCode.NotFound.code, deleteResponse!!.response!!.code())
     }
 }

@@ -54,27 +54,27 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>("Doc
     @Test
     fun createCollectionFromDatabase() {
 
-        database?.createCollection(createdResourceId, partitionKeyPath!!) {
+        database?.createCollection(collectionId, partitionKeyPath!!) {
             response = it
         }
 
         await().until { response != null }
 
         assertResourceResponseSuccess(response)
-        assertEquals(createdResourceId, response?.resource?.id)
+        assertEquals(collectionId, response?.resource?.id)
     }
 
     @Test
     fun createCollectionFromDatabaseWithThroughput() {
 
-        database?.createCollection(createdResourceId, HttpHeaderValue.minDatabaseThroughput, partitionKeyPath!!) {
+        database?.createCollection(collectionId, HttpHeaderValue.minDatabaseThroughput, partitionKeyPath!!) {
             response = it
         }
 
         await().until { response != null }
 
         assertResourceResponseSuccess(response)
-        assertEquals(createdResourceId, response?.resource?.id)
+        assertEquals(collectionId, response?.resource?.id)
     }
 
     @Test
@@ -112,14 +112,14 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>("Doc
 
         ensureCollection()
 
-        AzureData.getCollection(createdResourceId, databaseId) {
+        AzureData.getCollection(collectionId, databaseId) {
             response = it
         }
 
         await().until { response != null }
 
         assertResourceResponseSuccess(response)
-        assertEquals(createdResourceId, response?.resource?.id)
+        assertEquals(collectionId, response?.resource?.id)
     }
 
     @Test
@@ -127,14 +127,14 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>("Doc
 
         ensureCollection()
 
-        database?.getCollection(createdResourceId) {
+        database?.getCollection(collectionId) {
             response = it
         }
 
         await().until { response != null }
 
         assertResourceResponseSuccess(response)
-        assertEquals(createdResourceId, response?.resource?.id)
+        assertEquals(collectionId, response?.resource?.id)
     }
 
     @Test
@@ -145,10 +145,6 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>("Doc
         coll.refresh {
             response = it
         }
-
-//        AzureData.refresh(coll) {
-//            response = it
-//        }
 
         await().until { response != null }
 
@@ -232,7 +228,7 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>("Doc
         await().until { response != null }
 
         assertResourceResponseSuccess(response)
-        assertEquals(createdResourceId, response?.resource?.id)
+        assertEquals(collectionId, response?.resource?.id)
 
         val newPolicy = response?.resource?.indexingPolicy!!
 

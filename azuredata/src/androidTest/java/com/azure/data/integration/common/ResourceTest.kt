@@ -92,7 +92,6 @@ open class ResourceTest<TResource : Resource>(resourceName: String,
         i { "********* Begin Test Tear Down *********" }
 
         deleteResources()
-
         purgeCache()
 
         i { "********* End Test Tear Down *********" }

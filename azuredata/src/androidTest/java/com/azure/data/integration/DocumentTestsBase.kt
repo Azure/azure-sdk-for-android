@@ -91,8 +91,16 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
 
         var docResponse: Response<TDoc>? = null
 
-        AzureData.createOrUpdateDocument(doc, collectionId, databaseId) {
-            docResponse = it
+        partitionKeyValue?.let {
+
+            AzureData.createOrUpdateDocument(doc, partitionKeyValue!!, collectionId, databaseId) {
+                docResponse = it
+            }
+        } ?: run {
+
+            AzureData.createOrUpdateDocument(doc, collectionId, databaseId) {
+                docResponse = it
+            }
         }
 
         await().until { docResponse != null }
@@ -235,9 +243,11 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
 
         val doc = createNewDocument()
 
-        if (doc is PartitionedCustomDocment) {
+        val partitionKeyValue = partitionKeyValue ?: (doc as? PartitionedCustomDocment)?.testKey
 
-            AzureData.getDocument(createdResourceId, doc.testKey, collectionId, databaseId, docType) {
+        if (partitionKeyValue != null) {
+
+            AzureData.getDocument(createdResourceId, partitionKeyValue, collectionId, databaseId, docType) {
                 response = it
             }
         }
@@ -263,9 +273,11 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
 
         val doc = createNewDocument()
 
-        if (doc is PartitionedCustomDocment) {
+        val partitionKeyValue = partitionKeyValue ?: (doc as? PartitionedCustomDocment)?.testKey
 
-            collection?.getDocument(doc.id, doc.testKey, docType) {
+        if (partitionKeyValue != null) {
+
+            collection?.getDocument(doc.id, partitionKeyValue, docType) {
                 response = it
             }
         }
@@ -291,8 +303,16 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
 
         val doc = createNewDocument()
 
-        doc.refresh {
-            response = it
+        partitionKeyValue?.let {
+
+            AzureData.refresh(doc, partitionKeyValue!!) {
+                response = it
+            }
+        } ?: run {
+
+            doc.refresh {
+                response = it
+            }
         }
 
         await().until {
@@ -310,8 +330,16 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
 
         val doc = createNewDocument()
 
-        doc.delete {
-            dataResponse = it
+        partitionKeyValue?.let {
+
+            AzureData.delete(doc, partitionKeyValue!!) {
+                dataResponse = it
+            }
+        } ?: run {
+
+            doc.delete {
+                dataResponse = it
+            }
         }
 
         await().until {
@@ -326,8 +354,17 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
 
         val doc = createNewDocument()
 
-        collection?.deleteDocument(doc) {
-            dataResponse = it
+        partitionKeyValue?.let {
+
+            AzureData.delete(doc, partitionKeyValue!!) {
+                dataResponse = it
+            }
+
+        } ?: run {
+
+            collection?.deleteDocument(doc) {
+                dataResponse = it
+            }
         }
 
         await().until {
@@ -345,8 +382,16 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
         val doc = createNewDocument()
         doc.customString = replacedStringValue
 
-        AzureData.replaceDocument(doc, collectionId, databaseId) {
-            response = it
+        partitionKeyValue?.let {
+
+            AzureData.replaceDocument(doc, partitionKeyValue!!, collectionId, databaseId) {
+                response = it
+            }
+        } ?: run {
+
+            AzureData.replaceDocument(doc, collectionId, databaseId) {
+                response = it
+            }
         }
 
         await().until {
@@ -365,8 +410,16 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
         val doc = createNewDocument()
         doc.customString = replacedStringValue
 
-        collection?.replaceDocument(doc) {
-            response = it
+        partitionKeyValue?.let {
+
+            collection?.replaceDocument(doc, partitionKeyValue!!) {
+                response = it
+            }
+        } ?: run {
+
+            collection?.replaceDocument(doc) {
+                response = it
+            }
         }
 
         await().until {
