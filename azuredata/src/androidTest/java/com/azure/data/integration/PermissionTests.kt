@@ -5,6 +5,7 @@ import com.azure.core.log.d
 import com.azure.data.*
 import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.*
+import com.azure.data.model.service.ResourceType
 import com.azure.data.service.DataResponse
 import com.azure.data.service.Response
 import org.awaitility.Awaitility.await

@@ -1,6 +1,5 @@
 package com.azure.data.model.service
 
-import com.azure.data.model.ResourceType
 import com.azure.data.util.ResourceOracle
 import com.azure.data.util.ancestorIds
 import com.azure.data.util.lastPathComponent

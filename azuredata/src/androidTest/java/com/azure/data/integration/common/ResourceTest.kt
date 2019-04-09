@@ -8,6 +8,7 @@ import com.azure.core.log.startLogging
 import com.azure.data.AzureData
 import com.azure.data.integration.offlinetests.mocks.MockOkHttpClient
 import com.azure.data.model.*
+import com.azure.data.model.service.ResourceType
 import com.azure.data.service.*
 import okhttp3.OkHttpClient
 import org.awaitility.Awaitility.await

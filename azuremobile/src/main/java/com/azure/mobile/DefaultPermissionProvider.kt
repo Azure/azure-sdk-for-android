@@ -3,7 +3,7 @@ package com.azure.mobile
 import com.azure.data.model.service.DataError
 import com.azure.data.model.Permission
 import com.azure.data.model.PermissionMode
-import com.azure.data.model.ResourceType
+import com.azure.data.model.service.ResourceType
 import com.azure.data.service.getSelfLink
 import com.azure.data.service.PermissionProvider
 import com.azure.data.service.PermissionProviderConfiguration

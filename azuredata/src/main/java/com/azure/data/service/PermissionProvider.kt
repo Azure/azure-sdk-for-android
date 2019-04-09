@@ -4,6 +4,7 @@ import com.azure.data.model.*
 import com.azure.core.util.ContextProvider
 import com.azure.data.model.service.DataError
 import com.azure.data.model.service.ResourceLocation
+import com.azure.data.model.service.ResourceType
 import com.azure.data.util.ResourceOracle
 import com.azure.data.util.ancestorIds
 import java.util.*

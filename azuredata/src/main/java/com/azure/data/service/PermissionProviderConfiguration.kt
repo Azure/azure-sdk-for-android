@@ -1,7 +1,7 @@
 package com.azure.data.service
 
 import com.azure.data.model.PermissionMode
-import com.azure.data.model.ResourceType
+import com.azure.data.model.service.ResourceType
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
