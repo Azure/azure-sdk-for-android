@@ -2,7 +2,6 @@ package com.azure.data.model.service
 
 import com.azure.core.http.HttpMethod
 import com.azure.data.model.Resource
-import com.azure.data.model.ResourceLocation
 import java.lang.reflect.Type
 
 /**

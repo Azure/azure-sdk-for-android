@@ -1,7 +1,7 @@
 package com.azure.data.service
 
 import com.azure.data.model.Resource
-import com.azure.data.model.ResourceLocation
+import com.azure.data.model.service.ResourceLocation
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.

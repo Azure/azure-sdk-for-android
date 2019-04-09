@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import com.azure.core.util.MapCompat
 import com.azure.data.model.*
+import com.azure.data.model.service.ResourceLocation
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.

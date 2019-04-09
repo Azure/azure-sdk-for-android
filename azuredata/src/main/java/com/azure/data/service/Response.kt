@@ -1,8 +1,8 @@
 package com.azure.data.service
 
-import com.azure.data.model.*
 import com.azure.data.model.service.DataError
 import com.azure.data.model.service.DocumentClientError
+import com.azure.data.model.service.ResourceLocation
 import com.azure.data.model.service.Result
 import okhttp3.Request
 import java.lang.reflect.Type

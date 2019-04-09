@@ -5,7 +5,7 @@ import com.azure.core.http.HttpMethod
 import com.azure.core.util.DateUtil
 import com.azure.core.util.urlEncode
 import com.azure.data.model.PermissionMode
-import com.azure.data.model.ResourceLocation
+import com.azure.data.model.service.ResourceLocation
 import com.azure.data.model.service.ResourceToken
 import java.util.*
 
