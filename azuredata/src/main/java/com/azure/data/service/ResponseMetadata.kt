@@ -16,7 +16,7 @@ open class ResponseMetadata(response: okhttp3.Response?) {
     /**
      * The unique identifier of the operation.
      */
-    val activityId : String? = response?.header(MSHttpHeader.MSActivityId.value)
+    val activityId: String? = response?.header(MSHttpHeader.MSActivityId.value)
 
     /**
      * The alternate path to the resource constructed using user-supplied IDs.
@@ -38,7 +38,7 @@ open class ResponseMetadata(response: okhttp3.Response?) {
     /**
      * The date time of the response operation.
      */
-    val date: Date? = response?.header(HttpHeader.Date.value)?.let{dateFromRfc1123(it)}
+    val date: Date? = response?.header(HttpHeader.Date.value)?.let { dateFromRfc1123(it) }
 
     /**
      * The `etag` of the resource retrieved.
@@ -77,29 +77,33 @@ open class ResponseMetadata(response: okhttp3.Response?) {
      */
     val schemaVersion: String? = response?.header(MSHttpHeader.MSSchemaVersion.value)
             ?.split("=")
-            ?.let { when {
-                (it.size==1) -> it[0]
-                (it.size>1)  -> it[1]
-                else -> null
-            }}
+            ?.let {
+                when {
+                    (it.size == 1) -> it[0]
+                    (it.size > 1) -> it[1]
+                    else -> null
+                }
+            }
 
     /**
      * The service version number.
      */
     val serviceVersion: String? = response?.header(MSHttpHeader.MSServiceVersion.value)
             ?.split("=")
-            ?.let { when {
-                (it.size==1) -> it[0]
-                (it.size>1)  -> it[1]
-                else -> null
-            }}
+            ?.let {
+                when {
+                    (it.size == 1) -> it[0]
+                    (it.size > 1) -> it[1]
+                    else -> null
+                }
+            }
 
     /**
      * The session token of the request.
      */
     val sessionToken: String? = response?.header(MSHttpHeader.MSSessionToken.value)
 
-    class Metrics(usage : String?) {
+    class Metrics(usage: String?) {
 
         /**
          * The number of collections within an Azure CosmosDB account.
@@ -143,17 +147,19 @@ open class ResponseMetadata(response: okhttp3.Response?) {
 
         init {
             usage?.split(";")
-                    ?.map{it.split("=")}
-                    ?.forEach { when(it[0]) {
-                        "collections" -> collections = it[1].toInt()
-                        "collectionSize" -> collectionSize = it[1].toInt()
-                        "documentsCount" -> documents = it[1].toInt()
-                        "documentSize" -> documentSize = it[1].toInt()
-                        "documentsSize" -> documentsSize = it[1].toInt()
-                        "functions" -> functions = it[1].toInt()
-                        "storedProcedures" -> storedProcedures = it[1].toInt()
-                        "triggers" -> triggers = it[1].toInt()
-                    } }
+                    ?.map { it.split("=") }
+                    ?.forEach {
+                        when (it[0]) {
+                            "collections" -> collections = it[1].toInt()
+                            "collectionSize" -> collectionSize = it[1].toInt()
+                            "documentsCount" -> documents = it[1].toInt()
+                            "documentSize" -> documentSize = it[1].toInt()
+                            "documentsSize" -> documentsSize = it[1].toInt()
+                            "functions" -> functions = it[1].toInt()
+                            "storedProcedures" -> storedProcedures = it[1].toInt()
+                            "triggers" -> triggers = it[1].toInt()
+                        }
+                    }
         }
 
     }
