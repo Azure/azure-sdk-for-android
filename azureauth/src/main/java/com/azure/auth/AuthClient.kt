@@ -1,6 +1,7 @@
 package com.azure.auth
 
 import android.content.Context
+import com.azure.core.http.HttpScheme
 import com.azure.core.log.d
 import com.azure.core.log.e
 import com.azure.core.util.ContextProvider.Companion.appContext
@@ -35,7 +36,7 @@ internal class AuthClient {
 
     internal fun login(urlString: String, provider: IdentityProvider, callback: (Response<AuthUser>) -> Unit) {
         val url = HttpUrl.Builder()
-                .scheme("https")
+                .scheme(HttpScheme.Https.toString())
                 .host(urlString)
                 .addPathSegment(provider.tokenPath)
                 .build()
@@ -52,7 +53,7 @@ internal class AuthClient {
 
     internal fun refresh(urlString: String, callback: (Response<AuthUser>) -> Unit) {
         val url = HttpUrl.Builder()
-                .scheme("https")
+                .scheme(HttpScheme.Https.toString())
                 .host(urlString)
                 .addPathSegment(IdentityProvider.refreshPath)
                 .build()
