@@ -6,7 +6,7 @@ import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.*
 import com.azure.data.service.ListResponse
 import com.azure.data.service.PartitionKeyPropertyCache
-import com.azure.data.service.Response
+import com.azure.data.model.service.Response
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request

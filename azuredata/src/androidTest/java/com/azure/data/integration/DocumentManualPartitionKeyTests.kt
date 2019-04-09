@@ -3,7 +3,7 @@ package com.azure.data.integration
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.AzureData
 import com.azure.data.integration.common.CustomDocument
-import com.azure.data.service.Response
+import com.azure.data.model.service.Response
 import org.awaitility.Awaitility.await
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull

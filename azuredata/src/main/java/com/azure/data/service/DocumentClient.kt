@@ -16,6 +16,7 @@ import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.model.partition.PartitionKeyRange
 import com.azure.data.model.partition.PartitionKeyResource
 import com.azure.data.model.service.*
+import com.azure.data.model.service.Response
 import com.azure.data.util.*
 import com.azure.data.util.json.ResourceListJsonDeserializer
 import com.azure.data.util.json.gson

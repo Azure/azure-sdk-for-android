@@ -1,6 +1,6 @@
 package com.azure.auth
 
-import com.azure.data.service.Response
+import com.azure.data.model.service.Response
 import okhttp3.Request
 
 /**

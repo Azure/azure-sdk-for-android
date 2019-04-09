@@ -5,6 +5,8 @@ import com.azure.core.util.ContextProvider
 import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.model.partition.PartitionKeyRange
+import com.azure.data.model.service.DataResponse
+import com.azure.data.model.service.Response
 import com.azure.data.service.*
 import com.azure.data.util.json.gson
 import com.azure.data.util.json.gsonBuilder

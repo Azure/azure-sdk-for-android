@@ -7,6 +7,8 @@ import com.azure.data.integration.common.CustomDocument
 import com.azure.data.integration.common.DocumentTest
 import com.azure.data.integration.common.PartitionedCustomDocment
 import com.azure.data.model.Database
+import com.azure.data.model.service.DataResponse
+import com.azure.data.model.service.Response
 import com.azure.data.service.*
 import org.junit.Test
 import org.awaitility.Awaitility.*

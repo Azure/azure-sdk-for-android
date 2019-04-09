@@ -7,9 +7,9 @@ import com.azure.core.log.d
 import com.azure.core.log.startLogging
 import com.azure.data.*
 import com.azure.data.model.*
-import com.azure.data.service.DataResponse
+import com.azure.data.model.service.DataResponse
 import com.azure.data.service.ListResponse
-import com.azure.data.service.Response
+import com.azure.data.model.service.Response
 import org.awaitility.Awaitility.await
 import org.junit.Assert.*
 import org.junit.Before

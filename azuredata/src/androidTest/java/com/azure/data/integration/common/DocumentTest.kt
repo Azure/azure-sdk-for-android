@@ -2,7 +2,7 @@ package com.azure.data.integration.common
 
 import com.azure.data.*
 import com.azure.data.model.*
-import com.azure.data.service.Response
+import com.azure.data.model.service.Response
 import org.junit.Assert.*
 import org.awaitility.Awaitility.await
 import org.junit.Rule
