@@ -1,6 +1,6 @@
 package com.azure.mobile
 
-import com.azure.data.model.DataError
+import com.azure.data.model.service.DataError
 import com.azure.data.model.Permission
 import com.azure.data.model.PermissionMode
 import com.azure.data.model.ResourceType

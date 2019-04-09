@@ -1,5 +1,7 @@
 package com.azure.data.model
 
+import com.azure.data.model.service.DataError
+
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.

@@ -15,6 +15,7 @@ import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.model.partition.PartitionKeyRange
 import com.azure.data.model.partition.PartitionKeyResource
+import com.azure.data.model.service.DataError
 import com.azure.data.model.service.RequestDetails
 import com.azure.data.util.*
 import com.azure.data.util.json.ResourceListJsonDeserializer
@@ -22,7 +23,6 @@ import com.azure.data.util.json.gson
 import getDefaultHeaders
 import okhttp3.*
 import java.io.IOException
-import java.lang.reflect.Type
 import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
