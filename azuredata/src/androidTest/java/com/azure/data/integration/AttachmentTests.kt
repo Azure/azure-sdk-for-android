@@ -4,7 +4,7 @@ import android.support.test.runner.AndroidJUnit4
 import com.azure.data.*
 import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.*
-import com.azure.data.service.ListResponse
+import com.azure.data.model.service.ListResponse
 import com.azure.data.service.PartitionKeyPropertyCache
 import com.azure.data.model.service.Response
 import okhttp3.HttpUrl

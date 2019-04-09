@@ -6,6 +6,7 @@ import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.model.partition.PartitionKeyRange
 import com.azure.data.model.service.DataResponse
+import com.azure.data.model.service.ListResponse
 import com.azure.data.model.service.Response
 import com.azure.data.service.*
 import com.azure.data.util.json.gson

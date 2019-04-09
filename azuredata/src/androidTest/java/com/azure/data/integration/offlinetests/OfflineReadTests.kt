@@ -11,7 +11,7 @@ import com.azure.data.model.DocumentCollection
 import com.azure.data.model.Query
 import com.azure.data.model.Resource
 import com.azure.data.model.service.DataResponse
-import com.azure.data.service.ListResponse
+import com.azure.data.model.service.ListResponse
 import com.azure.data.model.service.Response
 import com.azure.data.service.resourceCacheFile
 import org.awaitility.Awaitility.await

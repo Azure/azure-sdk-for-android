@@ -9,6 +9,7 @@ import com.azure.data.AzureData
 import com.azure.data.integration.offlinetests.mocks.MockOkHttpClient
 import com.azure.data.model.*
 import com.azure.data.model.service.DataResponse
+import com.azure.data.model.service.ListResponse
 import com.azure.data.model.service.ResourceType
 import com.azure.data.model.service.Response
 import com.azure.data.service.*
