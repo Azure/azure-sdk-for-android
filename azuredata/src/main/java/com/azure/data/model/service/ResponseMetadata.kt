@@ -1,4 +1,4 @@
-package com.azure.data.service
+package com.azure.data.model.service
 
 import com.azure.core.http.HttpHeader
 import com.azure.core.util.dateFromRfc1123

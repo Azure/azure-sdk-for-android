@@ -8,7 +8,7 @@ package com.azure.data
 import com.azure.core.http.HttpHeader
 import com.azure.core.util.dateFromRfc1123
 import com.azure.data.constants.MSHttpHeader
-import com.azure.data.service.ResponseMetadata
+import com.azure.data.model.service.ResponseMetadata
 import okhttp3.Protocol
 import okhttp3.Request
 import org.junit.After
