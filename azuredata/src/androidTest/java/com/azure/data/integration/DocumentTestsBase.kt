@@ -5,7 +5,7 @@ import com.azure.data.*
 import com.azure.data.integration.common.CustomDocument
 import com.azure.data.integration.common.DocumentTest
 import com.azure.data.integration.common.PartitionedCustomDocment
-import com.azure.data.model.DocumentClientError
+import com.azure.data.model.service.DocumentClientError
 import com.azure.data.service.ListResponse
 import com.azure.data.service.Response
 import com.azure.data.util.json.gson

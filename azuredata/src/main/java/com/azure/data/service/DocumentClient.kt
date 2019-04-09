@@ -16,6 +16,7 @@ import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.model.partition.PartitionKeyRange
 import com.azure.data.model.partition.PartitionKeyResource
 import com.azure.data.model.service.DataError
+import com.azure.data.model.service.DocumentClientError
 import com.azure.data.model.service.RequestDetails
 import com.azure.data.util.*
 import com.azure.data.util.json.ResourceListJsonDeserializer

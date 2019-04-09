@@ -1,7 +1,6 @@
 package com.azure.data.model.service
 
 import com.azure.core.http.HttpStatusCode
-import com.azure.data.model.DocumentClientError
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
