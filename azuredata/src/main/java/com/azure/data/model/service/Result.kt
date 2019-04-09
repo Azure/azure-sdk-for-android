@@ -1,6 +1,4 @@
-package com.azure.data.model
-
-import com.azure.data.model.service.DataError
+package com.azure.data.model.service
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.

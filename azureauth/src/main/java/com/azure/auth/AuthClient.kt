@@ -6,7 +6,7 @@ import com.azure.core.log.d
 import com.azure.core.log.e
 import com.azure.core.util.ContextProvider.Companion.appContext
 import com.azure.data.model.service.DataError
-import com.azure.data.model.Result
+import com.azure.data.model.service.Result
 import com.azure.data.service.Response
 import com.azure.data.util.json.gson
 import com.azure.data.util.toError
