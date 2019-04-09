@@ -8,7 +8,7 @@ import com.azure.data.model.*
 import com.azure.data.model.spatial.LineString
 import com.azure.data.model.spatial.Point
 import com.azure.data.model.spatial.Polygon
-import com.azure.data.service.ResourceWriteOperation
+import com.azure.data.model.service.ResourceWriteOperation
 import java.util.*
 
 /**

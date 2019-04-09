@@ -5,12 +5,8 @@ import android.content.Intent
 import com.azure.core.http.HttpStatusCode
 import com.azure.core.util.ContextProvider
 import com.azure.data.constants.MSHttpHeader
-import com.azure.data.model.service.DataError
-import com.azure.data.model.service.DocumentClientError
 import com.azure.data.model.Resource
-import com.azure.data.model.service.ResourceLocation
-import com.azure.data.model.service.Result
-import com.azure.data.model.service.RequestDetails
+import com.azure.data.model.service.*
 import com.azure.data.util.ResourceOracle
 import com.azure.data.util.ancestorPath
 import com.azure.data.util.isValidIdForResource

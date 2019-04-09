@@ -1,7 +1,7 @@
-package com.azure.data.service
+package com.azure.data.model.service
 
 import com.azure.data.model.Resource
-import com.azure.data.model.service.ResourceLocation
+import com.azure.data.service.ResourceWriteOperationType
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
