@@ -3,7 +3,7 @@ package com.azure.data.util.json
 import com.azure.data.model.Resource
 import com.azure.data.model.service.ResourceLocation
 import com.azure.data.model.service.ResourceWriteOperation
-import com.azure.data.service.ResourceWriteOperationType
+import com.azure.data.model.service.ResourceWriteOperationType
 import com.google.gson.*
 import java.lang.reflect.Type
 
