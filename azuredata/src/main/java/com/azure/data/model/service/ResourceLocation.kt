@@ -14,12 +14,12 @@ import com.azure.data.util.lastPathComponentRemoved
  *  The logical location of 1) a resource or feed and the and 2) the resource for which permissions are required
 
 - Remark:
-`path` refers to the logical location of the resource or feed of a coorisponding CRUD operation
+`path` refers to the logical location of the resource or feed of a corresponding CRUD operation
 `link` refers to the logical location of the the resource the operation is acting on (thus need permissions for)
 
 - Example: Listing all documents in a collection:
 `let location: ResourceLocation = .document(databaseId: "MyDatabase", collectionId: "MyCollection", id: nil)`
-`location.path // "dbs/MyDatabase/colls/MyCollection/docs" (the locaiton of the documents feed)`
+`location.path // "dbs/MyDatabase/colls/MyCollection/docs" (the location of the documents feed)`
 `location.link // "dbs/MyDatabase/colls/MyCollection" (the location of the collection itself)`
 
 - Example: Get a single existing document from the collection:
