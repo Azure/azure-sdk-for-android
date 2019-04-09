@@ -3,6 +3,7 @@ package com.azure.data.service
 import com.azure.data.model.*
 import com.azure.core.util.ContextProvider
 import com.azure.data.model.service.DataError
+import com.azure.data.model.service.PermissionProviderError
 import com.azure.data.model.service.ResourceLocation
 import com.azure.data.model.service.ResourceType
 import com.azure.data.util.ResourceOracle

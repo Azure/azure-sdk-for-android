@@ -7,7 +7,7 @@ import com.azure.data.model.service.ResourceType
 import com.azure.data.service.getSelfLink
 import com.azure.data.service.PermissionProvider
 import com.azure.data.service.PermissionProviderConfiguration
-import com.azure.data.service.PermissionProviderError
+import com.azure.data.model.service.PermissionProviderError
 import com.azure.data.service.Response
 import com.azure.data.util.json.gson
 import okhttp3.*
