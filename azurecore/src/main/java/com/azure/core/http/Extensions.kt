@@ -26,6 +26,7 @@ fun HttpMethod.toBuilder(body: RequestBody? = null): Request.Builder {
         HttpMethod.Put -> Request.Builder().put(body!!)
         HttpMethod.Delete -> Request.Builder().delete()
         HttpMethod.Head -> Request.Builder().head()
+        HttpMethod.Options -> Request.Builder()
     }
 }
 
@@ -38,5 +39,6 @@ fun Request.Builder.withMethod(method: HttpMethod, body: RequestBody? = null): R
         HttpMethod.Put -> this.put(body!!)
         HttpMethod.Delete -> this.delete()
         HttpMethod.Head -> this.head()
+        HttpMethod.Options -> this
     }
 }

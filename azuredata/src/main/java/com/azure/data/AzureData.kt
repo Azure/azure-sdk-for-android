@@ -511,6 +511,16 @@ class AzureData {
         fun replaceAttachment(attachmentId: String, contentType: String, media: ByteArray, document: Document, callback: (Response<Attachment>) -> Unit) =
                 documentClient.replaceAttachment(attachmentId, contentType, media, document, callback)
 
+        // Get media
+        @JvmStatic
+        fun getAttachmentMedia(attachmentId: String, document: Document, callback: (Response<ByteArray>) -> Unit) =
+                documentClient.getAttachmentMedia(attachmentId, document, callback)
+
+        // Get media
+        @JvmStatic
+        fun getAttachmentMedia(attachment: Attachment, document: Document, callback: (Response<ByteArray>) -> Unit) =
+                documentClient.getAttachmentMedia(attachment, document, callback)
+
         //endregion
 
         //region Stored Procedures

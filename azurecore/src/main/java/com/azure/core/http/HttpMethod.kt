@@ -11,7 +11,8 @@ enum class HttpMethod {
     Head,
     Post,
     Put,
-    Delete;
+    Delete,
+    Options;
 
     fun isRead() : Boolean = this == Get || this == Head
 
@@ -19,11 +20,12 @@ enum class HttpMethod {
 
     override fun toString(): String {
         return when (this) {
-            Get    -> "GET"
-            Head   -> "HEAD"
-            Post   -> "POST"
-            Put    -> "PUT"
-            Delete -> "DELETE"
+            Get     -> "GET"
+            Head    -> "HEAD"
+            Post    -> "POST"
+            Put     -> "PUT"
+            Delete  -> "DELETE"
+            Options -> "OPTIONS"
         }
     }
 }

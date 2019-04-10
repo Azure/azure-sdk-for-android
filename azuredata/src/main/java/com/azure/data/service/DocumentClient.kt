@@ -601,6 +601,37 @@ class DocumentClient private constructor() {
         return createOrReplace(requestDetails, true, callback)
     }
 
+    fun getAttachmentMedia(attachmentId: String, document: Document, callback: (Response<ByteArray>) -> Unit) {
+
+        val requestDetails = RequestDetails(ResourceLocation.Child(ResourceType.Attachment, document, attachmentId))
+        requestDetails.headers = setResourcePartitionKey(document)
+
+        resource<Attachment>(requestDetails) { response ->
+
+            if (response.isSuccessful) {
+
+                response.resource?.let {
+
+                    getAttachmentMedia(it, document, callback)
+                }
+            } else {
+
+                callback(Response(response.error!!))
+            }
+        }
+    }
+
+    fun getAttachmentMedia(attachment: Attachment, document: Document, callback: (Response<ByteArray>) -> Unit) {
+
+        val mediaLink = attachment.mediaLink
+        val requestDetails = RequestDetails(ResourceLocation.MediaLink(mediaLink!!, attachment.resourceId!!))
+        requestDetails.headers = setResourcePartitionKey(document)
+        requestDetails.addHeader(HttpHeader.Accept.value, HttpMediaType.Any.value)
+        requestDetails.addHeader(HttpHeader.CacheControl.value, HttpHeaderValue.noCache)
+
+        return getMedia(requestDetails, callback)
+    }
+
     //endregion
 
     //region Stored Procedures
@@ -1286,6 +1317,17 @@ class DocumentClient private constructor() {
         }
     }
 
+    // get media bytes
+    private fun getMedia(requestDetails: RequestDetails, callback: (Response<ByteArray>) -> Unit) {
+
+        requestDetails.method = HttpMethod.Get
+
+        createRequest(requestDetails) { request ->
+
+            sendByteRequest(request, callback)
+        }
+    }
+
     //endregion
 
     //region Network plumbing
@@ -1481,12 +1523,35 @@ class DocumentClient private constructor() {
                             e(ex)
                             isOffline = true
 
-                            return callback(Response(DataError(DocumentClientError.InternetConnectivityError), request))
+                            callback(Response(DataError(DocumentClientError.InternetConnectivityError), request))
                         }
 
                         @Throws(IOException::class)
                         override fun onResponse(call: Call, response: okhttp3.Response) =
                                 callback(processDataResponse(request, requestDetails.resourceLocation, response))
+                    })
+        } catch (ex: Exception) {
+            e(ex)
+            callback(Response(DataError(ex), request))
+        }
+    }
+
+    private inline fun sendByteRequest(request: Request, crossinline callback: (Response<ByteArray>) -> Unit) {
+
+        try {
+            client.newCall(request)
+                    .enqueue(object : Callback {
+
+                        override fun onFailure(call: Call, ex: IOException) {
+                            e(ex)
+                            isOffline = true
+
+                            callback(Response(DataError(DocumentClientError.InternetConnectivityError), request))
+                        }
+
+                        @Throws(IOException::class)
+                        override fun onResponse(call: Call, response: okhttp3.Response) =
+                                callback(processByteResponse(request, response))
                     })
         } catch (ex: Exception) {
             e(ex)
@@ -1716,14 +1781,6 @@ class DocumentClient private constructor() {
         }
     }
 
-    private fun setResourceMetadata(response: okhttp3.Response, resource: ResourceBase, resourceType: ResourceType) {
-
-        //grab & store alt Link and persist alt link <-> self link mapping
-        val altContentPath = response.header(MSHttpHeader.MSAltContentPath.value, null)
-        resource.setAltContentLink(resourceType.path, altContentPath)
-        ResourceOracle.shared.storeLinks(resource)
-    }
-
     private fun processDataResponse(request: Request, resourceLocation: ResourceLocation, response: okhttp3.Response): DataResponse {
 
         try {
@@ -1739,12 +1796,43 @@ class DocumentClient private constructor() {
                 }
 
                 DataResponse(request, response, responseBodyString, Result(responseBodyString))
+
             } else {
+
                 Response(responseBodyString.toError(), request, response, responseBodyString)
             }
         } catch (e: Exception) {
             return Response(DataError(e), request, response)
         }
+    }
+
+    private fun processByteResponse(request: Request, response: okhttp3.Response): Response<ByteArray> {
+
+        try {
+            val body = response.body()
+                    ?: return Response(DataError("Empty response body received"), request, response)
+
+            //check http return code
+            return if (response.isSuccessful) {
+
+                Response(request, response, "{}", Result(body.bytes()))
+
+            } else {
+
+                val responseBodyString = body.string()
+                Response(responseBodyString.toError(), request, response, responseBodyString)
+            }
+        } catch (e: Exception) {
+            return Response(DataError(e), request, response)
+        }
+    }
+
+    private fun setResourceMetadata(response: okhttp3.Response, resource: ResourceBase, resourceType: ResourceType) {
+
+        //grab & store alt Link and persist alt link <-> self link mapping
+        val altContentPath = response.header(MSHttpHeader.MSAltContentPath.value, null)
+        resource.setAltContentLink(resourceType.path, altContentPath)
+        ResourceOracle.shared.storeLinks(resource)
     }
 
     //endregion

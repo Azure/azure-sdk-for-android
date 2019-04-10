@@ -34,7 +34,8 @@ enum class ResourceType(val path: String, fullname: String, val type: Type) {
     Document("docs", com.azure.data.model.Document.resourceName, object : TypeToken<Doc>() {}.type),
     Attachment("attachments", com.azure.data.model.Attachment.resourceName, object : TypeToken<Atch>() {}.type),
     Offer("offers", com.azure.data.model.Offer.resourceName, object : TypeToken<Ofr>() {}.type),
-    PkRanges("pkranges", Pkr.resourceName, object : TypeToken<Pkr>() {}.type);
+    PkRanges("pkranges", Pkr.resourceName, object : TypeToken<Pkr>() {}.type),
+    Media("media", "Media", object : TypeToken<ByteArray>() {}.type);
 
     val listName: String = "${fullname}s"
 
@@ -42,7 +43,8 @@ enum class ResourceType(val path: String, fullname: String, val type: Type) {
 
         return when (this) {
             Database,
-            Offer -> false
+            Offer,
+            Media -> false
             User,
             Collection -> resourceType == Database
             Document,
