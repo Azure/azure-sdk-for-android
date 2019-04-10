@@ -11,8 +11,7 @@ import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.awaitility.Awaitility.await
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.net.URL
@@ -256,6 +255,48 @@ open class AttachmentTests : ResourceTest<Attachment>("AttachmentTests", true, t
         waitForResponse!!.next {
             assertPageOnePastLast(it)
         }
+    }
+
+    @Test
+    fun getBlobAttachmentBytesForDocument() {
+
+        val bytes = getImageData()
+
+        val attachment = createNewBlobAttachment(bytes, document)
+
+        var byteResponse: Response<ByteArray>? = null
+
+        AzureData.getAttachmentMedia(attachment, document!!) {
+
+            byteResponse = it
+        }
+
+        await().until { byteResponse != null }
+
+        assertResourceResponseSuccess(byteResponse)
+        assertNotNull(byteResponse!!.resource)
+        assertArrayEquals(bytes, byteResponse!!.resource)
+    }
+
+    @Test
+    fun getBlobAttachmentBytesForDocumentById() {
+
+        val bytes = getImageData()
+
+        val attachment = createNewBlobAttachment(bytes, document)
+
+        var byteResponse: Response<ByteArray>? = null
+
+        AzureData.getAttachmentMedia(attachment.id, document!!) {
+
+            byteResponse = it
+        }
+
+        await().until { byteResponse != null }
+
+        assertResourceResponseSuccess(byteResponse)
+        assertNotNull(byteResponse!!.resource)
+        assertArrayEquals(bytes, byteResponse!!.resource)
     }
 
     @Test

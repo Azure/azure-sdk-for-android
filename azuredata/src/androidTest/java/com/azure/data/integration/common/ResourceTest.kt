@@ -300,6 +300,7 @@ open class ResourceTest<TResource : Resource>(resourceName: String,
 
         // offline responses will not have the OkHttp response or Json data
         if (!response.fromCache) {
+
             assertNotNull(response.response)
             assertNotNull(response.jsonData)
         }
@@ -317,6 +318,7 @@ open class ResourceTest<TResource : Resource>(resourceName: String,
         assertTrue("Returned List<TResource> list.isPopulated is False", list.isPopulated)
 
         list.items.forEach { item ->
+
             assertResourcePropertiesSet(item)
         }
     }
@@ -334,7 +336,10 @@ open class ResourceTest<TResource : Resource>(resourceName: String,
         assertTrue(response!!.isSuccessful)
         assertFalse(response.isErrored)
 
-        assertResourcePropertiesSet(response.resource as Resource)
+        if (response.resource is Resource) {
+
+            assertResourcePropertiesSet(response.resource as Resource)
+        }
     }
 
     fun assertResponseFailure(response: Response<*>?) {
