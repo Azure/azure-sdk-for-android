@@ -3,9 +3,10 @@ package com.azure.data.integration
 import android.support.test.runner.AndroidJUnit4
 import com.azure.data.AzureData
 import com.azure.data.integration.common.CustomDocument
-import com.azure.data.service.Response
+import com.azure.data.model.service.Response
 import org.awaitility.Awaitility.await
-import org.junit.Assert
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -25,40 +26,39 @@ class DocumentManualPartitionKeyTests : DocumentTestsBase<PartitionedDoc>("Docum
 
     init {
         partitionKeyPath = "/testKey"
+        // must match the value extracted from the document (server validates this)
+        partitionKeyValue = "PartitionKeyValue"
     }
-
-    // must match the value extracted from the document (server validates this)
-    private val partitionKeyValue = "PartitionKeyValue"
 
     @Test
     fun createDocumentWithManualPartitionKey() {
 
-        createNewDocument(partitionKey = partitionKeyValue)
+        createNewDocument()
     }
 
     @Test
     fun createOrUpdateDocumentWithManualPartitionKey() {
 
-        val doc = createNewDocument(partitionKey = partitionKeyValue)
+        val doc = createNewDocument()
 
         //change something
         doc.customNumber = customNumberValue + 1
 
         var docResponse: Response<PartitionedDoc>? = null
 
-        AzureData.createOrUpdateDocument(doc, partitionKeyValue, collectionId, databaseId) {
+        AzureData.createOrUpdateDocument(doc, partitionKeyValue!!, collectionId, databaseId) {
             docResponse = it
         }
 
         await().until { docResponse != null }
 
         assertResourceResponseSuccess(docResponse)
-        Assert.assertEquals(createdResourceId, docResponse?.resource?.id)
+        assertEquals(createdResourceId, docResponse?.resource?.id)
 
         val updatedDoc = docResponse!!.resource!!
 
-        Assert.assertNotNull(updatedDoc.customString)
-        Assert.assertNotNull(updatedDoc.customNumber)
-        Assert.assertEquals(customNumberValue + 1, updatedDoc.customNumber)
+        assertNotNull(updatedDoc.customString)
+        assertNotNull(updatedDoc.customNumber)
+        assertEquals(customNumberValue + 1, updatedDoc.customNumber)
     }
 }

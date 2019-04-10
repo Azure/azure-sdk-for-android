@@ -5,7 +5,11 @@ import com.azure.core.util.ContextProvider
 import com.azure.data.model.*
 import com.azure.data.model.indexing.IndexingPolicy
 import com.azure.data.model.partition.PartitionKeyRange
+import com.azure.data.model.service.DataResponse
+import com.azure.data.model.service.ListResponse
+import com.azure.data.model.service.Response
 import com.azure.data.service.*
+import com.azure.data.util.json.gson
 import com.azure.data.util.json.gsonBuilder
 import com.google.gson.GsonBuilder
 import okhttp3.HttpUrl
@@ -28,7 +32,7 @@ class AzureData {
 
         @JvmStatic
         @JvmOverloads
-        fun configure(context: Context, accountName: String, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
+        fun configure(context: Context, accountName: String, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> GsonBuilder = {it}) {
 
             ContextProvider.init(context.applicationContext)
 
@@ -36,12 +40,12 @@ class AzureData {
 
             configured = true
 
-            configureGsonBuilder(gsonBuilder)
+            gson = configureGsonBuilder(gsonBuilder).create()
         }
 
         @JvmStatic
         @JvmOverloads
-        fun configure(context: Context, accountUrl: URL, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
+        fun configure(context: Context, accountUrl: URL, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> GsonBuilder = {it}) {
 
             ContextProvider.init(context.applicationContext)
 
@@ -49,12 +53,12 @@ class AzureData {
 
             configured = true
 
-            configureGsonBuilder(gsonBuilder)
+            gson = configureGsonBuilder(gsonBuilder).create()
         }
 
         @JvmStatic
         @JvmOverloads
-        fun configure(context: Context, accountUrl: HttpUrl, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
+        fun configure(context: Context, accountUrl: HttpUrl, masterKey: String, permissionMode: PermissionMode, configureGsonBuilder: (GsonBuilder) -> GsonBuilder = {it}) {
 
             ContextProvider.init(context.applicationContext)
 
@@ -62,12 +66,12 @@ class AzureData {
 
             configured = true
 
-            configureGsonBuilder(gsonBuilder)
+            gson = configureGsonBuilder(gsonBuilder).create()
         }
 
         @JvmStatic
         @JvmOverloads
-        fun configure(context: Context, accountName: String, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
+        fun configure(context: Context, accountName: String, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> GsonBuilder = {it}) {
 
             ContextProvider.init(context.applicationContext)
 
@@ -75,12 +79,12 @@ class AzureData {
 
             configured = true
 
-            configureGsonBuilder(gsonBuilder)
+            gson = configureGsonBuilder(gsonBuilder).create()
         }
 
         @JvmStatic
         @JvmOverloads
-        fun configure(context: Context, accountUrl: URL, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
+        fun configure(context: Context, accountUrl: URL, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> GsonBuilder = {it}) {
 
             ContextProvider.init(context.applicationContext)
 
@@ -88,12 +92,12 @@ class AzureData {
 
             configured = true
 
-            configureGsonBuilder(gsonBuilder)
+            gson = configureGsonBuilder(gsonBuilder).create()
         }
 
         @JvmStatic
         @JvmOverloads
-        fun configure(context: Context, accountUrl: HttpUrl, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> Unit = {}) {
+        fun configure(context: Context, accountUrl: HttpUrl, permissionProvider: PermissionProvider, configureGsonBuilder: (GsonBuilder) -> GsonBuilder = {it}) {
 
             ContextProvider.init(context.applicationContext)
 
@@ -101,7 +105,15 @@ class AzureData {
 
             configured = true
 
-            configureGsonBuilder(gsonBuilder)
+            gson = configureGsonBuilder(gsonBuilder).create()
+        }
+
+        @JvmStatic
+        fun reset() {
+
+            documentClient.reset()
+            gson = gsonBuilder.create()
+            configured = false
         }
 
         //endregion
@@ -318,7 +330,7 @@ class AzureData {
         // delete
         @JvmStatic
         fun deleteDocument(document: Document, callback: (DataResponse) -> Unit) =
-                documentClient.delete(document, callback)
+                documentClient.delete(document, null, callback)
 
         // delete
         @JvmStatic
@@ -332,12 +344,22 @@ class AzureData {
         // replace
         @JvmStatic
         fun <T : Document> replaceDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
-                documentClient.replaceDocument(document, collectionId, databaseId, callback)
+                documentClient.replaceDocument(document, null, collectionId, databaseId, callback)
+
+        // replace
+        @JvmStatic
+        fun <T : Document> replaceDocument(document: T, partitionKey: String, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
+                documentClient.replaceDocument(document, partitionKey, collectionId, databaseId, callback)
 
         // replace
         @JvmStatic
         fun <T : Document> replaceDocument(document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
-                documentClient.replaceDocument(document, collection, callback)
+                documentClient.replaceDocument(document, null, collection, callback)
+
+        // replace
+        @JvmStatic
+        fun <T : Document> replaceDocument(document: T, partitionKey: String, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
+                documentClient.replaceDocument(document, partitionKey, collection, callback)
 
         // query
         @JvmStatic
@@ -466,11 +488,6 @@ class AzureData {
 
         // replace
         @JvmStatic
-        fun replaceAttachment(attachmentId: String, contentType: String, media: ByteArray, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (Response<Attachment>) -> Unit) =
-                documentClient.replaceAttachment(attachmentId, contentType, media, documentId, collectionId, databaseId, partitionKey, callback)
-
-        // replace
-        @JvmStatic
         fun replaceAttachment(attachmentId: String, contentType: String, mediaUrl: HttpUrl, document: Document, callback: (Response<Attachment>) -> Unit) =
                 documentClient.replaceAttachment(attachmentId, contentType, mediaUrl, document, callback)
 
@@ -486,8 +503,33 @@ class AzureData {
 
         // replace
         @JvmStatic
-        fun replaceAttachment(attachmentId: String, contentType: String, media: ByteArray, document: Document, callback: (Response<Attachment>) -> Unit) =
-                documentClient.replaceAttachment(attachmentId, contentType, media, document, callback)
+        fun replaceAttachmentMedia(attachmentId: String, contentType: String, media: ByteArray, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (DataResponse) -> Unit) =
+                documentClient.replaceAttachmentMedia(attachmentId, contentType, media, documentId, collectionId, databaseId, partitionKey, callback)
+
+        // replace
+        @JvmStatic
+        fun replaceAttachmentMedia(attachment: Attachment, contentType: String, media: ByteArray, document: Document, callback: (DataResponse) -> Unit) =
+                documentClient.replaceAttachmentMedia(attachment, contentType, media, document, callback)
+
+        // replace
+        @JvmStatic
+        fun replaceAttachmentMedia(attachmentId: String, contentType: String, media: ByteArray, document: Document, callback: (Response<Attachment>) -> Unit) =
+                documentClient.replaceAttachmentMedia(attachmentId, contentType, media, document, callback)
+
+        // replace
+        @JvmStatic
+        fun replaceAttachmentMedia(attachment: Attachment, partitionKey: String, contentType: String, media: ByteArray, callback: (DataResponse) -> Unit) =
+                documentClient.replaceAttachmentMedia(attachment, partitionKey, contentType, media, callback)
+
+        // Get media
+        @JvmStatic
+        fun getAttachmentMedia(attachmentId: String, document: Document, callback: (Response<ByteArray>) -> Unit) =
+                documentClient.getAttachmentMedia(attachmentId, document, callback)
+
+        // Get media
+        @JvmStatic
+        fun getAttachmentMedia(attachment: Attachment, document: Document, callback: (Response<ByteArray>) -> Unit) =
+                documentClient.getAttachmentMedia(attachment, document, callback)
 
         //endregion
 
@@ -840,12 +882,22 @@ class AzureData {
         // delete
         @JvmStatic
         fun <T : Resource> delete(resource: T, callback: (DataResponse) -> Unit) =
-                documentClient.delete(resource, callback)
+                documentClient.delete(resource, null, callback)
 
         // refresh
         @JvmStatic
         fun <T : Resource> refresh(resource: T, callback: (Response<T>) -> Unit) =
-                documentClient.refresh(resource, callback)
+                documentClient.refresh(resource, null, callback)
+
+        // delete
+        @JvmStatic
+        fun <T : Resource> delete(resource: T, partitionKey: String, callback: (DataResponse) -> Unit) =
+                documentClient.delete(resource, partitionKey, callback)
+
+        // refresh
+        @JvmStatic
+        fun <T : Resource> refresh(resource: T, partitionKey: String, callback: (Response<T>) -> Unit) =
+                documentClient.refresh(resource, partitionKey, callback)
 
         //endregion
     }

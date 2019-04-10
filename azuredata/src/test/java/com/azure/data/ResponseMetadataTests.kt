@@ -8,7 +8,7 @@ package com.azure.data
 import com.azure.core.http.HttpHeader
 import com.azure.core.util.dateFromRfc1123
 import com.azure.data.constants.MSHttpHeader
-import com.azure.data.service.ResponseMetadata
+import com.azure.data.model.service.ResponseMetadata
 import okhttp3.Protocol
 import okhttp3.Request
 import org.junit.After
@@ -19,8 +19,13 @@ import kotlin.test.assertNotNull
 
 class ResponseMetadataTests {
 
-    @Before fun before() {}
-    @After fun after() {}
+    @Before
+    fun before() {
+    }
+
+    @After
+    fun after() {
+    }
 
     val ACTIVITY_ID = "856acd38-320d-47df-ab6f-9761bb987668"
     val CONTENT_TYPE = "application/json"
@@ -54,7 +59,10 @@ class ResponseMetadataTests {
     val QCOLL_SIZE = 10485760
     val UCOLL_SIZE = 1
 
-    @Test @Throws(Exception::class) fun response_metadata() {
+    @Test
+    @Throws(Exception::class)
+    fun response_metadata() {
+
         val response = okhttp3.Response.Builder()
                 .request(Request.Builder()
                         .url("https://ms.portal.azure.com")
@@ -63,58 +71,58 @@ class ResponseMetadataTests {
                 .code(200)
                 .protocol(Protocol.HTTP_1_1)
                 .message("A Message")
-                .addHeader(HttpHeader.ContentType.value,CONTENT_TYPE)
-                .addHeader(HttpHeader.ETag.value,ETAG)
-                .addHeader(HttpHeader.Date.value,DATE)
-                .addHeader(MSHttpHeader.MSContinuation.value,CONTINUATION)
-                .addHeader(MSHttpHeader.MSItemCount.value,ITEM_COUNT.toString())
-                .addHeader(MSHttpHeader.MSResourceQuota.value,QUOTA)
-                .addHeader(MSHttpHeader.MSResourceUsage.value,USAGE)
-                .addHeader(MSHttpHeader.MSSchemaVersion.value,SCHEMA_VERSION)
-                .addHeader(MSHttpHeader.MSAltContentPath.value,ALT_CONTENT_PATH)
-                .addHeader(MSHttpHeader.MSRequestCharge.value,REQUEST_CHARGE)
-                .addHeader(MSHttpHeader.MSServiceVersion.value,SERVICE_VERSION)
-                .addHeader(MSHttpHeader.MSActivityId.value,ACTIVITY_ID)
-                .addHeader(MSHttpHeader.MSSessionToken.value,SESSION_TOKEN)
-                .addHeader(MSHttpHeader.MSRetryAfterMs.value,RETRY_AFTER.toString())
+                .addHeader(HttpHeader.ContentType.value, CONTENT_TYPE)
+                .addHeader(HttpHeader.ETag.value, ETAG)
+                .addHeader(HttpHeader.Date.value, DATE)
+                .addHeader(MSHttpHeader.MSContinuation.value, CONTINUATION)
+                .addHeader(MSHttpHeader.MSItemCount.value, ITEM_COUNT.toString())
+                .addHeader(MSHttpHeader.MSResourceQuota.value, QUOTA)
+                .addHeader(MSHttpHeader.MSResourceUsage.value, USAGE)
+                .addHeader(MSHttpHeader.MSSchemaVersion.value, SCHEMA_VERSION)
+                .addHeader(MSHttpHeader.MSAltContentPath.value, ALT_CONTENT_PATH)
+                .addHeader(MSHttpHeader.MSRequestCharge.value, REQUEST_CHARGE)
+                .addHeader(MSHttpHeader.MSServiceVersion.value, SERVICE_VERSION)
+                .addHeader(MSHttpHeader.MSActivityId.value, ACTIVITY_ID)
+                .addHeader(MSHttpHeader.MSSessionToken.value, SESSION_TOKEN)
+                .addHeader(MSHttpHeader.MSRetryAfterMs.value, RETRY_AFTER.toString())
                 .build()
 
         val meta = ResponseMetadata(response)
 
         assertEquals(ACTIVITY_ID, meta.activityId)
         assertEquals(CONTENT_TYPE, meta.contentType)
-        assertEquals(CONTINUATION,meta.continuation)
+        assertEquals(CONTINUATION, meta.continuation)
         assertNotNull(meta.date)
-        assertEquals(dateFromRfc1123(DATE),meta.date)
-        assertEquals(ETAG,meta.etag)
+        assertEquals(dateFromRfc1123(DATE), meta.date)
+        assertEquals(ETAG, meta.etag)
         assertNotNull(meta.requestCharge)
         meta.requestCharge?.let { assertEquals(REQUEST_CHARGE.toDouble(), it, 0.000000001) }
-        assertEquals(SCHEMA_VERSION,meta.schemaVersion)
-        assertEquals(SERVICE_VERSION.split("=")[1],meta.serviceVersion)
-        assertEquals(SESSION_TOKEN,meta.sessionToken)
+        assertEquals(SCHEMA_VERSION, meta.schemaVersion)
+        assertEquals(SERVICE_VERSION.split("=")[1], meta.serviceVersion)
+        assertEquals(SESSION_TOKEN, meta.sessionToken)
         assertNotNull(meta.retryAfter)
         meta.retryAfter?.let { assertEquals(RETRY_AFTER.toLong(), it) }
 
         assertNotNull(meta.resourceQuota)
 
         var resources = meta.resourceQuota
-        assertEquals(QCOLLECTIONS,resources?.collections)
-        assertEquals(QFUNCTIONS,resources?.functions)
-        assertEquals(QSTORED_PROCEDURES,resources?.storedProcedures)
-        assertEquals(QTRIGGERS,resources?.triggers)
-        assertEquals(QDOCUMENTS,resources?.documents)
-        assertEquals(QDOC_SIZE,resources?.documentSize)
-        assertEquals(QDOCS_SIZE,resources?.documentsSize)
-        assertEquals(QCOLL_SIZE,resources?.collectionSize)
+        assertEquals(QCOLLECTIONS, resources?.collections)
+        assertEquals(QFUNCTIONS, resources?.functions)
+        assertEquals(QSTORED_PROCEDURES, resources?.storedProcedures)
+        assertEquals(QTRIGGERS, resources?.triggers)
+        assertEquals(QDOCUMENTS, resources?.documents)
+        assertEquals(QDOC_SIZE, resources?.documentSize)
+        assertEquals(QDOCS_SIZE, resources?.documentsSize)
+        assertEquals(QCOLL_SIZE, resources?.collectionSize)
 
         resources = meta.resourceUsage
-        assertEquals(UCOLLECTIONS,resources?.collections)
-        assertEquals(UFUNCTIONS,resources?.functions)
-        assertEquals(USTORED_PROCEDURES,resources?.storedProcedures)
-        assertEquals(UTRIGGERS,resources?.triggers)
-        assertEquals(UDOCUMENTS,resources?.documents)
-        assertEquals(UDOC_SIZE,resources?.documentSize)
-        assertEquals(UDOCS_SIZE,resources?.documentsSize)
-        assertEquals(UCOLL_SIZE,resources?.collectionSize)
+        assertEquals(UCOLLECTIONS, resources?.collections)
+        assertEquals(UFUNCTIONS, resources?.functions)
+        assertEquals(USTORED_PROCEDURES, resources?.storedProcedures)
+        assertEquals(UTRIGGERS, resources?.triggers)
+        assertEquals(UDOCUMENTS, resources?.documents)
+        assertEquals(UDOC_SIZE, resources?.documentSize)
+        assertEquals(UDOCS_SIZE, resources?.documentsSize)
+        assertEquals(UCOLL_SIZE, resources?.collectionSize)
     }
 }

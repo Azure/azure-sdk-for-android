@@ -1,4 +1,4 @@
-package com.azure.data.service
+package com.azure.data.model.service
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.

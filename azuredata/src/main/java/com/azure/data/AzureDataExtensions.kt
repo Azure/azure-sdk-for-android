@@ -1,9 +1,9 @@
 package com.azure.data
 
 import com.azure.data.model.*
-import com.azure.data.service.DataResponse
-import com.azure.data.service.ListResponse
-import com.azure.data.service.Response
+import com.azure.data.model.service.DataResponse
+import com.azure.data.model.service.ListResponse
+import com.azure.data.model.service.Response
 import okhttp3.HttpUrl
 import java.net.URL
 
@@ -132,6 +132,11 @@ fun DocumentCollection.deleteDocument (document: Document, callback: (DataRespon
 // replace
 fun <T : Document> DocumentCollection.replaceDocument (document: T, callback: (Response<T>) -> Unit) {
     return AzureData.replaceDocument(document, this, callback)
+}
+
+// replace
+fun <T : Document> DocumentCollection.replaceDocument (document: T, partitionKey: String, callback: (Response<T>) -> Unit) {
+    return AzureData.replaceDocument(document, partitionKey, this, callback)
 }
 
 // query

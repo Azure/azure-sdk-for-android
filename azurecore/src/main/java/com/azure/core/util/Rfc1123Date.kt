@@ -4,15 +4,16 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
-private val RFC1123Formatter = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z",Locale.US)
+private val RFC1123Formatter = SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss z", Locale.US)
 
 /**
  * Return a Date? from an Rfc1123 formatted string
  */
 fun dateFromRfc1123(from : String) : Date? {
-    try {
-        return RFC1123Formatter.parse(from)
+
+    return try {
+        RFC1123Formatter.parse(from)
     } catch (ex : ParseException){
-        return null
+        null
     }
 }

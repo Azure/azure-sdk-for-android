@@ -1,4 +1,4 @@
-package com.azure.data.model
+package com.azure.data.model.service
 
 import com.azure.data.util.ResourceOracle
 import com.azure.data.util.ancestorIds
@@ -14,12 +14,12 @@ import com.azure.data.util.lastPathComponentRemoved
  *  The logical location of 1) a resource or feed and the and 2) the resource for which permissions are required
 
 - Remark:
-`path` refers to the logical location of the resource or feed of a coorisponding CRUD operation
+`path` refers to the logical location of the resource or feed of a corresponding CRUD operation
 `link` refers to the logical location of the the resource the operation is acting on (thus need permissions for)
 
 - Example: Listing all documents in a collection:
 `let location: ResourceLocation = .document(databaseId: "MyDatabase", collectionId: "MyCollection", id: nil)`
-`location.path // "dbs/MyDatabase/colls/MyCollection/docs" (the locaiton of the documents feed)`
+`location.path // "dbs/MyDatabase/colls/MyCollection/docs" (the location of the documents feed)`
 `location.link // "dbs/MyDatabase/colls/MyCollection" (the location of the collection itself)`
 
 - Example: Get a single existing document from the collection:
@@ -42,6 +42,7 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
     class Resource(val resource: com.azure.data.model.Resource) : ResourceLocation(ResourceType.fromType(resource::class.java), resource.id)
     class Child(resourceType: ResourceType, val resource: com.azure.data.model.Resource, id: String? = null) : ResourceLocation(resourceType, id)
     class PkRanges(val databaseId: String, collectionId: String? = null) : ResourceLocation(ResourceType.PkRanges, collectionId)
+    class MediaLink(val link: String, val resourceId: String) : ResourceLocation(ResourceType.Media)
 
     fun path() : String = when (this) {
 
@@ -58,6 +59,7 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
         is Resource ->          ResourceOracle.shared.getAltLink(resource)!!
         is Child ->             ResourceOracle.shared.getAltLink(resource) + "/${resourceType.path}${id.path()}"
         is PkRanges ->          "dbs/$databaseId/colls${id.path()}/pkranges"
+        is MediaLink ->         link.trimStart('/')
     }
 
     fun link() : String = when (this) {
@@ -75,6 +77,7 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
         is Resource ->          ResourceOracle.shared.getAltLink(resource)!!
         is Child ->             ResourceOracle.shared.getAltLink(resource) + id.pathIn("/${resourceType.path}")
         is PkRanges ->          "dbs/$databaseId${id.pathIn("/colls")}"
+        is MediaLink ->         resourceId.toLowerCase()
     }
 
     fun type() : String = resourceType.path
@@ -114,7 +117,6 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
     val supportsPermissionToken: Boolean
         get() = resourceType.supportsPermissionToken
 
-
     val isFeed: Boolean
         get() = id.isNullOrEmpty()
 
@@ -141,20 +143,22 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
     private fun directory(): String? {
 
         parentSelfLink()?.let {
+
             return when (this) {
-                is Database        -> it
-                is User            -> "${it}users"
-                is Collection      -> "${it}colls"
+                is Database -> it
+                is User -> "${it}users"
+                is Collection -> "${it}colls"
                 is StoredProcedure -> "${it}sprocs"
-                is Trigger         -> "${it}triggers"
-                is Udf             -> "${it}udfs"
-                is Document        -> "${it}docs"
-                is Attachment      -> "${it}attachments"
-                is Permission      -> "${it}permissions"
-                is Offer           -> it
-                is Child           -> "$it${this.resourceType.path}"
-                is Resource        -> ResourceOracle.shared.getSelfLink(this.resource)?.lastPathComponentRemoved()
-                is PkRanges        -> "${it}pkranges"
+                is Trigger -> "${it}triggers"
+                is Udf -> "${it}udfs"
+                is Document -> "${it}docs"
+                is Attachment -> "${it}attachments"
+                is Permission -> "${it}permissions"
+                is Offer -> it
+                is Child -> "$it${this.resourceType.path}"
+                is Resource -> ResourceOracle.shared.getSelfLink(this.resource)?.lastPathComponentRemoved()
+                is PkRanges -> "${it}pkranges"
+                is MediaLink -> it
             }
         }
 
@@ -164,19 +168,21 @@ sealed class ResourceLocation(val resourceType: ResourceType, val id: String? = 
     private fun parentSelfLink(): String? {
 
         return when (this) {
-            is Database        -> "dbs"
-            is User            -> ResourceOracle.shared.getSelfLink(Database(this.databaseId))
-            is Collection      -> ResourceOracle.shared.getSelfLink(Database(this.databaseId))
+
+            is Database -> "dbs"
+            is User -> ResourceOracle.shared.getSelfLink(Database(this.databaseId))
+            is Collection -> ResourceOracle.shared.getSelfLink(Database(this.databaseId))
             is StoredProcedure -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.collectionId))
-            is Trigger         -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.collectionId))
-            is Udf             -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.collectionId))
-            is Document        -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.collectionId))
-            is Attachment      -> ResourceOracle.shared.getSelfLink(Document(this.databaseId, this.collectionId, this.documentId))
-            is Permission      -> ResourceOracle.shared.getSelfLink(User(this.databaseId, this.userId))
-            is Offer           -> "offers"
-            is Child           -> ResourceOracle.shared.getSelfLink(this.resource)
-            is Resource        -> ResourceOracle.shared.getSelfLink(this.resource)?.lastPathComponentRemoved()?.lastPathComponentRemoved()
-            is PkRanges        -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.id))
+            is Trigger -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.collectionId))
+            is Udf -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.collectionId))
+            is Document -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.collectionId))
+            is Attachment -> ResourceOracle.shared.getSelfLink(Document(this.databaseId, this.collectionId, this.documentId))
+            is Permission -> ResourceOracle.shared.getSelfLink(User(this.databaseId, this.userId))
+            is Offer -> "offers"
+            is Child -> ResourceOracle.shared.getSelfLink(this.resource)
+            is Resource -> ResourceOracle.shared.getSelfLink(this.resource)?.lastPathComponentRemoved()?.lastPathComponentRemoved()
+            is PkRanges -> ResourceOracle.shared.getSelfLink(Collection(this.databaseId, this.id))
+            is MediaLink -> "media"
         }
     }
 }

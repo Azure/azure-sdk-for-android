@@ -125,7 +125,7 @@ abstract class ResourceListFragment<TData: Resource> : RecyclerViewListFragment<
                     .setTitle("Create Resource")
                     .setView(dialogView)
                     .setCancelable(true)
-                    .setPositiveButton("Create") { dialog, which ->
+                    .setPositiveButton("Create") { _, _ ->
 
                         val progressDialog = ProgressDialog.show(activity, "", "Creating. Please wait...", true)
 
@@ -204,7 +204,7 @@ abstract class ResourceListFragment<TData: Resource> : RecyclerViewListFragment<
                             .setTitle("Create Permission")
                             .setView(dialogView)
                             .setCancelable(true)
-                            .setPositiveButton("Create") { dialog, which ->
+                            .setPositiveButton("Create") { _, _ ->
 
                                 progressDialog.setMessage("Creating. Please wait...")
                                 progressDialog.show()

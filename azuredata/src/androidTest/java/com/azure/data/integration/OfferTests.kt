@@ -4,7 +4,7 @@ import android.support.test.runner.AndroidJUnit4
 import com.azure.data.AzureData
 import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.Offer
-import com.azure.data.service.ListResponse
+import com.azure.data.model.service.ListResponse
 import org.awaitility.Awaitility.await
 import org.junit.Assert.*
 import org.junit.Test
