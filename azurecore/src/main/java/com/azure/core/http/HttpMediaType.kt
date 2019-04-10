@@ -10,7 +10,7 @@ enum class HttpMediaType(val value: String) {
     Any("*/*"),
     Json("application/json"),
     QueryJson("application/query+json"),
-    AtomXml("application/atom+xml")
+    AtomXml("application/atom+xml"),
     Jpeg("image/jpeg"),
     Png("image/png"),
     Javascript("application/x-javascript"),
