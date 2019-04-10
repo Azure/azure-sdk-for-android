@@ -4,11 +4,12 @@ import android.content.Context
 import com.azure.core.http.HttpHeader
 import com.azure.core.http.HttpMediaType
 import com.azure.core.http.HttpMethod
-import com.azure.data.model.DataError
-import com.azure.data.model.DocumentClientError
-import com.azure.data.model.Result
-import com.azure.data.service.Response
-import com.azure.data.service.map
+import com.azure.core.http.toBuilder
+import com.azure.data.model.service.DataError
+import com.azure.data.model.service.DocumentClientError
+import com.azure.data.model.service.Result
+import com.azure.data.model.service.Response
+import com.azure.data.model.service.map
 import com.azure.data.util.lastPathComponent
 import okhttp3.*
 import java.io.IOException
@@ -283,14 +284,7 @@ internal class NotificationClient {
             return
         }
 
-        val builder = when (method) {
-
-            HttpMethod.Get -> Request.Builder().get()
-            HttpMethod.Post -> Request.Builder().post(requestBody(payload!!))
-            HttpMethod.Put -> Request.Builder().put(requestBody(payload!!))
-            HttpMethod.Delete -> Request.Builder().delete()
-            HttpMethod.Head -> Request.Builder().head()
-        }
+        val builder = method.toBuilder(requestBody(payload))
                 .url(url)
                 .header(HttpHeader.Authorization.name, authToken)
                 .header(HttpHeader.UserAgent.name, NotificationClient.userAgent)
@@ -305,6 +299,7 @@ internal class NotificationClient {
         try {
             client.newCall(request)
                     .enqueue(object : Callback {
+
                         override fun onResponse(call: Call?, response: okhttp3.Response?) {
 
                             if (response == null) {
@@ -347,10 +342,13 @@ internal class NotificationClient {
         return localStorage.deviceToken ?: return newDeviceToken
     }
 
-    private fun requestBody(payload: String): RequestBody {
+    private fun requestBody(payload: String?): RequestBody? {
 
-        val contentType = if (payload.startsWith("{")) HttpMediaType.Json else HttpMediaType.AtomXml
-        return RequestBody.create(MediaType.parse(contentType.value), payload)
+        return payload?.let {
+
+            val contentType = if (payload.startsWith("{")) HttpMediaType.Json else HttpMediaType.AtomXml
+            return RequestBody.create(MediaType.parse(contentType.value), payload)
+        }
     }
 
     //endregion

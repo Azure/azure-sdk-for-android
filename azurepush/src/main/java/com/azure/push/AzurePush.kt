@@ -1,7 +1,7 @@
 package com.azure.push
 
 import android.content.Context
-import com.azure.data.service.Response
+import com.azure.data.model.service.Response
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
