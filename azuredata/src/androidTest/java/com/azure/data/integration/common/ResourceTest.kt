@@ -8,6 +8,10 @@ import com.azure.core.log.startLogging
 import com.azure.data.AzureData
 import com.azure.data.integration.offlinetests.mocks.MockOkHttpClient
 import com.azure.data.model.*
+import com.azure.data.model.service.DataResponse
+import com.azure.data.model.service.ListResponse
+import com.azure.data.model.service.ResourceType
+import com.azure.data.model.service.Response
 import com.azure.data.service.*
 import okhttp3.OkHttpClient
 import org.awaitility.Awaitility.await
@@ -92,7 +96,6 @@ open class ResourceTest<TResource : Resource>(resourceName: String,
         i { "********* Begin Test Tear Down *********" }
 
         deleteResources()
-
         purgeCache()
 
         i { "********* End Test Tear Down *********" }
@@ -297,6 +300,7 @@ open class ResourceTest<TResource : Resource>(resourceName: String,
 
         // offline responses will not have the OkHttp response or Json data
         if (!response.fromCache) {
+
             assertNotNull(response.response)
             assertNotNull(response.jsonData)
         }
@@ -314,6 +318,7 @@ open class ResourceTest<TResource : Resource>(resourceName: String,
         assertTrue("Returned List<TResource> list.isPopulated is False", list.isPopulated)
 
         list.items.forEach { item ->
+
             assertResourcePropertiesSet(item)
         }
     }
@@ -331,7 +336,10 @@ open class ResourceTest<TResource : Resource>(resourceName: String,
         assertTrue(response!!.isSuccessful)
         assertFalse(response.isErrored)
 
-        assertResourcePropertiesSet(response.resource as Resource)
+        if (response.resource is Resource) {
+
+            assertResourcePropertiesSet(response.resource as Resource)
+        }
     }
 
     fun assertResponseFailure(response: Response<*>?) {

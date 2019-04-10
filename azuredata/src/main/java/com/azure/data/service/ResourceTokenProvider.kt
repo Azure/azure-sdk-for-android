@@ -3,10 +3,10 @@ package com.azure.data.service
 import com.azure.core.crypto.CryptoProvider
 import com.azure.core.http.HttpMethod
 import com.azure.core.util.DateUtil
+import com.azure.core.util.urlEncode
 import com.azure.data.model.PermissionMode
-import com.azure.data.model.ResourceLocation
-import com.azure.data.model.ResourceToken
-import java.net.URLEncoder
+import com.azure.data.model.service.ResourceLocation
+import com.azure.data.model.service.ResourceToken
 import java.util.*
 
 /**
@@ -37,7 +37,7 @@ class ResourceTokenProvider(private val masterKey: String, private val permissio
 
         val signature = CryptoProvider.hmacEncrypt(payload, masterKey)
 
-        val authStringEncoded = URLEncoder.encode(String.format("type=master&ver=%s&sig=%s", tokenVersion, signature), "UTF-8")
+        val authStringEncoded = String.format("type=master&ver=%s&sig=%s", tokenVersion, signature).urlEncode()
 
         return ResourceToken(authStringEncoded, dateString)
     }

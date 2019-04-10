@@ -1,12 +1,13 @@
 package com.azure.auth
 
 import android.content.Context
+import com.azure.core.http.HttpScheme
 import com.azure.core.log.d
 import com.azure.core.log.e
 import com.azure.core.util.ContextProvider.Companion.appContext
-import com.azure.data.model.DataError
-import com.azure.data.model.Result
-import com.azure.data.service.Response
+import com.azure.data.model.service.DataError
+import com.azure.data.model.service.Result
+import com.azure.data.model.service.Response
 import com.azure.data.util.json.gson
 import com.azure.data.util.toError
 import okhttp3.*
@@ -35,7 +36,7 @@ internal class AuthClient {
 
     internal fun login(urlString: String, provider: IdentityProvider, callback: (Response<AuthUser>) -> Unit) {
         val url = HttpUrl.Builder()
-                .scheme("https")
+                .scheme(HttpScheme.Https.toString())
                 .host(urlString)
                 .addPathSegment(provider.tokenPath)
                 .build()
@@ -52,7 +53,7 @@ internal class AuthClient {
 
     internal fun refresh(urlString: String, callback: (Response<AuthUser>) -> Unit) {
         val url = HttpUrl.Builder()
-                .scheme("https")
+                .scheme(HttpScheme.Https.toString())
                 .host(urlString)
                 .addPathSegment(IdentityProvider.refreshPath)
                 .build()

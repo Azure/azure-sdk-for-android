@@ -1,4 +1,4 @@
-package com.azure.data.model
+package com.azure.data.model.service
 
 import com.azure.core.http.HttpStatusCode
 

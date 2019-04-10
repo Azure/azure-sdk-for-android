@@ -78,7 +78,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
 
         ensureCollection()
 
-        AzureData.getCollection(createdResourceId, databaseId) {
+        AzureData.getCollection(collectionId, databaseId) {
             response = it
         }
 
@@ -87,7 +87,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
         }
 
         assertResourceResponseSuccess(response)
-        assertEquals(createdResourceId, response?.resource?.id)
+        assertEquals(collectionId, response?.resource?.id)
     }
 
     @Test
@@ -95,7 +95,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
 
         ensureCollection()
 
-        database?.getCollection(createdResourceId) {
+        database?.getCollection(collectionId) {
             response = it
         }
 
@@ -104,7 +104,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
         }
 
         assertResourceResponseSuccess(response)
-        assertEquals(createdResourceId, response?.resource?.id)
+        assertEquals(collectionId, response?.resource?.id)
     }
 
     @Test
@@ -115,10 +115,6 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
         coll.refresh {
             response = it
         }
-
-//        AzureData.refresh(coll) {
-//            response = it
-//        }
 
         await().until {
             response != null
@@ -214,7 +210,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
         }
 
         assertResourceResponseSuccess(response)
-        assertEquals(createdResourceId, response?.resource?.id)
+        assertEquals(collectionId, response?.resource?.id)
 
         val newPolicy = response?.resource?.indexingPolicy!!
 

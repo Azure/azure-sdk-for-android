@@ -1,14 +1,14 @@
 package com.azure.mobile
 
-import com.azure.data.model.DataError
+import com.azure.data.model.service.DataError
 import com.azure.data.model.Permission
 import com.azure.data.model.PermissionMode
-import com.azure.data.model.ResourceType
+import com.azure.data.model.service.ResourceType
 import com.azure.data.service.getSelfLink
 import com.azure.data.service.PermissionProvider
 import com.azure.data.service.PermissionProviderConfiguration
-import com.azure.data.service.PermissionProviderError
-import com.azure.data.service.Response
+import com.azure.data.model.service.PermissionProviderError
+import com.azure.data.model.service.Response
 import com.azure.data.util.json.gson
 import okhttp3.*
 import java.io.IOException

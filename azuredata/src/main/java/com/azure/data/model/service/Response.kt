@@ -1,6 +1,5 @@
-package com.azure.data.service
+package com.azure.data.model.service
 
-import com.azure.data.model.*
 import okhttp3.Request
 import java.lang.reflect.Type
 
@@ -75,5 +74,6 @@ fun <T, U> Result<T>.map(transform: (T) -> U): Result<U> {
 
     resource?.let { return Result(transform(it)) }
     error?.let { return Result(it) }
+
     return Result(DataError(DocumentClientError.UnknownError))
 }

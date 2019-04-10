@@ -8,7 +8,7 @@ import com.azure.data.model.*
 import com.azure.data.model.spatial.LineString
 import com.azure.data.model.spatial.Point
 import com.azure.data.model.spatial.Polygon
-import com.azure.data.service.ResourceWriteOperation
+import com.azure.data.model.service.ResourceWriteOperation
 import java.util.*
 
 /**
@@ -26,9 +26,7 @@ internal val gsonBuilder = GsonBuilder()
         .registerTypeAdapter(LineString::class.java, LineSegmentAdapter())
         .registerTypeAdapter(ResourceWriteOperation::class.java, ResourceWriteOperationAdapter())!!
 
-val gson: Gson by lazy {
-    gsonBuilder.create()
-}
+lateinit var gson: Gson
 
 fun GsonBuilder.checkVerboseMode() : GsonBuilder {
 

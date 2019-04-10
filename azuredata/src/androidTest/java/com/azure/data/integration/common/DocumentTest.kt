@@ -2,7 +2,7 @@ package com.azure.data.integration.common
 
 import com.azure.data.*
 import com.azure.data.model.*
-import com.azure.data.service.Response
+import com.azure.data.model.service.Response
 import org.junit.Assert.*
 import org.awaitility.Awaitility.await
 import org.junit.Rule
@@ -14,12 +14,14 @@ import java.util.*
  * Licensed under the MIT License.
  */
 
-abstract class DocumentTest<TDoc : CustomDocument>(resourceName: String, val docType: Class<TDoc>)
-    : ResourceTest<TDoc>(resourceName, true, true) {
+abstract class DocumentTest<TDoc : CustomDocument>(resourceName: String, val docType: Class<TDoc>, ensureDatabase: Boolean = true, ensureCollection: Boolean = true, ensureDocument : Boolean = false)
+    : ResourceTest<TDoc>(resourceName, ensureDatabase, ensureCollection, ensureDocument) {
 
     @Rule
     @JvmField
     var thrown = ExpectedException.none()!!
+
+    var partitionKeyValue: String? = null
 
     fun newDocument(count : Int = 1) : TDoc {
 
@@ -31,20 +33,20 @@ abstract class DocumentTest<TDoc : CustomDocument>(resourceName: String, val doc
         return doc as TDoc
     }
 
-    fun createNewDocument(doc: TDoc = newDocument(), partitionKey: String? = null, coll: DocumentCollection? = null) : TDoc {
+    fun createNewDocument(doc: TDoc = newDocument(), coll: DocumentCollection? = null) : TDoc {
 
         var docResponse: Response<TDoc>? = null
 
-        partitionKey?.let {
+        partitionKeyValue?.let {
 
             if (coll != null) {
 
-                coll.createDocument(doc, partitionKey) {
+                coll.createDocument(doc, partitionKeyValue!!) {
                     docResponse = it
                 }
             } else {
 
-                AzureData.createDocument(doc, partitionKey, collectionId, databaseId) {
+                AzureData.createDocument(doc, partitionKeyValue!!, collectionId, databaseId) {
                     docResponse = it
                 }
             }
@@ -63,7 +65,7 @@ abstract class DocumentTest<TDoc : CustomDocument>(resourceName: String, val doc
             }
         }
 
-        await().forever().until {
+        await().until {
             docResponse != null
         }
 
@@ -83,11 +85,22 @@ abstract class DocumentTest<TDoc : CustomDocument>(resourceName: String, val doc
 
             val docToCreate = newDocument(i)
 
-            AzureData.createDocument(docToCreate, collectionId, databaseId) {
+            partitionKeyValue?.let {
 
-                assertResourceResponseSuccess(it)
-                assertEquals(createdResourceId(i), it.resource?.id)
-                docs.add(verifyDocument(it.resource!!, docToCreate))
+                AzureData.createDocument(docToCreate, partitionKeyValue!!, collectionId, databaseId) {
+
+                    assertResourceResponseSuccess(it)
+                    assertEquals(createdResourceId(i), it.resource?.id)
+                    docs.add(verifyDocument(it.resource!!, docToCreate))
+                }
+            } ?: run {
+
+                AzureData.createDocument(docToCreate, collectionId, databaseId) {
+
+                    assertResourceResponseSuccess(it)
+                    assertEquals(createdResourceId(i), it.resource?.id)
+                    docs.add(verifyDocument(it.resource!!, docToCreate))
+                }
             }
         }
 

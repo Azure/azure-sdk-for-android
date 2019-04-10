@@ -36,7 +36,7 @@ class StoredProcedureTests : ResourceTest<StoredProcedure>("StoredProcedureTests
     private val storedProcResult = "\"Hello World!\""
     private val partitionKeyValue = "PartitionKeyValue"
 
-    private fun createNewStoredProc(coll: DocumentCollection? = null, body: String = storedProcNewBody) : StoredProcedure {
+    private fun createNewStoredProc(coll: DocumentCollection? = null, body: String = storedProcedureBody) : StoredProcedure {
 
         if (coll != null) {
             coll.createStoredProcedure(createdResourceId, body) {

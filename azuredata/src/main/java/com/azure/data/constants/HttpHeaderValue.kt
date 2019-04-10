@@ -19,5 +19,7 @@ class HttpHeaderValue {
         const val maxDatabaseThroughput = 250000
 
         const val databaseThroughputStep = 100
+
+        const val noCache = "no-cache"
     }
 }
