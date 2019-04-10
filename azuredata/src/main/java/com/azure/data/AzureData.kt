@@ -488,11 +488,6 @@ class AzureData {
 
         // replace
         @JvmStatic
-        fun replaceAttachment(attachmentId: String, contentType: String, media: ByteArray, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (Response<Attachment>) -> Unit) =
-                documentClient.replaceAttachment(attachmentId, contentType, media, documentId, collectionId, databaseId, partitionKey, callback)
-
-        // replace
-        @JvmStatic
         fun replaceAttachment(attachmentId: String, contentType: String, mediaUrl: HttpUrl, document: Document, callback: (Response<Attachment>) -> Unit) =
                 documentClient.replaceAttachment(attachmentId, contentType, mediaUrl, document, callback)
 
@@ -508,8 +503,23 @@ class AzureData {
 
         // replace
         @JvmStatic
-        fun replaceAttachment(attachmentId: String, contentType: String, media: ByteArray, document: Document, callback: (Response<Attachment>) -> Unit) =
-                documentClient.replaceAttachment(attachmentId, contentType, media, document, callback)
+        fun replaceAttachmentMedia(attachmentId: String, contentType: String, media: ByteArray, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (DataResponse) -> Unit) =
+                documentClient.replaceAttachmentMedia(attachmentId, contentType, media, documentId, collectionId, databaseId, partitionKey, callback)
+
+        // replace
+        @JvmStatic
+        fun replaceAttachmentMedia(attachment: Attachment, contentType: String, media: ByteArray, document: Document, callback: (DataResponse) -> Unit) =
+                documentClient.replaceAttachmentMedia(attachment, contentType, media, document, callback)
+
+        // replace
+        @JvmStatic
+        fun replaceAttachmentMedia(attachmentId: String, contentType: String, media: ByteArray, document: Document, callback: (Response<Attachment>) -> Unit) =
+                documentClient.replaceAttachmentMedia(attachmentId, contentType, media, document, callback)
+
+        // replace
+        @JvmStatic
+        fun replaceAttachmentMedia(attachment: Attachment, partitionKey: String, contentType: String, media: ByteArray, callback: (DataResponse) -> Unit) =
+                documentClient.replaceAttachmentMedia(attachment, partitionKey, contentType, media, callback)
 
         // Get media
         @JvmStatic

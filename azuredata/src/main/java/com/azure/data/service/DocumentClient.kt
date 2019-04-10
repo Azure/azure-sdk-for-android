@@ -569,18 +569,6 @@ class DocumentClient private constructor() {
     }
 
     // replace
-    fun replaceAttachment(attachmentId: String, contentType: String, media: ByteArray, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (Response<Attachment>) -> Unit) {
-
-        val requestDetails = RequestDetails(ResourceLocation.Attachment(databaseId, collectionId, documentId, attachmentId))
-        requestDetails.headers = setPartitionKeyHeader(partitionKey)
-        requestDetails.addHeader(HttpHeader.ContentType.value, contentType)
-        requestDetails.addHeader(HttpHeader.Slug.value, attachmentId)
-        requestDetails.body = media
-
-        return createOrReplace(requestDetails, true, callback)
-    }
-
-    // replace
     fun replaceAttachment(attachmentId: String, contentType: String, mediaUrl: HttpUrl, document: Document, callback: (Response<Attachment>) -> Unit) {
 
         val requestDetails = RequestDetails(ResourceLocation.Child(ResourceType.Attachment, document, attachmentId))
@@ -590,7 +578,59 @@ class DocumentClient private constructor() {
     }
 
     // replace
-    fun replaceAttachment(attachmentId: String, contentType: String, media: ByteArray, document: Document, callback: (Response<Attachment>) -> Unit) {
+    fun replaceAttachmentMedia(attachmentId: String, contentType: String, media: ByteArray, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (DataResponse) -> Unit) {
+
+        val requestDetails = RequestDetails(ResourceLocation.Attachment(databaseId, collectionId, documentId, attachmentId))
+        requestDetails.headers = setPartitionKeyHeader(partitionKey)
+
+        resource<Attachment>(requestDetails) { response ->
+
+            if (response.isSuccessful) {
+
+                response.resource?.let {
+
+                    replaceAttachmentMedia(it, partitionKey, contentType, media, callback)
+
+                } ?: callback(Response(DataError(DocumentClientError.UnknownError), response = response.response))
+            } else {
+
+                callback(Response(response.error!!))
+            }
+        }
+    }
+
+    // replace
+    fun replaceAttachmentMedia(attachment: Attachment, contentType: String, media: ByteArray, document: Document, callback: (DataResponse) -> Unit) {
+
+        val partitionKey = PartitionKeyPropertyCache.getPartitionKeyValues(document)
+
+        replaceAttachmentMedia(attachment, partitionKey.first(), contentType, media, callback)
+    }
+
+    // replace
+    fun replaceAttachmentMedia(attachment: Attachment, partitionKey: String, contentType: String, media: ByteArray, callback: (DataResponse) -> Unit) {
+
+        val requestDetails = RequestDetails(ResourceLocation.MediaLink(attachment.mediaLink!!, attachment.resourceId!!))
+        requestDetails.method = HttpMethod.Put
+        requestDetails.headers = setPartitionKeyHeader(partitionKey)
+        requestDetails.addHeader(HttpHeader.Accept.value, HttpMediaType.Any.value)
+        requestDetails.addHeader(HttpHeader.ContentType.value, contentType)
+        requestDetails.addHeader(HttpHeader.Slug.value, attachment.id)
+        requestDetails.body = media
+
+        try {
+            createRequest(requestDetails) { request ->
+
+                sendRequest(request, requestDetails, callback)
+            }
+        } catch (ex: Exception) {
+            e(ex)
+            callback(Response(DataError(ex)))
+        }
+    }
+
+    // replace
+    fun replaceAttachmentMedia(attachmentId: String, contentType: String, media: ByteArray, document: Document, callback: (Response<Attachment>) -> Unit) {
 
         val requestDetails = RequestDetails(ResourceLocation.Child(ResourceType.Attachment, document, attachmentId))
         requestDetails.headers = setResourcePartitionKey(document)
@@ -613,7 +653,8 @@ class DocumentClient private constructor() {
                 response.resource?.let {
 
                     getAttachmentMedia(it, document, callback)
-                }
+
+                } ?: callback(Response(DataError(DocumentClientError.UnknownError), response = response.response))
             } else {
 
                 callback(Response(response.error!!))
@@ -1589,11 +1630,12 @@ class DocumentClient private constructor() {
             val body = response.body()
                     ?: return Response(DataError("Empty response body received"))
             val json = body.string()
+            val code = response.code()
 
             //check http return code/success
             when {
             // HttpStatusCode.Created: // cache locally
-            // HttpStatusCode.NoContent: // DELETEing a resource remotely should delete the cached version (if the delete was successful indicated by a response status code of 204 No Content)
+            // HttpStatusCode.NoContent: // DELETEing a resource remotely should delete the cached version (if the delete was successful indicated by a response status code of 204 No Content); also a PUT can/will return this status
             // HttpStatusCode.Unauthorized:
             // HttpStatusCode.Forbidden: // reauth
             // HttpStatusCode.Conflict: // conflict callback
@@ -1611,7 +1653,7 @@ class DocumentClient private constructor() {
                     return Response(request, response, json, Result(returnedResource))
                 }
 
-                response.code() == HttpStatusCode.NotModified.code -> {
+                code == HttpStatusCode.NotModified.code -> {
 
                     resource?.let {
                         setResourceMetadata(response, it, requestDetails.resourceLocation.resourceType)
