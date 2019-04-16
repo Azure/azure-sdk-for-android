@@ -51,7 +51,7 @@ class GeoQueryTests : DocumentTest<PartitionedCustomDocment>("GeoQueryTests", Pa
 
         val point = Point(42.12, 34.4)
         val ptJson = gson.toJson(point).replace("\n", "")
-        val query = Query().from(collectionId)
+        val query = Query.select().from(collectionId)
                 .whereDistanceEqualTo("point", point, 3000)
                 .query
 
@@ -63,7 +63,7 @@ class GeoQueryTests : DocumentTest<PartitionedCustomDocment>("GeoQueryTests", Pa
 
         val point = Point(42.12, 34.4)
         val ptJson = gson.toJson(point).replace("\n", "")
-        val query = Query().from(collectionId)
+        val query = Query.select().from(collectionId)
                 .whereDistanceLessThan("point", point, 3000)
                 .query
 
@@ -75,7 +75,7 @@ class GeoQueryTests : DocumentTest<PartitionedCustomDocment>("GeoQueryTests", Pa
 
         val point = Point(42.12, 34.4)
         val ptJson = gson.toJson(point).replace("\n", "")
-        val query = Query().from(collectionId)
+        val query = Query.select().from(collectionId)
                 .whereDistanceLessThanEqualTo("point", point, 3000)
                 .query
 
@@ -87,7 +87,7 @@ class GeoQueryTests : DocumentTest<PartitionedCustomDocment>("GeoQueryTests", Pa
 
         val point = Point(42.12, 34.4)
         val ptJson = gson.toJson(point).replace("\n", "")
-        val query = Query().from(collectionId)
+        val query = Query.select().from(collectionId)
                 .whereDistanceGreaterThan("point", point, 3000)
                 .query
 
@@ -99,7 +99,7 @@ class GeoQueryTests : DocumentTest<PartitionedCustomDocment>("GeoQueryTests", Pa
 
         val point = Point(42.12, 34.4)
         val ptJson = gson.toJson(point).replace("\n", "")
-        val query = Query().from(collectionId)
+        val query = Query.select().from(collectionId)
                 .whereDistanceGreaterThanEqualTo("point", point, 3000)
                 .query
 
@@ -197,7 +197,7 @@ class GeoQueryTests : DocumentTest<PartitionedCustomDocment>("GeoQueryTests", Pa
                 .end()
 
         val polyJson = gson.toJson(polygon).replace("\n", "")
-        val query = Query().from(collectionId)
+        val query = Query.select().from(collectionId)
                 .whereGeoIntersectsWith("myZipCode", polygon)
                 .query
 
@@ -213,7 +213,7 @@ class GeoQueryTests : DocumentTest<PartitionedCustomDocment>("GeoQueryTests", Pa
                 .end()
 
         val polyJson = gson.toJson(polygon).replace("\n", "")
-        val query = Query().from(collectionId)
+        val query = Query.select().from(collectionId)
                 .whereGeoWithin("myZipCode", polygon)
                 .query
 

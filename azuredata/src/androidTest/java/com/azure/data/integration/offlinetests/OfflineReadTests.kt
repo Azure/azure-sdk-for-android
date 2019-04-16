@@ -261,7 +261,7 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
 
         createNewDocuments(2)
 
-        val query = Query().from(collectionId)
+        val query = Query.select().from(collectionId)
 
         AzureData.queryDocuments(collection!!, query, docType) {
 
@@ -284,7 +284,7 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
 
         createNewDocuments(2)
 
-        val query = Query().from(collectionId)
+        val query = Query.select().from(collectionId)
 
         AzureData.queryDocuments(collectionId, databaseId, query, docType) {
 
