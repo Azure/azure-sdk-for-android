@@ -433,5 +433,10 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>("QueryTests", Partitio
         await().until { resourceListResponse != null }
 
         verifyListDocuments(verifyDocValues = false)
+
+        val returnedDoc = resourceListResponse!!.resource!!.items[0]
+
+        assertEquals(customStringValue, returnedDoc.customString)
+        assertEquals(customNumberValue, returnedDoc.customNumber)
     }
 }
