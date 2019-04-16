@@ -415,4 +415,23 @@ class QueryTests : DocumentTest<PartitionedCustomDocment>("QueryTests", Partitio
 
         assertEquals("Expected $totalDocs docs but ended up with ${resourceListResponse?.resource?.items?.size}", totalDocs, resourceListResponse?.resource?.items?.size)
     }
+
+    @Test
+    fun queryWithProperties() {
+
+        // ensure at least 1 doc to query
+        val doc = createNewDocument()
+
+        // create query
+        val query = Query.select(CustomDocument::customString.name, CustomDocument::customNumber.name)
+                .from(collectionId)
+
+        AzureData.queryDocuments(collectionId, doc.testKey, databaseId, query, docType) {
+            resourceListResponse = it
+        }
+
+        await().until { resourceListResponse != null }
+
+        verifyListDocuments(verifyDocValues = false)
+    }
 }

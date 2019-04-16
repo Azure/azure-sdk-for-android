@@ -117,6 +117,7 @@ abstract class DocumentTest<TDoc : CustomDocument>(resourceName: String, val doc
         assertNotNull(createdDoc.customNumber)
 
         if (verifyDocValues) {
+
             assertEquals(referenceDoc?.customString ?: customStringValue, createdDoc.customString)
             assertEquals(referenceDoc?.customNumber ?: customNumberValue, createdDoc.customNumber)
         }
@@ -126,7 +127,7 @@ abstract class DocumentTest<TDoc : CustomDocument>(resourceName: String, val doc
 
     fun verifyListDocuments(count : Int = 1, verifyDocValues: Boolean = true) {
 
-        assertListResponseSuccess(resourceListResponse)
+        assertListResponseSuccess(resourceListResponse, verifyDocValues)
         assertTrue(resourceListResponse?.resource?.count!! == count)
 
         resourceListResponse?.resource?.items?.forEach {
