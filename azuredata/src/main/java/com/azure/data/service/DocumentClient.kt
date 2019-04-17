@@ -208,7 +208,7 @@ class DocumentClient private constructor() {
     }
 
     // create
-    fun createCollection(collectionId: String, throughput: Int? = null, partitionKey: String, databaseId: String, callback: (Response<DocumentCollection>) -> Unit) {
+    fun createCollection(collectionId: String, throughput: Int? = null, partitionKey: String, databaseId: String, indexingPolicy: IndexingPolicy? = null, callback: (Response<DocumentCollection>) -> Unit) {
 
         val requestDetails = RequestDetails(ResourceLocation.Collection(databaseId))
 
@@ -220,8 +220,8 @@ class DocumentClient private constructor() {
 
             requestDetails.headers = mutableMapOf(MSHttpHeader.MSOfferThroughput.value to "$it")
 
-            create(DocumentCollection(collectionId, partitionKey), requestDetails, callback)
-        } ?: create(DocumentCollection(collectionId, partitionKey), requestDetails, callback)
+            create(DocumentCollection(collectionId, partitionKey, indexingPolicy), requestDetails, callback)
+        } ?: create(DocumentCollection(collectionId, partitionKey, indexingPolicy), requestDetails, callback)
     }
 
     // list

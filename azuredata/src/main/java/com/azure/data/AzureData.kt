@@ -183,23 +183,38 @@ class AzureData {
 
         // create
         @JvmStatic
+        fun createCollection(collectionId: String, partitionKey: String, indexingPolicy: IndexingPolicy, databaseId: String, callback: (Response<DocumentCollection>) -> Unit) =
+                documentClient.createCollection(collectionId, null, partitionKey, databaseId, indexingPolicy, callback)
+
+        // create
+        @JvmStatic
         fun createCollection(collectionId: String, partitionKey: String, databaseId: String, callback: (Response<DocumentCollection>) -> Unit) =
-                documentClient.createCollection(collectionId, null, partitionKey, databaseId, callback)
+                documentClient.createCollection(collectionId, null, partitionKey, databaseId, null, callback)
 
         // create
         @JvmStatic
         fun createCollection(collectionId: String, partitionKey: String, database: Database, callback: (Response<DocumentCollection>) -> Unit) =
-                documentClient.createCollection(collectionId, null, partitionKey, database.id, callback)
+                documentClient.createCollection(collectionId, null, partitionKey, database.id, null, callback)
+
+        // create
+        @JvmStatic
+        fun createCollection(collectionId: String, partitionKey: String, indexingPolicy: IndexingPolicy, database: Database, callback: (Response<DocumentCollection>) -> Unit) =
+                documentClient.createCollection(collectionId, null, partitionKey, database.id, indexingPolicy, callback)
 
         // create
         @JvmStatic
         fun createCollection(collectionId: String, throughput: Int, partitionKey: String, databaseId: String, callback: (Response<DocumentCollection>) -> Unit) =
-                documentClient.createCollection(collectionId, throughput, partitionKey, databaseId, callback)
+                documentClient.createCollection(collectionId, throughput, partitionKey, databaseId, null, callback)
 
         // create
         @JvmStatic
         fun createCollection(collectionId: String, throughput: Int, partitionKey: String, database: Database, callback: (Response<DocumentCollection>) -> Unit) =
-                documentClient.createCollection(collectionId, throughput, partitionKey, database.id, callback)
+                documentClient.createCollection(collectionId, throughput, partitionKey, database.id, null, callback)
+
+        // create
+        @JvmStatic
+        fun createCollection(collectionId: String, throughput: Int, partitionKey: String, indexingPolicy: IndexingPolicy, database: Database, callback: (Response<DocumentCollection>) -> Unit) =
+                documentClient.createCollection(collectionId, throughput, partitionKey, database.id, indexingPolicy, callback)
 
         // list
         @JvmStatic

@@ -31,9 +31,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(createdResourceId, response?.resource?.id)
@@ -48,9 +46,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
             resourceListResponse = it
         }
 
-        await().until {
-            resourceListResponse != null
-        }
+        await().until { resourceListResponse != null }
 
         assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
@@ -65,9 +61,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
             resourceListResponse = it
         }
 
-        await().until {
-            resourceListResponse != null
-        }
+        await().until { resourceListResponse != null }
 
         assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
@@ -82,9 +76,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(collectionId, response?.resource?.id)
@@ -99,9 +91,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(collectionId, response?.resource?.id)
@@ -116,9 +106,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(collectionId, response?.resource?.id)
@@ -135,9 +123,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -151,9 +137,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -167,9 +151,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -183,9 +165,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -205,9 +185,7 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(collectionId, response?.resource?.id)

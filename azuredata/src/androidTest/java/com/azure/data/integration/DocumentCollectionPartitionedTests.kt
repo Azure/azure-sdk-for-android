@@ -78,6 +78,46 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>("Doc
     }
 
     @Test
+    fun createCollectionWithIndexingPolicy() {
+
+        val policy = IndexingPolicy.create {
+            automatic = true
+            mode = IndexingMode.Lazy
+            includedPaths {
+                includedPath {
+                    path = "/*"
+                    indexes {
+                        // create indexes via factory methods
+                        index(Index.range(DataType.Number, -1))
+                        // or, by specifying each member
+                        index {
+                            kind = IndexKind.Hash
+                            dataType = DataType.String
+                            precision = 3
+                        }
+                        index(Index.spatial(DataType.Point))
+                    }
+                }
+            }
+            // omit if no paths should be excluded
+            excludedPaths {
+                excludedPath {
+                    path = "/test/*"
+                }
+            }
+        }
+
+        AzureData.createCollection(collectionId, partitionKeyPath!!, policy, databaseId) {
+            response = it
+        }
+
+        await().until { response != null }
+
+        assertResourceResponseSuccess(response)
+        assertEquals(collectionId, response?.resource?.id)
+    }
+
+    @Test
     fun listCollections() {
 
         ensureCollection()
