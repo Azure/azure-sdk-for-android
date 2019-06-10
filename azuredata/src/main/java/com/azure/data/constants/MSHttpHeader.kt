@@ -52,6 +52,22 @@ enum class MSHttpHeader(val value: String, val description: String = "") {
      */
     MSDocumentDBPartitionKeyRangeId("x-ms-documentdb-partitionkeyrangeid"),
     /**
+     * Used to specify the list of PRE triggers to run before an operation. See https://docs.microsoft.com/en-us/azure/cosmos-db/how-to-use-stored-procedures-triggers-udfs#pre-triggers
+     */
+    MSDocumentDBPreTriggerInclude("x-ms-documentdb-pre-trigger-include"),
+    /**
+     * Used to specify the list of PRE triggers to EXCLUDE before an operation. See https://docs.microsoft.com/en-us/azure/cosmos-db/how-to-use-stored-procedures-triggers-udfs#pre-triggers
+     */
+    MSDocumentDBPreTriggerExclude("x-ms-documentdb-pre-trigger-exclude"),
+    /**
+     * Used to specify the list of POST triggers to run after an operation. See https://docs.microsoft.com/en-us/azure/cosmos-db/how-to-use-stored-procedures-triggers-udfs#pre-triggers
+     */
+    MSDocumentDBPostTriggerInclude("x-ms-documentdb-post-trigger-include"),
+    /**
+     * Used to specify the list of POST triggers to EXCLUDE after an operation. See https://docs.microsoft.com/en-us/azure/cosmos-db/how-to-use-stored-procedures-triggers-udfs#pre-triggers
+     */
+    MSDocumentDBPostTriggerExclude("x-ms-documentdb-post-trigger-exclude"),
+    /**
      * The acceptable value is Include or Exclude.
 
      * - Include adds the document to the index.

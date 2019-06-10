@@ -10,9 +10,8 @@ import com.azure.data.model.Resource
 class ResourceWriteOperation(
         val type: ResourceWriteOperationType,
         val resource: Resource?,
-        val resourceLocation: ResourceLocation,
-        var resourceLocalContentPath: String,
-        val httpHeaders: MutableMap<String, String>
+        val requestDetails: RequestDetails,
+        var resourceLocalContentPath: String
     ): Comparable<ResourceWriteOperation> {
 
     override fun compareTo(other: ResourceWriteOperation): Int {

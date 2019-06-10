@@ -38,6 +38,7 @@ class Trigger(id: String? = null) : Resource(id) {
      * - delete:   Specifies delete operations only.
      */
     enum class TriggerOperation {
+
         All,
         Insert,
         Replace,
@@ -50,6 +51,7 @@ class Trigger(id: String? = null) : Resource(id) {
      * - post: Trigger should be executed before the associated operation(s).
      */
     enum class TriggerType {
+
         Pre,
         Post
     }
