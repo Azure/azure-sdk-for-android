@@ -1219,15 +1219,6 @@ class DocumentClient private constructor() {
 
         try {
             requestDetails.isQuery = true
-
-//            // do we have a partition key to send?  If not, then this query will be a cross partition query
-//            requestDetails.headers = requestDetails.partitionKey?.let { setPartitionKeyHeader(requestDetails.partitionKey) }
-//                    ?: mutableMapOf(MSHttpHeader.MSDocumentDBQueryEnableCrossPartition.value to HttpHeaderValue.trueValue)
-
-            // need to set the special query headers
-//            requestDetails.addHeader(MSHttpHeader.MSDocumentDBIsQuery.value, HttpHeaderValue.trueValue)
-//            requestDetails.addHeader(HttpHeader.ContentType.value, HttpMediaType.QueryJson.value)
-
             requestDetails.method = HttpMethod.Post
             requestDetails.body = gson.toJson(query.dictionary).toByteArray()
 
@@ -1281,13 +1272,13 @@ class DocumentClient private constructor() {
 
         try {
             val request = response.request
-                ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
+                    ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
 
             val continuation = response.metadata.continuation
                     ?: return callback(ListResponse(DataError(DocumentClientError.NoMoreResultsError)))
 
             val resourceLocation = response.resourceLocation
-                ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
+                    ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
 
             val resourceType = response.resourceType
                     ?: return callback(ListResponse(DataError(DocumentClientError.NextCalledTooEarlyError)))
@@ -1310,7 +1301,7 @@ class DocumentClient private constructor() {
                         }
 
                         @Throws(IOException::class)
-                        override fun onResponse(call: Call, resp: okhttp3.Response)  =
+                        override fun onResponse(call: Call, resp: okhttp3.Response) =
                                 callback(processListResponse(request, resp, requestDetails))
 
                     })
@@ -1356,31 +1347,6 @@ class DocumentClient private constructor() {
     private val dateFormatter : SimpleDateFormat by lazy {
         DateUtil.getDateFromatter(DateUtil.Format.Rfc1123Format)
     }
-
-//    private fun setPartitionKeyHeader(partitionKey: List<String>?, headers: MutableMap<String, String>? = null) : MutableMap<String, String>? {
-//
-//        return if (!partitionKey.isNullOrEmpty()) {
-//
-//            //send the partition key(s) in the form of header: x-ms-documentdb-partitionkey: ["<My Partition Key>"]
-//            val partitionKeyValue = partitionKey.joinToString(prefix = "[\"", postfix = "\"]", separator = "\",\"")
-//
-//            if (headers != null) {
-//                headers[MSHttpHeader.MSDocumentDBPartitionKey.value] = partitionKeyValue
-//                headers
-//            } else {
-//                mutableMapOf(MSHttpHeader.MSDocumentDBPartitionKey.value to partitionKeyValue)
-//            }
-//        } else headers
-//    }
-
-//    private fun setPartitionKeyHeader(partitionKey: String?, headers: MutableMap<String, String>? = null) : MutableMap<String, String>? {
-//
-//        return if (partitionKey != null) {
-//
-//            setPartitionKeyHeader(listOf(partitionKey), headers)
-//
-//        } else headers
-//    }
 
     private inline fun getTokenForResource(requestDetails: RequestDetails, crossinline callback: (Response<ResourceToken>) -> Unit) {
 
@@ -1449,48 +1415,6 @@ class DocumentClient private constructor() {
 
                     // fill in all extra headers defined by the request details
                     requestDetails.fillHeaders(headersBuilder)
-
-                    // add the count
-//                    requestDetails.maxPerPage?.let { max ->
-//                        if ((1..1000).contains(max)) {
-//                            headersBuilder.add(MSHttpHeader.MSMaxItemCount.value, max.toString())
-//                        } else {
-//                            throw DocumentClientError.InvalidMaxPerPageError
-//                        }
-//                    }
-
-                    // if we have additional headers, let's add them in here
-//                    requestDetails.headers?.let { headers ->
-//                        for (headerName in headers.keys) {
-//                            headersBuilder.add(headerName, headers[headerName]!!)
-//                        }
-//                    }
-
-//                    val builder = Request.Builder()
-//                            .headers(headersBuilder.build())
-//                            .url(url)
-
-//                    var mediaType = jsonMediaType
-//
-//                    if (requestDetails.body != null) {
-//
-//                        //  !NOTE!: we only accept a ByteArray body on RequestDetails due to a feature/bug in OkHttp that will tack on
-//                        //  a charset string that does not work well with certain operations (Query!) when converting a json body
-//                        //  A json body can be used by calling json.toByteArray() first
-//
-//                        // do we have a content type set in our headers?  If so, we'll use this for the body
-//                        requestDetails.headers?.get(HttpHeader.ContentType.value)?.let { contentType ->
-//
-//                            mediaType = MediaType.parse(contentType)
-//
-//                        } ?: run {
-//                            // otherwise, default to json & set the content type in our headers
-//
-//                            builder.addHeader(HttpHeader.ContentType.value, HttpMediaType.Json.value)
-//                        }
-//                    }
-
-//                    callback(builder.withMethod(requestDetails.method, requestDetails.body.toRequestBody(mediaType)).build())
 
                     callback(requestDetails.buildRequest(url, headersBuilder))
 
