@@ -12,7 +12,7 @@ class HttpHeaderValue {
         // https://docs.microsoft.com/en-us/rest/api/documentdb/#supported-rest-api-versions
         const val apiVersion = "2018-12-31"
 
-        const val trueValue = "true"
+        const val trueValue = "True"
 
         const val minDatabaseThroughput = 400
 
