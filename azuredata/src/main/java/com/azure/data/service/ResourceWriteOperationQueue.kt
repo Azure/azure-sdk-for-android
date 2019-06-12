@@ -411,7 +411,7 @@ private fun Context.resourceWriteOperationFile(write: ResourceWriteOperation): F
 }
 
 private fun Context.pendingWritesFiles(): List<File> {
-    return pendingWritesDir().listFiles().asList()
+    return pendingWritesDir().listFiles()?.asList() ?: listOf()
 }
 
 private fun Context.pendingWritesDir(): File {
