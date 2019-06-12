@@ -92,16 +92,6 @@ data class RequestDetails(val resourceLocation: ResourceLocation) {
             }
         }
 
-        // if we have a body to send, we need to also send the content type
-        if (this.body != null) {
-
-            //  !NOTE!: we only accept a ByteArray body on RequestDetails due to a feature/bug in OkHttp that will tack on
-            //  a charset string that does not work well with certain operations (Query!) when converting a json body
-            //  A json body can be used by calling json.toByteArray() first
-
-            headersBuilder.add(HttpHeader.ContentType.value, contentType)
-        }
-
         // partition key specification
         if (!partitionKey.isNullOrEmpty()) {
 
@@ -116,7 +106,9 @@ data class RequestDetails(val resourceLocation: ResourceLocation) {
 
             // need to set the special query headers
             headersBuilder.add(MSHttpHeader.MSDocumentDBIsQuery.value, HttpHeaderValue.trueValue)
-            headersBuilder.add(HttpHeader.ContentType.value, HttpMediaType.QueryJson.value)
+
+            // queries always need Query+Json content type
+            this.contentType = HttpMediaType.QueryJson.value
 
             if (partitionKey.isNullOrEmpty()) {
 
@@ -133,6 +125,16 @@ data class RequestDetails(val resourceLocation: ResourceLocation) {
                 // TODO:  Note, we may need to do more here if there are additional PartitionKeyRange items that come back... can't find docs on this format
                 headersBuilder.add(MSHttpHeader.MSDocumentDBPartitionKeyRangeId.value, "${it.resourceId!!},${it.items[0].id}")
             }
+        }
+
+        // if we have a body to send, we need to also send the content type
+        if (this.body != null) {
+
+            //  !NOTE!: we only accept a ByteArray body on RequestDetails due to a feature/bug in OkHttp that will tack on
+            //  a charset string that does not work well with certain operations (Query!) when converting a json body
+            //  A json body can be used by calling json.toByteArray() first
+
+            headersBuilder.add(HttpHeader.ContentType.value, contentType)
         }
 
         // pre/post triggers
