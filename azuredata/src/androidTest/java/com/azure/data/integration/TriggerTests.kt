@@ -19,6 +19,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
 
+    init {
+        partitionKeyPath = "/testKey"
+    }
+
     private val triggerBody = """
         function updateMetadata() {}
         """

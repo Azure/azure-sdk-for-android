@@ -19,6 +19,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class UserDefinedFunctionTests : ResourceTest<UserDefinedFunction>("UserDefinedFunctionTests", true, true) {
 
+    init {
+        partitionKeyPath = "/testKey"
+    }
+
     private val udfBody = """
         function (input) { return input.toLowerCase(); }
         """

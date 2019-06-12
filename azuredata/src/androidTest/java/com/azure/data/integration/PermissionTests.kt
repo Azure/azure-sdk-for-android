@@ -23,6 +23,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class PermissionTests : ResourceTest<Permission>("PermissionTests", true, true) {
 
+    init {
+        partitionKeyPath = "/testKey"
+    }
+
     private val userId = "AndroidTest${ResourceType.User.name}"
     private var user: User? = null
 
