@@ -92,15 +92,4 @@ internal class ResourceWriteOperationAdapter: JsonSerializer<ResourceWriteOperat
         val detailsClass = Class.forName(json.getAsJsonPrimitive("_class").asString)
         return gson.fromJson(json.getAsJsonPrimitive("details").asString, detailsClass) as RequestDetails
     }
-
-    private fun serialize(headers: MutableMap<String, String>): JsonElement {
-
-        val json = JsonObject()
-
-        headers.keys.forEach { header: String ->
-            json.addProperty(header, headers[header])
-        }
-
-        return json
-    }
 }

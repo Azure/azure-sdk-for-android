@@ -137,11 +137,13 @@ data class RequestDetails(val resourceLocation: ResourceLocation) {
 
         // pre/post triggers
         if (this.postTriggers.isNotEmpty()) {
+
             val postTriggerInclude = this.postTriggers.joinToString(",")
             headersBuilder.add(MSHttpHeader.MSDocumentDBPostTriggerInclude.value, postTriggerInclude)
         }
 
         if (this.preTriggers.isNotEmpty()) {
+
             val preTriggerInclude = this.preTriggers.joinToString(",")
             headersBuilder.add(MSHttpHeader.MSDocumentDBPreTriggerInclude.value, preTriggerInclude)
         }
