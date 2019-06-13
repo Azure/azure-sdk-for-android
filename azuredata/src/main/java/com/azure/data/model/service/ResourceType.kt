@@ -92,14 +92,14 @@ enum class ResourceType(val path: String, fullname: String, val type: Type) {
 
         fun fromType(type: Type): ResourceType {
 
-            return ResourceType.values().find {
+            return values().find {
                 it.type == type
             } ?: Document // if no match, then we assume we're dealing with a document
         }
 
         fun fromListName(name: String): ResourceType {
 
-            return ResourceType.values().find {
+            return values().find {
                 it.listName == name
             } ?: throw Exception("Unable to determine resource type requested")
         }
