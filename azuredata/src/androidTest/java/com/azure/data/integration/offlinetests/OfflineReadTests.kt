@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
 import org.junit.Assert.*
 
 @RunWith(AndroidJUnit4::class)
-class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests", PartitionedCustomDocment::class.java) {
+class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests", PartitionedCustomDocment::class.java, true, false, false) {
 
     init {
         partitionKeyPath = "/testKey"
@@ -30,14 +30,7 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
     @Test
     fun fromCacheIsTrueForResourcesFetchedFromLocalCache() {
 
-        var createResponse: Response<Database>? = null
         var listResponse: ListResponse<Database>? = null
-
-        deleteResources {
-            AzureData.createDatabase(databaseId) { createResponse = it }
-        }
-
-        await().until { createResponse != null }
 
         turnOffInternetConnection()
 
@@ -52,14 +45,7 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
     @Test
     fun fromCacheIsFalseForResourcesFetchedOnline() {
 
-        var createResponse: Response<Database>? = null
         var listResponse: ListResponse<Database>? = null
-
-        deleteResources {
-            AzureData.createDatabase(databaseId) { createResponse = it }
-        }
-
-        await().until { createResponse != null }
 
         AzureData.getDatabases { listResponse = it }
 
@@ -72,14 +58,7 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
     @Test
     fun fromCacheIsTrueForASingleResourceFetchedFromLocalCache() {
 
-        var createResponse: Response<Database>? = null
         var getResponse: Response<Database>? = null
-
-        deleteResources {
-            AzureData.createDatabase(databaseId) { createResponse = it }
-        }
-
-        await().until { createResponse != null }
 
         await().atLeast(Duration.TWO_SECONDS)
 
@@ -96,14 +75,7 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
     @Test
     fun fromCacheIsFalseForAsSingleResourceFetchedOnline() {
 
-        var createResponse: Response<Database>? = null
         var getResponse: Response<Database>? = null
-
-        deleteResources {
-            AzureData.createDatabase(databaseId) { createResponse = it }
-        }
-
-        await().until { createResponse != null }
 
         AzureData.getDatabase(databaseId) { getResponse = it }
 
@@ -116,17 +88,10 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
     @Test
     fun deletingAResourceRemotelyAlsoDeletesItFromLocalCache() {
 
-        var database: Database? = null
         var deleteResponse: DataResponse? = null
 
-        deleteResources {
-            AzureData.createDatabase(databaseId) { dbResponse ->
-                database = dbResponse.resource
-
-                AzureData.deleteDatabase(databaseId) {
-                    deleteResponse = it
-                }
-            }
+        AzureData.deleteDatabase(databaseId) {
+            deleteResponse = it
         }
 
         await().until { deleteResponse != null }
@@ -142,14 +107,6 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
     @Test
     fun databasesAreCachedLocallyWhenNetworkIsReachable() {
 
-        var createResponse: Response<Database>? = null
-
-        deleteResources {
-            AzureData.createDatabase(databaseId) { createResponse = it }
-        }
-
-        await().until { createResponse != null }
-
         ensureResourcesAreCachedLocallyWhenNetworkIsReachable<Database> {
             AzureData.getDatabases(callback = it)
         }
@@ -157,14 +114,6 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
 
     @Test
     fun databasesAreFetchedFromLocalCacheWhenNetworkIsNotReachable() {
-
-        var createResponse: Response<Database>? = null
-
-        deleteResources {
-            AzureData.createDatabase(databaseId) { createResponse = it }
-        }
-
-        await().until { createResponse != null }
 
         ensureResourcesAreFetchedFromLocalCacheWhenNetworkIsNotReachable<Database> {
             AzureData.getDatabases(callback = it)
@@ -174,17 +123,7 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
     @Test
     fun collectionsAreCachedLocallyWhenNetworkIsReachable() {
 
-        var createResponse: Response<DocumentCollection>? = null
-
-        deleteResources {
-            AzureData.createDatabase(databaseId) {
-                AzureData.createCollection(collectionId, databaseId) {
-                    createResponse = it
-                }
-            }
-        }
-
-        await().until { createResponse != null }
+        ensureCollection()
 
         ensureResourcesAreCachedLocallyWhenNetworkIsReachable<DocumentCollection> {
             AzureData.getCollections(databaseId, callback = it)
@@ -194,18 +133,7 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
     @Test
     fun collectionsAreFetchedFromLocalCacheWhenNetworkIsNotReachable() {
 
-
-        var createResponse: Response<DocumentCollection>? = null
-
-        deleteResources {
-            AzureData.createDatabase(databaseId) {
-                AzureData.createCollection(collectionId, databaseId) {
-                    createResponse = it
-                }
-            }
-        }
-
-        await().until { createResponse != null }
+        ensureCollection()
 
         ensureResourcesAreFetchedFromLocalCacheWhenNetworkIsNotReachable<DocumentCollection> {
             AzureData.getCollections(databaseId, callback = it)
@@ -217,15 +145,12 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
 
         var createResponse: Response<CustomDocument>? = null
 
-        deleteResources {
-            AzureData.createDatabase(databaseId) {
-                AzureData.createCollection(collectionId, databaseId) {
-                    AzureData.createDocument(CustomDocument(documentId), collectionId, databaseId) {
-                        createResponse = it
-                    }
-                }
-            }
+        ensureCollection()
+
+        AzureData.createDocument(CustomDocument(documentId), collectionId, databaseId) {
+            createResponse = it
         }
+
 
         await().until { createResponse != null }
 
@@ -239,14 +164,10 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
 
         var createResponse: Response<CustomDocument>? = null
 
-        deleteResources {
-            AzureData.createDatabase(databaseId) {
-                AzureData.createCollection(collectionId, databaseId) {
-                    AzureData.createDocument(CustomDocument(documentId), collectionId, databaseId) {
-                        createResponse = it
-                    }
-                }
-            }
+        ensureCollection()
+
+        AzureData.createDocument(CustomDocument(documentId), collectionId, databaseId) {
+            createResponse = it
         }
 
         await().until { createResponse != null }
@@ -259,6 +180,8 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
     @Test
     fun queryResultsAreCachedLocally() {
 
+        ensureCollection()
+
         createNewDocuments(2)
 
         val query = Query.select().from(collectionId)
@@ -268,7 +191,7 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
             resourceListResponse = it
         }
 
-        await().forever().until { resourceListResponse != null }
+        await().until { resourceListResponse != null }
 
         resourceListResponse!!.resource!!.items.forEach {
 
@@ -281,6 +204,8 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
 
     @Test
     fun queryResultsAreFetchedFromLocalCacheWhenNetworkIsNotReachable() {
+
+        ensureCollection()
 
         createNewDocuments(2)
 
@@ -347,6 +272,7 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
         var listResponse: ListResponse<T>? = null
 
         getResources {
+
             onlineResources = it.resource?.items
 
             await().atLeast(Duration.TWO_SECONDS)
@@ -354,6 +280,7 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
             turnOffInternetConnection()
 
             getResources { offlineResponse ->
+
                 offlineResources = offlineResponse.resource?.items
 
                 listResponse = offlineResponse
@@ -366,13 +293,9 @@ class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests
         assertNotNull(offlineResources)
 
         offlineResources!!.forEach { offlineResource ->
+
             assertTrue(onlineResources!!.any { it.id == offlineResource.id })
         }
-    }
-
-    private fun deleteResources(callback: () -> Unit) {
-
-        AzureData.deleteDatabase(databaseId) { callback() }
     }
 
     //endregion
