@@ -104,13 +104,13 @@ fun <T : Document> DocumentCollection.getDocuments (documentClass: Class<T>, max
 }
 
 // create
-fun <T : Document> DocumentCollection.createDocument (document: T, callback: (Response<T>) -> Unit) {
-    return AzureData.createDocument(document, this, callback)
+fun <T : Document> DocumentCollection.createDocument (document: T, preTrigger: String? = null, postTrigger: String? = null, callback: (Response<T>) -> Unit) {
+    return AzureData.createDocument(document, this, preTrigger, postTrigger, callback)
 }
 
 // create
-fun <T : Document> DocumentCollection.createDocument (document: T, partitionKey: String, callback: (Response<T>) -> Unit) {
-    return AzureData.createDocument(document, partitionKey, this, callback)
+fun <T : Document> DocumentCollection.createDocument (document: T, partitionKey: String, preTrigger: String? = null, postTrigger: String? = null, callback: (Response<T>) -> Unit) {
+    return AzureData.createDocument(document, partitionKey, this, preTrigger, postTrigger, callback)
 }
 
 // get
@@ -125,18 +125,18 @@ fun <T : Document> DocumentCollection.getDocument (documentId: String, partition
 }
 
 // delete
-fun DocumentCollection.deleteDocument (document: Document, callback: (DataResponse) -> Unit) {
-    return AzureData.deleteDocument(document, callback)
+fun DocumentCollection.deleteDocument (document: Document, preTrigger: String? = null, postTrigger: String? = null, callback: (DataResponse) -> Unit) {
+    return AzureData.deleteDocument(document, preTrigger, postTrigger, callback)
 }
 
 // replace
-fun <T : Document> DocumentCollection.replaceDocument (document: T, callback: (Response<T>) -> Unit) {
-    return AzureData.replaceDocument(document, this, callback)
+fun <T : Document> DocumentCollection.replaceDocument (document: T, preTrigger: String? = null, postTrigger: String? = null, callback: (Response<T>) -> Unit) {
+    return AzureData.replaceDocument(document, this, preTrigger, postTrigger, callback)
 }
 
 // replace
-fun <T : Document> DocumentCollection.replaceDocument (document: T, partitionKey: String, callback: (Response<T>) -> Unit) {
-    return AzureData.replaceDocument(document, partitionKey, this, callback)
+fun <T : Document> DocumentCollection.replaceDocument (document: T, partitionKey: String, preTrigger: String? = null, postTrigger: String? = null, callback: (Response<T>) -> Unit) {
+    return AzureData.replaceDocument(document, partitionKey, this, preTrigger, postTrigger, callback)
 }
 
 // query

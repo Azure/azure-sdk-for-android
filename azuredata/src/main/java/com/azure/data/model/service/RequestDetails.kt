@@ -50,13 +50,9 @@ data class RequestDetails(val resourceLocation: ResourceLocation) {
 
     var partitionKeyRange: ResourceList<PartitionKeyRange>? = null
 
-    val preTriggers: MutableSet<String> by lazy {
-        mutableSetOf<String>()
-    }
+    var preTriggers: Set<String>? = null
 
-    val postTriggers: MutableSet<String> by lazy {
-        mutableSetOf<String>()
-    }
+    var postTriggers: Set<String>? = null
 
     var ifNoneMatchETag: String? = null
 
@@ -138,16 +134,22 @@ data class RequestDetails(val resourceLocation: ResourceLocation) {
         }
 
         // pre/post triggers
-        if (this.postTriggers.isNotEmpty()) {
+        this.postTriggers?.let {
 
-            val postTriggerInclude = this.postTriggers.joinToString(",")
-            headersBuilder.add(MSHttpHeader.MSDocumentDBPostTriggerInclude.value, postTriggerInclude)
+            if (it.isNotEmpty()) {
+
+                val postTriggerInclude = it.joinToString(",")
+                headersBuilder.add(MSHttpHeader.MSDocumentDBPostTriggerInclude.value, postTriggerInclude)
+            }
         }
 
-        if (this.preTriggers.isNotEmpty()) {
+        this.preTriggers?.let {
 
-            val preTriggerInclude = this.preTriggers.joinToString(",")
-            headersBuilder.add(MSHttpHeader.MSDocumentDBPreTriggerInclude.value, preTriggerInclude)
+            if (it.isNotEmpty()) {
+
+                val preTriggerInclude = it.joinToString(",")
+                headersBuilder.add(MSHttpHeader.MSDocumentDBPreTriggerInclude.value, preTriggerInclude)
+            }
         }
 
         // if we have an eTag, we'll set & send the IfNoneMatch header

@@ -258,40 +258,38 @@ class AzureData {
 
         // create
         @JvmStatic
-        fun <T : Document> createDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
-                documentClient.createDocument(document, null, collectionId, databaseId, callback)
+        @JvmOverloads
+        fun <T : Document> createDocument(document: T, collectionId: String, databaseId: String, preTrigger: String? = null, postTrigger: String? = null, partitionKey: String? = null, callback: (Response<T>) -> Unit) =
+                documentClient.createDocument(document, partitionKey, preTrigger, postTrigger, collectionId, databaseId, callback)
 
         // create
         @JvmStatic
-        fun <T : Document> createDocument(document: T, partitionKey: String, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
-                documentClient.createDocument(document, partitionKey, collectionId, databaseId, callback)
+        @JvmOverloads
+        fun <T : Document> createDocument(document: T, collection: DocumentCollection, preTrigger: String? = null, postTrigger: String? = null, callback: (Response<T>) -> Unit) =
+                documentClient.createDocument(document, null, preTrigger, postTrigger, collection, callback)
 
         // create
         @JvmStatic
-        fun <T : Document> createDocument(document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
-                documentClient.createDocument(document, null, collection, callback)
+        @JvmOverloads
+        fun <T : Document> createDocument(document: T, partitionKey: String, collection: DocumentCollection, preTrigger: String? = null, postTrigger: String? = null, callback: (Response<T>) -> Unit) =
+                documentClient.createDocument(document, partitionKey, preTrigger, postTrigger, collection, callback)
 
-        // create
-        @JvmStatic
-        fun <T : Document> createDocument(document: T, partitionKey: String, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
-                documentClient.createDocument(document, partitionKey, collection, callback)
-
-        // createOrReplace
+        // createOrUpdate
         @JvmStatic
         fun <T : Document> createOrUpdateDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
                 documentClient.createOrUpdateDocument(document, null, collectionId, databaseId, callback)
 
-        // createOrReplace
+        // createOrUpdate
         @JvmStatic
         fun <T : Document> createOrUpdateDocument(document: T, partitionKey: String, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
                 documentClient.createOrUpdateDocument(document, partitionKey, collectionId, databaseId, callback)
 
-        // createOrReplace
+        // createOrUpdate
         @JvmStatic
         fun <T : Document> createOrUpdateDocument(document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
                 documentClient.createOrUpdateDocument(document, null, collection, callback)
 
-        // createOrReplace
+        // createOrUpdate
         @JvmStatic
         fun <T : Document> createOrUpdateDocument(document: T, partitionKey: String, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
                 documentClient.createOrUpdateDocument(document, partitionKey, collection, callback)
@@ -344,37 +342,39 @@ class AzureData {
 
         // delete
         @JvmStatic
-        fun deleteDocument(document: Document, callback: (DataResponse) -> Unit) =
-                documentClient.delete(document, null, callback)
+        @JvmOverloads
+        fun deleteDocument(document: Document, preTrigger: String? = null, postTrigger: String? = null, callback: (DataResponse) -> Unit) =
+                documentClient.deleteDocument(document, preTrigger, postTrigger, callback)
 
         // delete
         @JvmStatic
-        fun deleteDocument(documentId: String, partitionKey: String, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) =
-                documentClient.deleteDocument(documentId, partitionKey, collectionId, databaseId, callback)
+        @JvmOverloads
+        fun deleteDocument(documentId: String, partitionKey: String, collectionId: String, databaseId: String, preTrigger: String? = null, postTrigger: String? = null, callback: (DataResponse) -> Unit) =
+                documentClient.deleteDocument(documentId, partitionKey, collectionId, databaseId, preTrigger, postTrigger, callback)
 
         // delete
-        fun deleteDocument(documentId: String, partitionKey: String, collection: DocumentCollection, callback: (DataResponse) -> Unit) =
-                documentClient.deleteDocument(documentId, partitionKey, collection, callback)
+        @JvmStatic
+        @JvmOverloads
+        fun deleteDocument(documentId: String, partitionKey: String, collection: DocumentCollection, preTrigger: String? = null, postTrigger: String? = null, callback: (DataResponse) -> Unit) =
+                documentClient.deleteDocument(documentId, partitionKey, collection, preTrigger, postTrigger, callback)
 
         // replace
         @JvmStatic
-        fun <T : Document> replaceDocument(document: T, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
-                documentClient.replaceDocument(document, null, collectionId, databaseId, callback)
+        @JvmOverloads
+        fun <T : Document> replaceDocument(document: T, collectionId: String, databaseId: String, preTrigger: String? = null, postTrigger: String? = null, partitionKey: String? = null, callback: (Response<T>) -> Unit) =
+                documentClient.replaceDocument(document, partitionKey, collectionId, databaseId, preTrigger, postTrigger, callback)
 
         // replace
         @JvmStatic
-        fun <T : Document> replaceDocument(document: T, partitionKey: String, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) =
-                documentClient.replaceDocument(document, partitionKey, collectionId, databaseId, callback)
+        @JvmOverloads
+        fun <T : Document> replaceDocument(document: T, collection: DocumentCollection, preTrigger: String? = null, postTrigger: String? = null, callback: (Response<T>) -> Unit) =
+                documentClient.replaceDocument(document, null, collection, preTrigger, postTrigger, callback)
 
         // replace
         @JvmStatic
-        fun <T : Document> replaceDocument(document: T, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
-                documentClient.replaceDocument(document, null, collection, callback)
-
-        // replace
-        @JvmStatic
-        fun <T : Document> replaceDocument(document: T, partitionKey: String, collection: DocumentCollection, callback: (Response<T>) -> Unit) =
-                documentClient.replaceDocument(document, partitionKey, collection, callback)
+        @JvmOverloads
+        fun <T : Document> replaceDocument(document: T, partitionKey: String, collection: DocumentCollection, preTrigger: String? = null, postTrigger: String? = null, callback: (Response<T>) -> Unit) =
+                documentClient.replaceDocument(document, partitionKey, collection, preTrigger, postTrigger, callback)
 
         // query
         @JvmStatic

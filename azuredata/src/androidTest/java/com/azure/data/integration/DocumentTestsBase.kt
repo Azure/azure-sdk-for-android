@@ -75,6 +75,8 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
         }
     }
 
+    //region Create
+
     @Test
     fun createDocument() {
 
@@ -120,6 +122,10 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
 
         createNewDocument(coll = collection)
     }
+
+    //endregion
+
+    //region List
 
     @Test
     fun listDocuments() {
@@ -238,6 +244,10 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
         }
     }
 
+    //endregion
+
+    //region Get
+
     @Test
     fun getDocument() {
 
@@ -323,6 +333,8 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
         verifyDocument(createdDoc, doc)
     }
 
+    //endregion
+
     //region Deletes
 
     @Test
@@ -376,6 +388,8 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
 
     //endregion
 
+    //region Replace
+
     @Test
     fun replaceDocument() {
 
@@ -384,8 +398,8 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
 
         partitionKeyValue?.let {
 
-            AzureData.replaceDocument(doc, partitionKeyValue!!, collectionId, databaseId) {
-                response = it
+            AzureData.replaceDocument(doc, collectionId, databaseId, partitionKey = it) { resp ->
+                response = resp
             }
         } ?: run {
 
@@ -431,6 +445,28 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
         val replacedDoc = response!!.resource!!
         verifyDocument(replacedDoc, doc)
     }
+
+    //endregion
+
+//    @Test
+//    fun testTriggerSupport() {
+//
+//        var docResponse: Response<TDoc>? = null
+//        val doc = newDocument()
+//
+//        AzureData.createDocument(doc, collectionId, databaseId, "myPreTrigger", "myPostTrigger") {
+//            docResponse = it
+//        }
+//
+//        await().until { docResponse != null }
+//
+//        assertResourceResponseSuccess(docResponse)
+//        assertEquals(doc.id, docResponse?.resource?.id)
+//
+//        val createdDoc = docResponse!!.resource!!
+//
+//        verifyDocument(createdDoc, doc)
+//    }
 
     //endregion
 }

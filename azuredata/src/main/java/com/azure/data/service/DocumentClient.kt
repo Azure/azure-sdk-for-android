@@ -272,17 +272,21 @@ class DocumentClient private constructor() {
     //region Documents
 
     // create
-    fun <T : Document> createDocument(document: T, partitionKey: String? = null, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) {
+    fun <T : Document> createDocument(document: T, partitionKey: String? = null, preTrigger: String? = null, postTrigger: String? = null, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) {
 
         val requestDetails = RequestDetails(ResourceLocation.Document(databaseId, collectionId), partitionKey)
+        requestDetails.preTriggers = preTrigger?.let { setOf(it) }
+        requestDetails.postTriggers = postTrigger?.let { setOf(it) }
 
         return create(document, requestDetails, callback)
     }
 
     // create
-    fun <T : Document> createDocument(document: T, partitionKey: String? = null, collection: DocumentCollection, callback: (Response<T>) -> Unit) {
+    fun <T : Document> createDocument(document: T, partitionKey: String? = null, preTrigger: String? = null, postTrigger: String? = null, collection: DocumentCollection, callback: (Response<T>) -> Unit) {
 
         val requestDetails = RequestDetails(ResourceLocation.Child(ResourceType.Document, collection), partitionKey)
+        requestDetails.preTriggers = preTrigger?.let { setOf(it) }
+        requestDetails.postTriggers = postTrigger?.let { setOf(it) }
 
         return create(document, requestDetails, callback)
     }
@@ -362,33 +366,52 @@ class DocumentClient private constructor() {
     }
 
     // delete
-    fun deleteDocument(documentId: String, partitionKey: String, collectionId: String, databaseId: String, callback: (DataResponse) -> Unit) {
+    fun <TDoc: Document> deleteDocument(document: TDoc, preTrigger: String? = null, postTrigger: String? = null, callback: (DataResponse) -> Unit) {
 
-        val requestDetails = RequestDetails(ResourceLocation.Document(databaseId, collectionId, documentId), partitionKey)
+        val requestDetails = RequestDetails.fromResource(document)
+        requestDetails.setResourcePartitionKey(document)
+        requestDetails.preTriggers = preTrigger?.let { setOf(it) }
+        requestDetails.postTriggers = postTrigger?.let { setOf(it) }
 
         return delete(requestDetails, callback)
     }
 
     // delete
-    fun deleteDocument(documentId: String, partitionKey: String, collection: DocumentCollection, callback: (DataResponse) -> Unit) {
+    fun deleteDocument(documentId: String, partitionKey: String, collectionId: String, databaseId: String, preTrigger: String? = null, postTrigger: String? = null, callback: (DataResponse) -> Unit) {
+
+        val requestDetails = RequestDetails(ResourceLocation.Document(databaseId, collectionId, documentId), partitionKey)
+        requestDetails.preTriggers = preTrigger?.let { setOf(it) }
+        requestDetails.postTriggers = postTrigger?.let { setOf(it) }
+
+        return delete(requestDetails, callback)
+    }
+
+    // delete
+    fun deleteDocument(documentId: String, partitionKey: String, collection: DocumentCollection, preTrigger: String? = null, postTrigger: String? = null, callback: (DataResponse) -> Unit) {
 
         val requestDetails = RequestDetails(ResourceLocation.Child(ResourceType.Document, collection, documentId), partitionKey)
+        requestDetails.preTriggers = preTrigger?.let { setOf(it) }
+        requestDetails.postTriggers = postTrigger?.let { setOf(it) }
 
         return delete(requestDetails, callback)
     }
 
     // replace
-    fun <T : Document> replaceDocument(document: T, partitionKey: String? = null, collectionId: String, databaseId: String, callback: (Response<T>) -> Unit) {
+    fun <T : Document> replaceDocument(document: T, partitionKey: String? = null, collectionId: String, databaseId: String, preTrigger: String? = null, postTrigger: String? = null, callback: (Response<T>) -> Unit) {
 
         val requestDetails = RequestDetails(ResourceLocation.Document(databaseId, collectionId, document.id), partitionKey)
+        requestDetails.preTriggers = preTrigger?.let { setOf(it) }
+        requestDetails.postTriggers = postTrigger?.let { setOf(it) }
 
         return replace(document, requestDetails, callback)
     }
 
     // replace
-    fun <T : Document> replaceDocument(document: T, partitionKey: String? = null, collection: DocumentCollection, callback: (Response<T>) -> Unit) {
+    fun <T : Document> replaceDocument(document: T, partitionKey: String? = null, collection: DocumentCollection, preTrigger: String? = null, postTrigger: String? = null, callback: (Response<T>) -> Unit) {
 
         val requestDetails = RequestDetails(ResourceLocation.Child(ResourceType.Document, collection, document.id), partitionKey)
+        requestDetails.preTriggers = preTrigger?.let { setOf(it) }
+        requestDetails.postTriggers = postTrigger?.let { setOf(it) }
 
         return replace(document, requestDetails, callback)
     }
@@ -1137,15 +1160,6 @@ class DocumentClient private constructor() {
         return try {
 
             val requestDetails = RequestDetails.fromResource(resource, partitionKey)
-
-            //look for partition key property(ies) to send for this resource type
-            partitionKey?.let {
-
-                requestDetails.partitionKey = listOf(it)
-            } ?: run {
-
-                requestDetails.setResourcePartitionKey(resource)
-            }
 
             delete(requestDetails, callback)
 
