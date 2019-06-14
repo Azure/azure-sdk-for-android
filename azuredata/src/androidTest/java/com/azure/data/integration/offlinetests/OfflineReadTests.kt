@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
 import org.junit.Assert.*
 
 @RunWith(AndroidJUnit4::class)
-class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests", PartitionedCustomDocment::class.java, true, false, false) {
+class OfflineReadTests: DocumentTest<PartitionedCustomDocment>("OfflineReadTests", PartitionedCustomDocment::class.java, true, false) {
 
     init {
         partitionKeyPath = "/testKey"

@@ -23,17 +23,12 @@ class OfflineWriteTests: DocumentTest<PartitionedCustomDocment>("OfflineWriteTes
 
         turnOffInternetConnection()
 
-        var createResponse: Response<Database>? = null
         var listResponse: ListResponse<Database>? = null
 
-        AzureData.createDatabase(databaseId) {
-            createResponse = it
-        }
+        val response = tryCreateDatabase()
 
-        await().until { createResponse != null }
-
-        assertTrue(createResponse!!.isSuccessful)
-        assertTrue(createResponse!!.fromCache)
+        assertTrue(response!!.isSuccessful)
+        assertTrue(response.fromCache)
 
         AzureData.getDatabases {
             listResponse = it
@@ -52,28 +47,17 @@ class OfflineWriteTests: DocumentTest<PartitionedCustomDocment>("OfflineWriteTes
 
         turnOffInternetConnection()
 
-        var createResponse: Response<Database>? = null
-        var conflictResponse: Response<Database>? = null
+        val response = tryCreateDatabase()
 
-        AzureData.createDatabase(databaseId) {
-            createResponse = it
-        }
+        assertTrue(response!!.isSuccessful)
+        assertTrue(response.fromCache)
 
-        await().until { createResponse != null }
-
-        assertTrue(createResponse!!.isSuccessful)
-        assertTrue(createResponse!!.fromCache)
-
-        AzureData.createDatabase(databaseId) {
-            conflictResponse = it
-        }
-
-        await().until { conflictResponse != null }
+        val conflictResponse = tryCreateDatabase()
 
         assertTrue(conflictResponse!!.isErrored)
-        assertTrue(conflictResponse!!.fromCache)
-        assertNotNull(conflictResponse!!.response)
-        assertEquals(HttpStatusCode.Conflict.code, conflictResponse!!.response!!.code())
+        assertTrue(conflictResponse.fromCache)
+        assertNotNull(conflictResponse.response)
+        assertEquals(HttpStatusCode.Conflict.code, conflictResponse.response!!.code())
     }
 
     @Test
@@ -81,14 +65,14 @@ class OfflineWriteTests: DocumentTest<PartitionedCustomDocment>("OfflineWriteTes
 
         turnOffInternetConnection()
 
+        tryCreateDatabase()
+        val response = tryCreateCollection()
         var replaceResponse: Response<CustomDocument>? = null
 
-        AzureData.createDatabase(databaseId) {
-            AzureData.createCollection(collectionId, databaseId) {
-                AzureData.replaceDocument(CustomDocument(documentId), it.resource!!) { replaceRsp ->
-                    replaceResponse = replaceRsp
-                }
-            }
+        collection = response!!.resource!!
+
+        AzureData.replaceDocument(CustomDocument(documentId), collection!!) {
+            replaceResponse = it
         }
 
         await().until { replaceResponse != null }
