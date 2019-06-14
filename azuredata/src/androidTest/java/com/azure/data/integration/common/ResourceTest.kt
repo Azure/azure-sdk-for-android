@@ -306,22 +306,25 @@ open class ResourceTest<TResource : Resource>(resourceName: String,
         }
     }
 
-    fun <TResource : Resource> assertListResponseSuccess(response: ListResponse<TResource>?, verifyDocValues: Boolean = true) {
+    fun <TResource : Resource> assertListResponseSuccess(response: ListResponse<TResource>?, verifyDocValues: Boolean = true, verifyIsPopulated: Boolean = true) {
 
         assertResponsePopulated(response!!)
         assertTrue("response.isSuccessful is not True", response.isSuccessful)
         assertFalse("response.isErrored is not False", response.isErrored)
         assertNotNull("response.resource is null", response.resource)
 
-        val list = response.resource as ResourceList<*>
+        if (verifyIsPopulated || verifyDocValues) {
 
-        assertTrue("Returned List<TResource> list.isPopulated is False", list.isPopulated)
+            val list = response.resource as ResourceList<*>
 
-        if (verifyDocValues) {
+            assertTrue("Returned List<TResource> list.isPopulated is False", list.isPopulated)
 
-            list.items.forEach { item ->
+            if (verifyDocValues) {
 
-                assertResourcePropertiesSet(item)
+                list.items.forEach { item ->
+
+                    assertResourcePropertiesSet(item)
+                }
             }
         }
     }

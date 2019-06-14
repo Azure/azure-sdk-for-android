@@ -49,9 +49,9 @@ class ResourceWriteOperationQueue {
 
     //region Public API
 
-    fun <T: Resource> addCreateOrReplace(resource: T, location: ResourceLocation, headers: MutableMap<String, String>? = null, replace: Boolean = false, callback: (Response<T>) -> Unit) {
+    fun <T: Resource> addCreateOrReplace(resource: T, requestDetails: RequestDetails, replace: Boolean = false, callback: (Response<T>) -> Unit) {
 
-        createOrReplaceOffline(resource, location, replace) { response ->
+        createOrReplaceOffline(resource, requestDetails, replace) { response ->
 
             callback(response)
 
@@ -61,17 +61,16 @@ class ResourceWriteOperationQueue {
 
                         type = if (replace) ResourceWriteOperationType.Replace else ResourceWriteOperationType.Create,
                         resource = resource,
-                        resourceLocation = location,
-                        resourceLocalContentPath = response.response?.header(MSHttpHeader.MSContentPath.value) ?: "",
-                        httpHeaders = headers ?: mutableMapOf()
+                        requestDetails = requestDetails,
+                        resourceLocalContentPath = response.response?.header(MSHttpHeader.MSContentPath.value) ?: ""
                 ))
             }
         }
     }
 
-    fun addDelete(resourceLocation: ResourceLocation, headers: MutableMap<String, String>? = null, callback: (DataResponse) -> Unit) {
+    fun addDelete(requestDetails: RequestDetails, callback: (DataResponse) -> Unit) {
 
-        deleteOffline(resourceLocation) { response ->
+        deleteOffline(requestDetails) { response ->
 
             callback(response)
 
@@ -81,9 +80,8 @@ class ResourceWriteOperationQueue {
 
                         type = ResourceWriteOperationType.Delete,
                         resource = null,
-                        resourceLocation = resourceLocation,
-                        resourceLocalContentPath = response.response?.header(MSHttpHeader.MSContentPath.value) ?: "",
-                        httpHeaders = headers ?: mutableMapOf()
+                        requestDetails = requestDetails,
+                        resourceLocalContentPath = response.response?.header(MSHttpHeader.MSContentPath.value) ?: ""
                 ))
             }
         }
@@ -163,13 +161,10 @@ class ResourceWriteOperationQueue {
 
     private fun performWrite(write: ResourceWriteOperation, callback: (Response<Unit>) -> Unit) {
 
-        val requestDetails = RequestDetails(write.resourceLocation)
-        requestDetails.headers = write.httpHeaders
-
         when (write.type) {
 
-            ResourceWriteOperationType.Create  -> DocumentClient.shared.createOrReplace(write.resource!!, requestDetails, false) { callback(it.map { Unit }) }
-            ResourceWriteOperationType.Replace -> DocumentClient.shared.createOrReplace(write.resource!!, requestDetails, true) { callback(it.map { Unit }) }
+            ResourceWriteOperationType.Create  -> DocumentClient.shared.createOrReplace(write.resource!!, write.requestDetails, false) { callback(it.map { Unit }) }
+            ResourceWriteOperationType.Replace -> DocumentClient.shared.createOrReplace(write.resource!!, write.requestDetails, true) { callback(it.map { Unit }) }
             ResourceWriteOperationType.Delete  -> DocumentClient.shared.delete(write.resource!!) { it.map { Unit } }
         }
     }
@@ -252,7 +247,7 @@ class ResourceWriteOperationQueue {
 
     //region Offline Requests
 
-    private fun <T: Resource> createOrReplaceOffline(resource: T, resourceLocation: ResourceLocation, replace: Boolean = false, callback: (Response<T>) -> Unit) {
+    private fun <T: Resource> createOrReplaceOffline(resource: T, requestDetails: RequestDetails, replace: Boolean = false, callback: (Response<T>) -> Unit) {
 
         if (!resource.id.isValidIdForResource()) {
 
@@ -260,7 +255,7 @@ class ResourceWriteOperationQueue {
             return
         }
 
-        val altLink = resourceLocation.altLink(resource.id)
+        val altLink = requestDetails.resourceLocation.altLink(resource.id)
         val knownSelfLink = ResourceOracle.shared.getSelfLink(altLink)
 
         if (replace && knownSelfLink.isNullOrEmpty()) {
@@ -297,7 +292,7 @@ class ResourceWriteOperationQueue {
             return
         }
 
-        (knownSelfLink ?: resourceLocation.selfLink(UUID.randomUUID().toString()))?.let { selfLink ->
+        (knownSelfLink ?: requestDetails.resourceLocation.selfLink(UUID.randomUUID().toString()))?.let { selfLink ->
 
             ResourceOracle.shared.storeLinks(selfLink, altLink)
             resource.altLink = altLink
@@ -316,17 +311,17 @@ class ResourceWriteOperationQueue {
                     .message(gson.toJson(resource))
                     .build()
 
-            return callback(Response(request, response, null, Result(resource), resourceLocation, resourceLocation.resourceType.type, true))
+            return callback(Response(request, response, null, Result(resource), requestDetails.resourceLocation, requestDetails.resourceLocation.resourceType.type, true))
         }
 
         callback(Response(DataError(DocumentClientError.InternalError)))
     }
 
-    private fun deleteOffline(resourceLocation: ResourceLocation, callback: (DataResponse) -> Unit) {
+    private fun deleteOffline(requestDetails: RequestDetails, callback: (DataResponse) -> Unit) {
 
-        ResourceOracle.shared.getSelfLink(resourceLocation.link())?.let { selfLink ->
+        ResourceOracle.shared.getSelfLink(requestDetails.resourceLocation.link())?.let { selfLink ->
 
-            ResourceCache.shared.remove(resourceLocation)
+            ResourceCache.shared.remove(requestDetails.resourceLocation)
 
             val request = okhttp3.Request.Builder()
                     .url("https://com.azuredata.cache/$selfLink")
@@ -337,15 +332,15 @@ class ResourceWriteOperationQueue {
                     .protocol(Protocol.HTTP_1_1)
                     .code(HttpStatusCode.NoContent.code)
                     .addHeader(MSHttpHeader.MSContentPath.value, selfLink)
-                    .addHeader(MSHttpHeader.MSAltContentPath.value, resourceLocation.link().ancestorPath())
+                    .addHeader(MSHttpHeader.MSAltContentPath.value, requestDetails.resourceLocation.link().ancestorPath())
                     .message("")
                     .build()
 
-            return callback(Response(request, response, null, Result(""), resourceLocation, resourceLocation.resourceType.type, true))
+            return callback(Response(request, response, null, Result(""), requestDetails.resourceLocation, requestDetails.resourceLocation.resourceType.type, true))
         }
 
         val request = okhttp3.Request.Builder()
-                .url("https://localhost/${resourceLocation.link()}")
+                .url("https://localhost/${requestDetails.resourceLocation.link()}")
                 .build()
 
         val response = okhttp3.Response.Builder()
@@ -416,7 +411,7 @@ private fun Context.resourceWriteOperationFile(write: ResourceWriteOperation): F
 }
 
 private fun Context.pendingWritesFiles(): List<File> {
-    return pendingWritesDir().listFiles().asList()
+    return pendingWritesDir().listFiles()?.asList() ?: listOf()
 }
 
 private fun Context.pendingWritesDir(): File {
@@ -435,7 +430,7 @@ private fun Context.pendingWritesDir(): File {
 //region
 
 private fun ResourceWriteOperation.withType(type: ResourceWriteOperationType): ResourceWriteOperation {
-    return ResourceWriteOperation(type, this.resource, this.resourceLocation, this.resourceLocalContentPath, this.httpHeaders)
+    return ResourceWriteOperation(type, this.resource, this.requestDetails, this.resourceLocalContentPath)
 }
 
 private fun MutableList<ResourceWriteOperation>.sortedByResourceType(): MutableList<ResourceWriteOperation> {
@@ -449,11 +444,11 @@ private class ResourceWriteOperationHierarchicalComparator: Comparator<ResourceW
         lhs?.let { l ->
             rhs?.let { r ->
 
-                if (l.resourceLocation.resourceType.isAncestorOf(r.resourceLocation.resourceType)) {
+                if (l.requestDetails.resourceLocation.resourceType.isAncestorOf(r.requestDetails.resourceLocation.resourceType)) {
                     return 1
                 }
 
-                if (r.resourceLocation.resourceType.isAncestorOf(l.resourceLocation.resourceType)) {
+                if (r.requestDetails.resourceLocation.resourceType.isAncestorOf(l.requestDetails.resourceLocation.resourceType)) {
                     return -1
                 }
             }

@@ -227,7 +227,7 @@ internal class ResourceOracle private constructor (appContext: Context, host: St
 
         selfLinkLookup[altLink]?.let {
 
-            if (!it.isEmpty()) {
+            if (it.isNotEmpty()) {
                 return it
             }
         }

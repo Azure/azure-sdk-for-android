@@ -19,6 +19,11 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class ResourceOracleTests : ResourceTest<DocumentCollection>("ResourceOracleTests", true, true, true) {
 
+    init {
+
+        partitionKeyPath = "/testKey"
+    }
+
     @Test
     fun testResourceOracleForDatabase() {
 
