@@ -28,7 +28,7 @@ steps:
     options: '-Pbintray-user=$(bintray-user) -Pbintray-apikey=$(bintray-apikey)'
     gradleOptions: '-Xmx3072m'
     javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.10'
+    jdkVersionOption: '1.11'
     jdkArchitectureOption: 'x64'
     publishJUnitResults: false
     testResultsFiles: '**/TEST-*.xml'
