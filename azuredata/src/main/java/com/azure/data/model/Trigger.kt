@@ -40,7 +40,7 @@ class Trigger(id: String? = null) : Resource(id) {
     enum class TriggerOperation {
 
         All,
-        Insert,
+        Create,
         Replace,
         Delete
     }
