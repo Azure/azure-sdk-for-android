@@ -448,25 +448,5 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
 
     //endregion
 
-//    @Test
-//    fun testTriggerSupport() {
-//
-//        var docResponse: Response<TDoc>? = null
-//        val doc = newDocument()
-//
-//        AzureData.createDocument(doc, collectionId, databaseId, "myPreTrigger", "myPostTrigger") {
-//            docResponse = it
-//        }
-//
-//        await().until { docResponse != null }
-//
-//        assertResourceResponseSuccess(docResponse)
-//        assertEquals(doc.id, docResponse?.resource?.id)
-//
-//        val createdDoc = docResponse!!.resource!!
-//
-//        verifyDocument(createdDoc, doc)
-//    }
-
     //endregion
 }
