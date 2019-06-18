@@ -1813,7 +1813,7 @@ class DocumentClient private constructor() {
 
             callback(ListResponse(response?.request, response?.response, response?.jsonData, Result(resources), requestDetails.resourceLocation, response?.resourceType, true))
 
-        } ?: callback(ListResponse(DataError(DocumentClientError.SerciceUnavailableError)))
+        } ?: callback(ListResponse(DataError(DocumentClientError.ServiceUnavailableError)))
     }
 
     private fun <T : Resource> cachedResources(query: Query, requestDetails: RequestDetails, response: ListResponse<T>? = null, callback: (ListResponse<T>) -> Unit) {
@@ -1824,7 +1824,7 @@ class DocumentClient private constructor() {
 
             callback(ListResponse(response?.request, response?.response, response?.jsonData, Result(resources), requestDetails.resourceLocation, response?.resourceType, true))
 
-        } ?: callback(ListResponse(DataError(DocumentClientError.SerciceUnavailableError)))
+        } ?: callback(ListResponse(DataError(DocumentClientError.ServiceUnavailableError)))
     }
 
     //endregion
