@@ -31,14 +31,16 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
         function updateMetadataNew() {}
         """
 
-    private fun createNewTrigger(coll: DocumentCollection? = null) : Trigger {
+    private fun createNewTrigger(coll: DocumentCollection? = null, operation: Trigger.TriggerOperation? = Trigger.TriggerOperation.All) : Trigger {
 
         if (coll != null) {
-            coll.createTrigger(createdResourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBody) {
+
+            coll.createTrigger(createdResourceId, operation!!, Trigger.TriggerType.Post, triggerBody) {
                 response = it
             }
         } else {
-            AzureData.createTrigger(createdResourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBody, collectionId, databaseId) {
+
+            AzureData.createTrigger(createdResourceId, operation!!, Trigger.TriggerType.Post, triggerBody, collectionId, databaseId) {
                 response = it
             }
         }
@@ -60,9 +62,27 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
     }
 
     @Test
-    fun createTrigger() {
+    fun createTriggerAll() {
 
         createNewTrigger()
+    }
+
+    @Test
+    fun createTriggerCreate() {
+
+        createNewTrigger(operation = Trigger.TriggerOperation.Create)
+    }
+
+    @Test
+    fun createTriggerReplace() {
+
+        createNewTrigger(operation = Trigger.TriggerOperation.Replace)
+    }
+
+    @Test
+    fun createTriggerDelete() {
+
+        createNewTrigger(operation = Trigger.TriggerOperation.Delete)
     }
 
     @Test
