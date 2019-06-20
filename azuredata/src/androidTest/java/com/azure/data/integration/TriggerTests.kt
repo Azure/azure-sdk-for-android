@@ -45,9 +45,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
             }
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(createdResourceId, response?.resource?.id)
@@ -100,9 +98,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
             resourceListResponse = it
         }
 
-        await().until {
-            resourceListResponse != null
-        }
+        await().until { resourceListResponse != null }
 
         assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
@@ -117,9 +113,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
             resourceListResponse = it
         }
 
-        await().until {
-            resourceListResponse != null
-        }
+        await().until { resourceListResponse != null }
 
         assertListResponseSuccess(resourceListResponse)
         assertTrue(resourceListResponse?.resource?.count!! > 0)
@@ -136,9 +130,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -152,9 +144,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -168,9 +158,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -184,9 +172,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -200,9 +186,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -216,9 +200,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
             dataResponse = it
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -236,9 +218,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(createdResourceId, response?.resource?.id)
@@ -255,9 +235,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
         assertEquals(createdResourceId, response?.resource?.id)
@@ -274,9 +252,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         trigger = response?.resource!!
 
@@ -293,9 +269,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
             response = it
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         trigger = response?.resource!!
 
