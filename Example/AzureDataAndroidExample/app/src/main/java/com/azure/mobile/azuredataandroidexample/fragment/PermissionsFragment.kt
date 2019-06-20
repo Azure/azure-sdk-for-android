@@ -1,15 +1,11 @@
 package com.azure.mobile.azuredataandroidexample.fragment
 
 import android.os.Bundle
-import android.view.View
-import android.widget.EditText
-import android.widget.TextView
 import com.azure.data.AzureData
 import com.azure.data.model.Permission
-import com.azure.data.service.DataResponse
-import com.azure.data.service.ListResponse
-import com.azure.data.service.Response
-import com.azure.mobile.azuredataandroidexample.R
+import com.azure.data.model.service.DataResponse
+import com.azure.data.model.service.ListResponse
+import com.azure.data.model.service.Response
 import com.azure.mobile.azuredataandroidexample.model.ResourceAction
 import java.util.*
 

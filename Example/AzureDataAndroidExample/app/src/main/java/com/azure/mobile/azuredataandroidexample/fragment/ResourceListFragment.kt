@@ -22,9 +22,9 @@ import android.widget.ArrayAdapter
 import com.azure.data.AzureData
 import com.azure.data.model.Permission
 import com.azure.data.model.PermissionMode
-import com.azure.data.service.DataResponse
-import com.azure.data.service.ListResponse
-import com.azure.data.service.Response
+import com.azure.data.model.service.DataResponse
+import com.azure.data.model.service.ListResponse
+import com.azure.data.model.service.Response
 import com.azure.mobile.azuredataandroidexample.extensions.updateItemEnabledStatus
 
 import kotlinx.android.synthetic.main.dialog_create_permission.view.*

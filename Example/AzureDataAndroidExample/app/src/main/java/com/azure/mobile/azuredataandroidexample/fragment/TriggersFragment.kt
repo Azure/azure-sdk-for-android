@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.View
 import com.azure.data.AzureData
 import com.azure.data.model.Trigger
-import com.azure.data.service.DataResponse
-import com.azure.data.service.ListResponse
+import com.azure.data.model.service.DataResponse
+import com.azure.data.model.service.ListResponse
 import com.azure.mobile.azuredataandroidexample.model.ResourceAction
 import java.util.*
 

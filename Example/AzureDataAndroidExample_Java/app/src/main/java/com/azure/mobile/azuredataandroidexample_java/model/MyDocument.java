@@ -1,7 +1,7 @@
 package com.azure.mobile.azuredataandroidexample_java.model;
 
 import com.azure.data.model.Document;
-import com.azure.data.model.ResourceLocation;
+import com.azure.data.model.User;
 import java.util.Date;
 
 /**
@@ -15,5 +15,5 @@ public class MyDocument extends Document {
     Date testDate = new Date();
     Boolean testBool = false;
     int[] testArray = {1, 2, 3};
-    ResourceLocation.User testObject = null;
+    User testObject = null;
 }

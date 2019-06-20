@@ -5,8 +5,8 @@ import android.view.Menu
 import android.view.MenuInflater
 import com.azure.data.AzureData
 import com.azure.data.model.Offer
-import com.azure.data.service.ListResponse
-import com.azure.data.service.Response
+import com.azure.data.model.service.ListResponse
+import com.azure.data.model.service.Response
 import com.azure.mobile.azuredataandroidexample.model.ResourceAction
 import java.util.*
 
