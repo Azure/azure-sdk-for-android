@@ -137,9 +137,7 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
             resourceListResponse = it
         }
 
-        await().until {
-            resourceListResponse != null
-        }
+        await().until { resourceListResponse != null }
 
         verifyListDocuments()
     }
@@ -154,9 +152,7 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
             resourceListResponse = it
         }
 
-        await().until {
-            resourceListResponse != null
-        }
+        await().until { resourceListResponse != null }
 
         verifyListDocuments()
     }
@@ -354,9 +350,7 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
             }
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -379,9 +373,7 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
             }
         }
 
-        await().until {
-            dataResponse != null
-        }
+        await().until { dataResponse != null }
 
         assertDataResponseSuccess(dataResponse)
     }
@@ -408,9 +400,7 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
             }
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
 
@@ -436,9 +426,7 @@ abstract class DocumentTestsBase<TDoc : CustomDocument>(resourceName: String, do
             }
         }
 
-        await().until {
-            response != null
-        }
+        await().until { response != null }
 
         assertResourceResponseSuccess(response)
 
