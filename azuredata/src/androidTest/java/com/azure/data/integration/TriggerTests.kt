@@ -31,16 +31,16 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
         function updateMetadataNew() {}
         """
 
-    private fun createNewTrigger(coll: DocumentCollection? = null, operation: Trigger.TriggerOperation? = Trigger.TriggerOperation.All) : Trigger {
+    private fun createNewTrigger(coll: DocumentCollection? = null, operation: Trigger.Operation? = Trigger.Operation.All) : Trigger {
 
         if (coll != null) {
 
-            coll.createTrigger(createdResourceId, operation!!, Trigger.TriggerType.Post, triggerBody) {
+            coll.createTrigger(createdResourceId, operation!!, Trigger.Type.Post, triggerBody) {
                 response = it
             }
         } else {
 
-            AzureData.createTrigger(createdResourceId, operation!!, Trigger.TriggerType.Post, triggerBody, collectionId, databaseId) {
+            AzureData.createTrigger(createdResourceId, operation!!, Trigger.Type.Post, triggerBody, collectionId, databaseId) {
                 response = it
             }
         }
@@ -70,19 +70,19 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
     @Test
     fun createTriggerCreate() {
 
-        createNewTrigger(operation = Trigger.TriggerOperation.Create)
+        createNewTrigger(operation = Trigger.Operation.Create)
     }
 
     @Test
     fun createTriggerReplace() {
 
-        createNewTrigger(operation = Trigger.TriggerOperation.Replace)
+        createNewTrigger(operation = Trigger.Operation.Replace)
     }
 
     @Test
     fun createTriggerDelete() {
 
-        createNewTrigger(operation = Trigger.TriggerOperation.Delete)
+        createNewTrigger(operation = Trigger.Operation.Delete)
     }
 
     @Test
@@ -232,7 +232,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
 
         createNewTrigger()
 
-        AzureData.replaceTrigger(createdResourceId, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew, collectionId, databaseId) {
+        AzureData.replaceTrigger(createdResourceId, Trigger.Operation.All, Trigger.Type.Post, triggerBodyNew, collectionId, databaseId) {
             response = it
         }
 
@@ -251,7 +251,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
 
         val trigger = createNewTrigger()
 
-        AzureData.replaceTrigger(trigger.id, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew, collection!!) {
+        AzureData.replaceTrigger(trigger.id, Trigger.Operation.All, Trigger.Type.Post, triggerBodyNew, collection!!) {
             response = it
         }
 
@@ -270,7 +270,7 @@ class TriggerTests : ResourceTest<Trigger>("TriggerTests", true, true) {
 
         var trigger = createNewTrigger()
 
-        collection?.replaceTrigger(trigger.id, Trigger.TriggerOperation.All, Trigger.TriggerType.Post, triggerBodyNew) {
+        collection?.replaceTrigger(trigger.id, Trigger.Operation.All, Trigger.Type.Post, triggerBodyNew) {
             response = it
         }
 

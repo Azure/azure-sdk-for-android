@@ -18,12 +18,12 @@ class Trigger(id: String? = null) : Resource(id) {
     var body: String? = null
 
     /** Gets or sets the operation the trigger is associated with for the Azure Cosmos DB service.*/
-    var triggerOperation: TriggerOperation? = null
+    var triggerOperation: Operation? = null
 
     /** Get or set the type of the trigger for the Azure Cosmos DB service.*/
-    var triggerType: TriggerType? = null
+    var triggerType: Type? = null
 
-    constructor(id: String, body: String, operation: TriggerOperation, type: TriggerType) : this(id) {
+    constructor(id: String, body: String, operation: Operation, type: Type) : this(id) {
 
         this.body = body
         this.triggerOperation = operation
@@ -37,7 +37,7 @@ class Trigger(id: String? = null) : Resource(id) {
      * - replace:  Specifies replace operations only.
      * - delete:   Specifies delete operations only.
      */
-    enum class TriggerOperation {
+    enum class Operation {
 
         All,
         Create,
@@ -50,7 +50,7 @@ class Trigger(id: String? = null) : Resource(id) {
      * - pre:  Trigger should be executed after the associated operation(s).
      * - post: Trigger should be executed before the associated operation(s).
      */
-    enum class TriggerType {
+    enum class Type {
 
         Pre,
         Post

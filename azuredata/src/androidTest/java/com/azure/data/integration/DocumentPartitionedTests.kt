@@ -106,14 +106,14 @@ class DocumentPartitionedTests : DocumentTestsBase<PartitionedCustomDocment>("Do
             function updateMetadata() {}
             """
 
-        collection?.createTrigger("updateMetadataPre", Trigger.TriggerOperation.Create, Trigger.TriggerType.Pre, triggerBody) {
+        collection?.createTrigger("updateMetadataPre", Trigger.Operation.Create, Trigger.Type.Pre, triggerBody) {
             triggerResponse = it
         }
 
         await().until { triggerResponse != null }
         triggerResponse = null
 
-        collection?.createTrigger("updateMetadataPost", Trigger.TriggerOperation.Create, Trigger.TriggerType.Post, triggerBody) {
+        collection?.createTrigger("updateMetadataPost", Trigger.Operation.Create, Trigger.Type.Post, triggerBody) {
             triggerResponse = it
         }
 

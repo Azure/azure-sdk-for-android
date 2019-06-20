@@ -840,7 +840,7 @@ class DocumentClient private constructor() {
     //region Triggers
 
     // create
-    fun createTrigger(triggerId: String, operation: Trigger.TriggerOperation, triggerType: Trigger.TriggerType, triggerBody: String, collectionId: String, databaseId: String, callback: (Response<Trigger>) -> Unit) {
+    fun createTrigger(triggerId: String, operation: Trigger.Operation, triggerType: Trigger.Type, triggerBody: String, collectionId: String, databaseId: String, callback: (Response<Trigger>) -> Unit) {
 
         val requestDetails = RequestDetails(ResourceLocation.Trigger(databaseId, collectionId))
 
@@ -848,7 +848,7 @@ class DocumentClient private constructor() {
     }
 
     // create
-    fun createTrigger(triggerId: String, operation: Trigger.TriggerOperation, triggerType: Trigger.TriggerType, triggerBody: String, collection: DocumentCollection, callback: (Response<Trigger>) -> Unit) {
+    fun createTrigger(triggerId: String, operation: Trigger.Operation, triggerType: Trigger.Type, triggerBody: String, collection: DocumentCollection, callback: (Response<Trigger>) -> Unit) {
 
         val requestDetails = RequestDetails(ResourceLocation.Child(ResourceType.Trigger, collection))
 
@@ -890,7 +890,7 @@ class DocumentClient private constructor() {
     }
 
     // replace
-    fun replaceTrigger(triggerId: String, operation: Trigger.TriggerOperation, triggerType: Trigger.TriggerType, triggerBody: String, collectionId: String, databaseId: String, callback: (Response<Trigger>) -> Unit) {
+    fun replaceTrigger(triggerId: String, operation: Trigger.Operation, triggerType: Trigger.Type, triggerBody: String, collectionId: String, databaseId: String, callback: (Response<Trigger>) -> Unit) {
 
         val requestDetails = RequestDetails(ResourceLocation.Trigger(databaseId, collectionId, triggerId))
 
@@ -898,7 +898,7 @@ class DocumentClient private constructor() {
     }
 
     // replace
-    fun replaceTrigger(triggerId: String, operation: Trigger.TriggerOperation, triggerType: Trigger.TriggerType, triggerBody: String, collection: DocumentCollection, callback: (Response<Trigger>) -> Unit) {
+    fun replaceTrigger(triggerId: String, operation: Trigger.Operation, triggerType: Trigger.Type, triggerBody: String, collection: DocumentCollection, callback: (Response<Trigger>) -> Unit) {
 
         val requestDetails = RequestDetails(ResourceLocation.Child(ResourceType.Trigger, collection, triggerId))
 

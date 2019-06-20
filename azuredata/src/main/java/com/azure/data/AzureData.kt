@@ -694,12 +694,12 @@ class AzureData {
 
         // create
         @JvmStatic
-        fun createTrigger(triggerId: String, operation: Trigger.TriggerOperation, triggerType: Trigger.TriggerType, triggerBody: String, collectionId: String, databaseId: String, callback: (Response<Trigger>) -> Unit) =
+        fun createTrigger(triggerId: String, operation: Trigger.Operation, triggerType: Trigger.Type, triggerBody: String, collectionId: String, databaseId: String, callback: (Response<Trigger>) -> Unit) =
                 documentClient.createTrigger(triggerId, operation, triggerType, triggerBody, collectionId, databaseId, callback)
 
         // create
         @JvmStatic
-        fun createTrigger(triggerId: String, operation: Trigger.TriggerOperation, triggerType: Trigger.TriggerType, triggerBody: String, collection: DocumentCollection, callback: (Response<Trigger>) -> Unit) =
+        fun createTrigger(triggerId: String, operation: Trigger.Operation, triggerType: Trigger.Type, triggerBody: String, collection: DocumentCollection, callback: (Response<Trigger>) -> Unit) =
                 documentClient.createTrigger(triggerId, operation, triggerType, triggerBody, collection, callback)
 
         // list
@@ -736,17 +736,17 @@ class AzureData {
 
         // replace
         @JvmStatic
-        fun replaceTrigger(triggerId: String, operation: Trigger.TriggerOperation, triggerType: Trigger.TriggerType, triggerBody: String, collectionId: String, databaseId: String, callback: (Response<Trigger>) -> Unit) =
+        fun replaceTrigger(triggerId: String, operation: Trigger.Operation, triggerType: Trigger.Type, triggerBody: String, collectionId: String, databaseId: String, callback: (Response<Trigger>) -> Unit) =
                 documentClient.replaceTrigger(triggerId, operation, triggerType, triggerBody, collectionId, databaseId, callback)
 
         // replace
         @JvmStatic
-        fun replaceTrigger(triggerId: String, operation: Trigger.TriggerOperation, triggerType: Trigger.TriggerType, triggerBody: String, collection: DocumentCollection, callback: (Response<Trigger>) -> Unit) =
+        fun replaceTrigger(triggerId: String, operation: Trigger.Operation, triggerType: Trigger.Type, triggerBody: String, collection: DocumentCollection, callback: (Response<Trigger>) -> Unit) =
                 documentClient.replaceTrigger(triggerId, operation, triggerType, triggerBody, collection, callback)
 
         // replace
         @JvmStatic
-        fun replaceTrigger(trigger: Trigger, operation: Trigger.TriggerOperation, triggerType: Trigger.TriggerType, collection: DocumentCollection, callback: (Response<Trigger>) -> Unit) =
+        fun replaceTrigger(trigger: Trigger, operation: Trigger.Operation, triggerType: Trigger.Type, collection: DocumentCollection, callback: (Response<Trigger>) -> Unit) =
                 documentClient.replaceTrigger(trigger.id, operation, triggerType, trigger.body!!, collection, callback)
 
         //endregion

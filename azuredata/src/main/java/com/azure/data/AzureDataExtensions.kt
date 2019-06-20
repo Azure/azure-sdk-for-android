@@ -241,7 +241,7 @@ fun DocumentCollection.replaceUserDefinedFunction (userDefinedFunction: UserDefi
 //region DocumentCollection -> Trigger
 
 // create
-fun DocumentCollection.createTrigger (triggerId: String, operation: Trigger.TriggerOperation, triggerType: Trigger.TriggerType, triggerBody: String, callback: (Response<Trigger>) -> Unit) {
+fun DocumentCollection.createTrigger (triggerId: String, operation: Trigger.Operation, triggerType: Trigger.Type, triggerBody: String, callback: (Response<Trigger>) -> Unit) {
     return AzureData.createTrigger(triggerId, operation, triggerType, triggerBody, this, callback)
 }
 
@@ -262,7 +262,7 @@ fun DocumentCollection.deleteTrigger (triggerId: String, callback: (DataResponse
 }
 
 // replace
-fun DocumentCollection.replaceTrigger (triggerId: String, operation: Trigger.TriggerOperation, triggerType: Trigger.TriggerType, triggerBody: String, callback: (Response<Trigger>) -> Unit) {
+fun DocumentCollection.replaceTrigger (triggerId: String, operation: Trigger.Operation, triggerType: Trigger.Type, triggerBody: String, callback: (Response<Trigger>) -> Unit) {
     return AzureData.replaceTrigger(triggerId, operation, triggerType, triggerBody, this, callback)
 }
 
