@@ -14,8 +14,6 @@ public class App extends Application {
         super.onCreate();
 
         // configure AzureData - fill in your account name and master key
-        AzureData.configure(getApplicationContext(), "", "", PermissionMode.All, onCallback(builder -> {
-
-        }));
+        AzureData.configure(getApplicationContext(), "", "", PermissionMode.All);
     }
 }
