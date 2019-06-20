@@ -65,9 +65,7 @@ abstract class DocumentTest<TDoc : CustomDocument>(resourceName: String, val doc
             }
         }
 
-        await().until {
-            docResponse != null
-        }
+        await().until { docResponse != null }
 
         assertResourceResponseSuccess(docResponse)
         assertEquals(doc.id, docResponse?.resource?.id)
@@ -104,9 +102,7 @@ abstract class DocumentTest<TDoc : CustomDocument>(resourceName: String, val doc
             }
         }
 
-        await().until {
-            docs.count() == count
-        }
+        await().until { docs.count() == count }
 
         return docs
     }
