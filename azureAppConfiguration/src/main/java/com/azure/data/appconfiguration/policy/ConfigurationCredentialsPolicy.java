@@ -1,16 +1,17 @@
 package com.azure.data.appconfiguration.policy;
 
+import com.azure.core.http.HttpPipelineNextPolicy;
+import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.data.appconfiguration.credentials.ConfigurationClientCredentials;
 
 import java.io.IOException;
 import java.util.Map;
 
-import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 import okio.Buffer;
 
-public class ConfigurationCredentialsPolicy  implements Interceptor {
+public class ConfigurationCredentialsPolicy implements HttpPipelinePolicy {
     // "Host", "Date", and "x-ms-content-sha256" are required to generate "Authorization" value in
     // ConfigurationClientCredentials.
 
@@ -26,18 +27,17 @@ public class ConfigurationCredentialsPolicy  implements Interceptor {
     }
 
     @Override
-    public Response intercept(Chain chain) throws IOException {
-        Request request = chain.request();
+    public Response process(Request request, HttpPipelineNextPolicy next) throws IOException {
         Buffer buffer = new Buffer();
-        if (chain.request().body() != null) {
+        if (request.body() != null) {
             request.body().writeTo(buffer);
         }
         //
         Map<String, String> authHeaders = credentials.getAuthorizationHeaders(request.url().url(), request.method(), buffer.clone());
-        Request.Builder builder = chain.request().newBuilder();
+        Request.Builder builder = request.newBuilder();
         for (Map.Entry<String, String> header : authHeaders.entrySet()) {
             builder = builder.header(header.getKey(), header.getValue());
         }
-        return chain.proceed(builder.build());
+        return next.process(builder.build());
     }
 }

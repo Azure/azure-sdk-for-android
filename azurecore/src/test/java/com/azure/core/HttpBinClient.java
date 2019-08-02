@@ -1,6 +1,6 @@
 package com.azure.core;
 
-import com.azure.core.implementation.RetrofitAPIClient;
+import com.azure.core.http.RetrofitAPIClient;
 
 import java.io.IOException;
 

@@ -1,6 +1,8 @@
 package com.azure.data.appconfiguration;
 
-import com.azure.core.implementation.RetrofitAPIClient;
+import com.azure.core.http.HttpPipelineBuilder;
+import com.azure.core.http.RetrofitAPIClient;
+import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.data.appconfiguration.credentials.ConfigurationClientCredentials;
 import com.azure.data.appconfiguration.models.ConfigurationSetting;
 import com.azure.data.appconfiguration.policy.ConfigurationCredentialsPolicy;
@@ -13,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import okhttp3.Interceptor;
 import retrofit2.Call;
 
 public class ConfigurationClient {
@@ -23,10 +24,13 @@ public class ConfigurationClient {
     public ConfigurationClient(URL serviceEndpoint, String connectionString) {
         this.serviceEndpoint = serviceEndpoint;
         //
-        List<Interceptor> interceptors = new ArrayList<Interceptor>();
-        interceptors.add(credentialsInterceptor(connectionString));
+        List<HttpPipelinePolicy> policies = new ArrayList<HttpPipelinePolicy>();
+        policies.add(credentialsPolicy(connectionString));
         //
-        this.service = RetrofitAPIClient.createAPIService(this.serviceEndpoint.toString(), interceptors, ConfigurationService.class);
+        HttpPipelineBuilder builder = new HttpPipelineBuilder();
+        builder.policies(policies.toArray(new HttpPipelinePolicy[0]));
+        //
+        this.service = RetrofitAPIClient.createAPIService(this.serviceEndpoint.toString(), builder.build(), ConfigurationService.class);
     }
 
     public ConfigurationSetting getSetting(ConfigurationSetting setting) {
@@ -52,7 +56,7 @@ public class ConfigurationClient {
         }
     }
 
-    private static Interceptor credentialsInterceptor(String connectionString) {
+    private static HttpPipelinePolicy credentialsPolicy(String connectionString) {
         ConfigurationClientCredentials credentials;
         try {
             credentials = new ConfigurationClientCredentials(connectionString);
