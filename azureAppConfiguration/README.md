@@ -1,8 +1,8 @@
 # att-poc
 
-#### To Run tests in /AzAppConfigActivity/azappconfig/src/androidTest/java/com/azure/data/appconfiguration/*.java
+#### To Run tests in /azureAppConfiguration/src/androidTest/java/com/azure/data/appconfiguration/*.java
 
-1. create the file 'azAppConfig\src\test\androidTest\Resources\azConfigSettings.txt'
+1. create the file 'azureAppConfiguration\src\test\androidTest\Resources\azConfigSettings.txt'
 2. add your connection string and service endpoint like below
 
 ```
