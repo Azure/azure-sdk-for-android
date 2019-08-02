@@ -1,0 +1,54 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 29
+    buildToolsVersion "29.0.1"
+
+    defaultConfig {
+        minSdkVersion 23
+        targetSdkVersion 29
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    //
+    implementation 'com.squareup.retrofit2:retrofit:2.6.0'
+    implementation 'com.google.code.gson:gson:2.8.5'
+    implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.0.1'
+    implementation 'com.squareup.retrofit2:converter-jackson:2.6.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.9'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9'
+    // Fixes: java.lang.NoClassDefFoundError: Failed resolution of: Ljavax/xml/stream/XMLInputFactory (https://stackoverflow.com/a/47371517/1473510)
+    //
+    implementation group: 'javax.xml.stream', name: 'stax-api', version: '1.0-2'
+    // Test dependencies
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.0.1'
+    androidTestImplementation 'androidx.test:runner:1.2.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+}
