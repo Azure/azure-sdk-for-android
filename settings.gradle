@@ -1,1 +1,1 @@
-include ':sampleApp', ':azureAppConfiguration', ':azureCoreAndroid'
+include ':sampleapp', ':azureappconfiguration', ':azurecore'
