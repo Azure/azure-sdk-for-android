@@ -6,9 +6,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-import okhttp3.Request;
-import okhttp3.Response;
-
 public class HttpPipeline {
     private final HttpPipelinePolicy[] pipelinePolicies;
 
@@ -25,8 +22,8 @@ public class HttpPipeline {
         return this.pipelinePolicies.length;
     }
 
-    Response send(Request request, HttpRequestSender sender) throws IOException {
-        HttpPipelineNextPolicy next = new HttpPipelineNextPolicy(this, sender);
-        return next.process(request);
+    HttpResponse send(HttpPipelineCallContext context, HttpRequestSender sender) throws IOException {
+        HttpPipelineNextPolicy next = new HttpPipelineNextPolicy(this, context, sender);
+        return next.process();
     }
 }

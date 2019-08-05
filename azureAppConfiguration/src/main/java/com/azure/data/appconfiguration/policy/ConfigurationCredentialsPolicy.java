@@ -1,20 +1,17 @@
 package com.azure.data.appconfiguration.policy;
 
+import com.azure.core.http.HttpPipelineCallContext;
 import com.azure.core.http.HttpPipelineNextPolicy;
+import com.azure.core.http.HttpResponse;
 import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.data.appconfiguration.credentials.ConfigurationClientCredentials;
 
 import java.io.IOException;
 import java.util.Map;
 
-import okhttp3.Request;
-import okhttp3.Response;
 import okio.Buffer;
 
 public class ConfigurationCredentialsPolicy implements HttpPipelinePolicy {
-    // "Host", "Date", and "x-ms-content-sha256" are required to generate "Authorization" value in
-    // ConfigurationClientCredentials.
-
     private final ConfigurationClientCredentials credentials;
 
     /**
@@ -27,17 +24,15 @@ public class ConfigurationCredentialsPolicy implements HttpPipelinePolicy {
     }
 
     @Override
-    public Response process(Request request, HttpPipelineNextPolicy next) throws IOException {
-        Buffer buffer = new Buffer();
-        if (request.body() != null) {
-            request.body().writeTo(buffer);
-        }
-        //
-        Map<String, String> authHeaders = credentials.getAuthorizationHeaders(request.url().url(), request.method(), buffer.clone());
-        Request.Builder builder = request.newBuilder();
+    public HttpResponse process(HttpPipelineCallContext context, HttpPipelineNextPolicy next) throws IOException {
+        Buffer buffer = context.httpRequest().body();
+        Map<String, String> authHeaders = credentials.getAuthorizationHeaders(context.httpRequest().url(), context.httpRequest().httpMethod(), buffer);
         for (Map.Entry<String, String> header : authHeaders.entrySet()) {
-            builder = builder.header(header.getKey(), header.getValue());
+            context.httpRequest().header(header.getKey(), header.getValue());
         }
-        return next.process(builder.build());
+        HttpResponse response = next.process();
+        response = response.buffer();
+        response.bodyAsByteArray();
+        return response;
     }
 }

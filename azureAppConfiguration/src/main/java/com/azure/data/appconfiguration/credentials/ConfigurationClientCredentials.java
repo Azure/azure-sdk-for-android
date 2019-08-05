@@ -5,6 +5,7 @@ package com.azure.data.appconfiguration.credentials;
 import android.text.TextUtils;
 import android.util.Base64;
 
+import com.azure.core.http.HttpMethod;
 import com.azure.core.implementation.util.ImplUtils;
 
 import javax.crypto.Mac;
@@ -66,14 +67,18 @@ public class ConfigurationClientCredentials {
      * @param contents the body content of the request
      * @return a map of headers to add for authorization
      */
-    public Map<String, String> getAuthorizationHeaders(URL url, String httpMethod, Buffer contents) {
+    public Map<String, String> getAuthorizationHeaders(URL url, HttpMethod httpMethod, Buffer contents) {
         MessageDigest messageDigest;
         try {
             messageDigest = MessageDigest.getInstance("SHA-256");
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-        messageDigest.update(contents.readByteArray());
+        if (contents == null) {
+            messageDigest.update(new byte[0]);
+        } else {
+            messageDigest.update(contents.clone().readByteArray());
+        }
         return headerProvider.getAuthenticationHeaders(url, httpMethod, messageDigest);
     }
 
@@ -89,7 +94,7 @@ public class ConfigurationClientCredentials {
             sha256HMAC.init(new SecretKeySpec(credentials.secret(), "HmacSHA256"));
         }
 
-        private Map<String, String> getAuthenticationHeaders(final URL url, final String httpMethod, final MessageDigest messageDigest) {
+        private Map<String, String> getAuthenticationHeaders(final URL url, final HttpMethod httpMethod, final MessageDigest messageDigest) {
             final Map<String, String> headers = new HashMap<>();
             final String contentHash = Base64.encodeToString(messageDigest.digest(), Base64.NO_WRAP);
 
@@ -108,7 +113,7 @@ public class ConfigurationClientCredentials {
             return headers;
         }
 
-        private void addSignatureHeader(final URL url, final String httpMethod, final Map<String, String> httpHeaders) {
+        private void addSignatureHeader(final URL url, final HttpMethod httpMethod, final Map<String, String> httpHeaders) {
             String pathAndQuery = url.getPath();
             if (url.getQuery() != null) {
                 pathAndQuery += '?' + url.getQuery();
@@ -123,7 +128,7 @@ public class ConfigurationClientCredentials {
             // String-To-Sign=HTTP_METHOD + '\n' + path_and_query + '\n' + signed_headers_values
             // Signed headers: "host;x-ms-date;x-ms-content-sha256"
             // The line separator has to be \n. Using %n with String.format will result in a 401 from the service.
-            String stringToSign = httpMethod.toUpperCase(Locale.US) + "\n" + pathAndQuery + "\n" + TextUtils.join(";", headers);
+            String stringToSign = httpMethod.toString().toUpperCase(Locale.US) + "\n" + pathAndQuery + "\n" + TextUtils.join(";", headers);
 
             final String signature = Base64.encodeToString(sha256HMAC.doFinal(stringToSign.getBytes(StandardCharsets.UTF_8)), Base64.NO_WRAP);
             httpHeaders.put(AUTHORIZATION_HEADER, String.format("HMAC-SHA256 Credential=%s, SignedHeaders=%s, Signature=%s",

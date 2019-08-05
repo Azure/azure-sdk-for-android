@@ -1,6 +1,7 @@
 package com.azure.data.appconfiguration;
 
 import com.azure.core.http.HttpPipelineBuilder;
+import com.azure.core.http.HttpPipelineCallContext;
 import com.azure.core.http.RetrofitAPIClient;
 import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.data.appconfiguration.credentials.ConfigurationClientCredentials;
@@ -34,9 +35,15 @@ public class ConfigurationClient {
     }
 
     public ConfigurationSetting getSetting(ConfigurationSetting setting) {
-        // Validate that setting and key is not null. The key is used in the service URL so it cannot be null.
         validateSetting(setting);
-        Call<ConfigurationSetting> call = service.getKeyValue(setting.key(), setting.label(), null, null, null, null);
+        HttpPipelineCallContext context = new HttpPipelineCallContext();
+        Call<ConfigurationSetting> call = service.getKeyValue(setting.key(),
+                setting.label(),
+                null,
+                null,
+                null,
+                null,
+                context);
 
         try {
             return call.execute().body();
@@ -45,9 +52,6 @@ public class ConfigurationClient {
         }
     }
 
-    /*
-     * Ensure that setting is not null. And, key cannot be null because it is part of the service REST URL.
-     */
     private static void validateSetting(ConfigurationSetting setting) {
         Objects.requireNonNull(setting);
 
