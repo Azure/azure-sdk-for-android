@@ -4,10 +4,17 @@ import com.azure.core.implementation.serializer.SerializerAdapter;
 import com.azure.core.implementation.serializer.SerializerEncoding;
 import com.azure.core.implementation.serializer.jackson.JacksonAdapter;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Type;
+
 import okhttp3.Interceptor;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
+import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Converter;
 import retrofit2.Retrofit;
 
 public class RetrofitAPIClient {
@@ -34,7 +41,7 @@ public class RetrofitAPIClient {
         OkHttpClient client = builder.build();
         retrofit = new Retrofit.Builder()
                 .baseUrl(baseUri)
-                .addConverterFactory(serializerAdapter.retrofitConverterFactory(SerializerEncoding.JSON))
+                .addConverterFactory(wrapSerializer(serializerAdapter, SerializerEncoding.JSON))
                 .callFactory(client)
                 .build();
         return retrofit;
@@ -48,11 +55,29 @@ public class RetrofitAPIClient {
             }
             final HttpRequest httpRequest = new WrappedOkHttpRequest(chain.request());
             final HttpResponse httpResponse = httpPipeline.send(context.httpRequest(httpRequest), r -> {
-                // TODO: anuchan re-evaluate unwrap design
+                // TODO: anuchan re-evaluate unwrap design for request and response
                 Response response = chain.proceed(((UnwrapOkHttp.InnerRequest)r).unwrap());
                 return new WrappedOkHttpResponse(response, httpRequest);
             });
             return ((UnwrapOkHttp.InnerResponse)httpResponse).unwrap();
+        };
+    }
+
+    private static Converter.Factory wrapSerializer(SerializerAdapter serializer, final SerializerEncoding encoding) {
+        final MediaType mediaType = encoding == SerializerEncoding.XML
+                ? MediaType.parse("application/xml; charset=UTF-8")
+                : MediaType.parse("application/json; charset=UTF-8");
+        //
+        return new Converter.Factory() {
+            @Override
+            public Converter<?, RequestBody> requestBodyConverter(Type type, Annotation[] parameterAnnotations, Annotation[] methodAnnotations, Retrofit retrofit) {
+                return value -> RequestBody.create(serializer.serialize(value, encoding), mediaType);
+            }
+
+            @Override
+            public Converter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Retrofit retrofit) {
+                return (Converter<ResponseBody, Object>) body -> serializer.deserialize(body.charStream(), type, encoding);
+            }
         };
     }
 }

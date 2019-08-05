@@ -19,35 +19,32 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
-
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
-import retrofit2.Converter;
-import retrofit2.Retrofit;
 
 /**
  * Implementation of {@link SerializerAdapter} for Jackson.
  */
 public class JacksonAdapter implements SerializerAdapter {
     /**
-     * An instance of {@link ObjectMapper} to serialize/deserialize objects.
-     */
-    private final ObjectMapper jsonMapper;
-
-    /**
      * An instance of {@link ObjectMapper} that does not do flattening.
      */
     private final ObjectMapper simpleMapper;
 
+    /**
+     * An instance of {@link ObjectMapper} to serialize/deserialize json objects.
+     */
+    private final ObjectMapper jsonMapper;
+
+    /**
+     * An instance of {@link ObjectMapper} to serialize/deserialize xml objects.
+     */
     private final XmlMapper xmlMapper;
 
     /*
@@ -96,19 +93,14 @@ public class JacksonAdapter implements SerializerAdapter {
         return serializerAdapter;
     }
 
-    /**
-     * @return the original serializer type
-     */
-    public ObjectMapper serializer() {
-        return jsonMapper;
-    }
-
     @Override
-    public String serialize(Object object, SerializerEncoding encoding) throws IOException {
+    public byte[] serialize(Object object, SerializerEncoding encoding) throws IOException {
         if (object == null) {
             return null;
         }
-        return encoding == SerializerEncoding.XML ? xmlMapper.writeValueAsString(object) : jsonMapper.writeValueAsString(object);
+        return encoding == SerializerEncoding.XML
+                ? xmlMapper.writeValueAsBytes(object)
+                : jsonMapper.writeValueAsBytes(object);
     }
 
     @Override
@@ -117,7 +109,9 @@ public class JacksonAdapter implements SerializerAdapter {
             return null;
         }
         try {
-            return serialize(object, SerializerEncoding.JSON).replaceAll("^\"*", "").replaceAll("\"*$", "");
+            return new String(serialize(object, SerializerEncoding.JSON))
+                    .replaceAll("^\"*", "")
+                    .replaceAll("\"*$", "");
         } catch (IOException ex) {
             return null;
         }
@@ -138,14 +132,18 @@ public class JacksonAdapter implements SerializerAdapter {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T deserialize(String value, final Type type, SerializerEncoding encoding) throws IOException {
-        if (value == null || value.isEmpty()) {
+    public <T> T deserialize(byte[] value, final Type type, SerializerEncoding encoding) throws IOException {
+        if (value == null) {
             return null;
         }
-        //
+        return deserialize(new InputStreamReader(new ByteArrayInputStream(value)), type, encoding);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public <T> T deserialize(Reader reader, final Type type, SerializerEncoding encoding) throws IOException {
         final JavaType javaType = createJavaType(type);
         final ObjectMapper mapper = encoding == SerializerEncoding.XML? xmlMapper : jsonMapper;
-        Reader reader = new StringReader(value);
         //
         try {
             return mapper.readerFor(javaType).readValue(reader);
@@ -159,40 +157,6 @@ public class JacksonAdapter implements SerializerAdapter {
                 }
             }
         }
-    }
-
-    @Override
-    public Converter.Factory retrofitConverterFactory(final SerializerEncoding encoding) {
-        final ObjectMapper mapper = encoding == SerializerEncoding.XML? xmlMapper : jsonMapper;
-        final MediaType mediaType = encoding == SerializerEncoding.XML? MediaType.parse("application/xml; charset=UTF-8") : MediaType.parse("application/json; charset=UTF-8");
-
-        return new Converter.Factory() {
-            @Override
-            public Converter<?, RequestBody> requestBodyConverter(Type type, Annotation[] parameterAnnotations, Annotation[] methodAnnotations, Retrofit retrofit) {
-                return value -> RequestBody.create(mapper.writeValueAsBytes(value), mediaType);
-            }
-
-            @Override
-            public Converter<ResponseBody, ?> responseBodyConverter(Type type, Annotation[] annotations, Retrofit retrofit) {
-                final JavaType javaType = createJavaType(type);
-                //
-                return (Converter<ResponseBody, Object>) body -> {
-                    Reader bodyReader = body.charStream();
-                    try {
-                        return mapper.readerFor(javaType).readValue(bodyReader);
-                    } catch (JsonParseException jpe) {
-                        throw new MalformedValueException(jpe.getMessage(), jpe);
-                    } finally {
-                        if (bodyReader != null) {
-                            try {
-                                bodyReader.close();
-                            } catch (IOException ignored) {
-                            }
-                        }
-                    }
-                };
-            }
-        };
     }
 
     /**

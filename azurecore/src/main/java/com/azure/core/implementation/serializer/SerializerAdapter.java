@@ -6,10 +6,9 @@ package com.azure.core.implementation.serializer;
 import com.azure.core.implementation.CollectionFormat;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.Type;
 import java.util.List;
-
-import retrofit2.Converter;
 
 /**
  * An interface defining the behaviors of a serializer.
@@ -23,7 +22,7 @@ public interface SerializerAdapter {
      * @return the serialized string. Null if the object to serialize is null
      * @throws IOException exception from serialization
      */
-    String serialize(Object object, SerializerEncoding encoding) throws IOException;
+    byte[] serialize(Object object, SerializerEncoding encoding) throws IOException;
 
     /**
      * Serializes an object into a raw string. The leading and trailing quotes will be trimmed.
@@ -54,17 +53,17 @@ public interface SerializerAdapter {
      * @return the deserialized object
      * @throws IOException exception from deserialization
      */
-    <U> U deserialize(String value, Type type, SerializerEncoding encoding) throws IOException;
+    <U> U deserialize(byte[] value, Type type, SerializerEncoding encoding) throws IOException;
 
     /**
-     * @return a converter factory for Retrofit that can encode and decode JSON/XML using this adapter.
-     */
-
-    /**
-     * Create a converter factory for Retrofit that can encode and decode JSON/XML using this adapter.
+     * Deserializes a reader content into a {@link U} object.
      *
+     * @param reader reader that provide value to deserialize
+     * @param <U> the type of the deserialized object
+     * @param type the type to deserialize
      * @param encoding the encoding used in the serialized value
-     * @return the converter
+     * @return the deserialized object
+     * @throws IOException exception from deserialization
      */
-    Converter.Factory retrofitConverterFactory(SerializerEncoding encoding);
+    <U> U deserialize(Reader reader, Type type, SerializerEncoding encoding) throws IOException;
 }
