@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 import retrofit2.Call;
+import retrofit2.Response;
 
 public class ConfigurationClient {
     private final URL serviceEndpoint;
@@ -44,11 +45,52 @@ public class ConfigurationClient {
                 null,
                 null,
                 context);
-
+        //
+        Response<ConfigurationSetting> configurationSettingResponse;
         try {
-            return call.execute().body();
+            configurationSettingResponse = call.execute();
         } catch (IOException ex) {
             throw new RuntimeException(ex);
+        }
+        //
+        if (configurationSettingResponse.isSuccessful()) {
+            return configurationSettingResponse.body();
+        } else if (configurationSettingResponse.code() == 404) {
+            // todo: anuchan throw ResourceNotFoundException from the azure.core once we have that exception
+            throw  new RuntimeException("ResourceNotFoundException");
+        } else {
+            // todo: anuchan throw HttpResponseException from the azure.core once we have that exception
+            throw  new RuntimeException("HttpResponseException");
+        }
+    }
+
+    public ConfigurationSetting addSetting(String key, String value) {
+        Objects.requireNonNull(key);
+        HttpPipelineCallContext context = new HttpPipelineCallContext();
+        Call<ConfigurationSetting> call = service.setKey(key,
+                null,
+                new ConfigurationSetting().key(key).value(value),
+                null,
+                "\"*\"",
+                context);
+        //
+        Response<ConfigurationSetting> configurationSettingResponse;
+        try {
+            configurationSettingResponse = call.execute();
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        if (configurationSettingResponse.isSuccessful()) {
+            return configurationSettingResponse.body();
+        } else if (configurationSettingResponse.code() == 409) {
+            // todo: anuchan throw ResourceModifiedException from the azure.core once we have that exception
+            throw  new RuntimeException("ResourceModifiedException");
+        } else if (configurationSettingResponse.code() == 404) {
+            // todo: anuchan throw ResourceNotFoundException from the azure.core once we have that exception
+            throw  new RuntimeException("ResourceNotFoundException");
+        } else {
+            // todo: anuchan throw HttpResponseException from the azure.core once we have that exception
+            throw  new RuntimeException("HttpResponseException");
         }
     }
 

@@ -11,9 +11,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
@@ -23,21 +25,31 @@ public class ConfigurationClientTest {
     private static String AZCONFIG_SETTINGS_FILE = "azConfigSettings.txt";
     //
     @Test
-    public void getSetting() throws Exception {
+    public void setGetSetting() throws Exception {
+        String SettingName = UUID.randomUUID().toString();
+        String settingValue = "world1";
         //
+        ConfigurationClient client = createConfigClient();
+        // -- Add setting
+        ConfigurationSetting result = client.addSetting(SettingName, settingValue);
+        assertNotNull(result);
+        assertEquals(SettingName, result.key());
+        assertEquals(settingValue, result.value());
+        // == Get setting
+        ConfigurationSetting setting = new ConfigurationSetting();
+        setting.key(SettingName);
+        result = client.getSetting(setting);
+        assertNotNull(result);
+        assertEquals(SettingName, result.key());
+        assertEquals(settingValue, result.value());
+    }
+
+    private ConfigurationClient createConfigClient() throws MalformedURLException {
         String[] settings = azConfigSettings();
         String connectionString = settings[0];
         String serviceEndpoint = settings[1];
         //
-        ConfigurationClient client = new ConfigurationClient(new URL(serviceEndpoint), connectionString);
-        ConfigurationSetting setting = new ConfigurationSetting();
-        setting.key("hello");
-        ConfigurationSetting result = client.getSetting(setting);
-        assertNotNull(result);
-//        assertEquals(200, response.code());
-//        assertNotNull(response.body());
-        assertEquals("hello", result.key());
-        assertEquals("world", result.value());
+        return new ConfigurationClient(new URL(serviceEndpoint), connectionString);
     }
 
     private String[] azConfigSettings() {
