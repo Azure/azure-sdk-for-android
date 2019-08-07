@@ -1,18 +1,20 @@
-package com.azure.core.http;
+package com.azure.core.http.implementation;
+
+import com.azure.core.http.HttpHeaders;
+import com.azure.core.http.HttpRequest;
+import com.azure.core.http.HttpResponse;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 
 import okhttp3.Response;
 
-class WrappedOkHttpResponse implements HttpResponse, UnwrapOkHttp.InnerResponse {
-    protected final Response inner;
+public class OkHttpResponse implements HttpResponse, UnwrapOkHttp.InnerResponse {
+    private final okhttp3.Response inner;
     private final HttpRequest request;
     private final HttpHeaders headers;
 
-    WrappedOkHttpResponse(Response response, HttpRequest request) {
-        this.inner = response;
+    public OkHttpResponse(okhttp3.Response inner, HttpRequest request) {
+        this.inner = inner;
         this.request = request;
         this.headers = fromOkHttpHeaders(this.inner.headers());
     }
@@ -35,15 +37,15 @@ class WrappedOkHttpResponse implements HttpResponse, UnwrapOkHttp.InnerResponse 
     @Override
     public byte[] bodyAsByteArray() throws IOException {
         return this.inner.body() != null
-                ? this.inner.body().bytes()
-                : null;
+            ? this.inner.body().bytes()
+            : null;
     }
 
     @Override
     public String bodyAsString() throws IOException {
         return this.inner.body() != null
-                ? this.inner.body().string()
-                : null;
+            ? this.inner.body().string()
+            : null;
     }
 
     @Override
@@ -53,7 +55,7 @@ class WrappedOkHttpResponse implements HttpResponse, UnwrapOkHttp.InnerResponse 
 
     @Override
     public HttpResponse buffer() {
-        return new WrappedOkHttpBufferedResponse(this);
+        return new OkHttpBufferedResponse(this);
     }
 
     @Override
@@ -68,13 +70,15 @@ class WrappedOkHttpResponse implements HttpResponse, UnwrapOkHttp.InnerResponse 
         return this.inner;
     }
 
+    Response inner() {
+        return this.inner;
+    }
+
     private static HttpHeaders fromOkHttpHeaders(okhttp3.Headers headers) {
-        Map<String, List<String>> map = headers.toMultimap();
-        HttpHeaders httpHeader = new HttpHeaders();
-        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-            List<String> values = entry.getValue();
-            httpHeader.put(entry.getKey(), values.get(values.size() - 1));
+        HttpHeaders httpHeaders = new HttpHeaders();
+        for (String headerName : headers.names()) {
+            httpHeaders.put(headerName, headers.get(headerName));
         }
-        return httpHeader;
+        return httpHeaders;
     }
 }

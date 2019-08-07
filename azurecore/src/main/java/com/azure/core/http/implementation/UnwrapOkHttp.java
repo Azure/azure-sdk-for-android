@@ -1,10 +1,10 @@
-package com.azure.core.http;
+package com.azure.core.http.implementation;
 
 import okhttp3.Request;
 import okhttp3.Response;
 
-// TODO:anuchan private interface but explore other designs without this.
-interface UnwrapOkHttp {
+// TODO:anuchan impl interface but explore other designs without this.
+public interface UnwrapOkHttp {
     interface InnerRequest {
         Request unwrap();
     }

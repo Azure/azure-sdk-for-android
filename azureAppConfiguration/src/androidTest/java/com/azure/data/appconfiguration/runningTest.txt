@@ -1,0 +1,34 @@
+To Run tests in /azureAppConfiguration/src/androidTest/java/com/azure/data/appconfiguration/*.java
+
+Configure azConfigSettings.txt file
+-----------------------------------
+
+1. Open the 'androidTest' directory 'azureAppConfiguration\src\test\androidTest' in explorer
+2. Create a dir with name 'Resources' under 'androidTest'
+2. Create the file 'azureAppConfiguration\src\test\androidTest\Resources\azConfigSettings.txt'
+3. Add the connection string and service endpoint in the below format
+
+Endpoint=https://<azConfig-resource-name>.azconfig.io;Id=<id>;Secret=<secret>
+https://<azConfig-resource-name>.azconfig.io
+
+Error on clicking "Run test" (play button) next to the class ConfigurationClientTest
+------------------------------------------------------------------------------------
+
+if clicking “Run test” (play button) next to the class ConfigurationClientTest cause the error
+
+“java.lang.TypeNotPresentException: Type androidx.test.ext.junit.runners.AndroidJUnit4 not present”.
+
+This is because as a result of attempt to run the test, Android Studio creates a “Run configuration” instance of type “Android JUnit”
+with name “ConfigurationClientTest”, but the correct “Run Configuration” instance should be of type “Android Instrumented Tests”.
+
+To fix this:
+
+Run > Edit Configurations > + > Android Instrumented Tests ->
+	Name: EmulatorConfigurationClientTest
+	Module: azureappconfiguration
+	Test: Class
+	Choose class as ConfigurationClientTest
+	Apply -> Ok
+
+
+Run > EmulatorConfigurationClientTest

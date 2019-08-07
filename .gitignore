@@ -47,3 +47,6 @@ Thumbs.db
 .gradle/
 */build/*
 build/*
+
+# Test config file
+azConfigSettings.txt

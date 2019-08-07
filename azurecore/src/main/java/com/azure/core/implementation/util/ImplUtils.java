@@ -5,11 +5,23 @@ package com.azure.core.implementation.util;
 
 import android.text.TextUtils;
 
+import com.azure.core.exception.HttpResponseException;
+import com.azure.core.http.HttpResponse;
+import com.azure.core.implementation.serializer.MalformedValueException;
+import com.azure.core.implementation.serializer.SerializerAdapter;
+import com.azure.core.implementation.serializer.SerializerEncoding;
 import com.azure.core.implementation.util.function.Function;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
+
+import okhttp3.MediaType;
+import okhttp3.ResponseBody;
 
 /**
  *  The util class is a helper class for clone operation.
@@ -99,7 +111,7 @@ public final class ImplUtils {
         return charSequence == null || charSequence.length() == 0;
     }
 
-//    todo: anuchan: Function available starting from API Level 24., below Function is from com.azure.core.implementation.util.function package
+    //    TODO: anuchan: Function available starting from API Level 24., below Function is from com.azure.core.implementation.util.function package
 //    /*
 //     * Turns an array into a string mapping each element to a string and delimits them using a coma.
 //     * @param array Array being formatted to a string.
@@ -139,5 +151,49 @@ public final class ImplUtils {
         }
 
         return null;
+    }
+
+    public static RuntimeException createException(Map<Integer, Class<? extends HttpResponseException>> exceptionMapping, ResponseBody errorBody, HttpResponse httpResponse, SerializerAdapter serializerAdapter) {
+        Class<? extends HttpResponseException> exceptionType = HttpResponseException.class;
+        for (Map.Entry<Integer, Class<? extends HttpResponseException>> mapping : exceptionMapping.entrySet()) {
+            if (mapping.getKey() == httpResponse.statusCode()) {
+                exceptionType = mapping.getValue();
+            }
+        }
+        //
+        Class<?> exceptionValueType = Object.class;
+        String errorContent = "";
+        Object responseErrorContentDecoded = null;
+        if (errorBody != null && errorBody.source() != null) {
+            errorContent = errorBody.source().getBuffer().readUtf8(); // TODO: anuchan if errorBody has to be reused then clone it.
+            if (errorContent.length() >= 0) {
+                try {
+                    final Method exceptionValueMethod = exceptionType.getDeclaredMethod("value");
+                    exceptionValueType = exceptionValueMethod.getReturnType();
+                } catch (NoSuchMethodException e) {
+                    exceptionValueType = Object.class;
+                }
+                try {
+                    responseErrorContentDecoded = serializerAdapter.deserialize(new StringReader(errorContent), exceptionValueType, SerializerEncoding.fromHeaders(httpResponse.headers()));
+                } catch (IOException | MalformedValueException ignored) {
+                    // ignored
+                }
+            }
+        }
+        String errorBodyRepresentation = errorContent.isEmpty() ? "(empty body)" : "\"" + errorContent + "\"";
+        //
+        RuntimeException exception;
+        try {
+            final Constructor<? extends HttpResponseException> exceptionConstructor = exceptionType.getConstructor(String.class, HttpResponse.class, exceptionValueType);
+            exception = exceptionConstructor.newInstance("Status code " + httpResponse.statusCode() + ", " + errorBodyRepresentation,
+                httpResponse,
+                responseErrorContentDecoded);
+        } catch (ReflectiveOperationException e) {
+            String message = "Status code " + httpResponse.statusCode() + ", but an instance of "
+                + exceptionType.getCanonicalName() + " cannot be created."
+                + " Response body: " + errorBodyRepresentation;
+            exception = new RuntimeException(new IOException(message, e));
+        }
+        return exception;
     }
 }

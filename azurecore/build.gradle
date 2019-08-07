@@ -35,10 +35,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.2'
-    //
     implementation 'com.squareup.retrofit2:retrofit:2.6.0'
-    implementation 'com.google.code.gson:gson:2.8.5'
-    implementation 'com.squareup.retrofit2:converter-gson:2.6.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:4.0.1'
     implementation 'com.squareup.retrofit2:converter-jackson:2.6.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.9'
@@ -46,9 +43,11 @@ dependencies {
     // Fixes: java.lang.NoClassDefFoundError: Failed resolution of: Ljavax/xml/stream/XMLInputFactory (https://stackoverflow.com/a/47371517/1473510)
     //
     implementation group: 'javax.xml.stream', name: 'stax-api', version: '1.0-2'
-    // Test dependencies
+    // AndroidJUnitTest dependencies
     testImplementation 'junit:junit:4.12'
     testImplementation 'com.squareup.okhttp3:mockwebserver:4.0.1'
+    // AndroidInstrumentedTest dependencies
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
 }

@@ -1,5 +1,8 @@
 package com.azure.core.http;
 
+import com.azure.core.http.implementation.OkHttpRequest;
+import com.azure.core.http.implementation.OkHttpResponse;
+import com.azure.core.http.implementation.UnwrapOkHttp;
 import com.azure.core.implementation.serializer.SerializerAdapter;
 import com.azure.core.implementation.serializer.SerializerEncoding;
 import com.azure.core.implementation.serializer.jackson.JacksonAdapter;
@@ -33,17 +36,17 @@ public class RetrofitAPIClient {
         httpLoggingInterceptor.level(HttpLoggingInterceptor.Level.BODY);
         //
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
-                .addInterceptor(httpLoggingInterceptor);
+            .addInterceptor(httpLoggingInterceptor);
         //
         if (httpPipeline != null) {
             builder.addInterceptor(wrapHttpPipeline(httpPipeline));
         }
         OkHttpClient client = builder.build();
         retrofit = new Retrofit.Builder()
-                .baseUrl(baseUri)
-                .addConverterFactory(wrapSerializer(serializerAdapter, SerializerEncoding.JSON))
-                .callFactory(client)
-                .build();
+            .baseUrl(baseUri)
+            .addConverterFactory(wrapSerializer(serializerAdapter, SerializerEncoding.JSON))
+            .callFactory(client)
+            .build();
         return retrofit;
     }
 
@@ -53,11 +56,10 @@ public class RetrofitAPIClient {
             if (context == null) {
                 context = new HttpPipelineCallContext();
             }
-            final HttpRequest httpRequest = new WrappedOkHttpRequest(chain.request());
+            final HttpRequest httpRequest = new OkHttpRequest(chain.request());
             final HttpResponse httpResponse = httpPipeline.send(context.httpRequest(httpRequest), r -> {
-                // TODO: anuchan re-evaluate unwrap design for request and response
                 Response response = chain.proceed(((UnwrapOkHttp.InnerRequest)r).unwrap());
-                return new WrappedOkHttpResponse(response, httpRequest);
+                return new OkHttpResponse(response, httpRequest);
             });
             return ((UnwrapOkHttp.InnerResponse)httpResponse).unwrap();
         };
@@ -65,8 +67,8 @@ public class RetrofitAPIClient {
 
     private static Converter.Factory wrapSerializer(SerializerAdapter serializer, final SerializerEncoding encoding) {
         final MediaType mediaType = encoding == SerializerEncoding.XML
-                ? MediaType.parse("application/xml; charset=UTF-8")
-                : MediaType.parse("application/json; charset=UTF-8");
+            ? MediaType.parse("application/xml; charset=UTF-8")
+            : MediaType.parse("application/json; charset=UTF-8");
         //
         return new Converter.Factory() {
             @Override

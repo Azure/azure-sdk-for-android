@@ -1,19 +1,19 @@
 package com.azure.core;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import com.google.gson.annotations.SerializedName;
 
 import java.util.Map;
 
 @JacksonXmlRootElement(localName = "HttpBinJSON")
 public class HttpBinJSON {
-    @SerializedName(value = "url")
+    @JsonProperty(value = "url")
     private String url;
 
-    @SerializedName(value = "headers")
+    @JsonProperty(value = "headers")
     private Map<String, String> headers;
 
-    @SerializedName(value = "data")
+    @JsonProperty(value = "data")
     private Object data;
 
     public String url() {

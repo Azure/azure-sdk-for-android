@@ -1,7 +1,8 @@
 package com.azure.data.appconfiguration;
 
-import androidx.test.runner.AndroidJUnit4;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import com.azure.core.exception.ResourceNotFoundException;
 import com.azure.data.appconfiguration.models.ConfigurationSetting;
 
 import org.junit.Test;
@@ -19,6 +20,7 @@ import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertNotNull;
+import static junit.framework.TestCase.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class ConfigurationClientTest {
@@ -44,6 +46,24 @@ public class ConfigurationClientTest {
         assertEquals(settingValue, result.value());
     }
 
+    @Test
+    public void getNotFoundSetting() throws Exception {
+        String SettingName = UUID.randomUUID().toString();
+        //
+        ConfigurationClient client = createConfigClient();
+        // == Get setting
+        ConfigurationSetting setting = new ConfigurationSetting();
+        setting.key(SettingName);
+        boolean thrownException = false;
+        try {
+            ConfigurationSetting result = client.getSetting(setting);
+        } catch (ResourceNotFoundException rnfe) {
+            thrownException = true;
+        }
+        assertTrue("Expected ResourceNotFoundException is not thrown", thrownException);
+    }
+
+
     private ConfigurationClient createConfigClient() throws MalformedURLException {
         String[] settings = azConfigSettings();
         String connectionString = settings[0];
@@ -67,7 +87,7 @@ public class ConfigurationClientTest {
     private List<String> readLinesFromResourceTxtFile(String fileName) throws IOException {
         InputStream connectionStringUrl = this.getClass().getClassLoader().getResourceAsStream(fileName);
         if (connectionStringUrl == null) {
-            throw  new IllegalArgumentException(fileName + " not found in the resources dir.");
+            throw  new IllegalArgumentException(fileName + " not found in the com.resources dir.");
         }
         List<String> lines = new ArrayList<String>();
         BufferedReader r = null;

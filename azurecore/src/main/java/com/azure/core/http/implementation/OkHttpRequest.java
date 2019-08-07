@@ -1,10 +1,12 @@
-package com.azure.core.http;
+package com.azure.core.http.implementation;
+
+import com.azure.core.http.HttpHeaders;
+import com.azure.core.http.HttpMethod;
+import com.azure.core.http.HttpRequest;
 
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.Headers;
@@ -12,14 +14,14 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okio.Buffer;
 
-class WrappedOkHttpRequest implements HttpRequest, UnwrapOkHttp.InnerRequest {
+public class OkHttpRequest implements HttpRequest, UnwrapOkHttp.InnerRequest {
     private final Request inner;
     private HttpMethod method;
     private URL url;
     private HttpHeaders headers;
     private RequestBody body;
 
-    WrappedOkHttpRequest(final Request inner) {
+    public OkHttpRequest(final Request inner) {
         this.inner = inner;
         this.headers = fromOkHttpHeaders(inner.headers());
         this.body = inner.body();
@@ -100,7 +102,7 @@ class WrappedOkHttpRequest implements HttpRequest, UnwrapOkHttp.InnerRequest {
 
     @Override
     public HttpRequest buffer() {
-        return new WrappedOkHttpRequest(this.unwrap());
+        return new OkHttpRequest(this.unwrap());
     }
 
     @Override
@@ -137,12 +139,10 @@ class WrappedOkHttpRequest implements HttpRequest, UnwrapOkHttp.InnerRequest {
     }
 
     private static HttpHeaders fromOkHttpHeaders(okhttp3.Headers headers) {
-        Map<String, List<String>> map = headers.toMultimap();
-        HttpHeaders httpHeader = new HttpHeaders();
-        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-            List<String> values = entry.getValue();
-            httpHeader.put(entry.getKey(), values.get(values.size() - 1));
+        HttpHeaders httpHeaders = new HttpHeaders();
+        for (String headerName : headers.names()) {
+            httpHeaders.put(headerName, headers.get(headerName));
         }
-        return httpHeader;
+        return httpHeaders;
     }
 }

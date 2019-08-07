@@ -5,8 +5,6 @@ import com.azure.core.implementation.serializer.jackson.JacksonAdapter;
 
 import org.junit.Test;
 
-import java.nio.charset.Charset;
-
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -25,7 +23,7 @@ public class RequestResponseSerializationTests {
         //
         // Schedule some responses.
         Buffer buffer = new Buffer();
-        buffer.writeString(JacksonAdapter.createDefaultSerializerAdapter().serialize(httpBinJSONReq, SerializerEncoding.JSON), Charset.defaultCharset());
+        buffer.write(JacksonAdapter.createDefaultSerializerAdapter().serialize(httpBinJSONReq, SerializerEncoding.JSON));
         server.enqueue(new MockResponse().setBody(buffer));
 
         server.start();

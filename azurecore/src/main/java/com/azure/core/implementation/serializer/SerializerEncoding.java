@@ -3,9 +3,7 @@
 
 package com.azure.core.implementation.serializer;
 
-import java.util.List;
-
-import okhttp3.Headers;
+import com.azure.core.http.HttpHeaders;
 
 /**
  * Supported serialization encoding formats.
@@ -27,18 +25,14 @@ public enum SerializerEncoding {
      * @param headers the headers to check the encoding for
      * @return the serializer encoding to use for the body
      */
-    public static SerializerEncoding fromHeaders(Headers headers) { // TODO: anuchan don't leak OkHttp headers
-        List<String> mimeContentTypes = headers.values("Content-Type");
-        if (mimeContentTypes.size() > 0) {
-            String mimeContentType = mimeContentTypes.get(0);
-            if (mimeContentType != null) {
-                String[] parts = mimeContentType.split(";");
-                if (parts[0].equalsIgnoreCase("application/xml") || parts[0].equalsIgnoreCase("text/xml")) {
-                    return XML;
-                }
+    public static SerializerEncoding fromHeaders(HttpHeaders headers) {
+        String mimeContentType = headers.value("Content-Type");
+        if (mimeContentType != null) {
+            String[] parts = mimeContentType.split(";");
+            if (parts[0].equalsIgnoreCase("application/xml") || parts[0].equalsIgnoreCase("text/xml")) {
+                return XML;
             }
         }
-        //
         return JSON;
     }
 }

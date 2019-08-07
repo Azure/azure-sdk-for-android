@@ -1,16 +1,19 @@
-package com.azure.core.http;
+package com.azure.core.http.implementation;
 
+import com.azure.core.http.HttpHeaders;
+import com.azure.core.http.HttpRequest;
+import com.azure.core.http.HttpResponse;
 import java.io.IOException;
 
 import okhttp3.Response;
 import okio.Buffer;
 import okio.BufferedSource;
 
-class WrappedOkHttpBufferedResponse implements HttpResponse, UnwrapOkHttp.InnerResponse {
-    final WrappedOkHttpResponse source;
+public class OkHttpBufferedResponse implements HttpResponse, UnwrapOkHttp.InnerResponse {
+    private final OkHttpResponse source;
     private Buffer bufferedContent;
 
-    WrappedOkHttpBufferedResponse(WrappedOkHttpResponse source) {
+    public OkHttpBufferedResponse(OkHttpResponse source) {
         this.source = source;
     }
 
@@ -31,14 +34,14 @@ class WrappedOkHttpBufferedResponse implements HttpResponse, UnwrapOkHttp.InnerR
 
     @Override
     public byte[] bodyAsByteArray() throws IOException {
-        if (this.bufferedContent == null && this.source.inner.body() != null) {
-            BufferedSource bufferedSource = this.source.inner.body().source();
+        if (this.bufferedContent == null && this.source.inner().body() != null) {
+            BufferedSource bufferedSource = this.source.inner().body().source();
             bufferedSource.request(Long.MAX_VALUE);
             this.bufferedContent = bufferedSource.getBuffer();
         }
         return this.bufferedContent != null
-                ? this.bufferedContent.clone().readByteArray()
-                : null;
+            ? this.bufferedContent.clone().readByteArray()
+            : null;
     }
 
     @Override
@@ -64,6 +67,6 @@ class WrappedOkHttpBufferedResponse implements HttpResponse, UnwrapOkHttp.InnerR
 
     @Override
     public Response unwrap() {
-        return this.source.inner;
+        return this.source.inner();
     }
 }
