@@ -12,32 +12,54 @@
   tools:layout_editor_absoluteX="7dp"
   tools:layout_editor_absoluteY="7dp">
       <EditText
-      android:id="@+id/conStringEditText"
+      android:id="@+id/setConfigKey"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:ems="10"
       android:inputType="textPersonName"
-      android:text="connectionString" />
+      android:text="key" />
 
       <EditText
-      android:id="@+id/serviceUrlEditText"
+      android:id="@+id/setConfigValue"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:ems="10"
       android:inputType="textPersonName"
-      android:text="ServiceUrl" />
+      android:text="value" />
 
       <Button
-      android:id="@+id/button"
+      android:id="@+id/setBtn"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:text="Button" />
+      android:text="Add" />
 
       <TextView
-      android:id="@+id/textView"
+      android:id="@+id/setResponseTxt"
       android:layout_width="match_parent"
-      android:layout_height="378dp"
-      android:text="Output" />
+      android:layout_height="100dp"
+      android:text="Response"
+      android:background="@android:drawable/editbox_background"  />
+
+    <EditText
+        android:id="@+id/getConfigKey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="key" />
+
+    <Button
+        android:id="@+id/getBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Retrieve" />
+
+    <TextView
+        android:id="@+id/getResponseTxt"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:text="Response"
+        android:background="@android:drawable/editbox_background"  />
   </LinearLayout>
 
 </FrameLayout>

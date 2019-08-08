@@ -1,11 +1,14 @@
 package com.azure.data.azappconfigactivity;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +16,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.azure.core.exception.HttpResponseException;
 import com.azure.data.appconfiguration.ConfigurationClient;
 import com.azure.data.appconfiguration.models.ConfigurationSetting;
 
@@ -28,8 +32,6 @@ import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
 public class AzAppConfigDemoFragment extends Fragment implements View.OnClickListener {
-    private Button button;
-    private TextView textView;
     private final CompositeDisposable disposables = new CompositeDisposable();
     //
     public static AzAppConfigDemoFragment newInstance() {
@@ -44,22 +46,22 @@ public class AzAppConfigDemoFragment extends Fragment implements View.OnClickLis
 
     @Override
     public void onViewCreated(@NonNull View rootView, @Nullable Bundle savedInstanceState) {
-        button = rootView.findViewById(R.id.button);
-        textView = rootView.findViewById(R.id.textView);
-        button.setOnClickListener(this);
+        Button setBtn = rootView.findViewById(R.id.setBtn);
+        setBtn.setOnClickListener(this);
+        //
+        Button getBtn = rootView.findViewById(R.id.getBtn);
+        getBtn.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View buttonView) {
+        SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
+        String conString = preference.getString("az_conf_connection", "<unset>");
+        String serviceUrl = preference.getString("az_conf_endpoint", "<unset>");
         //
-        EditText conStringInput = buttonView.getRootView().findViewById(R.id.conStringEditText);
-        EditText serviceUrlInput = buttonView.getRootView().findViewById(R.id.serviceUrlEditText);
-        //
-        String conString = conStringInput.getText().toString();
-        String serviceUrl = serviceUrlInput.getText().toString();
-        //
-        if (conString == null || conString == "" || serviceUrl == null || serviceUrl == "") {
-            // NOP
+        if (conString == "<unset>" || serviceUrl == "<unset>") {
+            TextView textView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
+            textView.setText("Az config connection string is not set in preference.");
             return;
         } else {
             URL serviceEndpoint;
@@ -70,30 +72,90 @@ public class AzAppConfigDemoFragment extends Fragment implements View.OnClickLis
             }
             //
             ConfigurationClient client = new ConfigurationClient(serviceEndpoint, conString);
-            //
-            DisposableObserver<ConfigurationSetting> disposable = Observable.defer((Callable<ObservableSource<ConfigurationSetting>>) () -> Observable.fromCallable(() -> {
-                ConfigurationSetting setting = new ConfigurationSetting().key("hello");
-                return client.getSetting(setting);
-            }))
-            .subscribeOn(Schedulers.newThread())
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribeWith(new DisposableObserver<ConfigurationSetting>() {
-                @Override
-                public void onComplete() {
-                }
-
-                @Override
-                public void onError(Throwable e) {
-                }
-
-                @Override
-                public void onNext(ConfigurationSetting result) {
-                    textView.setText(result.value());
-                }
-            });
-            disposables.add(disposable);
+            switch (buttonView.getId()) {
+                case R.id.setBtn:
+                    onSetButtonClick(client, buttonView);
+                    return;
+                case R.id.getBtn:
+                    onGetButtonClick(client, buttonView);
+                    return;
+            }
         }
     }
+
+    private void  onSetButtonClick(ConfigurationClient client, View buttonView) {
+        EditText key = buttonView.getRootView().findViewById(R.id.setConfigKey);
+        EditText value = buttonView.getRootView().findViewById(R.id.setConfigValue);
+        //
+        String keyString = key.getText().toString();
+        String valueString = value.getText().toString();
+        //
+        if (keyString == null || keyString == "" || valueString == null || valueString == "") {
+            TextView textView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
+            textView.setText("key and value required");
+            return;
+        }
+        //
+        DisposableObserver<ConfigurationSetting> disposable = Observable.defer((Callable<ObservableSource<ConfigurationSetting>>) () -> Observable.fromCallable(() -> client.addSetting(keyString, valueString)))
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribeWith(new DisposableObserver<ConfigurationSetting>() {
+            @Override
+            public void onComplete() {
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                HttpResponseException responseException = (HttpResponseException) e;
+                Log.w("Undeliverable exception", responseException);
+            }
+
+            @Override
+            public void onNext(ConfigurationSetting result) {
+                TextView textView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
+                textView.setText(result.value());
+            }
+        });
+        disposables.add(disposable);
+    }
+
+    private void  onGetButtonClick(ConfigurationClient client, View buttonView) {
+        EditText key = buttonView.getRootView().findViewById(R.id.getConfigKey);
+        //
+        String keyString = key.getText().toString();
+        //
+        if (keyString == null || keyString == "") {
+            TextView textView = buttonView.getRootView().findViewById(R.id.getResponseTxt);
+            textView.setText("key required");
+            return;
+        }
+        //
+        DisposableObserver<ConfigurationSetting> disposable = Observable.defer((Callable<ObservableSource<ConfigurationSetting>>) () -> Observable.fromCallable(() -> {
+            ConfigurationSetting setting = new ConfigurationSetting().key(keyString);
+            return client.getSetting(setting);
+        }))
+        .subscribeOn(Schedulers.newThread())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribeWith(new DisposableObserver<ConfigurationSetting>() {
+            @Override
+            public void onComplete() {
+            }
+
+            @Override
+            public void onError(Throwable e) {
+                HttpResponseException responseException = (HttpResponseException) e;
+                Log.w("Undeliverable exception", responseException);
+            }
+
+            @Override
+            public void onNext(ConfigurationSetting result) {
+                TextView textView = buttonView.getRootView().findViewById(R.id.getResponseTxt);
+                textView.setText(result.value());
+            }
+        });
+        disposables.add(disposable);
+    }
+
 
     @Override
     public void onDestroy() {
