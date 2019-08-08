@@ -5,40 +5,17 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <LinearLayout
-        android:layout_width="397dp"
-        android:layout_height="513dp"
-        android:orientation="vertical"
-        tools:layout_editor_absoluteX="7dp"
-        tools:layout_editor_absoluteY="7dp">
+  <androidx.viewpager.widget.ViewPager
+      xmlns:android="http://schemas.android.com/apk/res/android"
+      android:id="@+id/pager"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
 
-        <EditText
-            android:id="@+id/conStringEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPersonName"
-            android:text="connectionString" />
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-        <EditText
-            android:id="@+id/serviceUrlEditText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:inputType="textPersonName"
-            android:text="ServiceUrl" />
-
-        <Button
-            android:id="@+id/button"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Button" />
-
-        <TextView
-            android:id="@+id/textView"
-            android:layout_width="match_parent"
-            android:layout_height="378dp"
-            android:text="Output" />
-    </LinearLayout>
+  </androidx.viewpager.widget.ViewPager>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

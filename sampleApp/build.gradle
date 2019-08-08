@@ -33,6 +33,8 @@ dependencies {
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
     implementation project(path: ':azureappconfiguration')
+    // UI
+    implementation 'com.google.android.material:material:1.0.0'
     // AndroidJUnitTest dependencies
     testImplementation 'junit:junit:4.12'
     // AndroidInstrumentedTest dependencies
