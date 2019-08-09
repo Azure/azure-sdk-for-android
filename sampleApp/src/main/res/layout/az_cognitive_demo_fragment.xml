@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+xmlns:tools="http://schemas.android.com/tools"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+tools:context=".AzCognitiveDemoFragment">
+
+  <Button
+      android:id="@+id/takePicBtn"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Capture" />
+
+  <ImageView
+      android:id="@+id/imageview"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_centerHorizontal="true"
+      android:layout_below="@+id/takePicBtn"/>
+
+  <Button
+      android:id="@+id/analyzePicBtn"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Analyze"
+      android:layout_below="@+id/imageview"/>
+
+</RelativeLayout>

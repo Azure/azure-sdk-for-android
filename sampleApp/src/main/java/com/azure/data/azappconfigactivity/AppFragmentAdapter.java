@@ -11,23 +11,25 @@ public class AppFragmentAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        if (position == 0) {
-            return AzAppConfigDemoFragment.newInstance();
-        } else if (position == 1) {
-            return AzCognitiveFragment.newInstance();
-        } else {
-            return null;
+        switch (position) {
+            case 0:
+                return AzAppConfigDemoFragment.newInstance();
+            case 1:
+                return AzCognitiveDemoFragment.newInstance();
+            default:
+                return null;
         }
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        if (position == 0) {
-            return "azConfig";
-        } else if (position == 1) {
-            return "azCognitive";
-        } else {
-            return null;
+        switch (position) {
+            case 0:
+                return "azConfig";
+            case 1:
+                return "azCognitive";
+            default:
+                return null;
         }
     }
 

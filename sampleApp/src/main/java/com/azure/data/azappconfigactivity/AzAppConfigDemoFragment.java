@@ -90,7 +90,7 @@ public class AzAppConfigDemoFragment extends Fragment implements View.OnClickLis
         String keyString = key.getText().toString();
         String valueString = value.getText().toString();
         //
-        if (keyString == null || keyString == "" || valueString == null || valueString == "") {
+        if (Util.isNullOrEmpty(keyString) || Util.isNullOrEmpty(valueString)) {
             TextView textView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
             textView.setText("key and value required");
             return;
@@ -124,7 +124,7 @@ public class AzAppConfigDemoFragment extends Fragment implements View.OnClickLis
         //
         String keyString = key.getText().toString();
         //
-        if (keyString == null || keyString == "") {
+        if (Util.isNullOrEmpty(keyString)) {
             TextView textView = buttonView.getRootView().findViewById(R.id.getResponseTxt);
             textView.setText("key required");
             return;

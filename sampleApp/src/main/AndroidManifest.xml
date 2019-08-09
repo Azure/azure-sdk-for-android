@@ -2,9 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.azure.data.azappconfigactivity">
 
+  <!--Permission to access internet for REST calls-->
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-
+  <!--Feature and permission to take and store images-->
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+  <uses-feature android:name="android.hardware.camera" android:required="true" />
   <application
       android:allowBackup="true"
       android:icon="@mipmap/ic_launcher"
@@ -12,12 +15,14 @@
       android:roundIcon="@mipmap/ic_launcher_round"
       android:supportsRtl="true"
       android:theme="@style/AppTheme">
+    <!--The main activity-->
     <activity android:name=".MainActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
+    <!--Activity for managing settings/preferences-->
     <activity
         android:name=".SettingsActivity"
         android:label="@string/title_activity_settings">
@@ -25,5 +30,15 @@
           android:name="android.support.PARENT_ACTIVITY"
           android:value=".MainActivity"/>
     </activity>
+    <!--Provider to build path to the files for storing camera captured images-->
+    <provider
+        android:name="androidx.core.content.FileProvider"
+        android:authorities="com.azure.data.azappconfigactivity.fileprovider"
+        android:exported="false"
+        android:grantUriPermissions="true">
+      <meta-data
+          android:name="android.support.FILE_PROVIDER_PATHS"
+          android:resource="@xml/file_paths"></meta-data>
+    </provider>
   </application>
 </manifest>

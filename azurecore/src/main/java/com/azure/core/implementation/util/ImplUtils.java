@@ -163,7 +163,7 @@ public final class ImplUtils {
         //
         Class<?> exceptionValueType = Object.class;
         String errorContent = "";
-        Object responseErrorContentDecoded = null;
+        Object errorContentDecoded = null;
         if (errorBody != null && errorBody.source() != null) {
             errorContent = errorBody.source().getBuffer().readUtf8(); // TODO: anuchan if errorBody has to be reused then clone it.
             if (errorContent.length() >= 0) {
@@ -174,7 +174,7 @@ public final class ImplUtils {
                     exceptionValueType = Object.class;
                 }
                 try {
-                    responseErrorContentDecoded = serializerAdapter.deserialize(new StringReader(errorContent), exceptionValueType, SerializerEncoding.fromHeaders(httpResponse.headers()));
+                    errorContentDecoded = serializerAdapter.deserialize(new StringReader(errorContent), exceptionValueType, SerializerEncoding.fromHeaders(httpResponse.headers()));
                 } catch (IOException | MalformedValueException ignored) {
                     // ignored
                 }
@@ -187,7 +187,7 @@ public final class ImplUtils {
             final Constructor<? extends HttpResponseException> exceptionConstructor = exceptionType.getConstructor(String.class, HttpResponse.class, exceptionValueType);
             exception = exceptionConstructor.newInstance("Status code " + httpResponse.statusCode() + ", " + errorBodyRepresentation,
                 httpResponse,
-                responseErrorContentDecoded);
+                errorContentDecoded);
         } catch (ReflectiveOperationException e) {
             String message = "Status code " + httpResponse.statusCode() + ", but an instance of "
                 + exceptionType.getCanonicalName() + " cannot be created."
