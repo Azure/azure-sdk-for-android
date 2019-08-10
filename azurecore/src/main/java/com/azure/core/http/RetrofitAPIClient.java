@@ -1,8 +1,8 @@
 package com.azure.core.http;
 
-import com.azure.core.http.implementation.OkHttpRequest;
-import com.azure.core.http.implementation.OkHttpResponse;
-import com.azure.core.http.implementation.UnwrapOkHttp;
+import com.azure.core.implementation.http.OkHttpRequest;
+import com.azure.core.implementation.http.OkHttpResponse;
+import com.azure.core.implementation.http.UnwrapOkHttp;
 import com.azure.core.implementation.serializer.SerializerAdapter;
 import com.azure.core.implementation.serializer.SerializerEncoding;
 import com.azure.core.implementation.serializer.jackson.JacksonAdapter;

@@ -27,8 +27,8 @@ android {
 }
 
 dependencies {
-    // Compile dependency for core exceptions and response types
-    compile project(path: ':azurecore')
+    // dependency for core exceptions and response types
+    implementation project(path: ':azurecore')
     //
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.0.2'

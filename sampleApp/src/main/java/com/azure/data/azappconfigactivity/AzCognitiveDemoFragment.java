@@ -1,6 +1,8 @@
 package com.azure.data.azappconfigactivity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -11,12 +13,16 @@ import androidx.fragment.app.Fragment;
 
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -31,6 +37,9 @@ public class AzCognitiveDemoFragment extends Fragment implements View.OnClickLis
     private static final String FILE_PROVIDER_AUTHORITY = "com.azure.data.azappconfigactivity.fileprovider";
     private ImageView capturedImgView;
     private Uri capturedImageUri;
+    private ProgressBar progressBar;
+    private TextView textView;
+
 
     public static AzCognitiveDemoFragment newInstance() {
         return new AzCognitiveDemoFragment();
@@ -44,14 +53,26 @@ public class AzCognitiveDemoFragment extends Fragment implements View.OnClickLis
 
     @Override
     public void onViewCreated(@NonNull View rootView, @Nullable Bundle savedInstanceState) {
-        Button setBtn = rootView.findViewById(R.id.takePicBtn);
-        setBtn.setOnClickListener(this);
+        Button takePicBtn = rootView.findViewById(R.id.takePicBtn);
+        takePicBtn.setOnClickListener(this);
+        Button analyzePicBtn = rootView.findViewById(R.id.analyzePicBtn);
+        analyzePicBtn.setOnClickListener(this);
         capturedImgView = rootView.findViewById(R.id.imageview);
+        //
+        progressBar = rootView.findViewById(R.id.progressBar);
+        textView = rootView.findViewById(R.id.progressBarMessage);
     }
 
     @Override
-    public void onClick(View view) {
-        onCaptureClick();
+    public void onClick(View buttonView) {
+        switch (buttonView.getId()) {
+            case R.id.takePicBtn:
+                onCaptureClick();
+                return;
+            case R.id.analyzePicBtn:
+                onAnalyzeClick();
+                return;
+        }
     }
 
     @Override
@@ -65,6 +86,10 @@ public class AzCognitiveDemoFragment extends Fragment implements View.OnClickLis
     }
 
     private void onCaptureClick() {
+        //
+        progressBar.setVisibility(View.INVISIBLE);
+        textView.setText(null);
+        //
         Intent captureImageIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         if (captureImageIntent.resolveActivity(getActivity().getPackageManager()) != null) {
             File photoFile = null;
@@ -80,6 +105,18 @@ public class AzCognitiveDemoFragment extends Fragment implements View.OnClickLis
                 startActivityForResult(captureImageIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
+    }
+
+    private void onAnalyzeClick() {
+        progressBar.setVisibility(View.VISIBLE);
+        textView.setText("converting to byte stream...");
+        //
+        Bitmap bitmap = ((BitmapDrawable)capturedImgView.getDrawable()).getBitmap();
+        ByteArrayOutputStream stream=new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+        byte[] image = stream.toByteArray();
+        String img_str = Base64.encodeToString(image, 0);
+        // progressBar.setVisibility(View.GONE);
     }
 
     private File createImageFile() throws IOException {

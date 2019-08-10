@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -107,13 +106,14 @@ public class AzAppConfigDemoFragment extends Fragment implements View.OnClickLis
             @Override
             public void onError(Throwable e) {
                 HttpResponseException responseException = (HttpResponseException) e;
-                Log.w("Undeliverable exception", responseException);
+                TextView textView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
+                textView.setText(String.format("Operation failed: { code: %d error:%s }", responseException.response().statusCode(), responseException.value()));
             }
 
             @Override
             public void onNext(ConfigurationSetting result) {
                 TextView textView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
-                textView.setText(result.value());
+                textView.setText(String.format("Operation succeeded: Result: %s", result.value()));
             }
         });
         disposables.add(disposable);
@@ -144,13 +144,15 @@ public class AzAppConfigDemoFragment extends Fragment implements View.OnClickLis
             @Override
             public void onError(Throwable e) {
                 HttpResponseException responseException = (HttpResponseException) e;
-                Log.w("Undeliverable exception", responseException);
+                TextView textView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
+                textView.setText(String.format("Operation failed: { code: %d error:%s }", responseException.response().statusCode(), responseException.value()));
             }
 
             @Override
             public void onNext(ConfigurationSetting result) {
                 TextView textView = buttonView.getRootView().findViewById(R.id.getResponseTxt);
-                textView.setText(result.value());
+                textView.setText(String.format("Operation succeeded: Retrieved value: %s", result.value()));
+
             }
         });
         disposables.add(disposable);

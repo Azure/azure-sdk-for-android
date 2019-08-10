@@ -1,4 +1,4 @@
-package com.azure.core.http.implementation;
+package com.azure.core.implementation.http;
 
 import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.HttpMethod;
