@@ -50,3 +50,4 @@ build/*
 
 # Test config file
 azConfigSettings.txt
+azCognitiveSettings.txt

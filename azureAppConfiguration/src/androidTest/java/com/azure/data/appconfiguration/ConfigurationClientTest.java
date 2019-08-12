@@ -103,6 +103,4 @@ public class ConfigurationClientTest {
         }
         return lines;
     }
-
-
 }

@@ -31,8 +31,8 @@ import java.util.Objects;
 
 public class ConfigurationClient {
     private final URL serviceEndpoint;
-    private final ConfigurationService service;
     private final SerializerAdapter serializerAdapter;
+    private final ConfigurationService service;
 
     public ConfigurationClient(URL serviceEndpoint, String connectionString) {
         this.serviceEndpoint = serviceEndpoint;

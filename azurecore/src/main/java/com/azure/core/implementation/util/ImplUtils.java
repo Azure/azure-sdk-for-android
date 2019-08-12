@@ -154,12 +154,19 @@ public final class ImplUtils {
     }
 
     public static RuntimeException createException(Map<Integer, Class<? extends HttpResponseException>> exceptionMapping, ResponseBody errorBody, HttpResponse httpResponse, SerializerAdapter serializerAdapter) {
-        Class<? extends HttpResponseException> exceptionType = HttpResponseException.class;
+        Class<? extends HttpResponseException> exceptionType = null;
+        Class<? extends HttpResponseException> defaultExceptionType = null;
         for (Map.Entry<Integer, Class<? extends HttpResponseException>> mapping : exceptionMapping.entrySet()) {
             if (mapping.getKey() == httpResponse.statusCode()) {
                 exceptionType = mapping.getValue();
+            } else if (mapping.getKey() == -1) {
+                defaultExceptionType = mapping.getValue();
             }
         }
+        exceptionType = exceptionType == null
+            ? (defaultExceptionType == null ? HttpResponseException.class : defaultExceptionType)
+            : exceptionType;
+
         //
         Class<?> exceptionValueType = Object.class;
         String errorContent = "";
