@@ -10,7 +10,7 @@ import com.azure.core.http.HttpResponse;
 import com.azure.core.implementation.serializer.MalformedValueException;
 import com.azure.core.implementation.serializer.SerializerAdapter;
 import com.azure.core.implementation.serializer.SerializerEncoding;
-import com.azure.core.implementation.util.function.Function;
+import com.azure.core.util.function.Function;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Map;
 
-import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 
 /**
@@ -111,7 +110,7 @@ public final class ImplUtils {
         return charSequence == null || charSequence.length() == 0;
     }
 
-    //    TODO: anuchan: Function available starting from API Level 24., below Function is from com.azure.core.implementation.util.function package
+    //    TODO: anuchan: Function available starting from API Level 24., below Function is from com.azure.core.util.function package
 //    /*
 //     * Turns an array into a string mapping each element to a string and delimits them using a coma.
 //     * @param array Array being formatted to a string.
