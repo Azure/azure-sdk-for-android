@@ -1,1 +1,1 @@
-include ':sampleapp', ':appconfiguration:azure-data-appconfiguration', ':core:azure-core', ':cognitiveservices:azure-cs-computervision'
+include ':sample-app', ':appconfiguration:azure-data-appconfiguration', ':core:azure-core', ':cognitiveservices:azure-cs-computervision'
