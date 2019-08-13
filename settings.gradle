@@ -1,1 +1,1 @@
-include ':sampleapp', ':azureappconfiguration', ':azurecore'
+include ':sampleapp', ':azureappconfiguration', ':azurecore', ':azurecognitivecomputervision'

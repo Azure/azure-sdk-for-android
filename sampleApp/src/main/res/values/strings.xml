@@ -1,18 +1,17 @@
 <resources>
   <string name="app_name">az SDK Demo</string>
 
-  <string name="hello_blank_fragment">Hello blank fragment</string>
   <string name="title_activity_settings">Settings</string>
 
   <!-- Preference Titles -->
   <string name="az_conf_header">Az Config Demo settings</string>
-  <string name="cognitive_header">Cognitive Demo settings</string>
+  <string name="cognitive_header">Az Cognitive Demo settings</string>
 
   <!-- Az Config Preferences -->
   <string name="az_conf_connection">Connection String</string>
   <string name="az_conf_endpoint">Service URL</string>
 
   <!-- Az Cognitive Preferences -->
-  <string name="stg_account_name">Storage account name</string>
-  <string name="stg_account_key">Storage account key</string>
+  <string name="az_cognitive_endpoint">Service URL</string>
+  <string name="az_cognitive_key">Key</string>
 </resources>

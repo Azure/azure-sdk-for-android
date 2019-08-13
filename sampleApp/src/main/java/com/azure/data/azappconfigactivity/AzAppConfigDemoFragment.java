@@ -56,21 +56,21 @@ public class AzAppConfigDemoFragment extends Fragment implements View.OnClickLis
     public void onClick(View buttonView) {
         SharedPreferences preference = PreferenceManager.getDefaultSharedPreferences(getActivity().getBaseContext());
         String conString = preference.getString("az_conf_connection", "<unset>");
-        String serviceUrl = preference.getString("az_conf_endpoint", "<unset>");
+        String serviceEndpoint = preference.getString("az_conf_endpoint", "<unset>");
         //
-        if (conString == "<unset>" || serviceUrl == "<unset>") {
-            TextView textView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
-            textView.setText("Az config connection string is not set in preference.");
+        if (conString == "<unset>" || serviceEndpoint == "<unset>") {
+            TextView responseTextView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
+            responseTextView.setText("Az config connection string or service endpoint is not set in the preference.");
             return;
         } else {
-            URL serviceEndpoint;
+            URL serviceUrl;
             try {
-                serviceEndpoint = new URL(serviceUrl);
+                serviceUrl = new URL(serviceEndpoint);
             } catch (MalformedURLException mue) {
                 throw new RuntimeException(mue);
             }
             //
-            ConfigurationClient client = new ConfigurationClient(serviceEndpoint, conString);
+            ConfigurationClient client = new ConfigurationClient(serviceUrl, conString);
             switch (buttonView.getId()) {
                 case R.id.setBtn:
                     onSetButtonClick(client, buttonView);

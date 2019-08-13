@@ -12,17 +12,42 @@ tools:context=".AzCognitiveDemoFragment">
       android:text="Capture" />
 
   <ImageView
-      android:id="@+id/imageview"
+      android:id="@+id/capturedImageView"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_centerHorizontal="true"
       android:layout_below="@+id/takePicBtn"/>
 
   <Button
-      android:id="@+id/analyzePicBtn"
+      android:id="@+id/recognizeTextInPicBtn"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Analyze"
-      android:layout_below="@+id/imageview"/>
+      android:text="Recognize Text"
+      android:layout_below="@+id/capturedImageView"/>
 
+  <ProgressBar
+      android:id="@+id/recognizeProgressBar"
+      style="?android:attr/progressBarStyle"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_centerHorizontal="true"
+      android:layout_centerVertical="true"
+      android:visibility="invisible" />
+
+  <TextView
+      android:id="@+id/recognizeProgressBarMessage"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_centerInParent="true"
+      android:layout_above="@id/recognizeProgressBar"
+      android:background="#00000000"
+      android:textColor="#FFC0CB" />
+
+  <TextView
+      android:id="@+id/recognizeResponseTxt"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Response"
+      android:background="@android:drawable/editbox_background"
+      android:layout_below="@+id/recognizeTextInPicBtn"  />
 </RelativeLayout>
