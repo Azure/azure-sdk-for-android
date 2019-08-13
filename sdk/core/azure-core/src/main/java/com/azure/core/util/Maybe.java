@@ -3,7 +3,6 @@
 
 package com.azure.core.util;
 
-import java.util.NoSuchElementException;
 import java.util.Objects;
 
 public final class Maybe<T> {
@@ -18,6 +17,7 @@ public final class Maybe<T> {
         this.value = Objects.requireNonNull(value);
     }
 
+    @SuppressWarnings("unchecked")
     public static<T> Maybe<T> none() {
         return (Maybe<T>) NONE;
     }
