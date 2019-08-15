@@ -20,6 +20,23 @@ allprojects {
         jcenter()
         
     }
+
+    ext {
+        retrofitVersion = "2.6.0"
+        retrofitJacksonConverterVersion = "2.6.0"
+        okHttpLoggingInterceptorVersion = "4.0.1"
+        jacksonDatabindVersion = "2.9.9"
+        jacksonDataFormatXmlVersion = "2.9.9"
+        staxApiVersion = "1.0-2"
+        junitVersion = "4.12"
+        testRunnerVersion = "1.2.0"
+        testEspressoVersion = "3.2.0"
+        testExtJunitVersion = "1.1.1"
+        okHttpMockServerVersion = "4.0.1"
+        appcompatVersion = "1.0.2"
+        rxjava2Version = "2.1.1"
+        rxJava2AndroidVersion = "2.2.10"
+    }
 }
 
 task clean(type: Delete) {

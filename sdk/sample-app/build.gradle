@@ -31,9 +31,9 @@ dependencies {
     implementation project(path: ':core:azure-core')
     //
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.10'
+    implementation "androidx.appcompat:appcompat:$appcompatVersion"
+    implementation "io.reactivex.rxjava2:rxandroid:$rxjava2Version"
+    implementation "io.reactivex.rxjava2:rxjava:$rxJava2AndroidVersion"
     implementation project(path: ':appconfiguration:azure-data-appconfiguration')
     implementation project(path: ':cognitiveservices:azure-cs-computervision')
     // UI
@@ -41,9 +41,9 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'androidx.preference:preference:1.1.0-rc01'
     // AndroidJUnitTest dependencies
-    testImplementation 'junit:junit:4.12'
+    testImplementation "junit:junit:$junitVersion"
     // AndroidInstrumentedTest dependencies
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation "androidx.test:runner:$testRunnerVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$testEspressoVersion"
+    androidTestImplementation "androidx.test.ext:junit:$testExtJunitVersion"
 }

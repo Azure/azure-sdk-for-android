@@ -34,20 +34,20 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'com.squareup.retrofit2:retrofit:2.6.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.0.1'
-    implementation 'com.squareup.retrofit2:converter-jackson:2.6.0'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.9'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9'
+    implementation "androidx.appcompat:appcompat:$appcompatVersion"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okHttpLoggingInterceptorVersion"
+    implementation "com.squareup.retrofit2:converter-jackson:$retrofitJacksonConverterVersion"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonDataFormatXmlVersion"
     // Fixes: java.lang.NoClassDefFoundError: Failed resolution of: Ljavax/xml/stream/XMLInputFactory (https://stackoverflow.com/a/47371517/1473510)
     //
-    implementation group: 'javax.xml.stream', name: 'stax-api', version: '1.0-2'
+    implementation "javax.xml.stream:stax-api:$staxApiVersion"
     // AndroidJUnitTest dependencies
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'com.squareup.okhttp3:mockwebserver:4.0.1'
+    testImplementation "junit:junit:$junitVersion"
+    testImplementation "com.squareup.okhttp3:mockwebserver:$okHttpMockServerVersion"
     // AndroidInstrumentedTest dependencies
-    androidTestImplementation 'androidx.test:runner:1.2.0'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
+    androidTestImplementation "androidx.test:runner:$testRunnerVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$testEspressoVersion"
+    androidTestImplementation "androidx.test.ext:junit:$testExtJunitVersion"
 }
