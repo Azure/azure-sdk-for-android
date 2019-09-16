@@ -4,8 +4,8 @@ buildscript {
     repositories {
         google()
         jcenter()
-        
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:3.4.2'
         
@@ -18,7 +18,11 @@ allprojects {
     repositories {
         google()
         jcenter()
-        
+        // This Maven repository is required so that all Speech classes can be accessed.
+        // Ideally once we make Speech into its own library, this will be included in the modules' build.gradle file instead.
+        maven {
+            url 'https://csspeechstorage.blob.core.windows.net/maven/'
+        }
     }
 
     ext {
@@ -36,6 +40,7 @@ allprojects {
         appcompatVersion = "1.0.2"
         rxjava2Version = "2.1.1"
         rxJava2AndroidVersion = "2.2.10"
+        speechVersion = "1.6.0"
     }
 }
 

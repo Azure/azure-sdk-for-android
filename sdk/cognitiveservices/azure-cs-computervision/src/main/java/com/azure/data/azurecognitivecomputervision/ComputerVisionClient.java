@@ -8,11 +8,11 @@ import com.azure.core.http.HttpPipelineCallContext;
 import com.azure.core.http.HttpRequest;
 import com.azure.core.http.RetrofitAPIClient;
 import com.azure.core.http.policy.AddHeadersPolicy;
+import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.core.http.rest.Response;
 import com.azure.core.http.rest.SimpleResponse;
 import com.azure.core.implementation.http.OkHttpRequest;
 import com.azure.core.implementation.http.OkHttpResponse;
-import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.core.implementation.http.UrlBuilder;
 import com.azure.core.implementation.serializer.SerializerAdapter;
 import com.azure.core.implementation.serializer.SerializerEncoding;
@@ -25,6 +25,7 @@ import com.azure.data.azurecognitivecomputervision.models.TextOperationResult;
 import com.azure.data.azurecognitivecomputervision.models.TextRecognitionMode;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,26 +36,28 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 
 public class ComputerVisionClient {
-    private final URL serviceEndpoint;
+    private static final String COMPUTER_VISION_ENDPOINT = "vision/v2.0/";
+
+    private final String serviceEndpoint;
     private final SerializerAdapter serializerAdapter;
     private final ComputerVisionService service;
 
-    public ComputerVisionClient(URL serviceEndpoint, String subscriptionKey) {
-        this.serviceEndpoint = serviceEndpoint;
+    public ComputerVisionClient(String serviceEndpoint, String subscriptionKey) throws MalformedURLException {
+        this.serviceEndpoint = sanitizeServiceEndpoint(serviceEndpoint) + COMPUTER_VISION_ENDPOINT;
         this.serializerAdapter = JacksonAdapter.createDefaultSerializerAdapter();
         //
-        UrlBuilder urlBuilder = UrlBuilder.parse(serviceEndpoint);
+        UrlBuilder urlBuilder = UrlBuilder.parse(new URL(serviceEndpoint));
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.put("Host", urlBuilder.host());
         httpHeaders.put("Ocp-Apim-Subscription-Key", subscriptionKey);
         //
-        List<HttpPipelinePolicy> policies = new ArrayList<HttpPipelinePolicy>();
+        List<HttpPipelinePolicy> policies = new ArrayList<>();
         policies.add(new AddHeadersPolicy(httpHeaders));
         //
         HttpPipelineBuilder builder = new HttpPipelineBuilder();
         builder.policies(policies.toArray(new HttpPipelinePolicy[0]));
         //
-        this.service = RetrofitAPIClient.createAPIService(this.serviceEndpoint.toString(), serializerAdapter, builder.build(), ComputerVisionService.class);
+        this.service = RetrofitAPIClient.createAPIService(this.serviceEndpoint, serializerAdapter, builder.build(), ComputerVisionService.class);
     }
 
     public RecognizeTextHeadersResponse recognizeTextWithResponse(byte[] image) {
@@ -113,5 +116,10 @@ public class ComputerVisionClient {
             httpHeaders.put(headerName, headers.get(headerName));
         }
         return httpHeaders;
+    }
+
+    //TODO: Add more rules to improve sanitization
+    private String sanitizeServiceEndpoint(String serviceEndpoint) {
+        return serviceEndpoint.endsWith("/") ? serviceEndpoint : serviceEndpoint + "/";
     }
 }

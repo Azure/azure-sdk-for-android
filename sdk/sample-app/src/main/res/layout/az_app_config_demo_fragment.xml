@@ -6,39 +6,40 @@
     tools:context=".AzAppConfigDemoFragment">
 
   <LinearLayout
-  android:layout_width="397dp"
-  android:layout_height="513dp"
-  android:orientation="vertical"
-  tools:layout_editor_absoluteX="7dp"
-  tools:layout_editor_absoluteY="7dp">
-      <EditText
-      android:id="@+id/setConfigKey"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:ems="10"
-      android:inputType="textPersonName"
-      android:text="key" />
+      android:layout_width="397dp"
+      android:layout_height="513dp"
+      android:orientation="vertical"
+      tools:layout_editor_absoluteX="7dp"
+      tools:layout_editor_absoluteY="7dp">
 
-      <EditText
-      android:id="@+id/setConfigValue"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:ems="10"
-      android:inputType="textPersonName"
-      android:text="value" />
+    <EditText
+        android:id="@+id/setConfigKey"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="@string/key" />
 
-      <Button
-      android:id="@+id/setBtn"
-      android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:text="Add" />
+    <EditText
+        android:id="@+id/setConfigValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="@string/value" />
 
-      <TextView
-      android:id="@+id/setResponseTxt"
-      android:layout_width="match_parent"
-      android:layout_height="100dp"
-      android:text="Response"
-      android:background="@android:drawable/editbox_background"  />
+    <Button
+        android:id="@+id/setBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/add" />
+
+    <TextView
+        android:id="@+id/setResponseTxt"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@android:drawable/editbox_background"
+        android:text="@string/response" />
 
     <EditText
         android:id="@+id/getConfigKey"
@@ -46,20 +47,21 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPersonName"
-        android:text="key" />
+        android:hint="@string/key" />
 
     <Button
         android:id="@+id/getBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Retrieve" />
+        android:text="@string/retrieve" />
 
     <TextView
         android:id="@+id/getResponseTxt"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:text="Response"
-        android:background="@android:drawable/editbox_background"  />
+        android:background="@android:drawable/editbox_background"
+        android:text="@string/response" />
+
   </LinearLayout>
 
 </FrameLayout>

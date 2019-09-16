@@ -3,27 +3,34 @@
 xmlns:tools="http://schemas.android.com/tools"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-tools:context=".AzCognitiveDemoFragment">
+tools:context=".AzCsComputerVisionDemoFragment">
 
   <Button
-      android:id="@+id/takePicBtn"
+      android:id="@+id/takePictureButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Capture" />
+      android:text="@string/capture_image" />
 
-  <ImageView
-      android:id="@+id/capturedImageView"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_centerHorizontal="true"
-      android:layout_below="@+id/takePicBtn"/>
+  <ScrollView
+      android:id="@+id/imageScrollView"
+      android:layout_width="match_parent"
+      android:layout_height="350dp"
+      android:layout_below="@+id/takePictureButton">
+
+    <ImageView
+        android:id="@+id/capturedImageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:contentDescription="@string/capture" />
+
+  </ScrollView>
 
   <Button
-      android:id="@+id/recognizeTextInPicBtn"
+      android:id="@+id/recognizeTextInPictureButton"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Recognize Text"
-      android:layout_below="@+id/capturedImageView"/>
+      android:text="@string/recognize_text"
+      android:layout_below="@+id/imageScrollView"/>
 
   <ProgressBar
       android:id="@+id/recognizeProgressBar"
@@ -44,10 +51,11 @@ tools:context=".AzCognitiveDemoFragment">
       android:textColor="#FFC0CB" />
 
   <TextView
-      android:id="@+id/recognizeResponseTxt"
+      android:id="@+id/recognizeResponseText"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:text="Response"
+      android:text="@string/result_placeholder"
       android:background="@android:drawable/editbox_background"
-      android:layout_below="@+id/recognizeTextInPicBtn"  />
+      android:layout_below="@+id/recognizeTextInPictureButton"  />
+
 </RelativeLayout>

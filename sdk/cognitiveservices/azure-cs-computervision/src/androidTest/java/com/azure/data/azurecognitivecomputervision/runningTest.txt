@@ -1,12 +1,12 @@
-To Run tests in /azurecognitivecomputervision/src/androidTest/java/com/azure/data/azurecognitivecomputervision/*.java
+To Run tests in /azure-cs-computervision/src/androidTest/java/com/azure/data/azurecognitivecomputervision/*.java
 
 Configure azCognitiveSettings.txt file
 -----------------------------------
 
-1. Open the 'androidTest' directory 'azurecognitivecomputervision\src\test\androidTest' in explorer
+1. Open the 'androidTest' directory 'azure-cs-computervision/src/test/androidTest' in explorer
 2. Create a dir with name 'Resources' under 'androidTest'
-2. Create the file 'azurecognitivecomputervision\src\test\androidTest\Resources\azCognitiveSettings.txt'
+2. Create the file 'azure-cs-computervision/src/test/androidTest/Resources/azCognitiveSettings.txt'
 3. Add endpoint and secret like below
 
-https://<location>.api.cognitive.microsoft.com/vision/v2.0/
+https://<location>.api.cognitive.microsoft.com/
 <secret>

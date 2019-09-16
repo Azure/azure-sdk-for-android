@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +32,7 @@ import static junit.framework.TestCase.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class ComputerVisionClientTest {
-    private static String AZCOGNITIVE_SETTINGS_FILE = "azCognitiveSettings.txt";
+    private static String AZ_COGNITIVE_SETTINGS_FILE = "azCognitiveSettings.txt";
 
     @Test
     public void canRecognizeText() throws IOException {
@@ -78,10 +77,10 @@ public class ComputerVisionClientTest {
 
     private ComputerVisionClient createConfigClient() throws MalformedURLException {
         String[] settings = azCognitiveSettings();
-        String serviceUrl = settings[0];
+        String serviceEndpoint = settings[0];
         String key = settings[1];
 
-        return new ComputerVisionClient(new URL(serviceUrl), key);
+        return new ComputerVisionClient(serviceEndpoint, key);
     }
 
     public static byte[] toByteArray(InputStream in) throws IOException {
@@ -96,9 +95,9 @@ public class ComputerVisionClientTest {
 
     private String[] azCognitiveSettings() {
         try {
-            List<String> lines = readLinesFromResourceTxtFile(AZCOGNITIVE_SETTINGS_FILE);
+            List<String> lines = readLinesFromResourceTxtFile(AZ_COGNITIVE_SETTINGS_FILE);
             if (lines.size() != 2) {
-                throw new RuntimeException(AZCOGNITIVE_SETTINGS_FILE + " should contain two entries - endpoint and key");
+                throw new RuntimeException(AZ_COGNITIVE_SETTINGS_FILE + " should contain two entries - endpoint and key");
             }
             return new String [] {lines.get(0), lines.get(1)};
         } catch (IOException ioe) {

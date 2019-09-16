@@ -2,18 +2,17 @@ package com.azure.data.azappconfigactivity;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.preference.PreferenceManager;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 
 import com.azure.core.exception.HttpResponseException;
 import com.azure.data.appconfiguration.ConfigurationClient;
@@ -32,7 +31,7 @@ import io.reactivex.schedulers.Schedulers;
 
 public class AzAppConfigDemoFragment extends Fragment implements View.OnClickListener {
     private final CompositeDisposable disposables = new CompositeDisposable();
-    //
+
     public static AzAppConfigDemoFragment newInstance() {
         return new AzAppConfigDemoFragment();
     }
@@ -58,10 +57,9 @@ public class AzAppConfigDemoFragment extends Fragment implements View.OnClickLis
         String conString = preference.getString("az_conf_connection", "<unset>");
         String serviceEndpoint = preference.getString("az_conf_endpoint", "<unset>");
         //
-        if (conString == "<unset>" || serviceEndpoint == "<unset>") {
+        if (conString.equals("<unset>") || serviceEndpoint.equals("<unset>")) {
             TextView responseTextView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
-            responseTextView.setText("Az config connection string or service endpoint is not set in the preference.");
-            return;
+            responseTextView.setText(R.string.endpoint_info_not_set);
         } else {
             URL serviceUrl;
             try {
@@ -74,15 +72,15 @@ public class AzAppConfigDemoFragment extends Fragment implements View.OnClickLis
             switch (buttonView.getId()) {
                 case R.id.setBtn:
                     onSetButtonClick(client, buttonView);
-                    return;
+                    break;
                 case R.id.getBtn:
                     onGetButtonClick(client, buttonView);
-                    return;
+                    break;
             }
         }
     }
 
-    private void  onSetButtonClick(ConfigurationClient client, View buttonView) {
+    private void onSetButtonClick(ConfigurationClient client, View buttonView) {
         EditText key = buttonView.getRootView().findViewById(R.id.setConfigKey);
         EditText value = buttonView.getRootView().findViewById(R.id.setConfigValue);
         //
@@ -91,42 +89,42 @@ public class AzAppConfigDemoFragment extends Fragment implements View.OnClickLis
         //
         if (Util.isNullOrEmpty(keyString) || Util.isNullOrEmpty(valueString)) {
             TextView textView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
-            textView.setText("key and value required");
+            textView.setText(R.string.key_value_required);
             return;
         }
         //
         DisposableObserver<ConfigurationSetting> disposable = Observable.defer((Callable<ObservableSource<ConfigurationSetting>>) () -> Observable.fromCallable(() -> client.addSetting(keyString, valueString)))
-        .subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribeWith(new DisposableObserver<ConfigurationSetting>() {
-            @Override
-            public void onComplete() {
-            }
+            .subscribeOn(Schedulers.newThread())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeWith(new DisposableObserver<ConfigurationSetting>() {
+                @Override
+                public void onComplete() {
+                }
 
-            @Override
-            public void onError(Throwable e) {
-                HttpResponseException responseException = (HttpResponseException) e;
-                TextView textView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
-                textView.setText(String.format("Operation failed: { code: %d error:%s }", responseException.response().statusCode(), responseException.value()));
-            }
+                @Override
+                public void onError(Throwable e) {
+                    HttpResponseException responseException = (HttpResponseException) e;
+                    TextView textView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
+                    textView.setText(String.format("Operation failed: { code: %d error:%s }", responseException.response().statusCode(), responseException.value()));
+                }
 
-            @Override
-            public void onNext(ConfigurationSetting result) {
-                TextView textView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
-                textView.setText(String.format("Operation succeeded: Result: %s", result.value()));
-            }
-        });
+                @Override
+                public void onNext(ConfigurationSetting result) {
+                    TextView textView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
+                    textView.setText(String.format("Operation succeeded: Result: %s", result.value()));
+                }
+            });
         disposables.add(disposable);
     }
 
-    private void  onGetButtonClick(ConfigurationClient client, View buttonView) {
+    private void onGetButtonClick(ConfigurationClient client, View buttonView) {
         EditText key = buttonView.getRootView().findViewById(R.id.getConfigKey);
         //
         String keyString = key.getText().toString();
         //
         if (Util.isNullOrEmpty(keyString)) {
             TextView textView = buttonView.getRootView().findViewById(R.id.getResponseTxt);
-            textView.setText("key required");
+            textView.setText(R.string.key_required);
             return;
         }
         //
@@ -134,27 +132,27 @@ public class AzAppConfigDemoFragment extends Fragment implements View.OnClickLis
             ConfigurationSetting setting = new ConfigurationSetting().key(keyString);
             return client.getSetting(setting);
         }))
-        .subscribeOn(Schedulers.newThread())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribeWith(new DisposableObserver<ConfigurationSetting>() {
-            @Override
-            public void onComplete() {
-            }
+            .subscribeOn(Schedulers.newThread())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribeWith(new DisposableObserver<ConfigurationSetting>() {
+                @Override
+                public void onComplete() {
+                }
 
-            @Override
-            public void onError(Throwable e) {
-                HttpResponseException responseException = (HttpResponseException) e;
-                TextView textView = buttonView.getRootView().findViewById(R.id.setResponseTxt);
-                textView.setText(String.format("Operation failed: { code: %d error:%s }", responseException.response().statusCode(), responseException.value()));
-            }
+                @Override
+                public void onError(Throwable e) {
+                    HttpResponseException responseException = (HttpResponseException) e;
+                    TextView textView = buttonView.getRootView().findViewById(R.id.getResponseTxt);
+                    textView.setText(String.format("Operation failed: { code: %d error:%s }", responseException.response().statusCode(), responseException.value()));
+                }
 
-            @Override
-            public void onNext(ConfigurationSetting result) {
-                TextView textView = buttonView.getRootView().findViewById(R.id.getResponseTxt);
-                textView.setText(String.format("Operation succeeded: Retrieved value: %s", result.value()));
+                @Override
+                public void onNext(ConfigurationSetting result) {
+                    TextView textView = buttonView.getRootView().findViewById(R.id.getResponseTxt);
+                    textView.setText(String.format("Operation succeeded: Retrieved value: %s", result.value()));
 
-            }
-        });
+                }
+            });
         disposables.add(disposable);
     }
 

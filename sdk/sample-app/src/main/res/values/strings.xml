@@ -12,6 +12,20 @@
   <string name="az_conf_endpoint">Service URL</string>
 
   <!-- Az Cognitive Preferences -->
-  <string name="az_cognitive_endpoint">Service URL</string>
-  <string name="az_cognitive_key">Key</string>
+  <string name="az_cs_endpoint">Service URL</string>
+  <string name="az_cs_key">Key</string>
+  <string name="result_placeholder">The result will be displayed here</string>
+  <string name="record_audio">Record Audio</string>
+  <string name="recognize_text">Recognize Text</string>
+  <string name="capture">Capture</string>
+  <string name="capture_image">Capture Image</string>
+  <string name="response">Response</string>
+  <string name="key">key</string>
+  <string name="value">value</string>
+  <string name="retrieve">Retrieve</string>
+  <string name="add">Add</string>
+  <string name="endpoint_info_not_set">Azure Cognitive Service endpoint or key are not set in the preferences.</string>
+  <string name="unexpected_error">Unexpected error</string>
+  <string name="key_value_required">key and value required</string>
+  <string name="key_required">key required</string>
 </resources>

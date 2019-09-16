@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AzCsSpeechDemoFragment">
+
+  <Button
+      android:id="@+id/recordAudioButton"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="@string/record_audio" />
+
+  <TextView
+      android:id="@+id/recognizeSpeechTextView"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/recordAudioButton"
+      android:background="@android:drawable/editbox_background"
+      android:text="@string/result_placeholder" />
+
+</RelativeLayout>

@@ -32,13 +32,13 @@
   <PreferenceCategory app:title="@string/cognitive_header">
 
     <EditTextPreference
-        app:key="az_cognitive_endpoint"
-        app:title="@string/az_cognitive_endpoint"
+        app:key="az_cs_endpoint"
+        app:title="@string/az_cs_endpoint"
         app:useSimpleSummaryProvider="true" />
 
     <EditTextPreference
-        app:key="az_cognitive_key"
-        app:title="@string/az_cognitive_key"
+        app:key="az_cs_key"
+        app:title="@string/az_cs_key"
         app:useSimpleSummaryProvider="true" />
 
   </PreferenceCategory>

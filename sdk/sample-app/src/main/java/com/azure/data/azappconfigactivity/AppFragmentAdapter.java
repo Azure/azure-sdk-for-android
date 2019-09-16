@@ -15,7 +15,9 @@ public class AppFragmentAdapter extends FragmentPagerAdapter {
             case 0:
                 return AzAppConfigDemoFragment.newInstance();
             case 1:
-                return AzCognitiveDemoFragment.newInstance();
+                return AzCsComputerVisionDemoFragment.newInstance();
+            case 2:
+                return AzCsSpeechDemoFragment.newInstance();
             default:
                 return null;
         }
@@ -27,7 +29,9 @@ public class AppFragmentAdapter extends FragmentPagerAdapter {
             case 0:
                 return "azConfig";
             case 1:
-                return "azCognitive";
+                return "azCsComputerVision";
+            case 2:
+                return "azCsSpeech";
             default:
                 return null;
         }
@@ -35,6 +39,6 @@ public class AppFragmentAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 2;
+        return 3;
     }
 }
