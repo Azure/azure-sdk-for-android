@@ -1,8 +1,8 @@
 package com.azure.data.integration.common
 
 import android.content.Context
-import android.support.test.InstrumentationRegistry
 import android.util.Log
+import androidx.test.platform.app.InstrumentationRegistry
 import com.azure.core.log.i
 import com.azure.core.log.startLogging
 import com.azure.data.AzureData
@@ -57,8 +57,8 @@ open class ResourceTest<TResource : Resource>(resourceName: String,
 
         if (!AzureData.isConfigured) {
 
-            // Context of the app under test.
-            val appContext = InstrumentationRegistry.getTargetContext()
+            // Context of the app under test
+            val appContext = InstrumentationRegistry.getInstrumentation().targetContext
 
             configureAzureData(appContext)
         } else {

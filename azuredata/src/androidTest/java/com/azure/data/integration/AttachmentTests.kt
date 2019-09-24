@@ -1,6 +1,6 @@
 package com.azure.data.integration
 
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azure.core.http.HttpMediaType
 import com.azure.core.http.HttpScheme
 import com.azure.data.*

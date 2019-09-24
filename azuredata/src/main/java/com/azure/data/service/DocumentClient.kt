@@ -1314,8 +1314,8 @@ class DocumentClient private constructor() {
                         }
 
                         @Throws(IOException::class)
-                        override fun onResponse(call: Call, resp: okhttp3.Response) =
-                                callback(processListResponse(request, resp, requestDetails))
+                        override fun onResponse(call: Call, response: okhttp3.Response) =
+                                callback(processListResponse(request, response, requestDetails))
 
                     })
         } catch (ex: Exception) {

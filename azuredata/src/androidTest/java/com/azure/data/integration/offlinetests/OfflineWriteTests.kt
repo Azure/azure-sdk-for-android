@@ -1,6 +1,6 @@
 package com.azure.data.integration.offlinetests
 
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azure.core.http.HttpStatusCode
 import com.azure.data.AzureData
 import com.azure.data.integration.common.CustomDocument

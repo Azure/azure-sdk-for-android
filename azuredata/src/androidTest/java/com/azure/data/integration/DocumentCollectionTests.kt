@@ -1,10 +1,13 @@
 package com.azure.data.integration
 
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azure.data.*
+import com.azure.data.constants.HttpHeaderValue
 import com.azure.data.integration.common.ResourceTest
 import com.azure.data.model.*
 import com.azure.data.model.indexing.*
+import com.azure.data.model.partition.PartitionKeyRange
+import com.azure.data.model.service.ListResponse
 import org.awaitility.Awaitility.await
 import org.junit.Assert.*
 import org.junit.Test
@@ -18,6 +21,10 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollectionTests", true, false) {
 
+    init {
+        partitionKeyPath = "/testKey"
+    }
+
     @Test
     fun createCollection() {
 
@@ -25,16 +32,89 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
     }
 
     @Test
+    fun createCollectionWithMinThroughput() {
+
+        ensureCollection(HttpHeaderValue.minDatabaseThroughput)
+    }
+
+    @Test
+    fun createCollectionWithMaxThroughput() {
+
+        ensureCollection(HttpHeaderValue.maxDatabaseThroughput)
+    }
+
+    @Test
+    fun createCollectionFailWithInvalidThroughput() {
+
+        val response = tryCreateCollection(750)
+
+        assertErrorResponse(response)
+    }
+
+    @Test
     fun createCollectionFromDatabase() {
 
-        database?.createCollection(createdResourceId) {
+        database?.createCollection(collectionId, partitionKeyPath!!) {
             response = it
         }
 
         await().until { response != null }
 
         assertResourceResponseSuccess(response)
-        assertEquals(createdResourceId, response?.resource?.id)
+        assertEquals(collectionId, response?.resource?.id)
+    }
+
+    @Test
+    fun createCollectionFromDatabaseWithThroughput() {
+
+        database?.createCollection(collectionId, HttpHeaderValue.minDatabaseThroughput, partitionKeyPath!!) {
+            response = it
+        }
+
+        await().until { response != null }
+
+        assertResourceResponseSuccess(response)
+        assertEquals(collectionId, response?.resource?.id)
+    }
+
+    @Test
+    fun createCollectionWithIndexingPolicy() {
+
+        val policy = IndexingPolicy.create {
+            automatic = true
+            mode = IndexingMode.Lazy
+            includedPaths {
+                includedPath {
+                    path = "/*"
+                    indexes {
+                        // create indexes via factory methods
+                        index(Index.range(DataType.Number, -1))
+                        // or, by specifying each member
+                        index {
+                            kind = IndexKind.Hash
+                            dataType = DataType.String
+                            precision = 3
+                        }
+                        index(Index.spatial(DataType.Point))
+                    }
+                }
+            }
+            // omit if no paths should be excluded
+            excludedPaths {
+                excludedPath {
+                    path = "/test/*"
+                }
+            }
+        }
+
+        AzureData.createCollection(collectionId, partitionKeyPath!!, policy, databaseId) {
+            response = it
+        }
+
+        await().until { response != null }
+
+        assertResourceResponseSuccess(response)
+        assertEquals(collectionId, response?.resource?.id)
     }
 
     @Test
@@ -207,22 +287,23 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
                     if (newPath == newPolicy.includedPaths!!.last()) {
                         throw Exception("Included path not found in indexingPolicy")
                     }
-                }
-                else {
+                } else {
 
-                    assertEquals(path.indexes!!.size, newPath.indexes!!.size)
+                    if (path.indexes != null && newPath.indexes != null) {
 
-                    for (index in path.indexes as List<Index>) {
+                        assertEquals(path.indexes!!.size, newPath.indexes!!.size)
 
-                        for (newIndex in newPath.indexes as List<Index>) {
+                        for (index in path.indexes as List<Index>) {
 
-                            if (newIndex.dataType == index.dataType ||
-                                    newIndex.kind == index.kind ||
-                                    newIndex.precision == index.precision) {
-                                break
-                            }
-                            else if (newIndex == newPath.indexes!!.last()) {
-                                throw Exception("Index not found in included path")
+                            for (newIndex in newPath.indexes as List<Index>) {
+
+                                if (newIndex.dataType == index.dataType ||
+                                        newIndex.kind == index.kind ||
+                                        newIndex.precision == index.precision) {
+                                    break
+                                } else if (newIndex == newPath.indexes!!.last()) {
+                                    throw Exception("Index not found in included path")
+                                }
                             }
                         }
                     }
@@ -249,5 +330,22 @@ class DocumentCollectionTests : ResourceTest<DocumentCollection>("DocumentCollec
                 }
             }
         }
+    }
+
+    @Test
+    fun testGetCollectionPartitionKeyRanges() {
+
+        ensureCollection()
+
+        var response: ListResponse<PartitionKeyRange>? = null
+
+        AzureData.getCollectionPartitionKeyRanges(collectionId, databaseId) {
+            response = it
+        }
+
+        await().until { response != null }
+
+        assertListResponseSuccess(response)
+        assertTrue(response?.resource?.count!! > 0)
     }
 }

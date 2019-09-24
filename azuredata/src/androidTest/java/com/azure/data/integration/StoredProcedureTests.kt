@@ -1,6 +1,6 @@
 package com.azure.data.integration
 
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azure.data.*
 import com.azure.data.integration.common.PartitionedCustomDocment
 import com.azure.data.integration.common.ResourceTest

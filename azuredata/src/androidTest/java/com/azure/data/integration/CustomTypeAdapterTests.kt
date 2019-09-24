@@ -1,7 +1,7 @@
 package com.azure.data.integration
 
 import android.content.Context
-import android.support.test.runner.AndroidJUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azure.data.AzureData
 import com.azure.data.integration.common.*
 import com.azure.data.model.PermissionMode

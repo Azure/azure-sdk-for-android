@@ -36,6 +36,7 @@ internal class PreLollipopNetworkConnectivityManager: NetworkConnectivityManager
             ContextProvider.appContext.registerReceiver(it, filter)
         }
     }
+    
     override fun stopListening() {
         ContextProvider.appContext.unregisterReceiver(this.connectivityReceiver)
     }

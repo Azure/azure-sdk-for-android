@@ -11,7 +11,7 @@ android {
         versionCode 1
         versionName "$azureandroid_release_version"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -39,10 +39,11 @@ dependencies {
 
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version"
-    testImplementation "com.android.support.test:runner:$testRunnerVersion"
-    testImplementation "com.android.support.test:rules:$testRulesVersion"
 
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
+    testImplementation "androidx.test:runner:$testRunnerVersion"
+    testImplementation "androidx.test:rules:$testRulesVersion"
+
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
     androidTestImplementation "org.awaitility:awaitility:$awaitilityVersion"
 
     implementation project(":azurecore")
