@@ -36,7 +36,7 @@ class Query private constructor (properties: List<String>? = null) {
         }
     }
 
-    val isSelectingProperties = selectProperties.isNotEmpty()
+    private val isSelectingProperties = selectProperties.isNotEmpty()
 
     val query: String
         get() {
@@ -45,7 +45,7 @@ class Query private constructor (properties: List<String>? = null) {
 
             if (selectCalled && fromCalled && !type.isNullOrEmpty()) {
 
-                val selectFragment = if (selectProperties.isEmpty()) "*" else "$type.${selectProperties.joinToString(", $type.")}"
+                val selectFragment = if (!isSelectingProperties) "*" else selectProperties.formatAsArgs()
 
                 query = "SELECT $selectFragment FROM $type"
 
@@ -53,7 +53,7 @@ class Query private constructor (properties: List<String>? = null) {
 
                     query += " WHERE $whereFragment"
 
-                    if (andCalled && !andFragments.isEmpty()) {
+                    if (andCalled && andFragments.isNotEmpty()) {
                         query += " AND ${andFragments.joinToString(" AND ")}"
                     }
                 }
@@ -89,6 +89,11 @@ class Query private constructor (properties: List<String>? = null) {
         return this
     }
 
+    private fun List<String>.formatAsArgs(): String {
+
+        return "$type.${this.joinToString(", $type.")}"
+    }
+
     //region Where
 
     private fun whereAny(property: String, value: Any, operator: String = "=", quoteValue: Boolean = value is String): Query {
@@ -101,23 +106,31 @@ class Query private constructor (properties: List<String>? = null) {
         return this
     }
 
-    fun where(property: String, value: String): Query = whereAny(property, value, quoteValue = true)
+    fun where(property: String, value: String): Query = whereAny(property, value)
 
-    fun where(property: String, value: Int): Query = whereAny(property, value, quoteValue = false)
+    fun where(property: String, value: Int): Query = whereAny(property, value)
 
     fun where(property: String, value: Any): Query = whereAny(property, value)
 
     fun whereNot(property: String, value: String): Query = whereAny(property, value, operator = "!=")
 
-    fun whereNot(property: String, value: Int): Query = whereAny(property, value, operator = "!=", quoteValue = false)
+    fun whereNot(property: String, value: Int): Query = whereAny(property, value, operator = "!=")
 
     fun whereGreaterThan(property: String, value: String): Query = whereAny(property, value, operator = ">")
 
-    fun whereGreaterThan(property: String, value: Int): Query = whereAny(property, value, operator = ">", quoteValue = false)
+    fun whereGreaterThan(property: String, value: Int): Query = whereAny(property, value, operator = ">")
+
+    fun whereGreaterThanEqualTo(property: String, value: String): Query = whereAny(property, value, operator = ">=")
+
+    fun whereGreaterThanEqualTo(property: String, value: Int): Query = whereAny(property, value, operator = ">=")
 
     fun whereLessThan(property: String, value: String): Query = whereAny(property, value, operator = "<")
 
-    fun whereLessThan(property: String, value: Int): Query = whereAny(property, value, operator = "<", quoteValue = false)
+    fun whereLessThan(property: String, value: Int): Query = whereAny(property, value, operator = "<")
+
+    fun whereLessThanEqualTo(property: String, value: String): Query = whereAny(property, value, operator = "<=")
+
+    fun whereLessThanEqualTo(property: String, value: Int): Query = whereAny(property, value, operator = "<=")
 
     //endregion
 
@@ -133,31 +146,31 @@ class Query private constructor (properties: List<String>? = null) {
         return this
     }
 
-    fun andWhere(property: String, value: String): Query = andWhereAny(property, value, quoteValue = true)
+    fun andWhere(property: String, value: String): Query = andWhereAny(property, value)
 
-    fun andWhere(property: String, value: Int): Query = whereAny(property, value, quoteValue = false)
+    fun andWhere(property: String, value: Int): Query = whereAny(property, value)
 
     fun andWhere(property: String, value: Any): Query = andWhereAny(property, value)
 
     fun andWhereNot(property: String, value: String): Query = andWhereAny(property, value, operator = "!=")
 
-    fun andWhereNot(property: String, value: Int): Query = andWhereAny(property, value, operator = "!=", quoteValue = false)
+    fun andWhereNot(property: String, value: Int): Query = andWhereAny(property, value, operator = "!=")
 
     fun andWhereGreaterThan(property: String, value: String): Query = andWhereAny(property, value, operator = ">")
 
-    fun andWhereGreaterThan(property: String, value: Int): Query = andWhereAny(property, value, operator = ">", quoteValue = false)
+    fun andWhereGreaterThan(property: String, value: Int): Query = andWhereAny(property, value, operator = ">")
 
     fun andWhereGreaterThanEqualTo(property: String, value: String): Query = andWhereAny(property, value, operator = ">=")
 
-    fun andWhereGreaterThanEqualTo(property: String, value: Int): Query = andWhereAny(property, value, operator = ">=", quoteValue = false)
+    fun andWhereGreaterThanEqualTo(property: String, value: Int): Query = andWhereAny(property, value, operator = ">=")
 
     fun andWhereLessThan(property: String, value: String): Query = andWhereAny(property, value, operator = "<")
 
-    fun andWhereLessThan(property: String, value: Int): Query = andWhereAny(property, value, operator = "<", quoteValue = false)
+    fun andWhereLessThan(property: String, value: Int): Query = andWhereAny(property, value, operator = "<")
 
     fun andWhereLessThanEqualTo(property: String, value: String): Query = andWhereAny(property, value, operator = "<=")
 
-    fun andWhereLessThanEqualTo(property: String, value: Int): Query = andWhereAny(property, value, operator = "<=", quoteValue = false)
+    fun andWhereLessThanEqualTo(property: String, value: Int): Query = andWhereAny(property, value, operator = "<=")
 
     //endregion
 
@@ -272,6 +285,82 @@ class Query private constructor (properties: List<String>? = null) {
 
         return this
     }
+
+    //endregion
+
+    //region whereFunction
+
+    fun whereFunction(functionName: String, propertyNameArgs: List<String>, value: Any, operator: String = "=", quoteValue: Boolean = value is String): Query {
+
+        if (whereCalled) throw Exception("you can only call `where` once, to add more constraints use `and`")
+
+        whereCalled = true
+        whereFragment = if (quoteValue) "$functionName(${propertyNameArgs.formatAsArgs()}) $operator '$value'" else "$functionName(${propertyNameArgs.formatAsArgs()}) $operator $value"
+
+        return this
+    }
+
+    fun whereFunction(functionName: String, property: String, value: String): Query = whereFunction(functionName, listOf(property), value)
+
+    fun whereFunction(functionName: String, property: String, value: Int): Query = whereFunction(functionName, listOf(property), value)
+
+    fun whereFunctionNot(functionName: String, property: String, value: String): Query = whereFunction(functionName, listOf(property), value, "!=")
+
+    fun whereFunctionNot(functionName: String, property: String, value: Int): Query = whereFunction(functionName, listOf(property), value, "!=")
+
+    fun whereFunctionGreaterThan(functionName: String, property: String, value: String): Query = whereFunction(functionName, listOf(property), value, ">")
+
+    fun whereFunctionGreaterThan(functionName: String, property: String, value: Int): Query = whereFunction(functionName, listOf(property), value, ">")
+
+    fun whereFunctionGreaterThanEqualTo(functionName: String, property: String, value: String): Query = whereFunction(functionName, listOf(property), value, operator = ">=")
+
+    fun whereFunctionGreaterThanEqualTo(functionName: String, property: String, value: Int): Query = whereFunction(functionName, listOf(property), value, operator = ">=")
+
+    fun whereFunctionLessThan(functionName: String, property: String, value: String): Query = whereFunction(functionName, listOf(property), value, "<")
+
+    fun whereFunctionLessThan(functionName: String, property: String, value: Int): Query = whereFunction(functionName, listOf(property), value, "<")
+
+    fun whereFunctionLessThanEqualTo(functionName: String, property: String, value: String): Query = whereFunction(functionName, listOf(property), value, operator = "<=")
+
+    fun whereFunctionLessThanEqualTo(functionName: String, property: String, value: Int): Query = whereFunction(functionName, listOf(property), value, operator = "<=")
+
+    //endregion
+
+    //region andWhereFunction
+
+    fun andWhereFunction(functionName: String, propertyNameArgs: List<String>, value: Any, operator: String = "=", quoteValue: Boolean = value is String): Query {
+
+        if (!whereCalled) throw Exception("must call `where` before calling `and`")
+
+        andCalled = true
+        andFragments.add(if (quoteValue) "$functionName(${propertyNameArgs.formatAsArgs()}) $operator '$value'" else "$functionName(${propertyNameArgs.formatAsArgs()}) $operator $value")
+
+        return this
+    }
+
+    fun andWhereFunction(functionName: String, property: String, value: String): Query = andWhereFunction(functionName, listOf(property), value)
+
+    fun andWhereFunction(functionName: String, property: String, value: Int): Query = andWhereFunction(functionName, listOf(property), value)
+
+    fun andWhereFunctionNot(functionName: String, property: String, value: String): Query = andWhereFunction(functionName, listOf(property), value, "!=")
+
+    fun andWhereFunctionNot(functionName: String, property: String, value: Int): Query = andWhereFunction(functionName, listOf(property), value, "!=")
+
+    fun andWhereFunctionGreaterThan(functionName: String, property: String, value: String): Query = andWhereFunction(functionName, listOf(property), value, ">")
+
+    fun andWhereFunctionGreaterThan(functionName: String, property: String, value: Int): Query = andWhereFunction(functionName, listOf(property), value, ">")
+
+    fun andWhereFunctionGreaterThanEqualTo(functionName: String, property: String, value: String): Query = andWhereFunction(functionName, listOf(property), value, operator = ">=")
+
+    fun andWhereFunctionGreaterThanEqualTo(functionName: String, property: String, value: Int): Query = andWhereFunction(functionName, listOf(property), value, operator = ">=")
+
+    fun andWhereFunctionLessThan(functionName: String, property: String, value: String): Query = andWhereFunction(functionName, listOf(property), value, "<")
+
+    fun andWhereFunctionLessThan(functionName: String, property: String, value: Int): Query = andWhereFunction(functionName, listOf(property), value, "<")
+
+    fun andWhereFunctionLessThanEqualTo(functionName: String, property: String, value: String): Query = andWhereFunction(functionName, listOf(property), value, operator = "<=")
+
+    fun andWhereFunctionLessThanEqualTo(functionName: String, property: String, value: Int): Query = andWhereFunction(functionName, listOf(property), value, operator = "<=")
 
     //endregion
 
