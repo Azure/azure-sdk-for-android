@@ -5,6 +5,7 @@ import com.azure.core.http.HttpStatusCode
 import com.azure.data.AzureData
 import com.azure.data.constants.MSHttpHeader
 import com.azure.data.createTrigger
+import com.azure.data.integration.common.DocumentTestsBase
 import com.azure.data.integration.common.PartitionedCustomDocment
 import com.azure.data.model.Trigger
 import com.azure.data.model.service.Response

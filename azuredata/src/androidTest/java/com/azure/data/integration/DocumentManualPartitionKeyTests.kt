@@ -2,6 +2,7 @@ package com.azure.data.integration
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.azure.data.AzureData
+import com.azure.data.integration.common.DocumentTestsBase
 import com.azure.data.integration.common.PartitionedDoc
 import com.azure.data.model.service.Response
 import org.awaitility.Awaitility.await

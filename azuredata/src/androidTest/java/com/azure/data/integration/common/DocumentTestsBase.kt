@@ -1,10 +1,7 @@
-package com.azure.data.integration
+package com.azure.data.integration.common
 
 import com.azure.core.log.i
 import com.azure.data.*
-import com.azure.data.integration.common.CustomDocument
-import com.azure.data.integration.common.DocumentTest
-import com.azure.data.integration.common.PartitionedCustomDocment
 import com.azure.data.model.service.DocumentClientError
 import com.azure.data.model.service.ListResponse
 import com.azure.data.model.service.Response
