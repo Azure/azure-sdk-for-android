@@ -73,7 +73,7 @@ open class ResourceTest<TResource : Resource>(resourceName: String,
 
             // Dbs with provisioned throughput REQUIRE partition keys
             if (partitionKeyPath != null) {
-                ensureDatabase(1000)
+                ensureDatabase(2000)
             } else {
                 ensureDatabase()
             }
