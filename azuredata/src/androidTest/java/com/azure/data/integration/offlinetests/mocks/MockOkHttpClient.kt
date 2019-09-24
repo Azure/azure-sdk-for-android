@@ -9,7 +9,8 @@ class MockOkHttpClient: OkHttpClient() {
     var response: okhttp3.Response? = null
     var hasNetworkError = false
 
-    override fun newCall(request: Request?): Call {
-        return MockCall(request!!, this)
+    override fun newCall(request: Request): Call {
+
+        return MockCall(request, this)
     }
 }

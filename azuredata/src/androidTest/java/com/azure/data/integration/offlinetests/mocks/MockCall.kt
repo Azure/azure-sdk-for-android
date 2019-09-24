@@ -20,19 +20,17 @@ class MockCall(private val originalRequest: Request, private val client: MockOkH
         return client.response!!
     }
 
-    override fun enqueue(responseCallback: Callback?) {
+    override fun enqueue(responseCallback: Callback) {
         isCanceled = false
 
-        responseCallback?.let {
-            if (client.response != null) {
-                it.onResponse(this, client.response!!)
-                return
-            }
+        if (client.response != null) {
+            responseCallback.onResponse(this, client.response!!)
+            return
+        }
 
-            if (client.hasNetworkError) {
-                it.onFailure(this, IOException())
-                return
-            }
+        if (client.hasNetworkError) {
+            responseCallback.onFailure(this, IOException())
+            return
         }
 
         isExecuted = true
