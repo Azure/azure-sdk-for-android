@@ -89,9 +89,9 @@ class DefaultPermissionProvider(private val baseUrl: HttpUrl, override var confi
             client.newCall(request)
                     .enqueue(object : Callback {
 
-                        override fun onFailure(call: Call, ex: IOException) {
+                        override fun onFailure(call: Call, e: IOException) {
 
-                            return completion(Response(DataError(ex), request))
+                            return completion(Response(DataError(e), request))
                         }
 
                         @Throws(IOException::class)
