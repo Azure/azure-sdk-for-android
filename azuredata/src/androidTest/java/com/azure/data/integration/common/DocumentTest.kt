@@ -30,7 +30,7 @@ abstract class DocumentTest<TDoc : CustomDocument>(resourceName: String, val doc
         doc.customString = customStringValue
         doc.customNumber = customNumberValue
 
-        return doc as TDoc
+        return doc
     }
 
     fun createNewDocument(doc: TDoc = newDocument(), coll: DocumentCollection? = null) : TDoc {

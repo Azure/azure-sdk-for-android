@@ -78,7 +78,10 @@ fun configureNetworkLogging(okHttpBuilder: OkHttpClient.Builder) {
 
     if (logLevel <= Log.DEBUG) {
 
-        val okHttpLogger = HttpLoggingInterceptor { msg -> d { msg } }
+        val okHttpLogger = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
+
+            override fun log(message: String) = d { message }
+        })
 
         okHttpLogger.level = HttpLoggingInterceptor.Level.BODY
         // don't log the auth token header

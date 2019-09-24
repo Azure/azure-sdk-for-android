@@ -57,7 +57,7 @@ class OfflineWriteTests: DocumentTest<PartitionedCustomDocment>("OfflineWriteTes
         assertTrue(conflictResponse!!.isErrored)
         assertTrue(conflictResponse.fromCache)
         assertNotNull(conflictResponse.response)
-        assertEquals(HttpStatusCode.Conflict.code, conflictResponse.response!!.code())
+        assertEquals(HttpStatusCode.Conflict.code, conflictResponse.response!!.code)
     }
 
     @Test
@@ -80,7 +80,7 @@ class OfflineWriteTests: DocumentTest<PartitionedCustomDocment>("OfflineWriteTes
         assertTrue(replaceResponse!!.isErrored)
         assertTrue(replaceResponse!!.fromCache)
         assertNotNull(replaceResponse!!.response)
-        assertEquals(HttpStatusCode.NotFound.code, replaceResponse!!.response!!.code())
+        assertEquals(HttpStatusCode.NotFound.code, replaceResponse!!.response!!.code)
     }
 
     @Test
@@ -99,6 +99,6 @@ class OfflineWriteTests: DocumentTest<PartitionedCustomDocment>("OfflineWriteTes
         assertTrue(deleteResponse!!.isErrored)
         assertTrue(deleteResponse!!.fromCache)
         assertNotNull(deleteResponse!!.response)
-        assertEquals(HttpStatusCode.NotFound.code, deleteResponse!!.response!!.code())
+        assertEquals(HttpStatusCode.NotFound.code, deleteResponse!!.response!!.code)
     }
 }

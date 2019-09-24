@@ -26,7 +26,6 @@ import java.net.URL
 import java.text.SimpleDateFormat
 import java.util.*
 
-
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
@@ -73,7 +72,7 @@ class DocumentClient private constructor() {
 
         resourceTokenProvider = ResourceTokenProvider(masterKey, permissionMode)
 
-        commonConfigure(accountUrl.host())
+        commonConfigure(accountUrl.host)
     }
 
     fun configure(accountName: String, permissionProvider: PermissionProvider) {
@@ -94,7 +93,7 @@ class DocumentClient private constructor() {
 
         this.permissionProvider = permissionProvider
 
-        commonConfigure(accountUrl.host())
+        commonConfigure(accountUrl.host)
     }
 
     val isConfigured: Boolean
@@ -1450,8 +1449,8 @@ class DocumentClient private constructor() {
             client.newCall(request)
                     .enqueue(object : Callback {
 
-                        override fun onFailure(call: Call, ex: IOException) {
-                            e(ex)
+                        override fun onFailure(call: Call, e: IOException) {
+                            e(e)
                             isOffline = true
 
                             callback(Response(DataError(DocumentClientError.InternetConnectivityError), request))
@@ -1473,8 +1472,8 @@ class DocumentClient private constructor() {
             client.newCall(request)
                     .enqueue(object : Callback {
 
-                        override fun onFailure(call: Call, ex: IOException) {
-                            e(ex)
+                        override fun onFailure(call: Call, e: IOException) {
+                            e(e)
                             isOffline = true
 
                             callback(Response(DataError(DocumentClientError.InternetConnectivityError), request))
@@ -1496,8 +1495,8 @@ class DocumentClient private constructor() {
             client.newCall(request)
                     .enqueue(object : Callback {
 
-                        override fun onFailure(call: Call, ex: IOException) {
-                            e(ex)
+                        override fun onFailure(call: Call, e: IOException) {
+                            e(e)
                             isOffline = true
 
                             callback(Response(DataError(DocumentClientError.InternetConnectivityError), request))
@@ -1520,8 +1519,8 @@ class DocumentClient private constructor() {
                     .enqueue(object : Callback {
 
                         // only transport errors handled here
-                        override fun onFailure(call: Call, ex: IOException) {
-                            e(ex)
+                        override fun onFailure(call: Call, e: IOException) {
+                            e(e)
                             isOffline = true
 
                             callback(ListResponse(DataError(DocumentClientError.InternetConnectivityError), request))
@@ -1540,10 +1539,10 @@ class DocumentClient private constructor() {
     private fun <T : Resource> processResponse(request: Request, response: okhttp3.Response, requestDetails: RequestDetails, resource: T?): Response<T> {
 
         try {
-            val body = response.body()
+            val body = response.body
                     ?: return Response(DataError("Empty response body received"))
             val json = body.string()
-            val code = response.code()
+            val code = response.code
 
             //check http return code/success
             when {
@@ -1586,7 +1585,7 @@ class DocumentClient private constructor() {
     private fun <T : Resource> processListResponse(request: Request, response: okhttp3.Response, requestDetails: RequestDetails): ListResponse<T> {
 
         return try {
-            val body = response.body()
+            val body = response.body
                     ?: return ListResponse(DataError("Empty response body received"), request, response)
             val json = body.string()
 
@@ -1739,14 +1738,14 @@ class DocumentClient private constructor() {
     private fun processDataResponse(request: Request, resourceLocation: ResourceLocation, response: okhttp3.Response): DataResponse {
 
         try {
-            val body = response.body()
+            val body = response.body
                     ?: return Response(DataError("Empty response body received"), request, response)
             val responseBodyString = body.string()
 
             //check http return code
             return if (response.isSuccessful) {
 
-                if (request.method() == HttpMethod.Delete.toString()) {
+                if (request.method == HttpMethod.Delete.toString()) {
                     ResourceCache.shared.remove(resourceLocation)
                 }
 
@@ -1764,7 +1763,7 @@ class DocumentClient private constructor() {
     private fun processByteResponse(request: Request, response: okhttp3.Response): Response<ByteArray> {
 
         try {
-            val body = response.body()
+            val body = response.body
                     ?: return Response(DataError("Empty response body received"), request, response)
 
             //check http return code

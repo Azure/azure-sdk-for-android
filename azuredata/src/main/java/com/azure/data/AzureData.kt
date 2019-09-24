@@ -13,6 +13,7 @@ import com.azure.data.util.json.gson
 import com.azure.data.util.json.gsonBuilder
 import com.google.gson.GsonBuilder
 import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import java.net.URL
 
 /**
@@ -422,12 +423,12 @@ class AzureData {
         // create
         @JvmStatic
         fun createAttachment(attachmentId: String, contentType: String, mediaUrl: String, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (Response<Attachment>) -> Unit) =
-                documentClient.createAttachment(attachmentId, contentType, HttpUrl.parse(mediaUrl)!!, documentId, collectionId, databaseId, partitionKey, callback)
+                documentClient.createAttachment(attachmentId, contentType, mediaUrl.toHttpUrlOrNull()!!, documentId, collectionId, databaseId, partitionKey, callback)
 
         // create
         @JvmStatic
         fun createAttachment(attachmentId: String, contentType: String, mediaUrl: URL, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (Response<Attachment>) -> Unit) =
-                documentClient.createAttachment(attachmentId, contentType, HttpUrl.get(mediaUrl)!!, documentId, collectionId, databaseId, partitionKey, callback)
+                documentClient.createAttachment(attachmentId, contentType, mediaUrl.toHttpUrlOrNull()!!, documentId, collectionId, databaseId, partitionKey, callback)
 
         // create
         @JvmStatic
@@ -442,12 +443,12 @@ class AzureData {
         // create
         @JvmStatic
         fun createAttachment(attachmentId: String, contentType: String, mediaUrl: String, document: Document, callback: (Response<Attachment>) -> Unit) =
-                documentClient.createAttachment(attachmentId, contentType, HttpUrl.parse(mediaUrl)!!, document, callback)
+                documentClient.createAttachment(attachmentId, contentType, mediaUrl.toHttpUrlOrNull()!!, document, callback)
 
         // create
         @JvmStatic
         fun createAttachment(attachmentId: String, contentType: String, mediaUrl: URL, document: Document, callback: (Response<Attachment>) -> Unit) =
-                documentClient.createAttachment(attachmentId, contentType, HttpUrl.get(mediaUrl)!!, document, callback)
+                documentClient.createAttachment(attachmentId, contentType, mediaUrl.toHttpUrlOrNull()!!, document, callback)
 
         // create
         @JvmStatic
@@ -494,12 +495,12 @@ class AzureData {
         // replace
         @JvmStatic
         fun replaceAttachment(attachmentId: String, contentType: String, mediaUrl: String, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (Response<Attachment>) -> Unit) =
-                documentClient.replaceAttachment(attachmentId, contentType, HttpUrl.parse(mediaUrl)!!, documentId, collectionId, databaseId, partitionKey, callback)
+                documentClient.replaceAttachment(attachmentId, contentType, mediaUrl.toHttpUrlOrNull()!!, documentId, collectionId, databaseId, partitionKey, callback)
 
         // replace
         @JvmStatic
         fun replaceAttachment(attachmentId: String, contentType: String, mediaUrl: URL, documentId: String, collectionId: String, databaseId: String, partitionKey: String, callback: (Response<Attachment>) -> Unit) =
-                documentClient.replaceAttachment(attachmentId, contentType, HttpUrl.get(mediaUrl)!!, documentId, collectionId, databaseId, partitionKey, callback)
+                documentClient.replaceAttachment(attachmentId, contentType, mediaUrl.toHttpUrlOrNull()!!, documentId, collectionId, databaseId, partitionKey, callback)
 
         // replace
         @JvmStatic
@@ -509,12 +510,12 @@ class AzureData {
         // replace
         @JvmStatic
         fun replaceAttachment(attachmentId: String, contentType: String, mediaUrl: String, document: Document, callback: (Response<Attachment>) -> Unit) =
-                documentClient.replaceAttachment(attachmentId, contentType, HttpUrl.parse(mediaUrl)!!, document, callback)
+                documentClient.replaceAttachment(attachmentId, contentType, mediaUrl.toHttpUrlOrNull()!!, document, callback)
 
         // replace
         @JvmStatic
         fun replaceAttachment(attachmentId: String, contentType: String, mediaUrl: URL, document: Document, callback: (Response<Attachment>) -> Unit) =
-                documentClient.replaceAttachment(attachmentId, contentType, HttpUrl.get(mediaUrl)!!, document, callback)
+                documentClient.replaceAttachment(attachmentId, contentType, mediaUrl.toHttpUrlOrNull()!!, document, callback)
 
         // replace
         @JvmStatic

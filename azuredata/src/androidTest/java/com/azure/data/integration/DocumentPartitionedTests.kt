@@ -72,8 +72,8 @@ class DocumentPartitionedTests : DocumentTestsBase<PartitionedCustomDocment>("Do
         await().until { docResponse != null }
 
         // now inspect the headers to look for triggers
-        val preTriggers = docResponse?.request?.headers()?.get(MSHttpHeader.MSDocumentDBPreTriggerInclude.value)
-        val postTriggers = docResponse?.request?.headers()?.get(MSHttpHeader.MSDocumentDBPostTriggerInclude.value)
+        val preTriggers = docResponse?.request?.headers?.get(MSHttpHeader.MSDocumentDBPreTriggerInclude.value)
+        val postTriggers = docResponse?.request?.headers?.get(MSHttpHeader.MSDocumentDBPostTriggerInclude.value)
 
         assertEquals("myPreTrigger", preTriggers)
         assertEquals("myPostTrigger", postTriggers)

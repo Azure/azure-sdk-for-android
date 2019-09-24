@@ -166,12 +166,12 @@ internal class ResourceCache private constructor() {
 
                 resources.resourceId = metadata.resourceId
 
-                resources.items = ContextProvider.appContext.resourceCacheFiles(query).map { file ->
+                resources.items = ContextProvider.appContext.resourceCacheFiles(query)?.map { file ->
 
                     file.bufferedReader().use {
                         gson.fromJson<T>(decrypt(it.readText()), resourceType)
                     }
-                }
+                } ?: emptyList()
 
                 resources.count = resources.items.count()
                 resources.setAltContentLink(ResourceType.fromType(resourceType).path, metadata.contentPath)
@@ -306,7 +306,7 @@ internal fun Context.resourceCacheFiles(resourceLocation: ResourceLocation): Lis
 
     resourceCacheDir(resourceLocation)?.let { file ->
 
-        return file.listFiles().map { File(it, "${it.name}.json") }
+        return file.listFiles()?.map { File(it, "${it.name}.json") } ?: emptyList()
     }
 
     return emptyList()
@@ -406,7 +406,7 @@ internal fun Context.resourceCacheFile(resource: Resource, query: Query) : File 
     return File(resultsPath, filename)
 }
 
-internal fun Context.resourceCacheFiles(query: Query) : Array<File> {
+internal fun Context.resourceCacheFiles(query: Query) : Array<File>? {
 
     val resultsPath = this.resultsCacheDir(query)
 

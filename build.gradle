@@ -30,7 +30,7 @@ allprojects {
     }
 
     ext {
-        okhttpVersion = "3.14.1"
+        okhttpVersion = "4.1.1"
         gsonVersion = "2.8.5"
         jUnitVersion = "4.12"
         espressoVersion = "3.0.1"

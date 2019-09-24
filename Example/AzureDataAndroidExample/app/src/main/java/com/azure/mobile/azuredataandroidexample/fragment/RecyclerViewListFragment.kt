@@ -37,7 +37,7 @@ abstract class RecyclerViewListFragment<TData, TViewHolder : ViewHolder<TData>> 
     lateinit var typedAdapter: RecyclerViewAdapter<TData, TViewHolder>
 
     // Gets or sets the resource ID of the Tab item layout to use.  Defaults to 'recycler_view_fragment'
-    open val viewResourceId : Int = R.layout.recycler_view_fragment;
+    open val viewResourceId : Int = R.layout.recycler_view_fragment
 
     protected abstract fun createAdapter(): RecyclerViewAdapter<TData, TViewHolder>
 
@@ -125,7 +125,7 @@ abstract class RecyclerViewListFragment<TData, TViewHolder : ViewHolder<TData>> 
 
         //TODO: //need to push this to background thread
 
-        println ("refreshTask complete; updating adapter(s)");
+        println ("refreshTask complete; updating adapter(s)")
         activity?.runOnUiThread(this::onDataLoaded)
     }
 

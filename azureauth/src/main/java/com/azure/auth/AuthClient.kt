@@ -11,6 +11,8 @@ import com.azure.data.model.service.Response
 import com.azure.data.util.json.gson
 import com.azure.data.util.toError
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 
 /**
@@ -41,7 +43,7 @@ internal class AuthClient {
                 .addPathSegment(provider.tokenPath)
                 .build()
 
-        val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), provider.payload)
+        val body = provider.payload.toRequestBody("application/json; charset=utf-8".toMediaTypeOrNull())
 
         val request = Request.Builder()
                 .url(url)
@@ -72,15 +74,12 @@ internal class AuthClient {
         try {
             client.newCall(request)
                     .enqueue(object: Callback {
-                        override fun onResponse(call: Call?, response: okhttp3.Response?) {
+
+                        override fun onResponse(call: Call, response: okhttp3.Response) {
                             callback(processResponse(request, response))
                         }
 
-                        override fun onFailure(call: Call?, e: IOException?) {
-                            if (e == null) {
-                                callback(Response(DataError(AuthClientError.unknown)))
-                                return
-                            }
+                        override fun onFailure(call: Call, e: IOException) {
 
                             callback(Response(DataError(e), request))
                         }
@@ -93,7 +92,7 @@ internal class AuthClient {
 
     private fun processResponse(request: Request, response: okhttp3.Response?): Response<AuthUser> {
         try {
-            val body = response?.body() ?: return Response(DataError(AuthClientError.expectedBodyWithResponse))
+            val body = response?.body ?: return Response(DataError(AuthClientError.expectedBodyWithResponse))
             val json = body.string().also { d{ it } }
 
             return when {

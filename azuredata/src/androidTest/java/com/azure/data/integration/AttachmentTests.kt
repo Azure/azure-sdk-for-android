@@ -10,6 +10,7 @@ import com.azure.data.model.service.ListResponse
 import com.azure.data.service.PartitionKeyPropertyCache
 import com.azure.data.model.service.Response
 import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.awaitility.Awaitility.await
@@ -30,7 +31,7 @@ open class AttachmentTests : ResourceTest<Attachment>("AttachmentTests", true, t
 
         val urlString: String = "$scheme://$host$path"
         val url: URL = URL(scheme.toString(), host, path)
-        val httpUrl: HttpUrl = HttpUrl.get(urlString)
+        val httpUrl: HttpUrl = urlString.toHttpUrl()
     }
 
     enum class UrlMode {
@@ -63,7 +64,7 @@ open class AttachmentTests : ResourceTest<Attachment>("AttachmentTests", true, t
 
         val response = client.newCall(request).execute()
 
-        return response.body()!!.bytes()
+        return response.body!!.bytes()
     }
 
     private fun createNewBlobAttachment(image: ImageDefinition, doc: Document? = null) : Attachment {

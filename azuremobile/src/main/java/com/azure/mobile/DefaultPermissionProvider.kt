@@ -11,6 +11,9 @@ import com.azure.data.model.service.PermissionProviderError
 import com.azure.data.model.service.Response
 import com.azure.data.util.json.gson
 import okhttp3.*
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
 import java.net.URL
 
@@ -31,7 +34,7 @@ data class PermissionRequest(
 class DefaultPermissionProvider(private val baseUrl: HttpUrl, override var configuration: PermissionProviderConfiguration? = PermissionProviderConfiguration.default, private val client: OkHttpClient = OkHttpClient()) : PermissionProvider {
 
     constructor(baseUrl: URL, configuration: PermissionProviderConfiguration? = PermissionProviderConfiguration.default, client: OkHttpClient = OkHttpClient.Builder().build())
-            : this(HttpUrl.get(baseUrl)!!, configuration, client)
+            : this(baseUrl.toHttpUrlOrNull()!!, configuration, client)
 
     override fun getPermissionForCollection(collectionId: String, databaseId: String, permissionMode: PermissionMode, completion: (Response<Permission>) -> Unit) {
         val permissionRequest = PermissionRequest(databaseId, collectionId, null, null, configuration!!.defaultTokenDuration.toInt(), permissionMode)
@@ -80,7 +83,7 @@ class DefaultPermissionProvider(private val baseUrl: HttpUrl, override var confi
             val request = Request.Builder()
                     .url(url)
                     .addHeader("Content-Type", "application/json")
-                    .post(RequestBody.create(MediaType.parse("application/json"), gson.toJson(permissionRequest)))
+                    .post(gson.toJson(permissionRequest).toRequestBody("application/json".toMediaTypeOrNull()))
                     .build()
 
             client.newCall(request)
@@ -95,7 +98,7 @@ class DefaultPermissionProvider(private val baseUrl: HttpUrl, override var confi
                         override fun onResponse(call: Call, response: okhttp3.Response) {
 
                             try {
-                                val body = response.body()
+                                val body = response.body
                                         ?: return completion(Response(DataError(PermissionProviderError.GetPermissionFailed)))
 
                                 val json = body.string()

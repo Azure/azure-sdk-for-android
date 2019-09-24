@@ -3,19 +3,20 @@ package com.azure.core.http
 import okhttp3.MediaType
 import okhttp3.Request
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 
 /**
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
 
-fun ByteArray?.toRequestBody(mediaType: MediaType?): RequestBody? {
-
-    return this?.let {
-
-        RequestBody.create(mediaType, it)
-    }
-}
+//fun ByteArray?.toRequestBody(mediaType: MediaType?): RequestBody? {
+//
+//    return this?.let {
+//
+//        it.toRequestBody(mediaType, 0, it.size)
+//    }
+//}
 
 fun HttpMethod.toBuilder(body: RequestBody? = null): Request.Builder {
 

@@ -10,8 +10,9 @@ import com.azure.data.model.partition.PartitionKeyResource
 import com.azure.data.service.PartitionKeyPropertyCache
 import okhttp3.Headers
 import okhttp3.HttpUrl
-import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.Request
+import okhttp3.RequestBody.Companion.toRequestBody
 import java.lang.reflect.Type
 
 /**
@@ -190,7 +191,7 @@ data class RequestDetails(val resourceLocation: ResourceLocation) {
                 .headers(headersBuilder.build())
                 .url(url)
 
-        return builder.withMethod(this.method, this.body.toRequestBody(MediaType.parse(this.contentType))).build()
+        return builder.withMethod(this.method, this.body?.toRequestBody(this.contentType.toMediaTypeOrNull())).build()
     }
 
     companion object {
