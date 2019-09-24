@@ -287,22 +287,23 @@ class DocumentCollectionPartitionedTests : ResourceTest<DocumentCollection>("Doc
                     if (newPath == newPolicy.includedPaths!!.last()) {
                         throw Exception("Included path not found in indexingPolicy")
                     }
-                }
-                else {
+                } else {
 
-                    assertEquals(path.indexes!!.size, newPath.indexes!!.size)
+                    if (path.indexes != null && newPath.indexes != null) {
 
-                    for (index in path.indexes as List<Index>) {
+                        assertEquals(path.indexes!!.size, newPath.indexes!!.size)
 
-                        for (newIndex in newPath.indexes as List<Index>) {
+                        for (index in path.indexes as List<Index>) {
 
-                            if (newIndex.dataType == index.dataType ||
-                                    newIndex.kind == index.kind ||
-                                    newIndex.precision == index.precision) {
-                                break
-                            }
-                            else if (newIndex == newPath.indexes!!.last()) {
-                                throw Exception("Index not found in included path")
+                            for (newIndex in newPath.indexes as List<Index>) {
+
+                                if (newIndex.dataType == index.dataType ||
+                                        newIndex.kind == index.kind ||
+                                        newIndex.precision == index.precision) {
+                                    break
+                                } else if (newIndex == newPath.indexes!!.last()) {
+                                    throw Exception("Index not found in included path")
+                                }
                             }
                         }
                     }
