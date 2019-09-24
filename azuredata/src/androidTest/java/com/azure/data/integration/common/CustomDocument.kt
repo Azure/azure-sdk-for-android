@@ -27,3 +27,9 @@ class PartitionedCustomDocment(id: String? = null) : CustomDocument(id) {
     @PartitionKey
     var testKey = "MyPartitionKey"
 }
+
+class PartitionedDoc(id: String? = null) : CustomDocument(id) {
+
+    // partitioned doc WITHOUT annotation - use case for when you don't own the model to annotate the partition key property
+    var testKey = "PartitionKeyValue"
+}
