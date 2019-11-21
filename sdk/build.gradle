@@ -21,6 +21,12 @@ allprojects {
 
     ext {
         okHttpVersion = "4.2.2"
+        retrofitVersion = "2.6.2"
+        jacksonDatabindVersion = "2.9.9"
+        jacksonDataFormatXmlVersion = "2.9.9"
+        staxApiVersion = "1.0-2"
+        threetenbpVersion = "1.4.0"
+        slf4jAndroidVersion = "1.7.29"
     }
 }
 
