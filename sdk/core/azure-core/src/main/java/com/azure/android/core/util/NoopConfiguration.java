@@ -3,7 +3,7 @@
 
 package com.azure.android.core.util;
 
-import org.jetbrains.annotations.NotNull;
+import androidx.annotation.NonNull;
 
 /*
  * Noop Configuration used to opt out of using global configurations when constructing client libraries.
@@ -39,7 +39,7 @@ public class NoopConfiguration extends Configuration {
         return false;
     }
 
-    @NotNull
+    @NonNull
     @Override
     @SuppressWarnings("CloneDoesntCallSuperClone")
     public NoopConfiguration clone() {

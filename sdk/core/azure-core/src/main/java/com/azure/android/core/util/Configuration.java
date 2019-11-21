@@ -3,7 +3,7 @@
 
 package com.azure.android.core.util;
 
-import org.jetbrains.annotations.NotNull;
+import androidx.annotation.NonNull;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -279,7 +279,7 @@ public class Configuration implements Cloneable {
     /**
      * @return A clone of the Configuration object.
      */
-    @NotNull
+    @NonNull
     @SuppressWarnings("CloneDoesntCallSuperClone")
     public Configuration clone() {
         loadBaseConfigurations();

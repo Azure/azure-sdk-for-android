@@ -3,10 +3,10 @@
 
 package com.azure.android.core.http.interceptors;
 
+import androidx.annotation.NonNull;
+
 import com.azure.android.core.util.Configuration;
 import com.azure.android.core.util.ServiceVersion;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -124,9 +124,9 @@ public class UserAgentInterceptor implements Interceptor {
      * User-Agent header is updated by prepending the value in this interceptor.
      * {@inheritDoc}
      */
-    @NotNull
+    @NonNull
     @Override
-    public Response intercept(@NotNull Chain chain) throws IOException {
+    public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
         String header = request.header("User-Agent");
 

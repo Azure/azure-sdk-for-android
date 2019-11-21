@@ -3,7 +3,7 @@
 
 package com.azure.android.core.http.interceptors;
 
-import org.jetbrains.annotations.NotNull;
+import androidx.annotation.NonNull;
 
 import java.io.IOException;
 import java.util.UUID;
@@ -19,9 +19,9 @@ import okhttp3.Response;
 public class RequestIdInterceptor implements Interceptor {
     private static final String REQUEST_ID_HEADER = "x-ms-client-request-id";
 
-    @NotNull
+    @NonNull
     @Override
-    public Response intercept(@NotNull Chain chain) throws IOException {
+    public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
         String requestId = request.header(REQUEST_ID_HEADER);
 

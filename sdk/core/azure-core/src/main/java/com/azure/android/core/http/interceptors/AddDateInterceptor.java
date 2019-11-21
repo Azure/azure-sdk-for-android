@@ -3,7 +3,8 @@
 
 package com.azure.android.core.http.interceptors;
 
-import org.jetbrains.annotations.NotNull;
+import androidx.annotation.NonNull;
+
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -23,9 +24,9 @@ public class AddDateInterceptor implements Interceptor {
         .withZone(ZoneId.of("UTC"))
         .withLocale(Locale.US);
 
-    @NotNull
+    @NonNull
     @Override
-    public Response intercept(@NotNull Chain chain) throws IOException {
+    public Response intercept(@NonNull Chain chain) throws IOException {
         return chain.proceed(chain.request()
             .newBuilder()
             .addHeader("Date", format.format(OffsetDateTime.now()))
