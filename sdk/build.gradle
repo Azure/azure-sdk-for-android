@@ -21,6 +21,7 @@ allprojects {
 
     ext {
         okHttpVersion = "4.2.2"
+        threeTenAbpVersion = "1.2.1"
     }
 }
 
