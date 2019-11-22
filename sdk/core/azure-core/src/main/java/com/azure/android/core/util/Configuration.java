@@ -14,12 +14,6 @@ import java.util.concurrent.ConcurrentMap;
  * Contains configuration information that is used during construction of client libraries.
  */
 public class Configuration implements Cloneable {
-    /**
-     * No-op {@link Configuration} object used to opt out of using global configurations when constructing client
-     * libraries.
-     */
-    public static final Configuration NONE = new NoopConfiguration();
-
     // Default properties - these are what we read from the environment
     /**
      * URL of the proxy for HTTP connections.
@@ -181,23 +175,6 @@ public class Configuration implements Cloneable {
     }
 
     /**
-     * Gets the converted value of the configuration.
-     *
-     * @param name Name of the configuration.
-     * @param converter Converter used to map the configuration to {@code T}.
-     * @param <T> Generic type that the configuration is converted to if found.
-     * @return The converted configuration if found, otherwise null.
-     */
-    public <T> T get(String name, Function<String, T> converter) {
-        String value = getOrLoad(name);
-        if (CoreUtils.isNullOrEmpty(value)) {
-            return null;
-        }
-
-        return converter.apply(value);
-    }
-
-    /**
      * Attempts to get the value of the configuration from the configuration store, if the value isn't found then it
      * attempts to load it from the runtime parameters then the environment variables.
      *
@@ -240,40 +217,6 @@ public class Configuration implements Cloneable {
         }
 
         return null;
-    }
-
-    /**
-     * Adds a configuration with the given value.
-     *
-     * If a configuration with the same name already exists, this will update it to the passed value.
-     *
-     * @param name Name of the configuration.
-     * @param value Value of the configuration.
-     * @return The updated Configuration object.
-     */
-    public Configuration put(String name, String value) {
-        configurations.put(name, value);
-        return this;
-    }
-
-    /**
-     * Removes the configuration.
-     *
-     * @param name Name of the configuration.
-     * @return If the configuration was removed the value of it, otherwise {@code null}.
-     */
-    public String remove(String name) {
-        return configurations.remove(name);
-    }
-
-    /**
-     * Determines if the configuration exists.
-     *
-     * @param name Name of the configuration.
-     * @return True if the configuration exists, otherwise false.
-     */
-    public boolean contains(String name) {
-        return configurations.containsKey(name);
     }
 
     /**
