@@ -34,5 +34,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.annotation:annotation:1.1.0'
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
 }
