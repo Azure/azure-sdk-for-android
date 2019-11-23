@@ -5,6 +5,8 @@ package com.azure.android.core.util;
 
 import androidx.annotation.NonNull;
 
+import com.azure.android.core.util.function.Function;
+
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
