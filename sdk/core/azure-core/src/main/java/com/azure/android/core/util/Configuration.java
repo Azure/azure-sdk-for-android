@@ -162,12 +162,12 @@ public class Configuration implements Cloneable {
 
     /**
      * Gets the value of the configuration converted to {@code T}.
-     *
+     * <p>
      * If no configuration is found, the {@code defaultValue} is returned.
      *
-     * @param name Name of the configuration.
+     * @param name         Name of the configuration.
      * @param defaultValue Value to return if the configuration isn't found.
-     * @param <T> Type that the configuration is converted to if found.
+     * @param <T>          Type that the configuration is converted to if found.
      * @return The converted configuration if found, otherwise the default value is returned.
      */
     public <T> T get(String name, T defaultValue) {
@@ -177,7 +177,7 @@ public class Configuration implements Cloneable {
     /**
      * Attempts to get the value of the configuration from the configuration store, if the value isn't found then it
      * attempts to load it from the runtime parameters then the environment variables.
-     *
+     * <p>
      * If no configuration is found null is returned.
      *
      * @param name Name of the configuration.
@@ -202,7 +202,7 @@ public class Configuration implements Cloneable {
 
     /**
      * Attempts to load the configuration from the environment.
-     *
+     * <p>
      * The runtime parameters are checked first followed by the environment variables. If the configuration is found
      * the value is loaded into the configuration store and if a configuration with the same name already exists this
      * will update it to the loaded value.
@@ -234,12 +234,12 @@ public class Configuration implements Cloneable {
 
     /**
      * Attempts to convert the configuration value to {@code T}.
-     *
+     * <p>
      * If the value is null or empty then the default value is returned.
      *
-     * @param value Configuration value retrieved from the map.
+     * @param value        Configuration value retrieved from the map.
      * @param defaultValue Default value to return if the configuration value is null or empty.
-     * @param <T> Generic type that the value is converted to if not null or empty.
+     * @param <T>          Generic type that the value is converted to if not null or empty.
      * @return The converted configuration, if null or empty the default value.
      */
     @SuppressWarnings("unchecked")
@@ -276,7 +276,7 @@ public class Configuration implements Cloneable {
      * Attempts to load the configuration using the passed loader. If the configuration is found it will be added to
      * the configuration store and a message will be logged.
      *
-     * @param name Name of the configuration.
+     * @param name   Name of the configuration.
      * @param loader Loading function to apply.
      * @return True if the configuration was loaded, false otherwise.
      */

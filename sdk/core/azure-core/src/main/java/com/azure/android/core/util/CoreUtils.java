@@ -13,6 +13,7 @@ public class CoreUtils {
 
     /**
      * Checks if the character sequence is null or empty.
+     *
      * @param charSequence Character sequence being checked for nullness or emptiness.
      * @return True if the character sequence is null or empty, false otherwise.
      */

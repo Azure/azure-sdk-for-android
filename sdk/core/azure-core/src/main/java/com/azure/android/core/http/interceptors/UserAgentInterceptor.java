@@ -17,7 +17,7 @@ import okhttp3.Response;
 
 /**
  * Pipeline interceptor that adds "User-Agent" header to a request.
- *
+ * <p>
  * The format for the "User-Agent" string is outlined in
  * <a href="https://azure.github.io/azure-sdk/general_azurecore.html#telemetry-policy">Azure Core: Telemetry policy</a>.
  */
@@ -64,19 +64,19 @@ public class UserAgentInterceptor implements Interceptor {
 
     /**
      * Creates a UserAgentInterceptor with the {@code sdkName} and {@code sdkVersion} in the User-Agent header value.
-     *
+     * <p>
      * If the passed configuration contains true for AZURE_TELEMETRY_DISABLED the platform information won't be included
      * in the user agent.
      *
      * @param applicationId User specified application Id.
-     * @param sdkName Name of the client library.
-     * @param sdkVersion Version of the client library.
-     * @param version {@link ServiceVersion} of the service to be used when making requests.
+     * @param sdkName       Name of the client library.
+     * @param sdkVersion    Version of the client library.
+     * @param version       {@link ServiceVersion} of the service to be used when making requests.
      * @param configuration Configuration store that will be checked for the AZURE_TELEMETRY_DISABLED.
      * @throws NullPointerException if {@code configuration} is {@code null}.
      */
     public UserAgentInterceptor(String applicationId, String sdkName, String sdkVersion, Configuration configuration,
-                           ServiceVersion version) {
+                                ServiceVersion version) {
         Objects.requireNonNull(configuration, "'configuration' cannot be null.");
         boolean telemetryDisabled = configuration.get(Configuration.PROPERTY_AZURE_TELEMETRY_DISABLED, false);
         if (telemetryDisabled) {
@@ -95,13 +95,13 @@ public class UserAgentInterceptor implements Interceptor {
 
     /**
      * Creates a UserAgentInterceptor with the {@code sdkName} and {@code sdkVersion} in the User-Agent header value.
-     *
+     * <p>
      * If the passed configuration contains true for AZURE_TELEMETRY_DISABLED the platform information won't be included
      * in the user agent.
      *
-     * @param sdkName Name of the client library.
-     * @param sdkVersion Version of the client library.
-     * @param version {@link ServiceVersion} of the service to be used when making requests.
+     * @param sdkName       Name of the client library.
+     * @param sdkVersion    Version of the client library.
+     * @param version       {@link ServiceVersion} of the service to be used when making requests.
      * @param configuration Configuration store that will be checked for the AZURE_TELEMETRY_DISABLED.
      * @throws NullPointerException if {@code configuration} is {@code null}.
      */
@@ -119,7 +119,7 @@ public class UserAgentInterceptor implements Interceptor {
 
     /**
      * Updates the "User-Agent" header with the value supplied in the interceptor.
-     *
+     * <p>
      * When the User-Agent header already has a value and it differs from the value used to create this interceptor the
      * User-Agent header is updated by prepending the value in this interceptor.
      * {@inheritDoc}
