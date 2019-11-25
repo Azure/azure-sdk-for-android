@@ -21,6 +21,7 @@ allprojects {
 
     ext {
         okHttpVersion = "4.2.2"
+        retrofitVersion = "2.6.2"
     }
 }
 
