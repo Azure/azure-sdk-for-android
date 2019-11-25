@@ -21,6 +21,7 @@ allprojects {
 
     ext {
         okHttpVersion = "4.2.2"
+        slf4jAndroidVersion = "1.7.29"
     }
 }
 
