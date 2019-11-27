@@ -8,8 +8,8 @@ import okhttp3.Interceptor;
 import okhttp3.Response;
 
 /**
- * Wraps any potential error responses from the service and applies post processing of the response's ETag header to
- * standardize the value.
+ * Interceptor that wraps any potential error responses from the service and applies post processing of the response's
+ * ETag header to standardize the value.
  */
 public class ScrubEtagInterceptor implements Interceptor {
     private static final String ETAG = "ETag";
