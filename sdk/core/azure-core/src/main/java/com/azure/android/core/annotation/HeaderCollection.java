@@ -1,0 +1,26 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+package com.azure.android.core.annotation;
+
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
+
+/**
+ * Annotation on a map property in a class indicating that property should treated as
+ * a header collection populated from response header key-value with name starts with
+ * the prefix.
+ */
+@Retention(RUNTIME)
+@Target(FIELD)
+public @interface HeaderCollection {
+    /**
+     * The prefix of the header collection.
+     *
+     * @return the header collection prefix
+     */
+    String value();
+}
