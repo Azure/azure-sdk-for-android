@@ -1,4 +1,4 @@
-package com.azure.android.core.http.interceptors;
+package com.azure.android.storage.common.interceptor;
 
 import androidx.annotation.NonNull;
 
