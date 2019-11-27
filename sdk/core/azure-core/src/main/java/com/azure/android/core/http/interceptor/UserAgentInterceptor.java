@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.http.interceptors;
+package com.azure.android.core.http.interceptor;
 
 import androidx.annotation.NonNull;
 
