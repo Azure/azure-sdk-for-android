@@ -19,7 +19,8 @@ import okhttp3.Response;
  * The pipeline interceptor that adds a "Date" header in RFC 1123 format when sending an HTTP request.
  */
 public class AddDateInterceptor implements Interceptor {
-    private final DateTimeFormatter format = DateTimeFormatter
+    private static final String DATE_HEADER = "Date";
+    private static final DateTimeFormatter format = DateTimeFormatter
         .ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
         .withZone(ZoneId.of("UTC"))
         .withLocale(Locale.US);
@@ -29,7 +30,7 @@ public class AddDateInterceptor implements Interceptor {
     public Response intercept(@NonNull Chain chain) throws IOException {
         return chain.proceed(chain.request()
             .newBuilder()
-            .addHeader("Date", format.format(OffsetDateTime.now()))
+            .header(DATE_HEADER, format.format(OffsetDateTime.now()))
             .build());
     }
 }

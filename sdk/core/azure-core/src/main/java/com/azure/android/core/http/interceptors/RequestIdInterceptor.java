@@ -25,10 +25,11 @@ public class RequestIdInterceptor implements Interceptor {
         Request request = chain.request();
         String requestId = request.header(REQUEST_ID_HEADER);
 
-        if (requestId == null)
+        if (requestId == null) {
             request = request.newBuilder()
-                .addHeader(REQUEST_ID_HEADER, UUID.randomUUID().toString())
+                .header(REQUEST_ID_HEADER, UUID.randomUUID().toString())
                 .build();
+        }
 
         return chain.proceed(request);
     }
