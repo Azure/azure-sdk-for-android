@@ -13,8 +13,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * The pipeline interceptor that puts a UUID in the request header. Azure uses the request ID as
- * the unique identifier for the request.
+ * Interceptor that puts a UUID in the request header. Azure uses the request ID as the unique identifier for the
+ * request.
  */
 public class RequestIdInterceptor implements Interceptor {
     private static final String REQUEST_ID_HEADER = "x-ms-client-request-id";
