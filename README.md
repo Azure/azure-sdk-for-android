@@ -72,7 +72,7 @@ The Azure.Android SDKs are packaged and available via [BinTray](https://bintray.
 To integrate any of the Azure.Android packages into your project, specify it in your [Gradle file](https://developer.android.com/studio/build/dependencies), e.g.:
 
 ```
-compile 'com.azure.android:azuredata:0.1.0'
+compile 'com.azure.android:azuredata:0.4.0'
 ```
 
 The correct Gradle package specifier can be found by [navigating to the package](https://bintray.com/azure/Azure.Android) or clicking the above "Download" button for the SDK.  Then view the Maven/Gradle information and copy the Gradle snippet into your Gradle file.
