@@ -3,13 +3,19 @@
 
 package com.azure.android.core.http.interceptor;
 
+import android.content.Context;
+import android.content.pm.PackageManager;
+import android.content.res.Resources;
+import android.os.Build;
+import android.telephony.TelephonyManager;
+
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.util.Configuration;
-import com.azure.android.core.util.ServiceVersion;
+import com.azure.android.core.BuildConfig;
+import com.azure.android.core.util.CoreUtils;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.util.Locale;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -25,21 +31,31 @@ public class UserAgentInterceptor implements Interceptor {
     private static final String DEFAULT_USER_AGENT_HEADER = "azsdk-java";
 
     // From the design guidelines, the default user agent header format is:
-    // azsdk-java-<client_lib>/<sdk_version> <platform_info>
-    private static final String USER_AGENT_FORMAT = DEFAULT_USER_AGENT_HEADER + "-%s/%s (%s)";
+    // azsdk-java-<client_lib>/<sdk_version> <platform_info> [<platform_info>] (<library_info>|<application_info>)
+    // <user_locale_info>
+    private static final String USER_AGENT_FORMAT = DEFAULT_USER_AGENT_HEADER + "-%s/%s [%s] (%s) %s";
 
     // From the design guidelines, the application id user agent header format is:
-    // AzCopy/10.0.4-Preview azsdk-java-<client_lib>/<sdk_version> <platform_info>
+    // AzCopy/10.0.4-Preview azsdk-java-<client_lib>/<sdk_version> (<platform_info>) [<library_info>|<application_info>]
+    // <user_locale_info>
     private static final String APPLICATION_ID_USER_AGENT_FORMAT = "%s " + USER_AGENT_FORMAT;
 
-    // When the AZURE_TELEMETRY_DISABLED configuration is true remove the <platform_info> portion of the user agent.
-    private static final String DISABLED_TELEMETRY_USER_AGENT_FORMAT = DEFAULT_USER_AGENT_HEADER + "-%s/%s";
+    // From the design guidelines, the platform info format is: <os version>
+    private static final String PLATFORM_INFO_FORMAT = "%s-%s";
 
-    // From the design guidelines, the platform info format is:
-    // <language runtime>; <os name> <os version>
-    private static final String PLATFORM_INFO_FORMAT = "%s; %s %s";
+    // TODO: Determine the guidelines for this format
+    private static final String LIBRARY_INFO_FORMAT = "%s:%s (%s)";
+
+    // TODO: Determine the guidelines for this format
+    private static final String APPLICATION_INFO_FORMAT = "%s:%s, %s";
+
+    // TODO: Determine the guidelines for this format
+    private static final String USER_LOCALE_INFO_FORMAT = "%s_%s";
 
     private final String userAgent;
+
+    // TODO: Create a layer of abstraction so we don't pass the Context directly to this class
+    private final Context context;
 
     /**
      * Creates a {@link UserAgentInterceptor} with a default user agent string.
@@ -55,6 +71,8 @@ public class UserAgentInterceptor implements Interceptor {
      * @param userAgent The user agent string to add to request headers.
      */
     public UserAgentInterceptor(String userAgent) {
+        context = null;
+
         if (userAgent != null) {
             this.userAgent = userAgent;
         } else {
@@ -65,55 +83,49 @@ public class UserAgentInterceptor implements Interceptor {
     /**
      * Creates a UserAgentInterceptor with the {@code sdkName} and {@code sdkVersion} in the User-Agent header value.
      * <p>
-     * If the passed configuration contains true for AZURE_TELEMETRY_DISABLED the platform information won't be included
-     * in the user agent.
+     *
+     * @param sdkName       Name of the client library.
+     * @param sdkVersion    Version of the client library.
+     */
+    public UserAgentInterceptor(String sdkName, String sdkVersion) {
+        context = null;
+        userAgent = String.format(USER_AGENT_FORMAT, sdkName, sdkVersion, getPlatformInfo(), getApplicationInfo(null), getUserLocaleInfo(null));
+    }
+
+
+    /**
+     * Creates a UserAgentInterceptor with the {@code sdkName} and {@code sdkVersion} in the User-Agent header value.
      *
      * @param applicationId User specified application Id.
      * @param sdkName       Name of the client library.
      * @param sdkVersion    Version of the client library.
-     * @param version       {@link ServiceVersion} of the service to be used when making requests.
-     * @param configuration Configuration store that will be checked for the AZURE_TELEMETRY_DISABLED.
-     * @throws NullPointerException if {@code configuration} is {@code null}.
      */
-    public UserAgentInterceptor(String applicationId, String sdkName, String sdkVersion, Configuration configuration,
-                                ServiceVersion version) {
-        Objects.requireNonNull(configuration, "'configuration' cannot be null.");
-        boolean telemetryDisabled = configuration.get(Configuration.PROPERTY_AZURE_TELEMETRY_DISABLED, false);
-        if (telemetryDisabled) {
-            this.userAgent = String.format(DISABLED_TELEMETRY_USER_AGENT_FORMAT, sdkName, sdkVersion,
-                version.getVersion());
+    public UserAgentInterceptor(String applicationId, String sdkName, String sdkVersion) {
+        context = null;
+
+        if (applicationId == null) {
+            userAgent = String.format(USER_AGENT_FORMAT, sdkName, sdkVersion, getPlatformInfo(), getApplicationInfo(null), getUserLocaleInfo(null));
         } else {
-            if (applicationId == null) {
-                this.userAgent = String.format(USER_AGENT_FORMAT, sdkName, sdkVersion, getPlatformInfo(),
-                    version.getVersion());
-            } else {
-                this.userAgent = String.format(APPLICATION_ID_USER_AGENT_FORMAT, applicationId, sdkName, sdkVersion,
-                    getPlatformInfo(), version.getVersion());
-            }
+            userAgent = String.format(APPLICATION_ID_USER_AGENT_FORMAT, applicationId, sdkName, sdkVersion,
+                getPlatformInfo(), getApplicationInfo(null), getUserLocaleInfo(null));
         }
     }
 
     /**
      * Creates a UserAgentInterceptor with the {@code sdkName} and {@code sdkVersion} in the User-Agent header value.
-     * <p>
-     * If the passed configuration contains true for AZURE_TELEMETRY_DISABLED the platform information won't be included
-     * in the user agent.
      *
+     * @param applicationId User specified application Id.
      * @param sdkName       Name of the client library.
      * @param sdkVersion    Version of the client library.
-     * @param version       {@link ServiceVersion} of the service to be used when making requests.
-     * @param configuration Configuration store that will be checked for the AZURE_TELEMETRY_DISABLED.
-     * @throws NullPointerException if {@code configuration} is {@code null}.
      */
-    public UserAgentInterceptor(String sdkName, String sdkVersion, Configuration configuration, ServiceVersion version) {
-        Objects.requireNonNull(configuration, "'configuration' cannot be null.");
-        boolean telemetryDisabled = configuration.get(Configuration.PROPERTY_AZURE_TELEMETRY_DISABLED, false);
-        if (telemetryDisabled) {
-            this.userAgent = String.format(DISABLED_TELEMETRY_USER_AGENT_FORMAT, sdkName, sdkVersion,
-                version.getVersion());
+    public UserAgentInterceptor(Context context, String applicationId, String sdkName, String sdkVersion) {
+        this.context = context;
+
+        if (applicationId == null) {
+            userAgent = String.format(USER_AGENT_FORMAT, sdkName, sdkVersion, getPlatformInfo(), getApplicationInfo(context), getUserLocaleInfo(context));
         } else {
-            this.userAgent = String.format(USER_AGENT_FORMAT, sdkName, sdkVersion, getPlatformInfo(),
-                version.getVersion());
+            userAgent = String.format(APPLICATION_ID_USER_AGENT_FORMAT, applicationId, sdkName, sdkVersion,
+                getPlatformInfo(), getApplicationInfo(context), getUserLocaleInfo(context));
         }
     }
 
@@ -143,10 +155,107 @@ public class UserAgentInterceptor implements Interceptor {
     }
 
     private static String getPlatformInfo() {
-        String javaVersion = Configuration.getGlobalConfiguration().get("java.version");
-        String osName = Configuration.getGlobalConfiguration().get("os.name");
-        String osVersion = Configuration.getGlobalConfiguration().get("os.version");
+        String deviceName = getDeviceName();
+        int osVersion = Build.VERSION.SDK_INT;
 
-        return String.format(PLATFORM_INFO_FORMAT, javaVersion, osName, osVersion);
+        return String.format(PLATFORM_INFO_FORMAT, deviceName, osVersion);
+    }
+
+    private static String getLibraryInfo() {
+        String libraryName = BuildConfig.LIBRARY_PACKAGE_NAME;
+        String libraryVersionName = BuildConfig.VERSION_NAME;
+        int libraryVersionCode = BuildConfig.VERSION_CODE;
+
+        return String.format(LIBRARY_INFO_FORMAT, libraryName, libraryVersionCode, libraryVersionName);
+    }
+
+    //TODO: Figure if we can get the minSdkVersion programatically and if we can get data such as what is included in
+    // BuildConfig. Determine if we can also get the build type (debug, release, etc).
+    private static String getApplicationInfo(Context context) {
+        String targetSdkVersion = "";
+        String applicationId = "";
+        String applicationVersion = "";
+
+        if (context != null) {
+            targetSdkVersion = Integer.toString(context.getApplicationInfo().targetSdkVersion);
+            applicationId = context.getPackageName();
+
+            try {
+                applicationVersion = context.getPackageManager().getPackageInfo(applicationId, 0).versionName;
+            } catch (PackageManager.NameNotFoundException e) {
+                // TODO: Determine if we need to use the ClientLogger here
+                e.printStackTrace();
+            }
+        }
+
+        return String.format(APPLICATION_INFO_FORMAT, applicationId, applicationVersion, targetSdkVersion);
+    }
+
+    private static String getUserLocaleInfo(Context context) {
+        String region = null;
+
+        if (context != null) {
+            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            assert telephonyManager != null;
+            final String simCountry = telephonyManager.getSimCountryIso();
+
+            if (simCountry != null && simCountry.length() == 2) {
+                // SIM country code is available
+                region = simCountry.toLowerCase(Locale.US);
+            } else if (telephonyManager.getPhoneType() != TelephonyManager.PHONE_TYPE_CDMA) {
+                // Device is not 3G (would be unreliable)
+                String networkCountry = telephonyManager.getNetworkCountryIso();
+
+                if (networkCountry != null && networkCountry.length() == 2) {
+                    // Network country code is available
+                    region = networkCountry.toLowerCase(Locale.US);
+                }
+            }
+        }
+
+        if (CoreUtils.isNullOrEmpty(region)) {
+            region = "N/A";
+        }
+
+        // Using this instead of Configuration.getLocales() because it's not supported in anything less than Android L24
+        String language = Resources.getSystem().getConfiguration().locale.getLanguage();
+
+        return String.format(USER_LOCALE_INFO_FORMAT, language, region);
+    }
+
+    private static String getDeviceName() {
+        String manufacturer = Build.MANUFACTURER;
+        String model = Build.MODEL;
+
+        if (model.toLowerCase().startsWith(manufacturer.toLowerCase())) {
+            return capitalize(model);
+        } else {
+            return capitalize(manufacturer) + " " + model;
+        }
+    }
+
+    private static String capitalize(String str) {
+        if (CoreUtils.isNullOrEmpty(str)) {
+            return str;
+        }
+
+        char[] arr = str.toCharArray();
+        boolean capitalizeNext = true;
+        StringBuilder stringBuilder = new StringBuilder();
+
+        for (char c : arr) {
+            if (capitalizeNext && Character.isLetter(c)) {
+                stringBuilder.append(Character.toUpperCase(c));
+                capitalizeNext = false;
+
+                continue;
+            } else if (Character.isWhitespace(c)) {
+                capitalizeNext = true;
+            }
+
+            stringBuilder.append(c);
+        }
+
+        return stringBuilder.toString();
     }
 }
