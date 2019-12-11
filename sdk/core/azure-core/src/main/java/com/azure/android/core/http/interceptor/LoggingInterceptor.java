@@ -5,23 +5,30 @@ package com.azure.android.core.http.interceptor;
 
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.http.ContentType;
 import com.azure.android.core.util.CoreUtils;
-import com.azure.android.core.util.UrlBuilder;
 import com.azure.android.core.util.logging.ClientLogger;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
+import okhttp3.MediaType;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okio.Buffer;
+import okio.BufferedSource;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Pipeline interceptor that handles logging of HTTP requests and responses.
@@ -29,13 +36,14 @@ import okhttp3.Response;
 public final class LoggingInterceptor implements Interceptor {
     private static final int MAX_BODY_LOG_SIZE = 1024 * 16;
     private static final String REDACTED_PLACEHOLDER = "REDACTED";
+    private static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
 
     private final LogDetailLevel logDetailLevel;
     private final Set<String> allowedHeaderNames;
     private final Set<String> allowedQueryParameterNames;
 
     /**
-     * Creates an HttpLoggingPolicy with the given log configurations.
+     * Creates an LoggingPolicy with the given log configurations.
      *
      * @param LogOptions The HTTP logging configurations.
      */
@@ -61,21 +69,29 @@ public final class LoggingInterceptor implements Interceptor {
     /**
      * Logs the HTTP request.
      *
-     * @param logger  Logger used to log the request.
-     * @param request HTTP request being sent to Azure.
+     * @param logger     Logger used to log the request.
+     * @param request    OkHTTP request being sent to Azure.
      */
     private void logRequest(final ClientLogger logger, final Request request) {
         StringBuilder requestLogMessage = new StringBuilder();
+        HttpUrl url = request.url();
 
         if (logDetailLevel.shouldLogUrl()) {
             requestLogMessage.append("--> ")
                 .append(request.method())
                 .append(" ")
-                .append(getRedactedUrl(request.url()))
+                .append(url.encodedPath())
+                .append(System.lineSeparator())
+                .append("Host: ")
+                .append(url.scheme())
+                .append("://")
+                .append(url.host())
                 .append(System.lineSeparator());
         }
 
-        addHeadersToLogMessage(request.headers(), requestLogMessage);
+        if (logDetailLevel.shouldLogHeaders()) {
+            addHeadersToLogMessage(request.headers(), requestLogMessage);
+        }
 
         if (!logDetailLevel.shouldLogBody()) {
             logger.info(requestLogMessage.toString());
@@ -83,7 +99,9 @@ public final class LoggingInterceptor implements Interceptor {
             return;
         }
 
-        if (request.body() == null) {
+        RequestBody requestBody = request.body();
+
+        if (requestBody == null) {
             requestLogMessage.append("(empty body)")
                 .append(System.lineSeparator())
                 .append("--> END ")
@@ -95,26 +113,40 @@ public final class LoggingInterceptor implements Interceptor {
             return;
         }
 
-        String contentType = request.header("Content-Type");
+        String contentTypeString = request.header("Content-Type");
         long contentLength = getContentLength(logger, request.headers());
 
-        if (shouldBodyBeLogged(contentType, contentLength)) {
-            requestLogMessage.append(contentLength)
-                .append("-byte body:")
-                .append(System.lineSeparator())
-                .append(request.body())
-                .append(System.lineSeparator())
-                .append("--> END ")
-                .append(request.method())
-                .append(System.lineSeparator());
+        requestLogMessage.append(contentLength)
+            .append("-byte body:")
+            .append(System.lineSeparator());
+
+        if (shouldLogBody(contentTypeString, contentLength)) {
+            try {
+                Buffer buffer = new Buffer();
+                MediaType contentType = requestBody.contentType();
+                Charset charset = (contentType == null) ? UTF_8 : contentType.charset(UTF_8);
+                requestBody.writeTo(buffer);
+
+                if (charset != null) {
+                    requestLogMessage.append(buffer.readString(charset));
+                } else {
+                    logger.warning("Could not log the response body. No encoding charset found.");
+
+                    requestLogMessage.append(" (body content not logged)");
+                }
+            } catch (IOException e) {
+                logger.warning("Could not log the request body", e);
+
+                requestLogMessage.append(" (body content not logged)");
+            }
         } else {
-            requestLogMessage.append(contentLength)
-                .append("-byte body: (content not logged)")
-                .append(System.lineSeparator())
-                .append("--> END ")
-                .append(request.method())
-                .append(System.lineSeparator());
+            requestLogMessage.append(" (body content not logged)");
         }
+
+        requestLogMessage.append(System.lineSeparator())
+            .append("--> END ")
+            .append(request.method())
+            .append(System.lineSeparator());
 
         logger.info(requestLogMessage.toString());
     }
@@ -124,12 +156,9 @@ public final class LoggingInterceptor implements Interceptor {
      *
      * @param logger   Logger used to log the response.
      * @param response HTTP response returned from Azure.
-     * @param startNs  Nanosecond representation of when the request was sent.
-     * @return A Mono containing the HTTP response.
+     * @param tookMs  Nanosecond representation of when the request was sent.
      */
-    private Response logResponse(final ClientLogger logger, final Response response, long startNs) {
-        long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
-
+    private void logResponse(final ClientLogger logger, final Response response, long tookMs) {
         String contentLengthString = response.header("Content-Length");
         String bodySize = (CoreUtils.isNullOrEmpty(contentLengthString))
             ? "unknown-length body"
@@ -139,8 +168,6 @@ public final class LoggingInterceptor implements Interceptor {
         if (logDetailLevel.shouldLogUrl()) {
             responseLogMessage.append("<-- ")
                 .append(response.code())
-                .append(" ")
-                .append(getRedactedUrl(response.request().url()))
                 .append(" (")
                 .append(tookMs)
                 .append(" ms, ")
@@ -149,34 +176,53 @@ public final class LoggingInterceptor implements Interceptor {
                 .append(System.lineSeparator());
         }
 
-        addHeadersToLogMessage(response.headers(), responseLogMessage);
+        if (logDetailLevel.shouldLogHeaders()) {
+            addHeadersToLogMessage(response.headers(), responseLogMessage);
+        }
 
         if (!logDetailLevel.shouldLogBody()) {
             responseLogMessage.append("<-- END HTTP");
             logger.info(responseLogMessage.toString());
 
-            return response;
+            return;
         }
 
-        String contentTypeHeader = response.header("Content-Type");
+        ResponseBody responseBody = Objects.requireNonNull(response.body());
+        String contentTypeString = response.header("Content-Type");
         long contentLength = getContentLength(logger, response.headers());
 
-        if (shouldBodyBeLogged(contentTypeHeader, contentLength)) {
-            responseLogMessage.append("Response body:")
-                .append(System.lineSeparator())
-                .append(response.body())
-                .append(System.lineSeparator())
-                .append("<-- END HTTP");
+        responseLogMessage.append("Response body:")
+            .append(System.lineSeparator());
 
+        if (shouldLogBody(contentTypeString, contentLength)) {
+            try {
+                // TODO: Figure if it's possible to log the body without cloning it in its entirety
+                BufferedSource bufferedSource = responseBody.source();
+                bufferedSource.request(Long.MAX_VALUE); // Buffer the entire body
+                Buffer buffer = bufferedSource.getBuffer();
+                MediaType contentType = responseBody.contentType();
+                Charset charset = (contentType == null) ? UTF_8 : contentType.charset(UTF_8);
+
+                if (charset != null) {
+                    responseLogMessage.append(buffer.clone().readString(charset));
+                } else {
+                    logger.warning("Could not log the response body. No encoding charset found.");
+
+                    responseLogMessage.append(" (body content not logged)");
+                }
+            } catch (IOException e) {
+                logger.warning("Could not log the response body", e);
+
+                responseLogMessage.append(" (body content not logged)");
+            }
         } else {
-            responseLogMessage.append("(body content not logged)")
-                .append(System.lineSeparator())
-                .append("<-- END HTTP");
+            responseLogMessage.append("(body content not logged)");
         }
 
-        logger.info(responseLogMessage.toString());
+        responseLogMessage.append(System.lineSeparator())
+            .append("<-- END HTTP");
 
-        return response;
+        logger.info(responseLogMessage.toString());
     }
 
     /**
@@ -186,8 +232,9 @@ public final class LoggingInterceptor implements Interceptor {
      * @return A URL with query parameters redacted based on configurations in this policy.
      */
     private String getRedactedUrl(HttpUrl url) {
-        return UrlBuilder.parse(url)
-            .setQuery(getAllowedQueryString(url.query()))
+        return url.newBuilder()
+            .query(getAllowedQueryString(url.query()))
+            .build()
             .toString();
     }
 
@@ -229,31 +276,28 @@ public final class LoggingInterceptor implements Interceptor {
     }
 
     /**
-     * Adds HTTP headers into the StringBuilder that is generating the log message.
+     * Adds HTTP headers into the StringBuilder that is generating the log message. If a header is not allowed it will
+     * be redacted.
      *
-     * @param headers  HTTP headers on the request or response.
-     * @param sb       StringBuilder that is generating the log message.
+     * @param headers       HTTP headers on the request or response.
+     * @param logMessage StringBuilder that is generating the log message.
      */
-    private void addHeadersToLogMessage(Headers headers, StringBuilder sb) {
-        if (!logDetailLevel.shouldLogHeaders()) {
-            return;
-        }
-
+    private void addHeadersToLogMessage(Headers headers, StringBuilder logMessage) {
         Set<String> headerNames = headers.names();
 
         for (String headerName : headerNames) {
-            sb.append(headerName).append(":");
+            logMessage.append(headerName).append(": ");
 
             if (allowedHeaderNames.contains(headerName.toLowerCase(Locale.ROOT))) {
                 List<String> headerValues = headers.values(headerName);
 
                 for (String headerValue : headerValues) {
-                    sb.append(headerValue);
-                    sb.append(System.lineSeparator());
+                    logMessage.append(headerValue);
+                    logMessage.append(System.lineSeparator());
                 }
             } else {
-                sb.append(REDACTED_PLACEHOLDER);
-                sb.append(System.lineSeparator());
+                logMessage.append(REDACTED_PLACEHOLDER);
+                logMessage.append(System.lineSeparator());
             }
         }
     }
@@ -276,8 +320,7 @@ public final class LoggingInterceptor implements Interceptor {
         try {
             contentLength = Long.parseLong(contentLengthString);
         } catch (NumberFormatException | NullPointerException e) {
-            logger.warning("Could not parse the HTTP header content-length: '{}'.",
-                headers.get("content-length"), e);
+            logger.warning("Could not parse the HTTP header content-length: '{}'.", headers.get("content-length"), e);
         }
 
         return contentLength;
@@ -293,8 +336,8 @@ public final class LoggingInterceptor implements Interceptor {
      * @param contentLength     Content-Length header represented as a numeric.
      * @return A flag indicating if the request or response body should be logged.
      */
-    private boolean shouldBodyBeLogged(String contentTypeHeader, long contentLength) {
-        return !ContentType.APPLICATION_OCTET_STREAM.equalsIgnoreCase(contentTypeHeader)
+    private boolean shouldLogBody(String contentTypeHeader, long contentLength) {
+        return !APPLICATION_OCTET_STREAM.equalsIgnoreCase(contentTypeHeader)
             && contentLength != 0
             && contentLength < MAX_BODY_LOG_SIZE;
     }
@@ -303,7 +346,6 @@ public final class LoggingInterceptor implements Interceptor {
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
-        Response response;
 
         // No logging will be performed, trigger a no-op.
         if (logDetailLevel == LogDetailLevel.NONE) {
@@ -311,16 +353,18 @@ public final class LoggingInterceptor implements Interceptor {
         }
 
         final ClientLogger logger = new ClientLogger(request.method() + " " + getRedactedUrl(request.url()));
-        final long startNs = System.nanoTime();
-
         logRequest(logger, request);
 
         try {
-            response = chain.proceed(request);
-            logResponse(logger, response, startNs);
+            long startNs = System.nanoTime();
+            Response response = chain.proceed(request);
+            long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
+            logResponse(logger, response, tookMs);
+
             return response;
         } catch (Exception e) {
             logger.warning("<-- HTTP FAILED: ", e);
+
             throw e;
         }
     }
