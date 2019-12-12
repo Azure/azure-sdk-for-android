@@ -36,4 +36,5 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.annotation:annotation:$annotationsVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    implementation "org.slf4j:slf4j-android:$slf4jAndroidVersion"
 }
