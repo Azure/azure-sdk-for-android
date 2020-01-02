@@ -17,7 +17,6 @@ import java.util.Set;
  */
 public class LogOptions {
     private String applicationId;
-    private LogDetailLevel logLevel;
     private Set<String> allowedHeaderNames;
     private Set<String> allowedQueryParamNames;
     private final ClientLogger logger = new ClientLogger(LogOptions.class);
@@ -52,32 +51,9 @@ public class LogOptions {
      * Creates a new instance that does not log any information about HTTP requests or responses.
      */
     public LogOptions() {
-        logLevel = LogDetailLevel.NONE;
         allowedHeaderNames = new HashSet<>(DEFAULT_HEADERS_WHITELIST);
         allowedQueryParamNames = new HashSet<>();
         applicationId = null;
-    }
-
-    /**
-     * Gets the level of detail to log on HTTP messages.
-     *
-     * @return The {@link LogDetailLevel}.
-     */
-    public LogDetailLevel getLogLevel() {
-        return logLevel;
-    }
-
-    /**
-     * Sets the level of detail to log on Http messages.
-     *
-     * <p>If logLevel is not provided, default value of {@link LogDetailLevel#NONE} is set.</p>
-     *
-     * @param logLevel The {@link LogDetailLevel}.
-     * @return The updated HttpLogOptions object.
-     */
-    public LogOptions setLogLevel(final LogDetailLevel logLevel) {
-        this.logLevel = logLevel == null ? LogDetailLevel.NONE : logLevel;
-        return this;
     }
 
     /**

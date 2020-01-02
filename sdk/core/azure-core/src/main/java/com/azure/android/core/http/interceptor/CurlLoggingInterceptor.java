@@ -48,12 +48,12 @@ public class CurlLoggingInterceptor implements Interceptor {
             .append(request.method());
 
         addHeadersToCurlCommand(headers, curlCommand);
-
-        String contentTypeString = request.header("Content-Type");
-        long contentLength = LogUtils.getContentLength(logger, request.headers());
         RequestBody requestBody = request.body();
+        String bodyEvaluation = LogUtils.evaluateBody(headers);
 
-        if (LogUtils.shouldLogBody(contentTypeString, contentLength) && requestBody != null) {
+        if (!bodyEvaluation.equals("Log body")) {
+            curlCommand.append(bodyEvaluation);
+        } else if (requestBody != null) {
             addBodyToCurlCommand(requestBody, curlCommand);
         }
 
@@ -61,9 +61,10 @@ public class CurlLoggingInterceptor implements Interceptor {
             .append(request.url())
             .append("\"");
 
-        logger.info("╭--- cURL " + request.url());
-        logger.info(curlCommand.toString());
-        logger.info("╰--- (copy and paste the above line to a terminal)");
+        // TODO: Add log level guard for headers and body
+        logger.verbose("╭--- cURL " + request.url());
+        logger.verbose(curlCommand.toString());
+        logger.verbose("╰--- (copy and paste the above line to a terminal)");
 
         return chain.proceed(chain.request());
     }
@@ -102,8 +103,6 @@ public class CurlLoggingInterceptor implements Interceptor {
      * @param curlCommand StringBuilder that is generating the cURL command.
      */
     private void addBodyToCurlCommand(RequestBody requestBody, StringBuilder curlCommand) {
-        String requestBodyString = "(body content not logged)";
-
         try {
             Buffer buffer = new Buffer();
             MediaType contentType = requestBody.contentType();
@@ -111,24 +110,24 @@ public class CurlLoggingInterceptor implements Interceptor {
             requestBody.writeTo(buffer);
 
             if (charset != null) {
-                requestBodyString = buffer.readString(charset);
+                String requestBodyString = buffer.readString(charset);
+
+                Map<Character, CharSequence> toReplace = new HashMap<>();
+                toReplace.put('\n', "\\n");
+                toReplace.put('\"', "\\\"");
+
+                curlCommand.append(" --data '")
+                    .append(CoreUtils.replace(requestBodyString, toReplace))
+                    .append("'");
+
+                if (compressed) {
+                    curlCommand.append(" --compressed");
+                }
             } else {
                 logger.warning("Could not log the response body. No encoding charset found.");
             }
         } catch (IOException e) {
             logger.warning("Could not log the request body", e);
-        }
-
-        Map<Character, CharSequence> toReplace = new HashMap<>();
-        toReplace.put('\n', "\\n");
-        toReplace.put('\"', "\\\"");
-
-        curlCommand.append(" --data '")
-            .append(CoreUtils.replace(requestBodyString, toReplace))
-            .append("'");
-
-        if (compressed) {
-            curlCommand.append(" --compressed");
         }
     }
 }
