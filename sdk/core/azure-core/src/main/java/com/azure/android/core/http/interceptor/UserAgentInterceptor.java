@@ -3,12 +3,11 @@
 
 package com.azure.android.core.http.interceptor;
 
-import android.os.Build;
-
 import androidx.annotation.NonNull;
 
 import com.azure.android.core.provider.ApplicationInformationProvider;
 import com.azure.android.core.provider.LocaleInformationProvider;
+import com.azure.android.core.provider.PlatformInformationProvider;
 import com.azure.android.core.util.CoreUtils;
 
 import java.io.IOException;
@@ -24,28 +23,27 @@ import okhttp3.Response;
  * <a href="https://azure.github.io/azure-sdk/general_azurecore.html#telemetry-policy">Azure Core: Telemetry policy</a>.
  */
 public class UserAgentInterceptor implements Interceptor {
-    private static final String DEFAULT_USER_AGENT_HEADER = "azsdk-java";
+    private static final String DEFAULT_USER_AGENT_HEADER = "azsdk-android";
 
     // From the design guidelines, the default user agent header format is:
-    // azsdk-java-<client_lib>/<sdk_version> <platform_info> [<platform_info>] (<library_info>|<application_info>)
+    // azsdk-android-<sdk_name>/<sdk_version> (<platform_info>; application_info>; <user_locale_info>
+    private static final String USER_AGENT_FORMAT = DEFAULT_USER_AGENT_HEADER + "-%s/%s (%s; %s; %s)";
+
+    // From the design guidelines, the application ID user agent header format is:
+    // [<application_id>] azsdk-android-<client_lib>/<sdk_version> (<platform_info>; <application_info>;
     // <user_locale_info>
-    private static final String USER_AGENT_FORMAT = DEFAULT_USER_AGENT_HEADER + "-%s/%s [%s] (%s) %s";
+    private static final String APPLICATION_ID_USER_AGENT_FORMAT = "[%s] " + USER_AGENT_FORMAT;
 
-    // From the design guidelines, the application id user agent header format is:
-    // AzCopy/10.0.4-Preview azsdk-java-<client_lib>/<sdk_version> (<platform_info>) [<library_info>|<application_info>]
-    // <user_locale_info>
-    private static final String APPLICATION_ID_USER_AGENT_FORMAT = "%s " + USER_AGENT_FORMAT;
+    // From the design guidelines, the platform info user agent header format is:
+    // <device_name> - <os_version>
+    private static final String PLATFORM_INFO_FORMAT = "%s - %s";
 
-    // TODO: Determine the guidelines for this format string
-    private static final String PLATFORM_INFO_FORMAT = "%s-%s";
+    // From the design guidelines, the application info user agent header format is:
+    // <application_name>:<application_version> -> <target_sdk_version>
+    private static final String APPLICATION_INFO_FORMAT = "%s:%s -> %s";
 
-    // TODO: Determine the guidelines for this format string
-    private static final String LIBRARY_INFO_FORMAT = "%s:%s (%s)";
-
-    // TODO: Determine the guidelines for this format string
-    private static final String APPLICATION_INFO_FORMAT = "%s:%s, %s";
-
-    // TODO: Determine the guidelines for this format string
+    // From the design guidelines, the user locale info user agent header format is:
+    // <user_language>_<user_region>
     private static final String USER_LOCALE_INFO_FORMAT = "%s_%s";
 
     private final String userAgent;
@@ -79,7 +77,7 @@ public class UserAgentInterceptor implements Interceptor {
      * @param sdkVersion    Version of the client library.
      */
     public UserAgentInterceptor(String sdkName, String sdkVersion) {
-        userAgent = String.format(USER_AGENT_FORMAT, sdkName, sdkVersion, getPlatformInfo(),
+        userAgent = String.format(USER_AGENT_FORMAT, sdkName, sdkVersion, getPlatformInfo(null),
             getApplicationInfo(null), getLocaleInfo(null));
     }
 
@@ -93,11 +91,11 @@ public class UserAgentInterceptor implements Interceptor {
      */
     public UserAgentInterceptor(String applicationId, String sdkName, String sdkVersion) {
         if (applicationId == null) {
-            userAgent = String.format(USER_AGENT_FORMAT, sdkName, sdkVersion, getPlatformInfo(),
+            userAgent = String.format(USER_AGENT_FORMAT, sdkName, sdkVersion, getPlatformInfo(null),
                 getApplicationInfo(null), getLocaleInfo(null));
         } else {
             userAgent = String.format(APPLICATION_ID_USER_AGENT_FORMAT, applicationId, sdkName, sdkVersion,
-                getPlatformInfo(), getApplicationInfo(null), getLocaleInfo(null));
+                getPlatformInfo(null), getApplicationInfo(null), getLocaleInfo(null));
         }
     }
 
@@ -111,13 +109,15 @@ public class UserAgentInterceptor implements Interceptor {
      * @param sdkVersion                     Version of the client library.
      */
     public UserAgentInterceptor(ApplicationInformationProvider applicationInformationProvider, LocaleInformationProvider localeInformationProvider,
-                                String applicationId, String sdkName, String sdkVersion) {
+                                PlatformInformationProvider platformInformationProvider, String applicationId,
+                                String sdkName, String sdkVersion) {
         if (applicationId == null) {
-            userAgent = String.format(USER_AGENT_FORMAT, sdkName, sdkVersion, getPlatformInfo(),
-                getApplicationInfo(applicationInformationProvider), getLocaleInfo(localeInformationProvider));
+            userAgent = String.format(USER_AGENT_FORMAT, sdkName, sdkVersion,
+                getPlatformInfo(platformInformationProvider), getApplicationInfo(applicationInformationProvider),
+                getLocaleInfo(localeInformationProvider));
         } else {
             userAgent = String.format(APPLICATION_ID_USER_AGENT_FORMAT, applicationId, sdkName, sdkVersion,
-                getPlatformInfo(), getApplicationInfo(applicationInformationProvider),
+                getPlatformInfo(platformInformationProvider), getApplicationInfo(applicationInformationProvider),
                 getLocaleInfo(localeInformationProvider));
         }
     }
@@ -152,16 +152,28 @@ public class UserAgentInterceptor implements Interceptor {
      *
      * @return String containing the device name (maker and model) and OS version.
      */
-    private static String getPlatformInfo() {
-        //TODO: Decouple calls to static methods and variables.
-        String deviceName = getDeviceName();
-        int osVersion = Build.VERSION.SDK_INT;
+    private static String getPlatformInfo(PlatformInformationProvider platformInformationProvider) {
+        String deviceName = "";
+        int osVersion = -1;
+
+        if (platformInformationProvider != null) {
+            String manufacturer = platformInformationProvider.getManufacturer();
+            String model = platformInformationProvider.getModel();
+
+            if (model.toLowerCase().startsWith(manufacturer.toLowerCase())) {
+                deviceName = capitalize(model);
+            } else {
+                deviceName = capitalize(manufacturer) + " " + model;
+            }
+
+            osVersion = platformInformationProvider.getTargetSdkVersion();
+        }
 
         return String.format(PLATFORM_INFO_FORMAT, deviceName, osVersion);
     }
 
-    /*
-    private static String getLibraryInfo() {
+    // TODO: Figure out how to pass the SDK info instead of using Azure Core library BuildConfig data.
+    /*private static String getLibraryInfo() {
         String libraryName = BuildConfig.LIBRARY_PACKAGE_NAME;
         String libraryVersionName = BuildConfig.VERSION_NAME;
         int libraryVersionCode = BuildConfig.VERSION_CODE;
@@ -205,23 +217,6 @@ public class UserAgentInterceptor implements Interceptor {
         }
 
         return String.format(USER_LOCALE_INFO_FORMAT, language, region);
-    }
-
-    /**
-     * Retrieves the device name.
-     *
-     * @return String containing the device's model and maker.
-     */
-    private static String getDeviceName() {
-        //TODO: Decouple calls to static methods and variables.
-        String manufacturer = Build.MANUFACTURER;
-        String model = Build.MODEL;
-
-        if (model.toLowerCase().startsWith(manufacturer.toLowerCase())) {
-            return capitalize(model);
-        } else {
-            return capitalize(manufacturer) + " " + model;
-        }
     }
 
     /**
