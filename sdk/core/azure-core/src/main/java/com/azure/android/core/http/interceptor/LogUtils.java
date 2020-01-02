@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import okhttp3.Headers;
+import okhttp3.HttpUrl;
 
 interface LogUtils {
     int MAX_BODY_LOG_SIZE = 1024 * 16;
@@ -70,36 +71,29 @@ interface LogUtils {
     /**
      * Generates the logging safe query parameters string.
      *
-     * @param queryString Query parameter string from the request URL.
+     * @param url Request URL to read the query parameters from.
      * @return A query parameter string redacted based on the configurations in this policy.
      */
-    static String getAllowedQueryString(String queryString, Set<String> allowedQueryParameterNames) {
-        if (CoreUtils.isNullOrEmpty(queryString)) {
+    static String getRedactedQueryString(HttpUrl url, Set<String> allowedQueryParameterNames) {
+        Set<String> names = url.queryParameterNames();
+
+        if (names.isEmpty()) {
             return "";
         }
 
-        StringBuilder queryStringBuilder = new StringBuilder();
-        String[] queryParams = queryString.split("&");
+        StringBuilder queryStringBuilder =  new StringBuilder();
 
-        for (String queryParam : queryParams) {
-            if (queryStringBuilder.length() > 0) {
-                queryStringBuilder.append("&");
-            }
-
-            String[] queryPair = queryParam.split("=", 2);
-
-            if (queryPair.length == 2) {
-                String queryName = queryPair[0];
-
-                if (allowedQueryParameterNames.contains(queryName.toLowerCase(Locale.ROOT))) {
-                    queryStringBuilder.append(queryParam);
-                } else {
-                    queryStringBuilder.append(queryPair[0]).append("=").append(REDACTED_PLACEHOLDER);
+        for (String name : names) {
+            if (allowedQueryParameterNames.contains(name.toLowerCase(Locale.ROOT))) {
+                for (String value : url.queryParameterValues(name)){
+                    queryStringBuilder.append(name).append("=").append(value).append("&");
                 }
             } else {
-                queryStringBuilder.append(queryParam);
+                queryStringBuilder.append(name).append("=").append(REDACTED_PLACEHOLDER).append("&");
             }
         }
+
+        queryStringBuilder.setLength(queryStringBuilder.length() - 1);
 
         return queryStringBuilder.toString();
     }

@@ -116,7 +116,7 @@ public class CurlLoggingInterceptor implements Interceptor {
                 toReplace.put('\n', "\\n");
                 toReplace.put('\"', "\\\"");
 
-                curlCommand.append(" --data '")
+                curlCommand.append(" --data $'")
                     .append(CoreUtils.replace(requestBodyString, toReplace))
                     .append("'");
 

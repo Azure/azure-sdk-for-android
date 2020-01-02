@@ -88,7 +88,7 @@ public final class LoggingInterceptor implements Interceptor {
         HttpUrl url = request.url();
 
         logger.info("--> [" + request.header(CLIENT_REQUEST_ID) + "]"); // Request ID
-        logger.info(request.method() + " " + url.encodedPath() + LogUtils.getAllowedQueryString(url.query(),
+        logger.info(request.method() + " " + url.encodedPath() + LogUtils.getRedactedQueryString(url,
             allowedQueryParameterNames)); // URL path + query
         logger.info("Host: " + url.scheme() + "://" + url.host()); // URL host
 
