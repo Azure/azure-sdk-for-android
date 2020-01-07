@@ -20,7 +20,12 @@ allprojects {
     }
 
     ext {
-        okHttpVersion = "4.2.2"
+        okHttpVersion = "3.13.1"
+        retrofitVersion = "2.7.0"
+        threeTenAbpVersion = "1.2.1"
+        jacksonDatabindVersion = "2.9.9"
+        jacksonDataFormatXmlVersion = "2.9.9"
+        staxApiVersion = "1.0-2"
     }
 }
 

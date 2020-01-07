@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context="com.anuchandy.learn.msal.MainActivity">
+    <Button android:id="@+id/listBlobs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="List Blobs"/>
+</LinearLayout>
+
+<!--<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    xmlns:tools="http://schemas.android.com/tools"-->
+<!--    android:id="@+id/drawer_layout"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    android:fitsSystemWindows="true"-->
+<!--    tools:openDrawer="start">-->
+
+<!--    <TextView-->
+<!--        android:text="Welcome, "-->
+<!--        android:textColor="#3f3f3f"-->
+<!--        android:textSize="50px"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginLeft="10dp"-->
+<!--        android:layout_marginTop="15dp"-->
+<!--        android:id="@+id/welcome"-->
+<!--        android:visibility="invisible"/>-->
+
+<!--    <Button-->
+<!--        android:id="@+id/callStorage"-->
+<!--        android:text="Call Storage and list items in firstcontainer"-->
+<!--        android:textColor="#FFFFFF"-->
+<!--        android:background="#00a1f1"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="200dp"-->
+<!--        android:textAllCaps="false" />-->
+
+<!--    <TextView-->
+<!--        android:text="Getting Storage Data..."-->
+<!--        android:textColor="#3f3f3f"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginLeft="5dp"-->
+<!--        android:id="@+id/graphData"-->
+<!--        android:visibility="invisible"/>-->
+<!--        android:visibility="invisible"/>-->
+
+<!--    <LinearLayout-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="0dip"-->
+<!--        android:layout_weight="1"-->
+<!--        android:gravity="center|bottom"-->
+<!--        android:orientation="vertical" >-->
+
+<!--        <Button-->
+<!--            android:text="Sign Out"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_marginBottom="15dp"-->
+<!--            android:textColor="#FFFFFF"-->
+<!--            android:background="#00a1f1"-->
+<!--            android:textAllCaps="false"-->
+<!--            android:id="@+id/clearCache"-->
+<!--            android:visibility="invisible" />-->
+<!--    </LinearLayout>-->
+
+<!--    &lt;!&ndash;    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"&ndash;&gt;-->
+<!--    &lt;!&ndash;        android:layout_width="match_parent"&ndash;&gt;-->
+<!--    &lt;!&ndash;        android:layout_height="match_parent"&ndash;&gt;-->
+<!--    &lt;!&ndash;        android:orientation="vertical"&ndash;&gt;-->
+<!--    &lt;!&ndash;        tools:context=".MainActivity">&ndash;&gt;-->
+
+
+<!--    &lt;!&ndash;        &ndash;&gt;-->
+<!--    &lt;!&ndash;    </LinearLayout>&ndash;&gt;-->
+<!--</androidx.drawerlayout.widget.DrawerLayout>-->
