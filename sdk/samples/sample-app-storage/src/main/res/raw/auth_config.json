@@ -1,0 +1,14 @@
+{
+    "client_id" : "PUT_CLIENT_ID_HERE",
+    "authorization_user_agent" : "DEFAULT",
+    "redirect_uri" : "PUT_REDIRECT_URI_HERE",
+    "authorities" : [
+      {
+        "type": "AAD",
+        "audience": {
+         "type": "AzureADMyOrg",
+         "tenant_id": "PUT_TENANT_ID_HERE"
+        }
+      }
+    ]
+  }

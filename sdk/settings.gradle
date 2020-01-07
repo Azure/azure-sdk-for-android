@@ -1,1 +1,2 @@
-include ':core:azure-core'
+include ':core:azure-core', ':storage:azure-storage-blob', ':samples:sample-app-storage'
+rootProject.name='azure-android'

@@ -1,10 +1,13 @@
-apply plugin: 'com.android.library'
+apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
 
+
+
     defaultConfig {
+        applicationId "com.anuchandy.learn.msal"
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
@@ -23,17 +26,17 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
-        }
-    }
-
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'com.google.android.material:material:1.0.0'
+    testImplementation 'junit:junit:4.12'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
+    implementation 'com.microsoft.identity.client:msal:0.3+'
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
@@ -41,4 +44,6 @@ dependencies {
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonDataFormatXmlVersion"
     // https://stackoverflow.com/a/47371517/1473510
     implementation "javax.xml.stream:stax-api:$staxApiVersion"
+    implementation project(path: ':core:azure-core')
+    implementation project(path: ':storage:azure-storage-blob')
 }
