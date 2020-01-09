@@ -24,18 +24,11 @@ android {
         }
     }
 
-    testOptions {
-        unitTests {
-            includeAndroidResources = true
-        }
-    }
-
 }
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation project(path: ":core:azure-core")
     implementation "androidx.annotation:annotation:$annotationsVersion"
-    implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
-    implementation "org.slf4j:slf4j-android:$slf4jAndroidVersion"
 }
