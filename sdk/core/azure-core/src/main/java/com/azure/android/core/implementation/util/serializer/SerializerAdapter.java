@@ -53,5 +53,4 @@ public interface SerializerAdapter {
     static SerializerAdapter createDefault() {
         return null;
     }
-
 }

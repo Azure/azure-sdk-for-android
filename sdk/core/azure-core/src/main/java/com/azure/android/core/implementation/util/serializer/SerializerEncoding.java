@@ -3,6 +3,8 @@
 
 package com.azure.android.core.implementation.util.serializer;
 
+import okhttp3.Headers;
+
 /**
  * Supported serialization encoding formats.
  */
@@ -16,4 +18,22 @@ public enum SerializerEncoding {
      * Extensible Markup Language.
      */
     XML;
+
+    /**
+     * Determines the serializer encoding to use based on the Content-Type header.
+     *
+     * @param headers the headers to check the encoding for
+     * @return the serializer encoding to use for the body
+     */
+    public static SerializerEncoding fromHeaders(Headers headers) {
+        String mimeContentType = headers.get("Content-Type");
+        if (mimeContentType != null) {
+            String[] parts = mimeContentType.split(";");
+            if (parts[0].equalsIgnoreCase("application/xml")
+                    || parts[0].equalsIgnoreCase("text/xml")) {
+                return XML;
+            }
+        }
+        return JSON;
+    }
 }
