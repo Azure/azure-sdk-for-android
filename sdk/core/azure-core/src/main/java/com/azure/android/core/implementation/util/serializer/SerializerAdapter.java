@@ -48,9 +48,9 @@ public interface SerializerAdapter {
     <U> U deserialize(Headers headers, Type type) throws IOException;
 
     /**
-     * @return create and return default serializer;
+     * @return the default serializer
      */
     static SerializerAdapter createDefault() {
-        return null;
+        return JacksonAdapter.createDefaultSerializerAdapter();
     }
 }
