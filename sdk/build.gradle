@@ -26,6 +26,7 @@ allprojects {
     ext {
         annotationsVersion = "1.1.0"
         okHttpVersion = "4.2.2"
+        threeTenAbpVersion = "1.2.1"
     }
 }
 
