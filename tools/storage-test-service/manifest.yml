@@ -1,0 +1,8 @@
+---
+applications:
+- name: az-mobile-storage-service
+  memory: 256M
+  instances: 1
+  host: rest-service
+  domain: az.mobile.io
+  path: build/libs/az-mobile-storage-service-0.1.0.jar
