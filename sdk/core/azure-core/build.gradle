@@ -42,4 +42,5 @@ dependencies {
     // https://stackoverflow.com/a/47371517/1473510
     implementation "javax.xml.stream:stax-api:$staxApiVersion"
     implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    implementation 'androidx.paging:paging-runtime:2.1.0'
 }
