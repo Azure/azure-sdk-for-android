@@ -1,7 +1,8 @@
 package com.azure.android.storage.common.interceptor;
 
-import com.azure.android.core.util.logging.ClientLogger;
+import com.azure.android.core.util.logging.AndroidClientLogger;
 import com.azure.android.core.util.CoreUtils;
+import com.azure.android.core.util.logging.ClientLogger;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -18,7 +19,7 @@ import okhttp3.Response;
  * {@code Response}.
  */
 public class ResponseHeadersValidationInterceptor implements Interceptor {
-    private final ClientLogger logger = new ClientLogger(ResponseHeadersValidationInterceptor.class);
+    private final ClientLogger logger;
 
     private static final String CLIENT_ID_HEADER = "x-ms-client-id";
     private static final String ENCRYPTION_KEY_SHA256_HEADER = "x-ms-encryption-key-sha256";
@@ -29,16 +30,33 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
      * Constructor that adds two mandatory headers used by Storage.
      */
     public ResponseHeadersValidationInterceptor() {
+        this(new AndroidClientLogger(ResponseHeadersValidationInterceptor.class));
+    }
+
+    /**
+     * Constructor that adds two mandatory headers used by Storage.
+     */
+    public ResponseHeadersValidationInterceptor(ClientLogger clientLogger) {
         headerNames.add(CLIENT_ID_HEADER);
         headerNames.add(ENCRYPTION_KEY_SHA256_HEADER);
+        logger = clientLogger;
     }
 
     /**
      * Constructor that accepts a list of header names to validate. Adds two mandatory Storage header names as well.
      */
     public ResponseHeadersValidationInterceptor(Collection<String> headerNames) {
-        this();
+        this(headerNames, new AndroidClientLogger(ResponseHeadersValidationInterceptor.class));
+    }
+
+    /**
+     * Constructor that accepts a list of header names to validate. Adds two mandatory Storage header names as well.
+     */
+    public ResponseHeadersValidationInterceptor(Collection<String> headerNames, ClientLogger clientLogger) {
+        headerNames.add(CLIENT_ID_HEADER);
+        headerNames.add(ENCRYPTION_KEY_SHA256_HEADER);
         this.headerNames.addAll(headerNames);
+        logger = clientLogger;
     }
 
     @NotNull
@@ -52,10 +70,14 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
             String requestHeaderValue = request.header(headerName);
 
             if (CoreUtils.isNullOrEmpty(responseHeaderValue) || !responseHeaderValue.equals(requestHeaderValue)) {
-                throw logger.logExceptionAsError(new RuntimeException(String.format(
+                RuntimeException exception = new RuntimeException(String.format(
                     "Unexpected header value. Expected response to echo '%s: %s'. Got value '%s'.",
                     headerName, requestHeaderValue, responseHeaderValue
-                )));
+                ));
+
+                logger.error("Exception found.", exception);
+
+                throw exception;
             }
         }
 

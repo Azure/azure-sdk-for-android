@@ -4,6 +4,7 @@
 package com.azure.android.core.http.interceptor;
 
 import com.azure.android.core.util.CoreUtils;
+import com.azure.android.core.util.logging.AndroidClientLogger;
 import com.azure.android.core.util.logging.ClientLogger;
 
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +34,11 @@ public class CurlLoggingInterceptor implements Interceptor {
     private boolean compressed;
 
     public CurlLoggingInterceptor() {
-        logger = new ClientLogger(CurlLoggingInterceptor.class);
+        this(new AndroidClientLogger(CurlLoggingInterceptor.class));
+    }
+
+    public CurlLoggingInterceptor(ClientLogger clientLogger) {
+        logger = clientLogger;
         curlCommand = new StringBuilder("curl");
         compressed = false;
     }
@@ -62,9 +67,9 @@ public class CurlLoggingInterceptor implements Interceptor {
             .append("\"");
 
         // TODO: Add log level guard for headers and body
-        logger.verbose("╭--- cURL " + request.url());
-        logger.verbose(curlCommand.toString());
-        logger.verbose("╰--- (copy and paste the above line to a terminal)");
+        logger.debug("╭--- cURL " + request.url());
+        logger.debug(curlCommand.toString());
+        logger.debug("╰--- (copy and paste the above line to a terminal)");
 
         return chain.proceed(chain.request());
     }
