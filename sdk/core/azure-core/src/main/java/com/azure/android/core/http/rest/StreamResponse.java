@@ -15,7 +15,7 @@ public class StreamResponse extends Response<Reader> implements Closeable {
     /**
      * Creates StreamResponse
      *
-     * @param inner the retrofit response backing this stream response
+     * @param inner the getRetrofit response backing this stream response
      */
     public StreamResponse(retrofit2.Response<ResponseBody> inner) {
         super(inner.raw().request(), inner.code(), inner.headers(), inner.body().charStream());
