@@ -46,4 +46,13 @@ dependencies {
     implementation "javax.xml.stream:stax-api:$staxApiVersion"
     implementation project(path: ':core:azure-core')
     implementation project(path: ':storage:azure-storage-blob')
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
+    implementation 'androidx.paging:paging-runtime:2.1.0'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    //
+    implementation "com.google.dagger:dagger:2.20"
+    implementation 'com.google.dagger:dagger-android:2.20'
+    implementation 'com.google.dagger:dagger-android-support:2.20'
+    annotationProcessor 'com.google.dagger:dagger-android-processor:2.20'
+    annotationProcessor 'com.google.dagger:dagger-compiler:2.20'
 }
