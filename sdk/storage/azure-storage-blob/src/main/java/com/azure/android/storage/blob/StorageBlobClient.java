@@ -4,6 +4,8 @@ import com.azure.android.core.http.interceptors.AddDateInterceptor;
 import com.azure.android.core.http.rest.RestAPIClient;
 import com.azure.android.core.http.rest.RestCallBack;
 import com.azure.android.core.implementation.util.serializer.SerializerEncoding;
+import com.azure.android.core.util.paging.PaginationDescriptionRepository;
+import com.azure.android.core.util.paging.PaginationOptions;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
@@ -29,6 +31,10 @@ public class StorageBlobClient {
 
     public String getBlobUrl() {
         return this.restAPIClient.getBaseUrl();
+    }
+
+    public PaginationDescriptionRepository<BlobItem, String> getBlobsPaginationRepository(PaginationOptions options) {
+        return new ContainerBlobsPaginationRepository(this, options);
     }
 
     // TODO: [Jonathan feedback] use IterableStream
