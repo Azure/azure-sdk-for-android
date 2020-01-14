@@ -41,4 +41,5 @@ dependencies {
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonDataFormatXmlVersion"
     // https://stackoverflow.com/a/47371517/1473510
     implementation "javax.xml.stream:stax-api:$staxApiVersion"
+    implementation 'androidx.lifecycle:lifecycle-extensions:2.1.0'
 }
