@@ -1,4 +1,4 @@
-package com.anuchandy.learn.msal;
+package com.anuchandy.learn.msal.deprecated;
 
 import android.app.Activity;
 import android.util.Log;

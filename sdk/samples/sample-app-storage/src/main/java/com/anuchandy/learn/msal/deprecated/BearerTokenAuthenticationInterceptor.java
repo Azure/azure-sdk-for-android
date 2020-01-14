@@ -1,4 +1,4 @@
-package com.anuchandy.learn.msal;
+package com.anuchandy.learn.msal.deprecated;
 
 import com.azure.android.core.credential.TokenCredential;
 import com.azure.android.core.credential.TokenRequestContext;

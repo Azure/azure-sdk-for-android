@@ -1,7 +1,8 @@
-package com.anuchandy.learn.msal;
+package com.anuchandy.learn.msal.deprecated;
 
 import android.os.Bundle;
 
+import com.anuchandy.learn.msal.R;
 import com.azure.android.core.http.interceptors.AddDateInterceptor;
 import com.azure.android.core.http.rest.RestCallBack;
 import com.azure.android.storage.blob.StorageClient;
