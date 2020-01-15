@@ -105,7 +105,6 @@ public final class LoggingInterceptor implements Interceptor {
             allowedQueryParameterNames)); // URL path + query
         logger.info("Host: " + url.scheme() + "://" + url.host()); // URL host
 
-        // TODO: Add log level guard for headers and body
         logHeaders(request.headers());
         String bodyEvaluation = LogUtils.evaluateBody(request.headers());
         RequestBody requestBody = request.body();
@@ -147,7 +146,6 @@ public final class LoggingInterceptor implements Interceptor {
             logger.warning(response.code() + " " + response.message());
         }
 
-        // TODO: Add log level guard for headers and body
         logHeaders(response.headers());
         String bodyEvaluation = LogUtils.evaluateBody(response.headers());
         ResponseBody responseBody = response.body();

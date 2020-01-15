@@ -27,14 +27,14 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
     private final Collection<String> headerNames = new ArrayList<>();
 
     /**
-     * Constructor that adds two mandatory headers used by Storage.
+     * Constructor that adds two mandatory headers used by Storage and uses the default {@link AndroidClientLogger}.
      */
     public ResponseHeadersValidationInterceptor() {
         this(new AndroidClientLogger(ResponseHeadersValidationInterceptor.class));
     }
 
     /**
-     * Constructor that adds two mandatory headers used by Storage.
+     * Constructor that adds two mandatory headers used by Storage and uses a provided {@link ClientLogger}.
      */
     public ResponseHeadersValidationInterceptor(ClientLogger clientLogger) {
         headerNames.add(CLIENT_ID_HEADER);
@@ -44,13 +44,15 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
 
     /**
      * Constructor that accepts a list of header names to validate. Adds two mandatory Storage header names as well.
+     * and uses the default {@link AndroidClientLogger}.
      */
     public ResponseHeadersValidationInterceptor(Collection<String> headerNames) {
         this(headerNames, new AndroidClientLogger(ResponseHeadersValidationInterceptor.class));
     }
 
     /**
-     * Constructor that accepts a list of header names to validate. Adds two mandatory Storage header names as well.
+     * Constructor that accepts a list of header names to validate. Adds two mandatory Storage header names as well
+     * and uses a provided {@link ClientLogger}.
      */
     public ResponseHeadersValidationInterceptor(Collection<String> headerNames, ClientLogger clientLogger) {
         headerNames.add(CLIENT_ID_HEADER);
