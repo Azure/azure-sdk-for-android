@@ -4,7 +4,6 @@
 package com.azure.android.core.http.interceptor;
 
 import com.azure.android.core.util.CoreUtils;
-import com.azure.android.core.util.logging.AndroidClientLogger;
 import com.azure.android.core.util.logging.ClientLogger;
 
 import org.jetbrains.annotations.NotNull;
@@ -34,7 +33,7 @@ public class CurlLoggingInterceptor implements Interceptor {
     private boolean compressed;
 
     public CurlLoggingInterceptor() {
-        this(new AndroidClientLogger(CurlLoggingInterceptor.class));
+        this(ClientLogger.getDefault(CurlLoggingInterceptor.class));
     }
 
     public CurlLoggingInterceptor(ClientLogger clientLogger) {

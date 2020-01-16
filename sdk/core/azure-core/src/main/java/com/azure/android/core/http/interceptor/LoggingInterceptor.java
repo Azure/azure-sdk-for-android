@@ -5,7 +5,6 @@ package com.azure.android.core.http.interceptor;
 
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.util.logging.AndroidClientLogger;
 import com.azure.android.core.util.logging.ClientLogger;
 
 import java.io.IOException;
@@ -40,13 +39,12 @@ public final class LoggingInterceptor implements Interceptor {
     private final Set<String> allowedQueryParameterNames;
 
     /**
-     * Creates an LoggingPolicy with the given log configurations and a default {@link ClientLogger} in the form of an
-     * {@link AndroidClientLogger}.
+     * Creates an LoggingPolicy with the given log configurations and a default {@link ClientLogger}.
      *
      * @param logOptions The HTTP logging configurations.
      */
     public LoggingInterceptor(LogOptions logOptions) {
-        this(logOptions, new AndroidClientLogger(LoggingInterceptor.class));
+        this(logOptions, ClientLogger.getDefault(LoggingInterceptor.class));
     }
 
     /**

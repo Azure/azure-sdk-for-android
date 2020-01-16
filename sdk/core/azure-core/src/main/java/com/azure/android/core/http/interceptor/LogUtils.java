@@ -19,7 +19,7 @@ interface LogUtils {
      * Attempts to retrieve and parse the Content-Length header into a numeric representation.
      *
      * @param headers HTTP headers that are checked for containing Content-Length.
-     * @return Long value indicating the content length of the Request or Response
+     * @return The content length of the Request or Response.
      */
     static long getContentLength(Headers headers) {
         long contentLength = 0;

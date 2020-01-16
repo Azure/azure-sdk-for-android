@@ -3,10 +3,6 @@
 
 package com.azure.android.core.http.interceptor;
 
-import com.azure.android.core.util.CoreUtils;
-import com.azure.android.core.util.logging.AndroidClientLogger;
-import com.azure.android.core.util.logging.ClientLogger;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -17,12 +13,9 @@ import java.util.Set;
  * The log configurations for HTTP messages.
  */
 public class LogOptions {
-    private String applicationId;
     private Set<String> allowedHeaderNames;
     private Set<String> allowedQueryParamNames;
-    private final ClientLogger logger;
 
-    private static final int MAX_APPLICATION_ID_LENGTH = 24;
     private static final List<String> DEFAULT_HEADERS_WHITELIST = Arrays.asList(
         "x-ms-client-request-id",
         "x-ms-return-client-request-id",
@@ -49,20 +42,11 @@ public class LogOptions {
     );
 
     /**
-     * Creates a new instance that uses a default {@link ClientLogger} in the form of an {@link AndroidClientLogger}.
+     * Creates a new instance which includes the default headers to whitelist.
      */
     public LogOptions() {
-        this(new AndroidClientLogger(LogOptions.class));
-    }
-
-    /**
-     * Creates a new instance that uses the given {@link ClientLogger} implementation.
-     */
-    public LogOptions(ClientLogger clientLogger) {
         allowedHeaderNames = new HashSet<>(DEFAULT_HEADERS_WHITELIST);
         allowedQueryParamNames = new HashSet<>();
-        applicationId = null;
-        logger = clientLogger;
     }
 
     /**
@@ -138,46 +122,6 @@ public class LogOptions {
      */
     public LogOptions addAllowedQueryParamName(final String allowedQueryParamName) {
         this.allowedQueryParamNames.add(allowedQueryParamName);
-
-        return this;
-    }
-
-    /**
-     * Gets the application specific id.
-     *
-     * @return The application specific id.
-     */
-    public String getApplicationId() {
-        return applicationId;
-    }
-
-    /**
-     * Sets the custom application specific id supplied by the user of the client library.
-     *
-     * @param applicationId The user specified application id.
-     * @return The updated HttpLogOptions object.
-     */
-    public LogOptions setApplicationId(final String applicationId) {
-        if (!CoreUtils.isNullOrEmpty(applicationId)) {
-            RuntimeException exception;
-
-            if (applicationId.length() > MAX_APPLICATION_ID_LENGTH) {
-                exception = new IllegalArgumentException("'applicationId' length cannot be greater than "
-                    + MAX_APPLICATION_ID_LENGTH);
-
-                logger.error("Error found when setting Application ID", exception);
-
-                throw exception;
-            } else if (applicationId.contains(" ")) {
-                exception = new IllegalArgumentException("'applicationId' must not contain a space.");
-
-                logger.error("Error found when setting Application ID", exception);
-
-                throw exception;
-            } else {
-                this.applicationId = applicationId;
-            }
-        }
 
         return this;
     }

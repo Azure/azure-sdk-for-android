@@ -5,19 +5,11 @@ package com.azure.android.core.util.logging;
 
 import android.util.Log;
 
-import androidx.annotation.IntDef;
-
-import org.slf4j.LoggerFactory;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
 /**
- * This is a fluent logger helper class that implements the {@link ClientLogger} interface.
+ * This is a fluent logger helper class that implements the {@link ClientLogger} interface and uses the Android
+ * {@link Log} class and its methods.
  *
- * <p>This logger logs formattable messages that use {@code {}} as the placeholder. When a {@link Throwable throwable}
- * is the last argument of the format varargs and the logger is enabled for
- * {@link AndroidClientLogger#debug(String) debug}, the stack trace for the throwable is logged.</p>
+ * <p>The default log level is INFO</p>
  *
  * <p><strong>Log level hierarchy</strong></p>
  * <ol>
@@ -28,43 +20,10 @@ import java.lang.annotation.RetentionPolicy;
  * </ol>
  */
 public class AndroidClientLogger implements ClientLogger {
-    /**
-     * This interface represents the logging levels used in Azure SDKs.
-     */
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({DEBUG, INFO, WARNING, ERROR, NOT_SET})
-    public @interface LogLevel {}
-
-    /**
-     * Indicates that log level is at the debug level.
-     */
-    public static final int DEBUG = 1;
-
-    /**
-     * Indicates that log level is at the informational level.
-     */
-    public static final int INFO = 2;
-
-    /**
-     * Indicates that log level is at the warning level.
-     */
-    public static final int WARNING = 3;
-
-    /**
-     * Indicates that log level is at the error level.
-     */
-    public static final int ERROR = 4;
-
-    /**
-     * Indicates that no log level is set.
-     */
-    public static final int NOT_SET = 5;
-
     private final String tag;
-    private int logLevel;
 
     /**
-     * Retrieves a logger for the passed class using the {@link LoggerFactory}.
+     * Retrieves a logger for the name of the given class with a .
      *
      * @param clazz Class creating the logger.
      */
@@ -73,13 +32,17 @@ public class AndroidClientLogger implements ClientLogger {
     }
 
     /**
-     * Retrieves a logger for the passed class name using the {@link LoggerFactory}.
+     * Retrieves a logger for the given tag .
      *
      * @param tag Class name creating the logger.
      */
     public AndroidClientLogger(String tag) {
         this.tag = tag;
+        logLevel = LOG_LEVEL_INFO;
     }
+
+    @LogLevel
+    private int logLevel;
 
     /**
      * Returns this logger's log level.
@@ -99,65 +62,50 @@ public class AndroidClientLogger implements ClientLogger {
     }
 
     public void debug(String message) {
-        if (canLogAtLevel(DEBUG)) {
+        if (LOG_LEVEL_DEBUG >= this.logLevel) {
             Log.d(tag, message);
         }
     }
 
     public void debug(String message, Throwable throwable) {
-        if (canLogAtLevel(DEBUG)) {
+        if (LOG_LEVEL_DEBUG >= this.logLevel) {
             Log.d(tag, message, throwable);
         }
     }
 
     public void info(String message) {
-        if (canLogAtLevel(INFO)) {
+        if (LOG_LEVEL_INFO >= this.logLevel) {
             Log.i(tag, message);
         }
     }
 
     public void info(String message, Throwable throwable) {
-        if (canLogAtLevel(INFO)) {
+        if (LOG_LEVEL_INFO >= this.logLevel) {
             Log.i(tag, message, throwable);
         }
     }
 
     public void warning(String message) {
-        if (canLogAtLevel(WARNING)) {
+        if (LOG_LEVEL_WARNING>= this.logLevel) {
             Log.w(tag, message);
         }
     }
 
     public void warning(String message, Throwable throwable) {
-        if (canLogAtLevel(WARNING)) {
+        if (LOG_LEVEL_WARNING>= this.logLevel) {
             Log.w(tag, message, throwable);
         }
     }
 
     public void error(String message) {
-        if (canLogAtLevel(ERROR)) {
+        if (LOG_LEVEL_ERROR >= this.logLevel) {
             Log.e(tag, message);
         }
     }
 
     public void error(String message, Throwable throwable) {
-        if (canLogAtLevel(ERROR)) {
+        if (LOG_LEVEL_ERROR >= this.logLevel) {
             Log.e(tag, message, throwable);
         }
-    }
-
-    /**
-     * Determines if the logger supports logging at the given log level.
-     *
-     * @param logLevel Logging level to validate.
-     * @return Flag indicating if the environment and logger are configured to support logging at the given log level.
-     */
-    private boolean canLogAtLevel(int logLevel) {
-        // Do not log if logLevel is null or not set.
-        if (logLevel == NOT_SET) {
-            return false;
-        }
-
-        return (logLevel >= this.logLevel);
     }
 }

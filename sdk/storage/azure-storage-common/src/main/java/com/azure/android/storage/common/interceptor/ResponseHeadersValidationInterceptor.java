@@ -1,6 +1,6 @@
 package com.azure.android.storage.common.interceptor;
 
-import com.azure.android.core.util.logging.AndroidClientLogger;
+import com.azure.android.core.exception.HttpResponseException;
 import com.azure.android.core.util.CoreUtils;
 import com.azure.android.core.util.logging.ClientLogger;
 
@@ -27,10 +27,10 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
     private final Collection<String> headerNames = new ArrayList<>();
 
     /**
-     * Constructor that adds two mandatory headers used by Storage and uses the default {@link AndroidClientLogger}.
+     * Constructor that adds two mandatory headers used by Storage and uses a default {@link ClientLogger}.
      */
     public ResponseHeadersValidationInterceptor() {
-        this(new AndroidClientLogger(ResponseHeadersValidationInterceptor.class));
+        this(ClientLogger.getDefault(ResponseHeadersValidationInterceptor.class));
     }
 
     /**
@@ -44,10 +44,10 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
 
     /**
      * Constructor that accepts a list of header names to validate. Adds two mandatory Storage header names as well.
-     * and uses the default {@link AndroidClientLogger}.
+     * and uses a default {@link ClientLogger}.
      */
     public ResponseHeadersValidationInterceptor(Collection<String> headerNames) {
-        this(headerNames, new AndroidClientLogger(ResponseHeadersValidationInterceptor.class));
+        this(headerNames, ClientLogger.getDefault(ResponseHeadersValidationInterceptor.class));
     }
 
     /**
@@ -72,14 +72,13 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
             String requestHeaderValue = request.header(headerName);
 
             if (CoreUtils.isNullOrEmpty(responseHeaderValue) || !responseHeaderValue.equals(requestHeaderValue)) {
-                RuntimeException exception = new RuntimeException(String.format(
+                String errorMessage = String.format(
                     "Unexpected header value. Expected response to echo '%s: %s'. Got value '%s'.",
-                    headerName, requestHeaderValue, responseHeaderValue
-                ));
+                    headerName, requestHeaderValue, responseHeaderValue);
 
-                logger.error("Exception found.", exception);
+                logger.error(errorMessage);
 
-                throw exception;
+                throw new HttpResponseException(errorMessage, response);
             }
         }
 
