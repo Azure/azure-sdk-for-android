@@ -14,7 +14,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import kotlin.Pair;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
@@ -172,14 +171,13 @@ public final class LoggingInterceptor implements Interceptor {
      * @param headers HTTP headers on the request or response.
      */
     private void logHeaders(Headers headers) {
-        for (Pair<? extends String, ? extends String> header : headers) {
-            String headerName = header.getFirst();
-            String headerValue = header.getSecond();
-
+        int size = headers.size();
+        for (int i = 0; i < size; i++) {
+            String headerName = headers.name(i);
+            String headerValue = headers.value(i);
             if (!allowedHeaderNames.contains(headerName.toLowerCase(Locale.ROOT))) {
                 headerValue = LogUtils.REDACTED_PLACEHOLDER;
             }
-
             logger.verbose(headerName + ": " + headerValue);
         }
     }

@@ -1,9 +1,9 @@
 package com.azure.android.storage.common.interceptor;
 
+import androidx.annotation.NonNull;
+
 import com.azure.android.core.util.logging.ClientLogger;
 import com.azure.android.core.util.CoreUtils;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,9 +41,9 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
         this.headerNames.addAll(headerNames);
     }
 
-    @NotNull
+    @NonNull
     @Override
-    public Response intercept(@NotNull Chain chain) throws IOException {
+    public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
         Response response = chain.proceed(request);
 
