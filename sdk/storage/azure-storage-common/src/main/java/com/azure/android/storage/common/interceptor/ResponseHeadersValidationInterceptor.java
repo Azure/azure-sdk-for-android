@@ -2,7 +2,7 @@ package com.azure.android.storage.common.interceptor;
 
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.exception.HttpResponseException;
+import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.util.CoreUtils;
 import com.azure.android.core.util.logging.ClientLogger;
 

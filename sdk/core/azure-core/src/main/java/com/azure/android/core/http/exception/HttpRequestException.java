@@ -1,7 +1,9 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.exception;
+package com.azure.android.core.http.exception;
+
+import com.azure.android.core.exception.AzureException;
 
 import okhttp3.Request;
 
