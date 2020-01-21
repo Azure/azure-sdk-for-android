@@ -4,23 +4,23 @@
 package com.azure.android.core.implementation.util.serializer;
 
 /**
- * An exception thrown while parsing an invalid input during serialization or deserialization.
+ * Exception thrown while parsing an invalid input during serialization or deserialization.
  */
 public class MalformedValueException extends RuntimeException {
     /**
-     * Create a MalformedValueException instance.
+     * Create a {@link MalformedValueException} instance.
      *
-     * @param message the exception message
+     * @param message The exception message.
      */
     public MalformedValueException(String message) {
         super(message);
     }
 
     /**
-     * Create a MalformedValueException instance.
+     * Create a {@link MalformedValueException} instance.
      *
-     * @param message the exception message
-     * @param cause the actual cause
+     * @param message The exception message.
+     * @param cause   The actual cause.
      */
     public MalformedValueException(String message, Throwable cause) {
         super(message, cause);

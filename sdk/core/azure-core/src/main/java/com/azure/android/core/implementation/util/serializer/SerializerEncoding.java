@@ -22,18 +22,21 @@ public enum SerializerEncoding {
     /**
      * Determines the serializer encoding to use based on the Content-Type header.
      *
-     * @param headers the headers to check the encoding for
-     * @return the serializer encoding to use for the body
+     * @param headers The headers to check the encoding for.
+     * @return The serializer encoding to use for the body.
      */
     public static SerializerEncoding fromHeaders(Headers headers) {
         String mimeContentType = headers.get("Content-Type");
+
         if (mimeContentType != null) {
             String[] parts = mimeContentType.split(";");
+
             if (parts[0].equalsIgnoreCase("application/xml")
-                    || parts[0].equalsIgnoreCase("text/xml")) {
+                || parts[0].equalsIgnoreCase("text/xml")) {
                 return XML;
             }
         }
+
         return JSON;
     }
 }

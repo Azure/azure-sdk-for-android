@@ -9,46 +9,46 @@ import java.lang.reflect.Type;
 import okhttp3.Headers;
 
 /**
- * An interface defining the behaviors of a serializer.
+ * Interface that defines the behaviors of a serializer.
  */
 public interface SerializerAdapter {
     /**
      * Serializes an object into a string.
      *
-     * @param object the object to serialize
-     * @param encoding the encoding to use for serialization
-     * @return the serialized string. Null if the object to serialize is null
-     * @throws IOException exception from serialization
+     * @param object   The object to serialize.
+     * @param encoding The encoding to use for serialization.
+     * @return The serialized string. {@code null} if the object to serialize is {@code null}.
+     * @throws IOException exception from serialization.
      */
     String serialize(Object object, SerializerEncoding encoding) throws IOException;
 
     /**
      * Deserializes a string into a {@code U} object.
      *
-     * @param value the string value to deserialize
-     * @param <U> the type of the deserialized object
-     * @param type the type to deserialize
-     * @param encoding the encoding used in the serialized value
-     * @return the deserialized object
-     * @throws IOException exception from deserialization
+     * @param value    The string value to deserialize.
+     * @param <U>      The type of the deserialized object.
+     * @param type     The type to deserialize.
+     * @param encoding The encoding used in the serialized value.
+     * @return The deserialized object.
+     * @throws IOException exception from deserialization.
      */
     <U> U deserialize(String value, Type type, SerializerEncoding encoding) throws IOException;
 
     /**
-     * Deserialize the provided headers returned from a REST API to an entity instance declared as
-     * the model to hold 'Matching' headers.
+     * Deserializes the provided headers returned from a REST API to an entity instance declared as the model to hold
+     * 'Matching' headers.
      *
-     * @param headers the REST API returned headers
-     * @param <U> the type of the deserialized object
-     * @param type the type to deserialize
-     * @return instance of header entity type created based on provided {@code headers}, if header
-     * entity model does not exists then return null
-     * @throws IOException If an I/O error occurs
+     * @param headers The headers returned by the REST API.
+     * @param <U>     The type of the deserialized object.
+     * @param type    The type to deserialize.
+     * @return Instance of a header entity type created based on the provided {@code headers}, if the header entity
+     * model does not exists then return {@code null}.
+     * @throws IOException If an I/O error occurs.
      */
     <U> U deserialize(Headers headers, Type type) throws IOException;
 
     /**
-     * @return the default serializer
+     * @return The default serializer
      */
     static SerializerAdapter createDefault() {
         return JacksonAdapter.createDefaultSerializerAdapter();

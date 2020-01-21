@@ -49,17 +49,17 @@ public class UserAgentInterceptor implements Interceptor {
     private final String userAgent;
 
     /**
-     * Creates a {@link UserAgentInterceptor} with a default user agent string.
+     * Creates a {@link UserAgentInterceptor} with a default value for the User-Agent header.
      */
     public UserAgentInterceptor() {
         this(null);
     }
 
     /**
-     * Creates a UserAgentInterceptor with {@code userAgent} as the header value. If {@code userAgent} is {@code null},
-     * then the default user agent value is used.
+     * Creates a {@link UserAgentInterceptor} with {@code userAgent} as the header value. If {@code userAgent} is {@code
+     * null}, then the default user agent value is used.
      *
-     * @param userAgent The user agent string to add to request headers.
+     * @param userAgent The user agent string to use as or prepend to the User-Agent header.
      */
     public UserAgentInterceptor(String userAgent) {
         if (userAgent != null) {
@@ -70,20 +70,25 @@ public class UserAgentInterceptor implements Interceptor {
     }
 
     /**
-     * Creates a UserAgentInterceptor with the {@code sdkName} and {@code sdkVersion} in the User-Agent header value.
-     * <p>
+     * Creates a {@link UserAgentInterceptor} with the {@code sdkName} and {@code sdkVersion} in the User-Agent
+     * header value.
      *
-     * @param sdkName       Name of the client library.
-     * @param sdkVersion    Version of the client library.
+     * @param sdkName    Name of the client library.
+     * @param sdkVersion Version of the client library.
      */
     public UserAgentInterceptor(String sdkName, String sdkVersion) {
-        userAgent = String.format(USER_AGENT_FORMAT, sdkName, sdkVersion, getPlatformInfo(null),
-            getApplicationInfo(null), getLocaleInfo(null));
+        userAgent = String.format(USER_AGENT_FORMAT,
+            sdkName,
+            sdkVersion,
+            getPlatformInfo(null),
+            getApplicationInfo(null),
+            getLocaleInfo(null));
     }
 
 
     /**
-     * Creates a UserAgentInterceptor with the {@code sdkName} and {@code sdkVersion} in the User-Agent header value.
+     * Creates a {@link UserAgentInterceptor} with the {@code sdkName} and {@code sdkVersion} in the User-Agent
+     * header value.
      *
      * @param applicationId User specified application ID.
      * @param sdkName       Name of the client library.
@@ -91,16 +96,28 @@ public class UserAgentInterceptor implements Interceptor {
      */
     public UserAgentInterceptor(String applicationId, String sdkName, String sdkVersion) {
         if (applicationId == null) {
-            userAgent = String.format(USER_AGENT_FORMAT, sdkName, sdkVersion, getPlatformInfo(null),
-                getApplicationInfo(null), getLocaleInfo(null));
+            userAgent = String.format(
+                USER_AGENT_FORMAT,
+                sdkName,
+                sdkVersion,
+                getPlatformInfo(null),
+                getApplicationInfo(null),
+                getLocaleInfo(null));
         } else {
-            userAgent = String.format(APPLICATION_ID_USER_AGENT_FORMAT, applicationId, sdkName, sdkVersion,
-                getPlatformInfo(null), getApplicationInfo(null), getLocaleInfo(null));
+            userAgent = String.format(
+                APPLICATION_ID_USER_AGENT_FORMAT,
+                applicationId,
+                sdkName,
+                sdkVersion,
+                getPlatformInfo(null),
+                getApplicationInfo(null),
+                getLocaleInfo(null));
         }
     }
 
     /**
-     * Creates a UserAgentInterceptor with the {@code sdkName} and {@code sdkVersion} in the User-Agent header value.
+     * Creates a {@link UserAgentInterceptor} with the {@code sdkName} and {@code sdkVersion} in the User-Agent
+     * header value.
      *
      * @param applicationInformationProvider Provider that contains application information.
      * @param localeInformationProvider      Provider that contains system locale information.
@@ -108,26 +125,36 @@ public class UserAgentInterceptor implements Interceptor {
      * @param sdkName                        Name of the client library.
      * @param sdkVersion                     Version of the client library.
      */
-    public UserAgentInterceptor(ApplicationInformationProvider applicationInformationProvider, LocaleInformationProvider localeInformationProvider,
-                                PlatformInformationProvider platformInformationProvider, String applicationId,
+    public UserAgentInterceptor(ApplicationInformationProvider applicationInformationProvider,
+                                LocaleInformationProvider localeInformationProvider,
+                                PlatformInformationProvider platformInformationProvider,
+                                String applicationId,
                                 String sdkName, String sdkVersion) {
         if (applicationId == null) {
-            userAgent = String.format(USER_AGENT_FORMAT, sdkName, sdkVersion,
-                getPlatformInfo(platformInformationProvider), getApplicationInfo(applicationInformationProvider),
+            userAgent = String.format(
+                USER_AGENT_FORMAT,
+                sdkName, sdkVersion,
+                getPlatformInfo(platformInformationProvider),
+                getApplicationInfo(applicationInformationProvider),
                 getLocaleInfo(localeInformationProvider));
         } else {
-            userAgent = String.format(APPLICATION_ID_USER_AGENT_FORMAT, applicationId, sdkName, sdkVersion,
-                getPlatformInfo(platformInformationProvider), getApplicationInfo(applicationInformationProvider),
+            userAgent = String.format(
+                APPLICATION_ID_USER_AGENT_FORMAT,
+                applicationId,
+                sdkName,
+                sdkVersion,
+                getPlatformInfo(platformInformationProvider),
+                getApplicationInfo(applicationInformationProvider),
                 getLocaleInfo(localeInformationProvider));
         }
     }
 
     /**
-     * Updates the "User-Agent" header with the value supplied in the interceptor.
+     *
+     * Updates the "User-Agent" header with the value supplied in the constructor.
      * <p>
      * When the User-Agent header already has a value and it differs from the value used to create this interceptor the
      * User-Agent header is updated by prepending the value in this interceptor.
-     * {@inheritDoc}
      */
     @NonNull
     @Override
@@ -150,7 +177,7 @@ public class UserAgentInterceptor implements Interceptor {
     /**
      * Retrieves operating system information.
      *
-     * @return String containing the device name (maker and model) and OS version.
+     * @return The device name (maker and model) and OS version.
      */
     private static String getPlatformInfo(PlatformInformationProvider platformInformationProvider) {
         String deviceName = "";
@@ -166,7 +193,7 @@ public class UserAgentInterceptor implements Interceptor {
                 deviceName = capitalize(manufacturer) + " " + model;
             }
 
-            osVersion = platformInformationProvider.getTargetSdkVersion();
+            osVersion = platformInformationProvider.getOsVersion();
         }
 
         return String.format(PLATFORM_INFO_FORMAT, deviceName, osVersion);
@@ -184,7 +211,7 @@ public class UserAgentInterceptor implements Interceptor {
     /**
      * Retrieves application information.
      *
-     * @return String containing the application's ID, version and target SDK version.
+     * @return The application ID, version and target SDK version.
      */
     private static String getApplicationInfo(ApplicationInformationProvider applicationInformationProvider) {
         // TODO: Figure if we can get the minSdkVersion programatically and if we can get data such as what is included in
@@ -205,7 +232,7 @@ public class UserAgentInterceptor implements Interceptor {
     /**
      * Retrieves system locale information.
      *
-     * @return String containing the system language and region.
+     * @return The system language and region.
      */
     private static String getLocaleInfo(LocaleInformationProvider localeInformationProvider) {
         String region = "";
@@ -220,9 +247,9 @@ public class UserAgentInterceptor implements Interceptor {
     }
 
     /**
-     * Capitalizes a given string
+     * Capitalizes a given string.
      *
-     * @param string String to capitalize.
+     * @param string The string to capitalize.
      * @return String where the first letter of each word is capitalized.
      */
     private static String capitalize(String string) {
@@ -237,6 +264,7 @@ public class UserAgentInterceptor implements Interceptor {
         for (char c : charArray) {
             if (capitalizeNext && Character.isLetter(c)) {
                 stringBuilder.append(Character.toUpperCase(c));
+
                 capitalizeNext = false;
 
                 continue;

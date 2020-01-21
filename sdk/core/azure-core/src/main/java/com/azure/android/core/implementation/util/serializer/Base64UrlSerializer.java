@@ -6,6 +6,7 @@ package com.azure.android.core.implementation.util.serializer;
 import com.azure.android.core.util.Base64Url;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -16,20 +17,20 @@ import java.io.IOException;
  */
 final class Base64UrlSerializer extends JsonSerializer<Base64Url> {
     /**
-     * Gets a module wrapping this serializer as an adapter for the Jackson
-     * ObjectMapper.
+     * Gets a module wrapping this serializer as an adapter for the Jackson {@link ObjectMapper}.
      *
-     * @return a simple module to be plugged onto Jackson ObjectMapper.
+     * @return A simple module to be plugged onto Jackson {@link ObjectMapper}.
      */
     public static SimpleModule getModule() {
         SimpleModule module = new SimpleModule();
         module.addSerializer(Base64Url.class, new Base64UrlSerializer());
+
         return module;
     }
 
     @Override
-    public void serialize(Base64Url value, JsonGenerator jgen,
-                          SerializerProvider provider) throws IOException {
-        jgen.writeString(value.toString());
+    public void serialize(Base64Url value, JsonGenerator jsonGenerator, SerializerProvider provider)
+        throws IOException {
+        jsonGenerator.writeString(value.toString());
     }
 }

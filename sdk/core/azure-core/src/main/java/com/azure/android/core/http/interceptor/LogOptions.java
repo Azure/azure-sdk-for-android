@@ -13,14 +13,9 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * The log configurations for HTTP messages.
+ * The log configuration options for HTTP messages.
  */
 public class LogOptions {
-    private String applicationId;
-    private Set<String> allowedHeaderNames;
-    private Set<String> allowedQueryParamNames;
-    private final ClientLogger logger = new ClientLogger(LogOptions.class);
-
     private static final int MAX_APPLICATION_ID_LENGTH = 24;
     private static final List<String> DEFAULT_HEADERS_WHITELIST = Arrays.asList(
         "x-ms-client-request-id",
@@ -47,6 +42,11 @@ public class LogOptions {
         "User-Agent"
     );
 
+    private final ClientLogger logger = new ClientLogger(LogOptions.class);
+    private Set<String> allowedHeaderNames;
+    private Set<String> allowedQueryParamNames;
+    private String applicationId;
+
     /**
      * Creates a new instance that does not log any information about HTTP requests or responses.
      */
@@ -67,20 +67,18 @@ public class LogOptions {
 
     /**
      * Sets the given whitelisted headers that should be logged.
-     *
      * <p>
      * This method sets the provided header names to be the whitelisted header names which will be logged for all HTTP
      * requests and responses, overwriting any previously configured headers, including the default set. Additionally,
-     * users can use {@link LogOptions#addAllowedHeaderName(String)} or
-     * {@link LogOptions#getAllowedHeaderNames()} to add or remove more headers names to the existing set of
-     * allowed header names.
-     * </p>
+     * users can use {@link LogOptions#addAllowedHeaderName(String)} or {@link LogOptions#getAllowedHeaderNames()} to
+     * add or remove more headers names to the existing set of allowed header names.
      *
      * @param allowedHeaderNames The list of whitelisted header names from the user.
      * @return The updated HttpLogOptions object.
      */
     public LogOptions setAllowedHeaderNames(final Set<String> allowedHeaderNames) {
         this.allowedHeaderNames = allowedHeaderNames == null ? new HashSet<>() : allowedHeaderNames;
+
         return this;
     }
 
@@ -88,12 +86,13 @@ public class LogOptions {
      * Sets the given whitelisted header to the default header set that should be logged.
      *
      * @param allowedHeaderName The whitelisted header name from the user.
-     * @return The updated HttpLogOptions object.
+     * @return The updated {@link LogOptions} object.
      * @throws NullPointerException If {@code allowedHeaderName} is {@code null}.
      */
     public LogOptions addAllowedHeaderName(final String allowedHeaderName) {
         Objects.requireNonNull(allowedHeaderName);
         this.allowedHeaderNames.add(allowedHeaderName);
+
         return this;
     }
 
@@ -114,6 +113,7 @@ public class LogOptions {
      */
     public LogOptions setAllowedQueryParamNames(final Set<String> allowedQueryParamNames) {
         this.allowedQueryParamNames = allowedQueryParamNames == null ? new HashSet<>() : allowedQueryParamNames;
+
         return this;
     }
 
@@ -121,11 +121,12 @@ public class LogOptions {
      * Sets the given whitelisted query param that should be logged.
      *
      * @param allowedQueryParamName The whitelisted query param name from the user.
-     * @return The updated HttpLogOptions object.
+     * @return The updated {@link LogOptions} object.
      * @throws NullPointerException If {@code allowedQueryParamName} is {@code null}.
      */
     public LogOptions addAllowedQueryParamName(final String allowedQueryParamName) {
         this.allowedQueryParamNames.add(allowedQueryParamName);
+
         return this;
     }
 
@@ -139,10 +140,10 @@ public class LogOptions {
     }
 
     /**
-     * Sets the custom application specific id supplied by the user of the client library.
+     * Sets the custom application specific ID supplied by the user of the client library.
      *
-     * @param applicationId The user specified application id.
-     * @return The updated HttpLogOptions object.
+     * @param applicationId The user specified application ID.
+     * @return The updated {@link LogOptions} object.
      */
     public LogOptions setApplicationId(final String applicationId) {
         if (!CoreUtils.isNullOrEmpty(applicationId)) {
@@ -157,6 +158,7 @@ public class LogOptions {
                 this.applicationId = applicationId;
             }
         }
+
         return this;
     }
 }

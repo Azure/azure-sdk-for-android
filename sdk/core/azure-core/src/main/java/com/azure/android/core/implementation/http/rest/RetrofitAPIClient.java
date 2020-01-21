@@ -29,41 +29,41 @@ public class RetrofitAPIClient {
 
     /**
      * Create a Retrofit based API client implementation for a given service-interface.
+     * <p>
+     * Note(@anuchan): This method takes the minimal parameters needed to create a service-interface implementation,
+     * when needed we can add overloads that take a custom {@link SerializerAdapter}, {@link OkHttpClient}, etc.,
+     * which is needed when we enable the user to provide an existing {@link OkHttpClient} configured with SSL, Proxy,
+     * SocketPool, etc.
      *
-     * Note: anuchan: This method takes minimal parameters needed to create service-interface
-     * implementation, when needed we can add overloads that takes custom
-     * SerializerAdapter, OkHttpClient, which is needed when we enable user to provide
-     * an existing OkHttpClient with SSL/Proxy/SocketPool etc.. configured.
-     *
-     * @param baseUri the base uri to to use for service-interface method calls
-     * @param encoding the http content-type for request-response associated with the
-     *                 service-interface method calls
-     * @param interceptors the interceptors to intercept request-response associated with the
-     *                     service-interface method calls
-     * @param serviceInterface the service interface class
-     * @param <T> the type of the service-interface
-     * @return a (proxy based) implementation for the service-interface
+     * @param baseUri          The base URI to to use for service-interface method calls.
+     * @param encoding         The HTTP Content-Type for a request or response associated with the service-interface
+     *                         method calls.
+     * @param interceptors     The interceptors to intercept the request or response associated with the
+     *                         service-interface method calls.
+     * @param serviceInterface The service-interface class.
+     * @param <T>              The type of the service-interface.
+     * @return A (proxy based) implementation for the service-interface.
      */
     public static <T> T createAPIClient(String baseUri,
                                         SerializerEncoding encoding,
                                         List<Interceptor> interceptors,
                                         Class<T> serviceInterface) {
         return createRetrofit(baseUri,
-                encoding,
-                SerializerAdapter.createDefault(),
-                interceptors,
-                new OkHttpClient.Builder().build()).create(serviceInterface);
+            encoding,
+            SerializerAdapter.createDefault(),
+            interceptors,
+            new OkHttpClient.Builder().build()).create(serviceInterface);
     }
 
     /**
-     * Creates a Retrofit instance that can be used to create proxies for service interface.
+     * Creates a {@link Retrofit} instance that can be used to create proxies for a service-interface.
      *
-     * @param baseUri the base uri
-     * @param encoding the http content-type for request-response
-     * @param serializerAdapter the serializer-deserializer for request-response content
-     * @param interceptors the interceptors to intercept request-response
-     * @param httpClient the OkHttpClient for network calls
-     * @return the Retrofit instance
+     * @param baseUri           The base URI.
+     * @param encoding          The HTTP Content-Type for a request or response.
+     * @param serializerAdapter The serializer-deserializer for request or response content.
+     * @param interceptors      The interceptors to intercept the request or response.
+     * @param httpClient        The OkHttpClient for network calls
+     * @return The Retrofit instance.
      */
     private static Retrofit createRetrofit(String baseUri,
                                            SerializerEncoding encoding,
@@ -71,24 +71,26 @@ public class RetrofitAPIClient {
                                            List<Interceptor> interceptors,
                                            OkHttpClient httpClient) {
         OkHttpClient.Builder builder = httpClient.newBuilder();
+
         for (Interceptor interceptor : interceptors) {
             builder.addInterceptor(interceptor);
         }
+
         return new Retrofit.Builder()
-                .baseUrl(baseUri)
-                .addConverterFactory(wrapSerializerInRetrofitConverter(serializerAdapter,
-                        encoding))
-                .callFactory(builder.build())
-                .build();
+            .baseUrl(baseUri)
+            .addConverterFactory(wrapSerializerInRetrofitConverter(serializerAdapter,
+                encoding))
+            .callFactory(builder.build())
+            .build();
     }
 
     /**
-     * Given azure-core SerializerAdapter, wrap that in Retrofit Converter so that it can be
-     * plugged into Retrofit serialization-deserialization pipeline.
+     * Given an azure-core {@link SerializerAdapter}, wrap that in a Retrofit {@link Converter} so that it can be
+     * plugged into the Retrofit serialization-deserialization pipeline.
      *
-     * @param serializer azure-core Serializer adapter
-     * @param encoding the encoding format
-     * @return Retrofit Converter
+     * @param serializer azure-core {@link SerializerAdapter}.
+     * @param encoding   The encoding format.
+     * @return A Retrofit {@link Converter}.
      */
     private static Converter.Factory wrapSerializerInRetrofitConverter(SerializerAdapter serializer,
                                                                        final SerializerEncoding encoding) {
@@ -99,9 +101,9 @@ public class RetrofitAPIClient {
                                                                   Annotation[] methodAnnotations,
                                                                   Retrofit retrofit) {
                 return value -> RequestBody.create(serializer.serialize(value, encoding),
-                        encoding == SerializerEncoding.XML
-                                ? XML_MEDIA_TYPE
-                                : JSON_MEDIA_TYPE);
+                    encoding == SerializerEncoding.XML
+                        ? XML_MEDIA_TYPE
+                        : JSON_MEDIA_TYPE);
             }
 
             @Override
@@ -109,8 +111,8 @@ public class RetrofitAPIClient {
                                                                     Annotation[] annotations,
                                                                     Retrofit retrofit) {
                 return (Converter<ResponseBody, Object>) body -> serializer.deserialize(body.string(),
-                        type,
-                        encoding);
+                    type,
+                    encoding);
             }
         };
     }

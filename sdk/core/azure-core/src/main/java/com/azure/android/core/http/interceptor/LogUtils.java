@@ -15,8 +15,8 @@ interface LogUtils {
     /**
      * Attempts to retrieve and parse the Content-Length header into a numeric representation.
      *
-     * @param headers HTTP headers that are checked for containing Content-Length.
-     * @return long value indicating the content length of the Request or Response
+     * @param headers HTTP headers of the request or response.
+     * @return The content length of the request or response.
      */
     static long getContentLength(Headers headers) {
         long contentLength = 0;
@@ -33,8 +33,9 @@ interface LogUtils {
      * Determines if the request or response body should be logged. If not, if returns an appropriate message to log
      * in lieu of said body.
      *
-     * @return null in case the body should be logged in its entirety, otherwise a message indicating why the body was
-     * not logged is returned.
+     * @param headers HTTP headers of the request or response.
+     * @return "Log body" if the body should be logged in its entirety, otherwise a message indicating why the body
+     * was not logged is returned.
      */
     static String evaluateBody(Headers headers) {
         String contentEncoding = headers.get("Content-Encoding");
@@ -51,7 +52,7 @@ interface LogUtils {
         }
 
         if (!CoreUtils.isNullOrEmpty(contentType) &&
-                (contentType.endsWith("octet-stream") || contentType.startsWith("image"))) {
+            (contentType.endsWith("octet-stream") || contentType.startsWith("image"))) {
             return "(binary body omitted)";
         }
 
@@ -69,10 +70,10 @@ interface LogUtils {
     }
 
     /**
-     * Generates the logging safe query parameters string.
+     * Generates a redacted query parameters string based on a given URL.
      *
-     * @param url Request URL to read the query parameters from.
-     * @return A query parameter string redacted based on the configurations in this policy.
+     * @param url The request URL.
+     * @return A query parameter string redacted based on the {@link LogOptions} configuration.
      */
     static String getRedactedQueryString(HttpUrl url, Set<String> allowedQueryParameterNames) {
         Set<String> names = url.queryParameterNames();
@@ -81,11 +82,11 @@ interface LogUtils {
             return "";
         }
 
-        StringBuilder queryStringBuilder =  new StringBuilder();
+        StringBuilder queryStringBuilder = new StringBuilder();
 
         for (String name : names) {
             if (allowedQueryParameterNames.contains(name.toLowerCase(Locale.ROOT))) {
-                for (String value : url.queryParameterValues(name)){
+                for (String value : url.queryParameterValues(name)) {
                     queryStringBuilder.append(name).append("=").append(value).append("&");
                 }
             } else {

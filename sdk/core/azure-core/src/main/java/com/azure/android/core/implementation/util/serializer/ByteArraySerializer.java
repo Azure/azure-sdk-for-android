@@ -1,11 +1,11 @@
-package com.azure.android.core.implementation.util.serializer;
-
-
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+package com.azure.android.core.implementation.util.serializer;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -16,24 +16,25 @@ import java.io.IOException;
  */
 final class ByteArraySerializer extends JsonSerializer<Byte[]> {
     /**
-     * Gets a module wrapping this serializer as an adapter for the Jackson
-     * ObjectMapper.
+     * Gets a module wrapping this serializer as an adapter for the Jackson {@link ObjectMapper}.
      *
-     * @return a simple module to be plugged onto Jackson ObjectMapper.
+     * @return A simple module to be plugged onto Jackson {@link ObjectMapper}.
      */
     public static SimpleModule getModule() {
         SimpleModule module = new SimpleModule();
         module.addSerializer(Byte[].class, new ByteArraySerializer());
+
         return module;
     }
 
     @Override
-    public void serialize(Byte[] value, JsonGenerator jgen,
-                          SerializerProvider provider) throws IOException {
+    public void serialize(Byte[] value, JsonGenerator jsonGenerator, SerializerProvider provider) throws IOException {
         byte[] bytes = new byte[value.length];
+
         for (int i = 0; i < value.length; i++) {
             bytes[i] = value[i];
         }
-        jgen.writeBinary(bytes);
+
+        jsonGenerator.writeBinary(bytes);
     }
 }

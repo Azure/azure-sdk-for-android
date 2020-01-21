@@ -1,28 +1,27 @@
 package com.azure.android.core.provider;
 
 /**
- * Interface for a provider that contains application and platform information.
+ * Interface for a provider that contains application information.
  */
 public interface ApplicationInformationProvider {
-
     /**
      * Application ID.
      *
-     * @return String containing the application ID.
+     * @return The application ID.
      */
     String getApplicationId();
 
     /**
      * Application version.
      *
-     * @return String containing the application version.
+     * @return The application version.
      */
     String getApplicationVersion();
 
     /**
      * Application target SDK version.
      *
-     * @return int representing the application target SDK version.
+     * @return The application's target SDK version.
      */
     int getTargetSdkVersion();
 }

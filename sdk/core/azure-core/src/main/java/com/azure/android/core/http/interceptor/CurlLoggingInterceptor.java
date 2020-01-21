@@ -25,17 +25,17 @@ import okio.Buffer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * Pipeline interceptor that handles logging of HTTP requests as cURL commands.
+ * Pipeline interceptor that logs HTTP requests as cURL commands.
  */
 public class CurlLoggingInterceptor implements Interceptor {
     private final ClientLogger logger;
-    private StringBuilder curlCommand;
     private boolean compressed;
+    private StringBuilder curlCommand;
 
     public CurlLoggingInterceptor() {
         logger = new ClientLogger(CurlLoggingInterceptor.class);
-        curlCommand = new StringBuilder("curl");
         compressed = false;
+        curlCommand = new StringBuilder("curl");
     }
 
     @NotNull
@@ -48,6 +48,7 @@ public class CurlLoggingInterceptor implements Interceptor {
             .append(request.method());
 
         addHeadersToCurlCommand(headers, curlCommand);
+
         RequestBody requestBody = request.body();
         String bodyEvaluation = LogUtils.evaluateBody(headers);
 
@@ -61,7 +62,7 @@ public class CurlLoggingInterceptor implements Interceptor {
             .append(request.url())
             .append("\"");
 
-        // TODO: Add log level guard for headers and body
+        // TODO: Add log level guard for headers and body.
         logger.verbose("╭--- cURL " + request.url());
         logger.verbose(curlCommand.toString());
         logger.verbose("╰--- (copy and paste the above line to a terminal)");
@@ -70,10 +71,10 @@ public class CurlLoggingInterceptor implements Interceptor {
     }
 
     /**
-     * Adds HTTP headers into the StringBuilder that is generating the cURL command.
+     * Adds HTTP headers to the StringBuilder that is generating the cURL command.
      *
      * @param headers     HTTP headers on the request or response.
-     * @param curlCommand StringBuilder that is generating the cURL command.
+     * @param curlCommand The StringBuilder that is generating the cURL command.
      */
     private void addHeadersToCurlCommand(Headers headers, StringBuilder curlCommand) {
         for (Pair<? extends String, ? extends String> header : headers) {
@@ -99,20 +100,21 @@ public class CurlLoggingInterceptor implements Interceptor {
     /**
      * Adds HTTP headers into the StringBuilder that is generating the cURL command.
      *
-     * @param requestBody Body on the request.
-     * @param curlCommand StringBuilder that is generating the cURL command.
+     * @param requestBody Body of the request.
+     * @param curlCommand The StringBuilder that is generating the cURL command.
      */
     private void addBodyToCurlCommand(RequestBody requestBody, StringBuilder curlCommand) {
         try {
             Buffer buffer = new Buffer();
             MediaType contentType = requestBody.contentType();
             Charset charset = (contentType == null) ? UTF_8 : contentType.charset(UTF_8);
+
             requestBody.writeTo(buffer);
 
             if (charset != null) {
                 String requestBodyString = buffer.readString(charset);
-
                 Map<Character, CharSequence> toReplace = new HashMap<>();
+
                 toReplace.put('\n', "\\n");
                 toReplace.put('\"', "\\\"");
 

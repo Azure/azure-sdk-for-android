@@ -26,9 +26,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Custom serializer for deserializing complex types with wrapped properties.
- * For example, a property with annotation @JsonProperty(value = "properties.name")
- * will be mapped to a top level "name" property in the POJO model.
+ * Custom serializer for deserializing complex types with wrapped properties. For example, a property with annotation
+ * {@code @JsonProperty(value = "properties.name")} will be mapped to a top level "name" property in the POJO model.
  */
 final class FlatteningDeserializer extends StdDeserializer<Object> implements ResolvableDeserializer {
     private static final long serialVersionUID = -2133095337545715498L;
@@ -45,25 +44,27 @@ final class FlatteningDeserializer extends StdDeserializer<Object> implements Re
 
     /**
      * Creates an instance of FlatteningDeserializer.
-     * @param vc handled type
-     * @param defaultDeserializer the default JSON mapperAdapter
-     * @param mapper the object mapper for default deserializations
+     *
+     * @param vc                  Handled type.
+     * @param defaultDeserializer The default JSON mapperAdapter.
+     * @param mapper              The object mapper for default deserializations.
      */
     protected FlatteningDeserializer(Class<?> vc, JsonDeserializer<?> defaultDeserializer, ObjectMapper mapper) {
         super(vc);
+
         this.defaultDeserializer = defaultDeserializer;
         this.mapper = mapper;
     }
 
     /**
-     * Gets a module wrapping this serializer as an adapter for the Jackson
-     * ObjectMapper.
+     * Gets a module wrapping this serializer as an adapter for the Jackson {@link ObjectMapper}.
      *
-     * @param mapper the object mapper for default deserializations
-     * @return a simple module to be plugged onto Jackson ObjectMapper.
+     * @param mapper The object mapper for default deserializations.
+     * @return A simple module to be plugged onto Jackson {@link ObjectMapper}.
      */
     public static SimpleModule getModule(final ObjectMapper mapper) {
         SimpleModule module = new SimpleModule();
+
         module.setDeserializerModifier(new BeanDeserializerModifier() {
             @Override
             public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config, BeanDescription beanDesc,
@@ -71,63 +72,77 @@ final class FlatteningDeserializer extends StdDeserializer<Object> implements Re
                 if (beanDesc.getBeanClass().getAnnotation(JsonFlatten.class) != null) {
                     return new FlatteningDeserializer(beanDesc.getBeanClass(), deserializer, mapper);
                 }
+
                 return deserializer;
             }
         });
+
         return module;
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        JsonNode root = mapper.readTree(jp);
+    public Object deserialize(JsonParser jsonParser, DeserializationContext context) throws IOException {
+        JsonNode root = mapper.readTree(jsonParser);
         final Class<?> tClass = this.defaultDeserializer.handledType();
+
         for (Class<?> c : getAllClasses(tClass)) {
             // Ignore checks for Object type.
             if (c.isAssignableFrom(Object.class)) {
                 continue;
             }
+
             for (Field field : c.getDeclaredFields()) {
                 JsonNode node = root;
                 JsonProperty property = field.getAnnotation(JsonProperty.class);
+
                 if (property != null) {
                     String value = property.value();
+
                     if (value.matches(".+[^\\\\]\\..+")) {
                         String[] values = value.split("((?<!\\\\))\\.");
+
                         for (String val : values) {
                             val = val.replace("\\.", ".");
                             node = node.get(val);
+
                             if (node == null) {
                                 break;
                             }
                         }
+
                         ((ObjectNode) root).put(value, node);
                     }
                 }
             }
         }
+
         JsonParser parser = new JsonFactory().createParser(root.toString());
+
         parser.nextToken();
-        return defaultDeserializer.deserialize(parser, ctxt);
+
+        return defaultDeserializer.deserialize(parser, context);
     }
 
     @Override
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException {
-        ((ResolvableDeserializer) defaultDeserializer).resolve(ctxt);
+    public void resolve(DeserializationContext context) throws JsonMappingException {
+        ((ResolvableDeserializer) defaultDeserializer).resolve(context);
     }
 
     /**
-     * Find all super classes including provided class.
+     * Find all super classes including the provided class.
      *
-     * @param clazz the raw class to find super types for
-     * @return the list of super classes
+     * @param clazz The raw class to find super types for.
+     * @return The list of super classes.
      */
     private static List<Class<?>> getAllClasses(Class<?> clazz) {
         List<Class<?>> types = new ArrayList<>();
+
         while (clazz != null) {
             types.add(clazz);
             clazz = clazz.getSuperclass();
         }
+
         return types;
     }
 }

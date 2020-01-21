@@ -14,19 +14,17 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * Interceptor that validates that a collection of headers have consitent values between a {@code Request} and a
- * {@code Response}.
+ * Interceptor that validates that a collection of headers have consistent values between a request and a response.
  */
 public class ResponseHeadersValidationInterceptor implements Interceptor {
-    private final ClientLogger logger = new ClientLogger(ResponseHeadersValidationInterceptor.class);
-
     private static final String CLIENT_ID_HEADER = "x-ms-client-id";
     private static final String ENCRYPTION_KEY_SHA256_HEADER = "x-ms-encryption-key-sha256";
 
+    private final ClientLogger logger = new ClientLogger(ResponseHeadersValidationInterceptor.class);
     private final Collection<String> headerNames = new ArrayList<>();
 
     /**
-     * Constructor that adds two mandatory headers used by Storage.
+     * Constructor that adds two mandatory headers used by Azure Storage.
      */
     public ResponseHeadersValidationInterceptor() {
         headerNames.add(CLIENT_ID_HEADER);
@@ -34,7 +32,8 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
     }
 
     /**
-     * Constructor that accepts a list of header names to validate. Adds two mandatory Storage header names as well.
+     * Constructor that accepts a list of header names to validate. Adds two mandatory Azure Storage header names as
+     * well.
      */
     public ResponseHeadersValidationInterceptor(Collection<String> headerNames) {
         this();

@@ -6,11 +6,10 @@ package com.azure.android.core.exception;
 import okhttp3.Response;
 
 /**
- * The exception thrown when an unsuccessful response is received with http status code (e.g. 3XX, 4XX, 5XX) from the
+ * Exception thrown when an unsuccessful response is received with http status code (e.g. 3XX, 4XX, 5XX) from the
  * service request.
  */
 public class HttpResponseException extends AzureException {
-
     /**
      * The HTTP response value.
      */
@@ -24,11 +23,12 @@ public class HttpResponseException extends AzureException {
     /**
      * Initializes a new instance of the {@link HttpResponseException} class.
      *
-     * @param message The exception message or the response content if a message is not available.
+     * @param message  The exception message or the response content if a message is not available.
      * @param response The HTTP response associated with this exception.
      */
     public HttpResponseException(final String message, final Response response) {
         super(message);
+
         this.value = null;
         this.response = response;
     }
@@ -36,12 +36,13 @@ public class HttpResponseException extends AzureException {
     /**
      * Initializes a new instance of the {@link HttpResponseException} class.
      *
-     * @param message The exception message or the response content if a message is not available.
+     * @param message  The exception message or the response content if a message is not available.
      * @param response The HTTP response associated with this exception.
-     * @param value The deserialized response value.
+     * @param value    The deserialized response value.
      */
     public HttpResponseException(final String message, final Response response, final Object value) {
         super(message);
+
         this.value = value;
         this.response = response;
     }
@@ -49,12 +50,13 @@ public class HttpResponseException extends AzureException {
     /**
      * Initializes a new instance of the {@link HttpResponseException} class.
      *
-     * @param message The exception message or the response content if a message is not available.
+     * @param message  The exception message or the response content if a message is not available.
      * @param response The HTTP response associated with this exception.
-     * @param cause The {@link Throwable} which caused the creation of this exception.
+     * @param cause    The {@link Throwable} which caused the creation of this exception.
      */
     public HttpResponseException(final String message, final Response response, final Throwable cause) {
         super(message, cause);
+
         this.value = null;
         this.response = response;
     }

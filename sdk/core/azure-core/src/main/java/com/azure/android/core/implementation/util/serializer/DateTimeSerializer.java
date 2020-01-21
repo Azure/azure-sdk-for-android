@@ -3,9 +3,9 @@
 
 package com.azure.android.core.implementation.util.serializer;
 
-
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -21,42 +21,45 @@ import java.io.IOException;
  */
 final class DateTimeSerializer extends JsonSerializer<OffsetDateTime> {
     /**
-     * Gets a module wrapping this serializer as an adapter for the Jackson
-     * ObjectMapper.
+     * Gets a module wrapping this serializer as an adapter for the Jackson {@link ObjectMapper}.
      *
-     * @return a simple module to be plugged onto Jackson ObjectMapper.
+     * @return A simple module to be plugged onto Jackson {@link ObjectMapper}.
      */
     public static SimpleModule getModule() {
         SimpleModule module = new SimpleModule();
         module.addSerializer(OffsetDateTime.class, new DateTimeSerializer());
+
         return module;
     }
 
     @Override
-    public void serialize(OffsetDateTime value, JsonGenerator jgen,
-                          SerializerProvider provider) throws IOException {
+    public void serialize(OffsetDateTime value, JsonGenerator jsonGenerator, SerializerProvider provider)
+        throws IOException {
         if (provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
-            jgen.writeNumber(value.toInstant().toEpochMilli());
+            jsonGenerator.writeNumber(value.toInstant().toEpochMilli());
         } else {
-            jgen.writeString(toString(value));
+            jsonGenerator.writeString(toString(value));
         }
     }
 
     /**
-     * Convert the provided OffsetDateTime to its String representation.
+     * Convert the provided {@link OffsetDateTime} to its String representation.
      *
-     * @param offsetDateTime The OffsetDateTime to convert.
-     * @return The String representation of the provided offsetDateTime.
+     * @param offsetDateTime The {@link OffsetDateTime} to convert.
+     * @return The string representation of the provided {@code offsetDateTime}.
      */
     public static String toString(OffsetDateTime offsetDateTime) {
         String result = null;
+
         if (offsetDateTime != null) {
             offsetDateTime = offsetDateTime.withOffsetSameInstant(ZoneOffset.UTC);
             result = DateTimeFormatter.ISO_INSTANT.format(offsetDateTime);
+
             if (result.startsWith("+")) {
                 result = result.substring(1);
             }
         }
+
         return result;
     }
 }

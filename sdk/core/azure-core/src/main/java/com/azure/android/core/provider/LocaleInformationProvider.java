@@ -7,14 +7,14 @@ public interface LocaleInformationProvider {
     /**
      * Default system language.
      *
-     * @return String containing the default system language.
+     * @return The default system language.
      */
     String getDefaultSystemLanguage();
 
     /**
      * System region.
      *
-     * @return String containing the system region.
+     * @return The system region.
      */
     String getSystemRegion();
 }

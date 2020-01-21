@@ -1,27 +1,27 @@
 package com.azure.android.core.provider;
 
 /**
- * Interface for a provider that contains system information.
+ * Interface for a provider that contains platform information.
  */
 public interface PlatformInformationProvider {
     /**
      * Device manufacturer.
      *
-     * @return String containing the device manufacturer.
+     * @return The device manufacturer.
      */
     String getManufacturer();
 
     /**
      * Device model.
      *
-     * @return String containing the device model.
+     * @return The device model.
      */
     String getModel();
 
     /**
-     * Application target SDK version.
+     * OS version.
      *
-     * @return Integer representing the application's target SDK version.
+     * @return The device's OS version.
      */
-    int getTargetSdkVersion();
+    int getOsVersion();
 }

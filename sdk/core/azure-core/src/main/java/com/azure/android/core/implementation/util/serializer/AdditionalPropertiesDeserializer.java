@@ -24,10 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Custom serializer for deserializing complex types with additional properties.
- * If a complex type has a property named "additionalProperties" with serialized
- * name empty ("") of type Map&lt;String, Object&gt;, all extra properties on the
- * payload will be stored in this map.
+ * Custom serializer for deserializing complex types with additional properties. If a complex type has a property
+ * named "additionalProperties" with serialized name empty ("") of type Map&lt;String, Object&gt;, all extra
+ * properties on the payload will be stored in this map.
  */
 final class AdditionalPropertiesDeserializer extends StdDeserializer<Object> implements ResolvableDeserializer {
     private static final long serialVersionUID = 700052863615540646L;
@@ -43,59 +42,67 @@ final class AdditionalPropertiesDeserializer extends StdDeserializer<Object> imp
     private final ObjectMapper mapper;
 
     /**
-     * Creates FlatteningDeserializer.
-     * @param vc handled type
-     * @param defaultDeserializer the default JSON mapperAdapter
-     * @param mapper the object mapper for default deserializations
+     * Creates an instance of {@link FlatteningDeserializer}.
+     *
+     * @param vc                  Handled type.
+     * @param defaultDeserializer The default JSON mapperAdapter.
+     * @param mapper              The object mapper for default deserializations.
      */
     protected AdditionalPropertiesDeserializer(Class<?> vc, JsonDeserializer<?> defaultDeserializer,
                                                ObjectMapper mapper) {
         super(vc);
+
         this.defaultDeserializer = defaultDeserializer;
         this.mapper = mapper;
     }
 
     /**
-     * Gets a module wrapping this serializer as an adapter for the Jackson
-     * ObjectMapper.
+     * Gets a module wrapping this serializer as an adapter for the Jackson {@link ObjectMapper}.
      *
-     * @param mapper the object mapper for default deserializations
-     * @return a simple module to be plugged onto Jackson ObjectMapper.
+     * @param mapper The object mapper for default deserializations.
+     * @return A simple module to be plugged onto Jackson {@link ObjectMapper}.
      */
     public static SimpleModule getModule(final ObjectMapper mapper) {
         SimpleModule module = new SimpleModule();
+
         module.setDeserializerModifier(new BeanDeserializerModifier() {
             @Override
-            public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config, BeanDescription beanDesc,
+            public JsonDeserializer<?> modifyDeserializer(DeserializationConfig config,
+                                                          BeanDescription beanDesc,
                                                           JsonDeserializer<?> deserializer) {
                 for (Class<?> c : getAllClasses(beanDesc.getBeanClass())) {
                     Field[] fields = c.getDeclaredFields();
+
                     for (Field field : fields) {
                         if ("additionalProperties".equalsIgnoreCase(field.getName())) {
                             JsonProperty property = field.getAnnotation(JsonProperty.class);
+
                             if (property != null && property.value().isEmpty()) {
                                 return new AdditionalPropertiesDeserializer(beanDesc.getBeanClass(), deserializer,
-                                        mapper);
+                                    mapper);
                             }
                         }
                     }
                 }
+
                 return deserializer;
             }
         });
+
         return module;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public Object deserialize(JsonParser jp, DeserializationContext ctxt) throws IOException {
-        ObjectNode root = mapper.readTree(jp);
+    public Object deserialize(JsonParser jsonParser, DeserializationContext context) throws IOException {
+        ObjectNode root = mapper.readTree(jsonParser);
         ObjectNode copy = root.deepCopy();
 
-        // compare top level fields and keep only missing fields
+        // Compare top level fields and keep only missing fields
         final Class<?> tClass = this.defaultDeserializer.handledType();
+
         for (Class<?> c : getAllClasses(tClass)) {
             Field[] fields = c.getDeclaredFields();
+
             for (Field field : fields) {
                 // JaCoCo adds synthetic fields for instrumentation.
                 // It's recommended to skip fields that are marked synthetic.
@@ -104,8 +111,10 @@ final class AdditionalPropertiesDeserializer extends StdDeserializer<Object> imp
                 if (field.isSynthetic()) {
                     continue;
                 }
+
                 JsonProperty property = field.getAnnotation(JsonProperty.class);
                 String key = property.value().split("((?<!\\\\))\\.")[0];
+
                 if (!key.isEmpty()) {
                     if (copy.has(key)) {
                         copy.remove(key);
@@ -114,25 +123,30 @@ final class AdditionalPropertiesDeserializer extends StdDeserializer<Object> imp
             }
         }
 
-        // put into additional properties
+        // Put into additional properties
         root.put("additionalProperties", copy);
 
         JsonParser parser = new JsonFactory().createParser(root.toString());
+
         parser.nextToken();
-        return defaultDeserializer.deserialize(parser, ctxt);
+
+        return defaultDeserializer.deserialize(parser, context);
     }
 
     @Override
-    public void resolve(DeserializationContext ctxt) throws JsonMappingException {
-        ((ResolvableDeserializer) defaultDeserializer).resolve(ctxt);
+    public void resolve(DeserializationContext context) throws JsonMappingException {
+        ((ResolvableDeserializer) defaultDeserializer).resolve(context);
     }
 
     private static List<Class<?>> getAllClasses(Class<?> clazz) {
         List<Class<?>> types = new ArrayList<>();
+
         while (clazz != null) {
             types.add(clazz);
+
             clazz = clazz.getSuperclass();
         }
+
         return types;
     }
 }
