@@ -8,22 +8,21 @@ import android.util.Log;
 /**
  * This is a fluent logger helper class that implements the {@link ClientLogger} interface and uses the Android
  * {@link Log} class and its methods.
- *
- * <p>The default log level is INFO</p>
- *
- * <p><strong>Log level hierarchy</strong></p>
+ * <p>
+ * The default log level is INFO
+ * <p>
+ * <strong>Log level hierarchy</strong>
  * <ol>
  * <li>{@link AndroidClientLogger#error(String) Error}</li>
  * <li>{@link AndroidClientLogger#warning(String) Warning}</li>
  * <li>{@link AndroidClientLogger#info(String) Info}</li>
  * <li>{@link AndroidClientLogger#debug(String) Verbose}</li>
- * </ol>
  */
 public class AndroidClientLogger implements ClientLogger {
     private final String tag;
 
     /**
-     * Retrieves a logger for the name of the given class with a .
+     * Retrieves a logger for the name of the given class.
      *
      * @param clazz Class creating the logger.
      */
@@ -32,7 +31,7 @@ public class AndroidClientLogger implements ClientLogger {
     }
 
     /**
-     * Retrieves a logger for the given tag .
+     * Retrieves a logger for the given tag.
      *
      * @param tag Class name creating the logger.
      */

@@ -13,7 +13,6 @@ import java.util.Set;
  * The log configuration options for HTTP messages.
  */
 public class LogOptions {
-    private static final int MAX_APPLICATION_ID_LENGTH = 24;
     private static final List<String> DEFAULT_HEADERS_WHITELIST = Arrays.asList(
         "x-ms-client-request-id",
         "x-ms-return-client-request-id",
@@ -38,6 +37,9 @@ public class LogOptions {
         "Transfer-Encoding",
         "User-Agent"
     );
+
+    private Set<String> allowedHeaderNames;
+    private Set<String> allowedQueryParamNames;
 
     /**
      * Creates a new instance which includes the default headers to whitelist.
@@ -117,9 +119,6 @@ public class LogOptions {
      */
     public LogOptions addAllowedQueryParamName(final String allowedQueryParamName) {
         this.allowedQueryParamNames.add(allowedQueryParamName);
-
-        return this;
-    }
 
         return this;
     }

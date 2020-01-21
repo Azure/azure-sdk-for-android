@@ -3,10 +3,11 @@
 
 package com.azure.android.core.http.interceptor;
 
+import androidx.annotation.NonNull;
+
 import com.azure.android.core.util.CoreUtils;
 import com.azure.android.core.util.logging.ClientLogger;
 
-import androidx.annotation.NonNull;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -35,7 +36,7 @@ public class CurlLoggingInterceptor implements Interceptor {
     }
 
     public CurlLoggingInterceptor(ClientLogger clientLogger) {
-        logger = new ClientLogger(CurlLoggingInterceptor.class);
+        logger = clientLogger;
         compressed = false;
         curlCommand = new StringBuilder("curl");
     }
