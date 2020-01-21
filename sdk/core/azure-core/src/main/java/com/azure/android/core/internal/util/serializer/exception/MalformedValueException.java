@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.implementation.util.serializer;
+package com.azure.android.core.internal.util.serializer.exception;
 
 /**
  * Exception thrown while parsing an invalid input during serialization or deserialization.

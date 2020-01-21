@@ -1,6 +1,7 @@
-package com.azure.android.core.implementation.util.serializer;
+package com.azure.android.core.internal.util.serializer;
 
 import com.azure.android.core.annotation.HeaderCollection;
+import com.azure.android.core.internal.util.serializer.exception.MalformedValueException;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -28,16 +29,11 @@ import okhttp3.Headers;
  */
 public class JacksonAdapter implements SerializerAdapter {
     /**
-     * An instance of {@link ObjectMapper} to serialize/deserialize objects.
-     */
-    private final ObjectMapper mapper;
-
-    /**
      * An instance of {@link ObjectMapper} that does not do flattening.
      */
     private final ObjectMapper simpleMapper;
-    private final XmlMapper xmlMapper;
     private final ObjectMapper headerMapper;
+    private final XmlMapper xmlMapper;
     private static SerializerAdapter serializerAdapter;
 
     /**
@@ -50,23 +46,13 @@ public class JacksonAdapter implements SerializerAdapter {
      */
     public JacksonAdapter() {
         simpleMapper = initializeObjectMapper(new ObjectMapper());
+        headerMapper = simpleMapper
+            .copy()
+            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
         xmlMapper = initializeObjectMapper(new XmlMapper());
 
         xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
         xmlMapper.setDefaultUseWrapper(false);
-
-        ObjectMapper flatteningMapper = initializeObjectMapper(new ObjectMapper())
-            .registerModule(FlatteningSerializer.getModule(simpleMapper()))
-            .registerModule(FlatteningDeserializer.getModule(simpleMapper()));
-        // Order matters: must register in reverse order of hierarchy
-        mapper = initializeObjectMapper(new ObjectMapper())
-            .registerModule(AdditionalPropertiesSerializer.getModule(flatteningMapper))
-            .registerModule(AdditionalPropertiesDeserializer.getModule(flatteningMapper))
-            .registerModule(FlatteningSerializer.getModule(simpleMapper()))
-            .registerModule(FlatteningDeserializer.getModule(simpleMapper()));
-        headerMapper = simpleMapper
-            .copy()
-            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
     }
 
     /**
@@ -95,7 +81,7 @@ public class JacksonAdapter implements SerializerAdapter {
      * @return The original serializer type.
      */
     public ObjectMapper serializer() {
-        return mapper;
+        return simpleMapper;
     }
 
     @Override
@@ -247,10 +233,10 @@ public class JacksonAdapter implements SerializerAdapter {
                 javaTypeArguments[i] = createJavaType(actualTypeArguments[i]);
             }
 
-            result = mapper
+            result = simpleMapper
                 .getTypeFactory().constructParametricType((Class<?>) parameterizedType.getRawType(), javaTypeArguments);
         } else {
-            result = mapper
+            result = simpleMapper
                 .getTypeFactory().constructType(type);
         }
 

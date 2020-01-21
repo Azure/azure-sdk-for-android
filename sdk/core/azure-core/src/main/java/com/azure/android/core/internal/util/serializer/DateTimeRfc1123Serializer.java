@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.implementation.util.serializer;
+package com.azure.android.core.internal.util.serializer;
 
 import com.azure.android.core.util.DateTimeRfc1123;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -22,7 +22,7 @@ final class DateTimeRfc1123Serializer extends JsonSerializer<DateTimeRfc1123> {
      *
      * @return A simple module to be plugged onto Jackson {@link ObjectMapper}.
      */
-    public static SimpleModule getModule() {
+    static SimpleModule getModule() {
         SimpleModule module = new SimpleModule();
         module.addSerializer(DateTimeRfc1123.class, new DateTimeRfc1123Serializer());
 

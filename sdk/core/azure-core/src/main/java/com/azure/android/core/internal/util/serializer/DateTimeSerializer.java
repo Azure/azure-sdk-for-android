@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.implementation.util.serializer;
+package com.azure.android.core.internal.util.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
@@ -25,7 +25,7 @@ final class DateTimeSerializer extends JsonSerializer<OffsetDateTime> {
      *
      * @return A simple module to be plugged onto Jackson {@link ObjectMapper}.
      */
-    public static SimpleModule getModule() {
+    static SimpleModule getModule() {
         SimpleModule module = new SimpleModule();
         module.addSerializer(OffsetDateTime.class, new DateTimeSerializer());
 

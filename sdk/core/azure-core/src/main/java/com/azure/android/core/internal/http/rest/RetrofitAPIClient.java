@@ -1,10 +1,10 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.implementation.http.rest;
+package com.azure.android.core.internal.http.rest;
 
-import com.azure.android.core.implementation.util.serializer.SerializerAdapter;
-import com.azure.android.core.implementation.util.serializer.SerializerEncoding;
+import com.azure.android.core.internal.util.serializer.SerializerAdapter;
+import com.azure.android.core.internal.util.serializer.SerializerEncoding;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;

@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.implementation.util.serializer;
+package com.azure.android.core.internal.util.serializer;
 
 import com.azure.android.core.util.Base64Url;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -21,7 +21,7 @@ final class Base64UrlSerializer extends JsonSerializer<Base64Url> {
      *
      * @return A simple module to be plugged onto Jackson {@link ObjectMapper}.
      */
-    public static SimpleModule getModule() {
+    static SimpleModule getModule() {
         SimpleModule module = new SimpleModule();
         module.addSerializer(Base64Url.class, new Base64UrlSerializer());
 
