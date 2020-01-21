@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.core.http.interceptor;
 
 import com.azure.android.core.util.CoreUtils;
@@ -15,7 +18,7 @@ interface LogUtils {
     /**
      * Attempts to retrieve and parse the Content-Length header into a numeric representation.
      *
-     * @param headers HTTP headers of the request or response.
+     * @param headers HTTP headers that are checked for containing Content-Length.
      * @return The content length of the request or response.
      */
     static long getContentLength(Headers headers) {
@@ -51,8 +54,8 @@ interface LogUtils {
             return "(non-inline body omitted)";
         }
 
-        if (!CoreUtils.isNullOrEmpty(contentType) &&
-            (contentType.endsWith("octet-stream") || contentType.startsWith("image"))) {
+        if (!CoreUtils.isNullOrEmpty(contentType) && (contentType.endsWith("octet-stream") || contentType.startsWith(
+            "image"))) {
             return "(binary body omitted)";
         }
 

@@ -3,9 +3,6 @@
 
 package com.azure.android.core.http.interceptor;
 
-import com.azure.android.core.util.CoreUtils;
-import com.azure.android.core.util.logging.ClientLogger;
-
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -42,18 +39,12 @@ public class LogOptions {
         "User-Agent"
     );
 
-    private final ClientLogger logger = new ClientLogger(LogOptions.class);
-    private Set<String> allowedHeaderNames;
-    private Set<String> allowedQueryParamNames;
-    private String applicationId;
-
     /**
-     * Creates a new instance that does not log any information about HTTP requests or responses.
+     * Creates a new instance which includes the default headers to whitelist.
      */
     public LogOptions() {
         allowedHeaderNames = new HashSet<>(DEFAULT_HEADERS_WHITELIST);
         allowedQueryParamNames = new HashSet<>();
-        applicationId = null;
     }
 
     /**
@@ -129,35 +120,6 @@ public class LogOptions {
 
         return this;
     }
-
-    /**
-     * Gets the application specific id.
-     *
-     * @return The application specific id.
-     */
-    public String getApplicationId() {
-        return applicationId;
-    }
-
-    /**
-     * Sets the custom application specific ID supplied by the user of the client library.
-     *
-     * @param applicationId The user specified application ID.
-     * @return The updated {@link LogOptions} object.
-     */
-    public LogOptions setApplicationId(final String applicationId) {
-        if (!CoreUtils.isNullOrEmpty(applicationId)) {
-            if (applicationId.length() > MAX_APPLICATION_ID_LENGTH) {
-                throw logger
-                    .logExceptionAsError(new IllegalArgumentException("'applicationId' length cannot be greater than "
-                        + MAX_APPLICATION_ID_LENGTH));
-            } else if (applicationId.contains(" ")) {
-                throw logger
-                    .logExceptionAsError(new IllegalArgumentException("'applicationId' must not contain a space."));
-            } else {
-                this.applicationId = applicationId;
-            }
-        }
 
         return this;
     }

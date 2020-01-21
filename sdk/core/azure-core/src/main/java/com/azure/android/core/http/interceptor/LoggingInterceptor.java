@@ -14,7 +14,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import kotlin.Pair;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
@@ -34,25 +33,36 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 public final class LoggingInterceptor implements Interceptor {
     private static final String CLIENT_REQUEST_ID = "x-ms-client-request-id";
 
-    private final ClientLogger logger = new ClientLogger(LoggingInterceptor.class);
+    private final ClientLogger logger;
     private final Set<String> allowedHeaderNames;
     private final Set<String> allowedQueryParameterNames;
 
     /**
-     * Creates a LoggingPolicy with the given log configurations.
+     * Creates an LoggingPolicy with the given log configurations and a default {@link ClientLogger}.
      *
-     * @param LogOptions The HTTP logging configurations.
+     * @param logOptions The HTTP logging configurations.
      */
-    private LoggingInterceptor(LogOptions LogOptions) {
+    public LoggingInterceptor(LogOptions logOptions) {
+        this(logOptions, ClientLogger.getDefault(LoggingInterceptor.class));
+    }
+
+    /**
+     * Creates an LoggingPolicy with the given log configurations and {@link ClientLogger}.
+     *
+     * @param logOptions   The HTTP logging configurations.
+     * @param clientLogger The {@link ClientLogger} implementation to use for logging.
+     */
+    public LoggingInterceptor(LogOptions logOptions, ClientLogger clientLogger) {
+        logger = clientLogger;
         allowedHeaderNames = Collections.emptySet();
         allowedQueryParameterNames = Collections.emptySet();
 
-        if (LogOptions != null) {
-            for (String headerName : LogOptions.getAllowedHeaderNames()) {
+        if (logOptions != null) {
+            for (String headerName : logOptions.getAllowedHeaderNames()) {
                 allowedHeaderNames.add(headerName.toLowerCase(Locale.ROOT));
             }
 
-            for (String queryParamName : LogOptions.getAllowedQueryParamNames()) {
+            for (String queryParamName : logOptions.getAllowedQueryParamNames()) {
                 allowedQueryParameterNames.add(queryParamName.toLowerCase(Locale.ROOT));
             }
         }
@@ -109,7 +119,7 @@ public final class LoggingInterceptor implements Interceptor {
                 requestBody.writeTo(buffer);
 
                 if (charset != null) {
-                    logger.verbose(buffer.readString(charset));
+                    logger.debug(buffer.readString(charset));
                 } else {
                     logger.warning("Could not log the request body. No charset found for decoding.");
                 }
@@ -117,10 +127,10 @@ public final class LoggingInterceptor implements Interceptor {
                 logger.warning("Could not log the request body", e);
             }
         } else {
-            logger.verbose(bodyEvaluation);
+            logger.debug(bodyEvaluation);
         }
 
-        logger.verbose("--> [END " + request.header(CLIENT_REQUEST_ID) + "]");
+        logger.debug("--> [END " + request.header(CLIENT_REQUEST_ID) + "]");
     }
 
     /**
@@ -158,7 +168,7 @@ public final class LoggingInterceptor implements Interceptor {
                 Charset charset = (contentType == null) ? UTF_8 : contentType.charset(UTF_8);
 
                 if (charset != null) {
-                    logger.verbose(buffer.clone().readString(charset));
+                    logger.debug(buffer.clone().readString(charset));
                 } else {
                     logger.warning("Could not log the response body. No charset found for decoding.");
                 }
@@ -166,7 +176,7 @@ public final class LoggingInterceptor implements Interceptor {
                 logger.warning("Could not log the response body", e);
             }
         } else {
-            logger.verbose(bodyEvaluation);
+            logger.debug(bodyEvaluation);
         }
 
         logger.info("<-- [END " + response.header(CLIENT_REQUEST_ID) + "]");
@@ -179,15 +189,15 @@ public final class LoggingInterceptor implements Interceptor {
      * @param headers HTTP headers on the request or response.
      */
     private void logHeaders(Headers headers) {
-        for (Pair<? extends String, ? extends String> header : headers) {
-            String headerName = header.getFirst();
-            String headerValue = header.getSecond();
-
+        int size = headers.size();
+        for (int i = 0; i < size; i++) {
+            String headerName = headers.name(i);
+            String headerValue = headers.value(i);
             if (!allowedHeaderNames.contains(headerName.toLowerCase(Locale.ROOT))) {
                 headerValue = LogUtils.REDACTED_PLACEHOLDER;
             }
 
-            logger.verbose(headerName + ": " + headerValue);
+            logger.debug(headerName + ": " + headerValue);
         }
     }
 }

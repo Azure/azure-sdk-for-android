@@ -6,14 +6,12 @@ package com.azure.android.core.http.interceptor;
 import com.azure.android.core.util.CoreUtils;
 import com.azure.android.core.util.logging.ClientLogger;
 
-import org.jetbrains.annotations.NotNull;
-
+import androidx.annotation.NonNull;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
-import kotlin.Pair;
 import okhttp3.Headers;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
@@ -33,14 +31,18 @@ public class CurlLoggingInterceptor implements Interceptor {
     private StringBuilder curlCommand;
 
     public CurlLoggingInterceptor() {
+        this(ClientLogger.getDefault(CurlLoggingInterceptor.class));
+    }
+
+    public CurlLoggingInterceptor(ClientLogger clientLogger) {
         logger = new ClientLogger(CurlLoggingInterceptor.class);
         compressed = false;
         curlCommand = new StringBuilder("curl");
     }
 
-    @NotNull
+    @NonNull
     @Override
-    public Response intercept(@NotNull Chain chain) throws IOException {
+    public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
         Headers headers = request.headers();
 
@@ -63,9 +65,9 @@ public class CurlLoggingInterceptor implements Interceptor {
             .append("\"");
 
         // TODO: Add log level guard for headers and body.
-        logger.verbose("╭--- cURL " + request.url());
-        logger.verbose(curlCommand.toString());
-        logger.verbose("╰--- (copy and paste the above line to a terminal)");
+        logger.debug("╭--- cURL " + request.url());
+        logger.debug(curlCommand.toString());
+        logger.debug("╰--- (copy and paste the above line to a terminal)");
 
         return chain.proceed(chain.request());
     }
@@ -77,10 +79,10 @@ public class CurlLoggingInterceptor implements Interceptor {
      * @param curlCommand The StringBuilder that is generating the cURL command.
      */
     private void addHeadersToCurlCommand(Headers headers, StringBuilder curlCommand) {
-        for (Pair<? extends String, ? extends String> header : headers) {
-            String headerName = header.getFirst();
-            String headerValue = header.getSecond();
-
+        int size = headers.size();
+        for (int i = 0; i < size; i++) {
+            String headerName = headers.name(i);
+            String headerValue = headers.value(i);
             if (headerValue.startsWith("\"") || headerValue.endsWith("\"")) {
                 headerValue = "\\\"" + headerValue.replaceAll("\"", "") + "\\\"";
             }
