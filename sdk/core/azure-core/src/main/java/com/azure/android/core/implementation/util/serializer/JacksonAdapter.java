@@ -99,12 +99,12 @@ public class JacksonAdapter implements SerializerAdapter {
     }
 
     @Override
-    public String serialize(Object object, SerializerEncoding encoding) throws IOException {
+    public String serialize(Object object, SerializerFormat encoding) throws IOException {
         if (object == null) {
             return null;
         }
         StringWriter writer = new StringWriter();
-        if (encoding == SerializerEncoding.XML) {
+        if (encoding == SerializerFormat.XML) {
             xmlMapper.writeValue(writer, object);
         } else {
             serializer().writeValue(writer, object);
@@ -115,7 +115,7 @@ public class JacksonAdapter implements SerializerAdapter {
 
     @Override
     @SuppressWarnings("unchecked")
-    public <T> T deserialize(String value, final Type type, SerializerEncoding encoding) throws IOException {
+    public <T> T deserialize(String value, final Type type, SerializerFormat encoding) throws IOException {
         if (value == null || value.isEmpty() || value.equals(BOM)) {
             return null;
         }
@@ -126,7 +126,7 @@ public class JacksonAdapter implements SerializerAdapter {
 
         final JavaType javaType = createJavaType(type);
         try {
-            if (encoding == SerializerEncoding.XML) {
+            if (encoding == SerializerFormat.XML) {
                 return (T) xmlMapper.readValue(value, javaType);
             } else {
                 return (T) serializer().readValue(value, javaType);
