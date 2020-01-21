@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.core.http.interceptor;
 
 import com.azure.android.core.util.CoreUtils;
@@ -16,7 +19,7 @@ interface LogUtils {
      * Attempts to retrieve and parse the Content-Length header into a numeric representation.
      *
      * @param headers HTTP headers that are checked for containing Content-Length.
-     * @return long value indicating the content length of the Request or Response
+     * @return The content length of the Request or Response.
      */
     static long getContentLength(Headers headers) {
         long contentLength = 0;
@@ -50,8 +53,8 @@ interface LogUtils {
             return "(non-inline body omitted)";
         }
 
-        if (!CoreUtils.isNullOrEmpty(contentType) &&
-                (contentType.endsWith("octet-stream") || contentType.startsWith("image"))) {
+        if (!CoreUtils.isNullOrEmpty(contentType) && (contentType.endsWith("octet-stream") || contentType.startsWith(
+            "image"))) {
             return "(binary body omitted)";
         }
 
@@ -81,11 +84,11 @@ interface LogUtils {
             return "";
         }
 
-        StringBuilder queryStringBuilder =  new StringBuilder();
+        StringBuilder queryStringBuilder = new StringBuilder();
 
         for (String name : names) {
             if (allowedQueryParameterNames.contains(name.toLowerCase(Locale.ROOT))) {
-                for (String value : url.queryParameterValues(name)){
+                for (String value : url.queryParameterValues(name)) {
                     queryStringBuilder.append(name).append("=").append(value).append("&");
                 }
             } else {
