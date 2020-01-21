@@ -14,3 +14,16 @@ jobs:
       - script: |
           echo Hello, world!
         displayName: A task
+
+  - job: 'Analyze'
+
+    variables:
+      - template: ../variables/globals.yml
+
+    pool:
+      vmImage: 'ubuntu-16.04'
+
+    steps:
+      - script: |
+          echo Hello, world!
+        displayName: A task
