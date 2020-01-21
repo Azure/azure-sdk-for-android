@@ -1,10 +1,10 @@
 package com.azure.android.storage.common.interceptor;
 
+import androidx.annotation.NonNull;
+
 import com.azure.android.core.exception.HttpResponseException;
 import com.azure.android.core.util.CoreUtils;
 import com.azure.android.core.util.logging.ClientLogger;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -61,9 +61,9 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
         logger = clientLogger;
     }
 
-    @NotNull
+    @NonNull
     @Override
-    public Response intercept(@NotNull Chain chain) throws IOException {
+    public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
         Response response = chain.proceed(request);
 

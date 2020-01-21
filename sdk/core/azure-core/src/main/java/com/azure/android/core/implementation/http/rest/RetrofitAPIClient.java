@@ -98,10 +98,9 @@ public class RetrofitAPIClient {
                                                                   Annotation[] parameterAnnotations,
                                                                   Annotation[] methodAnnotations,
                                                                   Retrofit retrofit) {
-                return value -> RequestBody.create(serializer.serialize(value, encoding),
-                        encoding == SerializerEncoding.XML
-                                ? XML_MEDIA_TYPE
-                                : JSON_MEDIA_TYPE);
+                return value -> RequestBody.create(encoding == SerializerEncoding.XML
+                        ? XML_MEDIA_TYPE
+                        : JSON_MEDIA_TYPE, serializer.serialize(value, encoding));
             }
 
             @Override
