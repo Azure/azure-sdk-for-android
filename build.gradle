@@ -37,3 +37,15 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+// Synthesize dependencies for service-level projects so that running a task
+// on a service-level project automatically runs it on all subprojects of that
+// project
+configure(subprojects.findAll { it.path.count(':') == 2 }) {
+    project.gradle.startParameter.taskNames.each { task ->
+        task = task.split(':').last()
+        tasks.create(task) {
+            subprojects.each { dependsOn("$it.name:$task") }
+        }
+    }
+}
