@@ -1,5 +1,6 @@
 parameters:
   ServiceDirectory: not-specified # Set a default that breaks in obvious ways.
+  Artifacts: []
 
 jobs:
   - job: 'Build'
