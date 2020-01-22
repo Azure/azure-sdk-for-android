@@ -17,10 +17,18 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 
+    lintOptions {
+        lintConfig file("$rootDir/sdk/lint.xml")
+    }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+
+        debug {
+            debuggable true
         }
     }
 
@@ -28,7 +36,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation project(path: ":core:azure-core")
+    implementation project(":sdk:core:azure-core")
     implementation "androidx.annotation:annotation:$annotationsVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
 }
