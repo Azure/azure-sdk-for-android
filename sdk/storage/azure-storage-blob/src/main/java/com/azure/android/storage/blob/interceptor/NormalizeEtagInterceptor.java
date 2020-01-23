@@ -1,4 +1,4 @@
-package com.azure.android.storage.common.interceptor;
+package com.azure.android.storage.blob.interceptor;
 
 import androidx.annotation.NonNull;
 
