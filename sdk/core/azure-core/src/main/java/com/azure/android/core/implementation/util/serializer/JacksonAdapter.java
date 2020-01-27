@@ -1,6 +1,10 @@
 package com.azure.android.core.implementation.util.serializer;
 
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.azure.android.core.annotation.HeaderCollection;
+import com.azure.android.core.implementation.util.serializer.threeten.ThreeTenModule;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -17,7 +21,9 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -114,6 +120,19 @@ public class JacksonAdapter implements SerializerAdapter {
     }
 
     @Override
+    public String serializeList(List<?> list, CollectionFormat format) {
+        if (list == null) {
+            return null;
+        }
+        List<String> serialized = new ArrayList<>();
+        for (Object element : list) {
+            String raw = serializeRaw(element);
+            serialized.add(raw != null ? raw : "");
+        }
+        return TextUtils.join(format.getDelimiter(), serialized);
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
     public <T> T deserialize(String value, final Type type, SerializerEncoding encoding) throws IOException {
         if (value == null || value.isEmpty() || value.equals(BOM)) {
@@ -142,8 +161,11 @@ public class JacksonAdapter implements SerializerAdapter {
         if (deserializedHeadersType == null) {
             return null;
         }
-
-        final String headersJsonString = headerMapper.writeValueAsString(headers);
+        Map<String, String> headersMap = new HashMap<>();
+        for (String headerName : headers.names()) {
+            headersMap.put(headerName, headers.get(headerName));
+        }
+        final String headersJsonString = headerMapper.writeValueAsString(headersMap);
         T deserializedHeaders =
                 headerMapper.readValue(headersJsonString, createJavaType(deserializedHeadersType));
 
@@ -205,7 +227,7 @@ public class JacksonAdapter implements SerializerAdapter {
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                // TODO: anuchan: Add "deserializer" for three-tenabp types 1. OffsetDateTime and 2. Duration.
+                .registerModule(new ThreeTenModule())
                 .registerModule(ByteArraySerializer.getModule())
                 .registerModule(Base64UrlSerializer.getModule())
                 .registerModule(DateTimeSerializer.getModule())
@@ -262,5 +284,19 @@ public class JacksonAdapter implements SerializerAdapter {
             return new Type[0];
         }
         return ((ParameterizedType) type).getActualTypeArguments();
+    }
+
+    private String serializeRaw(Object object) {
+        if (object == null) {
+            return null;
+        }
+        try {
+            return serialize(object, SerializerEncoding.JSON)
+                    .replaceAll("^\"*", "")
+                    .replaceAll("\"*$", "");
+        } catch (IOException ex) {
+            Log.w("", "Failed to serialize to JSON.", ex);
+            return null;
+        }
     }
 }

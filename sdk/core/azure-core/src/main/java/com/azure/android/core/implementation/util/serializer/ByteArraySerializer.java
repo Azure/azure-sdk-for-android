@@ -1,8 +1,7 @@
-package com.azure.android.core.implementation.util.serializer;
-
-
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
+
+package com.azure.android.core.implementation.util.serializer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
