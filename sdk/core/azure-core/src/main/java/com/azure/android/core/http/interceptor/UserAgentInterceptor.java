@@ -5,6 +5,9 @@ package com.azure.android.core.http.interceptor;
 
 import androidx.annotation.NonNull;
 
+import com.azure.android.core.provider.ApplicationInformationProvider;
+import com.azure.android.core.provider.LocaleInformationProvider;
+import com.azure.android.core.provider.PlatformInformationProvider;
 import com.azure.android.core.util.CoreUtils;
 
 import java.io.IOException;
@@ -43,8 +46,11 @@ public class UserAgentInterceptor implements Interceptor {
     // <user_language>_<user_region>
     private static final String USER_LOCALE_INFO_FORMAT = "%s_%s";
 
-    private final DeviceInformation deviceInformation;
     private final String userAgent;
+
+    private ApplicationInformationProvider applicationInformationProvider = null;
+    private PlatformInformationProvider platformInformationProvider = null;
+    private LocaleInformationProvider localeInformationProvider = null;
 
     /**
      * Creates a {@link UserAgentInterceptor} with a default value for the User-Agent header.
@@ -60,8 +66,6 @@ public class UserAgentInterceptor implements Interceptor {
      * @param userAgent The user agent string to use as or prepend to the User-Agent header.
      */
     public UserAgentInterceptor(String userAgent) {
-        this.deviceInformation = null;
-
         if (userAgent != null) {
             this.userAgent = userAgent;
         } else {
@@ -77,8 +81,6 @@ public class UserAgentInterceptor implements Interceptor {
      * @param sdkVersion Version of the client library.
      */
     public UserAgentInterceptor(String sdkName, String sdkVersion) {
-        this.deviceInformation = null;
-
         userAgent = String.format(USER_AGENT_FORMAT,
             sdkName,
             sdkVersion,
@@ -97,17 +99,17 @@ public class UserAgentInterceptor implements Interceptor {
      * @param sdkVersion    Version of the client library.
      */
     public UserAgentInterceptor(String sdkName, String sdkVersion, String applicationId) {
-        this.deviceInformation = null;
-
         if (applicationId == null) {
-            userAgent = String.format(USER_AGENT_FORMAT,
+            userAgent = String.format(
+                USER_AGENT_FORMAT,
                 sdkName,
                 sdkVersion,
                 getPlatformInfo(),
                 getApplicationInfo(),
                 getLocaleInfo());
         } else {
-            userAgent = String.format(APPLICATION_ID_USER_AGENT_FORMAT,
+            userAgent = String.format(
+                APPLICATION_ID_USER_AGENT_FORMAT,
                 applicationId,
                 sdkName,
                 sdkVersion,
@@ -121,24 +123,33 @@ public class UserAgentInterceptor implements Interceptor {
      * Creates a {@link UserAgentInterceptor} with the {@code sdkName} and {@code sdkVersion} in the User-Agent
      * header value.
      *
-     * @param sdkName           Name of the client library.
-     * @param sdkVersion        Version of the client library.
-     * @param applicationId     User specified application ID.
-     * @param deviceInformation Object to extract device information from.
+     * @param applicationInformationProvider Provider that contains application information.
+     * @param localeInformationProvider      Provider that contains system locale information.
+     * @param applicationId                  User specified application ID.
+     * @param sdkName                        Name of the client library.
+     * @param sdkVersion                     Version of the client library.
      */
-    public UserAgentInterceptor(String sdkName, String sdkVersion, String applicationId,
-                                DeviceInformation deviceInformation) {
-        this.deviceInformation = deviceInformation;
+    public UserAgentInterceptor(String sdkName,
+                                String sdkVersion,
+                                String applicationId,
+                                PlatformInformationProvider platformInformationProvider,
+                                ApplicationInformationProvider applicationInformationProvider,
+                                LocaleInformationProvider localeInformationProvider) {
+        this.platformInformationProvider = platformInformationProvider;
+        this.applicationInformationProvider = applicationInformationProvider;
+        this.localeInformationProvider = localeInformationProvider;
 
         if (applicationId == null) {
-            userAgent = String.format(USER_AGENT_FORMAT,
+            userAgent = String.format(
+                USER_AGENT_FORMAT,
                 sdkName,
                 sdkVersion,
                 getPlatformInfo(),
                 getApplicationInfo(),
                 getLocaleInfo());
         } else {
-            userAgent = String.format(APPLICATION_ID_USER_AGENT_FORMAT,
+            userAgent = String.format(
+                APPLICATION_ID_USER_AGENT_FORMAT,
                 applicationId,
                 sdkName,
                 sdkVersion,
@@ -182,9 +193,9 @@ public class UserAgentInterceptor implements Interceptor {
         String deviceName = "";
         int osVersion = -1;
 
-        if (deviceInformation != null) {
-            String manufacturer = deviceInformation.getManufacturer();
-            String model = deviceInformation.getModel();
+        if (platformInformationProvider != null) {
+            String manufacturer = platformInformationProvider.getManufacturer();
+            String model = platformInformationProvider.getModel();
 
             if (model.toLowerCase().startsWith(manufacturer.toLowerCase())) {
                 deviceName = capitalize(model);
@@ -192,13 +203,13 @@ public class UserAgentInterceptor implements Interceptor {
                 deviceName = capitalize(manufacturer) + " " + model;
             }
 
-            osVersion = deviceInformation.getOsVersion();
+            osVersion = platformInformationProvider.getOsVersion();
         }
 
         return String.format(PLATFORM_INFO_FORMAT, deviceName, osVersion);
     }
 
-    // TODO: Figure out how to pass the SDK info instead of using Azure Core library BuildConfig data.
+    // TODO: Figure out how to get the SDK info instead of using Azure Core library BuildConfig data.
     /*private static String getLibraryInfo() {
         String libraryName = BuildConfig.LIBRARY_PACKAGE_NAME;
         String libraryVersionName = BuildConfig.VERSION_NAME;
@@ -219,10 +230,10 @@ public class UserAgentInterceptor implements Interceptor {
         String applicationVersion = "";
         String targetSdkVersion = "";
 
-        if (deviceInformation != null) {
-            applicationId = deviceInformation.getApplicationId();
-            applicationVersion = deviceInformation.getApplicationVersion();
-            targetSdkVersion = Integer.toString(deviceInformation.getTargetSdkVersion());
+        if (applicationInformationProvider != null) {
+            applicationId = applicationInformationProvider.getApplicationId();
+            applicationVersion = applicationInformationProvider.getApplicationVersion();
+            targetSdkVersion = Integer.toString(applicationInformationProvider.getTargetSdkVersion());
         }
 
         return String.format(APPLICATION_INFO_FORMAT, applicationId, applicationVersion, targetSdkVersion);
@@ -237,9 +248,9 @@ public class UserAgentInterceptor implements Interceptor {
         String region = "";
         String language = "";
 
-        if (deviceInformation != null) {
-            language = deviceInformation.getDefaultSystemLanguage();
-            region = deviceInformation.getSystemRegion();
+        if (localeInformationProvider != null) {
+            language = localeInformationProvider.getDefaultSystemLanguage();
+            region = localeInformationProvider.getSystemRegion();
         }
 
         return String.format(USER_LOCALE_INFO_FORMAT, language, region);
@@ -251,7 +262,7 @@ public class UserAgentInterceptor implements Interceptor {
      * @param string The string to capitalize.
      * @return String where the first letter of each word is capitalized.
      */
-    private static String capitalize(String string) {
+    private String capitalize(String string) {
         if (CoreUtils.isNullOrEmpty(string)) {
             return string;
         }
