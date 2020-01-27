@@ -291,7 +291,7 @@ public class JacksonAdapter implements SerializerAdapter {
             return null;
         }
         try {
-            return serialize(object, SerializerEncoding.JSON)
+            return serialize(object, SerializerFormat.JSON)
                     .replaceAll("^\"*", "")
                     .replaceAll("\"*$", "");
         } catch (IOException ex) {
