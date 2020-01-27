@@ -27,6 +27,8 @@ allprojects {
         annotationsVersion = "1.1.0"
         jacksonDatabindVersion = "2.9.9"
         jacksonDataFormatXmlVersion = "2.9.9"
+        junitVersion = "4.13"
+        mockwebserverVersion = "4.1.1"
         okHttpVersion = "3.13.1"
         retrofitVersion = "2.6.2"
         staxApiVersion = "1.0-2"
