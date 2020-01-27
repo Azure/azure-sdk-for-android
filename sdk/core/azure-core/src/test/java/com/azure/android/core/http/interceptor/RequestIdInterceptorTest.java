@@ -13,14 +13,14 @@ import okhttp3.Request;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
-public class RequestIdInterceptorTest {
-    private static final String REQUEST_ID_HEADER = "x-ms-client-request-id";
+import static com.azure.android.core.http.interceptor.RequestIdInterceptor.REQUEST_ID_HEADER;
 
+public class RequestIdInterceptorTest {
     @Rule
     public final MockWebServer server = new MockWebServer();
 
     @Test
-    public void requestIdIsApplied() throws IOException {
+    public void requestIdHeaderIsPopulated() throws IOException {
         server.enqueue(new MockResponse());
 
         final String[] requestId = {null};
@@ -35,7 +35,7 @@ public class RequestIdInterceptorTest {
 
         OkHttpClient httpClient = httpClientBuilder.build();
         Request request = new okhttp3.Request.Builder()
-            .url(endpointFor(server))
+            .url(getEndpointFrom(server))
             .build();
 
         httpClient.newCall(request).execute();
@@ -43,7 +43,7 @@ public class RequestIdInterceptorTest {
         Assert.assertNotNull(requestId[0]);
     }
 
-    private static URL endpointFor(MockWebServer server) throws MalformedURLException {
+    private static URL getEndpointFrom(MockWebServer server) throws MalformedURLException {
         try {
             return new URL(String.format("http://%s:%s", server.getHostName(), server.getPort()));
         } catch (MalformedURLException e) {
