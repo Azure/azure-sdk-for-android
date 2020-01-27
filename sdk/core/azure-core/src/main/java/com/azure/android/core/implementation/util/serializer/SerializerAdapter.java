@@ -21,7 +21,7 @@ public interface SerializerAdapter {
      * @return the serialized string. Null if the object to serialize is null
      * @throws IOException exception from serialization
      */
-    String serialize(Object object, SerializerEncoding encoding) throws IOException;
+    String serialize(Object object, SerializerFormat encoding) throws IOException;
 
     /**
      * Serializes a list into a string with the delimiter specified with the
@@ -44,7 +44,7 @@ public interface SerializerAdapter {
      * @return the deserialized object
      * @throws IOException exception from deserialization
      */
-    <U> U deserialize(String value, Type type, SerializerEncoding encoding) throws IOException;
+    <U> U deserialize(String value, Type type, SerializerFormat encoding) throws IOException;
 
     /**
      * Deserialize the provided headers returned from a REST API to an entity instance declared as

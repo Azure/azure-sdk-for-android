@@ -6,9 +6,9 @@ package com.azure.android.core.implementation.util.serializer;
 import okhttp3.Headers;
 
 /**
- * Supported serialization encoding formats.
+ * Supported serialization formats.
  */
-public enum SerializerEncoding {
+public enum SerializerFormat {
     /**
      * JavaScript Object Notation.
      */
@@ -20,12 +20,12 @@ public enum SerializerEncoding {
     XML;
 
     /**
-     * Determines the serializer encoding to use based on the Content-Type header.
+     * Determines the serializer format to use based on the Content-Type header.
      *
      * @param headers the headers to check the encoding for
-     * @return the serializer encoding to use for the body
+     * @return the serializer format to use for the body
      */
-    public static SerializerEncoding fromHeaders(Headers headers) {
+    public static SerializerFormat fromHeaders(Headers headers) {
         String mimeContentType = headers.get("Content-Type");
         if (mimeContentType != null) {
             String[] parts = mimeContentType.split(";");
