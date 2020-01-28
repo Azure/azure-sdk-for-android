@@ -3,10 +3,11 @@
 
 package com.azure.android.core.http.interceptor;
 
+import androidx.annotation.NonNull;
+
 import com.azure.android.core.util.CoreUtils;
 import com.azure.android.core.util.logging.ClientLogger;
 
-import androidx.annotation.NonNull;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
@@ -23,12 +24,12 @@ import okio.Buffer;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
- * Pipeline interceptor that handles logging of HTTP requests as cURL commands.
+ * Pipeline interceptor that logs HTTP requests as cURL commands.
  */
 public class CurlLoggingInterceptor implements Interceptor {
     private final ClientLogger logger;
-    private StringBuilder curlCommand;
     private boolean compressed;
+    private StringBuilder curlCommand;
 
     public CurlLoggingInterceptor() {
         this(ClientLogger.getDefault(CurlLoggingInterceptor.class));
@@ -36,8 +37,8 @@ public class CurlLoggingInterceptor implements Interceptor {
 
     public CurlLoggingInterceptor(ClientLogger clientLogger) {
         logger = clientLogger;
-        curlCommand = new StringBuilder("curl");
         compressed = false;
+        curlCommand = new StringBuilder("curl");
     }
 
     @NonNull
@@ -50,6 +51,7 @@ public class CurlLoggingInterceptor implements Interceptor {
             .append(request.method());
 
         addHeadersToCurlCommand(headers, curlCommand);
+
         RequestBody requestBody = request.body();
         String bodyEvaluation = LogUtils.evaluateBody(headers);
 
@@ -63,7 +65,7 @@ public class CurlLoggingInterceptor implements Interceptor {
             .append(request.url())
             .append("\"");
 
-        // TODO: Add log level guard for headers and body
+        // TODO: Add log level guard for headers and body.
         logger.debug("╭--- cURL " + request.url());
         logger.debug(curlCommand.toString());
         logger.debug("╰--- (copy and paste the above line to a terminal)");
@@ -72,10 +74,10 @@ public class CurlLoggingInterceptor implements Interceptor {
     }
 
     /**
-     * Adds HTTP headers into the StringBuilder that is generating the cURL command.
+     * Adds HTTP headers to the StringBuilder that is generating the cURL command.
      *
      * @param headers     HTTP headers on the request or response.
-     * @param curlCommand StringBuilder that is generating the cURL command.
+     * @param curlCommand The StringBuilder that is generating the cURL command.
      */
     private void addHeadersToCurlCommand(Headers headers, StringBuilder curlCommand) {
         int size = headers.size();
@@ -101,20 +103,21 @@ public class CurlLoggingInterceptor implements Interceptor {
     /**
      * Adds HTTP headers into the StringBuilder that is generating the cURL command.
      *
-     * @param requestBody Body on the request.
-     * @param curlCommand StringBuilder that is generating the cURL command.
+     * @param requestBody Body of the request.
+     * @param curlCommand The StringBuilder that is generating the cURL command.
      */
     private void addBodyToCurlCommand(RequestBody requestBody, StringBuilder curlCommand) {
         try {
             Buffer buffer = new Buffer();
             MediaType contentType = requestBody.contentType();
             Charset charset = (contentType == null) ? UTF_8 : contentType.charset(UTF_8);
+
             requestBody.writeTo(buffer);
 
             if (charset != null) {
                 String requestBodyString = buffer.readString(charset);
-
                 Map<Character, CharSequence> toReplace = new HashMap<>();
+
                 toReplace.put('\n', "\\n");
                 toReplace.put('\"', "\\\"");
 

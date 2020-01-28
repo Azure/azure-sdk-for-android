@@ -49,6 +49,6 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "javax.xml.stream:stax-api:$staxApiVersion" // https://stackoverflow.com/a/47371517/1473510
-    testImplementation "junit:junit:$junitVersion"
-    testImplementation "com.squareup.okhttp3:mockwebserver:$mockwebserverVersion"
+    testImplementation "com.squareup.okhttp3:mockwebserver:$mockWebServerVersion"
+    testImplementation "junit:junit:$jUnitVersion"
 }

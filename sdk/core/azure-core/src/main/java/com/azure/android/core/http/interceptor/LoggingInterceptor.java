@@ -72,12 +72,14 @@ public final class LoggingInterceptor implements Interceptor {
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
+
         logRequest(request);
 
         try {
             long startNs = System.nanoTime();
             Response response = chain.proceed(request);
             long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
+
             logResponse(response, tookMs);
 
             return response;
@@ -92,7 +94,7 @@ public final class LoggingInterceptor implements Interceptor {
     /**
      * Logs the HTTP request.
      *
-     * @param request OkHTTP request being sent to Azure.
+     * @param request The HTTP request being sent to Azure.
      */
     private void logRequest(final Request request) {
         HttpUrl url = request.url();
@@ -102,7 +104,9 @@ public final class LoggingInterceptor implements Interceptor {
             allowedQueryParameterNames)); // URL path + query
         logger.info("Host: " + url.scheme() + "://" + url.host()); // URL host
 
+        // TODO: Add log level guard for headers and body.
         logHeaders(request.headers());
+
         String bodyEvaluation = LogUtils.evaluateBody(request.headers());
         RequestBody requestBody = request.body();
 
@@ -111,6 +115,7 @@ public final class LoggingInterceptor implements Interceptor {
                 Buffer buffer = new Buffer();
                 MediaType contentType = requestBody.contentType();
                 Charset charset = (contentType == null) ? UTF_8 : contentType.charset(UTF_8);
+
                 requestBody.writeTo(buffer);
 
                 if (charset != null) {
@@ -129,9 +134,9 @@ public final class LoggingInterceptor implements Interceptor {
     }
 
     /**
-     * Logs thr HTTP response.
+     * Logs the HTTP response.
      *
-     * @param response HTTP response returned from Azure.
+     * @param response The HTTP response received form Azure.
      * @param tookMs   Nanosecond representation of when the request was sent.
      */
     private void logResponse(final Response response, long tookMs) {
@@ -143,7 +148,9 @@ public final class LoggingInterceptor implements Interceptor {
             logger.warning(response.code() + " " + response.message());
         }
 
+        // TODO: Add log level guard for headers and body.
         logHeaders(response.headers());
+
         String bodyEvaluation = LogUtils.evaluateBody(response.headers());
         ResponseBody responseBody = response.body();
 
@@ -151,9 +158,11 @@ public final class LoggingInterceptor implements Interceptor {
             logger.warning("No response data available");
         } else if (bodyEvaluation.equals("Log body")) {
             try {
-                // TODO: Figure out if it's possible to log the body without cloning it in its entirety
+                // TODO: Figure out if it's possible to log the body without cloning it in its entirety.
                 BufferedSource bufferedSource = responseBody.source();
+
                 bufferedSource.request(Long.MAX_VALUE); // Buffer the entire body
+
                 Buffer buffer = bufferedSource.getBuffer();
                 MediaType contentType = responseBody.contentType();
                 Charset charset = (contentType == null) ? UTF_8 : contentType.charset(UTF_8);
@@ -187,7 +196,7 @@ public final class LoggingInterceptor implements Interceptor {
             if (!allowedHeaderNames.contains(headerName.toLowerCase(Locale.ROOT))) {
                 headerValue = LogUtils.REDACTED_PLACEHOLDER;
             }
-          
+
             logger.debug(headerName + ": " + headerValue);
         }
     }

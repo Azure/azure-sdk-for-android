@@ -8,15 +8,19 @@ import androidx.annotation.NonNull;
 import com.azure.android.core.provider.ApplicationInformationProvider;
 
 /**
- * Provider that contains application and platform information extracted from a {@link Context} object.
+ * Provider that contains application information extracted from a application's {@link Context} object.
  */
 public class AndroidApplicationInformationProvider implements ApplicationInformationProvider {
     private final Context context;
     private String applicationId;
     private String applicationVersion;
-    private String systemRegion;
     private int targetSdkVersion;
 
+    /**
+     * Constructor that takes an application's {@link Context} to extract data from.
+     *
+     * @param context The application's context.
+     */
     public AndroidApplicationInformationProvider(@NonNull Context context) {
         this.context = context;
         applicationId = null;
@@ -24,6 +28,9 @@ public class AndroidApplicationInformationProvider implements ApplicationInforma
         targetSdkVersion = -1;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getApplicationId() {
         if (applicationId == null) {
@@ -33,6 +40,9 @@ public class AndroidApplicationInformationProvider implements ApplicationInforma
         return applicationId;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getApplicationVersion() {
         if (applicationVersion == null) {
@@ -46,6 +56,9 @@ public class AndroidApplicationInformationProvider implements ApplicationInforma
         return applicationVersion;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getTargetSdkVersion() {
         if (targetSdkVersion == -1) {

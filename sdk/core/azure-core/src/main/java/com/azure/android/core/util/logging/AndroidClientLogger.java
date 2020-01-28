@@ -8,39 +8,41 @@ import android.util.Log;
 /**
  * This is a fluent logger helper class that implements the {@link ClientLogger} interface and uses the Android
  * {@link Log} class and its methods.
- *
- * <p>The default log level is INFO</p>
- *
- * <p><strong>Log level hierarchy</strong></p>
+ * <p>
+ * The default log level is INFO
+ * <p>
+ * <strong>Log level hierarchy</strong>
  * <ol>
  * <li>{@link AndroidClientLogger#error(String) Error}</li>
  * <li>{@link AndroidClientLogger#warning(String) Warning}</li>
  * <li>{@link AndroidClientLogger#info(String) Info}</li>
  * <li>{@link AndroidClientLogger#debug(String) Verbose}</li>
- * </ol>
  */
-public class AndroidClientLogger implements ClientLogger {
+final class AndroidClientLogger implements ClientLogger {
     private final String tag;
 
     /**
-     * Retrieves a logger for the name of the given class with a .
+     * Retrieves a logger for the name of the given class.
      *
      * @param clazz Class creating the logger.
      */
-    public AndroidClientLogger(Class<?> clazz) {
+    AndroidClientLogger(Class<?> clazz) {
         this(clazz.getName());
     }
 
     /**
-     * Retrieves a logger for the given tag .
+     * Retrieves a logger for the given tag.
      *
      * @param tag Class name creating the logger.
      */
-    public AndroidClientLogger(String tag) {
+    AndroidClientLogger(String tag) {
         this.tag = tag;
         logLevel = LOG_LEVEL_INFO;
     }
 
+    /**
+     * The log level.
+     */
     @LogLevel
     private int logLevel;
 
@@ -61,48 +63,80 @@ public class AndroidClientLogger implements ClientLogger {
         this.logLevel = logLevel;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void debug(String message) {
         if (LOG_LEVEL_DEBUG >= this.logLevel) {
             Log.d(tag, message);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void debug(String message, Throwable throwable) {
         if (LOG_LEVEL_DEBUG >= this.logLevel) {
             Log.d(tag, message, throwable);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void info(String message) {
         if (LOG_LEVEL_INFO >= this.logLevel) {
             Log.i(tag, message);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void info(String message, Throwable throwable) {
         if (LOG_LEVEL_INFO >= this.logLevel) {
             Log.i(tag, message, throwable);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void warning(String message) {
         if (LOG_LEVEL_WARNING>= this.logLevel) {
             Log.w(tag, message);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void warning(String message, Throwable throwable) {
         if (LOG_LEVEL_WARNING>= this.logLevel) {
             Log.w(tag, message, throwable);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void error(String message) {
         if (LOG_LEVEL_ERROR >= this.logLevel) {
             Log.e(tag, message);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void error(String message, Throwable throwable) {
         if (LOG_LEVEL_ERROR >= this.logLevel) {
             Log.e(tag, message, throwable);

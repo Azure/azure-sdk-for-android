@@ -14,17 +14,19 @@ import java.util.Locale;
  */
 public final class DateTimeRfc1123 {
     /**
-     * The pattern of the datetime used for RFC1123 datetime format.
+     * The pattern of the DateTime used for RFC1123 datetime format.
      */
     private static final DateTimeFormatter RFC1123_DATE_TIME_FORMATTER =
         DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'").withZone(ZoneId.of("UTC")).withLocale(Locale.US);
+
     /**
-     * The actual datetime object.
+     * The actual DateTime object.
      */
     private final OffsetDateTime dateTime;
 
     /**
-     * Creates a new DateTimeRfc1123 object with the specified DateTime.
+     * Creates a new {@link DateTimeRfc1123} object with the specified DateTime.
+     *
      * @param dateTime The DateTime object to wrap.
      */
     public DateTimeRfc1123(OffsetDateTime dateTime) {
@@ -32,32 +34,31 @@ public final class DateTimeRfc1123 {
     }
 
     /**
-     * Creates a new DateTimeRfc1123 object with the specified DateTime.
-     * @param formattedString The datetime string in RFC1123 format
+     * Creates a new {@link DateTimeRfc1123} object with the specified DateTime.
+     *
+     * @param formattedString The DateTime string in RFC1123 format.
      */
     public DateTimeRfc1123(String formattedString) {
-        this.dateTime = OffsetDateTime.parse(formattedString, DateTimeFormatter.RFC_1123_DATE_TIME);
+        dateTime = OffsetDateTime.parse(formattedString, DateTimeFormatter.RFC_1123_DATE_TIME);
     }
 
     /**
      * Returns the underlying DateTime.
+     *
      * @return The underlying DateTime.
      */
     public OffsetDateTime getDateTime() {
-        if (this.dateTime == null) {
-            return null;
-        }
-        return this.dateTime;
+        return dateTime;
     }
 
     @Override
     public String toString() {
-        return RFC1123_DATE_TIME_FORMATTER.format(this.dateTime);
+        return RFC1123_DATE_TIME_FORMATTER.format(dateTime);
     }
 
     @Override
     public int hashCode() {
-        return this.dateTime.hashCode();
+        return dateTime.hashCode();
     }
 
     @Override
@@ -71,6 +72,7 @@ public final class DateTimeRfc1123 {
         }
 
         DateTimeRfc1123 rhs = (DateTimeRfc1123) obj;
-        return this.dateTime.equals(rhs.getDateTime());
+
+        return dateTime.equals(rhs.getDateTime());
     }
 }

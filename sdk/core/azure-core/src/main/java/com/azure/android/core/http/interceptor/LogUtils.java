@@ -19,7 +19,7 @@ interface LogUtils {
      * Attempts to retrieve and parse the Content-Length header into a numeric representation.
      *
      * @param headers HTTP headers that are checked for containing Content-Length.
-     * @return The content length of the Request or Response.
+     * @return The content length of the request or response.
      */
     static long getContentLength(Headers headers) {
         long contentLength = 0;
@@ -36,8 +36,9 @@ interface LogUtils {
      * Determines if the request or response body should be logged. If not, if returns an appropriate message to log
      * in lieu of said body.
      *
-     * @return null in case the body should be logged in its entirety, otherwise a message indicating why the body was
-     * not logged is returned.
+     * @param headers HTTP headers of the request or response.
+     * @return "Log body" if the body should be logged in its entirety, otherwise a message indicating why the body
+     * was not logged is returned.
      */
     static String evaluateBody(Headers headers) {
         String contentEncoding = headers.get("Content-Encoding");
@@ -72,10 +73,10 @@ interface LogUtils {
     }
 
     /**
-     * Generates the logging safe query parameters string.
+     * Generates a redacted query parameters string based on a given URL.
      *
-     * @param url Request URL to read the query parameters from.
-     * @return A query parameter string redacted based on the configurations in this policy.
+     * @param url The request URL.
+     * @return A query parameter string redacted based on the {@link LogOptions} configuration.
      */
     static String getRedactedQueryString(HttpUrl url, Set<String> allowedQueryParameterNames) {
         Set<String> names = url.queryParameterNames();

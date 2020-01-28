@@ -18,27 +18,25 @@ public class StreamResponse extends Response<Reader> implements Closeable {
     private final retrofit2.Response<ResponseBody> innerResponse;
 
     /**
-     * Creates StreamResponse
+     * Creates StreamResponse.
      *
-     * @param innerResponse the getRetrofit response backing this stream response
+     * @param innerResponse The Retrofit response backing this stream response.
      */
     public StreamResponse(@NonNull retrofit2.Response<ResponseBody> innerResponse) {
         super(innerResponse.raw().request(),
-                innerResponse.code(),
-                innerResponse.headers(),
-                innerResponse.body().charStream());
+            innerResponse.code(),
+            innerResponse.headers(),
+            innerResponse.body().charStream());
         this.innerResponse = innerResponse;
     }
 
     /**
-     * Returns the response as a byte array.
+     * This method loads entire response body into memory. If the response body is very large this may trigger an
+     * [OutOfMemoryError]. Prefer to stream the response body using {@link this#getValue()} if this is a possibility
+     * for your response.
      *
-     * This method loads entire response body into memory. If the response body is very
-     * large this may trigger an [OutOfMemoryError]. Prefer to stream the response body
-     * using {@link this#getValue()} if this is a possibility for your response.
-     *
-     * @return the response content as byte array
-     * @throws IOException
+     * @return The response content as a byte array.
+     * @throws IOException In case there is a problem reading the response body.
      */
     public byte[] getBytes() throws IOException {
         return this.innerResponse.body().bytes();
