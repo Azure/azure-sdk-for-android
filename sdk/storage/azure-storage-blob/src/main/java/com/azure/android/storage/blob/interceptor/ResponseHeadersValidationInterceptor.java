@@ -2,7 +2,7 @@ package com.azure.android.storage.blob.interceptor;
 
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.exception.HttpResponseException;
+import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.util.CoreUtils;
 import com.azure.android.core.util.logging.ClientLogger;
 
@@ -15,15 +15,13 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * Interceptor that validates that a collection of headers have consitent values between a {@code Request} and a
- * {@code Response}.
+ * Interceptor that validates that a collection of headers have consistent values between a request and a response.
  */
 public class ResponseHeadersValidationInterceptor implements Interceptor {
-    private final ClientLogger logger;
-
     private static final String CLIENT_ID_HEADER = "x-ms-client-id";
     private static final String ENCRYPTION_KEY_SHA256_HEADER = "x-ms-encryption-key-sha256";
 
+    private final ClientLogger logger;
     private final Collection<String> headerNames = new ArrayList<>();
 
     /**

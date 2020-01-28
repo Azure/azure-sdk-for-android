@@ -6,21 +6,21 @@ package com.azure.android.core.http;
 /**
  * Rest API response with a strongly-typed content.
  *
- * @param <T> The type of the response content, available from {@link #getValue()}.
+ * @param <T> The type of the response content, available by using {@link #getValue()}.
  */
 public class Response<T> {
+    private final okhttp3.Headers headers;
     private final okhttp3.Request request;
     private final int statusCode;
-    private final okhttp3.Headers headers;
     private final T value;
 
     /**
      * Creates Response.
      *
-     * @param request the request that resulted in this response
-     * @param statusCode the http response status code
-     * @param headers the http response header
-     * @param value the http response content as strongly typed instance
+     * @param request    The request that resulted in this response.
+     * @param statusCode The HTTP response status code.
+     * @param headers    The HTTP response header.
+     * @param value      The HTTP response content as a strongly typed instance.
      */
     public Response(okhttp3.Request request, int statusCode, okhttp3.Headers headers, T value) {
         this.request = request;

@@ -10,18 +10,20 @@ import java.lang.annotation.RetentionPolicy;
 
 public interface ClientLogger {
     /**
-     * Retrieves a default {@link AndroidClientLogger} for the name of the given class.
+     * Creates and returns a default {@link ClientLogger} for the name of the given class.
      *
      * @param clazz Class creating the logger.
+     * @return An {@link AndroidClientLogger}.
      */
     static ClientLogger getDefault(Class<?> clazz) {
         return getDefault(clazz.getName());
     }
 
     /**
-     * Retrieves a default {@link AndroidClientLogger} for the given tag.
+     * Creates and returns a default {@link ClientLogger} for the given tag.
      *
      * @param tag Tag for the logger.
+     * @return An {@link AndroidClientLogger}.
      */
     static ClientLogger getDefault(String tag) {
         return new AndroidClientLogger(tag);

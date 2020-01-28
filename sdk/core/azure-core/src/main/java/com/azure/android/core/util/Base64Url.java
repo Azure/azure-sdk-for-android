@@ -11,12 +11,12 @@ import java.util.Arrays;
  */
 public final class Base64Url {
     /**
-     * The Base64Url encoded bytes.
+     * The {@link Base64Url} encoded bytes.
      */
     private final byte[] bytes;
 
     /**
-     * Creates a new Base64Url object with the specified encoded string.
+     * Creates a new {@link Base64Url} object with the specified encoded string.
      *
      * @param string The encoded string.
      */
@@ -30,7 +30,7 @@ public final class Base64Url {
     }
 
     /**
-     * Creates a new Base64Url object with the specified encoded bytes.
+     * Creates a new {@link Base64Url} object with the specified encoded bytes.
      *
      * @param bytes The encoded bytes.
      */
@@ -42,25 +42,29 @@ public final class Base64Url {
         if (bytes != null && bytes.length > 1) {
             bytes = unquote(new String(bytes, StandardCharsets.UTF_8)).getBytes(StandardCharsets.UTF_8);
         }
+
         return bytes;
     }
 
     private static String unquote(String string) {
         if (string != null && !string.isEmpty()) {
             final char firstCharacter = string.charAt(0);
+
             if (firstCharacter == '\"' || firstCharacter == '\'') {
                 final int base64UrlStringLength = string.length();
                 final char lastCharacter = string.charAt(base64UrlStringLength - 1);
+
                 if (lastCharacter == firstCharacter) {
                     string = string.substring(1, base64UrlStringLength - 1);
                 }
             }
         }
+
         return string;
     }
 
     /**
-     * Encodes a byte array into Base64Url encoded bytes.
+     * Encodes a byte array into {@link Base64Url} encoded bytes.
      *
      * @param bytes The byte array to encode.
      * @return A new Base64Url instance.
@@ -91,6 +95,7 @@ public final class Base64Url {
         if (this.bytes == null) {
             return null;
         }
+
         return Base64Util.decodeURL(bytes);
     }
 
@@ -115,21 +120,25 @@ public final class Base64Url {
         }
 
         Base64Url rhs = (Base64Url) obj;
+
         return Arrays.equals(this.bytes, rhs.encodedBytes());
     }
 
     /**
      * Creates a copy of the source byte array.
      *
-     * @param source Array to make copy of
+     * @param source Array to make copy of.
      * @return A copy of the array, or null if source was null.
      */
     private static byte[] copy(byte[] source) {
         if (source == null) {
             return null;
         }
+
         byte[] copy = new byte[source.length];
+
         System.arraycopy(source, 0, copy, 0, source.length);
+
         return copy;
     }
 }

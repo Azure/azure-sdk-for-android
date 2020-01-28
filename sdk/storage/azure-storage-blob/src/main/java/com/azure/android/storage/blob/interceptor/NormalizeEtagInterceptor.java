@@ -19,7 +19,7 @@ public class NormalizeEtagInterceptor implements Interceptor {
      * response returns an ETag value, and if it does, remove any quotes that may be present to give the user a more
      * predictable format to work with.
      *
-     * @return an updated response with post processing steps applied.
+     * @return An updated response with post processing steps applied.
      */
     @NonNull
     @Override

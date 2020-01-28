@@ -16,7 +16,8 @@ import okhttp3.Interceptor;
 import okhttp3.Response;
 
 /**
- * Interceptor that adds a "Date" header with the current date and time in RFC 1123 format when sending an HTTP request.
+ * Pipeline interceptor that adds a "Date" header with the current date and time in RFC 1123 format when sending an
+ * HTTP request.
  */
 public class AddDateInterceptor implements Interceptor {
     private static final String DATE_HEADER = "Date";

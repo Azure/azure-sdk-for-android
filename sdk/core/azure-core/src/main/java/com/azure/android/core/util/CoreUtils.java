@@ -6,25 +6,25 @@ package com.azure.android.core.util;
 import java.util.Map;
 
 /**
- * This interface contains utility methods useful for building client libraries.
+ * This interface contains static utility methods.
  */
 public interface CoreUtils {
     /**
-     * Checks if the character sequence is null or empty.
+     * Checks if the given character sequence is {@code null} or empty.
      *
      * @param charSequence Character sequence being checked for nullness or emptiness.
-     * @return True if the character sequence is null or empty, false otherwise.
+     * @return {@code true} if the character sequence is {@code null} or empty, {@code false} otherwise.
      */
     static boolean isNullOrEmpty(CharSequence charSequence) {
         return charSequence == null || charSequence.length() == 0;
     }
 
     /**
-     * Replaces the given characters with a corresponding character sequence
+     * Replaces the characters (keys) in a given map with a corresponding character sequence (values).
      *
      * @param charSequence Character sequence to replace characters in.
      * @param pairs        Map containing which characters to look for and their replacements.
-     * @return StringBuilder where all keys in the map have been replaced by their corresponding values.
+     * @return Character sequence where all keys in the given map have been replaced by their corresponding values.
      */
     static CharSequence replace(CharSequence charSequence, Map<Character, CharSequence> pairs) {
         if (isNullOrEmpty(charSequence)) {

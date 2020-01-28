@@ -12,11 +12,11 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * Base implementation for expandable, single string enums.
  *
- * @param <T> a specific expandable enum type
+ * @param <T> A specific expandable enum type.
  */
 public abstract class ExpandableStringEnum<T extends ExpandableStringEnum<T>> {
-    private static final ConcurrentMap<String,
-            ? extends ExpandableStringEnum<?>> VALUES_BY_NAME = new ConcurrentHashMap<>();
+    private static final ConcurrentMap<String, ? extends ExpandableStringEnum<?>> VALUES_BY_NAME =
+        new ConcurrentHashMap<>();
 
     private String name;
     private Class<T> clazz;
@@ -33,16 +33,18 @@ public abstract class ExpandableStringEnum<T extends ExpandableStringEnum<T>> {
     T nameValue(String name, T value, Class<T> clazz) {
         this.name = name;
         this.clazz = clazz;
+
         ((ConcurrentMap<String, T>) VALUES_BY_NAME).put(uniqueKey(clazz, name), value);
+
         return (T) this;
     }
 
     /**
      * Creates an instance of the specific expandable string enum from a String.
      *
-     * @param name The value to create the instance from.
+     * @param name  The value to create the instance from.
      * @param clazz The class of the expandable string enum.
-     * @param <T> the class of the expandable string enum.
+     * @param <T>   The class of the expandable string enum.
      * @return The expandable string enum instance.
      */
     @SuppressWarnings("unchecked")
@@ -51,6 +53,7 @@ public abstract class ExpandableStringEnum<T extends ExpandableStringEnum<T>> {
             return null;
         } else {
             T value = (T) VALUES_BY_NAME.get(uniqueKey(clazz, name));
+
             if (value != null) {
                 return value;
             }
@@ -58,6 +61,7 @@ public abstract class ExpandableStringEnum<T extends ExpandableStringEnum<T>> {
 
         try {
             T value = clazz.newInstance();
+
             return value.nameValue(name, value, clazz);
         } catch (InstantiationException | IllegalAccessException e) {
             return null;
@@ -67,8 +71,8 @@ public abstract class ExpandableStringEnum<T extends ExpandableStringEnum<T>> {
     /**
      * Gets a collection of all known values to an expandable string enum type.
      *
-     * @param clazz the class of the expandable string enum.
-     * @param <T> the class of the expandable string enum.
+     * @param clazz The class of the expandable string enum.
+     * @param <T>   The class of the expandable string enum.
      * @return A collection of all known values for the given {@code clazz}.
      */
     @SuppressWarnings("unchecked")
@@ -76,7 +80,8 @@ public abstract class ExpandableStringEnum<T extends ExpandableStringEnum<T>> {
         // Make a copy of all values
         Collection<? extends ExpandableStringEnum<?>> values = new ArrayList<>(VALUES_BY_NAME.values());
 
-        Collection<T> list = new HashSet<T>();
+        Collection<T> list = new HashSet<>();
+
         for (ExpandableStringEnum<?> value : values) {
             if (value.getClass().isAssignableFrom(clazz)) {
                 list.add((T) value);
