@@ -23,11 +23,12 @@ import okhttp3.Response;
  * <a href="https://azure.github.io/azure-sdk/general_azurecore.html#telemetry-policy">Azure Core: Telemetry policy</a>.
  */
 public class UserAgentInterceptor implements Interceptor {
-    private static final String DEFAULT_USER_AGENT_HEADER = "azsdk-android";
+    private static final String USER_AGENT_HEADER = "User-Agent";
+    private static final String DEFAULT_USER_AGENT = "azsdk-android";
 
     // From the design guidelines, the default user agent header format is:
     // azsdk-android-<sdk_name>/<sdk_version> (<platform_info>; application_info>; <user_locale_info>
-    private static final String USER_AGENT_FORMAT = DEFAULT_USER_AGENT_HEADER + "-%s/%s (%s; %s; %s)";
+    private static final String USER_AGENT_FORMAT = DEFAULT_USER_AGENT + "-%s/%s (%s; %s; %s)";
 
     // From the design guidelines, the application ID user agent header format is:
     // [<application_id>] azsdk-android-<client_lib>/<sdk_version> (<platform_info>; <application_info>;
@@ -69,7 +70,7 @@ public class UserAgentInterceptor implements Interceptor {
         if (userAgent != null) {
             this.userAgent = userAgent;
         } else {
-            this.userAgent = DEFAULT_USER_AGENT_HEADER;
+            this.userAgent = DEFAULT_USER_AGENT;
         }
     }
 
@@ -160,7 +161,6 @@ public class UserAgentInterceptor implements Interceptor {
     }
 
     /**
-     *
      * Updates the "User-Agent" header with the value supplied in the constructor.
      * <p>
      * When the User-Agent header already has a value and it differs from the value used to create this interceptor the
@@ -172,7 +172,7 @@ public class UserAgentInterceptor implements Interceptor {
         Request request = chain.request();
         String header = request.header("User-Agent");
 
-        if (header == null || header.contains(DEFAULT_USER_AGENT_HEADER)) {
+        if (header == null || header.contains(USER_AGENT_HEADER)) {
             header = userAgent;
         } else {
             header = userAgent + " " + header;

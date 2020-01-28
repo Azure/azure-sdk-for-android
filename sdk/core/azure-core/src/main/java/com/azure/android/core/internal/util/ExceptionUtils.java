@@ -5,7 +5,7 @@ package com.azure.android.core.internal.util;
 
 import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.internal.util.serializer.SerializerAdapter;
-import com.azure.android.core.internal.util.serializer.SerializerEncoding;
+import com.azure.android.core.internal.util.serializer.SerializerFormat;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;
@@ -66,7 +66,7 @@ public class ExceptionUtils {
 
                 try {
                     errorContentDecoded = serializerAdapter.deserialize(errorContent, exceptionValueType,
-                        SerializerEncoding.fromHeaders(response.headers()));
+                        SerializerFormat.fromHeaders(response.headers()));
                 } catch (IOException ignored) {
                     // Ignored
                 }

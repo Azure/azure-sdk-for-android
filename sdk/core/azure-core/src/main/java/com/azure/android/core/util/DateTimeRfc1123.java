@@ -3,70 +3,62 @@
 
 package com.azure.android.core.util;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.format.DateTimeFormatter;
+
 import java.util.Locale;
-import java.util.TimeZone;
 
 /**
- * Wrapper over {@code java.util.Date} used for specifying RFC1123 formatted time.
+ * Wrapper over java.time.OffsetDateTime used for specifying RFC1123 format during serialization and deserialization.
  */
 public final class DateTimeRfc1123 {
-    private static final String RFC1123_DATE_TIME_FORMAT = "EEE, dd MMM yyyy HH:mm:ss z";
+    /**
+     * The pattern of the DateTime used for RFC1123 datetime format.
+     */
+    private static final DateTimeFormatter RFC1123_DATE_TIME_FORMATTER =
+        DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'").withZone(ZoneId.of("UTC")).withLocale(Locale.US);
 
     /**
-     * The actual {@link Date} object.
+     * The actual DateTime object.
      */
-    private final Date dateTime;
+    private final OffsetDateTime dateTime;
 
     /**
      * Creates a new {@link DateTimeRfc1123} object with the specified DateTime.
      *
-     * @param dateTime The Date object to wrap.
+     * @param dateTime The DateTime object to wrap.
      */
-    public DateTimeRfc1123(Date dateTime) {
+    public DateTimeRfc1123(OffsetDateTime dateTime) {
         this.dateTime = dateTime;
     }
 
     /**
      * Creates a new {@link DateTimeRfc1123} object with the specified DateTime.
      *
-     * @param formattedString The Date string in RFC1123 format.
+     * @param formattedString The DateTime string in RFC1123 format.
      */
     public DateTimeRfc1123(String formattedString) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(RFC1123_DATE_TIME_FORMAT, Locale.US);
-
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        try {
-            this.dateTime = dateFormat.parse(formattedString);
-        } catch (ParseException pe) {
-            throw new RuntimeException(pe);
-        }
+        dateTime = OffsetDateTime.parse(formattedString, DateTimeFormatter.RFC_1123_DATE_TIME);
     }
 
     /**
-     * Returns the underlying Date.
+     * Returns the underlying DateTime.
      *
-     * @return The underlying Date.
+     * @return The underlying DateTime.
      */
-    public Date dateTime() {
-        return this.dateTime;
+    public OffsetDateTime getDateTime() {
+        return dateTime;
     }
 
     @Override
     public String toString() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(RFC1123_DATE_TIME_FORMAT, Locale.US);
-
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-
-        return dateFormat.format(this.dateTime);
+        return RFC1123_DATE_TIME_FORMATTER.format(dateTime);
     }
 
     @Override
     public int hashCode() {
-        return this.dateTime.hashCode();
+        return dateTime.hashCode();
     }
 
     @Override
@@ -81,6 +73,6 @@ public final class DateTimeRfc1123 {
 
         DateTimeRfc1123 rhs = (DateTimeRfc1123) obj;
 
-        return this.dateTime.equals(rhs.dateTime());
+        return dateTime.equals(rhs.getDateTime());
     }
 }

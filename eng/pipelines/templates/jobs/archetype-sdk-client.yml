@@ -1,0 +1,30 @@
+parameters:
+  ServiceDirectory: not-specified # Set a default that breaks in obvious ways.
+  Artifacts: []
+
+jobs:
+  - job: 'Build'
+
+    variables:
+      - template: ../variables/globals.yml
+
+    pool:
+      vmImage: 'ubuntu-16.04'
+
+    steps:
+      - script: |
+          echo Hello, world!
+        displayName: A task
+
+  - job: 'Analyze'
+
+    variables:
+      - template: ../variables/globals.yml
+
+    pool:
+      vmImage: 'ubuntu-16.04'
+
+    steps:
+      - script: |
+          echo Hello, world!
+        displayName: A task

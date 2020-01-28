@@ -17,7 +17,7 @@ import okhttp3.Response;
  * the request.
  */
 public class RequestIdInterceptor implements Interceptor {
-    private static final String REQUEST_ID_HEADER = "x-ms-client-request-id";
+    static final String REQUEST_ID_HEADER = "x-ms-client-request-id";
 
     @NonNull
     @Override

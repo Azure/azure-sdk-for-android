@@ -42,6 +42,7 @@ target
 Thumbs.db
 
 # Android #
+!gradle-wrapper.jar
 */bin/
 */gen/
 .gradle/

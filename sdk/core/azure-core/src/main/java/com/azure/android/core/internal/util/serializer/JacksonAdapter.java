@@ -1,7 +1,11 @@
 package com.azure.android.core.internal.util.serializer;
 
+import android.text.TextUtils;
+import android.util.Log;
+
 import com.azure.android.core.annotation.HeaderCollection;
 import com.azure.android.core.internal.util.serializer.exception.MalformedValueException;
+import com.azure.android.core.internal.util.serializer.threeten.ThreeTenModule;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -18,7 +22,9 @@ import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -85,14 +91,14 @@ public class JacksonAdapter implements SerializerAdapter {
     }
 
     @Override
-    public String serialize(Object object, SerializerEncoding encoding) throws IOException {
+    public String serialize(Object object, SerializerFormat encoding) throws IOException {
         if (object == null) {
             return null;
         }
 
         StringWriter writer = new StringWriter();
 
-        if (encoding == SerializerEncoding.XML) {
+        if (encoding == SerializerFormat.XML) {
             xmlMapper.writeValue(writer, object);
         } else {
             serializer().writeValue(writer, object);
@@ -102,8 +108,25 @@ public class JacksonAdapter implements SerializerAdapter {
     }
 
     @Override
+    public String serializeList(List<?> list, CollectionFormat format) {
+        if (list == null) {
+            return null;
+        }
+
+        List<String> serialized = new ArrayList<>();
+
+        for (Object element : list) {
+            String raw = serializeRaw(element);
+
+            serialized.add(raw != null ? raw : "");
+        }
+
+        return TextUtils.join(format.getDelimiter(), serialized);
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
-    public <T> T deserialize(String value, final Type type, SerializerEncoding encoding) throws IOException {
+    public <T> T deserialize(String value, final Type type, SerializerFormat encoding) throws IOException {
         if (value == null || value.isEmpty() || value.equals(BOM)) {
             return null;
         }
@@ -116,7 +139,7 @@ public class JacksonAdapter implements SerializerAdapter {
         final JavaType javaType = createJavaType(type);
 
         try {
-            if (encoding == SerializerEncoding.XML) {
+            if (encoding == SerializerFormat.XML) {
                 return (T) xmlMapper.readValue(value, javaType);
             } else {
                 return (T) serializer().readValue(value, javaType);
@@ -133,9 +156,14 @@ public class JacksonAdapter implements SerializerAdapter {
             return null;
         }
 
-        final String headersJsonString = headerMapper.writeValueAsString(headers);
-        T deserializedHeaders = headerMapper.readValue(headersJsonString, createJavaType(deserializedHeadersType));
+        Map<String, String> headersMap = new HashMap<>();
 
+        for (String headerName : headers.names()) {
+            headersMap.put(headerName, headers.get(headerName));
+        }
+
+        final String headersJsonString = headerMapper.writeValueAsString(headersMap);
+        T deserializedHeaders = headerMapper.readValue(headersJsonString, createJavaType(deserializedHeadersType));
         final Class<?> deserializedHeadersClass = getRawClass(deserializedHeadersType);
         final Field[] declaredFields = deserializedHeadersClass.getDeclaredFields();
 
@@ -202,7 +230,7 @@ public class JacksonAdapter implements SerializerAdapter {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-            // TODO(@anuchan): Add "deserializer" for threetenabp types 1. OffsetDateTime and 2. Duration.
+            .registerModule(new ThreeTenModule())
             .registerModule(ByteArraySerializer.getModule())
             .registerModule(Base64UrlSerializer.getModule())
             .registerModule(DateTimeSerializer.getModule())
@@ -264,5 +292,21 @@ public class JacksonAdapter implements SerializerAdapter {
         }
 
         return ((ParameterizedType) type).getActualTypeArguments();
+    }
+
+    private String serializeRaw(Object object) {
+        if (object == null) {
+            return null;
+        }
+
+        try {
+            return serialize(object, SerializerFormat.JSON)
+                .replaceAll("^\"*", "")
+                .replaceAll("\"*$", "");
+        } catch (IOException ex) {
+            Log.w("", "Failed to serialize to JSON.", ex);
+
+            return null;
+        }
     }
 }

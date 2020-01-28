@@ -7,7 +7,6 @@ import com.azure.android.core.util.DateTimeRfc1123;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
@@ -32,11 +31,7 @@ final class DateTimeRfc1123Serializer extends JsonSerializer<DateTimeRfc1123> {
     @Override
     public void serialize(DateTimeRfc1123 value, JsonGenerator jsonGenerator, SerializerProvider provider)
         throws IOException {
-        if (provider.isEnabled(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)) {
-            jsonGenerator.writeNumber(value.dateTime().getTime());
-        } else {
-            //Use the default toString as it is RFC1123.
-            jsonGenerator.writeString(value.toString());
-        }
+        //Use the default toString as it is RFC1123.
+        jsonGenerator.writeString(value.toString());
     }
 }
