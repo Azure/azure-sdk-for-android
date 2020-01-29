@@ -22,7 +22,6 @@ trigger:
     include:
       - sdk/storage/
 
-
 pr:
   branches:
     include:
