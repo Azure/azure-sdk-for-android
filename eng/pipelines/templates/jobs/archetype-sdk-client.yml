@@ -13,8 +13,7 @@ jobs:
 
     steps:
       - script: |
-          echo Hello, world!
-        displayName: A task
+          ./gradlew sdk:${{parameters.ServiceDirectory}}:build
 
   - job: 'Analyze'
 
