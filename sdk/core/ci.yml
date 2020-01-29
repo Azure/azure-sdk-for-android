@@ -14,7 +14,7 @@ resources:
 trigger:
   branches:
     include:
-      - master
+      - dev
       - feature/*
       - hotfix/*
       - release/*
@@ -23,11 +23,11 @@ trigger:
       - sdk/core/
       - eng/
 
-      
+
 pr:
   branches:
     include:
-      - master
+      - dev
       - feature/*
       - hotfix/*
       - release/*
