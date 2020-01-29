@@ -1,4 +1,7 @@
-package com.azure.android.core.provider.implementation;
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+package com.azure.android.core.internal.provider;
 
 import android.content.res.Configuration;
 
@@ -24,9 +27,6 @@ public class AndroidLocaleInformationProvider implements LocaleInformationProvid
         this.configuration = configuration;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getDefaultSystemLanguage() {
         if (language == null) {
@@ -38,9 +38,6 @@ public class AndroidLocaleInformationProvider implements LocaleInformationProvid
         return language;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getSystemRegion() {
         if (systemRegion == null) {

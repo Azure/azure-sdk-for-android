@@ -1,4 +1,7 @@
-package com.azure.android.core.provider.implementation;
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+package com.azure.android.core.internal.provider;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -28,9 +31,6 @@ public class AndroidApplicationInformationProvider implements ApplicationInforma
         targetSdkVersion = -1;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getApplicationId() {
         if (applicationId == null) {
@@ -40,9 +40,6 @@ public class AndroidApplicationInformationProvider implements ApplicationInforma
         return applicationId;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getApplicationVersion() {
         if (applicationVersion == null) {
@@ -56,9 +53,6 @@ public class AndroidApplicationInformationProvider implements ApplicationInforma
         return applicationVersion;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getTargetSdkVersion() {
         if (targetSdkVersion == -1) {
