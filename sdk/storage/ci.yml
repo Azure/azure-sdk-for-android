@@ -20,8 +20,7 @@ trigger:
       - release/*
   paths:
     include:
-      - sdk/core/
-      - eng/
+      - sdk/storage/
 
 pr:
   branches:
@@ -32,14 +31,13 @@ pr:
       - release/*
   paths:
     include:
-      - sdk/core/
-      - eng/
+      - sdk/storage/
       
 stages:
   - template: ../../eng/pipelines/templates/stages/archetype-sdk-client.yml
     parameters:
-      ServiceDirectory: core
+      ServiceDirectory: storage
       Artifacts:
-        - name: azure-core
-          safeName: azurecore
+        - name: azure-storage-blob
+          safeName: azurestorageblob
           stagingProfileId: 88192f04117501
