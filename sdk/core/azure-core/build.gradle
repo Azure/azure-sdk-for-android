@@ -1,5 +1,7 @@
 apply plugin: "com.android.library"
 
+version = "1.0.0-beta.1"
+
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
@@ -8,7 +10,7 @@ android {
         minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0-beta.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -51,4 +53,24 @@ dependencies {
     implementation "javax.xml.stream:stax-api:$staxApiVersion" // https://stackoverflow.com/a/47371517/1473510
     testImplementation "com.squareup.okhttp3:mockwebserver:$mockWebServerVersion"
     testImplementation "junit:junit:$jUnitVersion"
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = "sources"
+}
+
+// task javadoc(type: Javadoc) {
+//     source = android.sourceSets.main.java.srcDirs
+//     classpath += project.files(android.getBootClasspath().join(File.pathSeprator))
+// }
+
+// task javadocJar(type: Jar, dependsOn: javadoc) {
+//     classifier = 'javadoc'
+//     from javadoc.destinationDir
+// }
+
+artifacts {
+    archives sourcesJar
+//    archives javadocJar
 }
