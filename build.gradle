@@ -17,6 +17,23 @@ buildscript {
     }
 }
 
+configure([
+    project("sdk:core:azure-core"),
+    project("sdk:storage:azure-storage-blob")]) {
+
+    apply plugin: "com.android.library"
+    apply plugin: "maven"
+
+    task sourcesJar(type: Jar) { -> project
+        from android.sourceSets.main.java.srcDirs
+        classifier = "sources"
+    }
+
+    artifacts {
+        archives sourcesJar
+    }
+}
+
 allprojects {
     repositories {
         google()
