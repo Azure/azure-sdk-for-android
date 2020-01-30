@@ -44,7 +44,7 @@ configure([
         }
 
         lintOptions {
-            lintConfig file("$rootDir/sdk/lint.xml")
+            lintConfig file("$rootDir/eng/lint.xml")
         }
 
         buildTypes {
