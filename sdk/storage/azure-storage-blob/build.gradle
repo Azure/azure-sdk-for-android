@@ -1,38 +1,5 @@
 version = "1.0.0-beta.1"
-
-android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.2"
-
-    defaultConfig {
-        minSdkVersion 21
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    lintOptions {
-        lintConfig file("$rootDir/eng/lint.xml")
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
-        }
-
-        debug {
-            debuggable true
-        }
-    }
-
-}
+group = "com.azure.android"
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
