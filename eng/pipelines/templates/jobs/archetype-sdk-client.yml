@@ -13,7 +13,7 @@ jobs:
 
     steps:
       - script: |
-          ./gradlew sdk:${{parameters.ServiceDirectory}}:build
+          ./gradlew sdk:${{parameters.ServiceDirectory}}:build sdk:${{parameters.ServiceDirectory}}:publishToMavenLocal
 
   - job: 'Analyze'
 
