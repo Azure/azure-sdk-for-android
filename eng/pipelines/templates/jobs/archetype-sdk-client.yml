@@ -18,6 +18,7 @@ jobs:
       - ${{ each artifact in parameters.Artifacts }}:
         - pwsh: |
             $artifactsToStage = Get-ChildItem sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/repo/**/${{artifact.name}} | Where-Object -FilterScript { $_.Name -match "(jar|pom|aar)$" }
+            Write-Host $artifactsToStage
             $stagingLocation = New-Item -Type Directory -Path $(Build.ArtifactStagingDirectory) -Name ${{artifact.name}}
             $artifactsToStage | Copy-Item -Destination $stagingLocation
           displayName: Stage ${{artifact.name}} for upload
