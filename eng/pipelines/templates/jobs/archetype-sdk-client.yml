@@ -17,7 +17,7 @@ jobs:
         displayName: Build packages
       - ${{ each artifact in parameters.Artifacts }}:
         - pwsh: |
-            Get-ChildItem sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/repo/**/${{artifact.name}}
+            Get-ChildItem sdk/${{parameters.ServiceDirectory}}/**/*.jar
             # $stagingLocation = New-Item -Type Directory -Path $(Build.ArtifactStagingDirectory) -Name ${{artifact.name}}
             # $artifactsToStage | Copy-Item -Destination $stagingLocation
           displayName: Stage ${{artifact.name}} for upload
