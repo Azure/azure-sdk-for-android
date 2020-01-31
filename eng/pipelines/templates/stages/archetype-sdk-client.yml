@@ -14,28 +14,6 @@ resources:
       name: Azure/azure-sdk-tools
       endpoint: azure
 
-trigger:    
-  branches:
-    include:
-      - dev
-      - feature/*
-      - hotfix/*
-      - release/*
-  paths:  
-    include:
-      - sdk/${{parameters.ServiceDirectory}}/
-
-  pr:    
-    branches:
-      include:
-        - dev
-        - feature/*
-        - hotfix/*
-        - release/*
-    paths:  
-      include:
-        - sdk/${{parameters.ServiceDirectory}}/
-              
 stages:
   - stage: Build
     jobs:
