@@ -1,7 +1,41 @@
 parameters:
-  Artifacts: []
-  ServiceDirectory: not-specified
-  
+  - name: ServiceDirectory
+    type: string
+  - name: Artifacts
+    type: object
+
+resources:
+  repositories:
+    - repository: azure-sdk-build-tools
+      type: git
+      name: internal/azure-sdk-build-tools
+    - repository: azure-sdk-tools  
+      type: github
+      name: Azure/azure-sdk-tools
+      endpoint: azure
+
+trigger:    
+  branches:
+    include:
+      - dev
+      - feature/*
+      - hotfix/*
+      - release/*
+  paths:  
+    include:
+      - sdk/${{parameters.ServiceDirectory}}/
+
+pr:    
+  branches:
+    include:
+      - dev
+      - feature/*
+      - hotfix/*
+      - release/*
+  paths:  
+    include:
+      - sdk/${{parameters.ServiceDirectory}}/
+              
 stages:
   - stage: Build
     jobs:
