@@ -1,0 +1,20 @@
+# Instructions for CODEOWNERS file format and automatic build failure notifications:
+# https://github.com/Azure/azure-sdk/blob/master/docs/policies/opensource.md#codeowners
+
+###########
+# SDK
+###########
+
+# Catch all
+/sdk/                                               @mayurid @jonathangiles @bsiegel
+
+# Service teams
+/sdk/core/                                          @bsiegel @vcolin7 @anuchandy
+/sdk/storage/                                       @bsiegel @vcolin7 @anuchandy
+
+###########
+# Eng Sys
+###########
+/eng/                                               @JimSuplizio @mitchdenny @weshaggard @danieljurek
+
+/**/ci.yml                                          @mitchdenny
