@@ -3,6 +3,8 @@
 
 package com.azure.android.core.http.interceptor;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import com.azure.android.core.provider.ApplicationInformationProvider;
@@ -99,7 +101,7 @@ public class UserAgentInterceptor implements Interceptor {
      * @param sdkName       Name of the client library.
      * @param sdkVersion    Version of the client library.
      */
-    public UserAgentInterceptor(String sdkName, String sdkVersion, String applicationId) {
+    public UserAgentInterceptor(String applicationId, String sdkName, String sdkVersion) {
         if (applicationId == null) {
             userAgent = String.format(
                 USER_AGENT_FORMAT,
@@ -121,18 +123,39 @@ public class UserAgentInterceptor implements Interceptor {
     }
 
     /**
+     * Convenience constructor that takes an application's {@link Context} to extract data from.
+     *
+     * @param context       The application's context.
+     * @param applicationId User specified application ID.
+     * @param sdkName       Name of the client library.
+     * @param sdkVersion    Version of the client library.
+     */
+    public UserAgentInterceptor(Context context,
+                                String applicationId,
+                                String sdkName,
+                                String sdkVersion) {
+        this(applicationId,
+            sdkName,
+            sdkVersion,
+            PlatformInformationProvider.getDefault(),
+            ApplicationInformationProvider.getDefault(context),
+            LocaleInformationProvider.getDefault(context));
+    }
+
+    /**
      * Creates a {@link UserAgentInterceptor} with the {@code sdkName} and {@code sdkVersion} in the User-Agent
      * header value.
      *
-     * @param applicationInformationProvider Provider that contains application information.
-     * @param localeInformationProvider      Provider that contains system locale information.
      * @param applicationId                  User specified application ID.
      * @param sdkName                        Name of the client library.
      * @param sdkVersion                     Version of the client library.
+     * @param platformInformationProvider    Provider that contains platform information.
+     * @param applicationInformationProvider Provider that contains application information.
+     * @param localeInformationProvider      Provider that contains system locale information.
      */
-    public UserAgentInterceptor(String sdkName,
+    public UserAgentInterceptor(String applicationId,
+                                String sdkName,
                                 String sdkVersion,
-                                String applicationId,
                                 PlatformInformationProvider platformInformationProvider,
                                 ApplicationInformationProvider applicationInformationProvider,
                                 LocaleInformationProvider localeInformationProvider) {
