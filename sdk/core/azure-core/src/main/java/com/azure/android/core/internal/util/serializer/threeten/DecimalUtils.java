@@ -16,8 +16,6 @@
 
 package com.azure.android.core.internal.util.serializer.threeten;
 
-import com.azure.android.core.internal.util.serializer.BiFunction;
-
 import org.threeten.bp.Instant;
 
 import java.math.BigDecimal;
