@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.internal.provider;
+package com.azure.android.core.provider;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -13,7 +13,7 @@ import com.azure.android.core.provider.ApplicationInformationProvider;
 /**
  * Provider that contains application information extracted from a application's {@link Context} object.
  */
-public class AndroidApplicationInformationProvider implements ApplicationInformationProvider {
+class AndroidApplicationInformationProvider implements ApplicationInformationProvider {
     private final Context context;
     private String applicationId;
     private String applicationVersion;
@@ -24,7 +24,7 @@ public class AndroidApplicationInformationProvider implements ApplicationInforma
      *
      * @param context The application's context.
      */
-    public AndroidApplicationInformationProvider(@NonNull Context context) {
+    AndroidApplicationInformationProvider(@NonNull Context context) {
         this.context = context;
         applicationId = null;
         applicationVersion = null;

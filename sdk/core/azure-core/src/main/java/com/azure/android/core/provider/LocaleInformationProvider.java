@@ -3,9 +3,7 @@
 
 package com.azure.android.core.provider;
 
-import android.content.res.Configuration;
-
-import com.azure.android.core.internal.provider.AndroidLocaleInformationProvider;
+import android.content.Context;
 
 /**
  * Interface for a provider that contains locale information.
@@ -14,11 +12,11 @@ public interface LocaleInformationProvider {
     /**
      * Creates a default {@link LocaleInformationProvider}.
      *
-     * @param configuration Android {@link Configuration} object to extract data from.
+     * @param context Android {@link Context} object to extract data from.
      * @return A default {@link LocaleInformationProvider}.
      */
-    static LocaleInformationProvider getDefault(Configuration configuration) {
-        return new AndroidLocaleInformationProvider(configuration);
+    static LocaleInformationProvider getDefault(Context context) {
+        return new AndroidLocaleInformationProvider(context);
     }
 
     /**
