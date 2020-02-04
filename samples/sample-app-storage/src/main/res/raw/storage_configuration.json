@@ -1,0 +1,5 @@
+{
+    "blob_service_url" : "https://anustorageandroid.blob.core.windows.net/",
+    "container_name" : "firstcontainer",
+    "sas_token" : ""
+}
