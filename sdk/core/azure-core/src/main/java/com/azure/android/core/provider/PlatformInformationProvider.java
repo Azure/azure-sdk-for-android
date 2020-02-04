@@ -3,6 +3,8 @@
 
 package com.azure.android.core.provider;
 
+import com.azure.android.core.internal.provider.AndroidPlatformInformationProvider;
+
 /**
  * Interface for a provider that contains platform information.
  */

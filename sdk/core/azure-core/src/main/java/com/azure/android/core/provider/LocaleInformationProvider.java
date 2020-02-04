@@ -5,6 +5,8 @@ package com.azure.android.core.provider;
 
 import android.content.Context;
 
+import com.azure.android.core.internal.provider.AndroidLocaleInformationProvider;
+
 /**
  * Interface for a provider that contains locale information.
  */

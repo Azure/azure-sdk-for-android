@@ -1,14 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.provider;
+package com.azure.android.core.internal.provider;
 
 import android.os.Build;
+
+import com.azure.android.core.provider.PlatformInformationProvider;
 
 /**
  * Provider that contains platform information extracted from the {@link Build} class.
  */
-class AndroidPlatformInformationProvider implements PlatformInformationProvider {
+public final class AndroidPlatformInformationProvider implements PlatformInformationProvider {
     @Override
     public String getManufacturer() {
         return Build.MANUFACTURER;

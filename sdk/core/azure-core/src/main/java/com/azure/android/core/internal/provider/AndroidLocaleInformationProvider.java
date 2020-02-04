@@ -1,16 +1,18 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.provider;
+package com.azure.android.core.internal.provider;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.azure.android.core.provider.LocaleInformationProvider;
+
 /**
  * Provider that contains system locale information extracted using given {@link Context} object.
  */
-class AndroidLocaleInformationProvider implements LocaleInformationProvider {
+public final class AndroidLocaleInformationProvider implements LocaleInformationProvider {
     private final Context context;
     private String language;
     private String systemRegion;
@@ -20,7 +22,7 @@ class AndroidLocaleInformationProvider implements LocaleInformationProvider {
      *
      * @param context The application's context.
      */
-    AndroidLocaleInformationProvider(@NonNull Context context) {
+    public AndroidLocaleInformationProvider(@NonNull Context context) {
         this.context = context;
     }
 

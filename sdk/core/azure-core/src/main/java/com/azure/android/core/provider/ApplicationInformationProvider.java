@@ -5,6 +5,8 @@ package com.azure.android.core.provider;
 
 import android.content.Context;
 
+import com.azure.android.core.internal.provider.AndroidApplicationInformationProvider;
+
 /**
  * Interface for a provider that contains application information.
  */
