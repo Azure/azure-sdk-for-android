@@ -19,18 +19,11 @@ public interface PlatformInformationProvider {
     }
 
     /**
-     * Device manufacturer.
+     * Device name.
      *
-     * @return The device manufacturer.
+     * @return The device name.
      */
-    String getManufacturer();
-
-    /**
-     * Device model.
-     *
-     * @return The device model.
-     */
-    String getModel();
+    String getDeviceName();
 
     /**
      * OS version.
