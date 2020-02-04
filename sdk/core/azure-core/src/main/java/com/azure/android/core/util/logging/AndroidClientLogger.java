@@ -63,9 +63,6 @@ final class AndroidClientLogger implements ClientLogger {
         this.logLevel = logLevel;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void debug(String message) {
         if (LOG_LEVEL_DEBUG >= this.logLevel) {
@@ -73,9 +70,6 @@ final class AndroidClientLogger implements ClientLogger {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void debug(String message, Throwable throwable) {
         if (LOG_LEVEL_DEBUG >= this.logLevel) {
@@ -83,9 +77,6 @@ final class AndroidClientLogger implements ClientLogger {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void info(String message) {
         if (LOG_LEVEL_INFO >= this.logLevel) {
@@ -93,9 +84,6 @@ final class AndroidClientLogger implements ClientLogger {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void info(String message, Throwable throwable) {
         if (LOG_LEVEL_INFO >= this.logLevel) {
@@ -103,9 +91,6 @@ final class AndroidClientLogger implements ClientLogger {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void warning(String message) {
         if (LOG_LEVEL_WARNING>= this.logLevel) {
@@ -113,9 +98,6 @@ final class AndroidClientLogger implements ClientLogger {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void warning(String message, Throwable throwable) {
         if (LOG_LEVEL_WARNING>= this.logLevel) {
@@ -123,9 +105,6 @@ final class AndroidClientLogger implements ClientLogger {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void error(String message) {
         if (LOG_LEVEL_ERROR >= this.logLevel) {
@@ -133,9 +112,6 @@ final class AndroidClientLogger implements ClientLogger {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void error(String message, Throwable throwable) {
         if (LOG_LEVEL_ERROR >= this.logLevel) {
