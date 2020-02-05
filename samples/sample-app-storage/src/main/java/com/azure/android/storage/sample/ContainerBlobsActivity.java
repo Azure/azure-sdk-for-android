@@ -33,7 +33,7 @@ public class ContainerBlobsActivity extends AppCompatActivity {
     @Inject
     StorageBlobClient storageBlobClient;
 
-    private final static String DEFAULT_CONTAINER_NAME = "{thecontainername}";
+    private final static String DEFAULT_CONTAINER_NAME = "{container-name}";
     private ContainerBlobsPaginationViewModel viewModel;
     //
     private RecyclerView recyclerView;

@@ -8,7 +8,7 @@ import com.azure.android.storage.sample.di.StorageBlobModule;
 
 public class MainApplication extends Application {
     private AppComponent appComponent;
-    private final static String STORAGE_URL = "https://{storageaccountname}.blob.core.windows.net/";
+    private final static String STORAGE_URL = "https://{storage-account-name}.blob.core.windows.net/";
 
     @Override
     public void onCreate() {

@@ -11,8 +11,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="List Blobs"/>
-  <Button android:id="@+id/processFile"
+  <Button android:id="@+id/uploadFile"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:text="Process File"/>
+      android:text="Upload File"/>
 </LinearLayout>
