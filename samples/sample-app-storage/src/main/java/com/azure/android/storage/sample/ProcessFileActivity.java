@@ -31,6 +31,8 @@ public class ProcessFileActivity extends AppCompatActivity {
     private StorageConfiguration storageConfiguration;
     private ProgressBar progressBar;
 
+    // Singleton StorageBlobClient that will be created by Dagger. The singleton object is shared across various
+    // activities in the application.
     @Inject
     StorageBlobClient storageBlobClient;
 
@@ -45,8 +47,8 @@ public class ProcessFileActivity extends AppCompatActivity {
         // Request Dagger to inject default StorageBlobClient
         ((MainApplication) getApplication()).getAppComponent().inject(this);
 
-        // Create a new StorageBlobClient from existing client with different base url and credentials but shares
-        // underlying OkHttp Client.
+        // Create a new StorageBlobClient from the existing client with different base URL and credentials but sharing
+        // the underlying OkHttp Client.
         storageBlobClient = storageBlobClient
             .newBuilder()
             .setBlobServiceUrl(storageConfiguration.getBlobServiceUrl())

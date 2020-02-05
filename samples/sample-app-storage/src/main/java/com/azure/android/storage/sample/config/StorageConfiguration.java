@@ -34,11 +34,11 @@ public class StorageConfiguration {
 
     public static StorageConfiguration create(Context context) {
         byte[] buffer;
-        try(InputStream configStream = context.getResources().openRawResource(R.raw.storage_config)) {
+        try(InputStream configStream = context.getResources().openRawResource(R.raw.storage_configuration)) {
             buffer = new byte[configStream.available()];
             configStream.read(buffer);
         } catch (IOException e) {
-            throw new IllegalArgumentException("Unable to open the configuration file - 'R.raw.storage_config'.", e);
+            throw new IllegalArgumentException("Unable to open the configuration file - 'R.raw.storage_configuration'.", e);
         }
         final String config = new String(buffer);
         final Gson gson = new GsonBuilder().create();

@@ -8,12 +8,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.azure.android.storage.blob.implementation.Constants;
+import com.azure.android.storage.sample.config.StorageConfiguration;
 import com.jakewharton.threetenabp.AndroidThreeTen;
 
 public class MainActivity extends AppCompatActivity {
@@ -25,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        StorageConfiguration storageConfiguration = StorageConfiguration.create(getApplicationContext());
+
         super.onCreate(savedInstanceState);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
@@ -45,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("MainActivity", "setOnClickListener() for listing blobs.");
 
             Intent intent = new Intent(this, ContainerBlobsActivity.class);
+            intent.putExtra(Constants.CONTAINER_NAME_EXTRA, storageConfiguration.getContainerName());
             startActivity(intent);
         });
 
@@ -79,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case REQUEST_READ_EXTERNAL_STORAGE: {
                 // If request is cancelled, the result arrays are empty.
