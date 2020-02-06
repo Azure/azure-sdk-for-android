@@ -5,5 +5,10 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(":sdk:core:azure-core")
     implementation "androidx.annotation:annotation:$annotationsVersion"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonDataFormatXmlVersion"
+    implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "javax.xml.stream:stax-api:$staxApiVersion" // https://stackoverflow.com/a/47371517/1473510
 }
