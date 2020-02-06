@@ -13,7 +13,17 @@ jobs:
 
     steps:
       - script: |
-          ./gradlew sdk:${{parameters.ServiceDirectory}}:build
+          ./gradlew sdk:${{parameters.ServiceDirectory}}:build sdk:${{parameters.ServiceDirectory}}:publish
+        displayName: Build packages
+      - ${{ each artifact in parameters.Artifacts }}:
+        - pwsh: |
+            $artifactsToStage = Get-ChildItem sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/repo/**/${{artifact.name}}* -Recurse | Where-Object -FilterScript { $_.Name -match "(jar|pom|aar)$" }
+            $stagingLocation = New-Item -Type Directory -Path $(Build.ArtifactStagingDirectory) -Name ${{artifact.name}}
+            $artifactsToStage | Copy-Item -Destination $stagingLocation
+          displayName: Stage ${{artifact.name}} for upload
+      - publish: $(Build.ArtifactStagingDirectory)
+        artifact: packages
+        displayName: Upload artifacts
 
   - job: 'Analyze'
 

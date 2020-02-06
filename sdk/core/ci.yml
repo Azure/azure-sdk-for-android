@@ -41,5 +41,6 @@ stages:
       ServiceDirectory: core
       Artifacts:
         - name: azure-core
+          groupId: com.azure.android
           safeName: azurecore
           stagingProfileId: 88192f04117501

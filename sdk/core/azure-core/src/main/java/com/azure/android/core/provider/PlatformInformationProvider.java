@@ -1,22 +1,29 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.core.provider;
+
+import com.azure.android.core.internal.provider.AndroidPlatformInformationProvider;
 
 /**
  * Interface for a provider that contains platform information.
  */
 public interface PlatformInformationProvider {
     /**
-     * Device manufacturer.
+     * Creates a default {@link PlatformInformationProvider}.
      *
-     * @return The device manufacturer.
+     * @return A default {@link PlatformInformationProvider}.
      */
-    String getManufacturer();
+    static PlatformInformationProvider getDefault() {
+        return new AndroidPlatformInformationProvider();
+    }
 
     /**
-     * Device model.
+     * Device name.
      *
-     * @return The device model.
+     * @return The device name.
      */
-    String getModel();
+    String getDeviceName();
 
     /**
      * OS version.
