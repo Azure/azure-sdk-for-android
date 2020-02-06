@@ -3,8 +3,8 @@
 
 package com.azure.android.storage.blob;
 
+import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.ServiceClient;
-import com.azure.android.core.http.ServiceCallBack;
 import com.azure.android.core.internal.util.serializer.SerializerAdapter;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.Base64Util;
@@ -39,7 +39,6 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -78,11 +77,11 @@ final class StorageBlobServiceImpl {
     void getBlobsInPage(String pageId,
                         String containerName,
                         ListBlobsOptions options,
-                        ServiceCallBack<List<BlobItem>> callback) {
+                        Callback<List<BlobItem>> callback) {
         options = options == null ? new ListBlobsOptions() : options;
         this.getBlobsInPageWithRestResponse(pageId, containerName, options.getPrefix(),
             options.getMaxResultsPerPage(), options.getDetails().toList(),
-            null, null, new ServiceCallBack<ContainersListBlobFlatSegmentResponse>() {
+            null, null, new Callback<ContainersListBlobFlatSegmentResponse>() {
                 @Override
                 public void onResponse(ContainersListBlobFlatSegmentResponse response) {
                     List<BlobItem> value = response.getValue().getSegment() == null
@@ -121,7 +120,7 @@ final class StorageBlobServiceImpl {
                                         List<ListBlobsIncludeItem> include,
                                         Integer timeout,
                                         String requestId,
-                                        ServiceCallBack<ContainersListBlobFlatSegmentResponse> callback) {
+                                        Callback<ContainersListBlobFlatSegmentResponse> callback) {
         this.getBlobsInPageWithRestResponseIntern(pageId,
             containerName,
             prefix,
@@ -155,7 +154,7 @@ final class StorageBlobServiceImpl {
                     String base64BlockId,
                     byte[] blockContent,
                     byte[] contentMd5,
-                    ServiceCallBack<Void> callback) {
+                    Callback<Void> callback) {
         this.stageBlockWithRestResponse(containerName,
             blobName,
             base64BlockId,
@@ -165,7 +164,7 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null, new ServiceCallBack<BlockBlobsStageBlockResponse>() {
+            null, new Callback<BlockBlobsStageBlockResponse>() {
                 @Override
                 public void onResponse(BlockBlobsStageBlockResponse response) {
                     callback.onResponse(null);
@@ -211,7 +210,7 @@ final class StorageBlobServiceImpl {
                                     String leaseId,
                                     String requestId,
                                     CpkInfo cpkInfo,
-                                    ServiceCallBack<BlockBlobsStageBlockResponse> callback) {
+                                    Callback<BlockBlobsStageBlockResponse> callback) {
         this.stageBlockWithRestResponseIntern(containerName,
             blobName,
             base64BlockId,
@@ -252,7 +251,7 @@ final class StorageBlobServiceImpl {
                          String blobName,
                          List<String> base64BlockIds,
                          boolean overwrite,
-                         ServiceCallBack<BlockBlobItem> callBack) {
+                         Callback<BlockBlobItem> callBack) {
         BlobRequestConditions requestConditions = null;
         if (!overwrite) {
             requestConditions = new BlobRequestConditions().setIfNoneMatch( "*");
@@ -268,7 +267,7 @@ final class StorageBlobServiceImpl {
             requestConditions,
             null,
             null,
-            null, new ServiceCallBack<BlockBlobsCommitBlockListResponse>() {
+            null, new Callback<BlockBlobsCommitBlockListResponse>() {
                 @Override
                 public void onResponse(BlockBlobsCommitBlockListResponse response) {
                     callBack.onResponse(response.getBlockBlobItem());
@@ -320,7 +319,7 @@ final class StorageBlobServiceImpl {
                                          String requestId,
                                          CpkInfo cpkInfo,
                                          AccessTier tier,
-                                         ServiceCallBack<BlockBlobsCommitBlockListResponse> callback) {
+                                         Callback<BlockBlobsCommitBlockListResponse> callback) {
         this.commitBlockListIntern(containerName,
             blobName,
             base64BlockIds,
@@ -343,7 +342,7 @@ final class StorageBlobServiceImpl {
                                                                                        List<ListBlobsIncludeItem> include,
                                                                                        Integer timeout,
                                                                                        String requestId,
-                                                                                       ServiceCallBack<ContainersListBlobFlatSegmentResponse> callback) {
+                                                                                       Callback<ContainersListBlobFlatSegmentResponse> callback) {
         final String resType = "container";
         final String comp = "list";
         if (callback != null) {
@@ -357,7 +356,7 @@ final class StorageBlobServiceImpl {
                 requestId,
                 resType,
                 comp
-                /*context*/), new Callback<ResponseBody>() {
+                /*context*/), new retrofit2.Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
@@ -433,7 +432,7 @@ final class StorageBlobServiceImpl {
                                                                           String leaseId,
                                                                           String requestId,
                                                                           CpkInfo cpkInfo,
-                                                                          ServiceCallBack<BlockBlobsStageBlockResponse> callback) {
+                                                                          Callback<BlockBlobsStageBlockResponse> callback) {
         String encryptionKey = null;
         String encryptionKeySha256 = null;
         EncryptionAlgorithmType encryptionAlgorithm = null;
@@ -465,7 +464,7 @@ final class StorageBlobServiceImpl {
                 comp,
                 encryptionKey,
                 encryptionKeySha256,
-                encryptionAlgorithm), new Callback<ResponseBody>() {
+                encryptionAlgorithm), new retrofit2.Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
@@ -544,7 +543,7 @@ final class StorageBlobServiceImpl {
                                                                     String requestId,
                                                                     CpkInfo cpkInfo,
                                                                     AccessTier tier,
-                                                                    ServiceCallBack<BlockBlobsCommitBlockListResponse> callback) {
+                                                                    Callback<BlockBlobsCommitBlockListResponse> callback) {
         requestConditions = requestConditions == null ? new BlobRequestConditions() : requestConditions;
         String leaseId = requestConditions.getLeaseId();
         DateTimeRfc1123 ifModifiedSince = requestConditions.getIfModifiedSince() == null
@@ -637,7 +636,7 @@ final class StorageBlobServiceImpl {
                 contentDisposition,
                 encryptionKey,
                 encryptionKeySha256,
-                encryptionAlgorithm), new Callback<ResponseBody>() {
+                encryptionAlgorithm), new retrofit2.Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
@@ -722,7 +721,7 @@ final class StorageBlobServiceImpl {
         }
     }
 
-    private static <T> void executeCall(Call<T> call, Callback<T> callback) {
+    private static <T> void executeCall(Call<T> call, retrofit2.Callback<T> callback) {
         call.enqueue(callback);
     }
 

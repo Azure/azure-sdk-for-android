@@ -2,7 +2,7 @@ package com.azure.android.storage.blob.upload;
 
 import android.util.Log;
 
-import com.azure.android.core.http.ServiceCallBack;
+import com.azure.android.core.http.Callback;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 
@@ -46,7 +46,7 @@ public class BlobUploader {
                 blobUploadRecord.getBlobName(),
                 blockUploadRecord.getBlockId(),
                 blockUploadRecord.getBlockContent(),
-                null, new ServiceCallBack<Void>() {
+                null, new Callback<Void>() {
                     @Override
                     public void onResponse(Void response) {
                         Log.v("uploadBlock", "BlockUpload succeeded. id:" + blockUploadRecord.getBlockId());
@@ -119,7 +119,7 @@ public class BlobUploader {
         this.blobClient.commitBlockList(blobUploadRecord.getContainerName(),
                 blobUploadRecord.getBlobName(),
                 base64BlockIds,
-                true, new ServiceCallBack<BlockBlobItem>() {
+                true, new Callback<BlockBlobItem>() {
                     @Override
                     public void onResponse(BlockBlobItem response) {
                         Log.v("commitBlocks", "BlockCommit succeeded.");

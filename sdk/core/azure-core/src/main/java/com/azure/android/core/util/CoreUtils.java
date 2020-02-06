@@ -47,4 +47,36 @@ public interface CoreUtils {
 
         return stringBuilder;
     }
+
+    /**
+     * Converts the first letter of each word in the provided character sequence to uppercase.
+     *
+     * @param charSequence Character sequence to convert.
+     * @return String where the first letter of each word has been converted to uppercase
+     */
+    static String toTitleCase(CharSequence charSequence) {
+        if (isNullOrEmpty(charSequence)) {
+            return charSequence.toString();
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        boolean capitalizeNext = true;
+
+        for (int i = 0; i < charSequence.length(); i++) {
+            char c = charSequence.charAt(i);
+            if (capitalizeNext && Character.isLetter(c)) {
+                stringBuilder.append(Character.toUpperCase(c));
+
+                capitalizeNext = false;
+
+                continue;
+            } else if (Character.isWhitespace(c)) {
+                capitalizeNext = true;
+            }
+
+            stringBuilder.append(c);
+        }
+
+        return stringBuilder.toString();
+    }
 }

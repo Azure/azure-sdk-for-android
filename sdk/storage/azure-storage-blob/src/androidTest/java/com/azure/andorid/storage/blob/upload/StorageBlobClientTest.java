@@ -6,7 +6,7 @@ import android.util.Log;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.azure.android.core.http.ServiceCallBack;
+import com.azure.android.core.http.Callback;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.credentials.SasTokenCredential;
 import com.azure.android.storage.blob.implementation.Constants;
@@ -34,7 +34,10 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CountDownLatch;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class StorageBlobClientTest {
@@ -97,7 +100,7 @@ public class StorageBlobClientTest {
                     blobUploadRecord.getBlobName(),
                     record.getBlockId(),
                     content,
-                    null, new ServiceCallBack<Void>() {
+                    null, new Callback<Void>() {
                         @Override
                         public void onResponse(Void response) {
                             Log.v("uploadFileAsBlockBlobAsync", "block upload succeeded. id:" + record.getBlockId());
@@ -131,7 +134,7 @@ public class StorageBlobClientTest {
         blobClient.commitBlockList(blobUploadRecord.getContainerName(),
                 blobUploadRecord.getBlobName(),
                 base64BlockIds,
-                true, new ServiceCallBack<BlockBlobItem>() {
+                true, new Callback<BlockBlobItem>() {
                     @Override
                     public void onResponse(BlockBlobItem response) {
                         Log.v("uploadFileAsBlockBlobAsync", "blocks commit succeeded.");

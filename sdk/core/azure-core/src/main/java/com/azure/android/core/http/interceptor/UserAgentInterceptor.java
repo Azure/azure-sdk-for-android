@@ -3,12 +3,13 @@
 
 package com.azure.android.core.http.interceptor;
 
+import android.content.Context;
+
 import androidx.annotation.NonNull;
 
 import com.azure.android.core.provider.ApplicationInformationProvider;
 import com.azure.android.core.provider.LocaleInformationProvider;
 import com.azure.android.core.provider.PlatformInformationProvider;
-import com.azure.android.core.util.CoreUtils;
 
 import java.io.IOException;
 
@@ -49,114 +50,80 @@ public class UserAgentInterceptor implements Interceptor {
 
     private final String userAgent;
 
-    private ApplicationInformationProvider applicationInformationProvider = null;
-    private PlatformInformationProvider platformInformationProvider = null;
-    private LocaleInformationProvider localeInformationProvider = null;
-
-    /**
-     * Creates a {@link UserAgentInterceptor} with a default value for the User-Agent header.
-     */
-    public UserAgentInterceptor() {
-        this(null);
-    }
-
-    /**
-     * Creates a {@link UserAgentInterceptor} with {@code userAgent} as the header value. If {@code userAgent} is {@code
-     * null}, then the default user agent value is used.
-     *
-     * @param userAgent The user agent string to use as or prepend to the User-Agent header.
-     */
-    public UserAgentInterceptor(String userAgent) {
-        if (userAgent != null) {
-            this.userAgent = userAgent;
-        } else {
-            this.userAgent = DEFAULT_USER_AGENT;
-        }
-    }
-
     /**
      * Creates a {@link UserAgentInterceptor} with the {@code sdkName} and {@code sdkVersion} in the User-Agent
      * header value.
      *
-     * @param sdkName    Name of the client library.
-     * @param sdkVersion Version of the client library.
+     * @param context       The application's context.
+     * @param sdkName       Name of the client library.
+     * @param sdkVersion    Version of the client library.
      */
-    public UserAgentInterceptor(String sdkName, String sdkVersion) {
-        userAgent = String.format(USER_AGENT_FORMAT,
+    public UserAgentInterceptor(Context context,
+                                String sdkName,
+                                String sdkVersion) {
+        this(null,
             sdkName,
             sdkVersion,
-            getPlatformInfo(),
-            getApplicationInfo(),
-            getLocaleInfo());
+            PlatformInformationProvider.getDefault(),
+            ApplicationInformationProvider.getDefault(context),
+            LocaleInformationProvider.getDefault(context));
     }
-
 
     /**
      * Creates a {@link UserAgentInterceptor} with the {@code sdkName} and {@code sdkVersion} in the User-Agent
      * header value.
      *
+     * @param context       The application's context.
      * @param applicationId User specified application ID.
      * @param sdkName       Name of the client library.
      * @param sdkVersion    Version of the client library.
      */
-    public UserAgentInterceptor(String sdkName, String sdkVersion, String applicationId) {
-        if (applicationId == null) {
-            userAgent = String.format(
-                USER_AGENT_FORMAT,
-                sdkName,
-                sdkVersion,
-                getPlatformInfo(),
-                getApplicationInfo(),
-                getLocaleInfo());
-        } else {
-            userAgent = String.format(
-                APPLICATION_ID_USER_AGENT_FORMAT,
-                applicationId,
-                sdkName,
-                sdkVersion,
-                getPlatformInfo(),
-                getApplicationInfo(),
-                getLocaleInfo());
-        }
+    public UserAgentInterceptor(Context context,
+                                String applicationId,
+                                String sdkName,
+                                String sdkVersion) {
+        this(applicationId,
+            sdkName,
+            sdkVersion,
+            PlatformInformationProvider.getDefault(),
+            ApplicationInformationProvider.getDefault(context),
+            LocaleInformationProvider.getDefault(context));
     }
 
     /**
      * Creates a {@link UserAgentInterceptor} with the {@code sdkName} and {@code sdkVersion} in the User-Agent
      * header value.
      *
-     * @param applicationInformationProvider Provider that contains application information.
-     * @param localeInformationProvider      Provider that contains system locale information.
      * @param applicationId                  User specified application ID.
      * @param sdkName                        Name of the client library.
      * @param sdkVersion                     Version of the client library.
+     * @param platformInformationProvider    Provider that contains platform information.
+     * @param applicationInformationProvider Provider that contains application information.
+     * @param localeInformationProvider      Provider that contains system locale information.
      */
-    public UserAgentInterceptor(String sdkName,
+    public UserAgentInterceptor(String applicationId,
+                                String sdkName,
                                 String sdkVersion,
-                                String applicationId,
                                 PlatformInformationProvider platformInformationProvider,
                                 ApplicationInformationProvider applicationInformationProvider,
                                 LocaleInformationProvider localeInformationProvider) {
-        this.platformInformationProvider = platformInformationProvider;
-        this.applicationInformationProvider = applicationInformationProvider;
-        this.localeInformationProvider = localeInformationProvider;
-
         if (applicationId == null) {
             userAgent = String.format(
                 USER_AGENT_FORMAT,
                 sdkName,
                 sdkVersion,
-                getPlatformInfo(),
-                getApplicationInfo(),
-                getLocaleInfo());
+                getPlatformInfo(platformInformationProvider),
+                getApplicationInfo(applicationInformationProvider),
+                getLocaleInfo(localeInformationProvider));
         } else {
             userAgent = String.format(
                 APPLICATION_ID_USER_AGENT_FORMAT,
                 applicationId,
                 sdkName,
                 sdkVersion,
-                getPlatformInfo(),
-                getApplicationInfo(),
-                getLocaleInfo());
+                getPlatformInfo(platformInformationProvider),
+                getApplicationInfo(applicationInformationProvider),
+                getLocaleInfo(localeInformationProvider));
         }
     }
 
@@ -189,21 +156,13 @@ public class UserAgentInterceptor implements Interceptor {
      *
      * @return The device name (maker and model) and OS version.
      */
-    private String getPlatformInfo() {
+    private String getPlatformInfo(PlatformInformationProvider platformInformationProvider) {
         String deviceName = "";
-        int osVersion = -1;
+        String osVersion = "";
 
         if (platformInformationProvider != null) {
-            String manufacturer = platformInformationProvider.getManufacturer();
-            String model = platformInformationProvider.getModel();
-
-            if (model.toLowerCase().startsWith(manufacturer.toLowerCase())) {
-                deviceName = capitalize(model);
-            } else {
-                deviceName = capitalize(manufacturer) + " " + model;
-            }
-
-            osVersion = platformInformationProvider.getOsVersion();
+            deviceName = platformInformationProvider.getDeviceName();
+            osVersion = Integer.toString(platformInformationProvider.getOsVersion());
         }
 
         return String.format(PLATFORM_INFO_FORMAT, deviceName, osVersion);
@@ -223,7 +182,7 @@ public class UserAgentInterceptor implements Interceptor {
      *
      * @return The application ID, version and target SDK version.
      */
-    private String getApplicationInfo() {
+    private String getApplicationInfo(ApplicationInformationProvider applicationInformationProvider) {
         // TODO: Figure if we can get the minSdkVersion programatically and if we can get data such as what is included in
         // BuildConfig. Determine if we can also get the build type (debug, release, etc).
         String applicationId = "";
@@ -244,7 +203,7 @@ public class UserAgentInterceptor implements Interceptor {
      *
      * @return The system language and region.
      */
-    private String getLocaleInfo() {
+    private String getLocaleInfo(LocaleInformationProvider localeInformationProvider) {
         String region = "";
         String language = "";
 
@@ -254,37 +213,5 @@ public class UserAgentInterceptor implements Interceptor {
         }
 
         return String.format(USER_LOCALE_INFO_FORMAT, language, region);
-    }
-
-    /**
-     * Capitalizes a given string.
-     *
-     * @param string The string to capitalize.
-     * @return String where the first letter of each word is capitalized.
-     */
-    private String capitalize(String string) {
-        if (CoreUtils.isNullOrEmpty(string)) {
-            return string;
-        }
-
-        char[] charArray = string.toCharArray();
-        boolean capitalizeNext = true;
-        StringBuilder stringBuilder = new StringBuilder();
-
-        for (char c : charArray) {
-            if (capitalizeNext && Character.isLetter(c)) {
-                stringBuilder.append(Character.toUpperCase(c));
-
-                capitalizeNext = false;
-
-                continue;
-            } else if (Character.isWhitespace(c)) {
-                capitalizeNext = true;
-            }
-
-            stringBuilder.append(c);
-        }
-
-        return stringBuilder.toString();
     }
 }

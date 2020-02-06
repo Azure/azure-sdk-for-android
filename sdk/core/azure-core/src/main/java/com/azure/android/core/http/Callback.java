@@ -8,7 +8,7 @@ package com.azure.android.core.http;
  *
  * @param <T> The type of the result.
  */
-public interface ServiceCallBack<T> {
+public interface Callback<T> {
     /**
      * The method to call on a successful result.
      *

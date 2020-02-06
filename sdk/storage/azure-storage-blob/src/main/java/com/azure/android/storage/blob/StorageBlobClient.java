@@ -3,7 +3,7 @@
 
 package com.azure.android.storage.blob;
 
-import com.azure.android.core.http.ServiceCallBack;
+import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
@@ -80,7 +80,7 @@ public class StorageBlobClient {
     public void getBlobsInPage(String pageId,
                                String containerName,
                                ListBlobsOptions options,
-                               ServiceCallBack<List<BlobItem>> callback) {
+                               Callback<List<BlobItem>> callback) {
         this.storageBlobServiceClient.getBlobsInPage(pageId, containerName, options, callback);
     }
 
@@ -134,7 +134,7 @@ public class StorageBlobClient {
                                                List<ListBlobsIncludeItem> include,
                                                Integer timeout,
                                                String requestId,
-                                               ServiceCallBack<ContainersListBlobFlatSegmentResponse> callback) {
+                                               Callback<ContainersListBlobFlatSegmentResponse> callback) {
         this.storageBlobServiceClient.getBlobsInPageWithRestResponse(pageId,
                 containerName,
                 prefix,
@@ -162,7 +162,7 @@ public class StorageBlobClient {
                            String base64BlockId,
                            byte[] body,
                            byte[] contentMd5,
-                           ServiceCallBack<Void> callback) {
+                           Callback<Void> callback) {
         this.storageBlobServiceClient.stageBlock(containerName,
             blobName,
             base64BlockId,
@@ -203,7 +203,7 @@ public class StorageBlobClient {
                                            String leaseId,
                                            String requestId,
                                            CpkInfo cpkInfo,
-                                           ServiceCallBack<BlockBlobsStageBlockResponse> callback) {
+                                           Callback<BlockBlobsStageBlockResponse> callback) {
         this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
             blobName,
             base64BlockId,
@@ -231,7 +231,7 @@ public class StorageBlobClient {
                                 String blobName,
                                 List<String> base64BlockIds,
                                 boolean overwrite,
-                                ServiceCallBack<BlockBlobItem> callBack) {
+                                Callback<BlockBlobItem> callBack) {
         this.storageBlobServiceClient.commitBlockList(containerName,
             blobName,
             base64BlockIds,
@@ -278,7 +278,7 @@ public class StorageBlobClient {
                                                 String requestId,
                                                 CpkInfo cpkInfo,
                                                 AccessTier tier,
-                                                ServiceCallBack<BlockBlobsCommitBlockListResponse> callback) {
+                                                Callback<BlockBlobsCommitBlockListResponse> callback) {
         this.storageBlobServiceClient.commitBlockListWithRestResponse(containerName,
             blobName,
             base64BlockIds,
