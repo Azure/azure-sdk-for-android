@@ -1,0 +1,14 @@
+{
+    "client_id" : "{client-id}",
+    "authorization_user_agent" : "DEFAULT",
+    "redirect_uri" : "msauth://com.azure.android.storage.sample/{hash}",
+    "authorities" : [
+        {
+            "type": "AAD",
+            "audience": {
+                "type": "AzureADMyOrg",
+                "tenant_id": "{tenant-id}"
+            }
+        }
+    ]
+}
