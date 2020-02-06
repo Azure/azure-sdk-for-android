@@ -40,6 +40,7 @@ class MsalClient {
                                 toOffsetDateTime(authResult.getExpiresOn())));
                     }
 
+                    // For more info on MsalException, see: https://javadoc.io/doc/com.microsoft.identity.client/msal/0.1.1/com/microsoft/identity/client/MsalClientException.html
                     @Override
                     public void onError(MsalException exception) {
                         Log.d(TAG, "[acquireTokenSilentAsync]: Authentication failed: " + exception.toString());

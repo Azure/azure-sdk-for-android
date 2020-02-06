@@ -91,7 +91,7 @@ public class ContainerBlobsPagedListAdapter
 
         @Override
         public boolean areContentsTheSame(@NonNull BlobItem oldItem, @NonNull BlobItem newItem) {
-            return oldItem.equals(newItem);
+            return oldItem.getName().equals(newItem.getName()) && oldItem.getVersionId().equals(newItem.getVersionId());
         }
     }
 }
