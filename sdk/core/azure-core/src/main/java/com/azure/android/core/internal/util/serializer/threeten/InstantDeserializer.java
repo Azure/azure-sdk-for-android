@@ -16,7 +16,6 @@
 
 package com.azure.android.core.internal.util.serializer.threeten;
 
-import com.azure.android.core.internal.util.serializer.BiFunction;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;

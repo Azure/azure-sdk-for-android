@@ -17,6 +17,95 @@ buildscript {
     }
 }
 
+configure([
+    project("sdk:core:azure-core"),
+    project("sdk:storage:azure-storage-blob")]) {
+
+    apply plugin: "com.android.library"
+    apply plugin: "maven"
+    apply plugin: "maven-publish"
+
+
+    android { -> project
+        compileSdkVersion 29
+        buildToolsVersion "29.0.2"
+
+        defaultConfig {
+            minSdkVersion 21
+            targetSdkVersion 29
+            versionCode 1
+            versionName "1.0.0-beta.1"
+            testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        }
+
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
+
+        lintOptions {
+            lintConfig file("$rootDir/eng/lint.xml")
+        }
+
+        buildTypes {
+            release {
+                minifyEnabled false
+                proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+            }
+
+            debug {
+                debuggable true
+            }
+        }
+
+        testOptions {
+            unitTests {
+                includeAndroidResources = true
+            }
+        }
+
+    }
+
+    task sourcesJar(type: Jar) {
+        from android.sourceSets.main.java.srcDirs
+        classifier = "sources"
+    }
+
+    task javadoc(type: Javadoc) {
+        failOnError false
+        source = android.sourceSets.main.java.srcDirs
+        classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+    }
+
+    task javadocJar(type: Jar, dependsOn: javadoc) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    project.afterEvaluate {
+        javadoc.classpath += files(android.libraryVariants.collect { variant ->
+            variant.javaCompile.classpath.files
+        })
+
+        publishing { -> project
+            publications {
+                maven(MavenPublication) { -> project
+                    artifact bundleReleaseAar
+                    artifact sourcesJar
+                    artifact javadocJar
+                }
+            }
+
+            repositories {
+                maven {
+                    url = "$buildDir/repo/"
+                }
+            }
+        }
+    }
+
+}
+
 allprojects {
     repositories {
         google()
@@ -36,13 +125,12 @@ allprojects {
     }
 }
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
-}
+// Why do we need this?
+// task clean(type: Delete) {
+//     delete rootProject.buildDir
+// }
 
-// Synthesize dependencies for service-level projects so that running a task on a service-level project automatically
-// runs it on all subprojects of that project
-configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 2 }) {
+configure(subprojects.findAll { it.path.count(':') == 2 }) {
     project.gradle.startParameter.taskNames.each { task ->
         task = task.split(':').last()
 
@@ -51,3 +139,4 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
         }
     }
 }
+

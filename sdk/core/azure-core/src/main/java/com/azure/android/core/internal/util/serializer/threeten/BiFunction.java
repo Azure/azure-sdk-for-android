@@ -3,12 +3,13 @@
  * Licensed under the MIT License.
  */
 
-package com.azure.android.core.internal.util.serializer;
+package com.azure.android.core.internal.util.serializer.threeten;
 
 /**
  * Represents a function that accepts two arguments and produces a result.
  */
-public interface BiFunction<T, U, R> {
+@FunctionalInterface
+interface BiFunction<T, U, R> {
     /**
      * Applies this function to the given arguments.
      *

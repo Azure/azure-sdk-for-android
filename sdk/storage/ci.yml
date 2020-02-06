@@ -39,5 +39,6 @@ stages:
       ServiceDirectory: storage
       Artifacts:
         - name: azure-storage-blob
+          groupId: com.azure.android
           safeName: azurestorageblob
           stagingProfileId: 88192f04117501
