@@ -40,15 +40,18 @@ class MsalClient {
                                 toOffsetDateTime(authResult.getExpiresOn())));
                     }
 
-                    // For more info on MsalException, see: https://javadoc.io/doc/com.microsoft.identity.client/msal/0.1.1/com/microsoft/identity/client/MsalClientException.html
                     @Override
                     public void onError(MsalException exception) {
                         Log.d(TAG, "[acquireTokenSilentAsync]: Authentication failed: " + exception.toString());
                         if (exception instanceof MsalClientException) {
+                            // Exception thrown for general errors that are local to the MSAL library. For more
+                            // information, see: https://javadoc.io/doc/com.microsoft.identity.client/msal/0.1.1/com/microsoft/identity/client/MsalClientException.html
                         } else if (exception instanceof MsalServiceException) {
-                            /* Exception when communicating with the STS, likely config issue */
+                            // Exception thrown when communicating with the STS, likely because of a configuration
+                            // issue. For more information, see: https://javadoc.io/static/com.microsoft.identity.client/msal/0.1.1/com/microsoft/identity/client/MsalServiceException.html
                         } else if (exception instanceof MsalUiRequiredException) {
-                            /* Tokens expired or no session, retry with interactive */
+                            // Exception thrown when auth token is expired or there is no active session, must retry
+                            // with interactive login. For more information, see: https://javadoc.io/static/com.microsoft.identity.client/msal/0.1.1/com/microsoft/identity/client/MsalUiRequiredException.html
                         }
                         callback.onError(exception);
                     }
