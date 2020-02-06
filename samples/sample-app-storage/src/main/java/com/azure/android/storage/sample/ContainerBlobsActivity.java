@@ -43,6 +43,7 @@ public class ContainerBlobsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_containerblobs);
 
         // Request Dagger to get singleton StorageBlobClient and initialize this.storageBlobClient

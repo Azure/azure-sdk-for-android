@@ -14,9 +14,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.azure.android.storage.blob.implementation.Constants;
 import com.azure.android.storage.sample.config.StorageConfiguration;
 import com.jakewharton.threetenabp.AndroidThreeTen;
+
+import static com.azure.android.storage.blob.implementation.Constants.CONTAINER_NAME_EXTRA;
+import static com.azure.android.storage.blob.implementation.Constants.FILE_URI_EXTRA;
 
 public class MainActivity extends AppCompatActivity {
     public static final int PICK_FILE_RESULT_CODE = 1;
@@ -49,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("MainActivity", "setOnClickListener() for listing blobs.");
 
             Intent intent = new Intent(this, ContainerBlobsActivity.class);
-            intent.putExtra(Constants.CONTAINER_NAME_EXTRA, storageConfiguration.getContainerName());
+            intent.putExtra(CONTAINER_NAME_EXTRA, storageConfiguration.getContainerName());
             startActivity(intent);
         });
 
@@ -74,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.d("MainActivity", "onActivityResult(): File URI: " + fileUri.toString());
 
                     Intent intent = new Intent(this, ProcessFileActivity.class);
-                    intent.putExtra(Constants.FILE_URI_EXTRA, fileUri);
+                    intent.putExtra(FILE_URI_EXTRA, fileUri);
                     startActivity(intent);
                 }
             }

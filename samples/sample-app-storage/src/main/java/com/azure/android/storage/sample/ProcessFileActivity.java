@@ -1,5 +1,6 @@
 package com.azure.android.storage.sample;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,16 +11,20 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.azure.android.storage.blob.StorageBlobClient;
-import com.azure.android.storage.blob.credentials.SasTokenCredential;
 import com.azure.android.storage.blob.implementation.Constants;
-import com.azure.android.storage.blob.interceptor.SasTokenCredentialInterceptor;
 import com.azure.android.storage.blob.upload.UploadListener;
 import com.azure.android.storage.blob.upload.UploadManager;
 import com.azure.android.storage.sample.config.StorageConfiguration;
+import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservableAuthInterceptor;
+import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObserver;
+import com.azure.android.storage.sample.core.util.tokenrequest.TokenResponseCallback;
+import com.microsoft.identity.client.PublicClientApplication;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -41,18 +46,34 @@ public class ProcessFileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_processfile);
+
+        // Request Dagger to get singleton StorageBlobClient and initialize this.storageBlobClient
+        ((MainApplication) getApplication()).getAppComponent().inject(this);
+
         this.progressBar = findViewById(R.id.progressBar);
         this.storageConfiguration = StorageConfiguration.create(getApplicationContext());
 
-        // Request Dagger to inject default StorageBlobClient
-        ((MainApplication) getApplication()).getAppComponent().inject(this);
+        // Set up Login
+        PublicClientApplication aadApp = new PublicClientApplication(this.getApplicationContext(),
+            R.raw.auth_configuration);
+
+        final List<String> blobEndpointScopes = Arrays.asList(storageBlobClient.getBlobServiceUrl() + ".default");
+        TokenRequestObservableAuthInterceptor authInterceptor =
+            new TokenRequestObservableAuthInterceptor(blobEndpointScopes);
+
+        authInterceptor.getTokenRequestObservable().observe(this, new TokenRequestObserver() {
+            @Override
+            public void onTokenRequest(String[] scopes, TokenResponseCallback callback) {
+                MsalClient.signIn(aadApp, getActivity(), scopes, callback);
+            }
+        });
 
         // Create a new StorageBlobClient from the existing client with different base URL and credentials but sharing
         // the underlying OkHttp Client.
         storageBlobClient = storageBlobClient
             .newBuilder()
             .setBlobServiceUrl(storageConfiguration.getBlobServiceUrl())
-            .setCredentialInterceptor(new SasTokenCredentialInterceptor(new SasTokenCredential(storageConfiguration.getSasToken())))
+            .setCredentialInterceptor(authInterceptor)
             .build();
     }
 
@@ -97,6 +118,10 @@ public class ProcessFileActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Upload complete", Toast.LENGTH_SHORT).show();
                 }
             });
+    }
+
+    private Activity getActivity() {
+        return this;
     }
 
     // Can be used to create a random data file of a given size.
