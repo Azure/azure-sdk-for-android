@@ -3,8 +3,8 @@
 
 package com.azure.android.storage.blob;
 
+import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.ServiceClient;
-import com.azure.android.core.http.ServiceCallBack;
 import com.azure.android.core.internal.util.serializer.SerializerAdapter;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.storage.blob.models.BlobItem;
@@ -23,7 +23,6 @@ import java.util.List;
 import okhttp3.Headers;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
-import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
@@ -60,11 +59,11 @@ final class StorageBlobServiceImpl {
     void getBlobsInPage(String pageId,
                         String containerName,
                         ListBlobsOptions options,
-                        ServiceCallBack<List<BlobItem>> callback) {
+                        Callback<List<BlobItem>> callback) {
         options = options == null ? new ListBlobsOptions() : options;
         this.getBlobsInPageWithRestResponse(pageId, containerName, options.getPrefix(),
             options.getMaxResultsPerPage(), options.getDetails().toList(),
-            null, null, new ServiceCallBack<ContainersListBlobFlatSegmentResponse>() {
+            null, null, new Callback<ContainersListBlobFlatSegmentResponse>() {
                 @Override
                 public void onResponse(ContainersListBlobFlatSegmentResponse response) {
                     List<BlobItem> value = response.getValue().getSegment() == null
@@ -103,7 +102,7 @@ final class StorageBlobServiceImpl {
                                         List<ListBlobsIncludeItem> include,
                                         Integer timeout,
                                         String requestId,
-                                        ServiceCallBack<ContainersListBlobFlatSegmentResponse> callback) {
+                                        Callback<ContainersListBlobFlatSegmentResponse> callback) {
         this.getBlobsInPageWithRestResponseIntern(pageId,
             containerName,
             prefix,
@@ -121,7 +120,7 @@ final class StorageBlobServiceImpl {
                                                                                        List<ListBlobsIncludeItem> include,
                                                                                        Integer timeout,
                                                                                        String requestId,
-                                                                                       ServiceCallBack<ContainersListBlobFlatSegmentResponse> callback) {
+                                                                                       Callback<ContainersListBlobFlatSegmentResponse> callback) {
         final String resType = "container";
         final String comp = "list";
         if (callback != null) {
@@ -135,7 +134,7 @@ final class StorageBlobServiceImpl {
                 requestId,
                 resType,
                 comp
-                /*context*/), new Callback<ResponseBody>() {
+                /*context*/), new retrofit2.Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
@@ -209,7 +208,7 @@ final class StorageBlobServiceImpl {
         }
     }
 
-    private static <T> void executeCall(Call<T> call, Callback<T> callback) {
+    private static <T> void executeCall(Call<T> call, retrofit2.Callback<T> callback) {
         call.enqueue(callback);
     }
 
