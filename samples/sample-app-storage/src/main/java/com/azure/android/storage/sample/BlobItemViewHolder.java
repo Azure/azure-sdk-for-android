@@ -15,7 +15,7 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
 
     private BlobItemViewHolder(@NonNull View itemView) {
         super(itemView);
-        this.blobName = itemView.findViewById(R.id.bobname);
+        this.blobName = itemView.findViewById(R.id.blob_name);
     }
 
     public static BlobItemViewHolder create(ViewGroup parent) {

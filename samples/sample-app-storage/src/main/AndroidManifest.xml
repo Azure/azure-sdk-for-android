@@ -7,14 +7,14 @@
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
   <application
-      android:name=".MainApplication"
+      android:name="MainApplication"
       android:allowBackup="true"
       android:icon="@mipmap/ic_launcher"
       android:label="@string/app_name"
       android:roundIcon="@mipmap/ic_launcher_round"
       android:supportsRtl="true"
       android:theme="@style/AppTheme"
-      android:requestLegacyExternalStorage="true">
+      android:requestLegacyExternalStorage="true"> <!-- In case the app is running on Android Q+-->
     <activity android:name="com.microsoft.identity.client.BrowserTabActivity">
       <intent-filter>
         <action android:name="android.intent.action.VIEW" />
@@ -29,7 +29,7 @@
       </intent-filter>
     </activity>
     <activity
-        android:name=".MainActivity"
+        android:name="MainActivity"
         android:label="@string/app_name"
         android:theme="@style/AppTheme.NoActionBar">
       <intent-filter>
@@ -37,13 +37,13 @@
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
-    <activity android:name=".ContainerBlobsActivity">
+    <activity android:name="ContainerBlobsActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
-    <activity android:name=".ProcessFileActivity">
+    <activity android:name="ProcessFileActivity">
       <intent-filter>
         <action android:name="android.intent.action.MAIN"/>
         <category android:name="android.intent.category.LAUNCHER"/>

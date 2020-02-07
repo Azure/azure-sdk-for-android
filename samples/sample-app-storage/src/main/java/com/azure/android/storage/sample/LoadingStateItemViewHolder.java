@@ -21,7 +21,7 @@ public class LoadingStateItemViewHolder extends RecyclerView.ViewHolder {
         super(itemView);
         this.progressBar = itemView.findViewById(R.id.progress_bar);
         this.retryButton = itemView.findViewById(R.id.retry_button);
-        this.errorMsg = itemView.findViewById(R.id.error_msg);
+        this.errorMsg = itemView.findViewById(R.id.error_message);
         this.retryButton.setOnClickListener(v -> retryRunnable.run());
     }
 

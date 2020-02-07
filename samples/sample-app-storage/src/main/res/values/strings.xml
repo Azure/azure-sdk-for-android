@@ -1,4 +1,8 @@
 <resources>
     <string name="app_name">StorageSample</string>
     <string name="action_settings">Settings</string>
+  <string name="retry">Retry</string>
+  <string name="container_name">Container Name</string>
+  <string name="list_blobs">List Blobs</string>
+  <string name="upload_file">Upload File</string>
 </resources>

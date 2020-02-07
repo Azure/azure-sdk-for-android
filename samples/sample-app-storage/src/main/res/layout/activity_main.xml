@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp"
     tools:context="com.azure.android.storage.sample.MainActivity">
-    <Button android:id="@+id/listBlobs"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="List Blobs"/>
-  <Button android:id="@+id/uploadFile"
+
+  <Button
+      android:id="@+id/list_blobs_button"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:text="Upload File"/>
+      android:text="@string/list_blobs" />
+
+  <Button
+      android:id="@+id/upload_file_button"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="@string/upload_file" />
 </LinearLayout>

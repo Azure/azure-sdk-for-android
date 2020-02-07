@@ -1,40 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:id="@+id/root"
     tools:context="com.azure.android.storage.sample.ContainerBlobsActivity">
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/input_layout"
+
+  <com.google.android.material.textfield.TextInputLayout
+      android:id="@+id/input_layout"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginStart="8dp"
+      android:layout_marginTop="8dp"
+      android:layout_marginEnd="8dp">
+
+    <EditText
+        android:id="@+id/input_container_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:focusedByDefault="false"
-        android:layout_marginTop="8dp">
-        <EditText
-            android:id="@+id/input"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="container-name"
-            android:imeOptions="actionSearch"
-            android:inputType="textNoSuggestions"
-            tools:text="container-name"
-            android:text="container-name"/>
-    </com.google.android.material.textfield.TextInputLayout>
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout android:id="@+id/swipe_refresh"
-                                                  android:layout_width="match_parent"
-                                                  android:layout_height="match_parent">
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scrollbars="vertical"
-            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        android:hint="@string/container_name"
+        android:imeOptions="actionSearch"
+        android:inputType="textNoSuggestions"
+        android:importantForAutofill="no" />
+  </com.google.android.material.textfield.TextInputLayout>
+
+  <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+      android:id="@+id/swipe_refresh"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/blob_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="vertical"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+  </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 </LinearLayout>

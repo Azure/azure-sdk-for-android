@@ -49,8 +49,8 @@ public class ContainerBlobsActivity extends AppCompatActivity {
         // Request Dagger to get singleton StorageBlobClient and initialize this.storageBlobClient
         ((MainApplication) getApplication()).getAppComponent().inject(this);
 
-        this.recyclerView = findViewById(R.id.list);
-        this.searchText = findViewById(R.id.input);
+        this.recyclerView = findViewById(R.id.blob_list);
+        this.searchText = findViewById(R.id.input_container_name);
 
         this.viewModel = ViewModelProviders.of(this, new ContainerBlobsViewModelFactory(this.storageBlobClient))
                 .get(ContainerBlobsPaginationViewModel.class);

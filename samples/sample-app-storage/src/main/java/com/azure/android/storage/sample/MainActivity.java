@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         AndroidThreeTen.init(this);
         setContentView(R.layout.activity_main);
 
-        this.listBlobsButton = findViewById(R.id.listBlobs);
+        this.listBlobsButton = findViewById(R.id.list_blobs_button);
         this.listBlobsButton.setOnClickListener(v -> {
             Log.d("MainActivity", "setOnClickListener() for listing blobs.");
 
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        this.uploadFileButton = findViewById(R.id.uploadFile);
+        this.uploadFileButton = findViewById(R.id.upload_file_button);
         this.uploadFileButton.setOnClickListener(v -> {
             Log.d("MainActivity", "setOnClickListener() for uploading blobs.");
 
