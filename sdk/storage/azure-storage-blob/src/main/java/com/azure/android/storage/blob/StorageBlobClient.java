@@ -219,21 +219,25 @@ public class StorageBlobClient {
 
     public BlockBlobItem commitBlockList(String containerName,
                                          String blobName,
+                                         String contentType,
                                          List<String> base64BlockIds,
                                          boolean overwrite) {
         return this.storageBlobServiceClient.commitBlockList(containerName,
             blobName,
+            contentType,
             base64BlockIds,
             overwrite);
     }
 
     public void commitBlockList(String containerName,
                                 String blobName,
+                                String contentType,
                                 List<String> base64BlockIds,
                                 boolean overwrite,
                                 Callback<BlockBlobItem> callBack) {
         this.storageBlobServiceClient.commitBlockList(containerName,
             blobName,
+            contentType,
             base64BlockIds,
             overwrite,
             callBack);

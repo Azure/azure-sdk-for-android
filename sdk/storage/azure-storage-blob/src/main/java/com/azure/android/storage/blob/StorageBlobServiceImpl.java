@@ -226,11 +226,17 @@ final class StorageBlobServiceImpl {
 
     BlockBlobItem commitBlockList(String containerName,
                                   String blobName,
+                                  String contentType,
                                   List<String> base64BlockIds,
                                   boolean overwrite) {
         BlobRequestConditions requestConditions = null;
+        BlobHttpHeaders blobHttpHeaders = null;
         if (!overwrite) {
             requestConditions = new BlobRequestConditions().setIfNoneMatch( "*");
+        }
+        if (contentType != null) {
+            blobHttpHeaders = new BlobHttpHeaders();
+            blobHttpHeaders.setContentType(contentType);
         }
         BlockBlobsCommitBlockListResponse response = this.commitBlockListWithRestResponse(containerName,
             blobName,
@@ -238,7 +244,7 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null,
+            blobHttpHeaders,
             null,
             requestConditions,
             null,
@@ -249,12 +255,18 @@ final class StorageBlobServiceImpl {
 
     void commitBlockList(String containerName,
                          String blobName,
+                         String contentType,
                          List<String> base64BlockIds,
                          boolean overwrite,
                          Callback<BlockBlobItem> callBack) {
         BlobRequestConditions requestConditions = null;
+        BlobHttpHeaders blobHttpHeaders = null;
         if (!overwrite) {
             requestConditions = new BlobRequestConditions().setIfNoneMatch( "*");
+        }
+        if (contentType != null) {
+            blobHttpHeaders = new BlobHttpHeaders();
+            blobHttpHeaders.setContentType(contentType);
         }
         this.commitBlockListWithRestResponse(containerName,
             blobName,
@@ -262,7 +274,7 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null,
+            blobHttpHeaders,
             null,
             requestConditions,
             null,

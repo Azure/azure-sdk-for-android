@@ -55,7 +55,7 @@ public class StorageBlobClientTest {
         File fileToUpload = createLocalFile(appContext, fileName, 22 * Constants.MB);
         StorageBlobClient blobClient = createStorageBlobClient();
         BlobUploadRecord blobUploadRecord
-                = BlobUploadRecord.create(DEFAULT_CONTAINER_NAME, blobName, fileToUpload);
+                = BlobUploadRecord.create(DEFAULT_CONTAINER_NAME, blobName, null, fileToUpload);
         List<BlockUploadRecord> blockUploadRecords = blobUploadRecord.getBlockUploadRecords();
         List<String> base64BlockIds = new ArrayList<>();
         //
@@ -73,6 +73,7 @@ public class StorageBlobClientTest {
         // Commit staged blocks
         blobClient.commitBlockList(blobUploadRecord.getContainerName(),
                 blobUploadRecord.getBlobName(),
+                null,
                 base64BlockIds,
                 true);
     }
@@ -87,7 +88,7 @@ public class StorageBlobClientTest {
         File fileToUpload = createLocalFile(appContext, fileName, 22 * Constants.MB);
         StorageBlobClient blobClient = createStorageBlobClient();
         BlobUploadRecord blobUploadRecord
-                = BlobUploadRecord.create(DEFAULT_CONTAINER_NAME, blobName, fileToUpload);
+                = BlobUploadRecord.create(DEFAULT_CONTAINER_NAME, blobName, null, fileToUpload);
         List<BlockUploadRecord> blockUploadRecords = blobUploadRecord.getBlockUploadRecords();
         CountDownLatch blockUploadLatch = new CountDownLatch(blockUploadRecords.size());
         ConcurrentLinkedDeque<Throwable> blockUploadErrors = new ConcurrentLinkedDeque<>();
@@ -133,6 +134,7 @@ public class StorageBlobClientTest {
         // Commit staged blocks
         blobClient.commitBlockList(blobUploadRecord.getContainerName(),
                 blobUploadRecord.getBlobName(),
+                null,
                 base64BlockIds,
                 true, new Callback<BlockBlobItem>() {
                     @Override
@@ -167,6 +169,7 @@ public class StorageBlobClientTest {
         CountDownLatch latch = new CountDownLatch(1);
         uploadManager.upload(DEFAULT_CONTAINER_NAME,
                 blobName,
+                null,
                 fileToUpload, new UploadListener() {
                     @Override
                     public void onUploadProgress(int totalBytes, int bytesUploaded) {
@@ -202,6 +205,7 @@ public class StorageBlobClientTest {
         BlobUploadRecord blobUploadRecord
                 = BlobUploadRecord.create(DEFAULT_CONTAINER_NAME,
                 blobName,
+                null,
                 fileToUpload);
         BlobUploader blobUploader = new BlobUploader(createStorageBlobClient(), 3);
         CountDownLatch latch = new CountDownLatch(1);
@@ -237,7 +241,7 @@ public class StorageBlobClientTest {
         assertNotNull(myFile);
         assertEquals(fileContent.length, myFile.length());
         BlobUploadRecord blobUploadRecord
-                = BlobUploadRecord.create("foo", "bar", myFile);
+                = BlobUploadRecord.create("foo", "bar", null, myFile);
         List<BlockUploadRecord> blockRecords  = blobUploadRecord.getBlockUploadRecords();
         assertEquals(3, blockRecords.size());
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

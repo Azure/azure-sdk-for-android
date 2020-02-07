@@ -118,6 +118,7 @@ public class BlobUploader {
         }
         this.blobClient.commitBlockList(blobUploadRecord.getContainerName(),
                 blobUploadRecord.getBlobName(),
+                blobUploadRecord.getContentType(),
                 base64BlockIds,
                 true, new Callback<BlockBlobItem>() {
                     @Override

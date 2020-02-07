@@ -15,6 +15,7 @@ public class BlobUploadRecord {
     private final int fileSize;
     private final String containerName;
     private final String blobName;
+    private final String contentType;
     private final List<BlockUploadRecord> blockUploadRecords;
     private volatile BlobUploadState state;
     private volatile int bytesUploaded;
@@ -23,22 +24,26 @@ public class BlobUploadRecord {
     private BlobUploadRecord(int fileSize,
                              String containerName,
                              String blobName,
+                             String contentType,
                              List<BlockUploadRecord> blockUploadRecords) {
         this.uploadId = UUID.randomUUID().toString();
         this.fileSize = fileSize;
         this.containerName = containerName;
         this.blobName = blobName;
+        this.contentType = contentType;
         this.blockUploadRecords = blockUploadRecords;
         this.bytesUploaded = 0;
     }
 
     public static BlobUploadRecord create(String containerName,
                                           String blobName,
+                                          String contentType,
                                           File file) {
 
         BlobUploadRecord record = new BlobUploadRecord((int) file.length(),
                 containerName,
                 blobName,
+                contentType,
                 createBlockUploadRecords(file));
         record.state = BlobUploadState.WAIT_TO_BEGIN;
         return record;
@@ -58,6 +63,10 @@ public class BlobUploadRecord {
 
     public String getBlobName() {
         return this.blobName;
+    }
+
+    public String getContentType() {
+        return this.contentType;
     }
 
     public List<BlockUploadRecord> getBlockUploadRecords() {

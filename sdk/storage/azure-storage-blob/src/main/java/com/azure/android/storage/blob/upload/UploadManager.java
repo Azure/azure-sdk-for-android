@@ -16,8 +16,8 @@ public class UploadManager {
         this.blobUploader = new BlobUploader(blobClient, MAX_RETRY);
     }
 
-    public void upload(String containerName, String blobName, File file, UploadListener listener) {
-        BlobUploadRecord blobUploadRecord = BlobUploadRecord.create(containerName, blobName, file);
+    public void upload(String containerName, String blobName, String contentType, File file, UploadListener listener) {
+        BlobUploadRecord blobUploadRecord = BlobUploadRecord.create(containerName, blobName, contentType, file);
         this.blobUploader.upload(blobUploadRecord, new BlobUploader.Listener() {
             @Override
             public void onUploadProgress(int totalBytes, int bytesUploaded) {

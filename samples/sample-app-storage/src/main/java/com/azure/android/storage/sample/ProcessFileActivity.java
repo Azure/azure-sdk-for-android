@@ -86,6 +86,7 @@ public class ProcessFileActivity extends AppCompatActivity {
         //File fileToUpload = createLocalFile(getApplicationContext(), fileName, fileSize);
 
         Uri fileUri = getIntent().getParcelableExtra(Constants.FILE_URI_EXTRA);
+        String contentType = this.getContentResolver().getType(fileUri);
         String filePath = PathUtils.getPath(this, fileUri);
         File fileToUpload = new File(filePath);
         String blobName = fileToUpload.getName();
@@ -98,7 +99,7 @@ public class ProcessFileActivity extends AppCompatActivity {
         this.progressBar.setMax(fileSize);
 
         UploadManager uploadManager = new UploadManager(this.storageBlobClient);
-        uploadManager.upload(this.storageConfiguration.getContainerName(), blobName, fileToUpload,
+        uploadManager.upload(this.storageConfiguration.getContainerName(), blobName, contentType, fileToUpload,
             new UploadListener() {
                 @Override
                 public void onUploadProgress(int totalBytes, int bytesUploaded) {
