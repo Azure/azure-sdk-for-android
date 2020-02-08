@@ -10,7 +10,6 @@
       android:name="MainApplication"
       android:allowBackup="true"
       android:icon="@mipmap/ic_launcher"
-      android:label="@string/app_name"
       android:roundIcon="@mipmap/ic_launcher_round"
       android:supportsRtl="true"
       android:theme="@style/AppTheme"
@@ -30,24 +29,19 @@
     </activity>
     <activity
         android:name="MainActivity"
-        android:label="@string/app_name"
-        android:theme="@style/AppTheme.NoActionBar">
+        android:label="@string/app_name">
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
     </activity>
-    <activity android:name="ContainerBlobsActivity">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN" />
-        <category android:name="android.intent.category.LAUNCHER" />
-      </intent-filter>
+    <activity
+        android:name="ContainerBlobsActivity"
+        android:label="@string/list_blobs">
     </activity>
-    <activity android:name="ProcessFileActivity">
-      <intent-filter>
-        <action android:name="android.intent.action.MAIN"/>
-        <category android:name="android.intent.category.LAUNCHER"/>
-      </intent-filter>
+    <activity
+        android:name="ProcessFileActivity"
+        android:label="@string/upload_file">
     </activity>
   </application>
 </manifest>

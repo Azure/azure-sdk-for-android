@@ -78,7 +78,7 @@ public class ContainerBlobsActivity extends AppCompatActivity {
             swipe.setRefreshing(pageLoadState == PageLoadState.LOADING);
         });
         SwipeRefreshLayout swipe = findViewById(R.id.swipe_refresh);
-        swipe.setOnRefreshListener(() -> viewModel.refresh());
+        swipe.setOnRefreshListener(() -> this.viewModel.refresh());
 
         // Set up search box
         this.searchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -107,6 +107,7 @@ public class ContainerBlobsActivity extends AppCompatActivity {
 
         String containerName = getIntent().getStringExtra(Constants.CONTAINER_NAME_EXTRA);
 
+        this.searchText.setText(containerName);
         // List items in container
         this.viewModel.list(containerName);
     }
