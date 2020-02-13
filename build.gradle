@@ -93,6 +93,29 @@ configure([
                     artifact bundleReleaseAar
                     artifact sourcesJar
                     artifact javadocJar
+
+                    pom {
+                        name = "Azure SDK for Android"
+                        description = project.description
+                        url = 'https://github.com/Azure/azure-sdk-for-android'
+                        licenses {
+                            license {
+                                name = 'The MIT License (MIT)'
+                                url = 'http://opensource.org/licenses/MIT'
+                            }
+                        }
+                        developers {
+                            developer {
+                                id = 'microsoft'
+                                name = 'Microsoft'
+                            }
+                        }
+                        scm {
+                            connection = 'scm:git:https://github.com/Azure/azure-sdk-for-android.git'
+                            developerConnection = 'scm:git:https://github.com/Azure/azure-sdk-for-android.git'
+                            url = 'https://github.com/Azure/azure-sdk-for-android'
+                        }
+                    }
                 }
             }
 
