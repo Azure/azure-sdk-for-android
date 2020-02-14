@@ -36,11 +36,11 @@
       </intent-filter>
     </activity>
     <activity
-        android:name="ContainerBlobsActivity"
+        android:name=".ListAndDownloadBlobsActivity"
         android:label="@string/list_blobs">
     </activity>
     <activity
-        android:name="ProcessFileActivity"
+        android:name=".UploadFileActivity"
         android:label="@string/upload_file">
     </activity>
   </application>

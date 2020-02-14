@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
         this.listBlobsButton.setOnClickListener(v -> {
             Log.d("MainActivity", "setOnClickListener() for listing blobs.");
 
-            Intent intent = new Intent(this, ContainerBlobsActivity.class);
+            Intent intent = new Intent(this, ListAndDownloadBlobsActivity.class);
             intent.putExtra(CONTAINER_NAME_EXTRA, storageConfiguration.getContainerName());
             startActivity(intent);
         });
@@ -75,7 +75,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Log.d("MainActivity", "onActivityResult(): File URI: " + fileUri.toString());
 
-                    Intent intent = new Intent(this, ProcessFileActivity.class);
+                    Intent intent = new Intent(this, UploadFileActivity.class);
                     intent.putExtra(FILE_URI_EXTRA, fileUri);
                     startActivity(intent);
                 }

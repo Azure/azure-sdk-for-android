@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.azure.android.storage.sample.ContainerBlobsActivity">
+    tools:context="com.azure.android.storage.sample.ListAndDownloadBlobsActivity">
 
   <com.google.android.material.textfield.TextInputLayout
       android:id="@+id/input_layout"

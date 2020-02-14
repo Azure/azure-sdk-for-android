@@ -29,7 +29,7 @@ import com.microsoft.identity.client.PublicClientApplication;
 
 import javax.inject.Inject;
 
-public class ContainerBlobsActivity extends AppCompatActivity {
+public class ListAndDownloadBlobsActivity extends AppCompatActivity {
     // Singleton StorageBlobClient that will be created by Dagger. The singleton object is shared across various
     // activities in the application.
     @Inject
@@ -44,7 +44,7 @@ public class ContainerBlobsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_containerblobs);
+        setContentView(R.layout.activity_listblobs);
 
         // Request Dagger to get singleton StorageBlobClient and initialize this.storageBlobClient
         ((MainApplication) getApplication()).getAppComponent().inject(this);

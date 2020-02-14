@@ -30,7 +30,7 @@ import java.util.UUID;
 
 import javax.inject.Inject;
 
-public class ProcessFileActivity extends AppCompatActivity {
+public class UploadFileActivity extends AppCompatActivity {
     //private final int fileSize = 22 * Constants.MB;
 
     private StorageConfiguration storageConfiguration;
@@ -45,7 +45,7 @@ public class ProcessFileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_processfile);
+        setContentView(R.layout.activity_uploadfile);
 
         // Request Dagger to get singleton StorageBlobClient and initialize this.storageBlobClient
         ((MainApplication) getApplication()).getAppComponent().inject(this);
@@ -139,7 +139,7 @@ public class ProcessFileActivity extends AppCompatActivity {
             fileOutputStream.flush();
             myFile = new File(myFilePath);
         } catch (IOException e) { // FileNotFoundException
-            Log.e("ProcessFileActivity", "createLocalFile", e);
+            Log.e("UploadFileActivity", "createLocalFile", e);
         }
 
         return myFile;
