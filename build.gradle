@@ -95,7 +95,7 @@ configure([
                     artifact javadocJar
 
                     pom {
-                        name = "Azure SDK for Android"
+                        name = "Azure SDK for Android" // TODO: Need to pull this from the project being built.
                         description = project.description
                         url = 'https://github.com/Azure/azure-sdk-for-android'
                         licenses {
