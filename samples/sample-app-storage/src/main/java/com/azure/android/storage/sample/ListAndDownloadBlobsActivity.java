@@ -20,6 +20,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.azure.android.core.util.CoreUtils;
 import com.azure.android.storage.blob.StorageBlobClient;
+import com.azure.android.storage.blob.download.DownloadManager;
 import com.azure.android.storage.blob.implementation.Constants;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.sample.core.util.paging.PageLoadState;
@@ -53,11 +54,11 @@ public class ListAndDownloadBlobsActivity extends AppCompatActivity {
         this.searchText = findViewById(R.id.input_container_name);
 
         this.viewModel = ViewModelProviders.of(this, new ContainerBlobsViewModelFactory(this.storageBlobClient))
-                .get(ContainerBlobsPaginationViewModel.class);
+            .get(ContainerBlobsPaginationViewModel.class);
 
         // Set up Login
         PublicClientApplication aadApp = new PublicClientApplication(this.getApplicationContext(),
-                R.raw.auth_configuration);
+            R.raw.auth_configuration);
 
         this.viewModel.getTokenRequestObservable().observe(this, new TokenRequestObserver() {
             @Override
@@ -66,8 +67,12 @@ public class ListAndDownloadBlobsActivity extends AppCompatActivity {
             }
         });
 
+        ContainerBlobsPaginationRepository repository = (ContainerBlobsPaginationRepository) this.viewModel.getRepository();
+
         // Set up PagedList Adapter
-        ContainerBlobsPagedListAdapter adapter = new ContainerBlobsPagedListAdapter(() -> this.viewModel.retry());
+        ContainerBlobsPagedListAdapter adapter =
+            new ContainerBlobsPagedListAdapter(new DownloadManager(repository.getStorageBlobClient()),
+                () -> this.viewModel.retry());
         this.recyclerView.setAdapter(adapter);
         this.viewModel.getPagedListObservable().observe(this, getPagedListObserver(adapter, this.recyclerView));
         this.viewModel.getLoadStateObservable().observe(this, getPageLoadStateObserver(adapter));

@@ -20,8 +20,7 @@ public class DownloadManager {
 
     public File download(String containerName,
                          String blobName,
-                         File file,
-                         DownloadListener listener) {
+                         File file) {
         try {
             if (file == null) {
                 file = blobDownloader.download(containerName, blobName);

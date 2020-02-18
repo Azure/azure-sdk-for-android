@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/root"
@@ -9,34 +9,58 @@
     android:orientation="vertical"
     tools:context="com.azure.android.storage.sample.ListAndDownloadBlobsActivity">
 
-  <com.google.android.material.textfield.TextInputLayout
-      android:id="@+id/input_layout"
+  <LinearLayout
+      android:id="@+id/list_blobs_layout"
       android:layout_width="match_parent"
-      android:layout_height="wrap_content"
-      android:layout_marginStart="8dp"
-      android:layout_marginTop="8dp"
-      android:layout_marginEnd="8dp">
+      android:layout_height="match_parent"
+      android:orientation="vertical"
+      tools:context="com.azure.android.storage.sample.ListAndDownloadBlobsActivity">
 
-    <EditText
-        android:id="@+id/input_container_name"
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/input_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/container_name"
-        android:imeOptions="actionSearch"
-        android:inputType="textNoSuggestions"
-        android:importantForAutofill="no" />
-  </com.google.android.material.textfield.TextInputLayout>
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp">
 
-  <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-      android:id="@+id/swipe_refresh"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent">
+      <EditText
+          android:id="@+id/input_container_name"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:hint="@string/container_name"
+          android:imeOptions="actionSearch"
+          android:inputType="textNoSuggestions"
+          android:importantForAutofill="no" />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/blob_list"
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:scrollbars="vertical"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-  </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-</LinearLayout>
+        android:layout_height="match_parent">
+
+      <androidx.recyclerview.widget.RecyclerView
+          android:id="@+id/blob_list"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:scrollbars="vertical"
+          app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+  </LinearLayout>
+
+  <LinearLayout
+      android:id="@+id/download_background"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:background="@color/cardview_shadow_start_color"
+      tools:ignore="Orientation,PrivateResource"
+      android:visibility="invisible" />
+
+  <ProgressBar
+      android:id="@+id/download_progress_bar"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center"
+      android:layout_centerInParent="true"
+      android:visibility="invisible" />
+</RelativeLayout>

@@ -23,6 +23,7 @@ import static com.azure.android.storage.blob.implementation.Constants.FILE_URI_E
 public class MainActivity extends AppCompatActivity {
     public static final int PICK_FILE_RESULT_CODE = 1;
     public static final int REQUEST_READ_EXTERNAL_STORAGE = 1;
+    public static final int REQUEST_WRITE_EXTERNAL_STORAGE = 2;
 
     private Button listBlobsButton;
     private Button uploadFileButton;
@@ -33,22 +34,15 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
-            != PackageManager.PERMISSION_GRANTED) {
-            Log.d("MainActivity", "Permission for storage is not granted yet");
-
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                REQUEST_READ_EXTERNAL_STORAGE);
-        } else {
-            Log.d("MainActivity", "Permission for storage was already granted");
-        }
+        requestPermission(Manifest.permission.READ_EXTERNAL_STORAGE, REQUEST_READ_EXTERNAL_STORAGE);
+        requestPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_WRITE_EXTERNAL_STORAGE);
 
         AndroidThreeTen.init(this);
         setContentView(R.layout.activity_main);
 
         this.listBlobsButton = findViewById(R.id.list_blobs_button);
         this.listBlobsButton.setOnClickListener(v -> {
-            Log.d("MainActivity", "setOnClickListener() for listing blobs.");
+            Log.d("MainActivity", "setOnClickListener(): List blobs button.");
 
             Intent intent = new Intent(this, ListAndDownloadBlobsActivity.class);
             intent.putExtra(CONTAINER_NAME_EXTRA, storageConfiguration.getContainerName());
@@ -57,13 +51,24 @@ public class MainActivity extends AppCompatActivity {
 
         this.uploadFileButton = findViewById(R.id.upload_file_button);
         this.uploadFileButton.setOnClickListener(v -> {
-            Log.d("MainActivity", "setOnClickListener() for uploading blobs.");
+            Log.d("MainActivity", "setOnClickListener(): Upload file button.");
 
             Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
             chooseFile.setType("*/*");
             chooseFile = Intent.createChooser(chooseFile, "Select a file to upload.");
             startActivityForResult(chooseFile, PICK_FILE_RESULT_CODE);
         });
+    }
+
+    private void requestPermission(String permission, int requestCode) {
+        if (ContextCompat.checkSelfPermission(this, permission)
+            != PackageManager.PERMISSION_GRANTED) {
+            Log.d("MainActivity", "requestPermission(): Permission: " + permission + " is not granted yet.");
+
+            ActivityCompat.requestPermissions(this, new String[]{permission}, requestCode);
+        } else {
+            Log.d("MainActivity", "requestPermission(): Permission: " + permission + " was already granted.");
+        }
     }
 
     @Override
@@ -92,9 +97,9 @@ public class MainActivity extends AppCompatActivity {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                     && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    Log.d("MainActivity", "onRequestPermissionsResult(): Permission for storage was already granted");
+                    Log.d("MainActivity", "onRequestPermissionsResult(): Permission was already granted.");
                 } else {
-                    Log.d("MainActivity", "onRequestPermissionsResult():Permission for storage was denied");
+                    Log.d("MainActivity", "onRequestPermissionsResult():Permission was denied.");
                 }
             }
         }
