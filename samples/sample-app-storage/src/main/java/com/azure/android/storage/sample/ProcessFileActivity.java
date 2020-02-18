@@ -11,7 +11,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.azure.android.storage.blob.StorageBlobClient;
-import com.azure.android.storage.blob.implementation.Constants;
 import com.azure.android.storage.blob.upload.UploadListener;
 import com.azure.android.storage.blob.upload.UploadManager;
 import com.azure.android.storage.sample.config.StorageConfiguration;

@@ -20,7 +20,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.azure.android.core.util.CoreUtils;
 import com.azure.android.storage.blob.StorageBlobClient;
-import com.azure.android.storage.blob.implementation.Constants;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.sample.core.util.paging.PageLoadState;
 import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObserver;
