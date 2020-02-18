@@ -8,6 +8,7 @@ import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.storage.blob.models.AccessTier;
+import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
@@ -143,6 +144,20 @@ public class StorageBlobClient {
                 timeout,
                 requestId,
                 callback);
+    }
+
+    public BlobDownloadAsyncResponse downloadWithRestResponse(String containerName,
+                                                              String blobName) {
+        return storageBlobServiceClient.downloadWithRestResponse(containerName,
+            blobName);
+    }
+
+    public BlobDownloadAsyncResponse downloadWithRestResponse(String containerName,
+                                                              String blobName,
+                                                              Callback<Void> callback) {
+        return storageBlobServiceClient.downloadWithRestResponse(containerName,
+            blobName,
+            callback);
     }
 
     public void stageBlock(String containerName,

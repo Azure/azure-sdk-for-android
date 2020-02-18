@@ -10,6 +10,8 @@ import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.Base64Util;
 import com.azure.android.core.util.DateTimeRfc1123;
 import com.azure.android.storage.blob.models.AccessTier;
+import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
+import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
@@ -128,6 +130,23 @@ final class StorageBlobServiceImpl {
             include,
             timeout,
             requestId,
+            callback);
+    }
+
+    // TODO: Add optional attributes
+    BlobDownloadAsyncResponse downloadWithRestResponse(String containerName,
+                                                       String blobName) {
+        return this.downloadWithRestResponseIntern(containerName,
+            blobName,
+            null);
+    }
+
+    // TODO: Add optional attributes
+    BlobDownloadAsyncResponse downloadWithRestResponse(String containerName,
+                                                       String blobName,
+                                                       Callback<Void> callback) {
+        return this.downloadWithRestResponseIntern(containerName,
+            blobName,
             callback);
     }
 
@@ -429,6 +448,53 @@ final class StorageBlobServiceImpl {
                 }
             } else {
                 String strContent = readAsString(response.errorBody());
+                throw new BlobStorageException(strContent, response.raw());
+            }
+        }
+    }
+
+    // TODO: Add optional attributes
+    private BlobDownloadAsyncResponse downloadWithRestResponseIntern(String containerName,
+                                                                     String blobName,
+                                                                     Callback<Void> callback) {
+        // TODO: Implement callback behavior
+        if (callback != null) {
+            return null;
+        } else {
+            Response<ResponseBody> response = executeCall(service.download(containerName,
+                blobName,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null, null,
+                null,
+                null,
+                XMS_VERSION,
+                null,
+                null,
+                null,
+                null));
+
+            if (response.isSuccessful()) {
+                if (response.code() == 200) {
+                    BlobDownloadHeaders headers = deserializeHeaders(response.headers(), BlobDownloadHeaders.class);
+
+                    return new BlobDownloadAsyncResponse(response.raw().request(),
+                        response.code(),
+                        response.headers(),
+                        response.body(),
+                        headers);
+                } else { // Error response
+                    String strContent = readAsString(response.body());
+
+                    throw new BlobStorageException(strContent, response.raw());
+                }
+            } else { // Error response
+                String strContent = readAsString(response.errorBody());
+
                 throw new BlobStorageException(strContent, response.raw());
             }
         }
@@ -776,6 +842,25 @@ final class StorageBlobServiceImpl {
                                                @Header("x-ms-client-request-id") String requestId,
                                                @Query("restype") String resType,
                                                @Query("comp") String comp);
+
+        @GET("{containerName}/{blob}")
+        Call<ResponseBody> download(@Path("containerName") String containerName,
+                                    @Path("blob") String blob,
+                                    @Query("snapshot") String snapshot,
+                                    @Query("timeout") Integer timeout,
+                                    @Header("x-ms-range") String range,
+                                    @Header("x-ms-lease-id") String leaseId,
+                                    @Header("x-ms-range-get-content-md5") Boolean rangeGetContentMD5,
+                                    @Header("x-ms-range-get-content-crc64") Boolean rangeGetContentCRC64,
+                                    @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
+                                    @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
+                                    @Header("If-Match") String ifMatch,
+                                    @Header("If-None-Match") String ifNoneMatch,
+                                    @Header("x-ms-version") String version,
+                                    @Header("x-ms-client-request-id") String requestId,
+                                    @Header("x-ms-encryption-key") String encryptionKey,
+                                    @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
+                                    @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
 
         @PUT("{containerName}/{blob}")
         Call<ResponseBody> stageBlock(@Path("containerName") String containerName,

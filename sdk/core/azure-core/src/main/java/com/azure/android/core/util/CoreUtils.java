@@ -79,4 +79,20 @@ public interface CoreUtils {
 
         return stringBuilder.toString();
     }
+
+    /**
+     * Creates a copy of the source byte array.
+     *
+     * @param source Array to make copy of.
+     * @return A copy of the array, or null if source was null.
+     */
+    static byte[] clone(byte[] source) {
+        if (source == null) {
+            return null;
+        } else {
+            byte[] copy = new byte[source.length];
+            System.arraycopy(source, 0, copy, 0, source.length);
+            return copy;
+        }
+    }
 }

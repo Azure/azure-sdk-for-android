@@ -34,7 +34,7 @@ public class Response<T> {
      *
      * @return The HTTP request.
      */
-    okhttp3.Request getRequest() {
+    public okhttp3.Request getRequest() {
         return this.request;
     }
 
