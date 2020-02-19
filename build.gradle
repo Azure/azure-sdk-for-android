@@ -122,6 +122,10 @@ allprojects {
         retrofitVersion = "2.6.2"
         staxApiVersion = "1.0-2"
         threeTenAbpVersion = "1.2.1"
+        workRuntimeVersion = "2.3.1"
+        concurrentFuturesVersion = "1.0.0"
+        roomRuntimeVersion = "2.2.3"
+        roomCompilerVersion = "2.2.3"
     }
 }
 
