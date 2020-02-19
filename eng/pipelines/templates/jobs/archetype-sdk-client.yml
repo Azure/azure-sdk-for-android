@@ -21,6 +21,7 @@ jobs:
             $stagingLocation = New-Item -Type Directory -Path $(Build.ArtifactStagingDirectory) -Name ${{artifact.name}}
             $artifactsToStage | Copy-Item -Destination $stagingLocation
           displayName: Stage ${{artifact.name}} for upload
+          
       - publish: $(Build.ArtifactStagingDirectory)
         artifact: packages
         displayName: Upload artifacts
