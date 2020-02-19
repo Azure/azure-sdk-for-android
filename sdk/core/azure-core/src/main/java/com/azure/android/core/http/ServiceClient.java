@@ -10,7 +10,6 @@ import com.azure.android.core.internal.util.serializer.SerializerFormat;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.ConnectionPool;
@@ -151,10 +150,6 @@ public class ServiceClient {
             this.baseUrl = serviceClient.getBaseUrl();
             this.serializerAdapter = serviceClient.builder.serializerAdapter;
             this.serializerFormat = serviceClient.builder.serializerFormat;
-
-            if (serviceClient.retrofit.callbackExecutor() != null) {
-                this.setCallbackExecutor(serviceClient.retrofit.callbackExecutor());
-            }
 
             for (Interceptor interceptor : serviceClient.httpClient.interceptors()) {
                 if (interceptor != serviceClient.builder.credentialsInterceptor) {
@@ -303,21 +298,6 @@ public class ServiceClient {
         }
 
         /**
-         * Set the executor to run the callback to notify the result of APIs invoked on an API Client created through
-         * the configured Retrofit.
-         * <p>
-         * The configured Retrofit is accessed using {@link ServiceClient#getRetrofit()}.
-         *
-         * @param executor The executor.
-         * @return Builder with executor applied.
-         */
-        public Builder setCallbackExecutor(@NonNull Executor executor) {
-            this.retrofitBuilder.callbackExecutor(executor);
-
-            return this;
-        }
-
-        /**
          * @return A {@link ServiceClient} configured with settings applied through this builder.
          */
         public ServiceClient build() {
@@ -358,6 +338,8 @@ public class ServiceClient {
                 this.retrofitBuilder
                     .baseUrl(this.baseUrl)
                     .client(httpClient)
+                    // Use same executor instance for OkHttp and Retrofit callback.
+                    .callbackExecutor(httpClient.dispatcher().executorService())
                     .addConverterFactory(converterFactory)
                     .build(),
                 this);
