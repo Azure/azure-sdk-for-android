@@ -3,14 +3,28 @@
 
 package com.azure.android.storage.blob;
 
-import com.azure.android.core.http.Callback;
+import com.azure.android.core.http.ServiceCall;
 import com.azure.android.core.http.ServiceClient;
+import com.azure.android.core.http.Callback;
 import com.azure.android.core.internal.util.serializer.SerializerAdapter;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
+import com.azure.android.core.util.Base64Util;
+import com.azure.android.core.util.DateTimeRfc1123;
+import com.azure.android.storage.blob.models.AccessTier;
+import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
+import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobStorageException;
+import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
+import com.azure.android.storage.blob.models.BlockBlobItem;
+import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
+import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
+import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
+import com.azure.android.storage.blob.models.BlockLookupList;
 import com.azure.android.storage.blob.models.ContainerListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
+import com.azure.android.storage.blob.models.CpkInfo;
+import com.azure.android.storage.blob.models.EncryptionAlgorithmType;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
@@ -19,13 +33,18 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.Headers;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
 
@@ -111,6 +130,212 @@ final class StorageBlobServiceImpl {
             timeout,
             requestId,
             callback);
+    }
+
+    ServiceCall stageBlock(String containerName,
+                           String blobName,
+                           String base64BlockId,
+                           byte[] blockContent,
+                           byte[] contentMd5) {
+        return this.stageBlockWithRestResponse(containerName,
+            blobName,
+            base64BlockId,
+            blockContent,
+            contentMd5,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null);
+    }
+
+    ServiceCall stageBlock(String containerName,
+                           String blobName,
+                           String base64BlockId,
+                           byte[] blockContent,
+                           byte[] contentMd5,
+                           Callback<Void> callback) {
+        return this.stageBlockWithRestResponse(containerName,
+            blobName,
+            base64BlockId,
+            blockContent,
+            contentMd5,
+            null,
+            null,
+            null,
+            null,
+            null, new Callback<BlockBlobsStageBlockResponse>() {
+                @Override
+                public void onResponse(BlockBlobsStageBlockResponse response) {
+                    callback.onResponse(null);
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    callback.onFailure(t);
+                }
+            });
+    }
+
+    BlockBlobsStageBlockResponse stageBlockWithRestResponse(String containerName,
+                                                            String blobName,
+                                                            String base64BlockId,
+                                                            byte[] blockContent,
+                                                            byte[] transactionalContentMD5,
+                                                            byte[] transactionalContentCrc64,
+                                                            Integer timeout,
+                                                            String leaseId,
+                                                            String requestId,
+                                                            CpkInfo cpkInfo) {
+        return this.stageBlockWithRestResponseIntern(containerName,
+            blobName,
+            base64BlockId,
+            blockContent,
+            transactionalContentMD5,
+            transactionalContentCrc64,
+            timeout,
+            leaseId,
+            requestId,
+            cpkInfo,
+            null).getResult();
+    }
+
+    ServiceCall stageBlockWithRestResponse(String containerName,
+                                           String blobName,
+                                           String base64BlockId,
+                                           byte[] blockContent,
+                                           byte[] transactionalContentMD5,
+                                           byte[] transactionalContentCrc64,
+                                           Integer timeout,
+                                           String leaseId,
+                                           String requestId,
+                                           CpkInfo cpkInfo,
+                                           Callback<BlockBlobsStageBlockResponse> callback) {
+        CallAndOptionalResult<BlockBlobsStageBlockResponse> r = this.stageBlockWithRestResponseIntern(containerName,
+            blobName,
+            base64BlockId,
+            blockContent,
+            transactionalContentMD5,
+            transactionalContentCrc64,
+            timeout,
+            leaseId,
+            requestId,
+            cpkInfo,
+            callback);
+        return new ServiceCall(r.getCall());
+    }
+
+    BlockBlobItem commitBlockList(String containerName,
+                                  String blobName,
+                                  List<String> base64BlockIds,
+                                  boolean overwrite) {
+        BlobRequestConditions requestConditions = null;
+        if (!overwrite) {
+            requestConditions = new BlobRequestConditions().setIfNoneMatch( "*");
+        }
+        BlockBlobsCommitBlockListResponse response = this.commitBlockListWithRestResponse(containerName,
+            blobName,
+            base64BlockIds,
+            null,
+            null,
+            null,
+            null,
+            null,
+            requestConditions,
+            null,
+            null,
+            null);
+        return response.getBlockBlobItem();
+    }
+
+    ServiceCall commitBlockList(String containerName,
+                                String blobName,
+                                List<String> base64BlockIds,
+                                boolean overwrite,
+                                Callback<BlockBlobItem> callBack) {
+        BlobRequestConditions requestConditions = null;
+        if (!overwrite) {
+            requestConditions = new BlobRequestConditions().setIfNoneMatch( "*");
+        }
+        return this.commitBlockListWithRestResponse(containerName,
+            blobName,
+            base64BlockIds,
+            null,
+            null,
+            null,
+            null,
+            null,
+            requestConditions,
+            null,
+            null,
+            null, new Callback<BlockBlobsCommitBlockListResponse>() {
+                @Override
+                public void onResponse(BlockBlobsCommitBlockListResponse response) {
+                    callBack.onResponse(response.getBlockBlobItem());
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    callBack.onFailure(t);
+                }
+            });
+    }
+
+    BlockBlobsCommitBlockListResponse commitBlockListWithRestResponse(String containerName,
+                                                                      String blobName,
+                                                                      List<String> base64BlockIds,
+                                                                      byte[] transactionalContentMD5,
+                                                                      byte[] transactionalContentCrc64,
+                                                                      Integer timeout,
+                                                                      BlobHttpHeaders blobHttpHeaders,
+                                                                      Map<String, String> metadata,
+                                                                      BlobRequestConditions requestConditions,
+                                                                      String requestId,
+                                                                      CpkInfo cpkInfo,
+                                                                      AccessTier tier) {
+        return this.commitBlockListIntern(containerName,
+            blobName,
+            base64BlockIds,
+            transactionalContentMD5,
+            transactionalContentCrc64,
+            timeout,
+            blobHttpHeaders,
+            metadata,
+            requestConditions,
+            requestId,
+            cpkInfo,
+            tier,
+            null).getResult();
+    }
+
+    ServiceCall commitBlockListWithRestResponse(String containerName,
+                                                String blobName,
+                                                List<String> base64BlockIds,
+                                                byte[] transactionalContentMD5,
+                                                byte[] transactionalContentCrc64,
+                                                Integer timeout,
+                                                BlobHttpHeaders blobHttpHeaders,
+                                                Map<String, String> metadata,
+                                                BlobRequestConditions requestConditions,
+                                                String requestId,
+                                                CpkInfo cpkInfo,
+                                                AccessTier tier,
+                                                Callback<BlockBlobsCommitBlockListResponse> callback) {
+        CallAndOptionalResult<BlockBlobsCommitBlockListResponse> r = this.commitBlockListIntern(containerName,
+            blobName,
+            base64BlockIds,
+            transactionalContentMD5,
+            transactionalContentCrc64,
+            timeout,
+            blobHttpHeaders,
+            metadata,
+            requestConditions,
+            requestId,
+            cpkInfo,
+            tier,
+            callback);
+        return new ServiceCall(r.getCall());
     }
 
     private ContainersListBlobFlatSegmentResponse getBlobsInPageWithRestResponseIntern(String pageId,
@@ -200,6 +425,308 @@ final class StorageBlobServiceImpl {
         }
     }
 
+
+    private CallAndOptionalResult<BlockBlobsStageBlockResponse> stageBlockWithRestResponseIntern(String containerName,
+                                                                                                 String blobName,
+                                                                                                 String base64BlockId,
+                                                                                                 byte[] blockContent,
+                                                                                                 byte[] transactionalContentMD5,
+                                                                                                 byte[] transactionalContentCrc64,
+                                                                                                 Integer timeout,
+                                                                                                 String leaseId,
+                                                                                                 String requestId,
+                                                                                                 CpkInfo cpkInfo,
+                                                                                                 Callback<BlockBlobsStageBlockResponse> callback) {
+        String encryptionKey = null;
+        String encryptionKeySha256 = null;
+        EncryptionAlgorithmType encryptionAlgorithm = null;
+        if (cpkInfo != null) {
+            encryptionKey = cpkInfo.getEncryptionKey();
+            encryptionKeySha256 = cpkInfo.getEncryptionKeySha256();
+            encryptionAlgorithm = cpkInfo.getEncryptionAlgorithm();
+        }
+        //
+        final String comp = "block";
+        String transactionalContentMD5Converted = Base64Util.encodeToString(transactionalContentMD5);
+        String transactionalContentCrc64Converted = Base64Util.encodeToString(transactionalContentCrc64);
+        //
+        int contentLength = blockContent.length;
+        RequestBody body = RequestBody.create(MediaType.get("application/octet-stream"), blockContent);
+
+        if (callback != null) {
+            Call<ResponseBody> call = service.stageBlock(containerName,
+                blobName,
+                base64BlockId,
+                contentLength,
+                transactionalContentMD5Converted,
+                transactionalContentCrc64Converted,
+                body,
+                timeout,
+                leaseId,
+                XMS_VERSION,
+                requestId,
+                comp,
+                encryptionKey,
+                encryptionKeySha256,
+                encryptionAlgorithm);
+
+            executeCall(call, new retrofit2.Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        if (response.code() == 201) {
+                            BlockBlobStageBlockHeaders typedHeader = deserializeHeaders(response.headers(),
+                                BlockBlobStageBlockHeaders.class);
+                            callback.onResponse(new BlockBlobsStageBlockResponse(response.raw().request(),
+                                response.code(),
+                                response.headers(),
+                                null,
+                                typedHeader));
+                        } else {
+                            String strContent = readAsString(response.body());
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                        }
+                    } else {
+                        String strContent = readAsString(response.errorBody());
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    callback.onFailure(t);
+                }
+            });
+            return new CallAndOptionalResult(call, null);
+        } else {
+            Call<ResponseBody> call = service.stageBlock(containerName,
+                blobName,
+                base64BlockId,
+                contentLength,
+                transactionalContentMD5Converted,
+                transactionalContentCrc64Converted,
+                body,
+                timeout,
+                leaseId,
+                XMS_VERSION,
+                requestId,
+                comp,
+                encryptionKey,
+                encryptionKeySha256,
+                encryptionAlgorithm);
+
+            Response<ResponseBody> response = executeCall(call);
+
+            if (response.isSuccessful()) {
+                if (response.code() == 201) {
+                    BlockBlobStageBlockHeaders typedHeader = deserializeHeaders(response.headers(),
+                        BlockBlobStageBlockHeaders.class);
+
+                    BlockBlobsStageBlockResponse result = new BlockBlobsStageBlockResponse(response.raw().request(),
+                        response.code(),
+                        response.headers(),
+                        null,
+                        typedHeader);
+                    return new CallAndOptionalResult<>(call, result);
+                } else {
+                    String strContent = readAsString(response.body());
+                    throw new BlobStorageException(strContent, response.raw());
+                }
+            } else {
+                String strContent = readAsString(response.errorBody());
+                throw new BlobStorageException(strContent, response.raw());
+            }
+        }
+    }
+
+    private CallAndOptionalResult<BlockBlobsCommitBlockListResponse> commitBlockListIntern(String containerName,
+                                                                                           String blobName,
+                                                                                           List<String> base64BlockIds,
+                                                                                           byte[] transactionalContentMD5,
+                                                                                           byte[] transactionalContentCrc64,
+                                                                                           Integer timeout,
+                                                                                           BlobHttpHeaders blobHttpHeaders,
+                                                                                           Map<String, String> metadata,
+                                                                                           BlobRequestConditions requestConditions,
+                                                                                           String requestId,
+                                                                                           CpkInfo cpkInfo,
+                                                                                           AccessTier tier,
+                                                                                           Callback<BlockBlobsCommitBlockListResponse> callback) {
+        requestConditions = requestConditions == null ? new BlobRequestConditions() : requestConditions;
+        String leaseId = requestConditions.getLeaseId();
+        DateTimeRfc1123 ifModifiedSince = requestConditions.getIfModifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfModifiedSince());
+        DateTimeRfc1123 ifUnmodifiedSince = requestConditions.getIfUnmodifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfUnmodifiedSince());
+        String ifMatch = requestConditions.getIfMatch();
+        String ifNoneMatch = requestConditions.getIfNoneMatch();
+        String cacheControl = null;
+        if (blobHttpHeaders != null) {
+            cacheControl = blobHttpHeaders.getCacheControl();
+        }
+        String contentType = null;
+        if (blobHttpHeaders != null) {
+            contentType = blobHttpHeaders.getContentType();
+        }
+        String contentEncoding = null;
+        if (blobHttpHeaders != null) {
+            contentEncoding = blobHttpHeaders.getContentEncoding();
+        }
+        String contentLanguage = null;
+        if (blobHttpHeaders != null) {
+            contentLanguage = blobHttpHeaders.getContentLanguage();
+        }
+        byte[] contentMd5 = null;
+        if (blobHttpHeaders != null) {
+            contentMd5 = blobHttpHeaders.getContentMd5();
+        }
+        String contentDisposition = null;
+        if (blobHttpHeaders != null) {
+            contentDisposition = blobHttpHeaders.getContentDisposition();
+        }
+        String encryptionKey = null;
+        if (cpkInfo != null) {
+            encryptionKey = cpkInfo.getEncryptionKey();
+        }
+        String encryptionKeySha256 = null;
+        if (cpkInfo != null) {
+            encryptionKeySha256 = cpkInfo.getEncryptionKeySha256();
+        }
+        EncryptionAlgorithmType encryptionAlgorithm = null;
+        if (cpkInfo != null) {
+            encryptionAlgorithm = cpkInfo.getEncryptionAlgorithm();
+        }
+
+        //
+        final String comp = "blocklist";
+        String transactionalContentMD5Converted = Base64Util.encodeToString(transactionalContentMD5);
+        String transactionalContentCrc64Converted = Base64Util.encodeToString(transactionalContentCrc64);
+        String contentMd5Converted = Base64Util.encodeToString(contentMd5);
+        //
+        BlockLookupList blockLookupList = new BlockLookupList().setLatest(base64BlockIds);
+        final RequestBody blocks;
+        try {
+            blocks = RequestBody.create(MediaType.get("application/xml; charset=utf-8"),
+                serializerAdapter.serialize(blockLookupList, SerializerFormat.XML));
+        } catch (IOException ioe) {
+            if (callback != null) {
+                callback.onFailure(ioe);
+                return null;
+            } else {
+                throw new RuntimeException(ioe);
+            }
+        }
+
+        if (callback != null) {
+            Call<ResponseBody> call = service.commitBlockList(containerName,
+                blobName,
+                timeout,
+                transactionalContentMD5Converted,
+                transactionalContentCrc64Converted,
+                metadata,
+                leaseId,
+                tier,
+                ifModifiedSince,
+                ifUnmodifiedSince,
+                ifMatch,
+                ifNoneMatch,
+                blocks,
+                XMS_VERSION,
+                requestId,
+                comp,
+                cacheControl,
+                contentType,
+                contentEncoding,
+                contentLanguage,
+                contentMd5Converted,
+                contentDisposition,
+                encryptionKey,
+                encryptionKeySha256,
+                encryptionAlgorithm);
+
+            executeCall(call, new retrofit2.Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        if (response.code() == 201) {
+                            BlockBlobCommitBlockListHeaders typedHeader = deserializeHeaders(response.headers(),
+                                BlockBlobCommitBlockListHeaders.class);
+                            callback.onResponse(new BlockBlobsCommitBlockListResponse(response.raw().request(),
+                                response.code(),
+                                response.headers(),
+                                null,
+                                typedHeader));
+                        } else {
+                            String strContent = readAsString(response.body());
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                        }
+                    } else {
+                        String strContent = readAsString(response.errorBody());
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    callback.onFailure(t);
+                }
+            });
+            return new CallAndOptionalResult<>(call, null);
+        } else {
+
+            Call<ResponseBody> call = service.commitBlockList(containerName,
+                blobName,
+                timeout,
+                transactionalContentMD5Converted,
+                transactionalContentCrc64Converted,
+                metadata,
+                leaseId,
+                tier,
+                ifModifiedSince,
+                ifUnmodifiedSince,
+                ifMatch,
+                ifNoneMatch,
+                blocks,
+                XMS_VERSION,
+                requestId,
+                comp,
+                cacheControl,
+                contentType,
+                contentEncoding,
+                contentLanguage,
+                contentMd5Converted,
+                contentDisposition,
+                encryptionKey,
+                encryptionKeySha256,
+                encryptionAlgorithm);
+
+            Response<ResponseBody> response = executeCall(call);
+
+            if (response.isSuccessful()) {
+                if (response.code() == 201) {
+                    BlockBlobCommitBlockListHeaders typedHeader = deserializeHeaders(response.headers(),
+                        BlockBlobCommitBlockListHeaders.class);
+
+                    BlockBlobsCommitBlockListResponse result = new BlockBlobsCommitBlockListResponse(response.raw().request(),
+                        response.code(),
+                        response.headers(),
+                        null,
+                        typedHeader);
+                    return new CallAndOptionalResult<>(call, result);
+                } else {
+                    String strContent = readAsString(response.body());
+                    throw new BlobStorageException(strContent, response.raw());
+                }
+            } else {
+                String strContent = readAsString(response.errorBody());
+                throw new BlobStorageException(strContent, response.raw());
+            }
+        }
+    }
+
+
     private static <T> Response<T> executeCall(Call<T> call) {
         try {
             return call.execute();
@@ -239,6 +766,24 @@ final class StorageBlobServiceImpl {
         }
     }
 
+    private static class CallAndOptionalResult<T> {
+        private final Call<ResponseBody> call;
+        private final T result;
+
+        CallAndOptionalResult(Call<ResponseBody>  call, T result) {
+            this.call = call;
+            this.result = result;
+        }
+
+        Call<ResponseBody> getCall() {
+            return this.call;
+        }
+
+        T getResult() {
+            return this.result;
+        }
+    }
+
     private interface StorageBlobService {
         @GET("{containerName}")
         Call<ResponseBody> listBlobFlatSegment(@Path("containerName") String containerName,
@@ -251,5 +796,49 @@ final class StorageBlobServiceImpl {
                                                @Header("x-ms-client-request-id") String requestId,
                                                @Query("restype") String resType,
                                                @Query("comp") String comp);
+
+        @PUT("{containerName}/{blob}")
+        Call<ResponseBody> stageBlock(@Path("containerName") String containerName,
+                                      @Path("blob") String blob,
+                                      @Query("blockid") String blockId,
+                                      @Header("Content-Length") long contentLength,
+                                      @Header("Content-MD5") String transactionalContentMD5,
+                                      @Header("x-ms-content-crc64") String transactionalContentCrc64,
+                                      @Body RequestBody blockContent,
+                                      @Query("timeout") Integer timeout,
+                                      @Header("x-ms-lease-id") String leaseId,
+                                      @Header("x-ms-version") String version,
+                                      @Header("x-ms-client-request-id") String requestId,
+                                      @Query("comp") String comp,
+                                      @Header("x-ms-encryption-key") String encryptionKey,
+                                      @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
+                                      @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
+
+        @PUT("{containerName}/{blob}")
+        Call<ResponseBody> commitBlockList(@Path("containerName") String containerName,
+                                           @Path("blob") String blobName,
+                                           @Query("timeout") Integer timeout,
+                                           @Header("Content-MD5") String transactionalContentMD5,
+                                           @Header("x-ms-content-crc64") String transactionalContentCrc64,
+                                           @Header("x-ms-meta-") Map<String, String> metadata,
+                                           @Header("x-ms-lease-id") String leaseId,
+                                           @Header("x-ms-access-tier") AccessTier tier,
+                                           @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
+                                           @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
+                                           @Header("If-Match") String ifMatch,
+                                           @Header("If-None-Match") String ifNoneMatch,
+                                           @Body RequestBody blocks,
+                                           @Header("x-ms-version") String version,
+                                           @Header("x-ms-client-request-id") String requestId,
+                                           @Query("comp") String comp,
+                                           @Header("x-ms-blob-cache-control") String cacheControl,
+                                           @Header("x-ms-blob-content-type") String contentType,
+                                           @Header("x-ms-blob-content-encoding") String contentEncoding,
+                                           @Header("x-ms-blob-content-language") String contentLanguage,
+                                           @Header("x-ms-blob-content-md5") String contentMd5,
+                                           @Header("x-ms-blob-content-disposition") String contentDisposition,
+                                           @Header("x-ms-encryption-key") String encryptionKey,
+                                           @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
+                                           @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
     }
 }
