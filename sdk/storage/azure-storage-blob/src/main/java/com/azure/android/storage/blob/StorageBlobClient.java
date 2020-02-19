@@ -4,15 +4,24 @@
 package com.azure.android.storage.blob;
 
 import com.azure.android.core.http.Callback;
+import com.azure.android.core.http.ServiceCall;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
+import com.azure.android.storage.blob.models.AccessTier;
+import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
+import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlockBlobItem;
+import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
+import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
+import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.Interceptor;
@@ -98,11 +107,11 @@ public class StorageBlobClient {
                                                                                 Integer timeout,
                                                                                 String requestId) {
         return this.storageBlobServiceClient.getBlobsInPageWithRestResponse(pageId, containerName,
-                prefix,
-                maxResults,
-                include,
-                timeout,
-                requestId);
+            prefix,
+            maxResults,
+            include,
+            timeout,
+            requestId);
     }
 
     /**
@@ -128,13 +137,161 @@ public class StorageBlobClient {
                                                String requestId,
                                                Callback<ContainersListBlobFlatSegmentResponse> callback) {
         this.storageBlobServiceClient.getBlobsInPageWithRestResponse(pageId,
-                containerName,
-                prefix,
-                maxResults,
-                include,
-                timeout,
-                requestId,
-                callback);
+            containerName,
+            prefix,
+            maxResults,
+            include,
+            timeout,
+            requestId,
+            callback);
+    }
+
+    public void stageBlock(String containerName,
+                           String blobName,
+                           String base64BlockId,
+                           byte[] content,
+                           byte[] contentMd5) {
+        this.storageBlobServiceClient.stageBlock(containerName,
+            blobName,
+            base64BlockId,
+            content,
+            contentMd5);
+    }
+
+    public ServiceCall stageBlock(String containerName,
+                                  String blobName,
+                                  String base64BlockId,
+                                  byte[] body,
+                                  byte[] contentMd5,
+                                  Callback<Void> callback) {
+        return this.storageBlobServiceClient.stageBlock(containerName,
+            blobName,
+            base64BlockId,
+            body,
+            contentMd5,
+            callback);
+    }
+
+    public BlockBlobsStageBlockResponse stageBlockWithRestResponse(String containerName,
+                                                                   String blobName,
+                                                                   String base64BlockId,
+                                                                   byte[] body,
+                                                                   byte[] transactionalContentMD5,
+                                                                   byte[] transactionalContentCrc64,
+                                                                   Integer timeout,
+                                                                   String leaseId,
+                                                                   String requestId,
+                                                                   CpkInfo cpkInfo) {
+        return this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
+            blobName,
+            base64BlockId,
+            body,
+            transactionalContentMD5,
+            transactionalContentCrc64,
+            timeout,
+            leaseId,
+            requestId,
+            cpkInfo);
+    }
+
+    public void stageBlockWithRestResponse(String containerName,
+                                           String blobName,
+                                           String base64BlockId,
+                                           byte[] body,
+                                           byte[] transactionalContentMD5,
+                                           byte[] transactionalContentCrc64,
+                                           Integer timeout,
+                                           String leaseId,
+                                           String requestId,
+                                           CpkInfo cpkInfo,
+                                           Callback<BlockBlobsStageBlockResponse> callback) {
+        this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
+            blobName,
+            base64BlockId,
+            body,
+            transactionalContentMD5,
+            transactionalContentCrc64,
+            timeout,
+            leaseId,
+            requestId,
+            cpkInfo,
+            callback);
+    }
+
+    public BlockBlobItem commitBlockList(String containerName,
+                                         String blobName,
+                                         List<String> base64BlockIds,
+                                         boolean overwrite) {
+        return this.storageBlobServiceClient.commitBlockList(containerName,
+            blobName,
+            base64BlockIds,
+            overwrite);
+    }
+
+    public void commitBlockList(String containerName,
+                                String blobName,
+                                List<String> base64BlockIds,
+                                boolean overwrite,
+                                Callback<BlockBlobItem> callBack) {
+        this.storageBlobServiceClient.commitBlockList(containerName,
+            blobName,
+            base64BlockIds,
+            overwrite,
+            callBack);
+    }
+
+
+    public BlockBlobsCommitBlockListResponse commitBlockListWithRestResponse(String containerName,
+                                                                             String blobName,
+                                                                             List<String> base64BlockIds,
+                                                                             byte[] transactionalContentMD5,
+                                                                             byte[] transactionalContentCrc64,
+                                                                             Integer timeout,
+                                                                             BlobHttpHeaders blobHttpHeaders,
+                                                                             Map<String, String> metadata,
+                                                                             BlobRequestConditions requestConditions,
+                                                                             String requestId,
+                                                                             CpkInfo cpkInfo,
+                                                                             AccessTier tier) {
+        return this.storageBlobServiceClient.commitBlockListWithRestResponse(containerName,
+            blobName,
+            base64BlockIds,
+            transactionalContentMD5,
+            transactionalContentCrc64,
+            timeout,
+            blobHttpHeaders,
+            metadata,
+            requestConditions,
+            requestId,
+            cpkInfo,
+            tier);
+    }
+
+    public void commitBlockListWithRestResponse(String containerName,
+                                                String blobName,
+                                                List<String> base64BlockIds,
+                                                byte[] transactionalContentMD5,
+                                                byte[] transactionalContentCrc64,
+                                                Integer timeout,
+                                                BlobHttpHeaders blobHttpHeaders,
+                                                Map<String, String> metadata,
+                                                BlobRequestConditions requestConditions,
+                                                String requestId,
+                                                CpkInfo cpkInfo,
+                                                AccessTier tier,
+                                                Callback<BlockBlobsCommitBlockListResponse> callback) {
+        this.storageBlobServiceClient.commitBlockListWithRestResponse(containerName,
+            blobName,
+            base64BlockIds,
+            transactionalContentMD5,
+            transactionalContentCrc64,
+            timeout,
+            blobHttpHeaders,
+            metadata,
+            requestConditions,
+            requestId,
+            cpkInfo,
+            tier, callback);
     }
 
     /**
@@ -149,8 +306,8 @@ public class StorageBlobClient {
         public Builder() {
             this(new ServiceClient.Builder());
             this.serviceClientBuilder
-                    .addInterceptor(new AddDateInterceptor())
-                    .setSerializationFormat(SerializerFormat.XML);
+                .addInterceptor(new AddDateInterceptor())
+                .setSerializationFormat(SerializerFormat.XML);
         }
 
         /**
