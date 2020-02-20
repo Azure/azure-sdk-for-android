@@ -30,6 +30,8 @@ import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 
+import org.threeten.bp.OffsetDateTime;
+
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -133,20 +135,164 @@ final class StorageBlobServiceImpl {
             callback);
     }
 
-    // TODO: Add optional attributes
-    BlobDownloadAsyncResponse downloadWithRestResponse(String containerName,
-                                                       String blobName) {
-        return this.downloadWithRestResponseIntern(containerName,
+    /**
+     * Reads the entire blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @return A response containing the blob data.
+     */
+    BlobDownloadAsyncResponse download(String containerName,
+                                       String blobName) {
+        return downloadWithRestResponse(containerName,
             blobName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
             null);
     }
 
-    // TODO: Add optional attributes
+    /**
+     * Reads the entire blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param callback      Callback that receives the response.
+     */
+    void download(String containerName,
+                  String blobName,
+                  Callback<BlobDownloadAsyncResponse> callback) {
+        downloadWithRestResponse(containerName,
+            blobName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            callback);
+    }
+
+    /**
+     * The Download operation reads or downloads a blob from the system, including its metadata and properties. You can also call Download to read a snapshot or version.
+     *
+     * @param containerName        The container name.
+     * @param blobName             The blob name.
+     * @param snapshot             he snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout              The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param range                Return only the bytes of the blob in the specified range.
+     * @param leaseId              If specified, the operation only succeeds if the resource's lease is active and matches this ID.
+     * @param rangeGetContentMd5   When set to true and specified together with the Range, the service returns the MD5 hash for the range, as long as the range is less than or equal to 4 MB in size.
+     * @param rangeGetContentCrc64 When set to true and specified together with the Range, the service returns the CRC64 hash for the range, as long as the range is less than or equal to 4 MB in size.
+     * @param ifModifiedSince      The datetime that resources must have been modified since.
+     * @param ifUnmodifiedSince    The datetime that resources must have remained unmodified since.
+     * @param ifMatch              Specify an ETag value to operate only on blobs with a matching value.
+     * @param ifNoneMatch          Specify an ETag value to operate only on blobs without a matching value.
+     * @param version              Specifies the version of the operation to use for this request.
+     * @param requestId            Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo              Additional parameters for the operation.
+     * @return A response containing the blob data.
+     */
     BlobDownloadAsyncResponse downloadWithRestResponse(String containerName,
                                                        String blobName,
-                                                       Callback<Void> callback) {
-        return this.downloadWithRestResponseIntern(containerName,
+                                                       String snapshot,
+                                                       Integer timeout,
+                                                       String range,
+                                                       String leaseId,
+                                                       Boolean rangeGetContentMd5,
+                                                       Boolean rangeGetContentCrc64,
+                                                       OffsetDateTime ifModifiedSince,
+                                                       OffsetDateTime ifUnmodifiedSince,
+                                                       String ifMatch,
+                                                       String ifNoneMatch,
+                                                       String version,
+                                                       String requestId,
+                                                       CpkInfo cpkInfo) {
+        return downloadWithRestResponseIntern(containerName,
             blobName,
+            snapshot,
+            timeout,
+            range,
+            leaseId,
+            rangeGetContentMd5,
+            rangeGetContentCrc64,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
+            version,
+            requestId,
+            cpkInfo,
+            null);
+    }
+
+    /**
+     * The Download operation reads or downloads a blob from the system, including its metadata and properties. You can also call Download to read a snapshot or version.
+     *
+     * @param containerName        The container name.
+     * @param blobName             The blob name.
+     * @param snapshot             he snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout              The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param range                Return only the bytes of the blob in the specified range.
+     * @param leaseId              If specified, the operation only succeeds if the resource's lease is active and matches this ID.
+     * @param rangeGetContentMD5   When set to true and specified together with the Range, the service returns the MD5 hash for the range, as long as the range is less than or equal to 4 MB in size.
+     * @param rangeGetContentCRC64 When set to true and specified together with the Range, the service returns the CRC64 hash for the range, as long as the range is less than or equal to 4 MB in size.
+     * @param ifModifiedSince      The datetime that resources must have been modified since.
+     * @param ifUnmodifiedSince    The datetime that resources must have remained unmodified since.
+     * @param ifMatch              Specify an ETag value to operate only on blobs with a matching value.
+     * @param ifNoneMatch          Specify an ETag value to operate only on blobs without a matching value.
+     * @param version              Specifies the version of the operation to use for this request.
+     * @param requestId            Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo              Additional parameters for the operation.
+     * @param callback             Callback that receives the response.
+     */
+    void downloadWithRestResponse(String containerName,
+                                  String blobName,
+                                  String snapshot,
+                                  Integer timeout,
+                                  String range,
+                                  String leaseId,
+                                  Boolean rangeGetContentMD5,
+                                  Boolean rangeGetContentCRC64,
+                                  OffsetDateTime ifModifiedSince,
+                                  OffsetDateTime ifUnmodifiedSince,
+                                  String ifMatch,
+                                  String ifNoneMatch,
+                                  String version,
+                                  String requestId,
+                                  CpkInfo cpkInfo,
+                                  Callback<BlobDownloadAsyncResponse> callback) {
+        downloadWithRestResponseIntern(containerName,
+            blobName,
+            snapshot,
+            timeout,
+            range,
+            leaseId,
+            rangeGetContentMD5,
+            rangeGetContentCRC64,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
+            version,
+            requestId,
+            cpkInfo,
             callback);
     }
 
@@ -453,30 +599,110 @@ final class StorageBlobServiceImpl {
         }
     }
 
-    // TODO: Add optional attributes
     private BlobDownloadAsyncResponse downloadWithRestResponseIntern(String containerName,
                                                                      String blobName,
-                                                                     Callback<Void> callback) {
-        // TODO: Implement callback behavior
+                                                                     String snapshot,
+                                                                     Integer timeout,
+                                                                     String range,
+                                                                     String leaseId,
+                                                                     Boolean rangeGetContentMd5,
+                                                                     Boolean rangeGetContentCrc64,
+                                                                     OffsetDateTime ifModifiedSince,
+                                                                     OffsetDateTime ifUnmodifiedSince,
+                                                                     String ifMatch,
+                                                                     String ifNoneMatch,
+                                                                     String version,
+                                                                     String requestId,
+                                                                     CpkInfo cpkInfo,
+                                                                     Callback<BlobDownloadAsyncResponse> callback) {
+        String encryptionKey = null;
+
+        if (cpkInfo != null) {
+            encryptionKey = cpkInfo.getEncryptionKey();
+        }
+
+        String encryptionKeySha256 = null;
+
+        if (cpkInfo != null) {
+            encryptionKeySha256 = cpkInfo.getEncryptionKeySha256();
+        }
+
+        EncryptionAlgorithmType encryptionAlgorithm = null;
+
+        if (cpkInfo != null) {
+            encryptionAlgorithm = cpkInfo.getEncryptionAlgorithm();
+        }
+
+        DateTimeRfc1123 ifModifiedSinceConverted = ifModifiedSince == null ? null :
+            new DateTimeRfc1123(ifModifiedSince);
+        DateTimeRfc1123 ifUnmodifiedSinceConverted = ifUnmodifiedSince == null ? null :
+            new DateTimeRfc1123(ifUnmodifiedSince);
+
         if (callback != null) {
+            executeCall(service.download(containerName,
+                blobName,
+                snapshot,
+                timeout,
+                range,
+                leaseId,
+                rangeGetContentMd5,
+                rangeGetContentCrc64,
+                ifModifiedSinceConverted,
+                ifUnmodifiedSinceConverted,
+                ifMatch,
+                ifNoneMatch,
+                XMS_VERSION, // TODO: Replace with 'version'.
+                requestId,
+                encryptionKey,
+                encryptionKeySha256,
+                encryptionAlgorithm), new retrofit2.Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        if (response.code() == 200) {
+                            BlobDownloadHeaders typedHeaders = deserializeHeaders(response.headers(),
+                                BlobDownloadHeaders.class);
+                            callback.onResponse(new BlobDownloadAsyncResponse(response.raw().request(),
+                                response.code(),
+                                response.headers(),
+                                response.body(),
+                                typedHeaders));
+                        } else { // Error response
+                            String strContent = readAsString(response.body());
+
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                        }
+                    } else { // Error response
+                        String strContent = readAsString(response.errorBody());
+
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    callback.onFailure(t);
+                }
+            });
             return null;
         } else {
             Response<ResponseBody> response = executeCall(service.download(containerName,
                 blobName,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null, null,
-                null,
-                null,
-                XMS_VERSION,
-                null,
-                null,
-                null,
-                null));
+                snapshot,
+                timeout,
+                range,
+                leaseId,
+                rangeGetContentMd5,
+                rangeGetContentCrc64,
+                ifModifiedSinceConverted,
+                ifUnmodifiedSinceConverted,
+                ifMatch,
+                ifNoneMatch,
+                XMS_VERSION, // TODO: Replace with 'version'.
+                requestId,
+                encryptionKey,
+                encryptionKeySha256,
+                encryptionAlgorithm));
 
             if (response.isSuccessful()) {
                 if (response.code() == 200) {
@@ -850,8 +1076,8 @@ final class StorageBlobServiceImpl {
                                     @Query("timeout") Integer timeout,
                                     @Header("x-ms-range") String range,
                                     @Header("x-ms-lease-id") String leaseId,
-                                    @Header("x-ms-range-get-content-md5") Boolean rangeGetContentMD5,
-                                    @Header("x-ms-range-get-content-crc64") Boolean rangeGetContentCRC64,
+                                    @Header("x-ms-range-get-content-md5") Boolean rangeGetContentMd5,
+                                    @Header("x-ms-range-get-content-crc64") Boolean rangeGetContentCrc64,
                                     @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
                                     @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
                                     @Header("If-Match") String ifMatch,

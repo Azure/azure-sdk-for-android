@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,12 +19,16 @@ import androidx.annotation.NonNull;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.azure.android.storage.blob.download.DownloadManager;
+import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.sample.config.StorageConfiguration;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
+
+import okhttp3.ResponseBody;
 
 public class BlobItemViewHolder extends RecyclerView.ViewHolder {
     private final TextView blobName;
@@ -32,7 +38,7 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
         this.blobName = itemView.findViewById(R.id.blob_name);
     }
 
-    public static BlobItemViewHolder create(ViewGroup parent, DownloadManager downloadManager) {
+    public static BlobItemViewHolder create(ViewGroup parent, StorageBlobClient storageBlobClient) {
         StorageConfiguration storageConfiguration = StorageConfiguration.create(parent.getContext());
 
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.blob_item, parent, false);
@@ -42,7 +48,7 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
                 String blobName = (String) ((TextView) v.findViewById(R.id.blob_name)).getText();
                 View mainActivity = (View) parent.getParent().getParent().getParent();
 
-                new MyTask(v, mainActivity).execute(downloadManager, storageConfiguration.getContainerName(), blobName);
+                new MyTask(v, mainActivity).execute(storageBlobClient, storageConfiguration.getContainerName(), blobName);
             }
         });
 
@@ -81,11 +87,22 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
 
         @Override
         protected File doInBackground(Object... objects) {
-            DownloadManager downloadManager = (DownloadManager) objects[0];
+            StorageBlobClient storageBlobClient = (StorageBlobClient) objects[0];
             String containerName = (String) objects[1];
             String blobName = (String) objects[2];
 
-            return downloadManager.download(containerName, blobName, null);
+            File path = Environment.getExternalStorageDirectory();
+            File file = new File(path, blobName);
+
+            ResponseBody response = storageBlobClient.download(containerName, blobName);
+
+            try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+                fileOutputStream.write(response.bytes());
+            } catch (IOException e) {
+                Log.e("BlobViewItemHolder", "Error when downloading blob: " + containerName + "/" + blobName, e);
+            }
+
+            return file;
         }
 
         @Override

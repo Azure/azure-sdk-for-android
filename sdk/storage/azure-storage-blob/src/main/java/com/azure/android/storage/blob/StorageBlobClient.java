@@ -11,6 +11,7 @@ import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
+import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
@@ -25,6 +26,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.Interceptor;
+import okhttp3.ResponseBody;
 
 /**
  * Client for Storage Blob service.
@@ -146,17 +148,131 @@ public class StorageBlobClient {
                 callback);
     }
 
-    public BlobDownloadAsyncResponse downloadWithRestResponse(String containerName,
-                                                              String blobName) {
-        return storageBlobServiceClient.downloadWithRestResponse(containerName,
-            blobName);
+    /**
+     * Reads the entire blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @return A response containing the blob data.
+     */
+    public ResponseBody download(String containerName,
+                                 String blobName) {
+        return storageBlobServiceClient.download(containerName,
+            blobName).getValue();
     }
 
-    public BlobDownloadAsyncResponse downloadWithRestResponse(String containerName,
-                                                              String blobName,
-                                                              Callback<Void> callback) {
+    /**
+     * Reads the entire blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param callback      Callback that receives the response.
+     */
+    public void download(String containerName,
+                         String blobName,
+                         Callback<BlobDownloadAsyncResponse> callback) {
+        storageBlobServiceClient.download(containerName,
+            blobName,
+            callback);
+    }
+
+    /**
+     * Reads a range of bytes from a blob.
+     *
+     * @param containerName         The container name.
+     * @param blobName              The blob name.
+     * @param snapshot              he snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout               The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param range                 Return only the bytes of the blob in the specified range.
+     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a variety of requests to the conditions present. These conditions are entirely optional.
+     * @param getRangeContentMd5    When set to true and specified together with the Range, the service returns the MD5 hash for the range, as long as the range is less than or equal to 4 MB in size.
+     * @param getRangeContentCrc64  When set to true and specified together with the Range, the service returns the CRC64 hash for the range, as long as the range is less than or equal to 4 MB in size.
+     * @param version               Specifies the version of the operation to use for this request.
+     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo               Additional parameters for the operation.
+     * @return The response information returned from the server when downloading a blob.
+     */
+    public BlobDownloadAsyncResponse downloadWithResponse(String containerName,
+                                                          String blobName,
+                                                          String snapshot,
+                                                          int timeout,
+                                                          BlobRange range,
+                                                          BlobRequestConditions blobRequestConditions,
+                                                          boolean getRangeContentMd5,
+                                                          boolean getRangeContentCrc64,
+                                                          String version,
+                                                          String requestId,
+                                                          CpkInfo cpkInfo) {
+        range = range == null ? new BlobRange(0) : range;
+        Boolean getMd5 = getRangeContentMd5 ? getRangeContentMd5 : null;
+        Boolean getCrc64 = getRangeContentCrc64 ? getRangeContentCrc64 : null;
+        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
+
         return storageBlobServiceClient.downloadWithRestResponse(containerName,
             blobName,
+            snapshot,
+            timeout,
+            range.toHeaderValue(),
+            blobRequestConditions.getLeaseId(),
+            getMd5,
+            getCrc64,
+            blobRequestConditions.getIfModifiedSince(),
+            blobRequestConditions.getIfUnmodifiedSince(),
+            blobRequestConditions.getIfMatch(),
+            blobRequestConditions.getIfNoneMatch(),
+            version,
+            requestId,
+            cpkInfo);
+    }
+
+    /**
+     * Reads a range of bytes from a blob.
+     *
+     * @param containerName         The container name.
+     * @param blobName              The blob name.
+     * @param snapshot              he snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout               The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param range                 Return only the bytes of the blob in the specified range.
+     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a variety of requests to the conditions present. These conditions are entirely optional.
+     * @param getRangeContentMd5    When set to true and specified together with the Range, the service returns the MD5 hash for the range, as long as the range is less than or equal to 4 MB in size.
+     * @param getRangeContentCrc64  When set to true and specified together with the Range, the service returns the CRC64 hash for the range, as long as the range is less than or equal to 4 MB in size.
+     * @param version               Specifies the version of the operation to use for this request.
+     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo               Additional parameters for the operation.
+     * @return The response information returned from the server when downloading a blob.
+     */
+    public void downloadWithResponse(String containerName,
+                                     String blobName,
+                                     String snapshot,
+                                     int timeout,
+                                     BlobRange range,
+                                     BlobRequestConditions blobRequestConditions,
+                                     boolean getRangeContentMd5,
+                                     boolean getRangeContentCrc64,
+                                     String version,
+                                     String requestId,
+                                     CpkInfo cpkInfo,
+                                     Callback<BlobDownloadAsyncResponse> callback) {
+        range = range == null ? new BlobRange(0) : range;
+        Boolean getMd5 = getRangeContentMd5 ? getRangeContentMd5 : null;
+        Boolean getCrc64 = getRangeContentCrc64 ? getRangeContentCrc64 : null;
+        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
+
+        storageBlobServiceClient.downloadWithRestResponse(containerName,
+            blobName,
+            snapshot,
+            timeout,
+            range.toHeaderValue(),
+            blobRequestConditions.getLeaseId(),
+            getMd5,
+            getCrc64,
+            blobRequestConditions.getIfModifiedSince(),
+            blobRequestConditions.getIfUnmodifiedSince(),
+            blobRequestConditions.getIfMatch(),
+            blobRequestConditions.getIfNoneMatch(),
+            version,
+            requestId,
+            cpkInfo,
             callback);
     }
 

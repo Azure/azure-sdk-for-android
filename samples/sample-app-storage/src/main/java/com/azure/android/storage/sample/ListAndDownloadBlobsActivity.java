@@ -20,7 +20,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.azure.android.core.util.CoreUtils;
 import com.azure.android.storage.blob.StorageBlobClient;
-import com.azure.android.storage.blob.download.DownloadManager;
 import com.azure.android.storage.blob.implementation.Constants;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.sample.core.util.paging.PageLoadState;
@@ -71,8 +70,7 @@ public class ListAndDownloadBlobsActivity extends AppCompatActivity {
 
         // Set up PagedList Adapter
         ContainerBlobsPagedListAdapter adapter =
-            new ContainerBlobsPagedListAdapter(new DownloadManager(repository.getStorageBlobClient()),
-                () -> this.viewModel.retry());
+            new ContainerBlobsPagedListAdapter(repository.getStorageBlobClient(), () -> this.viewModel.retry());
         this.recyclerView.setAdapter(adapter);
         this.viewModel.getPagedListObservable().observe(this, getPagedListObserver(adapter, this.recyclerView));
         this.viewModel.getLoadStateObservable().observe(this, getPageLoadStateObserver(adapter));

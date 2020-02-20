@@ -10,7 +10,7 @@ import okhttp3.ResponseBody;
 /**
  * This class contains the response information return from the server when downloading a blob.
  */
-public final class BlobDownloadResponse extends ResponseBase<BlobDownloadHeaders, ResponseBody> {
+public final class BlobDownloadResponse extends ResponseBase<BlobDownloadHeaders, Void> {
     /**
      * Constructs a {@link BlobDownloadResponse}.
      *
