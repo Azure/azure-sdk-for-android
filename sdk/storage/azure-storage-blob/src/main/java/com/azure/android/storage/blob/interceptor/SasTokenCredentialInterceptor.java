@@ -40,7 +40,7 @@ public class SasTokenCredentialInterceptor implements Interceptor {
 
         HttpUrl newURL = requestURL
             .newBuilder()
-            .query(encodedQuery)
+            .encodedQuery(encodedQuery)
             .build();
 
         Request newRequest = chain.request()
