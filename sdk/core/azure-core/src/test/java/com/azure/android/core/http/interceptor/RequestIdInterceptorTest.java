@@ -6,50 +6,53 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.UUID;
 
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.mockwebserver.MockResponse;
+import okhttp3.mockwebserver.MockWebServer;
 
-public class RequestIdInterceptorTest extends InterceptorTest {
-    public RequestIdInterceptorTest() {
-        super(new RequestIdInterceptor());
-    }
+import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClientWithInterceptor;
+public class RequestIdInterceptorTest {
+    private final MockWebServer mockWebServer = new MockWebServer(); // Server is started automatically
+    private final OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(new RequestIdInterceptor());
 
     @Test
-    public void requestIdHeader_isPopulated() throws InterruptedException {
+    public void requestIdHeader_isPopulated() throws InterruptedException, IOException {
+        mockWebServer.enqueue(new MockResponse());
+        Request request = new Request.Builder()
+            .url(mockWebServer.url("/"))
+            .build();
+
         // Given a client with a RequestIdInterceptor.
+
         // When executing a request.
+        okHttpClient.newCall(request).execute();
         // Then the 'x-ms-client-request-id' header should be populated.
         Assert.assertNotNull(mockWebServer.takeRequest().getHeader(HttpHeader.CLIENT_REQUEST_ID));
     }
 
     @Test
-    public void requestIdHeader_isNotOverwritten() throws IOException, InterruptedException {
-        // Given a client with a RequestIdInterceptor that has executed a request...
-        String requestId = mockWebServer.takeRequest().getHeader(HttpHeader.CLIENT_REQUEST_ID);
-        // ...where the 'x-ms-client-request-id' header is populated.
-        Assert.assertNotNull(requestId);
-
+    public void requestIdHeader_isNotOverwritten() throws InterruptedException, IOException {
+        String requestId = UUID.randomUUID().toString();
         mockWebServer.enqueue(new MockResponse());
 
-        // When creating a new client based on the aforementioned one with a new RequestIdInterceptor...
-        OkHttpClient newClient = okHttpClient.newBuilder()
-            .addInterceptor(new RequestIdInterceptor())
-            .build();
-        // ...and executing a request with the same requestId.
-        Request newRequest = request.newBuilder()
+        // Given a request where the 'x-ms-client-request-id' header is already populated.
+        Request request = new Request.Builder()
+            .url(mockWebServer.url("/"))
             .header(HttpHeader.CLIENT_REQUEST_ID, requestId)
             .build();
-        newClient.newCall(newRequest).execute();
+
+        // When executing said request.
+        okHttpClient.newCall(request).execute();
 
         Headers headers = mockWebServer.takeRequest().getHeaders();
 
-        // Then there should be only one 'x-ms-client-request-id' header in the request...
+        // Then there should be only one 'x-ms-client-request-id' header in the request sent...
         Assert.assertEquals(1, headers.values(HttpHeader.CLIENT_REQUEST_ID).size());
-
-        // ...with the same value as the one in the first request.
+        // ...with an unchanged value.
         Assert.assertEquals(requestId, headers.get(HttpHeader.CLIENT_REQUEST_ID));
     }
 }
