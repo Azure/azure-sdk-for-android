@@ -48,7 +48,7 @@ public class UserAgentInterceptorTest {
     }
 
     @Test
-    public void userAgentHeader_isPrependedToPopulatedHeader() throws InterruptedException, IOException {
+    public void userAgentHeader_isPrependedToNonEmptyHeader() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with no input data in its constructor...
         UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(null,
             null,
@@ -69,13 +69,13 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be contain the result of prepending the generated user agent string to
         // the existing value.
-        Assert.assertEquals(mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT),
-            "azsdk-android-/ ( - ; : -> ; _) " + userAgent);
+        Assert.assertEquals("azsdk-android-/ ( - ; : -> ; _) " + userAgent,
+            mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
     @Test
     public void userAgentHeader_hasCorrectFormat_withoutApplicationId() throws InterruptedException, IOException {
-        // Given a client with a UserAgentInterceptor with no input data in its constructor.
+        // Given a client with a UserAgentInterceptor with no user-provided applicationId.
         UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(null,
             null,
             null,
@@ -93,14 +93,15 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while not
         // including the applicationId as a prefix.
-        Assert.assertEquals(mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT), "azsdk-android-/ ( - ; : -> ; _)");
+        Assert.assertEquals("azsdk-android-/ ( - ; : -> ; _)",
+            mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
     @Test
     public void userAgentHeader_hasCorrectFormat_withApplicationId() throws InterruptedException, IOException {
-        // Given a client with a UserAgentInterceptor with an empty applicationId.
-        String applicationId = "";
-        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(applicationId,
+        // Given a client with a UserAgentInterceptor with a user-provided applicationId.
+        String userApplicationId = "UserApplicationId";
+        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(userApplicationId,
             null,
             null,
             null,
@@ -116,18 +117,70 @@ public class UserAgentInterceptorTest {
         okHttpClient.newCall(request).execute();
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
-        // including the empty applicationId as a prefix.
-        Assert.assertEquals(mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT),
-            "[] azsdk-android-/ ( - ; : -> ; _)");
+        // including the applicationId as a prefix.
+        Assert.assertEquals("[" + userApplicationId + "] azsdk-android-/ ( - ; : -> ; _)",
+            mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
+    }
+
+    @Test
+    public void userAgentHeader_hasTrimmedApplicationId() throws InterruptedException, IOException {
+        // Given a client with a UserAgentInterceptor with a user-provided applicationId containing spaces.
+        String userApplicationId = "User Application Id";
+        String trimmedUserApplicationId = "UserApplicationId";
+        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(userApplicationId,
+            null,
+            null,
+            null,
+            null,
+            null);
+        OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
+
+        mockWebServer.enqueue(new MockResponse());
+
+        Request request = getSimpleRequest(mockWebServer);
+
+        // When executing a request.
+        okHttpClient.newCall(request).execute();
+
+        // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
+        // including a trimmed applicationId as a prefix.
+        Assert.assertEquals("[" + trimmedUserApplicationId + "] azsdk-android-/ ( - ; : -> ; _)",
+            mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
+    }
+
+    @Test
+    public void userAgentHeader_hasTruncatedApplicationId() throws InterruptedException, IOException {
+        // Given a client with a UserAgentInterceptor with a user-provided applicationId longer than 24 characters.
+        String userApplicationId = "UserApplicationIdThatIsVeryLong";
+        String truncatedUserApplicationId = "UserApplicationIdThatIsV";
+        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(userApplicationId,
+            null,
+            null,
+            null,
+            null,
+            null);
+        OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
+
+        mockWebServer.enqueue(new MockResponse());
+
+        Request request = getSimpleRequest(mockWebServer);
+
+        // When executing a request.
+        okHttpClient.newCall(request).execute();
+
+        // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
+        // including a truncated applicationId as a prefix.
+        Assert.assertEquals("[" + truncatedUserApplicationId + "] azsdk-android-/ ( - ; : -> ; _)",
+            mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
     @Test
     public void userAgentHeader_includesBasicInfo() throws InterruptedException, IOException {
-        // Given a client with a UserAgentInterceptor with an applicationId, sdkName and sdkVersion.
-        String customerApplicationId = "Test Customer Application ID";
-        String sdkName = "Test SDK Name";
-        String sdkVersion = "Test SDK Version";
-        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(customerApplicationId,
+        // Given a client with a UserAgentInterceptor with a user-provided applicationId, sdkName and sdkVersion.
+        String userApplicationId = "UserApplicationId";
+        String sdkName = "SDK Name";
+        String sdkVersion = "SDK Version";
+        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(userApplicationId,
             sdkName,
             sdkVersion,
             null,
@@ -146,8 +199,8 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including the given applicationId as a prefix.
-        Assert.assertEquals(mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT),
-            "[" + customerApplicationId + "] azsdk-android-" + sdkName + "/" + sdkVersion + " ( - ; : -> ; _)");
+        Assert.assertEquals("[" + userApplicationId + "] azsdk-android-" + sdkName + "/" + sdkVersion + " ( - ; : -> ; _)",
+            mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
     @Test
@@ -172,14 +225,14 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including the given platform info.
-        Assert.assertEquals(mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT),
-            "azsdk-android-/ (" + deviceName + " - " + osVersion + "; : -> ; _)");
+        Assert.assertEquals("azsdk-android-/ (" + deviceName + " - " + osVersion + "; : -> ; _)",
+            mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
     @Test
     public void userAgentHeader_includesApplicationInfo() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with an ApplicationInformationProvider.
-        String applicationId = "Test Application ID";
+        String applicationId = "Application ID";
         String applicationVersion = "1.0";
         int targetSdkVersion = 21;
         UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(null,
@@ -201,8 +254,8 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including the given application info.
-        Assert.assertEquals(mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT),
-            "azsdk-android-/ ( - ; " + applicationId + ":" + applicationVersion + " -> " + targetSdkVersion + "; _)");
+        Assert.assertEquals("azsdk-android-/ ( - ; " + applicationId + ":" + applicationVersion + " -> " + targetSdkVersion + "; _)",
+            mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
     @Test
@@ -227,24 +280,24 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including the given locale info.
-        Assert.assertEquals(mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT),
-            "azsdk-android-/ ( - ; : -> ; " + defaultSystemLanguage + "_" + systemRegion + ")");
+        Assert.assertEquals("azsdk-android-/ ( - ; : -> ; " + defaultSystemLanguage + "_" + systemRegion + ")",
+            mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
     @Test
     public void userAgentHeader_includesAllInfo() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with an all information provided to its constructor.
-        String customerApplicationId = "Test Customer Application ID";
-        String sdkName = "Test SDK Name";
-        String sdkVersion = "Test SDK Version";
+        String userApplicationId = "UserApplicationId";
+        String sdkName = "SDK Name";
+        String sdkVersion = "SDK Version";
         String deviceName = "Test Device";
         int osVersion = 123;
-        String applicationId = "Test Application ID";
+        String applicationId = "Application ID";
         String applicationVersion = "1.0";
         int targetSdkVersion = 21;
         String defaultSystemLanguage = "en";
         String systemRegion = "US";
-        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(customerApplicationId,
+        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(userApplicationId,
             sdkName,
             sdkVersion,
             new TestPlatformInformationProvider(deviceName, osVersion),
@@ -261,10 +314,10 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including the given info.
-        Assert.assertEquals(mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT),
-            "[" + customerApplicationId + "] azsdk-android-" + sdkName + "/" + sdkVersion + " (" + deviceName + " - " +
+        Assert.assertEquals("[" + userApplicationId + "] azsdk-android-" + sdkName + "/" + sdkVersion + " (" + deviceName + " - " +
                 osVersion + "; " + applicationId + ":" + applicationVersion + " -> " + targetSdkVersion + "; " +
-                defaultSystemLanguage + "_" + systemRegion + ")");
+                defaultSystemLanguage + "_" + systemRegion + ")",
+            mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
     private static class TestPlatformInformationProvider implements PlatformInformationProvider {
