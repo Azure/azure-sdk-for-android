@@ -107,6 +107,9 @@ public class UserAgentInterceptor implements Interceptor {
                                 PlatformInformationProvider platformInformationProvider,
                                 ApplicationInformationProvider applicationInformationProvider,
                                 LocaleInformationProvider localeInformationProvider) {
+        sdkName = sdkName == null ? "" : sdkName;
+        sdkVersion = sdkVersion == null ? "" : sdkVersion;
+
         if (applicationId == null) {
             userAgent = String.format(
                 USER_AGENT_FORMAT,
