@@ -17,6 +17,8 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
+// TODO: Truncate provided  application ID if too long.
+// TODO: Trim provided application ID.
 /**
  * Pipeline interceptor that adds "User-Agent" header to a request.
  * <p>
@@ -24,7 +26,8 @@ import okhttp3.Response;
  * <a href="https://azure.github.io/azure-sdk/general_azurecore.html#telemetry-policy">Azure Core: Telemetry policy</a>.
  */
 public class UserAgentInterceptor implements Interceptor {
-    private static final String USER_AGENT_HEADER = "User-Agent";
+    static final String USER_AGENT_HEADER = "User-Agent";
+
     private static final String DEFAULT_USER_AGENT = "azsdk-android";
 
     // From the design guidelines, the default user agent header format is:
@@ -150,7 +153,7 @@ public class UserAgentInterceptor implements Interceptor {
 
         return chain.proceed(request
             .newBuilder()
-            .addHeader("User-Agent", header)
+            .header("User-Agent", header)
             .build());
     }
 
