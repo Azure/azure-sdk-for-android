@@ -14,6 +14,8 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
 import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClientWithInterceptor;
+import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequest;
+import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequestWithHeader;
 public class AddDateInterceptorTest {
     private static final String TEST_DATE = "Tue, 25 Feb 2020 00:59:22 GMT";
     private final MockWebServer mockWebServer = new MockWebServer(); // Server is started automatically
@@ -22,9 +24,7 @@ public class AddDateInterceptorTest {
     @Test
     public void dateHeader_isPopulated() throws InterruptedException, IOException {
         mockWebServer.enqueue(new MockResponse());
-        Request request = new Request.Builder()
-            .url(mockWebServer.url("/"))
-            .build();
+        Request request = getSimpleRequest(mockWebServer);
 
         // Given a client with a AddDateInterceptor.
 
@@ -39,10 +39,7 @@ public class AddDateInterceptorTest {
         mockWebServer.enqueue(new MockResponse());
 
         // Given a request where the 'Date' header is already populated.
-        Request request = new Request.Builder()
-            .url(mockWebServer.url("/"))
-            .header(HttpHeader.DATE, TEST_DATE)
-            .build();
+        Request request = getSimpleRequestWithHeader(mockWebServer, HttpHeader.DATE, TEST_DATE);
 
         // When executing said request.
         okHttpClient.newCall(request).execute();

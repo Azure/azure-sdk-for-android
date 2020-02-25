@@ -15,6 +15,8 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
 import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClientWithInterceptor;
+import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequest;
+import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequestWithHeader;
 public class RequestIdInterceptorTest {
     private final MockWebServer mockWebServer = new MockWebServer(); // Server is started automatically
     private final OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(new RequestIdInterceptor());
@@ -22,9 +24,7 @@ public class RequestIdInterceptorTest {
     @Test
     public void requestIdHeader_isPopulated() throws InterruptedException, IOException {
         mockWebServer.enqueue(new MockResponse());
-        Request request = new Request.Builder()
-            .url(mockWebServer.url("/"))
-            .build();
+        Request request = getSimpleRequest(mockWebServer);
 
         // Given a client with a RequestIdInterceptor.
 
@@ -40,10 +40,7 @@ public class RequestIdInterceptorTest {
         mockWebServer.enqueue(new MockResponse());
 
         // Given a request where the 'x-ms-client-request-id' header is already populated.
-        Request request = new Request.Builder()
-            .url(mockWebServer.url("/"))
-            .header(HttpHeader.CLIENT_REQUEST_ID, requestId)
-            .build();
+        Request request = getSimpleRequestWithHeader(mockWebServer, HttpHeader.CLIENT_REQUEST_ID, requestId);
 
         // When executing said request.
         okHttpClient.newCall(request).execute();

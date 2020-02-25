@@ -1,17 +1,39 @@
 package com.azure.android.core.http.interceptor;
 
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.mockwebserver.MockWebServer;
 
-class TestUtils {
+final class TestUtils {
     static Request getSimpleRequest(MockWebServer mockWebServer) {
         return new Request.Builder()
             .url(mockWebServer.url("/"))
             .build();
+    }
+
+    static Request getSimpleRequestWithHeader(MockWebServer mockWebServer,
+                                              String key,
+                                              String value) {
+        return new Request.Builder()
+            .url(mockWebServer.url("/"))
+            .addHeader(key, value)
+            .build();
+    }
+
+    static Request getSimpleRequestWithHeaders(MockWebServer mockWebServer,
+                                               Map<String, String> headers) {
+        Request.Builder builder = new Request.Builder()
+            .url(mockWebServer.url("/"));
+
+        for (Map.Entry header : headers.entrySet()) {
+            builder.addHeader((String) header.getKey(), (String) header.getValue());
+        }
+
+        return builder.build();
     }
 
     static OkHttpClient buildOkHttpClientWithInterceptor(Interceptor interceptor) {
