@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import com.azure.android.core.provider.ApplicationInformationProvider;
 import com.azure.android.core.provider.LocaleInformationProvider;
 import com.azure.android.core.provider.PlatformInformationProvider;
+import com.azure.android.core.util.CoreUtils;
 
 import java.io.IOException;
 
@@ -17,8 +18,6 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
-// TODO: Truncate provided  application ID if too long.
-// TODO: Trim provided application ID.
 /**
  * Pipeline interceptor that adds "User-Agent" header to a request.
  * <p>
@@ -37,7 +36,7 @@ public class UserAgentInterceptor implements Interceptor {
     // From the design guidelines, the application ID user agent header format is:
     // [<application_id>] azsdk-android-<client_lib>/<sdk_version> (<platform_info>; <application_info>;
     // <user_locale_info>
-    private static final String APPLICATION_ID_USER_AGENT_FORMAT = "[%s] " + USER_AGENT_FORMAT;
+    private static final String USER_AGENT_FORMAT_WITH_APPLICATION_ID = "[%s] %s";
 
     // From the design guidelines, the platform info user agent header format is:
     // <device_name> - <os_version>
@@ -49,7 +48,7 @@ public class UserAgentInterceptor implements Interceptor {
 
     // From the design guidelines, the user locale info user agent header format is:
     // <user_language>_<user_region>
-    private static final String USER_LOCALE_INFO_FORMAT = "%s_%s";
+    private static final String LOCALE_INFO_FORMAT = "%s_%s";
 
     private final String userAgent;
 
@@ -113,23 +112,31 @@ public class UserAgentInterceptor implements Interceptor {
         sdkName = sdkName == null ? "" : sdkName;
         sdkVersion = sdkVersion == null ? "" : sdkVersion;
 
-        if (applicationId == null) {
-            userAgent = String.format(
-                USER_AGENT_FORMAT,
-                sdkName,
-                sdkVersion,
-                getPlatformInfo(platformInformationProvider),
-                getApplicationInfo(applicationInformationProvider),
-                getLocaleInfo(localeInformationProvider));
+        String userAgentBase = String.format(
+            USER_AGENT_FORMAT,
+            sdkName,
+            sdkVersion,
+            getPlatformInfo(platformInformationProvider),
+            getApplicationInfo(applicationInformationProvider),
+            getLocaleInfo(localeInformationProvider));
+
+        if (CoreUtils.isNullOrEmpty(applicationId)) {
+            userAgent = userAgentBase;
         } else {
-            userAgent = String.format(
-                APPLICATION_ID_USER_AGENT_FORMAT,
-                applicationId,
-                sdkName,
-                sdkVersion,
-                getPlatformInfo(platformInformationProvider),
-                getApplicationInfo(applicationInformationProvider),
-                getLocaleInfo(localeInformationProvider));
+            // Based on the design guidelines, applicationId must not contain a space.
+            applicationId = applicationId.replaceAll("[\\n\\t ]", "");
+
+            // Based on the design guidelines, applicationId must not be more than 24 characters in length.
+            if (applicationId.length() > 24) {
+                applicationId = applicationId.substring(0, 24);
+            }
+
+            // Don't use the applicationId if it's empty after applying the validations above
+            if (applicationId.isEmpty()) {
+                userAgent = userAgentBase;
+            } else {
+                userAgent = String.format(USER_AGENT_FORMAT_WITH_APPLICATION_ID, applicationId, userAgentBase);
+            }
         }
     }
 
@@ -218,6 +225,6 @@ public class UserAgentInterceptor implements Interceptor {
             region = localeInformationProvider.getSystemRegion();
         }
 
-        return String.format(USER_LOCALE_INFO_FORMAT, language, region);
+        return String.format(LOCALE_INFO_FORMAT, language, region);
     }
 }
