@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.core.http.interceptor;
 
 import com.azure.android.core.http.HttpHeader;
@@ -18,18 +21,20 @@ import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequest
 import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequestWithHeader;
 public class AddDateInterceptorTest {
     private static final String TEST_DATE = "Tue, 25 Feb 2020 00:59:22 GMT";
-    private final MockWebServer mockWebServer = new MockWebServer(); // Server is started automatically
+    private final MockWebServer mockWebServer = new MockWebServer();
     private final OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(new AddDateInterceptor());
 
     @Test
     public void dateHeader_isPopulated() throws InterruptedException, IOException {
         mockWebServer.enqueue(new MockResponse());
+
         Request request = getSimpleRequest(mockWebServer);
 
         // Given a client with a AddDateInterceptor.
 
         // When executing a request.
         okHttpClient.newCall(request).execute();
+
         // Then the 'Date' header should be populated.
         Assert.assertNotNull(mockWebServer.takeRequest().getHeader(HttpHeader.DATE));
     }

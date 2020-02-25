@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.core.http.interceptor;
 
 import java.util.List;
@@ -9,6 +12,22 @@ import okhttp3.Request;
 import okhttp3.mockwebserver.MockWebServer;
 
 final class TestUtils {
+    static OkHttpClient buildOkHttpClientWithInterceptor(Interceptor interceptor) {
+        return new OkHttpClient().newBuilder()
+            .addInterceptor(interceptor)
+            .build();
+    }
+
+    static OkHttpClient buildOkHttpClientWithInterceptors(List<Interceptor> interceptors) {
+        OkHttpClient.Builder clientBuilder = new OkHttpClient().newBuilder();
+
+        for (Interceptor interceptor : interceptors) {
+            clientBuilder.addInterceptor(interceptor);
+        }
+
+        return clientBuilder.build();
+    }
+
     static Request getSimpleRequest(MockWebServer mockWebServer) {
         return new Request.Builder()
             .url(mockWebServer.url("/"))
@@ -34,21 +53,5 @@ final class TestUtils {
         }
 
         return builder.build();
-    }
-
-    static OkHttpClient buildOkHttpClientWithInterceptor(Interceptor interceptor) {
-        return new OkHttpClient().newBuilder()
-            .addInterceptor(interceptor)
-            .build();
-    }
-
-    static OkHttpClient buildOkHttpClientWithInterceptors(List<Interceptor> interceptors) {
-        OkHttpClient.Builder clientBuilder = new OkHttpClient().newBuilder();
-
-        for (Interceptor interceptor : interceptors) {
-            clientBuilder.addInterceptor(interceptor);
-        }
-
-        return clientBuilder.build();
     }
 }

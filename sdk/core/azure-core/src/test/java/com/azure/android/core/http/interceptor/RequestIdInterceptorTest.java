@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.core.http.interceptor;
 
 import com.azure.android.core.http.HttpHeader;
@@ -18,18 +21,20 @@ import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClien
 import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequest;
 import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequestWithHeader;
 public class RequestIdInterceptorTest {
-    private final MockWebServer mockWebServer = new MockWebServer(); // Server is started automatically
+    private final MockWebServer mockWebServer = new MockWebServer();
     private final OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(new RequestIdInterceptor());
 
     @Test
     public void requestIdHeader_isPopulated() throws InterruptedException, IOException {
         mockWebServer.enqueue(new MockResponse());
+
         Request request = getSimpleRequest(mockWebServer);
 
         // Given a client with a RequestIdInterceptor.
 
         // When executing a request.
         okHttpClient.newCall(request).execute();
+
         // Then the 'x-ms-client-request-id' header should be populated.
         Assert.assertNotNull(mockWebServer.takeRequest().getHeader(HttpHeader.CLIENT_REQUEST_ID));
     }
@@ -37,6 +42,7 @@ public class RequestIdInterceptorTest {
     @Test
     public void requestIdHeader_isNotOverwritten() throws InterruptedException, IOException {
         String requestId = UUID.randomUUID().toString();
+
         mockWebServer.enqueue(new MockResponse());
 
         // Given a request where the 'x-ms-client-request-id' header is already populated.
