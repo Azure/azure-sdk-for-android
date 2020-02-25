@@ -3,18 +3,18 @@ package com.azure.android.core.http.interceptor;
 import com.azure.android.core.http.HttpHeader;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import okhttp3.Headers;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import okhttp3.mockwebserver.MockResponse;
 
-public class RequestIdInterceptorTest extends InterceptorHeaderTest {
-    @BeforeClass
-    public static void setUp() {
-        okHttpClient = buildOkHttpClientWithInterceptor(new RequestIdInterceptor());
+public class RequestIdInterceptorTest extends InterceptorTest {
+    public RequestIdInterceptorTest() {
+        super(new RequestIdInterceptor());
     }
 
     @Test
@@ -27,20 +27,22 @@ public class RequestIdInterceptorTest extends InterceptorHeaderTest {
 
     @Test
     public void requestIdHeader_isNotOverwritten() throws IOException, InterruptedException {
-        // Given a client with a RequestIdInterceptor that has executed a request.
+        // Given a client with a RequestIdInterceptor that has executed a request...
         String requestId = mockWebServer.takeRequest().getHeader(HttpHeader.CLIENT_REQUEST_ID);
+        // ...where the 'x-ms-client-request-id' header is populated.
+        Assert.assertNotNull(requestId);
 
         mockWebServer.enqueue(new MockResponse());
 
         // When creating a new client based on the aforementioned one with a new RequestIdInterceptor...
-        okHttpClient = okHttpClient.newBuilder()
+        OkHttpClient newClient = okHttpClient.newBuilder()
             .addInterceptor(new RequestIdInterceptor())
             .build();
         // ...and executing a request with the same requestId.
-        request = request.newBuilder()
+        Request newRequest = request.newBuilder()
             .header(HttpHeader.CLIENT_REQUEST_ID, requestId)
             .build();
-        okHttpClient.newCall(request).execute();
+        newClient.newCall(newRequest).execute();
 
         Headers headers = mockWebServer.takeRequest().getHeaders();
 
