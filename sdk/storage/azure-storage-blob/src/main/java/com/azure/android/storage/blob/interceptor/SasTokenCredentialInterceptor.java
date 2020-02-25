@@ -3,6 +3,7 @@
 
 package com.azure.android.storage.blob.interceptor;
 
+import com.azure.android.core.util.CoreUtils;
 import com.azure.android.storage.blob.credentials.SasTokenCredential;
 
 import java.io.IOException;
@@ -25,9 +26,23 @@ public class SasTokenCredentialInterceptor implements Interceptor {
     @Override
     public Response intercept(Chain chain) throws IOException {
         HttpUrl requestURL = chain.request().url();
-        String delimiter = (requestURL.query() != null && requestURL.query() != "") ? "&" : "?";
-        requestURL.toString();
-        String newURL = requestURL.toString() + delimiter + this.credential.getSasToken();
+
+        String encodedQuery = requestURL.encodedQuery();
+        if (!CoreUtils.isNullOrEmpty(encodedQuery)) {
+            encodedQuery += "&";
+        }
+
+        String sasToken = this.credential.getSasToken();
+        // SAS token is already encoded so its safe to append it to the encoded query from source request.
+        encodedQuery += sasToken.startsWith("?")
+            ? sasToken.substring(1)
+            : sasToken;
+
+        HttpUrl newURL = requestURL
+            .newBuilder()
+            .query(encodedQuery)
+            .build();
+
         Request newRequest = chain.request()
                 .newBuilder()
                 .url(newURL)
