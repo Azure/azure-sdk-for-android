@@ -148,10 +148,10 @@ abstract class UploadDao {
     }
 
     /**
-     * Get the sum of block size for blocks for a blob upload.
+     * Get the sum of size of blocks for a blob upload.
      *
      * @param blobKey the blob upload metadata key (aka uploadId)
-     * @param state the state of the block to be considered
+     * @param state the state of the blocks to be considered for aggregation
      * @return the aggregated block size
      */
     @Query("SELECT SUM(block_size) FROM blockuploads WHERE blob_key = :blobKey and block_upload_state = :state")
