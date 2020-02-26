@@ -6,6 +6,7 @@ package com.azure.android.core.http.interceptor;
 import com.azure.android.core.http.HttpHeader;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -13,7 +14,6 @@ import java.io.IOException;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
 import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClientWithInterceptor;
@@ -24,15 +24,15 @@ public class AddDateInterceptorTest {
     private final MockWebServer mockWebServer = new MockWebServer();
     private final OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(new AddDateInterceptor());
 
+    @Rule
+    public EnqueueMockResponse enqueueMockResponse = new EnqueueMockResponse(mockWebServer);
+
     @Test
     public void dateHeader_isPopulated() throws InterruptedException, IOException {
-        mockWebServer.enqueue(new MockResponse());
-
-        Request request = getSimpleRequest(mockWebServer);
-
         // Given a client with a AddDateInterceptor.
 
         // When executing a request.
+        Request request = getSimpleRequest(mockWebServer);
         okHttpClient.newCall(request).execute();
 
         // Then the 'Date' header should be populated.
@@ -41,9 +41,7 @@ public class AddDateInterceptorTest {
 
     @Test
     public void dateHeader_isOverwritten() throws InterruptedException, IOException {
-        mockWebServer.enqueue(new MockResponse());
-
-        // Given a request where the 'Date' header is already populated.
+        // Given a request where the 'Date' header is already populated and a client with a AddDateInterceptor.
         Request request = getSimpleRequestWithHeader(mockWebServer, HttpHeader.DATE, TEST_DATE);
 
         // When executing said request.

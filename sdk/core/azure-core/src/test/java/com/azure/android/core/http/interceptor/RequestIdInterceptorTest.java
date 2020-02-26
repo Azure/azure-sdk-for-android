@@ -6,6 +6,7 @@ package com.azure.android.core.http.interceptor;
 import com.azure.android.core.http.HttpHeader;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -14,7 +15,6 @@ import java.util.UUID;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
 import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClientWithInterceptor;
@@ -24,15 +24,15 @@ public class RequestIdInterceptorTest {
     private final MockWebServer mockWebServer = new MockWebServer();
     private final OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(new RequestIdInterceptor());
 
+    @Rule
+    public EnqueueMockResponse enqueueMockResponse = new EnqueueMockResponse(mockWebServer);
+
     @Test
     public void requestIdHeader_isPopulated() throws InterruptedException, IOException {
-        mockWebServer.enqueue(new MockResponse());
-
+        // Given a request and a client with a RequestIdInterceptor.
         Request request = getSimpleRequest(mockWebServer);
 
-        // Given a client with a RequestIdInterceptor.
-
-        // When executing a request.
+        // When executing said request.
         okHttpClient.newCall(request).execute();
 
         // Then the 'x-ms-client-request-id' header should be populated.
@@ -41,11 +41,9 @@ public class RequestIdInterceptorTest {
 
     @Test
     public void requestIdHeader_isNotOverwritten() throws InterruptedException, IOException {
+        // Given a request where the 'x-ms-client-request-id' header is already populated and a client with a
+        // RequestIdInterceptor.
         String requestId = UUID.randomUUID().toString();
-
-        mockWebServer.enqueue(new MockResponse());
-
-        // Given a request where the 'x-ms-client-request-id' header is already populated.
         Request request = getSimpleRequestWithHeader(mockWebServer, HttpHeader.CLIENT_REQUEST_ID, requestId);
 
         // When executing said request.

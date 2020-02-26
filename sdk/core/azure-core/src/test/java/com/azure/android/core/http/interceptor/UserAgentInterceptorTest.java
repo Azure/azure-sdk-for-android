@@ -9,13 +9,13 @@ import com.azure.android.core.provider.LocaleInformationProvider;
 import com.azure.android.core.provider.PlatformInformationProvider;
 
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
 import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClientWithInterceptor;
@@ -24,6 +24,9 @@ import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequest
 
 public class UserAgentInterceptorTest {
     private final MockWebServer mockWebServer = new MockWebServer();
+
+    @Rule
+    public EnqueueMockResponse enqueueMockResponse = new EnqueueMockResponse(mockWebServer);
 
     @Test
     public void userAgentHeader_isPopulated() throws InterruptedException, IOException {
@@ -36,11 +39,8 @@ public class UserAgentInterceptorTest {
             null);
         OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
 
-        mockWebServer.enqueue(new MockResponse());
-
-        Request request = getSimpleRequest(mockWebServer);
-
         // When executing a request.
+        Request request = getSimpleRequest(mockWebServer);
         okHttpClient.newCall(request).execute();
 
         // Then the 'User-Agent' header should be populated.
@@ -58,13 +58,11 @@ public class UserAgentInterceptorTest {
             null);
         OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
 
-        mockWebServer.enqueue(new MockResponse());
-
         // ...and a request where the "User-Agent" header is already populated.
         String userAgent = "Test User Agent";
         Request request = getSimpleRequestWithHeader(mockWebServer, HttpHeader.USER_AGENT, userAgent);
 
-        // When executing a request.
+        // When executing said request.
         okHttpClient.newCall(request).execute();
 
         // Then the 'User-Agent' header should be contain the result of prepending the generated user agent string to
@@ -84,11 +82,8 @@ public class UserAgentInterceptorTest {
             null);
         OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
 
-        mockWebServer.enqueue(new MockResponse());
-
-        Request request = getSimpleRequest(mockWebServer);
-
         // When executing a request.
+        Request request = getSimpleRequest(mockWebServer);
         okHttpClient.newCall(request).execute();
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while not
@@ -109,11 +104,8 @@ public class UserAgentInterceptorTest {
             null);
         OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
 
-        mockWebServer.enqueue(new MockResponse());
-
-        Request request = getSimpleRequest(mockWebServer);
-
         // When executing a request.
+        Request request = getSimpleRequest(mockWebServer);
         okHttpClient.newCall(request).execute();
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
@@ -135,11 +127,8 @@ public class UserAgentInterceptorTest {
             null);
         OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
 
-        mockWebServer.enqueue(new MockResponse());
-
-        Request request = getSimpleRequest(mockWebServer);
-
         // When executing a request.
+        Request request = getSimpleRequest(mockWebServer);
         okHttpClient.newCall(request).execute();
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
@@ -161,11 +150,8 @@ public class UserAgentInterceptorTest {
             null);
         OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
 
-        mockWebServer.enqueue(new MockResponse());
-
-        Request request = getSimpleRequest(mockWebServer);
-
         // When executing a request.
+        Request request = getSimpleRequest(mockWebServer);
         okHttpClient.newCall(request).execute();
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
@@ -188,13 +174,8 @@ public class UserAgentInterceptorTest {
             null);
         OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
 
-        mockWebServer.enqueue(new MockResponse());
-
-        Request request = getSimpleRequest(mockWebServer);
-
-        // Given a client with a UserAgentInterceptor.
-
         // When executing a request.
+        Request request = getSimpleRequest(mockWebServer);
         okHttpClient.newCall(request).execute();
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
@@ -216,11 +197,8 @@ public class UserAgentInterceptorTest {
             null);
         OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
 
-        mockWebServer.enqueue(new MockResponse());
-
-        Request request = getSimpleRequest(mockWebServer);
-
         // When executing a request.
+        Request request = getSimpleRequest(mockWebServer);
         okHttpClient.newCall(request).execute();
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
@@ -243,13 +221,8 @@ public class UserAgentInterceptorTest {
             null);
         OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
 
-        mockWebServer.enqueue(new MockResponse());
-
-        Request request = getSimpleRequest(mockWebServer);
-
-        // Given a client with a UserAgentInterceptor.
-
         // When executing a request.
+        Request request = getSimpleRequest(mockWebServer);
         okHttpClient.newCall(request).execute();
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
@@ -271,11 +244,8 @@ public class UserAgentInterceptorTest {
             new TestLocaleInformationProvider(defaultSystemLanguage, systemRegion));
         OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
 
-        mockWebServer.enqueue(new MockResponse());
-
-        Request request = getSimpleRequest(mockWebServer);
-
         // When executing a request.
+        Request request = getSimpleRequest(mockWebServer);
         okHttpClient.newCall(request).execute();
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
@@ -305,11 +275,8 @@ public class UserAgentInterceptorTest {
             new TestLocaleInformationProvider(defaultSystemLanguage, systemRegion));
         OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
 
-        mockWebServer.enqueue(new MockResponse());
-
-        Request request = getSimpleRequest(mockWebServer);
-
         // When executing a request.
+        Request request = getSimpleRequest(mockWebServer);
         okHttpClient.newCall(request).execute();
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
