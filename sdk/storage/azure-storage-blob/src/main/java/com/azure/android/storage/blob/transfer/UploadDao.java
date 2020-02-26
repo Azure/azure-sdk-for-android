@@ -143,6 +143,17 @@ abstract class UploadDao {
      * @param blobKey the blob upload metadata key (aka uploadId)
      * @return the bytes uploaded
      */
-    @Query("SELECT SUM(block_size) FROM blockuploads WHERE blob_key = :blobKey")
-    public abstract long getUploadedBytesCount(long blobKey);
+    public long getUploadedBytesCount(long blobKey) {
+        return this.getAggregatedBlockSize(blobKey, BlockUploadState.COMPLETED);
+    }
+
+    /**
+     * Get the sum of block size for blocks for a blob upload.
+     *
+     * @param blobKey the blob upload metadata key (aka uploadId)
+     * @param state the state of the block to be considered
+     * @return the aggregated block size
+     */
+    @Query("SELECT SUM(block_size) FROM blockuploads WHERE blob_key = :blobKey and block_upload_state = :state")
+    public abstract long getAggregatedBlockSize(long blobKey, BlockUploadState state);
 }
