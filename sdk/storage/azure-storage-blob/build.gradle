@@ -1,6 +1,14 @@
+ext.publishName = "Microsoft Azure Android Client Library For Blob Storage"
+description = "This package contains the Android client library for Microsoft Azure Blob Storage."
 version = "1.0.0-beta.1"
-group = "com.azure.android"
-description = "This module contains client library for Microsoft Azure Blob Storage."
+ext.versionCode = 1
+
+android {
+    defaultConfig {
+        versionCode project.versionCode
+        versionName project.version
+    }
+}
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])

@@ -16,24 +16,20 @@ buildscript {
     }
 }
 
-configure([
-    project("sdk:core:azure-core"),
-    project("sdk:storage:azure-storage-blob")]) {
-
+// Configure all client library projects with the standard Android build / publish template
+configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 3 }) {
     apply plugin: "com.android.library"
-    apply plugin: "maven"
     apply plugin: "maven-publish"
 
+    group = "com.azure.android"
 
-    android { -> project
+    android {
         compileSdkVersion 29
         buildToolsVersion "$androidBuildToolsVersion"
 
         defaultConfig {
             minSdkVersion 21
             targetSdkVersion 29
-            versionCode 1
-            versionName "1.0.0-beta.1"
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         }
 
@@ -67,7 +63,7 @@ configure([
 
     task sourcesJar(type: Jar) {
         from android.sourceSets.main.java.srcDirs
-        classifier = "sources"
+        archiveClassifier.set("sources")
     }
 
     task javadoc(type: Javadoc) {
@@ -77,24 +73,25 @@ configure([
     }
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
         from javadoc.destinationDir
+        archiveClassifier.set("javadoc")
     }
 
     project.afterEvaluate {
         javadoc.classpath += files(android.libraryVariants.collect { variant ->
-            variant.javaCompile.classpath.files
+            variant.javaCompileProvider.get().classpath.files
         })
 
-        publishing { -> project
+        publishing {
             publications {
-                maven(MavenPublication) { -> project
-                    artifact bundleReleaseAar
+                release(MavenPublication) { -> project
+                    from components.release
+
                     artifact sourcesJar
                     artifact javadocJar
 
                     pom {
-                        name = "Azure SDK for Android" // TODO: Need to pull this from the project being built.
+                        name = project.publishName
                         description = project.description
                         url = 'https://github.com/Azure/azure-sdk-for-android'
                         licenses {
@@ -148,13 +145,8 @@ allprojects {
     }
 }
 
-// Why do we need this?
-// task clean(type: Delete) {
-//     delete rootProject.buildDir
-// }
-
 // Synthesize dependencies for service-level projects so that running a task on a service-level project automatically
-// runs it on all subprojects of that project
+// runs it on all sub-projects of that project
 configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 2 }) {
     project.gradle.startParameter.taskNames.each { task ->
         task = task.split(':').last()
@@ -164,4 +156,3 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
         }
     }
 }
-
