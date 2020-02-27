@@ -40,22 +40,23 @@ interface LogUtils {
      * @return "Log body" if the body should be logged in its entirety, otherwise a message indicating why the body
      * was not logged is returned.
      */
-    static String evaluateBody(Headers headers) {
+    static String determineBodyLoggingStrategy(Headers headers) {
         String contentEncoding = headers.get("Content-Encoding");
         String contentDisposition = headers.get("Content-Disposition");
         String contentType = headers.get("Content-Type");
         String contentLength = headers.get("Content-Length");
 
-        if (!CoreUtils.isNullOrEmpty(contentEncoding) && contentEncoding.equalsIgnoreCase("identity")) {
+        if (!CoreUtils.isNullOrEmpty(contentEncoding)
+            && (contentEncoding.equalsIgnoreCase("gzip") || contentEncoding.equalsIgnoreCase("compressed"))) {
             return "(encoded body omitted)";
         }
 
-        if (!CoreUtils.isNullOrEmpty(contentDisposition) && contentDisposition.equalsIgnoreCase("inline")) {
+        if (!CoreUtils.isNullOrEmpty(contentDisposition) && contentDisposition.equalsIgnoreCase("attached")) {
             return "(non-inline body omitted)";
         }
 
-        if (!CoreUtils.isNullOrEmpty(contentType) && (contentType.endsWith("octet-stream") || contentType.startsWith(
-            "image"))) {
+        if (!CoreUtils.isNullOrEmpty(contentType)
+            && (contentType.endsWith("octet-stream") || contentType.startsWith("image"))) {
             return "(binary body omitted)";
         }
 
@@ -64,9 +65,11 @@ interface LogUtils {
 
             if (contentLengthValue == 0) {
                 return "(empty body)";
-            } else if (contentLengthValue < MAX_BODY_LOG_SIZE) {
+            } else if (contentLengthValue > MAX_BODY_LOG_SIZE) {
                 return "(" + contentLengthValue + "-byte body omitted)";
             }
+        } else {
+            return "(empty body)";
         }
 
         return "Log body";
@@ -85,7 +88,7 @@ interface LogUtils {
             return "";
         }
 
-        StringBuilder queryStringBuilder = new StringBuilder();
+        StringBuilder queryStringBuilder = new StringBuilder("?");
 
         for (String name : names) {
             if (allowedQueryParameterNames.contains(name.toLowerCase(Locale.ROOT))) {

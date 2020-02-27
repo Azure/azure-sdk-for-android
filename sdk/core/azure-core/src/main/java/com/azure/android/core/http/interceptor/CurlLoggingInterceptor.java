@@ -53,7 +53,7 @@ public class CurlLoggingInterceptor implements Interceptor {
         addHeadersToCurlCommand(headers, curlCommand);
 
         RequestBody requestBody = request.body();
-        String bodyEvaluation = LogUtils.evaluateBody(headers);
+        String bodyEvaluation = LogUtils.determineBodyLoggingStrategy(headers);
 
         if (!bodyEvaluation.equals("Log body")) {
             curlCommand.append(bodyEvaluation);
