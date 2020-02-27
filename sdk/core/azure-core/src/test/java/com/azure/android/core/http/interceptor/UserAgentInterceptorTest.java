@@ -29,7 +29,7 @@ public class UserAgentInterceptorTest {
     public EnqueueMockResponse enqueueMockResponse = new EnqueueMockResponse(mockWebServer);
 
     @Test
-    public void userAgentHeader_isPopulated() throws InterruptedException, IOException {
+    public void userAgentHeader_isPopulated_onRequest() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with no input data in its constructor.
         UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(null,
             null,
@@ -48,7 +48,7 @@ public class UserAgentInterceptorTest {
     }
 
     @Test
-    public void userAgentHeader_isPrependedToNonEmptyHeader() throws InterruptedException, IOException {
+    public void userAgentHeader_isPrependedToNonEmptyHeader_onRequest() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with no input data in its constructor...
         UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(null,
             null,
@@ -57,7 +57,6 @@ public class UserAgentInterceptorTest {
             null,
             null);
         OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
-
         // ...and a request where the "User-Agent" header is already populated.
         String userAgent = "Test User Agent";
         Request request = getSimpleRequestWithHeader(mockWebServer, HttpHeader.USER_AGENT, userAgent);
@@ -72,7 +71,7 @@ public class UserAgentInterceptorTest {
     }
 
     @Test
-    public void userAgentHeader_hasCorrectFormat_withoutApplicationId() throws InterruptedException, IOException {
+    public void userAgentHeader_hasCorrectFormatWithoutApplicationId_onRequest() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with no user-provided applicationId.
         UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(null,
             null,
@@ -93,7 +92,7 @@ public class UserAgentInterceptorTest {
     }
 
     @Test
-    public void userAgentHeader_hasCorrectFormat_withApplicationId() throws InterruptedException, IOException {
+    public void userAgentHeader_hasCorrectFormatWithApplicationId_onRequest() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with a user-provided applicationId.
         String userApplicationId = "UserApplicationId";
         UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(userApplicationId,
@@ -115,7 +114,7 @@ public class UserAgentInterceptorTest {
     }
 
     @Test
-    public void userAgentHeader_hasTrimmedApplicationId() throws InterruptedException, IOException {
+    public void userAgentHeader_hasTrimmedApplicationId_onRequest() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with a user-provided applicationId containing spaces.
         String userApplicationId = "User Application Id";
         String trimmedUserApplicationId = "UserApplicationId";
@@ -138,7 +137,7 @@ public class UserAgentInterceptorTest {
     }
 
     @Test
-    public void userAgentHeader_hasTruncatedApplicationId() throws InterruptedException, IOException {
+    public void userAgentHeader_hasTruncatedApplicationId_onRequest() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with a user-provided applicationId longer than 24 characters.
         String userApplicationId = "UserApplicationIdThatIsVeryLong";
         String truncatedUserApplicationId = "UserApplicationIdThatIsV";
@@ -161,7 +160,7 @@ public class UserAgentInterceptorTest {
     }
 
     @Test
-    public void userAgentHeader_includesBasicInfo() throws InterruptedException, IOException {
+    public void userAgentHeader_includesBasicInfo_onRequest() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with a user-provided applicationId, sdkName and sdkVersion.
         String userApplicationId = "UserApplicationId";
         String sdkName = "SDK Name";
@@ -185,7 +184,7 @@ public class UserAgentInterceptorTest {
     }
 
     @Test
-    public void userAgentHeader_includesPlatformInfo() throws InterruptedException, IOException {
+    public void userAgentHeader_includesPlatformInfo_onRequest() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with an PlatformInformationProvider.
         String deviceName = "Test Device";
         int osVersion = 123;
@@ -208,7 +207,7 @@ public class UserAgentInterceptorTest {
     }
 
     @Test
-    public void userAgentHeader_includesApplicationInfo() throws InterruptedException, IOException {
+    public void userAgentHeader_includesApplicationInfo_onRequest() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with an ApplicationInformationProvider.
         String applicationId = "Application ID";
         String applicationVersion = "1.0";
@@ -232,7 +231,7 @@ public class UserAgentInterceptorTest {
     }
 
     @Test
-    public void userAgentHeader_includesLocaleInfo() throws InterruptedException, IOException {
+    public void userAgentHeader_includesLocaleInfo_onRequest() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with an LocaleInformationProvider.
         String defaultSystemLanguage = "en";
         String systemRegion = "US";
@@ -255,7 +254,7 @@ public class UserAgentInterceptorTest {
     }
 
     @Test
-    public void userAgentHeader_includesAllInfo() throws InterruptedException, IOException {
+    public void userAgentHeader_includesAllInfo_onRequest() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with an all information provided to its constructor.
         String userApplicationId = "UserApplicationId";
         String sdkName = "SDK Name";

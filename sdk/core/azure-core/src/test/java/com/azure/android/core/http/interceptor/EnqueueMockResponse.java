@@ -24,8 +24,4 @@ public class EnqueueMockResponse implements TestRule {
             }
         };
     }
-
-    MockWebServer getMockWebServer() {
-        return mockWebServer;
-    }
 }

@@ -28,7 +28,7 @@ public class AddDateInterceptorTest {
     public EnqueueMockResponse enqueueMockResponse = new EnqueueMockResponse(mockWebServer);
 
     @Test
-    public void dateHeader_isPopulated() throws InterruptedException, IOException {
+    public void dateHeader_isPopulated_onRequest() throws InterruptedException, IOException {
         // Given a client with a AddDateInterceptor.
 
         // When executing a request.
@@ -40,7 +40,7 @@ public class AddDateInterceptorTest {
     }
 
     @Test
-    public void dateHeader_isOverwritten() throws InterruptedException, IOException {
+    public void dateHeader_isOverwritten_onRequest() throws InterruptedException, IOException {
         // Given a request where the 'Date' header is already populated and a client with a AddDateInterceptor.
         Request request = getSimpleRequestWithHeader(mockWebServer, HttpHeader.DATE, TEST_DATE);
 

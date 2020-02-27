@@ -28,7 +28,7 @@ public class RequestIdInterceptorTest {
     public EnqueueMockResponse enqueueMockResponse = new EnqueueMockResponse(mockWebServer);
 
     @Test
-    public void requestIdHeader_isPopulated() throws InterruptedException, IOException {
+    public void requestIdHeader_isPopulated_onRequest() throws InterruptedException, IOException {
         // Given a request and a client with a RequestIdInterceptor.
         Request request = getSimpleRequest(mockWebServer);
 
@@ -40,7 +40,7 @@ public class RequestIdInterceptorTest {
     }
 
     @Test
-    public void requestIdHeader_isNotOverwritten() throws InterruptedException, IOException {
+    public void requestIdHeader_isNotOverwritten_onRequest() throws InterruptedException, IOException {
         // Given a request where the 'x-ms-client-request-id' header is already populated and a client with a
         // RequestIdInterceptor.
         String requestId = UUID.randomUUID().toString();
