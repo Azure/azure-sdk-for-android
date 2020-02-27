@@ -3,6 +3,8 @@
 
 package com.azure.android.core.http.interceptor;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
 
@@ -35,11 +37,11 @@ final class TestUtils {
     }
 
     static Request getSimpleRequestWithHeader(MockWebServer mockWebServer,
-                                              String key,
+                                              String name,
                                               String value) {
         return new Request.Builder()
             .url(mockWebServer.url("/"))
-            .addHeader(key, value)
+            .addHeader(name, value)
             .build();
     }
 
@@ -53,5 +55,42 @@ final class TestUtils {
         }
 
         return builder.build();
+    }
+
+    static Request getSimpleRequestWithQueryParam(MockWebServer mockWebServer,
+                                                  String name,
+                                                  String value) {
+        String path = "/?" + name + "=" + value;
+
+        return new Request.Builder()
+            .url(mockWebServer.url(path))
+            .build();
+    }
+
+    static Request getSimpleRequestWithQueryParams(MockWebServer mockWebServer,
+                                                   Map<String, String> queryParams) {
+        StringBuilder pathStringBuilder = new StringBuilder("/?");
+
+        for (Map.Entry queryParam : queryParams.entrySet()) {
+            pathStringBuilder.append(queryParam.getKey())
+                .append("=")
+                .append(queryParam.getValue())
+                .append("&");
+        }
+
+        pathStringBuilder.setLength(pathStringBuilder.length() - 1);
+
+        return new Request.Builder()
+            .url(mockWebServer.url(pathStringBuilder.toString()))
+            .build();
+    }
+
+    static String getStackTraceString(Throwable throwable) {
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+        throwable.printStackTrace(printWriter);
+        printWriter.flush();
+
+        return stringWriter.toString();
     }
 }

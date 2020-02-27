@@ -8,20 +8,32 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.mockwebserver.MockWebServer;
+import okio.BufferedSink;
 
+import static com.azure.android.core.http.interceptor.LoggingInterceptor.REDACTED_PLACEHOLDER;
 import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClientWithInterceptor;
 import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequestWithHeader;
+import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequestWithHeaders;
+import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequestWithQueryParam;
+import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequestWithQueryParams;
+import static com.azure.android.core.http.interceptor.TestUtils.getStackTraceString;
+import static com.azure.android.core.util.logging.ClientLogger.LOG_LEVEL_DEBUG;
 import static com.azure.android.core.util.logging.ClientLogger.LOG_LEVEL_INFO;
+import static com.azure.android.core.util.logging.ClientLogger.LOG_LEVEL_WARNING;
 
 
 public class LoggingInterceptorTest {
@@ -82,81 +94,190 @@ public class LoggingInterceptorTest {
         Assert.assertEquals(LOG_LEVEL_INFO, logLevel);
     }
 
-    // Test that the LoggingInterceptor redacts all request headers when the allowHeaders parameter is empty
-    /*
     @Test
-    public void test() {
-    }
-    */
+    public void headers_areRedactedAtDebugLevel_onRequestWithNoAllowedHeaders() throws IOException {
+        // Given a request where at least one header is populated...
+        String testHeader = "Test-Header";
+        Request request = getSimpleRequestWithHeader(mockWebServer, testHeader, "Test Value");
+        // ...and a client with a LoggingInterceptor with an empty allowed headers list.
+        LoggingInterceptor redactedHeadersInterceptor = new LoggingInterceptor(null, testClientLogger);
+        OkHttpClient redactedHeadersOkHttpClient = buildOkHttpClientWithInterceptor(redactedHeadersInterceptor);
+        redactedHeadersOkHttpClient.newCall(request).execute();
 
-    // Test that the LoggingInterceptor redacts request headers not included in the defaultAllowHeaders property
-    /*
-    @Test
-    public void test() {
-    }
-    */
+        List<AbstractMap.SimpleEntry<Integer, String>> logs = testClientLogger.getLogs();
+        int logLevel = 0;
+        String headerLogMessage = null;
 
-    // Test that the LoggingInterceptor redacts request headers not included in the supplied allowHeaders parameter
-    /*
-    @Test
-    public void test() {
-    }
-    */
+        for (AbstractMap.SimpleEntry<Integer, String> entry : logs) {
+            String message = entry.getValue();
 
-    // Test that the LoggingInterceptor redacts all query string params when the allowQueryParams parameter is empty and
-    // the params are provided as part of the URL
-    /*
-    @Test
-    public void test() {
-    }
-    */
+            if (message.startsWith(testHeader)) {
+                logLevel = entry.getKey();
+                headerLogMessage = message;
+            }
+        }
 
-    // Test that the LoggingInterceptor redacts query string params not included in the supplied allowQueryParams parameter
-    // when the params are provided as part of the URL
-    /*
-    @Test
-    public void test() {
+        // Then the header should be logged with its value redacted...
+        Assert.assertEquals(testHeader + ": " + REDACTED_PLACEHOLDER, headerLogMessage);
+        // ...at the DEBUG log level.
+        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
-    */
 
-    // Test that the LoggingInterceptor redacts all query string params when the allowQueryParams parameter is empty and
-    // the params are provided via HttpRequest's queryParams argument
-    /*
     @Test
-    public void test() {
-    }
-    */
+    public void nonAllowedHeaders_areRedactedAtDebugLevel_onRequest() throws IOException {
+        // Given a request where at least one non-allowed header and at least one allowed header are populated...
+        String testHeader = "Test-Header";
+        String contentTypeHeader = "Content-Type";
+        String contentType = "text/html";
+        Map<String, String> headers = new HashMap<>();
+        headers.put(testHeader, "Test value");
+        headers.put(contentTypeHeader, contentType);
+        Request request = getSimpleRequestWithHeaders(mockWebServer, headers);
+        // ...and a client with a LoggingInterceptor with a list of allowed headers.
+        LoggingInterceptor redactedHeadersInterceptor = new LoggingInterceptor(new LogOptions(), testClientLogger);
+        OkHttpClient redactedHeadersOkHttpClient = buildOkHttpClientWithInterceptor(redactedHeadersInterceptor);
 
-    // Test that the LoggingInterceptor redacts query string params not included in the supplied allowQueryParams parameter
-    // when the params are provided via HttpRequest's queryParams argument
-    /*
-    @Test
-    public void test() {
-    }
-    */
+        // When executing said request on an OkHttpClient with a LoggingInterceptor with an empty allowed headers list.
+        redactedHeadersOkHttpClient.newCall(request).execute();
 
-    // Test that the LoggingInterceptor redacts all query string params when the allowQueryParams parameter is empty and
-    // some params are provided as part of the URL and others are provided via HttpRequest's queryParams argument
-    /*
-    @Test
-    public void test() {
-    }
-    */
+        List<AbstractMap.SimpleEntry<Integer, String>> logs = testClientLogger.getLogs();
+        int testHeaderLogLevel = 0;
+        String testHeaderLogMessage = null;
+        int contentTypeHeaderLogLevel = 0;
+        String contentTypeHeaderLogMessage = null;
 
-    // Test that the LoggingInterceptor redacts query string params not included in the supplied allowQueryParams parameter
-    // when some params are provided as part of the URL and others are provided via HttpRequest's queryParams argument
-    /*
-    @Test
-    public void test() {
-    }
-    */
+        for (AbstractMap.SimpleEntry<Integer, String> entry : logs) {
+            String message = entry.getValue();
 
-    // Test that the LoggingInterceptor logs internal failures at the correct level
-    /*
-    @Test
-    public void test() {
+            if (message.startsWith(testHeader)) {
+                testHeaderLogLevel = entry.getKey();
+                testHeaderLogMessage = message;
+            }
+
+            if (message.startsWith(contentTypeHeader)) {
+                contentTypeHeaderLogLevel = entry.getKey();
+                contentTypeHeaderLogMessage = message;
+            }
+        }
+
+        // Then the non-allowed header should be logged with its value redacted...
+        Assert.assertEquals(testHeader + ": " + REDACTED_PLACEHOLDER, testHeaderLogMessage);
+        // ...and the allowed header should be logged with its value intact...
+        Assert.assertEquals(contentTypeHeader + ": " + contentType, contentTypeHeaderLogMessage);
+        // ...at the DEBUG log level.
+        Assert.assertEquals(LOG_LEVEL_DEBUG, testHeaderLogLevel);
+        Assert.assertEquals(LOG_LEVEL_DEBUG, contentTypeHeaderLogLevel);
     }
-    */
+
+    @Test
+    public void queryParams_areRedactedAtDebugLevel_onRequestWithNoAllowedQueryParams() throws IOException {
+        // Given a request with a URL where there is at least one query parameter...
+        String paramName = "testParam";
+        Request request = getSimpleRequestWithQueryParam(mockWebServer, paramName, "testValue");
+        // ...and a client with a LoggingInterceptor with a list of allowed query parameters.
+        LoggingInterceptor redactedHeadersInterceptor = new LoggingInterceptor(null, testClientLogger);
+        OkHttpClient redactedHeadersOkHttpClient = buildOkHttpClientWithInterceptor(redactedHeadersInterceptor);
+        redactedHeadersOkHttpClient.newCall(request).execute();
+
+        List<AbstractMap.SimpleEntry<Integer, String>> logs = testClientLogger.getLogs();
+        int logLevel = 0;
+        String urlLogMessage = null;
+
+        for (AbstractMap.SimpleEntry<Integer, String> entry : logs) {
+            String message = entry.getValue();
+
+            if (message.startsWith("GET ")) {
+                logLevel = entry.getKey();
+                urlLogMessage = message;
+            }
+        }
+
+        // Then the query parameter should be logged as part of the URL with its value redacted...
+        Assert.assertEquals("GET /?" + paramName + "=" + REDACTED_PLACEHOLDER, urlLogMessage);
+        // ...at the INFO log level.
+        Assert.assertEquals(LOG_LEVEL_INFO, logLevel);
+    }
+
+    @Test
+    public void nonAllowedQueryParams_areRedactedAtDebugLevel_onRequest() throws IOException {
+        // Given a request with a URL where there is at least one non-allowed query parameter and at least one allowed
+        // query parameter...
+        String allowedQueryParamName = "allowedParam";
+        String allowedQueryParamValue = "normalValue";
+        String nonAllowedQueryParamName = "nonAllowedParam";
+        String nonAllowedQueryParamValue = "valueToRedact";
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put(allowedQueryParamName, allowedQueryParamValue);
+        queryParams.put(nonAllowedQueryParamName, nonAllowedQueryParamValue);
+        Request request = getSimpleRequestWithQueryParams(mockWebServer, queryParams);
+        // ...and a client with a LoggingInterceptor with an empty allowed query parameters list.
+        Set<String> allowedQueryParams = new HashSet<>();
+        allowedQueryParams.add(allowedQueryParamName);
+        LogOptions logOptions = new LogOptions().setAllowedQueryParamNames(allowedQueryParams);
+        LoggingInterceptor redactedHeadersInterceptor = new LoggingInterceptor(logOptions, testClientLogger);
+        OkHttpClient redactedHeadersOkHttpClient = buildOkHttpClientWithInterceptor(redactedHeadersInterceptor);
+        redactedHeadersOkHttpClient.newCall(request).execute();
+
+        List<AbstractMap.SimpleEntry<Integer, String>> logs = testClientLogger.getLogs();
+        int logLevel = 0;
+        String urlLogMessage = null;
+
+        for (AbstractMap.SimpleEntry<Integer, String> entry : logs) {
+            String message = entry.getValue();
+
+            if (message.startsWith("GET ")) {
+                logLevel = entry.getKey();
+                urlLogMessage = message;
+            }
+        }
+
+        // Then the query parameter should be logged as part of the URL with its value redacted...
+        Assert.assertEquals("GET /?" + allowedQueryParamName + "=" + allowedQueryParamValue + "&" +
+            nonAllowedQueryParamName + "=" + REDACTED_PLACEHOLDER, urlLogMessage); // Query params are ordered alphabetically by the OkHttp when creating the request
+        // ...at the INFO log level.
+        Assert.assertEquals(LOG_LEVEL_INFO, logLevel);
+    }
+
+    @Test
+    public void internalFailure_isLoggedAtWarningLevel_onRequest() {
+        // Given a request that will cause an error when reading its content and a client with a LoggingInterceptor.
+        Request request = new Request.Builder().url(mockWebServer.url("/")).put(new RequestBody() {
+            @Override
+            public MediaType contentType() {
+                return MediaType.get("Bad Charset");
+            }
+
+            @SuppressWarnings("NullableProblems")
+            @Override
+            public void writeTo(BufferedSink sink) {
+                // Do nothing
+            }
+        }).build();
+
+        try {
+            // When executing said request an error will occur.
+            okHttpClient.newCall(request).execute();
+        } catch (Exception e) {
+            List<AbstractMap.SimpleEntry<Integer, String>> logs = testClientLogger.getLogs();
+            int logLevel = 0;
+            String errorLogMessage = null;
+            String errorPrefix = "OPERATION FAILED: ";
+
+            for (AbstractMap.SimpleEntry<Integer, String> entry : logs) {
+                String message = entry.getValue();
+
+                if (message.startsWith(errorPrefix)) {
+                    logLevel = entry.getKey();
+                    errorLogMessage = message;
+                }
+            }
+
+            // Then the error message will be logged...
+            Assert.assertEquals(errorPrefix + getStackTraceString(e), errorLogMessage);
+            // ...at the WARNING log level.
+            Assert.assertEquals(LOG_LEVEL_WARNING, logLevel);
+        }
+    }
 
     // Test that the LoggingInterceptor logs the request line in the correct format at the correct level
     /*
@@ -165,14 +286,7 @@ public class LoggingInterceptorTest {
     }
     */
 
-    // Test that the LoggingInterceptor doesn't log request headers if the log level is not low enough
-    /*
-    @Test
-    public void test() {
-    }
-    */
-
-    // Test that the LoggingInterceptor doesn't log the request body if the log level is not low enough
+    // Test that the LoggingInterceptor logs the request body at the correct log level
     /*
     @Test
     public void test() {
@@ -208,13 +322,6 @@ public class LoggingInterceptorTest {
     */
 
     // Test that the LoggingInterceptor logs a placeholder message when the request body content is binary
-    /*
-    @Test
-    public void test() {
-    }
-    */
-
-    // Test that the LoggingInterceptor logs the request body when its content is text
     /*
     @Test
     public void test() {
@@ -270,13 +377,6 @@ public class LoggingInterceptorTest {
     }
     */
 
-    // Test that the LoggingInterceptor redacts response headers not included in the supplied allowHeaders parameter
-    /*
-    @Test
-    public void test() {
-    }
-    */
-
     // Test that the LoggingInterceptor starts the response log with the request ID
     /*
     @Test
@@ -308,20 +408,6 @@ public class LoggingInterceptorTest {
 
     // Test that the LoggingInterceptor logs the status line of a failure response in the correct format at the correct
     // level
-    /*
-    @Test
-    public void test() {
-    }
-    */
-
-    // Test that the LoggingInterceptor doesn't log response headers if the log level is not low enough
-    /*
-    @Test
-    public void test() {
-    }
-    */
-
-    // Test that the LoggingInterceptor doesn't log the response body if the log level is not low enough
     /*
     @Test
     public void test() {
@@ -405,13 +491,6 @@ public class LoggingInterceptorTest {
     }
     */
 
-    // Test that the LoggingInterceptor logs the error's localized description when an error object is present
-    /*
-    @Test
-    public void test() {
-    }
-    */
-
     private static class TestClientLogger implements ClientLogger {
         private final List<AbstractMap.SimpleEntry<Integer, String>> logs = new ArrayList<>();
         private int logLevel;
@@ -437,7 +516,7 @@ public class LoggingInterceptorTest {
 
         @Override
         public void debug(String message, Throwable throwable) {
-            logs.add(new AbstractMap.SimpleEntry<>(LOG_LEVEL_DEBUG, appendStackTraceToMessage(message, throwable)));
+            logs.add(new AbstractMap.SimpleEntry<>(LOG_LEVEL_DEBUG, message + getStackTraceString(throwable)));
         }
 
         @Override
@@ -447,7 +526,7 @@ public class LoggingInterceptorTest {
 
         @Override
         public void info(String message, Throwable throwable) {
-            logs.add(new AbstractMap.SimpleEntry<>(LOG_LEVEL_INFO, appendStackTraceToMessage(message, throwable)));
+            logs.add(new AbstractMap.SimpleEntry<>(LOG_LEVEL_INFO, message + getStackTraceString(throwable)));
         }
 
         @Override
@@ -457,7 +536,7 @@ public class LoggingInterceptorTest {
 
         @Override
         public void warning(String message, Throwable throwable) {
-            logs.add(new AbstractMap.SimpleEntry<>(LOG_LEVEL_WARNING, appendStackTraceToMessage(message, throwable)));
+            logs.add(new AbstractMap.SimpleEntry<>(LOG_LEVEL_WARNING, message + getStackTraceString(throwable)));
         }
 
         @Override
@@ -467,18 +546,8 @@ public class LoggingInterceptorTest {
 
         @Override
         public void error(String message, Throwable throwable) {
-            logs.add(new AbstractMap.SimpleEntry<>(LOG_LEVEL_ERROR, appendStackTraceToMessage(message, throwable)));
+            logs.add(new AbstractMap.SimpleEntry<>(LOG_LEVEL_ERROR, message + getStackTraceString(throwable)));
         }
 
-        private String appendStackTraceToMessage(String message, Throwable throwable) {
-            StringWriter stringWriter = new StringWriter();
-            PrintWriter printWriter = new PrintWriter(stringWriter);
-            throwable.printStackTrace(printWriter);
-            printWriter.flush();
-
-            return message + System.lineSeparator() +
-                throwable.getMessage() + System.lineSeparator() +
-                stringWriter.toString();
-        }
     }
 }
