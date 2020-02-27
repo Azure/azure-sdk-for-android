@@ -6,15 +6,14 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation project(":sdk:core:azure-core")
     implementation "androidx.annotation:annotation:$annotationsVersion"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
-    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonDataFormatXmlVersion"
+    implementation "androidx.concurrent:concurrent-futures:$concurrentFuturesVersion"
+    implementation "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.work:work-runtime:$workVersion"
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
     implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "javax.xml.stream:stax-api:$staxApiVersion" // https://stackoverflow.com/a/47371517/1473510
-
-    implementation "androidx.work:work-runtime:$workRuntimeVersion"
-    implementation "androidx.concurrent:concurrent-futures:$concurrentFuturesVersion"
-    implementation "androidx.room:room-runtime:$roomRuntimeVersion"
-    annotationProcessor "androidx.room:room-compiler:$roomCompilerVersion"
+    annotationProcessor "androidx.room:room-compiler:$roomVersion"
 }

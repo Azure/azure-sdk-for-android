@@ -2,7 +2,7 @@ apply plugin: "com.android.application"
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    buildToolsVersion "29.0.3"
 
     defaultConfig {
         applicationId "com.azure.android.storage.sample"
@@ -32,6 +32,7 @@ android {
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
+    // TODO: Replace with binary dependencies from Maven
     implementation project(":sdk:core:azure-core")
     implementation project(":sdk:storage:azure-storage-blob")
     implementation "androidx.appcompat:appcompat:1.1.0"
@@ -45,15 +46,13 @@ dependencies {
     implementation "com.google.dagger:dagger-android-support:2.20"
     //noinspection GradleDynamicVersion
     implementation "com.microsoft.identity.client:msal:0.3+"
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonDatabindVersion"
-    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonDataFormatXmlVersion"
-    implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
-    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
-    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
-    implementation "javax.xml.stream:stax-api:$staxApiVersion" // https://stackoverflow.com/a/47371517/1473510
-    // Unit testing
+    implementation "com.fasterxml.jackson.core:jackson-databind:2.9.9"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9"
+    implementation "com.jakewharton.threetenabp:threetenabp:1.2.1"
+    implementation "com.squareup.okhttp3:okhttp:3.13.1"
+    implementation "com.squareup.retrofit2:retrofit:2.6.2"
+    implementation "javax.xml.stream:stax-api:1.0-2" // https://stackoverflow.com/a/47371517/1473510
     testImplementation "junit:junit:4.12"
-    // Integration testing
     androidTestImplementation "androidx.test.ext:junit:1.1.1"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.2.0"
     annotationProcessor "com.google.dagger:dagger-android-processor:2.20"
