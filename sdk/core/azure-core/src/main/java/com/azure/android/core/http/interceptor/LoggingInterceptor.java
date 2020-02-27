@@ -54,10 +54,14 @@ public final class LoggingInterceptor implements Interceptor {
      */
     public LoggingInterceptor(LogOptions logOptions, ClientLogger clientLogger) {
         logger = clientLogger;
-        allowedHeaderNames = Collections.emptySet();
-        allowedQueryParameterNames = Collections.emptySet();
 
-        if (logOptions != null) {
+        if (logOptions == null) {
+            allowedHeaderNames = Collections.emptySet();
+            allowedQueryParameterNames = Collections.emptySet();
+        } else {
+            allowedHeaderNames = new HashSet<>();
+            allowedQueryParameterNames = new HashSet<>();
+
             for (String headerName : logOptions.getAllowedHeaderNames()) {
                 allowedHeaderNames.add(headerName.toLowerCase(Locale.ROOT));
             }
@@ -73,9 +77,9 @@ public final class LoggingInterceptor implements Interceptor {
     public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
 
-        logRequest(request);
-
         try {
+            logRequest(request);
+
             long startNs = System.nanoTime();
             Response response = chain.proceed(request);
             long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
