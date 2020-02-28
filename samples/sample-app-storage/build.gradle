@@ -19,7 +19,7 @@ android {
     }
 
     lintOptions {
-        lintConfig file("$rootDir/eng/lint.xml")
+        lintConfig file("lint.xml")
     }
 
     buildTypes {
