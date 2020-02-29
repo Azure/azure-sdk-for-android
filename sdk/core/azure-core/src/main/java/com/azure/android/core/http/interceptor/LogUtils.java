@@ -3,33 +3,23 @@
 
 package com.azure.android.core.http.interceptor;
 
-import com.azure.android.core.util.CoreUtils;
-
+import java.io.IOException;
 import java.util.Locale;
 import java.util.Set;
 
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 
-interface LogUtils {
-    int MAX_BODY_LOG_SIZE = 1024 * 16;
-    String REDACTED_PLACEHOLDER = "REDACTED";
+import static com.azure.android.core.util.CoreUtils.isNullOrEmpty;
 
-    /**
-     * Attempts to retrieve and parse the Content-Length header into a numeric representation.
-     *
-     * @param headers HTTP headers that are checked for containing Content-Length.
-     * @return The content length of the request or response.
-     */
-    static long getContentLength(Headers headers) {
-        long contentLength = 0;
-        String contentLengthString = headers.get("Content-Length");
+final class LogUtils {
+    static final int MAX_BODY_LOG_SIZE = 1024 * 16;
+    static final String REDACTED_PLACEHOLDER = "REDACTED";
 
-        if (!CoreUtils.isNullOrEmpty(contentLengthString)) {
-            contentLength = Long.parseLong(contentLengthString);
-        }
-
-        return contentLength;
+    private LogUtils() {
+        // Empty constructor to prevent instantiation of this class.
     }
 
     /**
@@ -40,36 +30,45 @@ interface LogUtils {
      * @return "Log body" if the body should be logged in its entirety, otherwise a message indicating why the body
      * was not logged is returned.
      */
-    static String determineBodyLoggingStrategy(Headers headers) {
+    @SuppressWarnings("ConstantConditions")
+    static String determineBodyLoggingStrategy(Headers headers, RequestBody requestBody, ResponseBody responseBody) throws IOException {
         String contentEncoding = headers.get("Content-Encoding");
         String contentDisposition = headers.get("Content-Disposition");
-        String contentType = headers.get("Content-Type");
-        String contentLength = headers.get("Content-Length");
+        String contentType;
+        long contentLength;
 
-        if (!CoreUtils.isNullOrEmpty(contentEncoding)
-            && (contentEncoding.equalsIgnoreCase("gzip") || contentEncoding.equalsIgnoreCase("compressed"))) {
+        if (requestBody == null) {
+            if (responseBody == null) {
+                String contentLengthString = headers.get("Content-Length");
+
+                contentType = headers.get("Content-Type");
+                contentLength = isNullOrEmpty(contentLengthString) ? 0 : Long.parseLong(contentLengthString);
+            } else {
+                contentType = (responseBody.contentType() == null) ? null : responseBody.contentType().toString();
+                contentLength = responseBody.contentLength();
+            }
+        } else {
+            contentType = (requestBody.contentType() == null) ? null : requestBody.contentType().toString();
+            contentLength = requestBody.contentLength();
+        }
+
+        if (!isNullOrEmpty(contentEncoding) && !contentEncoding.equalsIgnoreCase("identity")) {
             return "(encoded body omitted)";
         }
 
-        if (!CoreUtils.isNullOrEmpty(contentDisposition) && contentDisposition.equalsIgnoreCase("attached")) {
+        if (!isNullOrEmpty(contentDisposition) && !contentDisposition.equalsIgnoreCase("inline")) {
             return "(non-inline body omitted)";
         }
 
-        if (!CoreUtils.isNullOrEmpty(contentType)
-            && (contentType.endsWith("octet-stream") || contentType.startsWith("image"))) {
+        if (!isNullOrEmpty(contentType)
+            && (contentType.contains("octet-stream") || contentType.startsWith("image"))) {
             return "(binary body omitted)";
         }
 
-        if (!CoreUtils.isNullOrEmpty(contentLength)) {
-            long contentLengthValue = getContentLength(headers);
-
-            if (contentLengthValue == 0) {
-                return "(empty body)";
-            } else if (contentLengthValue > MAX_BODY_LOG_SIZE) {
-                return "(" + contentLengthValue + "-byte body omitted)";
-            }
-        } else {
+        if (contentLength <= 0) { // A ResponseBody's default Content-Length is -1
             return "(empty body)";
+        } else if (contentLength > MAX_BODY_LOG_SIZE) {
+            return "(" + contentLength + "-byte body omitted)";
         }
 
         return "Log body";
