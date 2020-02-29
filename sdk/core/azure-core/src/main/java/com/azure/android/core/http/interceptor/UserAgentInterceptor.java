@@ -10,13 +10,14 @@ import androidx.annotation.NonNull;
 import com.azure.android.core.provider.ApplicationInformationProvider;
 import com.azure.android.core.provider.LocaleInformationProvider;
 import com.azure.android.core.provider.PlatformInformationProvider;
-import com.azure.android.core.util.CoreUtils;
 
 import java.io.IOException;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static com.azure.android.core.util.CoreUtils.isNullOrEmpty;
 
 /**
  * Pipeline interceptor that adds "User-Agent" header to a request.
@@ -120,7 +121,7 @@ public class UserAgentInterceptor implements Interceptor {
             getApplicationInfo(applicationInformationProvider),
             getLocaleInfo(localeInformationProvider));
 
-        if (CoreUtils.isNullOrEmpty(applicationId)) {
+        if (isNullOrEmpty(applicationId)) {
             userAgent = userAgentBase;
         } else {
             // Based on the design guidelines, applicationId must not contain a space.
