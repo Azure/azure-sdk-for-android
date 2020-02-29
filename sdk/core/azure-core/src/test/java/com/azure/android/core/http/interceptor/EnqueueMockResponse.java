@@ -16,10 +16,12 @@ public class EnqueueMockResponse implements TestRule {
 
     @Override
     public Statement apply(Statement base, Description description) {
+        MockResponse mockResponse = new MockResponse().setBody("Test body").setHeader("Content-Type", "text/html");
+
         return new Statement() {
             @Override
             public void evaluate() throws Throwable {
-                mockWebServer.enqueue(new MockResponse());
+                mockWebServer.enqueue(mockResponse);
                 base.evaluate();
             }
         };

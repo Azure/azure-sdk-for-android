@@ -14,6 +14,10 @@ import okhttp3.Request;
 import okhttp3.mockwebserver.MockWebServer;
 
 final class TestUtils {
+    private TestUtils() {
+        // Empty constructor to prevent instantiation of this class.
+    }
+
     static OkHttpClient buildOkHttpClientWithInterceptor(Interceptor interceptor) {
         return new OkHttpClient().newBuilder()
             .addInterceptor(interceptor)
