@@ -7,34 +7,29 @@ buildscript {
     }
 
     ext {
-        androidToolsGradleVersion = "3.5.2"
+        androidBuildToolsVersion = "29.0.3"
+        androidGradlePluginVersion = "3.6.0"
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:$androidToolsGradleVersion"
-        // NOTE: Do not place your application dependencies here; they belong in the individual module build.gradle
-        // files
+        classpath "com.android.tools.build:gradle:$androidGradlePluginVersion"
     }
 }
 
-configure([
-    project("sdk:core:azure-core"),
-    project("sdk:storage:azure-storage-blob")]) {
-
+// Configure all client library projects with the standard Android build / publish template
+configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 3 }) {
     apply plugin: "com.android.library"
-    apply plugin: "maven"
     apply plugin: "maven-publish"
 
+    group = "com.azure.android"
 
-    android { -> project
+    android {
         compileSdkVersion 29
-        buildToolsVersion "29.0.2"
+        buildToolsVersion "$androidBuildToolsVersion"
 
         defaultConfig {
             minSdkVersion 21
             targetSdkVersion 29
-            versionCode 1
-            versionName "1.0.0-beta.1"
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         }
 
@@ -45,6 +40,11 @@ configure([
 
         lintOptions {
             lintConfig file("$rootDir/eng/lint.xml")
+            htmlReport true
+            textReport true
+            textOutput 'stdout'
+            explainIssues false
+            abortOnError true
         }
 
         buildTypes {
@@ -68,7 +68,7 @@ configure([
 
     task sourcesJar(type: Jar) {
         from android.sourceSets.main.java.srcDirs
-        classifier = "sources"
+        archiveClassifier.set("sources")
     }
 
     task javadoc(type: Javadoc) {
@@ -78,24 +78,25 @@ configure([
     }
 
     task javadocJar(type: Jar, dependsOn: javadoc) {
-        classifier = 'javadoc'
         from javadoc.destinationDir
+        archiveClassifier.set("javadoc")
     }
 
     project.afterEvaluate {
         javadoc.classpath += files(android.libraryVariants.collect { variant ->
-            variant.javaCompile.classpath.files
+            variant.javaCompileProvider.get().classpath.files
         })
 
-        publishing { -> project
+        publishing {
             publications {
-                maven(MavenPublication) { -> project
-                    artifact bundleReleaseAar
+                release(MavenPublication) { -> project
+                    from components.release
+
                     artifact sourcesJar
                     artifact javadocJar
 
                     pom {
-                        name = "Azure SDK for Android" // TODO: Need to pull this from the project being built.
+                        name = project.publishName
                         description = project.description
                         url = 'https://github.com/Azure/azure-sdk-for-android'
                         licenses {
@@ -137,28 +138,20 @@ allprojects {
 
     ext {
         annotationsVersion = "1.1.0"
-        jacksonDatabindVersion = "2.9.9"
-        jacksonDataFormatXmlVersion = "2.9.9"
+        concurrentFuturesVersion = "1.0.0"
         jUnitVersion = "4.12"
-        mockWebServerVersion = "3.13.1"
+        jacksonVersion = "2.9.9"
         okHttpVersion = "3.13.1"
         retrofitVersion = "2.6.2"
+        roomVersion = "2.2.4"
         staxApiVersion = "1.0-2"
         threeTenAbpVersion = "1.2.1"
-        workRuntimeVersion = "2.3.1"
-        concurrentFuturesVersion = "1.0.0"
-        roomRuntimeVersion = "2.2.3"
-        roomCompilerVersion = "2.2.3"
+        workVersion = "2.3.2"
     }
 }
 
-// Why do we need this?
-// task clean(type: Delete) {
-//     delete rootProject.buildDir
-// }
-
 // Synthesize dependencies for service-level projects so that running a task on a service-level project automatically
-// runs it on all subprojects of that project
+// runs it on all sub-projects of that project
 configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 2 }) {
     project.gradle.startParameter.taskNames.each { task ->
         task = task.split(':').last()
@@ -168,4 +161,3 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
         }
     }
 }
-

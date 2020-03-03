@@ -32,7 +32,7 @@ public class StreamResponse extends Response<Reader> implements Closeable {
 
     /**
      * This method loads entire response body into memory. If the response body is very large this may trigger an
-     * [OutOfMemoryError]. Prefer to stream the response body using {@link this#getValue()} if this is a possibility
+     * [OutOfMemoryError]. Prefer to stream the response body using {@link Response#getValue()} if this is a possibility
      * for your response.
      *
      * @return The response content as a byte array.
