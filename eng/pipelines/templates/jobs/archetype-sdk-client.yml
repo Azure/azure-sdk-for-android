@@ -9,19 +9,25 @@ jobs:
       - template: ../variables/globals.yml
 
     pool:
-      vmImage: 'ubuntu-16.04'
+      vmImage: 'ubuntu-18.04'
 
     steps:
-      - script: |
-          ./gradlew sdk:${{parameters.ServiceDirectory}}:build sdk:${{parameters.ServiceDirectory}}:publish
-        displayName: Build packages
-      - ${{ each artifact in parameters.Artifacts }}:
-        - pwsh: |
-            $artifactsToStage = Get-ChildItem sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/repo/**/${{artifact.name}}* -Recurse | Where-Object -FilterScript { $_.Name -match "(jar|pom|aar)$" }
-            $stagingLocation = New-Item -Type Directory -Path $(Build.ArtifactStagingDirectory) -Name ${{artifact.name}}
-            $artifactsToStage | Copy-Item -Destination $stagingLocation
-          displayName: Stage ${{artifact.name}} for upload
-          
+      - script: sudo chmod -R go+w $ANDROID_HOME
+        displayName: Make Android SDK directory writable
+      - task: Gradle@2
+        inputs:
+          tasks: 'sdk:${{parameters.ServiceDirectory}}:publish'
+          publishJUnitResults: false
+        displayName: Build and publish
+      - pwsh: |
+          Get-ChildItem sdk/${{parameters.ServiceDirectory}}/**/repo -Attributes Directory -Recurse |
+          ForEach-Object {
+            $Source = $_.FullName + '/*'
+            $Dest = '$(Build.ArtifactStagingDirectory)/' + $_.Parent.Parent.Name + '.zip'
+            Write-Host "Compressing $Source to $Dest"
+            Compress-Archive -Path $Source -DestinationPath $Dest
+          }
+        displayName: Stage artifacts for upload
       - publish: $(Build.ArtifactStagingDirectory)
         artifact: packages
         displayName: Upload artifacts
@@ -32,9 +38,16 @@ jobs:
       - template: ../variables/globals.yml
 
     pool:
-      vmImage: 'ubuntu-16.04'
+      vmImage: 'ubuntu-18.04'
 
     steps:
-      - script: |
-          echo Hello, world!
-        displayName: A task
+      - script: sudo chmod -R go+w $ANDROID_HOME
+        displayName: Make Android SDK directory writable
+      - task: Gradle@2
+        inputs:
+          tasks: 'sdk:${{parameters.ServiceDirectory}}:build'
+          publishJUnitResults: false
+          checkStyleRunAnalysis: true
+          findBugsRunAnalysis: false # Install findbugs plugin before enabling
+          pmdRunAnalysis: true
+        displayName: Build and analyze
