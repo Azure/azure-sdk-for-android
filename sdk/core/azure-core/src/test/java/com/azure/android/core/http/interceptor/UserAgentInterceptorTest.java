@@ -8,7 +8,6 @@ import com.azure.android.core.provider.ApplicationInformationProvider;
 import com.azure.android.core.provider.LocaleInformationProvider;
 import com.azure.android.core.provider.PlatformInformationProvider;
 
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -21,6 +20,8 @@ import okhttp3.mockwebserver.MockWebServer;
 import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClientWithInterceptor;
 import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequest;
 import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequestWithHeader;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class UserAgentInterceptorTest {
     private final MockWebServer mockWebServer = new MockWebServer();
@@ -44,7 +45,7 @@ public class UserAgentInterceptorTest {
         okHttpClient.newCall(request).execute();
 
         // Then the 'User-Agent' header should be populated.
-        Assert.assertNotNull(mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
+        assertNotNull(mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
     @Test
@@ -66,7 +67,7 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be contain the result of prepending the generated user agent string to
         // the existing value.
-        Assert.assertEquals("azsdk-android-/ ( - ; : -> ; _) " + userAgent,
+        assertEquals("azsdk-android-/ ( - ; : -> ; _) " + userAgent,
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
@@ -87,7 +88,7 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while not
         // including the applicationId as a prefix.
-        Assert.assertEquals("azsdk-android-/ ( - ; : -> ; _)",
+        assertEquals("azsdk-android-/ ( - ; : -> ; _)",
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
@@ -109,7 +110,7 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including the applicationId as a prefix.
-        Assert.assertEquals("[" + userApplicationId + "] azsdk-android-/ ( - ; : -> ; _)",
+        assertEquals("[" + userApplicationId + "] azsdk-android-/ ( - ; : -> ; _)",
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
@@ -132,7 +133,7 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including a trimmed applicationId as a prefix.
-        Assert.assertEquals("[" + trimmedUserApplicationId + "] azsdk-android-/ ( - ; : -> ; _)",
+        assertEquals("[" + trimmedUserApplicationId + "] azsdk-android-/ ( - ; : -> ; _)",
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
@@ -155,7 +156,7 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including a truncated applicationId as a prefix.
-        Assert.assertEquals("[" + truncatedUserApplicationId + "] azsdk-android-/ ( - ; : -> ; _)",
+        assertEquals("[" + truncatedUserApplicationId + "] azsdk-android-/ ( - ; : -> ; _)",
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
@@ -179,7 +180,7 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including the given applicationId as a prefix.
-        Assert.assertEquals("[" + userApplicationId + "] azsdk-android-" + sdkName + "/" + sdkVersion + " ( - ; : -> ; _)",
+        assertEquals("[" + userApplicationId + "] azsdk-android-" + sdkName + "/" + sdkVersion + " ( - ; : -> ; _)",
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
@@ -202,7 +203,7 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including the given platform info.
-        Assert.assertEquals("azsdk-android-/ (" + deviceName + " - " + osVersion + "; : -> ; _)",
+        assertEquals("azsdk-android-/ (" + deviceName + " - " + osVersion + "; : -> ; _)",
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
@@ -226,7 +227,7 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including the given application info.
-        Assert.assertEquals("azsdk-android-/ ( - ; " + applicationId + ":" + applicationVersion + " -> " + targetSdkVersion + "; _)",
+        assertEquals("azsdk-android-/ ( - ; " + applicationId + ":" + applicationVersion + " -> " + targetSdkVersion + "; _)",
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
@@ -249,7 +250,7 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including the given locale info.
-        Assert.assertEquals("azsdk-android-/ ( - ; : -> ; " + defaultSystemLanguage + "_" + systemRegion + ")",
+        assertEquals("azsdk-android-/ ( - ; : -> ; " + defaultSystemLanguage + "_" + systemRegion + ")",
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
@@ -280,7 +281,7 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including the given info.
-        Assert.assertEquals("[" + userApplicationId + "] azsdk-android-" + sdkName + "/" + sdkVersion + " (" + deviceName + " - " +
+        assertEquals("[" + userApplicationId + "] azsdk-android-" + sdkName + "/" + sdkVersion + " (" + deviceName + " - " +
                 osVersion + "; " + applicationId + ":" + applicationVersion + " -> " + targetSdkVersion + "; " +
                 defaultSystemLanguage + "_" + systemRegion + ")",
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));

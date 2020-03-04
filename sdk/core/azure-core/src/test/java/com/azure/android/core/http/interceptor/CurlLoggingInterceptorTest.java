@@ -1,6 +1,5 @@
 package com.azure.android.core.http.interceptor;
 
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -18,6 +17,9 @@ import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClien
 import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequest;
 import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequestWithHeader;
 import static com.azure.android.core.util.logging.ClientLogger.LOG_LEVEL_DEBUG;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class CurlLoggingInterceptorTest {
     private final MockWebServer mockWebServer = new MockWebServer();
@@ -39,7 +41,7 @@ public class CurlLoggingInterceptorTest {
 
         // Then all the messages should be logged at the DEBUG log level.
         for (AbstractMap.SimpleEntry<Integer, String> log : logs) {
-            Assert.assertEquals(LOG_LEVEL_DEBUG, (long) log.getKey());
+            assertEquals(LOG_LEVEL_DEBUG, (long) log.getKey());
         }
     }
 
@@ -62,8 +64,8 @@ public class CurlLoggingInterceptorTest {
         String curlCommand = logs.get(1).getValue();
 
         // Then the cURL command should not redact the header and query parameter values.
-        Assert.assertTrue(curlCommand.contains("-H \"" + testHeaderName + ": " + testHeaderValue + "\""));
-        Assert.assertTrue(curlCommand.contains(urlWithQueryParam));
+        assertTrue(curlCommand.contains("-H \"" + testHeaderName + ": " + testHeaderValue + "\""));
+        assertTrue(curlCommand.contains(urlWithQueryParam));
     }
 
     @Test
@@ -77,7 +79,7 @@ public class CurlLoggingInterceptorTest {
         String curlCommand = logs.get(1).getValue();
 
         // Then the method executed should be logged at the DEBUG log level.
-        Assert.assertTrue(curlCommand.contains("-X GET"));
+        assertTrue(curlCommand.contains("-X GET"));
     }
 
     @Test
@@ -95,7 +97,7 @@ public class CurlLoggingInterceptorTest {
         String curlCommand = logs.get(1).getValue();
 
         // Then the quotation marks should be escaped in the cURL command.
-        Assert.assertTrue(curlCommand.contains("-H \"" + testHeaderName + ": \\\"" + testHeaderValue + "\\\"\""));
+        assertTrue(curlCommand.contains("-H \"" + testHeaderName + ": \\\"" + testHeaderValue + "\\\"\""));
     }
 
     // Test that the CurlLoggingInterceptor escapes backslashes in header values
@@ -113,7 +115,7 @@ public class CurlLoggingInterceptorTest {
         String curlCommand = logs.get(1).getValue();
 
         // Then the backslashes should be escaped in the cURL command.
-        Assert.assertTrue(curlCommand.contains("-H \"" + testHeaderName + ": Test\\\\Value\""));
+        assertTrue(curlCommand.contains("-H \"" + testHeaderName + ": Test\\\\Value\""));
     }
 
     @Test
@@ -132,7 +134,7 @@ public class CurlLoggingInterceptorTest {
         String curlCommand = logs.get(1).getValue();
 
         // Then the quotation marks should be escaped in the cURL command.
-        Assert.assertTrue(curlCommand.contains("\\'Test body\\'"));
+        assertTrue(curlCommand.contains("\\'Test body\\'"));
     }
 
     @Test
@@ -150,7 +152,7 @@ public class CurlLoggingInterceptorTest {
         String curlCommand = logs.get(1).getValue();
 
         // Then the newline characters should be escaped in the cURL command.
-        Assert.assertTrue(curlCommand.contains("\\nTest body\\n"));
+        assertTrue(curlCommand.contains("\\nTest body\\n"));
     }
 
     @Test
@@ -170,7 +172,7 @@ public class CurlLoggingInterceptorTest {
         String curlCommand = logs.get(1).getValue();
 
         // Then the 'compressed' flag should be included in the cURL command.
-        Assert.assertTrue(curlCommand.contains("--compressed"));
+        assertTrue(curlCommand.contains("--compressed"));
     }
 
     // Test that the CurlLoggingInterceptor omits the compressed flag requests when the accept encoding is
@@ -192,6 +194,6 @@ public class CurlLoggingInterceptorTest {
         String curlCommand = logs.get(1).getValue();
 
         // Then the 'compressed' flag should not be included in the cURL command.
-        Assert.assertFalse(curlCommand.contains("--compressed"));
+        assertFalse(curlCommand.contains("--compressed"));
     }
 }

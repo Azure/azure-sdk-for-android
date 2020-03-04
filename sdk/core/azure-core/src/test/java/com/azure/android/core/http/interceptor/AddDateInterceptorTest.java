@@ -5,7 +5,6 @@ package com.azure.android.core.http.interceptor;
 
 import com.azure.android.core.http.HttpHeader;
 
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -19,6 +18,9 @@ import okhttp3.mockwebserver.MockWebServer;
 import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClientWithInterceptor;
 import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequest;
 import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequestWithHeader;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 public class AddDateInterceptorTest {
     private static final String TEST_DATE = "Tue, 25 Feb 2020 00:59:22 GMT";
     private final MockWebServer mockWebServer = new MockWebServer();
@@ -36,7 +38,7 @@ public class AddDateInterceptorTest {
         okHttpClient.newCall(request).execute();
 
         // Then the 'Date' header should be populated.
-        Assert.assertNotNull(mockWebServer.takeRequest().getHeader(HttpHeader.DATE));
+        assertNotNull(mockWebServer.takeRequest().getHeader(HttpHeader.DATE));
     }
 
     @Test
@@ -50,8 +52,8 @@ public class AddDateInterceptorTest {
         Headers headers = mockWebServer.takeRequest().getHeaders();
 
         // Then there should be only one 'Date' header in the request sent...
-        Assert.assertEquals(1, headers.values(HttpHeader.DATE).size());
+        assertEquals(1, headers.values(HttpHeader.DATE).size());
         // ...with a changed value.
-        Assert.assertNotEquals(TEST_DATE, headers.get(HttpHeader.DATE));
+        assertNotEquals(TEST_DATE, headers.get(HttpHeader.DATE));
     }
 }

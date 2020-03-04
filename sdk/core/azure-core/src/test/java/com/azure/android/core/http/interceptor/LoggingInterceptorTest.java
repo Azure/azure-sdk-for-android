@@ -1,7 +1,6 @@
 package com.azure.android.core.http.interceptor;
 
 import com.azure.android.core.http.HttpHeader;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -35,6 +34,8 @@ import static com.azure.android.core.http.interceptor.TestUtils.getStackTraceStr
 import static com.azure.android.core.util.logging.ClientLogger.LOG_LEVEL_DEBUG;
 import static com.azure.android.core.util.logging.ClientLogger.LOG_LEVEL_INFO;
 import static com.azure.android.core.util.logging.ClientLogger.LOG_LEVEL_WARNING;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class LoggingInterceptorTest {
     private final MockWebServer mockWebServer = new MockWebServer();
@@ -61,9 +62,9 @@ public class LoggingInterceptorTest {
         String firstLogMessageOnRequest = logs.get(0).getValue();
 
         // Then the first message logged  for the request should include the requestId...
-        Assert.assertEquals("--> [" + requestId + "]", firstLogMessageOnRequest);
+        assertEquals("--> [" + requestId + "]", firstLogMessageOnRequest);
         // ...at the INFO log level.
-        Assert.assertEquals(LOG_LEVEL_INFO, logLevel);
+        assertEquals(LOG_LEVEL_INFO, logLevel);
     }
 
     @Test
@@ -92,9 +93,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then the first message logged for the request should include the requestId...
-        Assert.assertEquals("--> [END " + requestId + "]", lastLogMessageOnRequest);
+        assertEquals("--> [END " + requestId + "]", lastLogMessageOnRequest);
         // ...at the INFO log level.
-        Assert.assertEquals(LOG_LEVEL_INFO, logLevel);
+        assertEquals(LOG_LEVEL_INFO, logLevel);
     }
 
     @Test
@@ -123,9 +124,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then the header should be logged with its value redacted...
-        Assert.assertEquals(testHeader + ": " + REDACTED_PLACEHOLDER, headerLogMessage);
+        assertEquals(testHeader + ": " + REDACTED_PLACEHOLDER, headerLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -163,12 +164,12 @@ public class LoggingInterceptorTest {
         }
 
         // Then the non-allowed header should be logged with its value redacted...
-        Assert.assertEquals(testHeader + ": " + REDACTED_PLACEHOLDER, testHeaderLogMessage);
+        assertEquals(testHeader + ": " + REDACTED_PLACEHOLDER, testHeaderLogMessage);
         // ...and the allowed header should be logged with its value intact...
-        Assert.assertEquals("Content-Type: text/html", contentTypeHeaderLogMessage);
+        assertEquals("Content-Type: text/html", contentTypeHeaderLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, testHeaderLogLevel);
-        Assert.assertEquals(LOG_LEVEL_DEBUG, contentTypeHeaderLogLevel);
+        assertEquals(LOG_LEVEL_DEBUG, testHeaderLogLevel);
+        assertEquals(LOG_LEVEL_DEBUG, contentTypeHeaderLogLevel);
     }
 
     @Test
@@ -199,9 +200,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then the query parameter should be logged as part of the URL with its value redacted...
-        Assert.assertEquals("GET /?" + paramName + "=" + REDACTED_PLACEHOLDER, urlLogMessage);
+        assertEquals("GET /?" + paramName + "=" + REDACTED_PLACEHOLDER, urlLogMessage);
         // ...at the INFO log level.
-        Assert.assertEquals(LOG_LEVEL_INFO, logLevel);
+        assertEquals(LOG_LEVEL_INFO, logLevel);
     }
 
     @Test
@@ -242,10 +243,10 @@ public class LoggingInterceptorTest {
         }
 
         // Then the query parameter should be logged as part of the URL with its value redacted...
-        Assert.assertEquals("GET /?" + allowedQueryParamName + "=" + allowedQueryParamValue + "&" +
+        assertEquals("GET /?" + allowedQueryParamName + "=" + allowedQueryParamValue + "&" +
             nonAllowedQueryParamName + "=" + REDACTED_PLACEHOLDER, urlLogMessage); // Query params are ordered alphabetically by the OkHttp when creating the request
         // ...at the INFO log level.
-        Assert.assertEquals(LOG_LEVEL_INFO, logLevel);
+        assertEquals(LOG_LEVEL_INFO, logLevel);
     }
 
     @Test
@@ -284,9 +285,9 @@ public class LoggingInterceptorTest {
             }
 
             // Then the error message will be logged...
-            Assert.assertEquals("OPERATION FAILED: " + getStackTraceString(e), errorLogMessage);
+            assertEquals("OPERATION FAILED: " + getStackTraceString(e), errorLogMessage);
             // ...at the WARNING log level.
-            Assert.assertEquals(LOG_LEVEL_WARNING, logLevel);
+            assertEquals(LOG_LEVEL_WARNING, logLevel);
         }
     }
 
@@ -324,11 +325,11 @@ public class LoggingInterceptorTest {
         }
 
         // Then the operation executed...
-        Assert.assertEquals("GET " + testPath, operationLogMessage);
+        assertEquals("GET " + testPath, operationLogMessage);
         // ...and the host the request was sent to should be logged...
-        Assert.assertEquals("Host: " + testUrl, hostLogMessage);
+        assertEquals("Host: " + testUrl, hostLogMessage);
         // ...at the INFO log level.
-        Assert.assertEquals(LOG_LEVEL_INFO, logLevel);
+        assertEquals(LOG_LEVEL_INFO, logLevel);
     }
 
     @Test
@@ -364,9 +365,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then the request body should be logged...
-        Assert.assertEquals(testBody, bodyLogMessage);
+        assertEquals(testBody, bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -403,9 +404,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then a placeholder message should be logged instead of the request body...
-        Assert.assertEquals("(encoded body omitted)", bodyLogMessage);
+        assertEquals("(encoded body omitted)", bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -442,9 +443,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then the request body should be logged...
-        Assert.assertEquals(testBody, bodyLogMessage);
+        assertEquals(testBody, bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -481,9 +482,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then a placeholder message should be logged instead of the request body...
-        Assert.assertEquals("(non-inline body omitted)", bodyLogMessage);
+        assertEquals("(non-inline body omitted)", bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -520,9 +521,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then the request body should be logged...
-        Assert.assertEquals(testBody, bodyLogMessage);
+        assertEquals(testBody, bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -558,9 +559,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then a placeholder message should be logged instead of the request body...
-        Assert.assertEquals("(binary body omitted)", bodyLogMessage);
+        assertEquals("(binary body omitted)", bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -597,9 +598,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then a placeholder message should be logged instead of the request body...
-        Assert.assertEquals("(" + (MAX_BODY_LOG_SIZE + 1) + "-byte body omitted)", bodyLogMessage);
+        assertEquals("(" + (MAX_BODY_LOG_SIZE + 1) + "-byte body omitted)", bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -635,9 +636,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then a placeholder message should be logged instead of the request body...
-        Assert.assertEquals("(empty body)", bodyLogMessage);
+        assertEquals("(empty body)", bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -670,9 +671,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then a placeholder message should be logged instead of the request body...
-        Assert.assertEquals("(empty body)", bodyLogMessage);
+        assertEquals("(empty body)", bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -704,9 +705,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then a placeholder message should be logged instead of the request body...
-        Assert.assertEquals("(empty body)", bodyLogMessage);
+        assertEquals("(empty body)", bodyLogMessage);
         // ...at the INFO log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -741,11 +742,11 @@ public class LoggingInterceptorTest {
         }
 
         // Then the headers should be logged with its value redacted...
-        Assert.assertEquals("Content-Type: " + REDACTED_PLACEHOLDER, contentTypeLogMessage);
-        Assert.assertEquals("Content-Length: " + REDACTED_PLACEHOLDER, contentLengthLogMessage);
+        assertEquals("Content-Type: " + REDACTED_PLACEHOLDER, contentTypeLogMessage);
+        assertEquals("Content-Length: " + REDACTED_PLACEHOLDER, contentLengthLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, contentTypeLogLevel);
-        Assert.assertEquals(LOG_LEVEL_DEBUG, contentLengthLogLevel);
+        assertEquals(LOG_LEVEL_DEBUG, contentTypeLogLevel);
+        assertEquals(LOG_LEVEL_DEBUG, contentLengthLogLevel);
     }
 
     @Test
@@ -785,13 +786,13 @@ public class LoggingInterceptorTest {
         }
 
         // Then the non-allowed header should be logged with its value redacted...
-        Assert.assertEquals("Content-Type: " + REDACTED_PLACEHOLDER, contentTypeLogMessage);
+        assertEquals("Content-Type: " + REDACTED_PLACEHOLDER, contentTypeLogMessage);
         // ...and the allowed header should be logged with its value intact...
         //noinspection ConstantConditions
-        Assert.assertTrue(contentLengthLogMessage.matches(allowedHeader + ": \\d+"));
+        assertTrue(contentLengthLogMessage.matches(allowedHeader + ": \\d+"));
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, contentTypeLogLevel);
-        Assert.assertEquals(LOG_LEVEL_DEBUG, contentLengthLogLevel);
+        assertEquals(LOG_LEVEL_DEBUG, contentTypeLogLevel);
+        assertEquals(LOG_LEVEL_DEBUG, contentLengthLogLevel);
     }
 
     @Test
@@ -825,9 +826,9 @@ public class LoggingInterceptorTest {
 
         // Then the first message logged for the response should include the requestId...
         //noinspection ConstantConditions
-        Assert.assertTrue(firstLogMessageOnResponse.matches("<-- \\[" + requestId + "] \\(\\d+\\)"));
+        assertTrue(firstLogMessageOnResponse.matches("<-- \\[" + requestId + "] \\(\\d+\\)"));
         // ...at the INFO log level.
-        Assert.assertEquals(LOG_LEVEL_INFO, logLevel);
+        assertEquals(LOG_LEVEL_INFO, logLevel);
     }
 
     @Test
@@ -858,9 +859,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then the last message logged for the response should include the requestId...
-        Assert.assertEquals("<-- [END " + requestId + "]", lastLogMessageOnResponse);
+        assertEquals("<-- [END " + requestId + "]", lastLogMessageOnResponse);
         // ...at the INFO log level.
-        Assert.assertEquals(LOG_LEVEL_INFO, logLevel);
+        assertEquals(LOG_LEVEL_INFO, logLevel);
     }
 
     @Test
@@ -887,9 +888,9 @@ public class LoggingInterceptorTest {
 
         // Then the first message logged for the response should include the requestId...
         //noinspection ConstantConditions
-        Assert.assertTrue(firstLogMessageOnResponse.matches("<-- \\[null] \\(\\d+\\)"));
+        assertTrue(firstLogMessageOnResponse.matches("<-- \\[null] \\(\\d+\\)"));
         // ...at the INFO log level.
-        Assert.assertEquals(LOG_LEVEL_INFO, logLevel);
+        assertEquals(LOG_LEVEL_INFO, logLevel);
     }
 
     @Test
@@ -921,9 +922,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then the response error code and message should be logged...
-        Assert.assertEquals("200 OK", statusLogMessage);
+        assertEquals("200 OK", statusLogMessage);
         // ...at the WARNING log level.
-        Assert.assertEquals(LOG_LEVEL_INFO, logLevel);
+        assertEquals(LOG_LEVEL_INFO, logLevel);
     }
 
     @Test
@@ -960,9 +961,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then the response error code and message should be logged...
-        Assert.assertEquals("404 Client Error", errorStatusLogMessage);
+        assertEquals("404 Client Error", errorStatusLogMessage);
         // ...at the WARNING log level.
-        Assert.assertEquals(LOG_LEVEL_WARNING, logLevel);
+        assertEquals(LOG_LEVEL_WARNING, logLevel);
     }
 
     @Test
@@ -1001,9 +1002,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then a placeholder message should be logged instead of the request body...
-        Assert.assertEquals("(encoded body omitted)", bodyLogMessage);
+        assertEquals("(encoded body omitted)", bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -1042,9 +1043,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then the response body should be logged...
-        Assert.assertEquals(testBody, bodyLogMessage);
+        assertEquals(testBody, bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -1083,9 +1084,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then a placeholder message should be logged instead of the request body...
-        Assert.assertEquals("(non-inline body omitted)", bodyLogMessage);
+        assertEquals("(non-inline body omitted)", bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -1124,9 +1125,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then the response body should be logged...
-        Assert.assertEquals(testBody, bodyLogMessage);
+        assertEquals(testBody, bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -1165,9 +1166,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then a placeholder message should be logged instead of the request body...
-        Assert.assertEquals("(binary body omitted)", bodyLogMessage);
+        assertEquals("(binary body omitted)", bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -1207,9 +1208,9 @@ public class LoggingInterceptorTest {
 
         // Then a placeholder message should be logged instead of the request body...
         //noinspection ConstantConditions
-        Assert.assertTrue(bodyLogMessage.matches("\\(\\d+-byte body omitted\\)"));
+        assertTrue(bodyLogMessage.matches("\\(\\d+-byte body omitted\\)"));
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -1246,9 +1247,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then a placeholder message should be logged instead of the request body...
-        Assert.assertEquals("(empty body)", bodyLogMessage);
+        assertEquals("(empty body)", bodyLogMessage);
         // ...at the DEBUG log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -1284,9 +1285,9 @@ public class LoggingInterceptorTest {
         }
 
         // Then a placeholder message should be logged instead of the request body...
-        Assert.assertEquals("(empty body)", bodyLogMessage);
+        assertEquals("(empty body)", bodyLogMessage);
         // ...at the INFO log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 
     @Test
@@ -1322,8 +1323,8 @@ public class LoggingInterceptorTest {
         }
 
         // Then a placeholder message should be logged instead of the request body...
-        Assert.assertEquals("(empty body)", bodyLogMessage);
+        assertEquals("(empty body)", bodyLogMessage);
         // ...at the INFO log level.
-        Assert.assertEquals(LOG_LEVEL_DEBUG, logLevel);
+        assertEquals(LOG_LEVEL_DEBUG, logLevel);
     }
 }
