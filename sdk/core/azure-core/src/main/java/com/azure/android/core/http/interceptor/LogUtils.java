@@ -9,6 +9,7 @@ import java.util.Set;
 
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 
@@ -30,8 +31,7 @@ final class LogUtils {
      * @return "Log body" if the body should be logged in its entirety, otherwise a message indicating why the body
      * was not logged is returned.
      */
-    @SuppressWarnings("ConstantConditions")
-    static String determineBodyLoggingStrategy(Headers headers, RequestBody requestBody, ResponseBody responseBody) throws IOException {
+    static String getBodySummary(Headers headers, RequestBody requestBody, ResponseBody responseBody) throws IOException {
         String contentEncoding = headers.get("Content-Encoding");
         String contentDisposition = headers.get("Content-Disposition");
         String contentType;
@@ -44,11 +44,15 @@ final class LogUtils {
                 contentType = headers.get("Content-Type");
                 contentLength = isNullOrEmpty(contentLengthString) ? 0 : Long.parseLong(contentLengthString);
             } else {
-                contentType = (responseBody.contentType() == null) ? null : responseBody.contentType().toString();
+                MediaType responseBodyContentType = responseBody.contentType();
+
+                contentType = (responseBodyContentType == null) ? null : responseBodyContentType.toString();
                 contentLength = responseBody.contentLength();
             }
         } else {
-            contentType = (requestBody.contentType() == null) ? null : requestBody.contentType().toString();
+            MediaType requestBodyContentType = requestBody.contentType();
+
+            contentType = (requestBodyContentType == null) ? null : requestBodyContentType.toString();
             contentLength = requestBody.contentLength();
         }
 
@@ -71,7 +75,7 @@ final class LogUtils {
             return "(" + contentLength + "-byte body omitted)";
         }
 
-        return "Log body";
+        return null;
     }
 
     /**

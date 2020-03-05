@@ -134,9 +134,9 @@ public final class LoggingInterceptor implements Interceptor {
         logHeaders(request.headers(), contentTypeLogged, contentLengthLogged);
 
         try {
-            String bodyEvaluation = LogUtils.determineBodyLoggingStrategy(request.headers(), requestBody, null);
+            String bodySummary = LogUtils.getBodySummary(request.headers(), requestBody, null);
 
-            if (bodyEvaluation.equals("Log body")) {
+            if (bodySummary == null) {
                 Buffer buffer = new Buffer();
                 MediaType contentType = Objects.requireNonNull(requestBody).contentType();
                 Charset charset = (contentType == null) ? UTF_8 : contentType.charset(UTF_8);
@@ -149,7 +149,7 @@ public final class LoggingInterceptor implements Interceptor {
                     logger.warning("Could not log the request body. No charset found for decoding.");
                 }
             } else {
-                logger.debug(bodyEvaluation);
+                logger.debug(bodySummary);
             }
         } catch (IOException | NullPointerException e) {
             logger.warning("Could not log the request body", e);
@@ -194,9 +194,9 @@ public final class LoggingInterceptor implements Interceptor {
         logHeaders(response.headers(), contentTypeLogged, contentLengthLogged);
 
         try {
-            String bodyEvaluation = LogUtils.determineBodyLoggingStrategy(response.headers(), null, responseBody);
+            String bodySummary = LogUtils.getBodySummary(response.headers(), null, responseBody);
 
-            if (bodyEvaluation.equals("Log body")) {
+            if (bodySummary == null) {
                 // TODO: Figure out if it's possible to log the body without cloning it in its entirety.
                 BufferedSource bufferedSource = responseBody.source();
 
@@ -212,7 +212,7 @@ public final class LoggingInterceptor implements Interceptor {
                     logger.warning("Could not log the response body. No charset found for decoding.");
                 }
             } else {
-                logger.debug(bodyEvaluation);
+                logger.debug(bodySummary);
             }
         } catch (IOException e) {
             logger.warning("Could not log the response body", e);
