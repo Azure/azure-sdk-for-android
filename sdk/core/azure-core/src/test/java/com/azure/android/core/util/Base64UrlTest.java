@@ -11,6 +11,8 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -186,6 +188,30 @@ public class Base64UrlTest {
         assertArrayEquals(ENCODED_BYTES, base64Url.encodedBytes());
         assertArrayEquals(DECODED_BYTES, base64Url.decodedBytes());
         assertEquals("AAECAwQFBgcICQ", base64Url.toString());
+    }
+
+    @Test
+    public void toString_withSimpleString() {
+        final Base64Url base64Url = new Base64Url("AAECAwQFBgcICQ");
+
+        assertEquals("AAECAwQFBgcICQ", base64Url.toString());
+    }
+
+    @Test
+    public void toString_withNullString() {
+        final Base64Url base64Url = new Base64Url((String) null);
+
+        assertEquals("", base64Url.toString());
+    }
+
+    @Test
+    public void hashCode_equalToEncodedBytesHashCode() {
+        spy(Base64.class);
+        when(Base64.encode(notNull(), anyInt())).thenReturn(ENCODED_BYTES);
+
+        final Base64Url base64Url = Base64Url.encode(DECODED_BYTES);
+
+        assertEquals(Arrays.hashCode(ENCODED_BYTES), base64Url.hashCode());
     }
 
     @SuppressWarnings("SimplifiableJUnitAssertion")
