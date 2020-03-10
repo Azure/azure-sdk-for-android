@@ -3,7 +3,6 @@ package com.azure.android.storage.blob.interceptor;
 import androidx.annotation.NonNull;
 
 import com.azure.android.core.http.exception.HttpResponseException;
-import com.azure.android.core.util.CoreUtil;
 import com.azure.android.core.util.logging.ClientLogger;
 
 import java.io.IOException;
@@ -13,6 +12,8 @@ import java.util.Collection;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static com.azure.android.core.util.CoreUtil.isNullOrEmpty;
 
 /**
  * Interceptor that validates that a collection of headers have consistent values between a request and a response.
@@ -69,7 +70,7 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
             String responseHeaderValue = response.header(headerName);
             String requestHeaderValue = request.header(headerName);
 
-            if (CoreUtil.isNullOrEmpty(responseHeaderValue) || !responseHeaderValue.equals(requestHeaderValue)) {
+            if (isNullOrEmpty(responseHeaderValue) || !responseHeaderValue.equals(requestHeaderValue)) {
                 String errorMessage = String.format(
                     "Unexpected header value. Expected response to echo '%s: %s'. Got value '%s'.",
                     headerName, requestHeaderValue, responseHeaderValue);
