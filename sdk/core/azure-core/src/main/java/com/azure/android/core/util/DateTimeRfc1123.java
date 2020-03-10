@@ -3,6 +3,8 @@
 
 package com.azure.android.core.util;
 
+import androidx.annotation.NonNull;
+
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -34,7 +36,7 @@ public final class DateTimeRfc1123 {
      *
      * @param dateTime The DateTime object to wrap.
      */
-    public DateTimeRfc1123(OffsetDateTime dateTime) {
+    public DateTimeRfc1123(@NonNull OffsetDateTime dateTime) {
         this.dateTime = dateTime;
     }
 
@@ -43,7 +45,7 @@ public final class DateTimeRfc1123 {
      *
      * @param formattedString The DateTime string in RFC1123 format.
      */
-    public DateTimeRfc1123(String formattedString) {
+    public DateTimeRfc1123(@NonNull String formattedString) {
         dateTime = OffsetDateTime.parse(formattedString, DateTimeFormatter.RFC_1123_DATE_TIME);
     }
 
