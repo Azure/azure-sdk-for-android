@@ -3,7 +3,6 @@
 
 package com.azure.android.storage.blob.interceptor;
 
-import com.azure.android.core.util.CoreUtil;
 import com.azure.android.storage.blob.credentials.SasTokenCredential;
 
 import java.io.IOException;
@@ -12,6 +11,8 @@ import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+
+import static com.azure.android.core.util.CoreUtil.isNullOrEmpty;
 
 /**
  *  Interceptor that append SAS token to the request Uri.
@@ -28,7 +29,7 @@ public class SasTokenCredentialInterceptor implements Interceptor {
         HttpUrl requestURL = chain.request().url();
 
         String encodedQuery = requestURL.encodedQuery();
-        if (!CoreUtil.isNullOrEmpty(encodedQuery)) {
+        if (!isNullOrEmpty(encodedQuery)) {
             encodedQuery += "&";
         }
 
