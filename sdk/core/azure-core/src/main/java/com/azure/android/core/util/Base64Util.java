@@ -9,14 +9,18 @@ import android.util.Base64;
 /**
  * Utility for Base64 encoding and decoding.
  */
-public interface Base64Util {
+public final class Base64Util {
+    private Base64Util() {
+        // Empty constructor to prevent instantiation of this class.
+    }
+
     /**
      * Encodes a byte array to Base64.
      *
      * @param src The byte array to encode.
      * @return The Base64 encoded bytes.
      */
-    static byte[] encode(byte[] src) {
+    public static byte[] encode(byte[] src) {
         return src == null ? null : Base64.encode(src, Base64.DEFAULT);
     }
 
@@ -26,7 +30,7 @@ public interface Base64Util {
      * @param src The byte array to encode.
      * @return The Base64 URL encoded bytes.
      */
-    static byte[] encodeURLWithoutPadding(byte[] src) {
+    public static byte[] encodeUrlWithoutPadding(byte[] src) {
         int flags = Base64.URL_SAFE | Base64.NO_PADDING;
 
         return src == null ? null : Base64.encode(src, flags);
@@ -38,7 +42,7 @@ public interface Base64Util {
      * @param src The byte array to encode.
      * @return The Base64 encoded bytes.
      */
-    static String encodeToString(byte[] src) {
+    public static String encodeToString(byte[] src) {
         return src == null ? null : Base64.encodeToString(src, Base64.DEFAULT);
     }
 
@@ -48,7 +52,7 @@ public interface Base64Util {
      * @param encoded The byte array to decode.
      * @return The decoded byte array.
      */
-    static byte[] decode(byte[] encoded) {
+    public static byte[] decode(byte[] encoded) {
         return encoded == null ? null : Base64.decode(encoded, Base64.DEFAULT);
     }
 
@@ -58,7 +62,7 @@ public interface Base64Util {
      * @param src The byte array to decode.
      * @return The decoded byte array.
      */
-    static byte[] decodeURL(byte[] src) {
+    public static byte[] decodeUrl(byte[] src) {
         return src == null ? null : Base64.decode(src, Base64.URL_SAFE);
     }
 
@@ -68,7 +72,7 @@ public interface Base64Util {
      * @param src The string to decode.
      * @return The decoded byte array.
      */
-    static byte[] decodeURL(String src) {
+    public static byte[] decodeUrl(String src) {
         return src == null ? null : Base64.decode(src, Base64.URL_SAFE);
     }
 
@@ -78,7 +82,7 @@ public interface Base64Util {
      * @param encoded The string to decode.
      * @return The decoded byte array.
      */
-    static byte[] decodeString(String encoded) {
+    public static byte[] decodeString(String encoded) {
         return encoded == null ? null : Base64.decode(encoded, Base64.DEFAULT);
     }
 }

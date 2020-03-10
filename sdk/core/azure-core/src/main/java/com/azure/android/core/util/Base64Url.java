@@ -73,7 +73,7 @@ public final class Base64Url {
         if (bytes == null) {
             return new Base64Url((String) null);
         } else {
-            return new Base64Url(Base64Util.encodeURLWithoutPadding(bytes));
+            return new Base64Url(Base64Util.encodeUrlWithoutPadding(bytes));
         }
     }
 
@@ -96,7 +96,7 @@ public final class Base64Url {
             return null;
         }
 
-        return Base64Util.decodeURL(bytes);
+        return Base64Util.decodeUrl(bytes);
     }
 
     @Override
