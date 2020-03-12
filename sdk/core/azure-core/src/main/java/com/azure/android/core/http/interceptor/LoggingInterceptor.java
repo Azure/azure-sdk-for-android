@@ -5,6 +5,7 @@ package com.azure.android.core.http.interceptor;
 
 import androidx.annotation.NonNull;
 
+import com.azure.android.core.util.HttpUtil;
 import com.azure.android.core.util.logging.ClientLogger;
 
 import java.io.IOException;
@@ -12,7 +13,6 @@ import java.nio.charset.Charset;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -25,7 +25,6 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.Buffer;
-import okio.BufferedSource;
 
 import static com.azure.android.core.http.interceptor.RequestIdInterceptor.REQUEST_ID_HEADER;
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -34,8 +33,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * Pipeline interceptor that handles logging of HTTP requests and responses.
  */
 public final class LoggingInterceptor implements Interceptor {
-    private static final String CONTENT_TYPE_HEADER = "Content-Type".toLowerCase(Locale.ROOT);
-    private static final String CONTENT_LENGTH_HEADER = "Content-Length".toLowerCase(Locale.ROOT);
+    private static final String CONTENT_TYPE_HEADER = "Content-Type";
+    private static final String CONTENT_LENGTH_HEADER = "Content-Length";
     private final ClientLogger logger;
     private final Set<String> allowedHeaderNames;
     private final Set<String> allowedQueryParameterNames;
@@ -113,46 +112,26 @@ public final class LoggingInterceptor implements Interceptor {
 
         // TODO: Add log level guard for headers and body.
         RequestBody requestBody = request.body();
-        boolean contentTypeLogged = false;
-        boolean contentLengthLogged = false;
+        String contentType = HttpUtil.getContentType(request);
+        Long contentLength = HttpUtil.getContentLength(request);
 
-        // According to the OkHttp documentation, the request body headers are only present when this is installed as a
-        // network interceptor.
-        // https://github.com/square/okhttp/blob/b189a382bccc1b9a01d4672210b69680d73b4306/okhttp-logging-interceptor/src/main/java/okhttp3/logging/HttpLoggingInterceptor.java#L173
-        if (requestBody != null) {
-            if (requestBody.contentType() != null  && allowedHeaderNames.contains(CONTENT_TYPE_HEADER)) {
-                logger.debug("Content-Type: " + requestBody.contentType());
-                contentTypeLogged = true;
-            }
+        logHeaders(request.headers(), contentType, contentLength);
 
-            if (requestBody.contentLength() != -1  && allowedHeaderNames.contains(CONTENT_LENGTH_HEADER)) {
-                logger.debug("Content-Length: " + requestBody.contentLength());
-                contentLengthLogged = true;
-            }
-        }
-
-        logHeaders(request.headers(), contentTypeLogged, contentLengthLogged);
-
-        try {
-            String bodySummary = LogUtils.getBodySummary(request.headers(), requestBody, null);
-
-            if (bodySummary == null) {
-                Buffer buffer = new Buffer();
-                MediaType contentType = Objects.requireNonNull(requestBody).contentType();
-                Charset charset = (contentType == null) ? UTF_8 : contentType.charset(UTF_8);
-
+        String bodySummary = LogUtils.getBodySummary(request.headers(), contentType, contentLength);
+        if (bodySummary != null) {
+            logger.debug(bodySummary);
+        } else if (requestBody != null) {
+            MediaType bodyContentType = requestBody.contentType();
+            Charset charset = (bodyContentType == null) ? UTF_8 : bodyContentType.charset(UTF_8);
+            Buffer buffer = new Buffer();
+            try {
                 requestBody.writeTo(buffer);
-
-                if (charset != null) {
-                    logger.debug(buffer.readString(charset));
-                } else {
-                    logger.warning("Could not log the request body. No charset found for decoding.");
-                }
-            } else {
-                logger.debug(bodySummary);
+                logger.debug(buffer.readString(charset == null ? UTF_8 : charset));
+            } catch (IOException e) {
+                logger.warning("Could not log the request body", e);
             }
-        } catch (IOException | NullPointerException e) {
-            logger.warning("Could not log the request body", e);
+        } else {
+            logger.debug("(empty body)");
         }
 
         logger.info("--> [END " + request.header(REQUEST_ID_HEADER) + "]");
@@ -164,7 +143,6 @@ public final class LoggingInterceptor implements Interceptor {
      * @param response The HTTP response received form Azure.
      * @param tookMs   Nanosecond representation of when the request was sent.
      */
-    @SuppressWarnings("ConstantConditions")
     private void logResponse(final Response response, long tookMs) {
         logger.info("<-- [" + response.header(REQUEST_ID_HEADER) + "] " + "(" + tookMs + ")"); // Request ID + duration
 
@@ -176,46 +154,24 @@ public final class LoggingInterceptor implements Interceptor {
 
         // TODO: Add log level guard for headers and body.
         ResponseBody responseBody = response.body();
-        boolean contentTypeLogged = false;
-        boolean contentLengthLogged = false;
+        String contentType = HttpUtil.getContentType(response);
+        Long contentLength = HttpUtil.getContentLength(response);
 
-        if (responseBody != null) {
-            if (responseBody.contentType() != null && allowedHeaderNames.contains(CONTENT_TYPE_HEADER)) {
-                logger.debug("Content-Type: " + responseBody.contentType());
-                contentTypeLogged = true;
+        logHeaders(response.headers(), contentType, contentLength);
+
+        String bodySummary = LogUtils.getBodySummary(response.headers(), contentType, contentLength);
+        if (bodySummary != null) {
+            logger.debug(bodySummary);
+        } else if (responseBody != null) {
+            MediaType bodyContentType = responseBody.contentType();
+            Charset charset = (bodyContentType == null) ? UTF_8 : bodyContentType.charset(UTF_8);
+            try {
+                logger.debug(responseBody.source().peek().readString(charset == null ? UTF_8 : charset));
+            } catch (IOException e) {
+                logger.warning("Could not log the response body", e);
             }
-
-            if (responseBody.contentLength() != -1 && allowedHeaderNames.contains(CONTENT_LENGTH_HEADER)) {
-                logger.debug("Content-Length: " + responseBody.contentLength());
-                contentLengthLogged = true;
-            }
-        }
-
-        logHeaders(response.headers(), contentTypeLogged, contentLengthLogged);
-
-        try {
-            String bodySummary = LogUtils.getBodySummary(response.headers(), null, responseBody);
-
-            if (bodySummary == null) {
-                // TODO: Figure out if it's possible to log the body without cloning it in its entirety.
-                BufferedSource bufferedSource = responseBody.source();
-
-                bufferedSource.request(Long.MAX_VALUE); // Buffer the entire body
-
-                Buffer buffer = bufferedSource.getBuffer();
-                MediaType contentType = responseBody.contentType();
-                Charset charset = (contentType == null) ? UTF_8 : contentType.charset(UTF_8);
-
-                if (charset != null) {
-                    logger.debug(buffer.clone().readString(charset));
-                } else {
-                    logger.warning("Could not log the response body. No charset found for decoding.");
-                }
-            } else {
-                logger.debug(bodySummary);
-            }
-        } catch (IOException e) {
-            logger.warning("Could not log the response body", e);
+        } else {
+            logger.debug("(empty body)");
         }
 
         logger.info("<-- [END " + response.header(REQUEST_ID_HEADER) + "]");
@@ -226,21 +182,43 @@ public final class LoggingInterceptor implements Interceptor {
      * be redacted.
      *
      * @param headers HTTP headers on the request or response.
+     * @param contentType Content type value previously extracted from headers or body.
+     * @param contentLength Content length value previously extracted from headers or body.
      */
-    private void logHeaders(Headers headers, boolean contentTypeLogged,  boolean contentLengthLogged) {
-        int size = headers.size();
+    private void logHeaders(Headers headers, String contentType, Long contentLength) {
+        if (contentType != null) {
+            String headerName = CONTENT_TYPE_HEADER;
+            String headerValue = contentType;
+            if (!allowedHeaderNames.contains(headerName.toLowerCase(Locale.ROOT))) {
+                headerValue = LogUtils.REDACTED_PLACEHOLDER;
+            }
+            logger.debug(headerName + ": " + headerValue);
+        }
 
-        for (int i = 0; i < size; i++) {
+        if (contentLength != null) {
+            String headerName = CONTENT_LENGTH_HEADER;
+            String headerValue = contentLength.toString();
+            if (!allowedHeaderNames.contains(headerName.toLowerCase(Locale.ROOT))) {
+                headerValue = LogUtils.REDACTED_PLACEHOLDER;
+            }
+            logger.debug(headerName + ": " + headerValue);
+        }
+
+        String contentTypeLower = CONTENT_TYPE_HEADER.toLowerCase(Locale.ROOT);
+        String contentLengthLower = CONTENT_LENGTH_HEADER.toLowerCase(Locale.ROOT);
+
+        for (int i = 0; i < headers.size(); i++) {
             String headerName = headers.name(i);
             String headerValue = headers.value(i);
 
-            // Skip these headers if they have already been logged.
-            if ((headerName.toLowerCase(Locale.ROOT).equals(CONTENT_TYPE_HEADER) && contentTypeLogged)
-                || (headerName.toLowerCase(Locale.ROOT).equals(CONTENT_LENGTH_HEADER) && contentLengthLogged)) {
+            String headerNameLower = headerName.toLowerCase(Locale.ROOT);
+
+            // Skip headers which have already been logged.
+            if (contentTypeLower.equals(headerNameLower) || contentLengthLower.equals(headerNameLower)) {
                 continue;
             }
 
-            if (!allowedHeaderNames.contains(headerName.toLowerCase(Locale.ROOT))) {
+            if (!allowedHeaderNames.contains(headerNameLower)) {
                 headerValue = LogUtils.REDACTED_PLACEHOLDER;
             }
 

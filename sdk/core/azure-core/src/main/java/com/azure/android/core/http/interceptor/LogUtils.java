@@ -5,15 +5,11 @@ package com.azure.android.core.http.interceptor;
 
 import androidx.annotation.NonNull;
 
-import java.io.IOException;
 import java.util.Locale;
 import java.util.Set;
 
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 
 import static com.azure.android.core.util.CoreUtils.isNullOrEmpty;
 
@@ -26,42 +22,22 @@ final class LogUtils {
     }
 
     /**
-     * Determines if the request or response body should be logged. If not, if returns an appropriate message to log
-     * in lieu of said body.
+     * Produces a loggable representation of the a body based on its headers, content type, and content length. If the
+     * body appears to contain text and is below MAX_BODY_LOG_SIZE then it will be logged verbatim, otherwise a summary
+     * message describing the body is returned.
      *
-     * @param headers HTTP headers of the request or response.
-     * @return "Log body" if the body should be logged in its entirety, otherwise a message indicating why the body
-     * was not logged is returned.
+     * @param headers The headers of the body.
+     * @param contentType The content type of the body.
+     * @param contentLength The content length of the body.
+     * @return The text of the body if applicable, otherwise a summary message describing the body.
      */
-    static String getBodySummary(@NonNull Headers headers, RequestBody requestBody, ResponseBody responseBody) throws IOException {
+    static String getBodySummary(@NonNull Headers headers, String contentType, Long contentLength) {
         String contentEncoding = headers.get("Content-Encoding");
-        String contentDisposition = headers.get("Content-Disposition");
-        String contentType;
-        long contentLength;
-
-        if (requestBody == null) {
-            if (responseBody == null) {
-                String contentLengthString = headers.get("Content-Length");
-
-                contentType = headers.get("Content-Type");
-                contentLength = isNullOrEmpty(contentLengthString) ? 0 : Long.parseLong(contentLengthString);
-            } else {
-                MediaType responseBodyContentType = responseBody.contentType();
-
-                contentType = (responseBodyContentType == null) ? null : responseBodyContentType.toString();
-                contentLength = responseBody.contentLength();
-            }
-        } else {
-            MediaType requestBodyContentType = requestBody.contentType();
-
-            contentType = (requestBodyContentType == null) ? null : requestBodyContentType.toString();
-            contentLength = requestBody.contentLength();
-        }
-
         if (!isNullOrEmpty(contentEncoding) && !contentEncoding.equalsIgnoreCase("identity")) {
             return "(encoded body omitted)";
         }
 
+        String contentDisposition = headers.get("Content-Disposition");
         if (!isNullOrEmpty(contentDisposition) && !contentDisposition.equalsIgnoreCase("inline")) {
             return "(non-inline body omitted)";
         }
@@ -71,7 +47,7 @@ final class LogUtils {
             return "(binary body omitted)";
         }
 
-        if (contentLength <= 0) { // A ResponseBody's default Content-Length is -1
+        if (contentLength == null || contentLength <= 0) {
             return "(empty body)";
         } else if (contentLength > MAX_BODY_LOG_SIZE) {
             return "(" + contentLength + "-byte body omitted)";
