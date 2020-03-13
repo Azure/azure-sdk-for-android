@@ -7,6 +7,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
+import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.provider.ApplicationInformationProvider;
 import com.azure.android.core.provider.LocaleInformationProvider;
 import com.azure.android.core.provider.PlatformInformationProvider;
@@ -17,7 +18,7 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.azure.android.core.util.CoreUtils.isNullOrEmpty;
+import static com.azure.android.core.util.CoreUtil.isNullOrEmpty;
 
 /**
  * Pipeline interceptor that adds "User-Agent" header to a request.
@@ -26,8 +27,6 @@ import static com.azure.android.core.util.CoreUtils.isNullOrEmpty;
  * <a href="https://azure.github.io/azure-sdk/general_azurecore.html#telemetry-policy">Azure Core: Telemetry policy</a>.
  */
 public class UserAgentInterceptor implements Interceptor {
-    static final String USER_AGENT_HEADER = "User-Agent";
-
     private static final String DEFAULT_USER_AGENT = "azsdk-android";
 
     // From the design guidelines, the default user agent header format is:
@@ -151,9 +150,9 @@ public class UserAgentInterceptor implements Interceptor {
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
-        String header = request.header("User-Agent");
+        String header = request.header(HttpHeader.USER_AGENT);
 
-        if (header == null || header.contains(USER_AGENT_HEADER)) {
+        if (header == null || header.contains(DEFAULT_USER_AGENT)) {
             header = userAgent;
         } else {
             header = userAgent + " " + header;
@@ -161,7 +160,7 @@ public class UserAgentInterceptor implements Interceptor {
 
         return chain.proceed(request
             .newBuilder()
-            .header("User-Agent", header)
+            .header(HttpHeader.USER_AGENT, header)
             .build());
     }
 

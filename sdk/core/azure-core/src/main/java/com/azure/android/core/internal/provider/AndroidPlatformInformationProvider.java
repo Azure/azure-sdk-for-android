@@ -6,7 +6,7 @@ package com.azure.android.core.internal.provider;
 import android.os.Build;
 
 import com.azure.android.core.provider.PlatformInformationProvider;
-import com.azure.android.core.util.CoreUtils;
+import com.azure.android.core.util.CoreUtil;
 
 /**
  * Provider that contains platform information extracted from the {@link Build} class.
@@ -18,9 +18,9 @@ public final class AndroidPlatformInformationProvider implements PlatformInforma
         String model = Build.MODEL;
 
         if (model.toLowerCase().startsWith(manufacturer.toLowerCase())) {
-            return CoreUtils.toTitleCase(model);
+            return CoreUtil.toTitleCase(model);
         } else {
-            return CoreUtils.toTitleCase(manufacturer) + " " + model;
+            return CoreUtil.toTitleCase(manufacturer) + " " + model;
         }
     }
 

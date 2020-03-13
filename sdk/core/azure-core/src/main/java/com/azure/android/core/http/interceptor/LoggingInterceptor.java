@@ -5,11 +5,13 @@ package com.azure.android.core.http.interceptor;
 
 import androidx.annotation.NonNull;
 
+import com.azure.android.core.http.HttpHeader;
+import com.azure.android.core.util.HttpUtil;
 import com.azure.android.core.util.logging.ClientLogger;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -17,21 +19,19 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
-import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okio.Buffer;
-import okio.BufferedSource;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static com.azure.android.core.util.CoreUtil.isNullOrEmpty;
 
 /**
  * Pipeline interceptor that handles logging of HTTP requests and responses.
  */
 public final class LoggingInterceptor implements Interceptor {
-    private static final String CLIENT_REQUEST_ID = "x-ms-client-request-id";
+    static final int MAX_BODY_LOG_SIZE = 1024 * 16;
+    static final String REDACTED_PLACEHOLDER = "REDACTED";
 
     private final ClientLogger logger;
     private final Set<String> allowedHeaderNames;
@@ -54,10 +54,14 @@ public final class LoggingInterceptor implements Interceptor {
      */
     public LoggingInterceptor(LogOptions logOptions, ClientLogger clientLogger) {
         logger = clientLogger;
-        allowedHeaderNames = Collections.emptySet();
-        allowedQueryParameterNames = Collections.emptySet();
 
-        if (logOptions != null) {
+        if (logOptions == null) {
+            allowedHeaderNames = Collections.emptySet();
+            allowedQueryParameterNames = Collections.emptySet();
+        } else {
+            allowedHeaderNames = new HashSet<>();
+            allowedQueryParameterNames = new HashSet<>();
+
             for (String headerName : logOptions.getAllowedHeaderNames()) {
                 allowedHeaderNames.add(headerName.toLowerCase(Locale.ROOT));
             }
@@ -73,9 +77,9 @@ public final class LoggingInterceptor implements Interceptor {
     public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
 
-        logRequest(request);
-
         try {
+            logRequest(request);
+
             long startNs = System.nanoTime();
             Response response = chain.proceed(request);
             long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
@@ -85,7 +89,7 @@ public final class LoggingInterceptor implements Interceptor {
             return response;
         } catch (Exception e) {
             logger.warning("OPERATION FAILED: ", e);
-            logger.info("<-- [END" + request.header(CLIENT_REQUEST_ID) + "]");
+            logger.info("<-- [END" + request.header(HttpHeader.CLIENT_REQUEST_ID) + "]");
 
             throw e;
         }
@@ -96,41 +100,34 @@ public final class LoggingInterceptor implements Interceptor {
      *
      * @param request The HTTP request being sent to Azure.
      */
-    private void logRequest(final Request request) {
+    private void logRequest(final Request request) throws IOException {
         HttpUrl url = request.url();
 
-        logger.info("--> [" + request.header(CLIENT_REQUEST_ID) + "]"); // Request ID
-        logger.info(request.method() + " " + url.encodedPath() + LogUtils.getRedactedQueryString(url,
-            allowedQueryParameterNames)); // URL path + query
+        logger.info("--> [" + request.header(HttpHeader.CLIENT_REQUEST_ID) + "]"); // Request ID
+        logger.info(request.method() + " " + url.encodedPath() + getRedactedQueryString(url)); // URL path + query
         logger.info("Host: " + url.scheme() + "://" + url.host()); // URL host
 
         // TODO: Add log level guard for headers and body.
-        logHeaders(request.headers());
-
-        String bodyEvaluation = LogUtils.evaluateBody(request.headers());
         RequestBody requestBody = request.body();
+        String contentType = HttpUtil.getContentType(request);
+        Long contentLength = HttpUtil.getContentLength(request);
 
-        if (bodyEvaluation.equals("Log body") && requestBody != null) {
+        logHeaders(request.headers(), contentType, contentLength);
+
+        String bodySummary = getBodySummary(request.headers(), contentType, contentLength);
+        if (bodySummary != null) {
+            logger.debug(bodySummary);
+        } else if (requestBody != null) {
             try {
-                Buffer buffer = new Buffer();
-                MediaType contentType = requestBody.contentType();
-                Charset charset = (contentType == null) ? UTF_8 : contentType.charset(UTF_8);
-
-                requestBody.writeTo(buffer);
-
-                if (charset != null) {
-                    logger.debug(buffer.readString(charset));
-                } else {
-                    logger.warning("Could not log the request body. No charset found for decoding.");
-                }
+                logger.debug(HttpUtil.getBodyAsString(requestBody));
             } catch (IOException e) {
                 logger.warning("Could not log the request body", e);
             }
         } else {
-            logger.debug(bodyEvaluation);
+            logger.debug("(empty body)");
         }
 
-        logger.debug("--> [END " + request.header(CLIENT_REQUEST_ID) + "]");
+        logger.info("--> [END " + request.header(HttpHeader.CLIENT_REQUEST_ID) + "]");
     }
 
     /**
@@ -140,7 +137,7 @@ public final class LoggingInterceptor implements Interceptor {
      * @param tookMs   Nanosecond representation of when the request was sent.
      */
     private void logResponse(final Response response, long tookMs) {
-        logger.info("<-- [" + response.header(CLIENT_REQUEST_ID) + "] " + "(" + tookMs + ")"); // Request ID + duration
+        logger.info("<-- [" + response.header(HttpHeader.CLIENT_REQUEST_ID) + "] " + "(" + tookMs + ")");
 
         if (response.code() < 400) {
             logger.info(response.code() + " " + response.message());
@@ -149,37 +146,26 @@ public final class LoggingInterceptor implements Interceptor {
         }
 
         // TODO: Add log level guard for headers and body.
-        logHeaders(response.headers());
-
-        String bodyEvaluation = LogUtils.evaluateBody(response.headers());
         ResponseBody responseBody = response.body();
+        String contentType = HttpUtil.getContentType(response);
+        Long contentLength = HttpUtil.getContentLength(response);
 
-        if (responseBody == null) {
-            logger.warning("No response data available");
-        } else if (bodyEvaluation.equals("Log body")) {
+        logHeaders(response.headers(), contentType, contentLength);
+
+        String bodySummary = getBodySummary(response.headers(), contentType, contentLength);
+        if (bodySummary != null) {
+            logger.debug(bodySummary);
+        } else if (responseBody != null) {
             try {
-                // TODO: Figure out if it's possible to log the body without cloning it in its entirety.
-                BufferedSource bufferedSource = responseBody.source();
-
-                bufferedSource.request(Long.MAX_VALUE); // Buffer the entire body
-
-                Buffer buffer = bufferedSource.getBuffer();
-                MediaType contentType = responseBody.contentType();
-                Charset charset = (contentType == null) ? UTF_8 : contentType.charset(UTF_8);
-
-                if (charset != null) {
-                    logger.debug(buffer.clone().readString(charset));
-                } else {
-                    logger.warning("Could not log the response body. No charset found for decoding.");
-                }
+                logger.debug(HttpUtil.getBodyAsString(responseBody));
             } catch (IOException e) {
                 logger.warning("Could not log the response body", e);
             }
         } else {
-            logger.debug(bodyEvaluation);
+            logger.debug("(empty body)");
         }
 
-        logger.info("<-- [END " + response.header(CLIENT_REQUEST_ID) + "]");
+        logger.info("<-- [END " + response.header(HttpHeader.CLIENT_REQUEST_ID) + "]");
     }
 
     /**
@@ -187,17 +173,112 @@ public final class LoggingInterceptor implements Interceptor {
      * be redacted.
      *
      * @param headers HTTP headers on the request or response.
+     * @param contentType Content type value previously extracted from headers or body.
+     * @param contentLength Content length value previously extracted from headers or body.
      */
-    private void logHeaders(Headers headers) {
-        int size = headers.size();
-        for (int i = 0; i < size; i++) {
+    private void logHeaders(Headers headers, String contentType, Long contentLength) {
+        if (contentType != null) {
+            String headerName = HttpHeader.CONTENT_TYPE;
+            String headerValue = contentType;
+            if (!allowedHeaderNames.contains(headerName.toLowerCase(Locale.ROOT))) {
+                headerValue = REDACTED_PLACEHOLDER;
+            }
+            logger.debug(headerName + ": " + headerValue);
+        }
+
+        if (contentLength != null) {
+            String headerName = HttpHeader.CONTENT_LENGTH;
+            String headerValue = contentLength.toString();
+            if (!allowedHeaderNames.contains(headerName.toLowerCase(Locale.ROOT))) {
+                headerValue = REDACTED_PLACEHOLDER;
+            }
+            logger.debug(headerName + ": " + headerValue);
+        }
+
+        String contentTypeLower = HttpHeader.CONTENT_TYPE.toLowerCase(Locale.ROOT);
+        String contentLengthLower = HttpHeader.CONTENT_LENGTH.toLowerCase(Locale.ROOT);
+
+        for (int i = 0; i < headers.size(); i++) {
             String headerName = headers.name(i);
             String headerValue = headers.value(i);
-            if (!allowedHeaderNames.contains(headerName.toLowerCase(Locale.ROOT))) {
-                headerValue = LogUtils.REDACTED_PLACEHOLDER;
+
+            String headerNameLower = headerName.toLowerCase(Locale.ROOT);
+
+            // Skip headers which have already been logged.
+            if (contentTypeLower.equals(headerNameLower) || contentLengthLower.equals(headerNameLower)) {
+                continue;
+            }
+
+            if (!allowedHeaderNames.contains(headerNameLower)) {
+                headerValue = REDACTED_PLACEHOLDER;
             }
 
             logger.debug(headerName + ": " + headerValue);
         }
+    }
+
+    /**
+     * Produces a loggable representation of the a body based on its headers, content type, and content length. If the
+     * body appears to contain text and is below MAX_BODY_LOG_SIZE then it will be logged verbatim, otherwise a summary
+     * message describing the body is returned.
+     *
+     * @param headers The headers of the body.
+     * @param contentType The content type of the body.
+     * @param contentLength The content length of the body.
+     * @return The text of the body if applicable, otherwise a summary message describing the body.
+     */
+    private String getBodySummary(@NonNull Headers headers, String contentType, Long contentLength) {
+        String contentEncoding = headers.get(HttpHeader.CONTENT_ENCODING);
+        if (!isNullOrEmpty(contentEncoding) && !contentEncoding.equalsIgnoreCase("identity")) {
+            return "(encoded body omitted)";
+        }
+
+        String contentDisposition = headers.get(HttpHeader.CONTENT_DISPOSITION);
+        if (!isNullOrEmpty(contentDisposition) && !contentDisposition.equalsIgnoreCase("inline")) {
+            return "(non-inline body omitted)";
+        }
+
+        if (!isNullOrEmpty(contentType)
+            && (contentType.contains("octet-stream") || contentType.startsWith("image"))) {
+            return "(binary body omitted)";
+        }
+
+        if (contentLength == null || contentLength <= 0) {
+            return "(empty body)";
+        } else if (contentLength > MAX_BODY_LOG_SIZE) {
+            return "(" + contentLength + "-byte body omitted)";
+        }
+
+        return null;
+    }
+
+    /**
+     * Generates a redacted query parameters string based on a given URL.
+     *
+     * @param url The request URL.
+     * @return A query parameter string redacted based on the {@link LogOptions} configuration.
+     */
+    private String getRedactedQueryString(@NonNull HttpUrl url) {
+        Set<String> names = url.queryParameterNames();
+
+        if (names.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder queryStringBuilder = new StringBuilder("?");
+
+        for (String name : names) {
+            if (allowedQueryParameterNames.contains(name.toLowerCase(Locale.ROOT))) {
+                for (String value : url.queryParameterValues(name)) {
+                    queryStringBuilder.append(name).append("=").append(value).append("&");
+                }
+            } else {
+                queryStringBuilder.append(name).append("=").append(REDACTED_PLACEHOLDER).append("&");
+            }
+        }
+
+        queryStringBuilder.setLength(queryStringBuilder.length() - 1);
+
+        return queryStringBuilder.toString();
     }
 }

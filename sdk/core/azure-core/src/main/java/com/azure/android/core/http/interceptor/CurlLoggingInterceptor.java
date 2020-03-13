@@ -5,23 +5,21 @@ package com.azure.android.core.http.interceptor;
 
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.util.CoreUtils;
+import com.azure.android.core.http.HttpHeader;
+import com.azure.android.core.util.HttpUtil;
 import com.azure.android.core.util.logging.ClientLogger;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.Headers;
 import okhttp3.Interceptor;
-import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okio.Buffer;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static com.azure.android.core.util.CoreUtil.replace;
 
 /**
  * Pipeline interceptor that logs HTTP requests as cURL commands.
@@ -50,20 +48,14 @@ public class CurlLoggingInterceptor implements Interceptor {
         curlCommand.append(" -X ")
             .append(request.method());
 
-        addHeadersToCurlCommand(headers, curlCommand);
+        appendHeadersToCurlCommand(headers, curlCommand);
 
-        RequestBody requestBody = request.body();
-        String bodyEvaluation = LogUtils.evaluateBody(headers);
-
-        if (!bodyEvaluation.equals("Log body")) {
-            curlCommand.append(bodyEvaluation);
-        } else if (requestBody != null) {
-            addBodyToCurlCommand(requestBody, curlCommand);
+        if (request.body() != null) {
+            appendBodyToCurlCommand(request.body(), curlCommand);
         }
 
-        curlCommand.append(" \"")
-            .append(request.url())
-            .append("\"");
+        curlCommand.append(" ")
+            .append(request.url());
 
         // TODO: Add log level guard for headers and body.
         logger.debug("╭--- cURL " + request.url());
@@ -79,13 +71,19 @@ public class CurlLoggingInterceptor implements Interceptor {
      * @param headers     HTTP headers on the request or response.
      * @param curlCommand The StringBuilder that is generating the cURL command.
      */
-    private void addHeadersToCurlCommand(Headers headers, StringBuilder curlCommand) {
+    private void appendHeadersToCurlCommand(Headers headers, StringBuilder curlCommand) {
         int size = headers.size();
         for (int i = 0; i < size; i++) {
             String headerName = headers.name(i);
             String headerValue = headers.value(i);
+
             if (headerValue.startsWith("\"") || headerValue.endsWith("\"")) {
-                headerValue = "\\\"" + headerValue.replaceAll("\"", "") + "\\\"";
+                // Remove quotation marks at the beginning and end of the value.
+                String innerHeaderValue = headerValue.substring(1, headerValue.length() - 1);
+                innerHeaderValue = innerHeaderValue.replace("\\", "\\\\");
+                headerValue = "\\\"" + innerHeaderValue + "\\\"";
+            } else {
+                headerValue = headerValue.replace("\\", "\\\\");
             }
 
             curlCommand.append(" -H \"")
@@ -94,7 +92,8 @@ public class CurlLoggingInterceptor implements Interceptor {
                 .append(headerValue)
                 .append("\"");
 
-            if (headerValue.equalsIgnoreCase("gzip")) {
+            if (headerName.equalsIgnoreCase(HttpHeader.ACCEPT_ENCODING) &&
+                !headerValue.equalsIgnoreCase("identity")) {
                 compressed = true;
             }
         }
@@ -106,30 +105,20 @@ public class CurlLoggingInterceptor implements Interceptor {
      * @param requestBody Body of the request.
      * @param curlCommand The StringBuilder that is generating the cURL command.
      */
-    private void addBodyToCurlCommand(RequestBody requestBody, StringBuilder curlCommand) {
+    private void appendBodyToCurlCommand(RequestBody requestBody, StringBuilder curlCommand) {
         try {
-            Buffer buffer = new Buffer();
-            MediaType contentType = requestBody.contentType();
-            Charset charset = (contentType == null) ? UTF_8 : contentType.charset(UTF_8);
+            String bodyContent = HttpUtil.getBodyAsString(requestBody);
+            Map<Character, CharSequence> toReplace = new HashMap<>();
 
-            requestBody.writeTo(buffer);
+            toReplace.put('\n', "\\n");
+            toReplace.put('\'', "\\'");
 
-            if (charset != null) {
-                String requestBodyString = buffer.readString(charset);
-                Map<Character, CharSequence> toReplace = new HashMap<>();
+            curlCommand.append(" --data $'")
+                .append(replace(bodyContent, toReplace))
+                .append("'");
 
-                toReplace.put('\n', "\\n");
-                toReplace.put('\"', "\\\"");
-
-                curlCommand.append(" --data $'")
-                    .append(CoreUtils.replace(requestBodyString, toReplace))
-                    .append("'");
-
-                if (compressed) {
-                    curlCommand.append(" --compressed");
-                }
-            } else {
-                logger.warning("Could not log the response body. No encoding charset found.");
+            if (compressed) {
+                curlCommand.append(" --compressed");
             }
         } catch (IOException e) {
             logger.warning("Could not log the request body", e);
