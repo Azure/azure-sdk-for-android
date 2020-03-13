@@ -5,23 +5,21 @@ package com.azure.android.core.http.interceptor;
 
 import androidx.annotation.NonNull;
 
+import com.azure.android.core.http.HttpHeader;
+import com.azure.android.core.util.HttpUtil;
 import com.azure.android.core.util.logging.ClientLogger;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
 
 import okhttp3.Headers;
 import okhttp3.Interceptor;
-import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import okio.Buffer;
 
 import static com.azure.android.core.util.CoreUtils.replace;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Pipeline interceptor that logs HTTP requests as cURL commands.
@@ -109,28 +107,18 @@ public class CurlLoggingInterceptor implements Interceptor {
      */
     private void appendBodyToCurlCommand(RequestBody requestBody, StringBuilder curlCommand) {
         try {
-            Buffer buffer = new Buffer();
-            MediaType contentType = requestBody.contentType();
-            Charset charset = (contentType == null) ? UTF_8 : contentType.charset(UTF_8);
+            String bodyContent = HttpUtil.getBodyAsString(requestBody);
+            Map<Character, CharSequence> toReplace = new HashMap<>();
 
-            requestBody.writeTo(buffer);
+            toReplace.put('\n', "\\n");
+            toReplace.put('\'', "\\'");
 
-            if (charset != null) {
-                String requestBodyString = buffer.readString(charset);
-                Map<Character, CharSequence> toReplace = new HashMap<>();
+            curlCommand.append(" --data $'")
+                .append(replace(bodyContent, toReplace))
+                .append("'");
 
-                toReplace.put('\n', "\\n");
-                toReplace.put('\'', "\\\'");
-
-                curlCommand.append(" --data $'")
-                    .append(replace(requestBodyString, toReplace))
-                    .append("'");
-
-                if (compressed) {
-                    curlCommand.append(" --compressed");
-                }
-            } else {
-                logger.warning("Could not log the response body. No encoding charset found.");
+            if (compressed) {
+                curlCommand.append(" --compressed");
             }
         } catch (IOException e) {
             logger.warning("Could not log the request body", e);

@@ -4,13 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okio.Buffer;
 
 import static com.azure.android.core.util.CoreUtils.isNullOrEmpty;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class HttpUtil {
     @Nullable
@@ -97,5 +102,21 @@ public final class HttpUtil {
 
     private interface ContentTypeProducer {
         MediaType contentType();
+    }
+
+    @Nullable
+    public static String getBodyAsString(@NonNull RequestBody body) throws IOException {
+        MediaType bodyContentType = body.contentType();
+        Charset charset = (bodyContentType == null) ? UTF_8 : bodyContentType.charset(UTF_8);
+        Buffer buffer = new Buffer();
+        body.writeTo(buffer);
+        return buffer.readString(charset == null ? UTF_8 : charset);
+    }
+
+    @Nullable
+    public static String getBodyAsString(@NonNull ResponseBody body) throws IOException {
+        MediaType bodyContentType = body.contentType();
+        Charset charset = (bodyContentType == null) ? UTF_8 : bodyContentType.charset(UTF_8);
+        return body.source().peek().readString(charset == null ? UTF_8 : charset);
     }
 }
