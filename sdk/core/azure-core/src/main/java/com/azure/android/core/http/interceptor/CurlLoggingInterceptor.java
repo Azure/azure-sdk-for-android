@@ -19,7 +19,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static com.azure.android.core.util.CoreUtils.replace;
+import static com.azure.android.core.util.CoreUtil.replace;
 
 /**
  * Pipeline interceptor that logs HTTP requests as cURL commands.

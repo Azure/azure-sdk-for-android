@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * This interface contains static utility methods.
  */
-public interface CoreUtils {
+public interface CoreUtil {
     /**
      * Checks if the given character sequence is {@code null} or empty.
      *

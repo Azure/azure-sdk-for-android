@@ -14,7 +14,7 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.Buffer;
 
-import static com.azure.android.core.util.CoreUtils.isNullOrEmpty;
+import static com.azure.android.core.util.CoreUtil.isNullOrEmpty;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 public final class HttpUtil {

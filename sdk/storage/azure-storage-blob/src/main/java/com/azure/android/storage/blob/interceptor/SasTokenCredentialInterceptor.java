@@ -3,7 +3,7 @@
 
 package com.azure.android.storage.blob.interceptor;
 
-import com.azure.android.core.util.CoreUtils;
+import com.azure.android.core.util.CoreUtil;
 import com.azure.android.storage.blob.credentials.SasTokenCredential;
 
 import java.io.IOException;
@@ -28,7 +28,7 @@ public class SasTokenCredentialInterceptor implements Interceptor {
         HttpUrl requestURL = chain.request().url();
 
         String encodedQuery = requestURL.encodedQuery();
-        if (!CoreUtils.isNullOrEmpty(encodedQuery)) {
+        if (!CoreUtil.isNullOrEmpty(encodedQuery)) {
             encodedQuery += "&";
         }
 

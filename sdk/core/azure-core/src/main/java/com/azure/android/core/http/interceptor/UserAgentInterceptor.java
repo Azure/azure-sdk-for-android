@@ -18,7 +18,7 @@ import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
 
-import static com.azure.android.core.util.CoreUtils.isNullOrEmpty;
+import static com.azure.android.core.util.CoreUtil.isNullOrEmpty;
 
 /**
  * Pipeline interceptor that adds "User-Agent" header to a request.

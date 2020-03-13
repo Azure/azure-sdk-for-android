@@ -24,7 +24,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-import static com.azure.android.core.util.CoreUtils.isNullOrEmpty;
+import static com.azure.android.core.util.CoreUtil.isNullOrEmpty;
 
 /**
  * Pipeline interceptor that handles logging of HTTP requests and responses.
