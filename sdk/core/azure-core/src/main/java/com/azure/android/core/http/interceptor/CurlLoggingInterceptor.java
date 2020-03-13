@@ -94,7 +94,8 @@ public class CurlLoggingInterceptor implements Interceptor {
                 .append(headerValue)
                 .append("\"");
 
-            if (!headerValue.equalsIgnoreCase("identity")) {
+            if (headerName.equalsIgnoreCase(HttpHeader.ACCEPT_ENCODING) &&
+                !headerValue.equalsIgnoreCase("identity")) {
                 compressed = true;
             }
         }

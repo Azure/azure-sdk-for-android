@@ -152,7 +152,7 @@ public class UserAgentInterceptor implements Interceptor {
         Request request = chain.request();
         String header = request.header(HttpHeader.USER_AGENT);
 
-        if (header == null || header.contains(USER_AGENT_HEADER)) {
+        if (header == null || header.contains(DEFAULT_USER_AGENT)) {
             header = userAgent;
         } else {
             header = userAgent + " " + header;
