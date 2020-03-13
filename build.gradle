@@ -146,6 +146,7 @@ allprojects {
         roomVersion = "2.2.4"
         staxApiVersion = "1.0-2"
         threeTenAbpVersion = "1.2.1"
+        threeTenBpVersion = "1.4.0"
         workVersion = "2.3.2"
     }
 }

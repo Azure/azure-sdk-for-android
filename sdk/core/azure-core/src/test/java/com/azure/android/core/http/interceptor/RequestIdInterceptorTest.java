@@ -1,55 +1,60 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.core.http.interceptor;
 
 import com.azure.android.core.http.HttpHeader;
 
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.UUID;
 
+import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
+import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClientWithInterceptor;
+import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequest;
+import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequestWithHeader;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 public class RequestIdInterceptorTest {
+    private final MockWebServer mockWebServer = new MockWebServer();
+    private final OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(new RequestIdInterceptor());
+
     @Rule
-    public final MockWebServer server = new MockWebServer();
+    public EnqueueMockResponse enqueueMockResponse = new EnqueueMockResponse(mockWebServer);
 
     @Test
-    public void requestIdHeaderIsPopulated() throws IOException {
-        server.enqueue(new MockResponse());
+    public void requestIdHeader_isPopulated_onRequest() throws InterruptedException, IOException {
+        // Given a request and a client with a RequestIdInterceptor.
+        Request request = getSimpleRequest(mockWebServer);
 
-        final String[] requestId = {null};
-        OkHttpClient.Builder httpClientBuilder = new OkHttpClient.Builder();
+        // When executing said request.
+        okHttpClient.newCall(request).execute();
 
-        httpClientBuilder.addInterceptor(new RequestIdInterceptor());
-        httpClientBuilder.addInterceptor(chain -> {
-            requestId[0] = (chain.request().header(HttpHeader.CLIENT_REQUEST_ID));
-
-            return chain.proceed(chain.request());
-        });
-
-        OkHttpClient httpClient = httpClientBuilder.build();
-        Request request = new okhttp3.Request.Builder()
-            .url(getEndpointFrom(server))
-            .build();
-
-        httpClient.newCall(request).execute();
-
-        Assert.assertNotNull(requestId[0]);
+        // Then the 'x-ms-client-request-id' header should be populated.
+        assertNotNull(mockWebServer.takeRequest().getHeader(HttpHeader.CLIENT_REQUEST_ID));
     }
 
-    private static URL getEndpointFrom(MockWebServer server) throws MalformedURLException {
-        try {
-            return new URL(String.format("http://%s:%s", server.getHostName(), server.getPort()));
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
+    @Test
+    public void requestIdHeader_isNotOverwritten_onRequest() throws InterruptedException, IOException {
+        // Given a request where the 'x-ms-client-request-id' header is already populated and a client with a
+        // RequestIdInterceptor.
+        String requestId = UUID.randomUUID().toString();
+        Request request = getSimpleRequestWithHeader(mockWebServer, HttpHeader.CLIENT_REQUEST_ID, requestId);
 
-            throw e;
-        }
+        // When executing said request.
+        okHttpClient.newCall(request).execute();
+
+        Headers headers = mockWebServer.takeRequest().getHeaders();
+
+        // Then there should be only one 'x-ms-client-request-id' header in the request sent...
+        assertEquals(1, headers.values(HttpHeader.CLIENT_REQUEST_ID).size());
+        // ...with an unchanged value.
+        assertEquals(requestId, headers.get(HttpHeader.CLIENT_REQUEST_ID));
     }
 }
