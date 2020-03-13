@@ -5,6 +5,8 @@ package com.azure.android.core.http.interceptor;
 
 import androidx.annotation.NonNull;
 
+import com.azure.android.core.http.HttpHeader;
+
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.format.DateTimeFormatter;
@@ -20,7 +22,6 @@ import okhttp3.Response;
  * HTTP request.
  */
 public class AddDateInterceptor implements Interceptor {
-    private static final String DATE_HEADER = "Date";
     private static final DateTimeFormatter httpDateTimeFormatter = DateTimeFormatter
         .ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'")
         .withZone(ZoneId.of("UTC"))
@@ -31,7 +32,7 @@ public class AddDateInterceptor implements Interceptor {
     public Response intercept(@NonNull Chain chain) throws IOException {
         return chain.proceed(chain.request()
             .newBuilder()
-            .header(DATE_HEADER, httpDateTimeFormatter.format(OffsetDateTime.now()))
+            .header(HttpHeader.DATE, httpDateTimeFormatter.format(OffsetDateTime.now()))
             .build());
     }
 }

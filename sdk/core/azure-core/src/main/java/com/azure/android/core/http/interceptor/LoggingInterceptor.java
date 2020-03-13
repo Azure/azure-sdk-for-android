@@ -5,6 +5,7 @@ package com.azure.android.core.http.interceptor;
 
 import androidx.annotation.NonNull;
 
+import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.util.HttpUtil;
 import com.azure.android.core.util.logging.ClientLogger;
 
@@ -26,15 +27,12 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okio.Buffer;
 
-import static com.azure.android.core.http.interceptor.RequestIdInterceptor.REQUEST_ID_HEADER;
 import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * Pipeline interceptor that handles logging of HTTP requests and responses.
  */
 public final class LoggingInterceptor implements Interceptor {
-    private static final String CONTENT_TYPE_HEADER = "Content-Type";
-    private static final String CONTENT_LENGTH_HEADER = "Content-Length";
     private final ClientLogger logger;
     private final Set<String> allowedHeaderNames;
     private final Set<String> allowedQueryParameterNames;
@@ -91,7 +89,7 @@ public final class LoggingInterceptor implements Interceptor {
             return response;
         } catch (Exception e) {
             logger.warning("OPERATION FAILED: ", e);
-            logger.info("<-- [END" + request.header(REQUEST_ID_HEADER) + "]");
+            logger.info("<-- [END" + request.header(HttpHeader.CLIENT_REQUEST_ID) + "]");
 
             throw e;
         }
@@ -105,9 +103,9 @@ public final class LoggingInterceptor implements Interceptor {
     private void logRequest(final Request request) throws IOException {
         HttpUrl url = request.url();
 
-        logger.info("--> [" + request.header(REQUEST_ID_HEADER) + "]"); // Request ID
         logger.info(request.method() + " " + url.encodedPath() + LogUtils.getRedactedQueryString(url,
             allowedQueryParameterNames)); // URL path + query
+        logger.info("--> [" + request.header(HttpHeader.CLIENT_REQUEST_ID) + "]"); // Request ID
         logger.info("Host: " + url.scheme() + "://" + url.host()); // URL host
 
         // TODO: Add log level guard for headers and body.
@@ -134,7 +132,7 @@ public final class LoggingInterceptor implements Interceptor {
             logger.debug("(empty body)");
         }
 
-        logger.info("--> [END " + request.header(REQUEST_ID_HEADER) + "]");
+        logger.info("--> [END " + request.header(HttpHeader.CLIENT_REQUEST_ID) + "]");
     }
 
     /**
@@ -144,7 +142,7 @@ public final class LoggingInterceptor implements Interceptor {
      * @param tookMs   Nanosecond representation of when the request was sent.
      */
     private void logResponse(final Response response, long tookMs) {
-        logger.info("<-- [" + response.header(REQUEST_ID_HEADER) + "] " + "(" + tookMs + ")"); // Request ID + duration
+        logger.info("<-- [" + response.header(HttpHeader.CLIENT_REQUEST_ID) + "] " + "(" + tookMs + ")");
 
         if (response.code() < 400) {
             logger.info(response.code() + " " + response.message());
@@ -174,7 +172,7 @@ public final class LoggingInterceptor implements Interceptor {
             logger.debug("(empty body)");
         }
 
-        logger.info("<-- [END " + response.header(REQUEST_ID_HEADER) + "]");
+        logger.info("<-- [END " + response.header(HttpHeader.CLIENT_REQUEST_ID) + "]");
     }
 
     /**
@@ -187,7 +185,7 @@ public final class LoggingInterceptor implements Interceptor {
      */
     private void logHeaders(Headers headers, String contentType, Long contentLength) {
         if (contentType != null) {
-            String headerName = CONTENT_TYPE_HEADER;
+            String headerName = HttpHeader.CONTENT_TYPE;
             String headerValue = contentType;
             if (!allowedHeaderNames.contains(headerName.toLowerCase(Locale.ROOT))) {
                 headerValue = LogUtils.REDACTED_PLACEHOLDER;
@@ -196,7 +194,7 @@ public final class LoggingInterceptor implements Interceptor {
         }
 
         if (contentLength != null) {
-            String headerName = CONTENT_LENGTH_HEADER;
+            String headerName = HttpHeader.CONTENT_LENGTH;
             String headerValue = contentLength.toString();
             if (!allowedHeaderNames.contains(headerName.toLowerCase(Locale.ROOT))) {
                 headerValue = LogUtils.REDACTED_PLACEHOLDER;
@@ -204,8 +202,8 @@ public final class LoggingInterceptor implements Interceptor {
             logger.debug(headerName + ": " + headerValue);
         }
 
-        String contentTypeLower = CONTENT_TYPE_HEADER.toLowerCase(Locale.ROOT);
-        String contentLengthLower = CONTENT_LENGTH_HEADER.toLowerCase(Locale.ROOT);
+        String contentTypeLower = HttpHeader.CONTENT_TYPE.toLowerCase(Locale.ROOT);
+        String contentLengthLower = HttpHeader.CONTENT_LENGTH.toLowerCase(Locale.ROOT);
 
         for (int i = 0; i < headers.size(); i++) {
             String headerName = headers.name(i);

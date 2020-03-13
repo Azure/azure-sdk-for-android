@@ -1,5 +1,7 @@
 package com.azure.android.core.http.interceptor;
 
+import com.azure.android.core.http.HttpHeader;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -12,8 +14,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
-
-import static com.azure.android.core.http.interceptor.RequestIdInterceptor.REQUEST_ID_HEADER;
 
 public class RequestIdInterceptorTest {
     @Rule
@@ -28,7 +28,7 @@ public class RequestIdInterceptorTest {
 
         httpClientBuilder.addInterceptor(new RequestIdInterceptor());
         httpClientBuilder.addInterceptor(chain -> {
-            requestId[0] = (chain.request().header(REQUEST_ID_HEADER));
+            requestId[0] = (chain.request().header(HttpHeader.CLIENT_REQUEST_ID));
 
             return chain.proceed(chain.request());
         });

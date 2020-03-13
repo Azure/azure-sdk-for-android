@@ -3,6 +3,8 @@
 
 package com.azure.android.core.http.interceptor;
 
+import com.azure.android.core.http.HttpHeader;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -14,28 +16,28 @@ import java.util.Set;
  */
 public class LogOptions {
     private static final List<String> DEFAULT_HEADERS_WHITELIST = Arrays.asList(
-        "x-ms-client-request-id",
-        "x-ms-return-client-request-id",
-        "traceparent",
-        "Accept",
-        "Cache-Control",
-        "Connection",
-        "Content-Length",
-        "Content-Type",
-        "Date",
-        "ETag",
-        "Expires",
-        "If-Match",
-        "If-Modified-Since",
-        "If-None-Match",
-        "If-Unmodified-Since",
-        "Last-Modified",
-        "Pragma",
-        "Request-Id",
-        "Retry-After",
-        "Server",
-        "Transfer-Encoding",
-        "User-Agent"
+        HttpHeader.ACCEPT,
+        HttpHeader.CACHE_CONTROL,
+        HttpHeader.CLIENT_REQUEST_ID,
+        HttpHeader.CONNECTION,
+        HttpHeader.CONTENT_LENGTH,
+        HttpHeader.CONTENT_TYPE,
+        HttpHeader.DATE,
+        HttpHeader.ETAG,
+        HttpHeader.EXPIRES,
+        HttpHeader.IF_MATCH,
+        HttpHeader.IF_MODIFIED_SINCE,
+        HttpHeader.IF_NONE_MATCH,
+        HttpHeader.IF_UNMODIFIED_SINCE,
+        HttpHeader.LAST_MODIFIED,
+        HttpHeader.PRAGMA,
+        HttpHeader.RETURN_CLIENT_REQUEST_ID,
+        HttpHeader.REQUEST_ID,
+        HttpHeader.RETRY_AFTER,
+        HttpHeader.SERVER,
+        HttpHeader.TRACEPARENT,
+        HttpHeader.TRANSFER_ENCODING,
+        HttpHeader.USER_AGENT
     );
 
     private Set<String> allowedHeaderNames;

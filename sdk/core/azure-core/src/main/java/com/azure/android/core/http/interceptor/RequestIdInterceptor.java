@@ -5,6 +5,8 @@ package com.azure.android.core.http.interceptor;
 
 import androidx.annotation.NonNull;
 
+import com.azure.android.core.http.HttpHeader;
+
 import java.io.IOException;
 import java.util.UUID;
 
@@ -17,17 +19,15 @@ import okhttp3.Response;
  * the request.
  */
 public class RequestIdInterceptor implements Interceptor {
-    static final String REQUEST_ID_HEADER = "x-ms-client-request-id";
-
     @NonNull
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {
         Request request = chain.request();
-        String requestId = request.header(REQUEST_ID_HEADER);
+        String requestId = request.header(HttpHeader.CLIENT_REQUEST_ID);
 
         if (requestId == null) {
             request = request.newBuilder()
-                .header(REQUEST_ID_HEADER, UUID.randomUUID().toString())
+                .header(HttpHeader.CLIENT_REQUEST_ID, UUID.randomUUID().toString())
                 .build();
         }
 
