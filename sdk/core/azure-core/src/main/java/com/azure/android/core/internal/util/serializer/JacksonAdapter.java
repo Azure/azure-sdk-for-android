@@ -1,7 +1,8 @@
 package com.azure.android.core.internal.util.serializer;
 
-import android.text.TextUtils;
 import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.azure.android.core.annotation.HeaderCollection;
 import com.azure.android.core.internal.util.serializer.exception.MalformedValueException;
@@ -24,6 +25,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -59,15 +61,6 @@ public class JacksonAdapter implements SerializerAdapter {
 
         xmlMapper.configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
         xmlMapper.setDefaultUseWrapper(false);
-    }
-
-    /**
-     * Gets a static instance of {@link ObjectMapper} that doesn't handle flattening.
-     *
-     * @return An instance of {@link ObjectMapper}.
-     */
-    protected ObjectMapper simpleMapper() {
-        return simpleMapper;
     }
 
     /**
@@ -121,7 +114,7 @@ public class JacksonAdapter implements SerializerAdapter {
             serialized.add(raw != null ? raw : "");
         }
 
-        return TextUtils.join(format.getDelimiter(), serialized);
+        return join(format.getDelimiter(), serialized);
     }
 
     @Override
@@ -308,5 +301,23 @@ public class JacksonAdapter implements SerializerAdapter {
 
             return null;
         }
+    }
+
+    private static String join(@NonNull CharSequence delimiter, @NonNull Iterable tokens) {
+        final Iterator<?> iterator = tokens.iterator();
+
+        if (!iterator.hasNext()) {
+            return "";
+        }
+
+        final StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(iterator.next());
+
+        while (iterator.hasNext()) {
+            stringBuilder.append(delimiter);
+            stringBuilder.append(iterator.next());
+        }
+
+        return stringBuilder.toString();
     }
 }
