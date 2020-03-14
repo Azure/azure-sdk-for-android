@@ -8,12 +8,12 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class Base64UrlSerializerTest {
+    private static String TEST_URL = "http://127.0.0.1/";
 
     @Test
     public void test_getModule() {
@@ -24,27 +24,27 @@ public class Base64UrlSerializerTest {
 
     @Test
     public void serialize_withNoCharactersToEscape() throws IOException {
-        Base64Url base64Url = new Base64Url("http://127.0.0.1/");
-        OutputStream outputStream = new StringBuilderOutputStream();
+        Base64Url base64Url = new Base64Url(TEST_URL);
+        StringBuilderOutputStream outputStream = new StringBuilderOutputStream();
         JsonGenerator jsonGenerator = new JsonFactory().createGenerator(outputStream);
         Base64UrlSerializer base64UrlSerializer = new Base64UrlSerializer();
 
         base64UrlSerializer.serialize(base64Url, jsonGenerator, null);
         jsonGenerator.flush();
 
-        assertEquals("\"http://127.0.0.1/\"", outputStream.toString());
+        assertEquals("\"" + TEST_URL + "\"", outputStream.toString());
     }
 
     @Test
     public void serialize_withCharactersToEscape() throws IOException {
-        Base64Url base64Url = new Base64Url("http://127.0.0.1/\\");
-        OutputStream outputStream = new StringBuilderOutputStream();
+        Base64Url base64Url = new Base64Url(TEST_URL + "\\");
+        StringBuilderOutputStream outputStream = new StringBuilderOutputStream();
         JsonGenerator jsonGenerator = new JsonFactory().createGenerator(outputStream);
         Base64UrlSerializer base64UrlSerializer = new Base64UrlSerializer();
 
         base64UrlSerializer.serialize(base64Url, jsonGenerator, null);
         jsonGenerator.flush();
 
-        assertEquals("\"http://127.0.0.1/\\\\\"", outputStream.toString());
+        assertEquals("\"" + TEST_URL + "\\\\\"", outputStream.toString());
     }
 }
