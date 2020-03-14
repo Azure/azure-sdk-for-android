@@ -33,7 +33,7 @@ final class DurationSerializer extends JsonSerializer<Duration> {
     @Override
     public void serialize(Duration duration, JsonGenerator jsonGenerator, SerializerProvider serializerProvider)
         throws IOException {
-        jsonGenerator.writeString(DurationSerializer.toString(duration));
+        jsonGenerator.writeString(toString(duration));
     }
 
     /**
@@ -46,14 +46,14 @@ final class DurationSerializer extends JsonSerializer<Duration> {
         String result = null;
 
         if (duration != null) {
-            if (duration.get(ChronoUnit.MILLIS) == 0) {
+            if (duration == Duration.ofMillis(0)) {
                 result = "PT0S";
             } else {
                 final StringBuilder builder = new StringBuilder();
 
                 builder.append('P');
 
-                final long days = duration.get(ChronoUnit.DAYS);
+                final long days = duration.toDays();
 
                 if (days > 0) {
                     builder.append(days);
@@ -62,7 +62,7 @@ final class DurationSerializer extends JsonSerializer<Duration> {
                     duration = duration.minusDays(days);
                 }
 
-                final long hours = duration.get(ChronoUnit.HOURS);
+                final long hours = duration.toHours();
 
                 if (hours > 0) {
                     builder.append('T');
@@ -72,7 +72,7 @@ final class DurationSerializer extends JsonSerializer<Duration> {
                     duration = duration.minusHours(hours);
                 }
 
-                final long minutes = duration.get(ChronoUnit.MINUTES);
+                final long minutes = duration.toMinutes();
 
                 if (minutes > 0) {
                     if (hours == 0) {
@@ -97,7 +97,7 @@ final class DurationSerializer extends JsonSerializer<Duration> {
                     duration = duration.minusSeconds(seconds);
                 }
 
-                long milliseconds = duration.get(ChronoUnit.MILLIS);
+                long milliseconds = duration.toMillis();
 
                 if (milliseconds > 0) {
                     if (hours == 0 && minutes == 0 && seconds == 0) {
