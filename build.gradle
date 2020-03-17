@@ -143,7 +143,6 @@ allprojects {
         jUnitVersion = "4.12"
         jacksonVersion = "2.9.9"
         okHttpVersion = "3.13.1"
-        powerMockVersion = "2.0.5"
         retrofitVersion = "2.6.2"
         roomVersion = "2.2.4"
         staxApiVersion = "1.0-2"
