@@ -13,8 +13,8 @@ import org.threeten.bp.format.DateTimeFormatter;
 import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class DateTimeRfc1123Test {
     private static final DateTimeFormatter RFC1123_DATE_TIME_FORMATTER =
@@ -45,47 +45,46 @@ public class DateTimeRfc1123Test {
     }
 
     @Test
-    public void getHashCode() {
-        DateTimeRfc1123 dateTimeRfc1123 = new DateTimeRfc1123(
-            OffsetDateTime.of(LocalDateTime.parse(TEST_DATE, RFC1123_DATE_TIME_FORMATTER), ZoneOffset.UTC));
-
-        assertEquals(1468106660, dateTimeRfc1123.hashCode());
-    }
-
-    @SuppressWarnings("SimplifiableJUnitAssertion")
-    @Test
     public void equalTo_identicalObject() {
         final DateTimeRfc1123 dateTimeRfc1123 = new DateTimeRfc1123(
             OffsetDateTime.of(LocalDateTime.parse(TEST_DATE, RFC1123_DATE_TIME_FORMATTER), ZoneOffset.UTC));
         final DateTimeRfc1123 otherDateTimeRfc1123 = new DateTimeRfc1123(
             OffsetDateTime.of(LocalDateTime.parse(TEST_DATE, RFC1123_DATE_TIME_FORMATTER), ZoneOffset.UTC));
 
-        assertTrue(dateTimeRfc1123.equals(otherDateTimeRfc1123));
+        assertEquals(dateTimeRfc1123, otherDateTimeRfc1123);
     }
 
-    @SuppressWarnings("SimplifiableJUnitAssertion")
     @Test
     public void notEqualTo_differentObject() {
         final DateTimeRfc1123 dateTimeRfc1123 = new DateTimeRfc1123(
             OffsetDateTime.of(LocalDateTime.parse(TEST_DATE, RFC1123_DATE_TIME_FORMATTER), ZoneOffset.UTC));
         final DateTimeRfc1123 otherDateTimeRfc1123 = new DateTimeRfc1123(OffsetDateTime.now());
 
-        assertFalse(dateTimeRfc1123.equals(otherDateTimeRfc1123));
+        assertNotEquals(dateTimeRfc1123, otherDateTimeRfc1123);
     }
 
-    @SuppressWarnings({"SimplifiableJUnitAssertion", "ConstantConditions"})
     @Test
     public void notEqualTo_nullObject() {
         final DateTimeRfc1123 dateTimeRfc1123 = new DateTimeRfc1123(OffsetDateTime.now());
 
-        assertFalse(dateTimeRfc1123.equals(null));
+        assertNotNull(dateTimeRfc1123);
     }
 
-    @SuppressWarnings({"SimplifiableJUnitAssertion", "EqualsBetweenInconvertibleTypes"})
     @Test
     public void notEqualTo_objectFromDifferentClass() {
         final DateTimeRfc1123 dateTimeRfc1123 = new DateTimeRfc1123(OffsetDateTime.now());
 
-        assertFalse(dateTimeRfc1123.equals(""));
+        assertNotEquals("", dateTimeRfc1123);
+    }
+
+    @Test
+    public void getHashCode() {
+        DateTimeRfc1123 dateTimeRfc1123 = new DateTimeRfc1123(
+            OffsetDateTime.of(LocalDateTime.parse(TEST_DATE, RFC1123_DATE_TIME_FORMATTER), ZoneOffset.UTC));
+        DateTimeRfc1123 otherDateTimeRfc1123 = new DateTimeRfc1123(
+            OffsetDateTime.of(LocalDateTime.parse(TEST_DATE, RFC1123_DATE_TIME_FORMATTER), ZoneOffset.UTC));
+
+        assertEquals(dateTimeRfc1123, otherDateTimeRfc1123);
+        assertEquals(dateTimeRfc1123.hashCode(), otherDateTimeRfc1123.hashCode());
     }
 }
