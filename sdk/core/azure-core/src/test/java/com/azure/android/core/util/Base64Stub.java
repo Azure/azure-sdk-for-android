@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.core.util;
 
 class Base64Stub implements Base64Util.Base64Wrapper {

@@ -55,7 +55,7 @@ public class Base64UtilTest {
     }
 
     @Test
-    public void encodeUrlWithoutPadding() {
+    public void test_encodeUrlWithoutPadding() {
         assertNull(Base64Util.encodeUrlWithoutPadding(null));
     }
 
@@ -65,12 +65,22 @@ public class Base64UtilTest {
     }
 
     @Test
-    public void decodeUrl_fromNullByteArray() {
-        assertNull(Base64Util.decodeUrl((String) null));
+    public void decodeUrl_fromString() {
+        assertEquals(DECODED_BYTES, Base64Util.decodeUrl(ENCODED_STRING));
     }
 
     @Test
     public void decodeUrl_fromNullString() {
         assertNull(Base64Util.decodeUrl((String) null));
+    }
+
+    @Test
+    public void decodeUrl_fromByteArray() {
+        assertEquals(DECODED_BYTES, Base64Util.decodeUrl(ENCODED_BYTES));
+    }
+
+    @Test
+    public void decodeUrl_fromNullByteArray() {
+        assertNull(Base64Util.decodeUrl((byte[]) null));
     }
 }
