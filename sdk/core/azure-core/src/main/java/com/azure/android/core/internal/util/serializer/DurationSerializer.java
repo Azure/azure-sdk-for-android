@@ -18,6 +18,8 @@ import java.io.IOException;
  * Custom serializer for serializing {@link Duration} object into ISO8601 formats.
  */
 final class DurationSerializer extends JsonSerializer<Duration> {
+    private static final Duration DURATION_ZERO = Duration.ofMillis(0);
+
     /**
      * Gets a module wrapping this serializer as an adapter for the Jackson {@link ObjectMapper}.
      *
@@ -46,7 +48,7 @@ final class DurationSerializer extends JsonSerializer<Duration> {
         String result = null;
 
         if (duration != null) {
-            if (duration == Duration.ofMillis(0)) {
+            if (duration == DURATION_ZERO) {
                 result = "PT0S";
             } else {
                 final StringBuilder builder = new StringBuilder();

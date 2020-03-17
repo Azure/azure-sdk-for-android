@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.core.internal.util.serializer;
 
 import com.azure.android.core.internal.util.serializer.exception.MalformedValueException;
