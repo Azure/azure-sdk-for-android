@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.core.internal.util.serializer;
 
 import com.fasterxml.jackson.annotation.ObjectIdGenerator;
@@ -66,29 +69,8 @@ public class DateTimeSerializerTest {
         SerializationConfig serializationConfig = new SerializationConfig(
             baseSettings.withClassIntrospector(new BasicClassIntrospector()), new StdSubtypeResolver(),
             new SimpleMixInResolver(null), new RootNameLookup(), new ConfigOverrides());
-        SerializerProvider serializerProvider = new SerializerProvider() {
-            @Override
-            public WritableObjectId findObjectId(Object forPojo, ObjectIdGenerator<?> generatorType) {
-                return null;
-            }
-
-            @Override
-            public JsonSerializer<Object> serializerInstance(Annotated annotated, Object serDef) throws JsonMappingException {
-                return null;
-            }
-
-            @Override
-            public Object includeFilterInstance(BeanPropertyDefinition forProperty, Class<?> filterClass) throws JsonMappingException {
-                return null;
-            }
-
-            @Override
-            public boolean includeFilterSuppressNulls(Object filter) throws JsonMappingException {
-                return false;
-            }
-        };
         SerializerProvider serializerProviderStub =
-            new SerializerProviderStub(serializerProvider, serializationConfig, null);
+            new SerializerProviderStub(new SerializerProviderStub(), serializationConfig, null);
 
         // Actual serialization
         new DateTimeSerializer().serialize(dateTime, jsonGenerator, serializerProviderStub);
@@ -115,30 +97,8 @@ public class DateTimeSerializerTest {
         SerializationConfig serializationConfig = new SerializationConfig(
             baseSettings.withClassIntrospector(new BasicClassIntrospector()), new StdSubtypeResolver(),
             new SimpleMixInResolver(null), new RootNameLookup(), new ConfigOverrides());
-        serializationConfig = serializationConfig.without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        SerializerProvider serializerProvider = new SerializerProvider() {
-            @Override
-            public WritableObjectId findObjectId(Object forPojo, ObjectIdGenerator<?> generatorType) {
-                return null;
-            }
-
-            @Override
-            public JsonSerializer<Object> serializerInstance(Annotated annotated, Object serDef) throws JsonMappingException {
-                return null;
-            }
-
-            @Override
-            public Object includeFilterInstance(BeanPropertyDefinition forProperty, Class<?> filterClass) throws JsonMappingException {
-                return null;
-            }
-
-            @Override
-            public boolean includeFilterSuppressNulls(Object filter) throws JsonMappingException {
-                return false;
-            }
-        };
-        SerializerProvider serializerProviderStub =
-            new SerializerProviderStub(serializerProvider, serializationConfig, null);
+        serializationConfig = serializationConfig.without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);SerializerProvider serializerProviderStub =
+            new SerializerProviderStub(new SerializerProviderStub(), serializationConfig, null);
 
         // Actual serialization
         new DateTimeSerializer().serialize(dateTime, jsonGenerator, serializerProviderStub);
@@ -155,8 +115,12 @@ public class DateTimeSerializerTest {
         assertEquals("2020-02-25T00:59:22Z", DateTimeSerializer.toString(dateTime));
     }
 
-    private class SerializerProviderStub extends SerializerProvider {
-        public SerializerProviderStub(SerializerProvider src, SerializationConfig config, SerializerFactory f) {
+    private static class SerializerProviderStub extends SerializerProvider {
+        SerializerProviderStub() {
+            super();
+        }
+
+        SerializerProviderStub(SerializerProvider src, SerializationConfig config, SerializerFactory f) {
             super(src, config, f);
         }
 
