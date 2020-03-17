@@ -3,44 +3,30 @@
 
 package com.azure.android.core.util;
 
-import android.util.Base64;
-
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
+import static com.azure.android.core.util.Base64Stub.DECODED_BYTES;
+import static com.azure.android.core.util.Base64Stub.ENCODED_BYTES;
+import static com.azure.android.core.util.Base64Stub.ENCODED_STRING;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.notNull;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.spy;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(Base64.class)
 public class Base64UtilTest {
-    private static final byte[] UNENCODED_BYTES =
-        new byte[] { 65, 65, 69, 67, 65, 119, 81, 70, 66, 103, 99, 73, 67, 81 };
-    private static final byte[] ENCODED_BYTES =
-        new byte[] { 81, 85, 70, 70, 81, 48, 70, 51, 85, 85, 90, 67, 90, 50, 78, 74, 81, 49, 69, 61 };
-    private static final String ENCODED_STRING = "QUFFQ0F3UUZCZ2NJQ1E=";
+    @BeforeClass
+    public static void setUp() {
+        Base64Util.setBase64Wrapper(new Base64Stub());
+    }
 
     @Test
     public void encode_byteArray() {
-        spy(Base64.class);
-        when(Base64.encode(notNull(), anyInt())).thenReturn(ENCODED_BYTES);
-
-        assertArrayEquals(ENCODED_BYTES, Base64Util.encode(UNENCODED_BYTES));
+        assertArrayEquals(ENCODED_BYTES, Base64Util.encode(DECODED_BYTES));
     }
 
     @Test
     public void decode_byteArray() {
-        spy(Base64.class);
-        when(Base64.decode((byte[]) notNull(), anyInt())).thenReturn(UNENCODED_BYTES);
-
-        assertArrayEquals(UNENCODED_BYTES, Base64Util.decode(ENCODED_BYTES));
+        assertArrayEquals(DECODED_BYTES, Base64Util.decode(ENCODED_BYTES));
     }
 
     @Test
@@ -55,18 +41,12 @@ public class Base64UtilTest {
 
     @Test
     public void encode_toString() {
-        spy(Base64.class);
-        when(Base64.encodeToString(notNull(), anyInt())).thenReturn(ENCODED_STRING);
-
-        assertEquals(ENCODED_STRING, Base64Util.encodeToString(UNENCODED_BYTES));
+        assertEquals(ENCODED_STRING, Base64Util.encodeToString(DECODED_BYTES));
     }
 
     @Test
     public void decode_string() {
-        spy(Base64.class);
-        when(Base64.decode((String) notNull(), anyInt())).thenReturn(UNENCODED_BYTES);
-
-        assertArrayEquals(UNENCODED_BYTES, Base64Util.decodeString(ENCODED_STRING));
+        assertArrayEquals(DECODED_BYTES, Base64Util.decodeString(ENCODED_STRING));
     }
 
     @Test
@@ -76,25 +56,21 @@ public class Base64UtilTest {
 
     @Test
     public void encodeUrlWithoutPadding() {
-        assertNull(Base64Util.encodeURLWithoutPadding(null));
+        assertNull(Base64Util.encodeUrlWithoutPadding(null));
     }
 
     @Test
     public void encodeUrlWithoutPadding_usingNullValue() {
-        assertNull(Base64Util.encodeURLWithoutPadding(null));
+        assertNull(Base64Util.encodeUrlWithoutPadding(null));
     }
 
     @Test
     public void decodeUrl_fromNullByteArray() {
-        byte[] encodedContent = null;
-
-        assertNull(Base64Util.decodeUrl(encodedContent));
+        assertNull(Base64Util.decodeUrl((String) null));
     }
 
     @Test
     public void decodeUrl_fromNullString() {
-        String encodedContent = null;
-
-        assertNull(Base64Util.decodeUrl(encodedContent));
+        assertNull(Base64Util.decodeUrl((String) null));
     }
 }
