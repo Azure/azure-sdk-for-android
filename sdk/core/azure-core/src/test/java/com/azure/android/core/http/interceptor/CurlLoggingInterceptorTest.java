@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.AbstractMap;
 import java.util.List;
 
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -45,16 +46,17 @@ public class CurlLoggingInterceptorTest {
         }
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Test
     public void headersAndQueryParameters_areNotRedacted() throws IOException {
         // Given a request where at least one header is populated and there is at least one query parameter, and a
         // client with a CurlLoggingInterceptor.
         String testHeaderName = "Test-Header";
         String testHeaderValue = "Test Value";
-        String urlWithQueryParam = "http://www.example.com/?testQueryParam=testValue";
+        HttpUrl urlWithQueryParam = mockWebServer.url("/?testQueryParam=testValue");
         Request request = new Request.Builder()
             .addHeader(testHeaderName, testHeaderValue)
-            .url(mockWebServer.url(urlWithQueryParam))
+            .url(urlWithQueryParam)
             .build();
 
         // When sending said request.
@@ -65,7 +67,7 @@ public class CurlLoggingInterceptorTest {
 
         // Then the cURL command should not redact the header and query parameter values.
         assertTrue(curlCommand.contains("-H \"" + testHeaderName + ": " + testHeaderValue + "\""));
-        assertTrue(curlCommand.contains(urlWithQueryParam));
+        assertTrue(curlCommand.contains(urlWithQueryParam.toString()));
     }
 
     @Test
