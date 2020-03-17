@@ -6,14 +6,19 @@ package com.azure.android.core.util;
 import org.junit.Test;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.format.DateTimeFormatter;
 
-import static com.azure.android.core.util.DateTimeRfc1123.RFC1123_DATE_TIME_FORMATTER;
+import java.util.Locale;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class DateTimeRfc1123Test {
+    private static final DateTimeFormatter RFC1123_DATE_TIME_FORMATTER =
+        DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'").withZone(ZoneId.of("UTC")).withLocale(Locale.US);
     private static final String TEST_DATE = "Tue, 25 Feb 2020 00:59:22 GMT";
 
     @Test
