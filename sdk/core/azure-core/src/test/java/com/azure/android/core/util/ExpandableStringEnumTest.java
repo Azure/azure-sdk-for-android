@@ -6,10 +6,11 @@ package com.azure.android.core.util;
 import org.junit.Test;
 
 import java.util.Collection;
-import java.util.Iterator;
+import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
@@ -47,15 +48,12 @@ public class ExpandableStringEnumTest {
     public void getExistingInstances() {
         MyExpandableStringEnum myExpandableStringEnum = MyExpandableStringEnum.fromString("Test");
         MyExpandableStringEnum otherMyExpandableStringEnum = MyExpandableStringEnum.fromString("Another");
-        Collection instances = MyExpandableStringEnum.values();
+        Set<MyExpandableStringEnum> instances = (Set<MyExpandableStringEnum>) MyExpandableStringEnum.values();
 
         assertFalse(instances.isEmpty());
         assertEquals(2, instances.size());
-
-        Iterator iterator = instances.iterator();
-
-        assertSame(myExpandableStringEnum, iterator.next());
-        assertSame(otherMyExpandableStringEnum, iterator.next());
+        assertTrue(instances.contains(myExpandableStringEnum));
+        assertTrue(instances.contains(otherMyExpandableStringEnum));
     }
 
     @Test
@@ -64,42 +62,42 @@ public class ExpandableStringEnumTest {
     }
 
     @Test
-    public void getHashCode() {
-        assertEquals(-2043209345, MyExpandableStringEnum.fromString("Test").hashCode());
-    }
-
-    @SuppressWarnings("SimplifiableJUnitAssertion")
-    @Test
     public void equalTo_identicalObject() {
         MyExpandableStringEnum myExpandableStringEnum = MyExpandableStringEnum.fromString("Test");
         MyExpandableStringEnum otherMyExpandableStringEnum = MyExpandableStringEnum.fromString("Test");
 
-        assertTrue(myExpandableStringEnum.equals(otherMyExpandableStringEnum));
+        assertEquals(myExpandableStringEnum, otherMyExpandableStringEnum);
     }
 
-    @SuppressWarnings("SimplifiableJUnitAssertion")
     @Test
     public void notEqualTo_differentObject() {
         MyExpandableStringEnum myExpandableStringEnum = MyExpandableStringEnum.fromString("Test");
         MyExpandableStringEnum otherMyExpandableStringEnum = MyExpandableStringEnum.fromString("Another");
 
-        assertFalse(myExpandableStringEnum.equals(otherMyExpandableStringEnum));
+        assertNotEquals(myExpandableStringEnum, otherMyExpandableStringEnum);
     }
 
-    @SuppressWarnings({"SimplifiableJUnitAssertion", "ConstantConditions"})
     @Test
     public void notEqualTo_nullObject() {
         MyExpandableStringEnum myExpandableStringEnum = MyExpandableStringEnum.fromString("Test");
 
-        assertFalse(myExpandableStringEnum.equals(null));
+        assertNotNull(myExpandableStringEnum);
     }
 
-    @SuppressWarnings({"SimplifiableJUnitAssertion", "EqualsBetweenInconvertibleTypes"})
     @Test
     public void notEqualTo_objectFromDifferentClass() {
         MyExpandableStringEnum myExpandableStringEnum = MyExpandableStringEnum.fromString("Test");
 
-        assertFalse(myExpandableStringEnum.equals(""));
+        assertNotEquals("", myExpandableStringEnum);
+    }
+
+    @Test
+    public void getHashCode() {
+        MyExpandableStringEnum myExpandableStringEnum = MyExpandableStringEnum.fromString("Test");
+        MyExpandableStringEnum otherMyExpandableStringEnum = MyExpandableStringEnum.fromString("Test");
+
+        assertEquals(myExpandableStringEnum, otherMyExpandableStringEnum);
+        assertEquals(myExpandableStringEnum.hashCode(), otherMyExpandableStringEnum.hashCode());
     }
 
     static final class MyExpandableStringEnum extends ExpandableStringEnum<MyExpandableStringEnum> {

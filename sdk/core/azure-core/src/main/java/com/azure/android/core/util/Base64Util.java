@@ -13,6 +13,13 @@ public final class Base64Util {
         // Empty constructor to prevent instantiation of this class.
     }
 
+    /**
+     * We cannot call Android framework's classes like {@link Base64} from unit tests and we cannot use Java's
+     * Base64 class because that's only available at a later Android version. To get around this and not use
+     * something like PowerMock to mock static methods like {@code Base64.encode()}, the {@link Base64Wrapper}
+     * interface was created. Normally this value will always be set to {@link Base64Android} and for unit tests it will
+     * be set to a stub that implements the aforementioned interface.
+     */
     private static Base64Wrapper base64Wrapper = new Base64Android();
 
     static void setBase64Wrapper(Base64Wrapper newWrapper) {
