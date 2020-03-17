@@ -144,7 +144,6 @@ allprojects {
         okHttpVersion = "3.13.1"
         retrofitVersion = "2.6.2"
         roomVersion = "2.2.4"
-        powerMockVersion = "2.0.5"
         staxApiVersion = "1.0-2"
         threeTenAbpVersion = "1.2.1"
         threeTenBpVersion = "1.4.0"
