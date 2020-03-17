@@ -6,8 +6,6 @@ package com.azure.android.core.util;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.Arrays;
-
 import static com.azure.android.core.util.Base64Stub.DECODED_BYTES;
 import static com.azure.android.core.util.Base64Stub.ENCODED_BYTES;
 import static com.azure.android.core.util.Base64Stub.ENCODED_STRING;

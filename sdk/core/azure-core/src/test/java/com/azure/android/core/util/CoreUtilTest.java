@@ -8,9 +8,6 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.azure.android.core.util.CoreUtil.isNullOrEmpty;
-import static com.azure.android.core.util.CoreUtil.replace;
-import static com.azure.android.core.util.CoreUtil.toTitleCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -19,22 +16,22 @@ import static org.junit.Assert.assertTrue;
 public class CoreUtilTest {
     @Test
     public void isNullOrEmpty_returnsTrue_withNullString() {
-        assertTrue(isNullOrEmpty(null));
+        assertTrue(CoreUtil.isNullOrEmpty(null));
     }
 
     @Test
     public void isNullOrEmpty_returnsTrue_withEmptyString() {
-        assertTrue(isNullOrEmpty(""));
+        assertTrue(CoreUtil.isNullOrEmpty(""));
     }
 
     @Test
     public void isNullOrEmpty_returnsTrue_withEmptyStringBuilder() {
-        assertTrue(isNullOrEmpty(new StringBuilder()));
+        assertTrue(CoreUtil.isNullOrEmpty(new StringBuilder()));
     }
 
     @Test
     public void isNullOrEmpty_returnsFalse_withNonEmptyString() {
-        assertFalse(isNullOrEmpty("Test"));
+        assertFalse(CoreUtil.isNullOrEmpty("Test"));
     }
 
     @Test
@@ -44,7 +41,8 @@ public class CoreUtilTest {
         pairs.put(' ', "_");
         String testString = "Ohana means family.";
 
-        assertEquals("OhAnA_meAns_fAmily.", replace(testString, pairs).toString());
+        //noinspection ConstantConditions
+        assertEquals("OhAnA_meAns_fAmily.", CoreUtil.replace(testString, pairs).toString());
     }
 
     @Test
@@ -54,7 +52,8 @@ public class CoreUtilTest {
         pairs.put(' ', "_____");
         String testString = "Ohana means family.";
 
-        assertEquals("OhAlohanAloha_____meAlohans_____fAlohamily.", replace(testString, pairs).toString());
+        //noinspection ConstantConditions
+        assertEquals("OhAlohanAloha_____meAlohans_____fAlohamily.", CoreUtil.replace(testString, pairs).toString());
     }
 
     @Test
@@ -65,7 +64,7 @@ public class CoreUtilTest {
         StringBuilder stringBuilder = new StringBuilder("Ohana means family.");
 
         //noinspection ConstantConditions
-        assertEquals("OhAnA_meAns_fAmily.", replace(stringBuilder, pairs).toString());
+        assertEquals("OhAnA_meAns_fAmily.", CoreUtil.replace(stringBuilder, pairs).toString());
     }
 
     @Test
@@ -74,7 +73,7 @@ public class CoreUtilTest {
         pairs.put('a', "A");
         pairs.put(' ', "_");
 
-        assertNull(replace(null, pairs));
+        assertNull(CoreUtil.replace(null, pairs));
     }
 
     @Test
@@ -82,31 +81,31 @@ public class CoreUtilTest {
         Map<Character, CharSequence> pairs = new HashMap<>();
         pairs.put(null, "Ohana means family.");
 
-        assertEquals("Ohana means family.", replace(null, pairs));
+        assertEquals("Ohana means family.", CoreUtil.replace(null, pairs));
     }
 
     @Test
     public void applyTitleCase_toString() {
-        assertEquals("Test String With Multiple Words.", toTitleCase("Test string with multiple words.").toString());
+        assertEquals("Test String With Multiple Words.", CoreUtil.toTitleCase("Test string with multiple words.").toString());
     }
 
     @Test
     public void applyTitleCase_toString_WithWordsSeparatedBySpecialCharacters() {
-        assertEquals("Test_string_with_multiple_words.", toTitleCase("Test_string_with_multiple_words.").toString());
+        assertEquals("Test_string_with_multiple_words.", CoreUtil.toTitleCase("Test_string_with_multiple_words.").toString());
     }
 
     @Test
     public void applyTitleCase_toStringBuilder() {
-        assertEquals("Test String With Multiple Words.", toTitleCase(new StringBuilder("Test string with multiple words.")).toString());
+        assertEquals("Test String With Multiple Words.", CoreUtil.toTitleCase(new StringBuilder("Test string with multiple words.")).toString());
     }
 
     @Test
     public void applyTitleCase_toEmptyString() {
-        assertEquals("", toTitleCase("").toString());
+        assertEquals("", CoreUtil.toTitleCase("").toString());
     }
 
     @Test
     public void applyTitleCase_toNullString() {
-        assertNull(toTitleCase(null));
+        assertNull(CoreUtil.toTitleCase(null));
     }
 }
