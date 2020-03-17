@@ -8,15 +8,15 @@ import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.azure.android.core.util.CoreUtils.isNullOrEmpty;
-import static com.azure.android.core.util.CoreUtils.replace;
-import static com.azure.android.core.util.CoreUtils.toTitleCase;
+import static com.azure.android.core.util.CoreUtil.isNullOrEmpty;
+import static com.azure.android.core.util.CoreUtil.replace;
+import static com.azure.android.core.util.CoreUtil.toTitleCase;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-public class CoreUtilsTest {
+public class CoreUtilTest {
     @Test
     public void isNullOrEmpty_returnsTrue_withNullString() {
         assertTrue(isNullOrEmpty(null));
