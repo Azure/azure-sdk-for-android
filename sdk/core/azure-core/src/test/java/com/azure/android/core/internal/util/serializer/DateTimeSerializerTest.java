@@ -1,17 +1,30 @@
 package com.azure.android.core.internal.util.serializer;
 
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import com.fasterxml.jackson.core.Base64Variants;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializationConfig;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.cfg.BaseSettings;
+import com.fasterxml.jackson.databind.cfg.ConfigOverrides;
+import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.fasterxml.jackson.databind.introspect.BasicClassIntrospector;
+import com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition;
+import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
+import com.fasterxml.jackson.databind.introspect.SimpleMixInResolver;
+import com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.SerializerFactory;
+import com.fasterxml.jackson.databind.ser.impl.WritableObjectId;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.RootNameLookup;
+import com.fasterxml.jackson.databind.util.StdDateFormat;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.powermock.api.mockito.PowerMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
@@ -23,12 +36,9 @@ import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(SerializerProvider.class)
 public class DateTimeSerializerTest {
-    public static final DateTimeFormatter RFC1123_DATE_TIME_FORMATTER =
+    private static final DateTimeFormatter RFC1123_DATE_TIME_FORMATTER =
         DateTimeFormatter.ofPattern("EEE, dd MMM yyyy HH:mm:ss 'GMT'").withZone(ZoneId.of("UTC")).withLocale(Locale.US);
 
     @Test
@@ -40,39 +50,100 @@ public class DateTimeSerializerTest {
 
     @Test
     public void serializeDateTime_asNumber() throws IOException {
+        // DateTime
         String testDate = "Tue, 25 Feb 2020 00:59:22 GMT";
         OffsetDateTime dateTime =
             OffsetDateTime.of(LocalDateTime.parse(testDate, RFC1123_DATE_TIME_FORMATTER), ZoneOffset.UTC);
+
+        // JsonGenerator and target OutputStream
         StringBuilderOutputStream outputStream = new StringBuilderOutputStream();
         JsonGenerator jsonGenerator = new JsonFactory().createGenerator(outputStream);
-        DateTimeSerializer dateTimeSerializer = new DateTimeSerializer();
-        SerializerProvider serializerProviderMock = PowerMockito.mock(SerializerProvider.class);
-        PowerMockito.when(serializerProviderMock.isEnabled(any(SerializationFeature.class))).thenReturn(true);
 
-        dateTimeSerializer.serialize(dateTime, jsonGenerator, serializerProviderMock);
+        // SerializerProvider
+        BaseSettings baseSettings = new BaseSettings(null, new JacksonAnnotationIntrospector(), null,
+            TypeFactory.defaultInstance(), null, StdDateFormat.instance, null, Locale.getDefault(), null,
+            Base64Variants.getDefaultVariant());
+        SerializationConfig serializationConfig = new SerializationConfig(
+            baseSettings.withClassIntrospector(new BasicClassIntrospector()), new StdSubtypeResolver(),
+            new SimpleMixInResolver(null), new RootNameLookup(), new ConfigOverrides());
+        SerializerProvider serializerProvider = new SerializerProvider() {
+            @Override
+            public WritableObjectId findObjectId(Object forPojo, ObjectIdGenerator<?> generatorType) {
+                return null;
+            }
+
+            @Override
+            public JsonSerializer<Object> serializerInstance(Annotated annotated, Object serDef) throws JsonMappingException {
+                return null;
+            }
+
+            @Override
+            public Object includeFilterInstance(BeanPropertyDefinition forProperty, Class<?> filterClass) throws JsonMappingException {
+                return null;
+            }
+
+            @Override
+            public boolean includeFilterSuppressNulls(Object filter) throws JsonMappingException {
+                return false;
+            }
+        };
+        SerializerProvider serializerProviderStub =
+            new SerializerProviderStub(serializerProvider, serializationConfig, null);
+
+        // Actual serialization
+        new DateTimeSerializer().serialize(dateTime, jsonGenerator, serializerProviderStub);
         jsonGenerator.flush();
 
-        //noinspection ResultOfMethodCallIgnored
-        Mockito.verify(serializerProviderMock).isEnabled(any(SerializationFeature.class));
         assertEquals("1582592362000", outputStream.toString());
     }
 
     @Test
     public void serializeDateTime_asString() throws IOException {
+        //DateTime
         String testDate = "Tue, 25 Feb 2020 00:59:22 GMT";
         OffsetDateTime dateTime =
             OffsetDateTime.of(LocalDateTime.parse(testDate, RFC1123_DATE_TIME_FORMATTER), ZoneOffset.UTC);
+
+        // JsonGenerator and target OutputStream
         StringBuilderOutputStream outputStream = new StringBuilderOutputStream();
         JsonGenerator jsonGenerator = new JsonFactory().createGenerator(outputStream);
-        DateTimeSerializer dateTimeSerializer = new DateTimeSerializer();
-        SerializerProvider serializerProviderMock = PowerMockito.mock(SerializerProvider.class);
-        PowerMockito.when(serializerProviderMock.isEnabled(any(SerializationFeature.class))).thenReturn(false);
 
-        dateTimeSerializer.serialize(dateTime, jsonGenerator, serializerProviderMock);
+        // SerializerProvider
+        BaseSettings baseSettings = new BaseSettings(null, new JacksonAnnotationIntrospector(), null,
+            TypeFactory.defaultInstance(), null, StdDateFormat.instance, null, Locale.getDefault(), null,
+            Base64Variants.getDefaultVariant());
+        SerializationConfig serializationConfig = new SerializationConfig(
+            baseSettings.withClassIntrospector(new BasicClassIntrospector()), new StdSubtypeResolver(),
+            new SimpleMixInResolver(null), new RootNameLookup(), new ConfigOverrides());
+        serializationConfig = serializationConfig.without(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        SerializerProvider serializerProvider = new SerializerProvider() {
+            @Override
+            public WritableObjectId findObjectId(Object forPojo, ObjectIdGenerator<?> generatorType) {
+                return null;
+            }
+
+            @Override
+            public JsonSerializer<Object> serializerInstance(Annotated annotated, Object serDef) throws JsonMappingException {
+                return null;
+            }
+
+            @Override
+            public Object includeFilterInstance(BeanPropertyDefinition forProperty, Class<?> filterClass) throws JsonMappingException {
+                return null;
+            }
+
+            @Override
+            public boolean includeFilterSuppressNulls(Object filter) throws JsonMappingException {
+                return false;
+            }
+        };
+        SerializerProvider serializerProviderStub =
+            new SerializerProviderStub(serializerProvider, serializationConfig, null);
+
+        // Actual serialization
+        new DateTimeSerializer().serialize(dateTime, jsonGenerator, serializerProviderStub);
         jsonGenerator.flush();
 
-        //noinspection ResultOfMethodCallIgnored
-        Mockito.verify(serializerProviderMock).isEnabled(any(SerializationFeature.class));
         assertEquals("\"2020-02-25T00:59:22Z\"", outputStream.toString());
     }
 
@@ -82,5 +153,31 @@ public class DateTimeSerializerTest {
             OffsetDateTime.of(LocalDateTime.parse("Tue, 25 Feb 2020 00:59:22 GMT", RFC1123_DATE_TIME_FORMATTER), ZoneOffset.UTC);
 
         assertEquals("2020-02-25T00:59:22Z", DateTimeSerializer.toString(dateTime));
+    }
+
+    private class SerializerProviderStub extends SerializerProvider {
+        public SerializerProviderStub(SerializerProvider src, SerializationConfig config, SerializerFactory f) {
+            super(src, config, f);
+        }
+
+        @Override
+        public WritableObjectId findObjectId(Object forPojo, ObjectIdGenerator<?> generatorType) {
+            return null;
+        }
+
+        @Override
+        public JsonSerializer<Object> serializerInstance(Annotated annotated, Object serDef) throws JsonMappingException {
+            return null;
+        }
+
+        @Override
+        public Object includeFilterInstance(BeanPropertyDefinition forProperty, Class<?> filterClass) throws JsonMappingException {
+            return null;
+        }
+
+        @Override
+        public boolean includeFilterSuppressNulls(Object filter) throws JsonMappingException {
+            return false;
+        }
     }
 }
