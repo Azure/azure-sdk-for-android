@@ -1,6 +1,7 @@
 package com.azure.android.core.http.interceptor;
 
 import com.azure.android.core.http.HttpHeader;
+
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -14,6 +15,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
 
+import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -294,10 +296,10 @@ public class LoggingInterceptorTest {
     @Test
     public void requestOperationAndHost_areLoggedAtInfoLevel_onRequest() throws IOException {
         // Given a request for a given URL and a client with a LoggingInterceptor.
-        String testUrl = "http://www.example.com";
         String testPath = "/testPath";
+        HttpUrl testUrl = mockWebServer.url(testPath);
         Request request = new Request.Builder()
-            .url(mockWebServer.url(testUrl + testPath))
+            .url(testUrl)
             .build();
 
         // When sending said request.
@@ -327,7 +329,7 @@ public class LoggingInterceptorTest {
         // Then the operation executed...
         assertEquals("GET " + testPath, operationLogMessage);
         // ...and the host the request was sent to should be logged...
-        assertEquals("Host: " + testUrl, hostLogMessage);
+        assertEquals("Host: " + testUrl.scheme() + "://" + testUrl.host(), hostLogMessage);
         // ...at the INFO log level.
         assertEquals(LOG_LEVEL_INFO, logLevel);
     }
