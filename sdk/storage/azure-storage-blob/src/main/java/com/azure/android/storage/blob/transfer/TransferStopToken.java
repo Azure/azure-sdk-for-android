@@ -6,21 +6,23 @@ package com.azure.android.storage.blob.transfer;
 import android.os.Message;
 
 /**
- * A notification to indicate that an executing {@link UploadHandler} should be stopped.
+ * A notification to indicate that an executing {@link UploadHandler} or {@link DownloadHandler} should be stopped.
  *
- * Used by {@link UploadWorker} to send stop signal to {@link UploadHandler}.
+ * Used by {@link UploadWorker} and {@link DownloadWorker} to send a stop signal to an {@link UploadHandler} or
+ * {@link DownloadHandler}.
  */
-final class UploadStopToken {
+final class TransferStopToken {
     private volatile boolean isStopped;
     private Message stopMessage;
 
     /**
-     * Creates UploadStopToken.
+     * Creates TransferStopToken.
      *
      * @param stopMessage the stop message
      * @see UploadHandlerMessage#createStopMessage(UploadHandler)
+     * @see DownloadHandlerMessage#createStopMessage(DownloadHandler)
      */
-    UploadStopToken(Message stopMessage) {
+    TransferStopToken(Message stopMessage) {
         this.stopMessage = stopMessage;
     }
 

@@ -15,7 +15,7 @@ import java.util.List;
  *
  * The Data Access Object exposing operations to store and retrieve upload metadata.
  *
- * @see BlockUploadEntity
+ * @see BlobUploadEntity
  * @see BlockUploadEntity
  */
 @Dao
@@ -125,8 +125,8 @@ abstract class UploadDao {
      * @param blobKey the blob upload metadata key (aka uploadId)
      * @param state the interrupted state
      */
-    @Query("UPDATE blobuploads SET upload_interrupt_state=:state WHERE `key` = :blobKey")
-    public abstract void updateUploadInterruptState(long blobKey, UploadInterruptState state);
+    @Query("UPDATE blobuploads SET transfer_interrupt_state=:state WHERE `key` = :blobKey")
+    public abstract void updateUploadInterruptState(long blobKey, TransferInterruptState state);
 
     /**
      * Get the interrupted state from a blob upload metadata.
@@ -134,8 +134,8 @@ abstract class UploadDao {
      * @param blobKey the blob upload metadata key (aka uploadId)
      * @return the interrupted state
      */
-    @Query("SELECT upload_interrupt_state FROM blobuploads where `key` = :blobKey limit 1")
-    public abstract UploadInterruptState getUploadInterruptState(long blobKey);
+    @Query("SELECT transfer_interrupt_state FROM blobuploads where `key` = :blobKey limit 1")
+    public abstract TransferInterruptState getTransferInterruptState(long blobKey);
 
     /**
      * Get the total bytes uploaded so far for a blob upload.

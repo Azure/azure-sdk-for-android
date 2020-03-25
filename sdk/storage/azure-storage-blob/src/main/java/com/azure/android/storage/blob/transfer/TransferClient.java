@@ -105,6 +105,47 @@ public class TransferClient {
     }
 
     /**
+     * Download a blob.
+     *
+     * @param containerName The container to download the blob from.
+     * @param blobName The name of the target blob to download.
+     * @param file The local file to download to.
+     * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
+     */
+    public LiveData<TransferInfo> download(String containerName, String blobName, File file) {
+        MutableLiveData<Long> transferIdLiveData = new MutableLiveData<>();
+
+        this.serialTaskExecutor.execute(() -> {
+            BlobDownloadEntity blob = new BlobDownloadEntity(containerName, blobName, file);
+            long downloadId = db.downloadDao().createDownloadRecord(blob);
+
+            Log.v(TAG, "download(): download record created: " + downloadId);
+
+            StorageBlobClientsMap.put(downloadId, blobClient);
+
+            Data inputData = new Data.Builder()
+                .putLong(DownloadWorker.Constants.INPUT_BLOB_DOWNLOAD_ID_KEY, downloadId)
+                .build();
+            OneTimeWorkRequest downloadWorkRequest = new OneTimeWorkRequest
+                .Builder(DownloadWorker.class)
+                .setConstraints(constraints)
+                .setInputData(inputData)
+                .build();
+
+            Log.v(TAG, "download(): enqueuing DownloadWorker: " + downloadId);
+
+            WorkManager.getInstance(context)
+                .beginUniqueWork(toTransferUniqueWorkName(downloadId),
+                    ExistingWorkPolicy.KEEP,
+                    downloadWorkRequest)
+                .enqueue();
+            transferIdLiveData.postValue(downloadId);
+        });
+
+        return new TransferIdMappedToTransferInfo().getTransferInfoLiveData(context, transferIdLiveData);
+    }
+
+    /**
      * Get the name for a unique transfer work.
      *
      * @param transferId the transfer id

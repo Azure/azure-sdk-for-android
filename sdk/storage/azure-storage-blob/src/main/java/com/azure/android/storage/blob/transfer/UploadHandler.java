@@ -33,7 +33,7 @@ import java.util.Objects;
  * blocks commit operation, handling failure in operations, parking the work if the handler
  * reaches stop state.
  *
- * Additionally Handler is responsible for notifying {@link UploadHandlerListener} on various events.
+ * Additionally Handler is responsible for notifying {@link TransferHandlerListener} on various events.
  * Calls to this listener methods are serialized, i.e. these methods won't be called concurrently.
  */
 final class UploadHandler extends Handler {
@@ -43,9 +43,9 @@ final class UploadHandler extends Handler {
     private final int blocksUploadConcurrency;
     private final long uploadId;
     private final HashMap<String, Pair<BlockUploadEntity, ServiceCall>> runningBlockUploads;
-    private final UploadStopToken uploadStopToken;
+    private final TransferStopToken transferStopToken;
 
-    private UploadHandlerListener uploadHandlerListener;
+    private TransferHandlerListener transferHandlerListener;
     private TransferDatabase db;
     private BlobUploadEntity blob;
     private long totalBytesUploaded;
@@ -67,7 +67,7 @@ final class UploadHandler extends Handler {
         this.blocksUploadConcurrency = blocksUploadConcurrency;
         this.uploadId = uploadId;
         this.runningBlockUploads = new HashMap<>(this.blocksUploadConcurrency);
-        this.uploadStopToken = new UploadStopToken(UploadHandlerMessage.createStopMessage(this));
+        this.transferStopToken = new TransferStopToken(UploadHandlerMessage.createStopMessage(this));
     }
 
     /**
@@ -89,15 +89,16 @@ final class UploadHandler extends Handler {
     /**
      * Begin uploading the file.
      *
-     * @param uploadHandlerListener the listener to send the upload events
+     * @param transferHandlerListener the listener to send the upload events
      * @return the token to stop the upload
      */
-    UploadStopToken beginUpload(UploadHandlerListener uploadHandlerListener) {
-        this.uploadHandlerListener = Objects.requireNonNull(uploadHandlerListener, "uploadHandlerListener is null.");
+    TransferStopToken beginUpload(TransferHandlerListener transferHandlerListener) {
+        this.transferHandlerListener =
+            Objects.requireNonNull(transferHandlerListener, "transferHandlerListener is null.");
         Log.i(TAG, "beginUpload(): uploadId:" + this.uploadId);
         Message message = UploadHandlerMessage.createInitMessage(this);
         message.sendToTarget();
-        return this.uploadStopToken;
+        return this.transferStopToken;
     }
 
     @Override
@@ -143,18 +144,18 @@ final class UploadHandler extends Handler {
     private void handleInit() {
         this.db = TransferDatabase.get(this.appContext);
         this.blob = this.db.uploadDao().getBlob(uploadId);
-        if (this.blob.interruptState == UploadInterruptState.PURGE) {
-            this.uploadHandlerListener.onError(new RuntimeException("Upload Operation with id '"
+        if (this.blob.interruptState == TransferInterruptState.PURGE) {
+            this.transferHandlerListener.onError(new RuntimeException("Upload Operation with id '"
                 + this.uploadId + "' is already CANCELLED and cannot be RESTARTED or RESUMED."));
             this.getLooper().quit();
         } else if (this.blob.state == BlobUploadState.COMPLETED) {
-            this.uploadHandlerListener.onUploadProgress(blob.fileSize, blob.fileSize);
-            this.uploadHandlerListener.onComplete();
+            this.transferHandlerListener.onTransferProgress(blob.fileSize, blob.fileSize);
+            this.transferHandlerListener.onComplete();
             this.getLooper().quit();
         } else {
             this.blobClient = StorageBlobClientsMap.get(this.uploadId);
             this.totalBytesUploaded = this.db.uploadDao().getUploadedBytesCount(this.uploadId);
-            this.uploadHandlerListener.onUploadProgress(blob.fileSize, totalBytesUploaded);
+            this.transferHandlerListener.onTransferProgress(blob.fileSize, totalBytesUploaded);
             List<BlockUploadState> skip = new ArrayList();
             skip.add(BlockUploadState.COMPLETED);
             this.blocksItr = new BlockUploadRecordsEnumerator(this.db, this.uploadId, skip);
@@ -171,7 +172,7 @@ final class UploadHandler extends Handler {
      * Handles the block staging (upload) completion message received by the looper.
      * Such a completion message indicate that a single block is successfully uploaded.
      *
-     * This stage notifies the progress to {@link UploadHandlerListener}. If there are more
+     * This stage notifies the progress to {@link TransferHandlerListener}. If there are more
      * blocks to be uploaded then it starts next block upload async operation, if there are no
      * more blocks to upload then it start a blocks commit async operation.
      *
@@ -183,7 +184,7 @@ final class UploadHandler extends Handler {
         Pair<BlockUploadEntity, ServiceCall> p = this.runningBlockUploads.remove(blockId);
         BlockUploadEntity blockStaged = p.first;
         this.totalBytesUploaded += blockStaged.blockSize;
-        this.uploadHandlerListener.onUploadProgress(this.blob.fileSize, this.totalBytesUploaded);
+        this.transferHandlerListener.onTransferProgress(this.blob.fileSize, this.totalBytesUploaded);
         List<BlockUploadEntity> blocks = blocksItr.getNext(1);
         if (blocks.isEmpty()) {
             if (runningBlockUploads.isEmpty()) {
@@ -197,7 +198,7 @@ final class UploadHandler extends Handler {
     /**
      * Handles the block staging (upload) failed message received by the looper.
      *
-     * This stage cancel any running calls, notifies the failure to {@link UploadHandlerListener}
+     * This stage cancel any running calls, notifies the failure to {@link TransferHandlerListener}
      * and terminates the handler.
      *
      * @param message the message describing the block that failed to stage
@@ -208,30 +209,30 @@ final class UploadHandler extends Handler {
         for (Pair<BlockUploadEntity, ServiceCall> p : this.runningBlockUploads.values()) {
             p.second.cancel();
         }
-        this.uploadHandlerListener.onError(failedPair.first.getStagingError());
+        this.transferHandlerListener.onError(failedPair.first.getStagingError());
         this.getLooper().quit();
     }
 
     /**
      * Handles the blocks commit completion message received by the looper.
      *
-     * This stage notifies the completion of file upload to {@link UploadHandlerListener}
+     * This stage notifies the completion of file upload to {@link TransferHandlerListener}
      * and terminates the handler.
      */
     private void handleCommitCompleted() {
-        this.uploadHandlerListener.onUploadProgress(this.blob.fileSize, this.blob.fileSize);
-        this.uploadHandlerListener.onComplete();
+        this.transferHandlerListener.onTransferProgress(this.blob.fileSize, this.blob.fileSize);
+        this.transferHandlerListener.onComplete();
         this.getLooper().quit();
     }
 
     /**
      * Handles the blocks commit failed message received by the looper.
      *
-     * This stage notifies the failure to {@link UploadHandlerListener} and terminates
+     * This stage notifies the failure to {@link TransferHandlerListener} and terminates
      * the handler.
      */
     private void handleCommitFailed() {
-        this.uploadHandlerListener.onError(this.blob.getCommitError());
+        this.transferHandlerListener.onError(this.blob.getCommitError());
         this.getLooper().quit();
     }
 
@@ -239,23 +240,23 @@ final class UploadHandler extends Handler {
      * Check whether stop token is signalled, if so park the work and quit the looper.
      */
     private void finalizeIfStopped() {
-        if (this.uploadStopToken.isStopped()) {
+        if (this.transferStopToken.isStopped()) {
             Log.v(TAG, "finalizeIfStopped(): Stop request received, finalizing");
             for (Pair<BlockUploadEntity, ServiceCall> p : this.runningBlockUploads.values()) {
                 p.second.cancel();
             }
-            UploadInterruptState interruptState = this.db.uploadDao().getUploadInterruptState(this.uploadId);
+            TransferInterruptState interruptState = this.db.uploadDao().getTransferInterruptState(this.uploadId);
             Log.v(TAG, "finalizeIfStopped: Stop request reason (NONE == Stop requested by SYSTEM): " + interruptState);
             switch (interruptState) {
                 case NONE:
-                    this.uploadHandlerListener.onSystemPaused();
+                    this.transferHandlerListener.onSystemPaused();
                     break;
                 case USER_PAUSED:
-                    this.uploadHandlerListener.onUserPaused();
+                    this.transferHandlerListener.onUserPaused();
                     break;
                 case USER_CANCELLED:
-                    this.db.uploadDao().updateUploadInterruptState(this.uploadId, UploadInterruptState.PURGE);
-                    this.uploadHandlerListener.onError(new UploadCancelledException(this.uploadId));
+                    this.db.uploadDao().updateUploadInterruptState(this.uploadId, TransferInterruptState.PURGE);
+                    this.transferHandlerListener.onError(new TransferCancelledException(this.uploadId));
             }
             this.getLooper().quit();
         }

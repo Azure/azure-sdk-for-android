@@ -22,6 +22,16 @@ final class ColumnConverter {
     }
 
     @TypeConverter
+    public int fromBlobDownloadState(BlobDownloadState state) {
+        return state.ordinal();
+    }
+
+    @TypeConverter
+    public BlobDownloadState toBlobDownloadState(int ordinal) {
+        return BlobDownloadState.values()[ordinal];
+    }
+
+    @TypeConverter
     public int fromBlockUploadState(BlockUploadState state) {
         return state.ordinal();
     }
@@ -32,12 +42,12 @@ final class ColumnConverter {
     }
 
     @TypeConverter
-    public int fromUploadInterruptState(UploadInterruptState state) {
+    public int fromTransferInterruptState(TransferInterruptState state) {
         return state.ordinal();
     }
 
     @TypeConverter
-    public UploadInterruptState toUploadInterruptState(int ordinal) {
-        return UploadInterruptState.values()[ordinal];
+    public TransferInterruptState toTransferInterruptState(int ordinal) {
+        return TransferInterruptState.values()[ordinal];
     }
 }
