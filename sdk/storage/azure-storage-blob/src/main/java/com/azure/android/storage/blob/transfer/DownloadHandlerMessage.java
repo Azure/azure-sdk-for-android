@@ -13,7 +13,7 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Package private.
- *
+ * <p>
  * A factory to create handler messages to be delivered to a {@link DownloadHandler} which will react appropriately.
  * The handler uses these messages to communicate and react to various stages of a blob download.
  */

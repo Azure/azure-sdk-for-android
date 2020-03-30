@@ -60,6 +60,15 @@ abstract class DownloadDao {
      * Update the download state field of a blob download metadata.
      *
      * @param blobKey The blob download metadata key (a.k.a. downloadId).
+     * @param totalBytesDownloaded The total bytes downloaded for this blob.
+     */
+    @Query("UPDATE blobdownloads SET total_bytes_downloaded=:totalBytesDownloaded WHERE `key` = :blobKey")
+    public abstract void updateTotalBytesDownloaded(long blobKey, long totalBytesDownloaded);
+
+    /**
+     * Update the download state field of a blob download metadata.
+     *
+     * @param blobKey The blob download metadata key (a.k.a. downloadId).
      * @param state The download state.
      */
     @Query("UPDATE blobdownloads SET blob_download_state=:state WHERE `key` = :blobKey")

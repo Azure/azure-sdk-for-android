@@ -146,6 +146,33 @@ public class TransferClient {
     }
 
     /**
+     * Cancel a transfer.
+     *
+     * @param transferId Unique identifier of the operation to cancel.
+     */
+    public LiveData<Boolean> cancel(long transferId) {
+        MutableLiveData<Boolean> cancelLiveData = new MutableLiveData<>();
+
+        this.serialTaskExecutor.execute(() -> {
+            try {
+                WorkManager.getInstance(context).cancelUniqueWork(toTransferUniqueWorkName(transferId));
+
+                BlobDownloadEntity blob = db.downloadDao().getDownloadRecord(transferId).blob;
+
+                db.downloadDao().updateDownloadInterruptState(blob.key, TransferInterruptState.USER_CANCELLED);
+
+                cancelLiveData.postValue(true);
+            } catch (Exception e) {
+                Log.w(TAG, "Could not cancel transfer with ID: " + transferId, e);
+
+                cancelLiveData.postValue(false);
+            }
+        });
+
+        return cancelLiveData;
+    }
+
+    /**
      * Get the name for a unique transfer work.
      *
      * @param transferId the transfer id
@@ -316,7 +343,7 @@ public class TransferClient {
         }
     }
 
-    private final class Constants {
+    private static final class Constants {
         static final int KB = 1024;
         static final int MB = 1024 * KB;
         static final int DEFAULT_BLOCK_SIZE = 10 * Constants.MB;

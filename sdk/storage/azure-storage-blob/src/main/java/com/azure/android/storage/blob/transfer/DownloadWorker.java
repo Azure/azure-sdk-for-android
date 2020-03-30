@@ -16,7 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 /**
  * Package private.
- *
+ * <p>
  * {@link ListenableWorker} for performing a single blob download using {@link DownloadHandler}.
  */
 public class DownloadWorker extends ListenableWorker {
@@ -27,23 +27,23 @@ public class DownloadWorker extends ListenableWorker {
      */
     private long blobDownloadId;
     /**
-     *  A token to signal {@link DownloadHandler} that it should be stopped.
+     * A token to signal {@link DownloadHandler} that it should be stopped.
      */
     private TransferStopToken transferStopToken;
 
     /**
      * Create the download worker.
-     *
+     * <p>
      * {@link TransferClient} won't call this constructor directly, instead it will enqueue the work along with
      * criteria to execute it. The {@link androidx.work.WorkManager} call this constructor when it identifies that
      * the criteria are satisfied (e.g network is available).
-     *
+     * <p>
      * If criteria configured for the Worker is no longer met while it is executing, then WorkManager will stop the
      * Worker by calling {@link ListenableWorker#stop()}. Such stopped Worker instance will be eventually GC-ed. When
      * constraints are again satisfied and if the Worker was stopped without completion then WorkManager will create
      * and starts new Worker instance.
      *
-     * @param appContext The context.
+     * @param appContext   The context.
      * @param workerParams The input parameters to the worker.
      */
     public DownloadWorker(@NonNull Context appContext,

@@ -61,9 +61,9 @@ public class StorageBlobClient {
     /**
      * Gets a list of blobs identified by a page id in a given container.
      *
-     * @param pageId Identifies the portion of the list to be returned.
+     * @param pageId        Identifies the portion of the list to be returned.
      * @param containerName The container name.
-     * @param options The page options.
+     * @param options       The page options.
      * @return A list of blobs.
      */
     public List<BlobItem> getBlobsInPage(String pageId,
@@ -75,10 +75,10 @@ public class StorageBlobClient {
     /**
      * Gets a list of blobs identified by a page id in a given container.
      *
-     * @param pageId Identifies the portion of the list to be returned.
+     * @param pageId        Identifies the portion of the list to be returned.
      * @param containerName The container name.
-     * @param options The page options.
-     * @param callback Callback that receives the retrieved blob list.
+     * @param options       The page options.
+     * @param callback      Callback that receives the retrieved blob list.
      */
     public void getBlobsInPage(String pageId,
                                String containerName,
@@ -90,15 +90,15 @@ public class StorageBlobClient {
     /**
      * Gets a list of blobs identified by a page id in a given container.
      *
-     * @param pageId Identifies the portion of the list to be returned.
+     * @param pageId        Identifies the portion of the list to be returned.
      * @param containerName The container name.
-     * @param prefix Filters the results to return only blobs whose name begins with the specified prefix.
-     * @param maxResults Specifies the maximum number of blobs to return.
-     * @param include Include this parameter to specify one or more datasets to include in the response.
-     * @param timeout The timeout parameter is expressed in seconds. For more information, see
-     * &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestId Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
-     * the analytics logs when storage analytics logging is enabled.
+     * @param prefix        Filters the results to return only blobs whose name begins with the specified prefix.
+     * @param maxResults    Specifies the maximum number of blobs to return.
+     * @param include       Include this parameter to specify one or more datasets to include in the response.
+     * @param timeout       The timeout parameter is expressed in seconds. For more information, see
+     *                      &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
+     *                      the analytics logs when storage analytics logging is enabled.
      * @return A response object containing a list of blobs.
      */
     public ContainersListBlobFlatSegmentResponse getBlobsInPageWithRestResponse(String pageId,
@@ -119,16 +119,16 @@ public class StorageBlobClient {
     /**
      * Gets a list of blobs identified by a page id in a given container.
      *
-     * @param pageId Identifies the portion of the list to be returned.
+     * @param pageId        Identifies the portion of the list to be returned.
      * @param containerName The container name.
-     * @param prefix Filters the results to return only blobs whose name begins with the specified prefix.
-     * @param maxResults Specifies the maximum number of blobs to return.
-     * @param include Include this parameter to specify one or more datasets to include in the response.
-     * @param timeout The timeout parameter is expressed in seconds. For more information, see
-     * &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestId Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
-     * the analytics logs when storage analytics logging is enabled.
-     * @param callback Callback that receives the response.
+     * @param prefix        Filters the results to return only blobs whose name begins with the specified prefix.
+     * @param maxResults    Specifies the maximum number of blobs to return.
+     * @param include       Include this parameter to specify one or more datasets to include in the response.
+     * @param timeout       The timeout parameter is expressed in seconds. For more information, see
+     *                      &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
+     *                      the analytics logs when storage analytics logging is enabled.
+     * @param callback      Callback that receives the response.
      */
     public void getBlobsInPageWithRestResponse(String pageId,
                                                String containerName,

@@ -12,6 +12,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.azure.android.core.http.ServiceCall;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
 import com.azure.android.storage.blob.models.BlobRange;
@@ -23,21 +24,22 @@ import java.io.IOException;
 import java.util.Objects;
 
 // TODO: Apply parallelism and keep track of the progress. Figure how to retry downloading from a given point.
+
 /**
  * Package private.
- *
+ * <p>
  * Handler that manages a single blob download.
- *
+ * <p>
  * Handler is a state machine, {@link DownloadHandlerMessage.Type} represents various stages that the state machine
  * goes through. Handler reacts to each stage appropriately. Reacting to a stage includes: initialization, starting
  * async block download operations, handling failure in operations, parking the work if the handler reaches stop state.
- *
+ * <p>
  * Additionally Handler is responsible for notifying the {@link TransferHandlerListener} on various events. Calls to
  * this listener methods are serialized, i.e. these methods won't be called concurrently.
  */
 final class DownloadHandler extends Handler {
     private static final String TAG = DownloadHandler.class.getSimpleName();
-    private static final int BUFFER_SIZE = 2048;
+    private static final int BUFFER_SIZE = 2048; // Max allowed OkHttp buffer size.
 
     private final Context appContext;
     private final long downloadId;
@@ -47,14 +49,15 @@ final class DownloadHandler extends Handler {
     private TransferDatabase db;
     private BlobDownloadEntity blob;
     private StorageBlobClient blobClient;
+    private ServiceCall downloadCall;
 
     /**
      * Creates and initializes a {@link DownloadHandler}.
      *
-     * @param looper The looper to react on messages describing various blob download stages.
+     * @param looper     The looper to react on messages describing various blob download stages.
      * @param appContext The context.
      * @param downloadId The identifier to a {@link BlobDownloadEntity} in the local store, describing the blob to be
-     *                  downloaded.
+     *                   downloaded.
      */
     private DownloadHandler(Looper looper, Context appContext, long downloadId) {
         super(looper);
@@ -69,7 +72,7 @@ final class DownloadHandler extends Handler {
      *
      * @param appContext The context.
      * @param downloadId The identifier to a {@link BlobDownloadEntity} in the local store, describing the blob to be
-     *                  downloaded.
+     *                   downloaded.
      * @return The DownloadHandler.
      */
     static DownloadHandler create(@NonNull Context appContext, long downloadId) {
@@ -136,7 +139,7 @@ final class DownloadHandler extends Handler {
 
     /**
      * Handles blob download initialization message received by the handler.
-     *
+     * <p>
      * This stage acquires the DB, storage client and other resources required through out the life time of the
      * Handler. This stage also starts a download operation.
      */
@@ -155,13 +158,17 @@ final class DownloadHandler extends Handler {
         } else {
             blobClient = StorageBlobClientsMap.get(downloadId);
 
-            downloadBlob();
+            if (blobClient != null) {
+                downloadCall = downloadBlob();
+            } else {
+                Log.w(TAG, "Could not retrieve blob client to download with.");
+            }
         }
     }
 
     /**
      * Handles the blob download completion message received by the looper.
-     *
+     * <p>
      * This stage notifies the completion of blob download to {@link TransferHandlerListener} and terminates the
      * handler.
      */
@@ -173,7 +180,7 @@ final class DownloadHandler extends Handler {
 
     /**
      * Handles the blocks commit failed message received by the looper.
-     *
+     * <p>
      * This stage notifies the failure to {@link TransferHandlerListener} and terminates
      * the handler.
      */
@@ -201,6 +208,7 @@ final class DownloadHandler extends Handler {
                     transferHandlerListener.onUserPaused();
                     break;
                 case USER_CANCELLED:
+                    downloadCall.cancel();
                     db.downloadDao().updateDownloadInterruptState(downloadId, TransferInterruptState.PURGE);
                     transferHandlerListener.onError(new TransferCancelledException(downloadId));
             }
@@ -212,17 +220,18 @@ final class DownloadHandler extends Handler {
     /**
      * Starts the blob download operation.
      */
-    private void downloadBlob() {
+    private ServiceCall downloadBlob() {
         this.finalizeIfStopped();
 
         Log.v(TAG, "downloadBlob(): Downloading blob: " + blob.blobName + getThreadName());
 
         db.downloadDao().updateBlobState(blob.key, BlobDownloadState.IN_PROGRESS);
-        blobClient.downloadWithResponse(blob.containerName,
+
+        return blobClient.downloadWithResponse(blob.containerName,
             blob.blobName,
             null,
             null,
-            new BlobRange(blob.blobOffset),
+            new BlobRange(blob.totalBytesDownloaded),
             null,
             null,
             null,
@@ -239,37 +248,38 @@ final class DownloadHandler extends Handler {
                     Log.v(TAG, "downloadBlob(): Blob size: " + blob.blobSize);
 
                     File file = new File(blob.filePath);
-                    boolean appendToFile = blob.blobOffset != 0;
+                    boolean appendToFile = blob.totalBytesDownloaded != 0;
                     long totalBytesDownloaded = 0;
 
                     try (BufferedInputStream in = new BufferedInputStream(response.getValue().byteStream(),
-                            BUFFER_SIZE);
+                        BUFFER_SIZE);
                          FileOutputStream fileOutputStream = new FileOutputStream(file, appendToFile)) {
                         byte[] buffer = new byte[BUFFER_SIZE];
                         int bytesRead = 0;
 
                         while (bytesRead != -1) {
-                             bytesRead = in.read(buffer);
-                             fileOutputStream.write(buffer);
-                             totalBytesDownloaded += bytesRead;
-                             transferHandlerListener.onTransferProgress(blob.blobSize, totalBytesDownloaded);
+                            bytesRead = in.read(buffer);
+                            fileOutputStream.write(buffer);
+                            totalBytesDownloaded += bytesRead;
+                            transferHandlerListener.onTransferProgress(blob.blobSize, totalBytesDownloaded);
+                            db.downloadDao().updateTotalBytesDownloaded(blob.key, totalBytesDownloaded);
                         }
+
+                        db.downloadDao().updateBlobState(blob.key, BlobDownloadState.COMPLETED);
+
+                        Message nextMessage = DownloadHandlerMessage.createDownloadCompletedMessage(DownloadHandler.this);
+
+                        nextMessage.sendToTarget();
                     } catch (IOException e) {
                         Log.e(TAG, "downloadBlob(): Error when downloading blob: " + blob.containerName + "/" +
                             blob.blobName, e);
 
-                        blob.blobOffset = totalBytesDownloaded;
+                        db.downloadDao().updateTotalBytesDownloaded(blob.key, totalBytesDownloaded);
 
-                        Log.d(TAG, "downloadBlob(): Total bytes downloaded: " + blob.blobOffset);
+                        Log.d(TAG, "downloadBlob(): Total bytes downloaded: " + totalBytesDownloaded);
 
                         onFailure(e);
                     }
-
-                    db.downloadDao().updateBlobState(blob.key, BlobDownloadState.COMPLETED);
-
-                    Message nextMessage = DownloadHandlerMessage.createDownloadCompletedMessage(DownloadHandler.this);
-
-                    nextMessage.sendToTarget();
                 }
 
                 @Override

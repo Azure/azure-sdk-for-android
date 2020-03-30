@@ -57,10 +57,10 @@ final class BlobDownloadEntity {
     public String filePath;
 
     /**
-     * The offset in the blob from which content must be downloaded.
+     * The total bytes downloaded for the blob.
      */
-    @ColumnInfo(name = "blob_offset")
-    public long blobOffset;
+    @ColumnInfo(name = "total_bytes_downloaded")
+    public long totalBytesDownloaded;
 
     /**
      * The current state of the blob download operation.
@@ -108,7 +108,7 @@ final class BlobDownloadEntity {
         this.containerName = containerName;
         this.blobName = blobName;
         filePath = file.getAbsolutePath();
-        blobOffset = 0;
+        totalBytesDownloaded = 0;
         state = BlobDownloadState.WAIT_TO_BEGIN;
         interruptState = TransferInterruptState.NONE;
     }

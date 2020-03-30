@@ -5,7 +5,7 @@ package com.azure.android.storage.blob.transfer;
 
 /**
  * Package private.
- *
+ * <p>
  * Describes the blob download state.
  */
 enum BlobDownloadState {
