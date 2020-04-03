@@ -3,10 +3,8 @@ package com.azure.android.storage.sample;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.KeyEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
@@ -20,6 +18,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlobItem;
+import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.sample.core.util.paging.PageLoadState;
 import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObserver;
 import com.azure.android.storage.sample.core.util.tokenrequest.TokenResponseCallback;
@@ -27,40 +26,39 @@ import com.microsoft.identity.client.PublicClientApplication;
 
 import javax.inject.Inject;
 
-public class ContainerBlobsActivity extends AppCompatActivity {
-    // to hold Singleton StorageBlobClient that will be created by Dagger.
-    // The singleton object is shared across various activities in the application.
+import static com.azure.android.core.util.CoreUtil.isNullOrEmpty;
+import static com.azure.android.storage.sample.Constants.CONTAINER_NAME_EXTRA;
+
+public class ListAndDownloadBlobsActivity extends AppCompatActivity {
+    // Singleton StorageBlobClient that will be created by Dagger. The singleton object is shared across various
+    // activities in the application.
     @Inject
     StorageBlobClient storageBlobClient;
 
-    private final static String DEFAULT_CONTAINER_NAME = "{thecontainername}";
     private ContainerBlobsPaginationViewModel viewModel;
-    //
+
     private RecyclerView recyclerView;
     private EditText searchText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_containerblobs);
 
-        // -------
+        setContentView(R.layout.activity_listblobs);
+
         // Request Dagger to get singleton StorageBlobClient and initialize this.storageBlobClient
-        //
         ((MainApplication) getApplication()).getAppComponent().inject(this);
-        // -------
 
-        this.recyclerView = findViewById(R.id.list);
-        this.searchText = findViewById(R.id.input);
-        //
+        this.recyclerView = findViewById(R.id.blob_list);
+        this.searchText = findViewById(R.id.input_container_name);
+
         this.viewModel = ViewModelProviders.of(this, new ContainerBlobsViewModelFactory(this.storageBlobClient))
-                .get(ContainerBlobsPaginationViewModel.class);
-        //
+            .get(ContainerBlobsPaginationViewModel.class);
+
         // Set up Login
-        //
         PublicClientApplication aadApp = new PublicClientApplication(this.getApplicationContext(),
-                R.raw.auth_config);
-        //
+            R.raw.authorization_configuration);
+
         this.viewModel.getTokenRequestObservable().observe(this, new TokenRequestObserver() {
             @Override
             public void onTokenRequest(String[] scopes, TokenResponseCallback callback) {
@@ -68,65 +66,63 @@ public class ContainerBlobsActivity extends AppCompatActivity {
             }
         });
 
-        //
+        ContainerBlobsPaginationRepository repository = (ContainerBlobsPaginationRepository) this.viewModel.getRepository();
+
+        TransferClient transferClient = new TransferClient.Builder(getApplicationContext())
+            .setStorageClient(repository.getStorageBlobClient())
+            .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
+            .build();
+
         // Set up PagedList Adapter
-        // ---------------------
-        ContainerBlobsPagedListAdapter adapter
-                = new ContainerBlobsPagedListAdapter(() -> this.viewModel.retry());
+        ContainerBlobsPagedListAdapter adapter =
+            new ContainerBlobsPagedListAdapter(transferClient, () -> this.viewModel.retry());
         this.recyclerView.setAdapter(adapter);
         this.viewModel.getPagedListObservable().observe(this, getPagedListObserver(adapter, this.recyclerView));
         this.viewModel.getLoadStateObservable().observe(this, getPageLoadStateObserver(adapter));
 
-        //
         // Set up refresh/reload
-        // ---------------------
         this.viewModel.getRefreshStateObservable().observe(this, pageLoadState -> {
             SwipeRefreshLayout swipe = findViewById(R.id.swipe_refresh);
             swipe.setRefreshing(pageLoadState == PageLoadState.LOADING);
         });
         SwipeRefreshLayout swipe = findViewById(R.id.swipe_refresh);
-        swipe.setOnRefreshListener(() -> viewModel.refresh());
+        swipe.setOnRefreshListener(() -> this.viewModel.refresh());
 
-        //
-        //
         // Set up search box
-        // -----------------
-        this.searchText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_GO) {
-                    updatedContainerBlobsFromInput();
-                    return true;
-                } else {
-                    return false;
-                }
+        this.searchText.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_GO) {
+                updatedContainerBlobsFromInput();
+                return true;
+            } else {
+                return false;
             }
         });
 
-        this.searchText.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                    updatedContainerBlobsFromInput();
-                    return true;
-                } else {
-                    return false;
-                }
+        this.searchText.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getAction() == KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                updatedContainerBlobsFromInput();
+                return true;
+            } else {
+                return false;
             }
         });
 
-        //------------------
-        //
-        this.viewModel.list(DEFAULT_CONTAINER_NAME); // List items in container
+        String containerName = getIntent().getStringExtra(CONTAINER_NAME_EXTRA);
+
+        this.searchText.setText(containerName);
+        // List items in container
+        this.viewModel.list(containerName);
     }
 
     private void updatedContainerBlobsFromInput() {
         String text = this.searchText.getText().toString();
-        if (text != null && text != "") {
+
+        if (!isNullOrEmpty(text)) {
             if (this.viewModel.list(text)) {
                 this.recyclerView.scrollToPosition(0);
                 RecyclerView.Adapter adapter = this.recyclerView.getAdapter();
-                if (adapter != null && adapter instanceof ContainerBlobsPagedListAdapter) {
+
+                if (adapter instanceof ContainerBlobsPagedListAdapter) {
                     ((ContainerBlobsPagedListAdapter) adapter).submitList(null);
                 }
             }
@@ -139,34 +135,25 @@ public class ContainerBlobsActivity extends AppCompatActivity {
 
     private static Observer<PagedList<BlobItem>> getPagedListObserver(ContainerBlobsPagedListAdapter adapter,
                                                                       RecyclerView recyclerView) {
-        return new Observer<PagedList<BlobItem>>() {
+        return blobItemsList -> adapter.submitList(blobItemsList, new Runnable() {
             @Override
-            public void onChanged(PagedList<BlobItem> blobItemsList) {
-                adapter.submitList(blobItemsList, new Runnable() {
-                    @Override
-                    public void run() {
-                        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
-                        int position = layoutManager.findFirstCompletelyVisibleItemPosition();
-                        if (position != RecyclerView.NO_POSITION) {
-                            recyclerView.scrollToPosition(position);
-                        }
-                    }
-                });
+            public void run() {
+                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+                int position = layoutManager.findFirstCompletelyVisibleItemPosition();
+
+                if (position != RecyclerView.NO_POSITION) {
+                    recyclerView.scrollToPosition(position);
+                }
             }
-        };
+        });
     }
 
     private static Observer<PageLoadState> getPageLoadStateObserver(ContainerBlobsPagedListAdapter adapter) {
-        return new Observer<PageLoadState>() {
-            @Override
-            public void onChanged(PageLoadState loadState) {
-                adapter.setPageLoadState(loadState);
-            }
-        };
+        return loadState -> adapter.setPageLoadState(loadState);
     }
 
-    // Use a custom factory for ContainerBlobsPaginationViewModel, since the default Factory based
-    // ViewModelProviders does not allow passing parameters to ContainerBlobsPaginationViewModel ctr.
+    // Use a custom factory for ContainerBlobsPaginationViewModel, since the default Factory based ViewModelProviders
+    // does not allow passing parameters to the ContainerBlobsPaginationViewModel constructor.
     public class ContainerBlobsViewModelFactory implements ViewModelProvider.Factory {
         private final StorageBlobClient storageBlobClient;
 
