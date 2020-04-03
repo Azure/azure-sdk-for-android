@@ -23,6 +23,11 @@ public class DownloadWorker extends ListenableWorker {
     private static final String TAG = DownloadWorker.class.getSimpleName();
 
     /**
+     * The number of blob blocks to be downloaded in parallel.
+     */
+    private int blocksDownloadConcurrency;
+
+    /**
      * The key of the blob download metadata entity describing the blob to be downloaded.
      */
     private long blobDownloadId;
@@ -54,6 +59,13 @@ public class DownloadWorker extends ListenableWorker {
 
         if (this.blobDownloadId <= -1) {
             throw new IllegalArgumentException("Worker created with no or non-positive input blobDownloadId.");
+        }
+
+        blocksDownloadConcurrency = getInputData().getInt(TransferConstants.INPUT_BLOCKS_UPLOAD_CONCURRENCY_KEY,
+            TransferConstants.DEFAULT_BLOCKS_UPLOAD_CONCURRENCY);
+
+        if (blocksDownloadConcurrency <= 0) {
+            blocksDownloadConcurrency = TransferConstants.DEFAULT_BLOCKS_UPLOAD_CONCURRENCY;
         }
     }
 
@@ -99,7 +111,8 @@ public class DownloadWorker extends ListenableWorker {
                 }
             };
 
-            DownloadHandler handler = DownloadHandler.create(getApplicationContext(), this.blobDownloadId);
+            DownloadHandler handler =
+                DownloadHandler.create(getApplicationContext(), blocksDownloadConcurrency, blobDownloadId);
             this.transferStopToken = handler.beginDownload(transferHandlerListener);
 
             return transferHandlerListener;

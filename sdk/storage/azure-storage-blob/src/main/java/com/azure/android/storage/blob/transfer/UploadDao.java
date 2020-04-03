@@ -73,7 +73,7 @@ abstract class UploadDao {
      * @return the collection of block upload metadata
      */
     @Query("SELECT * FROM blockuploads where `blob_key` = :blobKey and block_upload_state NOT IN (:skipStates)")
-    public abstract List<BlockUploadEntity> getBlocks(long blobKey, List<BlockUploadState> skipStates);
+    public abstract List<BlockUploadEntity> getBlocks(long blobKey, List<BlockTransferState> skipStates);
 
     /**
      * Get the collection of block ids for a file upload.
@@ -108,7 +108,7 @@ abstract class UploadDao {
      * @param state the upload state
      */
     @Query("UPDATE blockuploads SET block_upload_state=:state WHERE `key` = :blockKey")
-    public abstract void updateBlockState(long blockKey, BlockUploadState state);
+    public abstract void updateBlockState(long blockKey, BlockTransferState state);
 
     /**
      * Update the upload state field of a blob upload metadata.
@@ -117,7 +117,7 @@ abstract class UploadDao {
      * @param state the upload state
      */
     @Query("UPDATE blobuploads SET blob_upload_state=:state WHERE `key` = :blobKey")
-    public abstract void updateBlobState(long blobKey, BlobUploadState state);
+    public abstract void updateBlobState(long blobKey, BlobTransferState state);
 
     /**
      * Update the interrupted state field of a blob upload metadata.
@@ -144,7 +144,7 @@ abstract class UploadDao {
      * @return the bytes uploaded
      */
     public long getUploadedBytesCount(long blobKey) {
-        return this.getAggregatedBlockSize(blobKey, BlockUploadState.COMPLETED);
+        return this.getAggregatedBlockSize(blobKey, BlockTransferState.COMPLETED);
     }
 
     /**
@@ -155,5 +155,5 @@ abstract class UploadDao {
      * @return the aggregated block size
      */
     @Query("SELECT SUM(block_size) FROM blockuploads WHERE blob_key = :blobKey and block_upload_state = :state")
-    public abstract long getAggregatedBlockSize(long blobKey, BlockUploadState state);
+    public abstract long getAggregatedBlockSize(long blobKey, BlockTransferState state);
 }

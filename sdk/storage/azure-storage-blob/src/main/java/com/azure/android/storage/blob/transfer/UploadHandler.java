@@ -148,7 +148,7 @@ final class UploadHandler extends Handler {
             this.transferHandlerListener.onError(new RuntimeException("Upload Operation with id '"
                 + this.uploadId + "' is already CANCELLED and cannot be RESTARTED or RESUMED."));
             this.getLooper().quit();
-        } else if (this.blob.state == BlobUploadState.COMPLETED) {
+        } else if (this.blob.state == BlobTransferState.COMPLETED) {
             this.transferHandlerListener.onTransferProgress(blob.fileSize, blob.fileSize);
             this.transferHandlerListener.onComplete();
             this.getLooper().quit();
@@ -156,8 +156,8 @@ final class UploadHandler extends Handler {
             this.blobClient = StorageBlobClientsMap.get(this.uploadId);
             this.totalBytesUploaded = this.db.uploadDao().getUploadedBytesCount(this.uploadId);
             this.transferHandlerListener.onTransferProgress(blob.fileSize, totalBytesUploaded);
-            List<BlockUploadState> skip = new ArrayList();
-            skip.add(BlockUploadState.COMPLETED);
+            List<BlockTransferState> skip = new ArrayList();
+            skip.add(BlockTransferState.COMPLETED);
             this.blocksItr = new BlockUploadRecordsEnumerator(this.db, this.uploadId, skip);
             List<BlockUploadEntity> blocks = this.blocksItr.getNext(this.blocksUploadConcurrency);
             if (blocks.size() == 0) {
@@ -279,7 +279,7 @@ final class UploadHandler extends Handler {
                     @Override
                     public void onResponse(Void response) {
                         Log.v(TAG, "stageBlocks(): Block uploaded:" + block.blockId + threadName());
-                        db.uploadDao().updateBlockState(block.key, BlockUploadState.COMPLETED);
+                        db.uploadDao().updateBlockState(block.key, BlockTransferState.COMPLETED);
                         Message nextMessage = UploadHandlerMessage
                             .createStagingCompletedMessage(UploadHandler.this, block.blockId);
                         nextMessage.sendToTarget();
@@ -288,7 +288,7 @@ final class UploadHandler extends Handler {
                     @Override
                     public void onFailure(Throwable t) {
                         Log.e(TAG,  "stageBlocks(): Block upload failed:" + block.blockId + threadName(), t);
-                        db.uploadDao().updateBlockState(block.key, BlockUploadState.FAILED);
+                        db.uploadDao().updateBlockState(block.key, BlockTransferState.FAILED);
                         block.setStagingError(t);
                         Message nextMessage = UploadHandlerMessage
                             .createStagingFailedMessage(UploadHandler.this, block.blockId);
@@ -313,7 +313,7 @@ final class UploadHandler extends Handler {
                 @Override
                 public void onResponse(BlockBlobItem response) {
                     Log.v(TAG, "commitBlocks(): Blocks committed." + threadName());
-                    db.uploadDao().updateBlobState(uploadId, BlobUploadState.COMPLETED);
+                    db.uploadDao().updateBlobState(uploadId, BlobTransferState.COMPLETED);
                     Message nextMessage = UploadHandlerMessage
                         .createCommitCompletedMessage(UploadHandler.this);
                     nextMessage.sendToTarget();
@@ -322,7 +322,7 @@ final class UploadHandler extends Handler {
                 @Override
                 public void onFailure(Throwable t) {
                     Log.e(TAG,  "commitBlocks(): Blocks commit failed." + threadName(), t);
-                    db.uploadDao().updateBlobState(uploadId, BlobUploadState.FAILED);
+                    db.uploadDao().updateBlobState(uploadId, BlobTransferState.FAILED);
                     blob.setCommitError(t);
                     Message nextMessage = UploadHandlerMessage
                         .createCommitFailedMessage(UploadHandler.this);

@@ -117,9 +117,14 @@ public class TransferClient {
 
         this.serialTaskExecutor.execute(() -> {
             BlobDownloadEntity blob = new BlobDownloadEntity(containerName, blobName, file);
-            long downloadId = db.downloadDao().createDownloadRecord(blob);
+            long blobSize = blobClient.getBlobProperties(containerName, blobName).getContentLength();
+            List<BlockDownloadEntity> blocks
+                = BlockDownloadEntity.createEntitiesForBlob(file, blobSize, Constants.DEFAULT_BLOCK_SIZE);
+            long downloadId = db.downloadDao().createDownloadRecord(blob, blocks);
 
-            Log.v(TAG, "download(): download record created: " + downloadId);
+            db.downloadDao().updateBlobSize(downloadId, blobSize);
+
+            Log.v(TAG, "download(): Download record created: " + downloadId);
 
             StorageBlobClientsMap.put(downloadId, blobClient);
 

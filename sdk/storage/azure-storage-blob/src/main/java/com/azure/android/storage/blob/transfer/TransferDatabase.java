@@ -20,7 +20,8 @@ import androidx.room.TypeConverters;
  * @see BlobDownloadEntity
  * @see BlockUploadEntity
  */
-@Database(entities = { BlobUploadEntity.class, BlockUploadEntity.class, BlobDownloadEntity.class }, version = 1)
+@Database(entities = {BlobUploadEntity.class, BlockUploadEntity.class, BlobDownloadEntity.class,
+    BlockDownloadEntity.class}, version = 1)
 @TypeConverters(ColumnConverter.class)
 abstract class TransferDatabase extends RoomDatabase {
     /**

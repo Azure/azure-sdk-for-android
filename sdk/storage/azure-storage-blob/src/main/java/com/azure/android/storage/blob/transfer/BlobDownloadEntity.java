@@ -57,17 +57,11 @@ final class BlobDownloadEntity {
     public String filePath;
 
     /**
-     * The total bytes downloaded for the blob.
-     */
-    @ColumnInfo(name = "total_bytes_downloaded")
-    public long totalBytesDownloaded;
-
-    /**
      * The current state of the blob download operation.
      */
     @ColumnInfo(name = "blob_download_state")
     @TypeConverters(ColumnConverter.class)
-    public volatile BlobDownloadState state;
+    public volatile BlobTransferState state;
 
     /**
      * Indicate the reason for interrupting (stopping) blob download.
@@ -108,8 +102,7 @@ final class BlobDownloadEntity {
         this.containerName = containerName;
         this.blobName = blobName;
         filePath = file.getAbsolutePath();
-        totalBytesDownloaded = 0;
-        state = BlobDownloadState.WAIT_TO_BEGIN;
+        state = BlobTransferState.WAIT_TO_BEGIN;
         interruptState = TransferInterruptState.NONE;
     }
 
@@ -135,15 +128,15 @@ final class BlobDownloadEntity {
     public String toString() {
         StringBuilder builder = new StringBuilder();
 
-        builder.append(" key:" + key);
-        builder.append(" containerName:" + containerName);
-        builder.append(" blobName:" + blobName);
-        builder.append(" filePath:" + filePath);
-        builder.append(" state:" + state);
-        builder.append(" interruptState:" + interruptState);
+        builder.append(" key:").append(key)
+            .append(" containerName:").append(containerName)
+            .append(" blobName:").append(blobName)
+            .append(" filePath:").append(filePath)
+            .append(" state:").append(state)
+            .append(" interruptState:").append(interruptState);
 
         if (downloadError != null) {
-            builder.append(" commitError:" + downloadError.getMessage());
+            builder.append(" downloadError:").append(downloadError.getMessage());
         }
 
         return builder.toString();

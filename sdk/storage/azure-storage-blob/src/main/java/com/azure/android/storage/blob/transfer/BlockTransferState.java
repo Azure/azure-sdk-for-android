@@ -8,7 +8,7 @@ package com.azure.android.storage.blob.transfer;
  *
  * Describes block upload state.
  */
-enum BlockUploadState {
+enum BlockTransferState {
     /**
      * Block is yet to be uploaded.
      */

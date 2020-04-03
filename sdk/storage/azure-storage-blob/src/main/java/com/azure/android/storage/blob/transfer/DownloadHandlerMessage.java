@@ -19,6 +19,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 final class DownloadHandlerMessage {
     private static final String MESSAGE_TYPE_KEY = "mtk";
+    private static final String PROCESSED_BLOCK_ID_KEY = "pbik";
 
     /**
      * Create a message advising handler to perform blob download initialization.
@@ -37,12 +38,48 @@ final class DownloadHandlerMessage {
     }
 
     /**
+     * Create a message describing a successful block download.
+     *
+     * @param msgTarget The handler that handles this message.
+     * @param blockId The base64 ID that identifies the block.
+     * @return The message.
+     */
+    static Message createBlockDownloadCompletedMessage(DownloadHandler msgTarget, String blockId) {
+        Message msg = msgTarget.obtainMessage();
+        Bundle bundle = new Bundle();
+
+        bundle.putInt(MESSAGE_TYPE_KEY, Type.DOWNLOAD_COMPLETED);
+        bundle.putString(PROCESSED_BLOCK_ID_KEY, blockId);
+        msg.setData(bundle);
+
+        return msg;
+    }
+
+    /**
+     * Create a message describing a failed block download.
+     *
+     * @param msgTarget The handler that handles this message.
+     * @param blockId The base64 ID that identifies the block.
+     * @return The message.
+     */
+    static Message createBlockDownloadFailedMessage(DownloadHandler msgTarget, String blockId) {
+        Message msg = msgTarget.obtainMessage();
+        Bundle bundle = new Bundle();
+
+        bundle.putInt(MESSAGE_TYPE_KEY, Type.DOWNLOAD_FAILED);
+        bundle.putString(PROCESSED_BLOCK_ID_KEY, blockId);
+        msg.setData(bundle);
+
+        return msg;
+    }
+
+    /**
      * Create a message describing a successful blob download.
      *
      * @param msgTarget The handler that handles this message.
      * @return The message.
      */
-    static Message createDownloadCompletedMessage(DownloadHandler msgTarget) {
+    static Message createBlobDownloadCompletedMessage(DownloadHandler msgTarget) {
         Message msg = msgTarget.obtainMessage();
         Bundle bundle = new Bundle();
 
@@ -58,7 +95,7 @@ final class DownloadHandlerMessage {
      * @param msgTarget The handler that handles this message.
      * @return The message.
      */
-    static Message createDownloadFailedMessage(DownloadHandler msgTarget) {
+    static Message createBlobDownloadFailedMessage(DownloadHandler msgTarget) {
         Message msg = msgTarget.obtainMessage();
         Bundle bundle = new Bundle();
 
@@ -95,6 +132,18 @@ final class DownloadHandlerMessage {
         Bundle data = message.getData();
 
         return data.getInt(MESSAGE_TYPE_KEY);
+    }
+
+    /**
+     * Get the base64 block ID from the message.
+     *
+     * @param message The message.
+     * @return The block ID.
+     */
+    static String getBlockIdFromMessage(Message message) {
+        Bundle data = message.getData();
+
+        return data.getString(PROCESSED_BLOCK_ID_KEY);
     }
 
     /**

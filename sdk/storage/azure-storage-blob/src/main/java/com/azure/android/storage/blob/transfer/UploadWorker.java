@@ -52,10 +52,10 @@ public class UploadWorker extends ListenableWorker {
             throw new IllegalArgumentException("Worker created with no or non-positive input blobUploadId.");
         }
         this.blocksUploadConcurrency
-            = getInputData().getInt(Constants.INPUT_BLOCKS_UPLOAD_CONCURRENCY_KEY,
-            Constants.DEFAULT_BLOCKS_UPLOAD_CONCURRENCY);
+            = getInputData().getInt(TransferConstants.INPUT_BLOCKS_UPLOAD_CONCURRENCY_KEY,
+            TransferConstants.DEFAULT_BLOCKS_UPLOAD_CONCURRENCY);
         if (this.blocksUploadConcurrency <= 0) {
-            this.blocksUploadConcurrency = Constants.DEFAULT_BLOCKS_UPLOAD_CONCURRENCY;
+            this.blocksUploadConcurrency = TransferConstants.DEFAULT_BLOCKS_UPLOAD_CONCURRENCY;
         }
     }
 
@@ -123,18 +123,9 @@ public class UploadWorker extends ListenableWorker {
     static class Constants {
         /**
          * Identifies an entry in {@link WorkerParameters} input to {@link UploadWorker} that
-         * holds blocksUploadConcurrency value.
-         */
-        static final String INPUT_BLOCKS_UPLOAD_CONCURRENCY_KEY = "ick";
-        /**
-         * Identifies an entry in {@link WorkerParameters} input to {@link UploadWorker} that
          * holds blob uploadId.
          * An uploadId is the key to a blob upload metadata entity in local store.
          */
         static final String INPUT_BLOB_UPLOAD_ID_KEY = "ibuik";
-        /**
-         * The default block upload parallelism.
-         */
-        static final int DEFAULT_BLOCKS_UPLOAD_CONCURRENCY = 3;
     }
 }

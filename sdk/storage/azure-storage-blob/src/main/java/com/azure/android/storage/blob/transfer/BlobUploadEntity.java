@@ -56,7 +56,7 @@ final class BlobUploadEntity {
      */
     @ColumnInfo(name = "blob_upload_state")
     @TypeConverters(ColumnConverter.class)
-    public volatile BlobUploadState state;
+    public volatile BlobTransferState state;
     /**
      * Indicate the reason for interrupting (stopping) blob upload.
      */
@@ -97,7 +97,7 @@ final class BlobUploadEntity {
         this.fileSize = (int) file.length();
         this.containerName = containerName;
         this.blobName = blobName;
-        this.state = BlobUploadState.WAIT_TO_BEGIN;
+        this.state = BlobTransferState.WAIT_TO_BEGIN;
         this.interruptState = TransferInterruptState.NONE;
     }
 
