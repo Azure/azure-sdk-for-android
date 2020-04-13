@@ -9,7 +9,7 @@ import androidx.annotation.NonNull;
  * Package private.
  *
  * The type used by the methods in {@link TransferClient} (e.g. upload, download, resume) to
- * communicate data from background {@link SerialExecutor} to {@link TransferIdMappedToTransferInfo}.
+ * communicate data from background {@link SerialExecutor} to {@link TransferIdInfoLiveData}.
  *
  * The data includes the operation type, the actual transfer id of a transfer or an error indicating
  * the failure detected by TransferClient. Note that this type is used only to channel the error that

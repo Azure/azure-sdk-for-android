@@ -73,8 +73,8 @@ public class TransferClient {
      * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
      */
     public LiveData<TransferInfo> upload(String containerName, String blobName, File file) {
-        TransferIdMappedToTransferInfo.Result result = TransferIdMappedToTransferInfo.create(context);
-        TransferIdMappedToTransferInfo.LiveDataPair liveDataPair = result.getLiveDataPair();
+        TransferIdInfoLiveData.Result result = TransferIdInfoLiveData.create(context);
+        TransferIdInfoLiveData.LiveDataPair liveDataPair = result.getLiveDataPair();
         MutableLiveData<TransferIdOrError> idOrErrorChannel = liveDataPair.getTransferIdOrErrorLiveData();
         this.serialTaskExecutor.execute(() -> {
             try {

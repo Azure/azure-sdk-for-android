@@ -29,8 +29,8 @@ import java.util.List;
  * TransferInfo LiveData queries {@link WorkManager} for a LiveData that streams {@link WorkInfo} and transform
  * {@link WorkInfo} events to {@link TransferInfo} events.
  */
-final class TransferIdMappedToTransferInfo {
-    private static final String TAG = TransferIdMappedToTransferInfo.class.getSimpleName();
+final class TransferIdInfoLiveData {
+    private static final String TAG = TransferIdInfoLiveData.class.getSimpleName();
     // the input LiveData that receives the transfer id or error.
     private final MutableLiveData<TransferIdOrError> transferIdOrErrorLiveData = new MutableLiveData<>();
     // the output TransferInfo LiveData.
@@ -44,15 +44,15 @@ final class TransferIdMappedToTransferInfo {
     // flag to track whether the last event was a pause event.
     private boolean wasPaused;
 
-    private TransferIdMappedToTransferInfo() {}
+    private TransferIdInfoLiveData() {}
 
     @MainThread
-    static TransferIdMappedToTransferInfo.Result create(Context context) {
-        TransferIdMappedToTransferInfo transferIdInfoLiveData = new TransferIdMappedToTransferInfo();
+    static TransferIdInfoLiveData.Result create(Context context) {
+        TransferIdInfoLiveData transferIdInfoLiveData = new TransferIdInfoLiveData();
         return transferIdInfoLiveData.init(context);
     }
 
-    private TransferIdMappedToTransferInfo.Result  init(@NonNull Context context) {
+    private TransferIdInfoLiveData.Result  init(@NonNull Context context) {
         LiveData<WorkInfo> workInfoLiveData = this.mapInputTransferIdToWorkInfoLiveData(context);
         this.transferInfoLiveData.addSource(workInfoLiveData, workInfo -> {
             if (this.inputTransferIdOrError.isError()) {
@@ -322,7 +322,7 @@ final class TransferIdMappedToTransferInfo {
     }
 
     /**
-     * Type representing result of {@link TransferIdMappedToTransferInfo#create(Context)} method.
+     * Type representing result of {@link TransferIdInfoLiveData#create(Context)} method.
      */
     final static class Result {
         private final LiveDataPair liveDataPair;
