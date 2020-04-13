@@ -35,6 +35,9 @@ final class TransferIdInfoLiveData {
     private final MutableLiveData<TransferIdOrError> transferIdOrErrorLiveData = new MutableLiveData<>();
     // the output TransferInfo LiveData.
     private final MediatorLiveData<TransferInfo> transferInfoLiveData = new MediatorLiveData<>();
+    // the the object that TransferClient methods update any state that it want TransferInfo LiveData source
+    // for a transfer to know.
+    private final TransferFlags transferFlags = new TransferFlags();
     // the recent TransferIdOrError object emitted by the transferIdOrErrorLiveData object.
     private TransferIdOrError inputTransferIdOrError;
     // hold the state of the last WorkInfo received from Transfer Worker.
@@ -112,7 +115,8 @@ final class TransferIdInfoLiveData {
             Log.e(TAG, "Received Unexpected WorkInfo event from WorkManager:" + workInfo.toString());
         });
         return new Result(this.transferIdOrErrorLiveData,
-            this.transferInfoLiveData);
+            this.transferInfoLiveData,
+            this.transferFlags);
     }
 
     /**
@@ -290,7 +294,7 @@ final class TransferIdInfoLiveData {
          * @param transferIdOrErrorLiveData the TransferIdOrError LiveData that TransferClient notify transferId
          * @param transferInfoLiveData the TransferInfo LiveData streaming TransferInfo of a transfer to it's Observers
          */
-        private LiveDataPair(@NonNull MutableLiveData<TransferIdOrError> transferIdOrErrorLiveData,
+        LiveDataPair(@NonNull MutableLiveData<TransferIdOrError> transferIdOrErrorLiveData,
                      @NonNull LiveData<TransferInfo> transferInfoLiveData) {
             this.transferIdOrErrorLiveData = transferIdOrErrorLiveData;
             this.transferInfoLiveData = transferInfoLiveData;
@@ -326,16 +330,21 @@ final class TransferIdInfoLiveData {
      */
     final static class Result {
         private final LiveDataPair liveDataPair;
+        private final TransferFlags transferFlags;
 
         /**
          * Creates Result.
          *
          * @param transferIdOrErrorLiveData the TransferIdOrError LiveData that TransferClient sets transferId
          * @param transferInfoLiveData the TransferInfo LiveData streaming TransferInfo
+         * @param transferFlags the object that TransferClient methods update any flag that it want
+         *               TransferInfo LiveData source to know
          */
         private Result(@NonNull MutableLiveData<TransferIdOrError> transferIdOrErrorLiveData,
-                       @NonNull LiveData<TransferInfo> transferInfoLiveData) {
+                       @NonNull LiveData<TransferInfo> transferInfoLiveData,
+                       @NonNull TransferFlags transferFlags) {
             this.liveDataPair = new LiveDataPair(transferIdOrErrorLiveData, transferInfoLiveData);
+            this.transferFlags = transferFlags;
         }
 
         /**
@@ -346,5 +355,23 @@ final class TransferIdInfoLiveData {
         LiveDataPair getLiveDataPair() {
             return this.liveDataPair;
         }
+
+        /**
+         * Get the shared object that the TransferInfo LiveData source check for any flag
+         * set by TransferClient methods on this transfer.
+         *
+         * @return the object that TransferClient methods update any flag that it want
+         * TransferInfo LiveData source to know
+         */
+        TransferFlags getTransferFlags() {
+            return this.transferFlags;
+        }
+    }
+
+    /**
+     * Instance of this type is used by TransferClient methods to set any flag that it want
+     * TransferInfo LiveData source of the transfer to know.
+     */
+    final static class TransferFlags {
     }
 }
