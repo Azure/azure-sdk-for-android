@@ -21,16 +21,18 @@ import java.util.List;
 /**
  * Package private.
  *
- * A type to transform an input LiveData that emit a transfer id to an output LiveData that emit
- * a stream of {@link TransferInfo}.
+ * A type to create the LiveData pair, a {@link TransferIdOrError} LiveData and associated {@link TransferInfo}
+ * LiveData. Each transfer will have such a unique LiveData pair.
  *
- * Each {@link TransferInfo} event from output LiveData describes current state of the transfer
- * identified by the transfer id.
+ * When transfer id is set to TransferIdOrError LiveData then TransferInfo LiveData streams {@link TransferInfo}
+ * events describing current state of the transfer identified by the transfer id. Internally the source of the
+ * TransferInfo LiveData queries {@link WorkManager} for a LiveData that streams {@link WorkInfo} and transform
+ * {@link WorkInfo} events to {@link TransferInfo} events.
  */
 final class TransferIdMappedToTransferInfo {
     private static final String TAG = TransferIdMappedToTransferInfo.class.getSimpleName();
-    // transfer id from the input LiveData.
-    private long transferId;
+    // the input LiveData that receives the transfer id or error.
+    private final MutableLiveData<TransferIdOrError> transferIdOrErrorLiveData = new MutableLiveData<>();
     // the output TransferInfo LiveData.
     private final MediatorLiveData<TransferInfo> transferInfoLiveData = new MediatorLiveData<>();
     // the recent TransferIdOrError object emitted by the transferIdOrErrorLiveData object.
@@ -42,20 +44,16 @@ final class TransferIdMappedToTransferInfo {
     // flag to track whether the last event was a pause event.
     private boolean wasPaused;
 
-    /**
-     * Get LiveData that stream {@link TransferInfo} of a transfer.
-     *
-     * @param context the context
-     * @param transferIdOrErrorLiveData the input LiveData that emit a transfer id. The transfer id is not
-     *     available at the time of calling this method, hence using LiveData to deliver the id once
-     *     it is available.
-     * @return an output LiveData that streams {@link TransferInfo} describing current state
-     * of the transfer identified by the transfer id
-     */
+    private TransferIdMappedToTransferInfo() {}
+
     @MainThread
-    LiveData<TransferInfo> getTransferInfoLiveData(@NonNull Context context,
-                                                   @NonNull LiveData<TransferIdOrError> transferIdOrErrorLiveData) {
-        LiveData<WorkInfo> workInfoLiveData = this.mapInputTransferIdToWorkInfoLiveData(context, transferIdOrErrorLiveData);
+    static TransferIdMappedToTransferInfo.Result create(Context context) {
+        TransferIdMappedToTransferInfo transferIdInfoLiveData = new TransferIdMappedToTransferInfo();
+        return transferIdInfoLiveData.init(context);
+    }
+
+    private TransferIdMappedToTransferInfo.Result  init(@NonNull Context context) {
+        LiveData<WorkInfo> workInfoLiveData = this.mapInputTransferIdToWorkInfoLiveData(context);
         this.transferInfoLiveData.addSource(workInfoLiveData, workInfo -> {
             if (this.inputTransferIdOrError.isError()) {
                 mapErrorFromTransferClient();
@@ -76,6 +74,7 @@ final class TransferIdMappedToTransferInfo {
                 Log.v(TAG, "Received a WorkInfo event from WorkManager with NULL state.");
                 return;
             }
+            final long transferId = this.inputTransferIdOrError.getId();
             this.setLastWorkInfoState(currentWorkInfoState);
             if (this.isFirstEvent()) {
                 this.setDoneFirstEvent();
@@ -112,7 +111,8 @@ final class TransferIdMappedToTransferInfo {
             }
             Log.e(TAG, "Received Unexpected WorkInfo event from WorkManager:" + workInfo.toString());
         });
-        return this.transferInfoLiveData;
+        return new Result(this.transferIdOrErrorLiveData,
+            this.transferInfoLiveData);
     }
 
     /**
@@ -189,11 +189,9 @@ final class TransferIdMappedToTransferInfo {
      * that is processing the transfer identified by the transfer id from transferIdOrErrorLiveData.
      *
      * @param context the context
-     * @param transferIdOrErrorLiveData the LiveData that emit the transfer id or error
      * @return a LiveData of {@link WorkInfo}
      */
-    private LiveData<WorkInfo> mapInputTransferIdToWorkInfoLiveData(Context context,
-                                                                LiveData<TransferIdOrError> transferIdOrErrorLiveData) {
+    private LiveData<WorkInfo> mapInputTransferIdToWorkInfoLiveData(Context context) {
         LiveData<List<WorkInfo>> workInfosLiveData = Transformations
             .switchMap(
                 transferIdOrErrorLiveData,
@@ -277,5 +275,76 @@ final class TransferIdMappedToTransferInfo {
             return null;
         }
         return data.getString(UploadWorker.Constants.OUTPUT_ERROR_MESSAGE_KEY);
+    }
+
+    /**
+     * Type to hold a pair consisting of transferIdOrError LiveData and associated TransferInfo LiveData.
+     */
+    final static class LiveDataPair {
+        private final MutableLiveData<TransferIdOrError> transferIdOrErrorLiveData;
+        private final LiveData<TransferInfo> transferInfoLiveData;
+
+        /**
+         * Creates LiveDataPair.
+         *
+         * @param transferIdOrErrorLiveData the TransferIdOrError LiveData that TransferClient notify transferId
+         * @param transferInfoLiveData the TransferInfo LiveData streaming TransferInfo of a transfer to it's Observers
+         */
+        private LiveDataPair(@NonNull MutableLiveData<TransferIdOrError> transferIdOrErrorLiveData,
+                     @NonNull LiveData<TransferInfo> transferInfoLiveData) {
+            this.transferIdOrErrorLiveData = transferIdOrErrorLiveData;
+            this.transferInfoLiveData = transferInfoLiveData;
+        }
+
+        /**
+         * Get the TransferIdOrError LiveData to notify the transferId.
+         *
+         * When transferId is set in this LiveData then the TransferInfo LiveData streams
+         * TransferInfo of the transfer identified by that transfer id.
+         *
+         * @return the TransferIdOrError LiveData
+         */
+        MutableLiveData<TransferIdOrError> getTransferIdOrErrorLiveData() {
+            return transferIdOrErrorLiveData;
+        }
+
+        /**
+         * Get the TransferInfo LiveData.
+         *
+         * When a transferId is set in the TransferIdOrError LiveData then this LiveData streams
+         * TransferInfo of the transfer identified by that transfer id.
+         *
+         * @return the TransferInfo LiveData
+         */
+        LiveData<TransferInfo> getTransferInfoLiveData() {
+            return transferInfoLiveData;
+        }
+    }
+
+    /**
+     * Type representing result of {@link TransferIdMappedToTransferInfo#create(Context)} method.
+     */
+    final static class Result {
+        private final LiveDataPair liveDataPair;
+
+        /**
+         * Creates Result.
+         *
+         * @param transferIdOrErrorLiveData the TransferIdOrError LiveData that TransferClient sets transferId
+         * @param transferInfoLiveData the TransferInfo LiveData streaming TransferInfo
+         */
+        private Result(@NonNull MutableLiveData<TransferIdOrError> transferIdOrErrorLiveData,
+                       @NonNull LiveData<TransferInfo> transferInfoLiveData) {
+            this.liveDataPair = new LiveDataPair(transferIdOrErrorLiveData, transferInfoLiveData);
+        }
+
+        /**
+         * Get the pair of holding transferIdOrError and TransferInfo LiveData.
+         *
+         * @return the LiveData pair
+         */
+        LiveDataPair getLiveDataPair() {
+            return this.liveDataPair;
+        }
     }
 }
