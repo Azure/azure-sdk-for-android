@@ -10,6 +10,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.work.Data;
 import androidx.work.WorkInfo;
@@ -32,6 +33,8 @@ final class TransferIdMappedToTransferInfo {
     private long transferId;
     // the output TransferInfo LiveData.
     private final MediatorLiveData<TransferInfo> transferInfoLiveData = new MediatorLiveData<>();
+    // the recent TransferIdOrError object emitted by the transferIdOrErrorLiveData object.
+    private TransferIdOrError inputTransferIdOrError;
     // hold the state of the last WorkInfo received from Transfer Worker.
     private WorkInfo.State lastWorkInfoState;
     // flag to track whether current event about to emit is fist event.
@@ -43,7 +46,7 @@ final class TransferIdMappedToTransferInfo {
      * Get LiveData that stream {@link TransferInfo} of a transfer.
      *
      * @param context the context
-     * @param transferIdLiveData the input LiveData that emit a transfer id. The transfer id is not
+     * @param transferIdOrErrorLiveData the input LiveData that emit a transfer id. The transfer id is not
      *     available at the time of calling this method, hence using LiveData to deliver the id once
      *     it is available.
      * @return an output LiveData that streams {@link TransferInfo} describing current state
@@ -51,9 +54,13 @@ final class TransferIdMappedToTransferInfo {
      */
     @MainThread
     LiveData<TransferInfo> getTransferInfoLiveData(@NonNull Context context,
-                                                   @NonNull LiveData<Long> transferIdLiveData) {
-        LiveData<WorkInfo> workInfoLiveData = this.getWorkInfoLiveDataForTransferId(context, transferIdLiveData);
+                                                   @NonNull LiveData<TransferIdOrError> transferIdOrErrorLiveData) {
+        LiveData<WorkInfo> workInfoLiveData = this.mapInputTransferIdToWorkInfoLiveData(context, transferIdOrErrorLiveData);
         this.transferInfoLiveData.addSource(workInfoLiveData, workInfo -> {
+            if (this.inputTransferIdOrError.isError()) {
+                mapErrorFromTransferClient();
+                return;
+            }
             if (workInfo == null) {
                 Log.v(TAG, "Received NULL WorkInfo event from WorkManager.");
                 return;
@@ -109,12 +116,12 @@ final class TransferIdMappedToTransferInfo {
     }
 
     /**
-     * Set the transfer id.
+     * Store the transfer id or error received from TransferIdOrError LiveData.
      *
-     * @param transferId the transfer id
+     * @param transferIdOrError the transfer id or error
      */
-    private void setTransferId(long transferId) {
-        this.transferId = transferId;
+    private void setTransferIdOrError(TransferIdOrError transferIdOrError) {
+        this.inputTransferIdOrError = transferIdOrError;
     }
 
     /**
@@ -179,33 +186,64 @@ final class TransferIdMappedToTransferInfo {
      * Get the LiveData that stream {@link WorkInfo} of a transfer worker.
      *
      * This method uses {@link WorkManager} API to retrieve the LiveData of a transfer worker
-     * that is processing the transfer identified by the given transfer id.
+     * that is processing the transfer identified by the transfer id from transferIdOrErrorLiveData.
      *
      * @param context the context
-     * @param transferIdLiveData the LiveData that emit the transfer id
+     * @param transferIdOrErrorLiveData the LiveData that emit the transfer id or error
      * @return a LiveData of {@link WorkInfo}
      */
-    private LiveData<WorkInfo> getWorkInfoLiveDataForTransferId(Context context,
-                                                                LiveData<Long> transferIdLiveData) {
+    private LiveData<WorkInfo> mapInputTransferIdToWorkInfoLiveData(Context context,
+                                                                LiveData<TransferIdOrError> transferIdOrErrorLiveData) {
         LiveData<List<WorkInfo>> workInfosLiveData = Transformations
             .switchMap(
-                transferIdLiveData,
-                transferId -> {
-                    setTransferId(transferId);
-                    return WorkManager.getInstance(context)
-                    .getWorkInfosForUniqueWorkLiveData(TransferClient.toTransferUniqueWorkName(transferId));
+                transferIdOrErrorLiveData,
+                transferIdOrError -> {
+                    setTransferIdOrError(transferIdOrError);
+                    if (this.inputTransferIdOrError.isError()) {
+                        // An error from TransferClient. To continue the LiveData pipeline it is required
+                        // to return non-null LiveData. Null from switchMapFunction will cut the pipeline.
+                        MutableLiveData<List<WorkInfo>> emptyWorkInfoList = new MutableLiveData<>();
+                        emptyWorkInfoList.setValue(null);
+                        return emptyWorkInfoList;
+                    } else {
+                        // No error from TransferClient i.e. transfer work may exists, get the underlying
+                        // LiveData<WorkInfo> for the transfer work.
+                        final long transferId = this.inputTransferIdOrError.getId();
+                        return WorkManager.getInstance(context)
+                            .getWorkInfosForUniqueWorkLiveData(TransferClient.toTransferUniqueWorkName(transferId));
+                    }
                 }
             );
-        return Transformations.map(workInfosLiveData, workInfos -> {
-            if (workInfos == null || workInfos.isEmpty()) {
-                Log.e(TAG, "Received NULL/Empty WorkInfo list from WorkManager::getWorkInfosForUniqueWorkLiveData.");
+        return Transformations.map(workInfosLiveData, workInfoList -> {
+            if (this.inputTransferIdOrError.isError()) {
+                // An error from TransferClient then emit null WorkInfo. The downstream should check error before
+                // start processing the WorkInfo.
                 return null;
+            } else {
+                final long transferId = this.inputTransferIdOrError.getId();
+                if (workInfoList == null || workInfoList.isEmpty()) {
+                    Log.e(TAG, "Received null or Empty WorkInfo list for the transfer '" + transferId + "' from WorkManager." );
+                    return null;
+                }
+                if (workInfoList.size() > 1) {
+                    Log.e(TAG, "Received multiple WorkInfo for the transfer '" + transferId + "' from WorkManager." );
+                }
+                return workInfoList.get(0);
             }
-            if (workInfos.size() > 1) {
-                Log.e(TAG, "Received Count(WorkInfos) > 1 from WorkManager::getWorkInfosForUniqueWorkLiveData.");
-            }
-            return workInfos.get(0);
         });
+    }
+
+    /**
+     * Map any error reported by TransferClient via inputTransferIdOrError to appropriate event
+     * in output TransferInfo LiveData.
+     */
+    private void mapErrorFromTransferClient() {
+        if (this.inputTransferIdOrError.isError()) {
+            this.transferInfoLiveData.setValue(TransferInfo.createFailed(this.inputTransferIdOrError.getId(),
+                this.inputTransferIdOrError.getErrorMessage()));
+            this.setLastWorkInfoState(WorkInfo.State.FAILED);
+            return;
+        }
     }
 
     /**

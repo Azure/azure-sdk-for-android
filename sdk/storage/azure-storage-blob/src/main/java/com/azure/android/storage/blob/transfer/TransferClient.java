@@ -73,35 +73,39 @@ public class TransferClient {
      * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
      */
     public LiveData<TransferInfo> upload(String containerName, String blobName, File file) {
-        MutableLiveData<Long> transferIdLiveData = new MutableLiveData<>();
+        MutableLiveData<TransferIdOrError> idOrErrorChannel = new MutableLiveData<>();
         this.serialTaskExecutor.execute(() -> {
-            BlobUploadEntity blob = new BlobUploadEntity(containerName, blobName, file);
-            List<BlockUploadEntity> blocks
-                = BlockUploadEntity.createEntitiesForFile(file, Constants.DEFAULT_BLOCK_SIZE);
-            long uploadId = db.uploadDao().createUploadRecord(blob, blocks);
-            Log.v(TAG, "upload(): upload record created: " + uploadId);
+            try {
+                BlobUploadEntity blob = new BlobUploadEntity(containerName, blobName, file);
+                List<BlockUploadEntity> blocks
+                    = BlockUploadEntity.createEntitiesForFile(file, Constants.DEFAULT_BLOCK_SIZE);
+                long transferId = db.uploadDao().createUploadRecord(blob, blocks);
+                Log.v(TAG, "upload(): upload record created: " + transferId);
 
-            StorageBlobClientsMap.put(uploadId, blobClient);
+                StorageBlobClientsMap.put(transferId, blobClient);
 
-            Data inputData = new Data.Builder()
-                .putLong(UploadWorker.Constants.INPUT_BLOB_UPLOAD_ID_KEY, uploadId)
-                .build();
-            OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest
-                .Builder(UploadWorker.class)
-                .setConstraints(constraints)
-                .setInputData(inputData)
-                .build();
+                Data inputData = new Data.Builder()
+                    .putLong(UploadWorker.Constants.INPUT_BLOB_UPLOAD_ID_KEY, transferId)
+                    .build();
+                OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest
+                    .Builder(UploadWorker.class)
+                    .setConstraints(constraints)
+                    .setInputData(inputData)
+                    .build();
 
-            Log.v(TAG, "upload(): enqueuing UploadWorker: " + uploadId);
-            WorkManager.getInstance(context)
-                .beginUniqueWork(toTransferUniqueWorkName(uploadId),
-                    ExistingWorkPolicy.KEEP,
-                    uploadWorkRequest)
-                .enqueue();
-            transferIdLiveData.postValue(uploadId);
+                Log.v(TAG, "upload(): enqueuing UploadWorker: " + transferId);
+                WorkManager.getInstance(context)
+                    .beginUniqueWork(toTransferUniqueWorkName(transferId),
+                        ExistingWorkPolicy.KEEP,
+                        uploadWorkRequest)
+                    .enqueue();
+                idOrErrorChannel.postValue(TransferIdOrError.id(transferId));
+            } catch (Exception e) {
+                idOrErrorChannel.postValue(TransferIdOrError.error(e));
+            }
         });
         return new TransferIdMappedToTransferInfo()
-            .getTransferInfoLiveData(context, transferIdLiveData);
+            .getTransferInfoLiveData(context, idOrErrorChannel);
     }
 
     /**
