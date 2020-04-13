@@ -10,17 +10,17 @@ import androidx.annotation.MainThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.azure.android.storage.blob.transfer.TransferIdInfoLiveData.TransferFlags;
-
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 
+import com.azure.android.storage.blob.transfer.TransferIdInfoLiveData.TransferFlags;
+
 /**
  * A Hash table based cache, with each entry has transferId as 'key' and 'value' as reference
- * to {@link TransferFlags}, {@link LiveData< TransferIdOrError >} and weak reference to
- * {@link LiveData< TransferInfo >}.
+ * to {@link TransferFlags}, {@link LiveData<TransferIdOrError>} and weak reference to
+ * {@link LiveData<TransferInfo>}.
  *
  * The LiveData pair, i.e. TransferIdOrError LiveData and the TransferInfo LiveData
  * in a 'value' is related such that, when transferId set on TransferIdOrError LiveData
@@ -35,14 +35,16 @@ import java.util.HashMap;
  * methods to be accessible only from the main thread.
  *
  * The cache is designed to shared across all {@link TransferClient} instances within the
- * same application process.
+ * same application process. This enables all Observers of a transfer [e.g. Observers of
+ * upload(tid: 1), Observers of resume(tid: 1)] to listen to same TransferInfo LiveData,
+ * irrespective of the TransferClient they used to get the TransferInfo LiveData.
  *
  * The cache implementation assumes that the TransferIdOrError LiveData in the value
  * do not strongly refer to the TransferInfo LiveData in the same value either
  * directly or indirectly, since that will prevent the TransferIdOrError LiveData
  * from being collected.
  */
-final class TransferIdInfoLiveDataCache {
+final public class TransferIdInfoLiveDataCache {
     private static final String TAG = TransferIdInfoLiveDataCache.class.getSimpleName();
     // the internal map with each Entry in the format
     //  {

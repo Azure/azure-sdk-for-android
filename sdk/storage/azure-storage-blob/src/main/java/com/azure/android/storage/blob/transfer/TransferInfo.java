@@ -111,6 +111,16 @@ public final class TransferInfo {
     }
 
     /**
+     * Create a {@link TransferInfo} indicating that transfer is now paused by the user.
+     *
+     * @param transferId the transfer id
+     * @return {@link TransferInfo}
+     */
+    static TransferInfo createUserPaused(long transferId) {
+        return new TransferInfo(transferId, State.USER_PAUSED);
+    }
+
+    /**
      * Create a {@link TransferInfo} indicating the transfer is completed.
      *
      * @param transferId the transfer id
@@ -130,6 +140,17 @@ public final class TransferInfo {
     static TransferInfo createFailed(long transferId, String errorMessage) {
         return new TransferInfo(transferId, errorMessage);
     }
+
+    /**
+     * Create a {@link TransferInfo} indicating the transfer is cancelled.
+     *
+     * @param transferId the transfer id
+     * @return {@link TransferInfo}
+     */
+    static TransferInfo createCancelled(long transferId) {
+        return new TransferInfo(transferId, State.CANCELLED);
+    }
+
     /**
      * Get the transfer id.
      *
@@ -177,9 +198,11 @@ public final class TransferInfo {
         State.STARTED,
         State.RECEIVED_PROGRESS,
         State.SYSTEM_PAUSED,
+        State.USER_PAUSED,
         State.RESUMED,
         State.COMPLETED,
-        State.FAILED
+        State.FAILED,
+        State.CANCELLED
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface State {
@@ -199,17 +222,26 @@ public final class TransferInfo {
          */
         int SYSTEM_PAUSED = 3;
         /**
+         * Used to indicate that the transfer is paused by the user.
+         * The user has to request resume for a transfer in this state to continue.
+         */
+        int USER_PAUSED = 4;
+        /**
          * Used to indicate that the transfer that was paused is resumed.
          */
-        int RESUMED = 4;
+        int RESUMED = 5;
         /**
          * Used to indicate that the transfer has been completed.
          */
-        int COMPLETED = 5;
+        int COMPLETED = 6;
         /**
          * Used to indicate that the transfer has been failed.
          */
-        int FAILED = 6;
+        int FAILED = 7;
+        /**
+         * Used to indicate that the transfer is cancelled.
+         */
+        int CANCELLED = 8;
     }
 
     /**

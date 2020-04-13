@@ -8,10 +8,12 @@ import android.content.Context;
 import android.os.Build;
 import android.util.Log;
 
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
@@ -37,12 +39,13 @@ public class TransferClient {
     // the default storage client for all transfers.
     private final StorageBlobClient blobClient;
     // the constraints to meet to run the transfers.
-    // currently hold the network type required for transfers.
     private final Constraints constraints;
     // the executor for internal book keeping.
     private SerialExecutor serialTaskExecutor;
     // reference to the database holding transfer entities.
     private final TransferDatabase db;
+    // track the active (not collected by GC) Transfers.
+    private final static TransferIdInfoLiveDataCache TRANSFER_ID_INFO_CACHE = new TransferIdInfoLiveDataCache();
 
     /**
      * Creates a {@link TransferClient} that uses provided {@link StorageBlobClient}
@@ -73,10 +76,10 @@ public class TransferClient {
      * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
      */
     public LiveData<TransferInfo> upload(String containerName, String blobName, File file) {
-        TransferIdInfoLiveData.Result result = TransferIdInfoLiveData.create(context);
-        TransferIdInfoLiveData.LiveDataPair liveDataPair = result.getLiveDataPair();
-        MutableLiveData<TransferIdOrError> idOrErrorChannel = liveDataPair.getTransferIdOrErrorLiveData();
+        // UI_Thread
+        final MutableLiveData<TransferIdOrError> idOrErrorChannel = new MutableLiveData<>();
         this.serialTaskExecutor.execute(() -> {
+            // BG_Thread
             try {
                 BlobUploadEntity blob = new BlobUploadEntity(containerName, blobName, file);
                 List<BlockUploadEntity> blocks
@@ -101,22 +104,230 @@ public class TransferClient {
                         ExistingWorkPolicy.KEEP,
                         uploadWorkRequest)
                     .enqueue();
-                idOrErrorChannel.postValue(TransferIdOrError.id(transferId));
+                idOrErrorChannel.postValue(TransferIdOrError.id(TransferIdOrError.Operation.UPLOAD_DOWNLOAD, transferId));
             } catch (Exception e) {
-                idOrErrorChannel.postValue(TransferIdOrError.error(e));
+                idOrErrorChannel.postValue(TransferIdOrError.error(TransferIdOrError.Operation.UPLOAD_DOWNLOAD, e));
             }
         });
-        return liveDataPair.getTransferInfoLiveData();
+        // UI_Thread
+        return toCachedTransferInfoLiveData(idOrErrorChannel, false);
     }
 
     /**
-     * Get the name for a unique transfer work.
+     * Pause a transfer identified by the given transfer id. The pause operation
+     * is a best-effort and it is possible that a transfer that is already executing
+     * may continue to transfer.
+     *
+     * Upon successful scheduling of the pause, any observer observing on
+     * {@link LiveData<TransferInfo>} for this transfer receives a {@link TransferInfo}
+     * event with state {@link TransferInfo.State#USER_PAUSED}.
+     *
+     * @param transferId the transfer id identifies the transfer to pause.
+     */
+    // P2: Currently no return value, evaluate any possible return value later.
+    public void pause(long transferId) {
+        // UI_Thread
+        final TransferIdInfoLiveData.TransferFlags transferFlags = TRANSFER_ID_INFO_CACHE.getTransferFlags(transferId);
+        this.serialTaskExecutor.execute(() -> {
+            // BG_Thread
+            try {
+                final PauseCheck pauseCheck = checkPauseable(transferId);
+                if (pauseCheck.canPause) {
+                    if (pauseCheck.isUpload) {
+                        db.uploadDao().updateUploadInterruptState(transferId, UploadInterruptState.USER_PAUSED);
+                    } else {
+                        throw new RuntimeException("Download::pause() NotImplemented");
+                    }
+                    if (transferFlags != null) {
+                        transferFlags.setUserPaused();
+                    }
+                    WorkManager
+                        .getInstance(context)
+                        .cancelUniqueWork(toTransferUniqueWorkName(transferId));
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Unable to schedule pause for the transfer:" + transferId, e);
+            }
+        });
+    }
+
+    /**
+     * Resume a transfer that was paused.
+     *
+     * @param @param transferId the transfer id identifies the transfer to resume.
+     * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
+     */
+    public LiveData<TransferInfo> resume(long transferId) {
+        // UI_Thread
+        final MutableLiveData<TransferIdOrError> idOrErrorChannel = new MutableLiveData<>();
+        this.serialTaskExecutor.execute(() -> {
+            // BG_Thread
+            try {
+                final ResumeCheck resumeCheck = checkResumeable(transferId, idOrErrorChannel);
+                if (resumeCheck.canResume) {
+                    StorageBlobClientsMap.put(transferId, blobClient);
+                    final OneTimeWorkRequest workRequest;
+                    if (resumeCheck.isUpload) {
+                        Data inputData = new Data.Builder()
+                            .putLong(UploadWorker.Constants.INPUT_BLOB_UPLOAD_ID_KEY, transferId)
+                            .build();
+                        workRequest = new OneTimeWorkRequest
+                            .Builder(UploadWorker.class)
+                            .setConstraints(constraints)
+                            .setInputData(inputData)
+                            .build();
+                        Log.v(TAG, "Upload::resume() Enqueuing UploadWorker: " + transferId);
+                    } else {
+                        throw new RuntimeException("Download::resume() NotImplemented");
+                    }
+                    //
+                    // Resume will resubmit the work to WorkManager with policy as KEEP.
+                    // which means if the work is already running then this resume() call
+                    // is NO-OP. We return the LiveData to the caller that can be observed
+                    // for TransferInfo events of the already running work.
+                    //
+                    WorkManager.getInstance(context)
+                        .beginUniqueWork(toTransferUniqueWorkName(transferId),
+                            ExistingWorkPolicy.KEEP,
+                            workRequest)
+                        .enqueue();
+                    idOrErrorChannel.postValue(TransferIdOrError.id(TransferIdOrError.Operation.RESUME, transferId));
+                }
+            } catch (Exception e) {
+                idOrErrorChannel.postValue(TransferIdOrError.error(TransferIdOrError.Operation.RESUME, e));
+            }
+        });
+        // UI_Thread
+        return toCachedTransferInfoLiveData(idOrErrorChannel, true);
+    }
+
+    /**
+     * Get unique name for a transfer work.
      *
      * @param transferId the transfer id
      * @return name for the transfer work
      */
     static String toTransferUniqueWorkName(long transferId) {
         return "azure_transfer_" + transferId;
+    }
+
+    /**
+     * Subscribe to a TransferIdOrError LiveData and transform that to TransferInfo LiveData.
+     *
+     * This method caches or uses cached {@link LiveData<TransferInfo>} to stream TransferInfo.
+     * If provided TransferIdOrError LiveData emit an error then cache won't be used.
+     *
+     * @param idOrErrorChannel the TransferIdOrError LiveData
+     * @param isResume true if the transfer id emitted by the TransferIdOrError LiveData identifies
+     *                 a transfer to be resumed, false for a new upload or download transfer.
+     * @return the TransferInfo LiveData
+     */
+    @MainThread
+    private LiveData<TransferInfo> toCachedTransferInfoLiveData(LiveData<TransferIdOrError> idOrErrorChannel,
+                                                                boolean isResume) {
+        // UI_Thread
+        return Transformations.switchMap(idOrErrorChannel, idOrError -> {
+            if (idOrError.isError()) {
+                final TransferIdInfoLiveData.Result result = TransferIdInfoLiveData.create(context);
+                final TransferIdInfoLiveData.LiveDataPair pair = result.getLiveDataPair();
+                pair.getTransferIdOrErrorLiveData().setValue(idOrError);
+                return pair.getTransferInfoLiveData();
+            } else {
+                if (isResume) {
+                    // If application process already has a cached LiveData pair for the same transfer
+                    // then use it, otherwise create, cache and use.
+                    final TransferIdInfoLiveData.LiveDataPair pair
+                        = TRANSFER_ID_INFO_CACHE.getOrCreate(idOrError.getId(), context);
+                    pair.getTransferIdOrErrorLiveData().setValue(idOrError);
+                    return pair.getTransferInfoLiveData();
+                } else {
+                    // Create a transfer LiveData pair cache entry and use it.
+                    // Any future resume operation on the same transfer will use this pair as long as
+                    // both operations (upload_download and resume) happened in the same application
+                    // process and the cache entry is not GC-ed.
+                    final TransferIdInfoLiveData.LiveDataPair pair
+                        = TRANSFER_ID_INFO_CACHE.create(idOrError.getId(), context);
+                    pair.getTransferIdOrErrorLiveData().setValue(idOrError);
+                    return pair.getTransferInfoLiveData();
+                }
+            }
+        });
+    }
+
+    /**
+     * Do pre-validations to see a transfer can be resumed.
+     *
+     * @param transferId the transfer id to check for resume eligibility
+     * @param idOrErrorChannel the LiveData to post the error if the transfer cannot be resumed
+     * @return result of check
+     */
+    private ResumeCheck checkResumeable(long transferId, MutableLiveData<TransferIdOrError> idOrErrorChannel) {
+        // Check for Upload Record
+        BlobUploadEntity uploadBlob = db.uploadDao().getBlob(transferId);
+        if (uploadBlob != null) {
+            if (uploadBlob.state == BlobUploadState.FAILED) {
+                idOrErrorChannel.postValue(TransferIdOrError.alreadyInFailedStateError(transferId));
+                return new ResumeCheck(false, true);
+            } else if (uploadBlob.state == BlobUploadState.COMPLETED) {
+                idOrErrorChannel.postValue(TransferIdOrError.alreadyInCompletedStateError(transferId));
+                return new ResumeCheck(false, true);
+            }
+            return new ResumeCheck(true, true);
+        }
+        // TODO: Check for Download Record
+
+        // No upload or download transfer found.
+        idOrErrorChannel.postValue(TransferIdOrError.notFoundError(transferId));
+        return new ResumeCheck(false, false);
+    }
+
+    /** Result of {@link this#checkResumeable(long, MutableLiveData)}} **/
+    private static final class ResumeCheck {
+        // flag indicating whether transfer is resume-able or not.
+        final boolean canResume;
+        // if resume-able then this flag indicates the transfer type (upload|download)
+        final boolean isUpload;
+
+        ResumeCheck(boolean canResume, boolean isUpload) {
+            this.canResume = canResume;
+            this.isUpload = isUpload;
+        }
+    }
+
+    /**
+     * Do pre-validations to see a transfer can be paused.
+     *
+     * @param transferId the transfer id to check for pause eligibility
+     * @return result of check
+     */
+    private PauseCheck checkPauseable(long transferId) {
+        // Check for Upload Record
+        BlobUploadEntity blob = db.uploadDao().getBlob(transferId);
+        if (blob != null) {
+            if (blob.state == BlobUploadState.FAILED) {
+                return new PauseCheck(false, true);
+            } else if (blob.state == BlobUploadState.COMPLETED) {
+                return new PauseCheck(false, true);
+            }
+            return new PauseCheck(true, true);
+        }
+        // TODO: Check for Download Record
+
+        // No upload or download transfer found.
+        return new PauseCheck(false, false);
+    }
+
+    /** Result of {@link this#checkPauseable(long)}} **/
+    private static final class PauseCheck {
+        // flag indicating whether transfer is pause-able or not.
+        private final boolean canPause;
+        // if pause-able then this flag indicates the transfer type (upload|download)
+        final boolean isUpload;
+
+        private PauseCheck(boolean canPause, boolean isUpload) {
+            this.canPause = canPause;
+            this.isUpload = isUpload;
+        }
     }
 
     /**
@@ -187,6 +398,8 @@ public class TransferClient {
         /**
          * Sets the particular {@link NetworkType} the device should be in for running
          * the transfers.
+         *
+         * The default network type that {@link TransferClient} uses is {@link NetworkType#CONNECTED}.
          *
          * @param networkType The type of network required for transfers to run
          * @return Builder with provided network type set
