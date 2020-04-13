@@ -26,6 +26,8 @@ public final class TransferInfo {
     private final @State int state;
     // the transfer progress.
     private final Progress progress;
+    // the string describing transfer failure reason
+    private final String errorMessage;
 
     /**
      * Create TransferInfo for a given state.
@@ -37,6 +39,7 @@ public final class TransferInfo {
         this.id = id;
         this.state = state;
         this.progress = null;
+        this.errorMessage = null;
     }
 
     /**
@@ -49,6 +52,20 @@ public final class TransferInfo {
         this.id = id;
         this.state = State.RECEIVED_PROGRESS;
         this.progress = progress;
+        this.errorMessage = null;
+    }
+
+    /**
+     * Create TransferInfo for {@link State#FAILED} state.
+     *
+     * @param id the transfer id
+     * @param errorMessage the string describing transfer failure reason
+     */
+    private TransferInfo(long id, String errorMessage) {
+        this.id = id;
+        this.state = State.FAILED;
+        this.progress = null;
+        this.errorMessage = errorMessage;
     }
 
     /**
@@ -107,12 +124,12 @@ public final class TransferInfo {
      * Create a {@link TransferInfo} indicating the transfer is failed.
      *
      * @param transferId the transfer id
+     * @param errorMessage the string describing transfer failure reason
      * @return {@link TransferInfo}
      */
-    static TransferInfo createFailed(long transferId) {
-        return new TransferInfo(transferId, State.FAILED);
+    static TransferInfo createFailed(long transferId, String errorMessage) {
+        return new TransferInfo(transferId, errorMessage);
     }
-
     /**
      * Get the transfer id.
      *
@@ -140,6 +157,17 @@ public final class TransferInfo {
      */
     public Progress getProgress() {
         return this.progress;
+    }
+
+    /**
+     * Get the error message. Note that error message is only available
+     * for the state ({@link State#FAILED}, for other states calling this
+     * method returns {@code null}.
+     *
+     * @return the string describing transfer failure reason
+     */
+    public String getErrorMessage() {
+        return this.errorMessage;
     }
 
     /**

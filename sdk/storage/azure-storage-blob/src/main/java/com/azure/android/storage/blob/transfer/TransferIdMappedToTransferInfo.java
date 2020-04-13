@@ -99,8 +99,8 @@ final class TransferIdMappedToTransferInfo {
                 return;
             }
             if (currentWorkInfoState == WorkInfo.State.FAILED) {
-                // TODO: anuchan decide on error propagation
-                this.transferInfoLiveData.setValue(TransferInfo.createFailed(transferId));
+                this.transferInfoLiveData.setValue(TransferInfo.createFailed(transferId,
+                    tryGetWorkerErrorMessage(workInfo)));
                 return;
             }
             Log.e(TAG, "Received Unexpected WorkInfo event from WorkManager:" + workInfo.toString());
@@ -225,5 +225,19 @@ final class TransferIdMappedToTransferInfo {
         }
         long bytesTransferred = progress.getLong(UploadWorker.Constants.PROGRESS_BYTES_UPLOADED, -1);
         return new TransferInfo.Progress(totalBytes, bytesTransferred);
+    }
+
+    /**
+     * Try to retrieve transfer failure message from a {@link WorkInfo}.
+     *
+     * @param workInfo the work info object from transfer Worker
+     * @return the error message, null if it is not available in the work info object.
+     */
+    private static String tryGetWorkerErrorMessage(WorkInfo workInfo) {
+        Data data = workInfo.getOutputData();
+        if (data == null) {
+            return null;
+        }
+        return data.getString(UploadWorker.Constants.OUTPUT_ERROR_MESSAGE_KEY);
     }
 }
