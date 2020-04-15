@@ -22,19 +22,20 @@ import java.util.List;
  * Package private.
  *
  * A type to create the LiveData pair, a {@link TransferIdOrError} LiveData and associated {@link TransferInfo}
- * LiveData. Each transfer will have such a unique LiveData pair.
+ * LiveData. Each transfer will have a unique LiveData pair.
  *
- * When transfer id is set to TransferIdOrError LiveData then TransferInfo LiveData streams {@link TransferInfo}
- * events describing current state of the transfer identified by the transfer id. Internally the source of the
- * TransferInfo LiveData queries {@link WorkManager} for a LiveData that streams {@link WorkInfo} and transform
- * {@link WorkInfo} events to {@link TransferInfo} events.
+ * The TransferInfo LiveData streams {@link TransferInfo} events describing the current state of a transfer when
+ * the transfer id for that transfer set in TransferIdOrError LiveData. Internally the source of the TransferInfo
+ * LiveData queries {@link WorkManager} for a LiveData that streams {@link WorkInfo} and transform {@link WorkInfo}
+ * events to {@link TransferInfo} events.
  *
- * Same transfer id can be set multiple times in the TransferIdOrError LiveData. Each such set results in querying
- * {@link WorkManager} as described above. There can be active Observes for an original transfer when it is paused
- * and later resumed by a different Worker. When possible we share the same LiveData pair between original transfer
- * and it's resume. In such cases, the ability to set transfer id on the TransferIdOrError LiveData multiple times
- * enables to transparently switch the Worker and keep any existing Observers of the original transfer to continue
- * to receive the {@link TransferInfo} events.
+ * The same transfer id can be set multiple times in the TransferIdOrError LiveData. Each such set results in
+ * querying {@link WorkManager} as described above.
+ *
+ * When the application pauses a transfer, there can be already active Observes for the transfer; later,
+ * if the application resumes the transfer using a different worker, we want to ensure those observers will continue
+ * to receive events. The ability to set transfer id on the TransferIdOrError LiveData multiple times enables us
+ * to switch the worker while keep emitting from the same TransferInfo LiveData.
  *
  * @see TransferIdInfoLiveDataCache (for LiveData pair sharing)
  */
@@ -47,8 +48,8 @@ final class TransferIdInfoLiveData {
     // the the object that TransferClient methods update any state that it want TransferInfo LiveData source
     // for a transfer to know.
     private final TransferFlags transferFlags = new TransferFlags();
-    // the recent TransferIdOrError object emitted by the transferIdOrErrorLiveData object.
-    private TransferIdOrError inputTransferIdOrError;
+    // the recent TransferIdOrError object emitted by the transferIdOrErrorLiveData.
+    private TransferIdOrError transferIdOrError;
     // hold the state of the last WorkInfo received from Transfer Worker.
     private WorkInfo.State lastWorkInfoState;
     // flag to track whether current event about to emit from transferInfoLiveData is the first event.
@@ -69,7 +70,7 @@ final class TransferIdInfoLiveData {
         LiveData<WorkInfo> workInfoLiveData = this.mapInputTransferIdToWorkInfoLiveData(context);
         // 2. Register mapping of LiveData<WorkInfo> to LiveData<TransferInfo>
         this.transferInfoLiveData.addSource(workInfoLiveData, workInfo -> {
-            if (this.inputTransferIdOrError.isError()) {
+            if (this.transferIdOrError.isError()) {
                 mapErrorFromTransferClient();
                 return;
             }
@@ -94,7 +95,7 @@ final class TransferIdInfoLiveData {
                 Log.v(TAG, "Skipping the 'WorkInfo' from WorkManager with Null state.");
                 return;
             }
-            final long transferId = this.inputTransferIdOrError.getId();
+            final long transferId = this.transferIdOrError.getId();
             this.setLastWorkInfoState(currentWorkInfoState);
             if (this.isFirstEvent()) {
                 this.setDoneFirstEvent();
@@ -161,15 +162,15 @@ final class TransferIdInfoLiveData {
      * @param transferIdOrError the transfer id or error
      */
     private void setTransferIdOrError(TransferIdOrError transferIdOrError) {
-        if (this.inputTransferIdOrError != null && !this.inputTransferIdOrError.isError()) {
-            if (this.inputTransferIdOrError.getId() != transferIdOrError.getId()) {
+        if (this.transferIdOrError != null && !this.transferIdOrError.isError()) {
+            if (this.transferIdOrError.getId() != transferIdOrError.getId()) {
                 Log.e(TAG,
                     "Cannot be associated to a different transferId."
-                        + " existing:" + this.inputTransferIdOrError.getId()
+                        + " existing:" + this.transferIdOrError.getId()
                         + " new:" + transferIdOrError.getId());
             }
         }
-        this.inputTransferIdOrError = transferIdOrError;
+        this.transferIdOrError = transferIdOrError;
     }
 
     /**
@@ -214,7 +215,7 @@ final class TransferIdInfoLiveData {
      * Get the {@link WorkInfo.State} of the last {@link WorkInfo} event received from
      * the transfer worker.
      *
-     * @return the workinfo state
+     * @return the WorkInfo state
      */
     private WorkInfo.State getLastWorkInfoState() {
         return this.lastWorkInfoState;
@@ -231,10 +232,11 @@ final class TransferIdInfoLiveData {
     }
 
     /**
-     * Get the LiveData that stream {@link WorkInfo} of a transfer worker corresponding to the input transfer id.
+     * Get the LiveData that stream {@link WorkInfo} of a transfer worker.
      *
-     * This method uses {@link WorkManager} API to retrieve the LiveData of a transfer worker
-     * that is processing the transfer identified by the transfer id emitted by {@code inputTransferIdOrErrorLiveData}.
+     * This method uses {@link WorkManager} API to retrieve the  WorkInfo LiveData of a transfer
+     * worker that is processing the transfer identified by the transfer id emitted by
+     * {@code transferIdOrErrorLiveData}.
      *
      * @param context the context
      * @return a LiveData of {@link WorkInfo}
@@ -245,7 +247,7 @@ final class TransferIdInfoLiveData {
                 this.transferIdOrErrorLiveData,
                 transferIdOrError -> {
                     setTransferIdOrError(transferIdOrError);
-                    if (this.inputTransferIdOrError.isError()) {
+                    if (this.transferIdOrError.isError()) {
                         // An error from TransferClient. To continue the LiveData pipeline it is required
                         // to return non-null LiveData. Null from switchMapFunction will cut the pipeline.
                         MutableLiveData<List<WorkInfo>> emptyWorkInfoList = new MutableLiveData<>();
@@ -254,19 +256,19 @@ final class TransferIdInfoLiveData {
                     } else {
                         // No error from TransferClient i.e. transfer work may exists, get the underlying
                         // LiveData<WorkInfo> for the transfer work.
-                        final long transferId = this.inputTransferIdOrError.getId();
+                        final long transferId = this.transferIdOrError.getId();
                         return WorkManager.getInstance(context)
                             .getWorkInfosForUniqueWorkLiveData(TransferClient.toTransferUniqueWorkName(transferId));
                     }
                 }
             );
         return Transformations.map(workInfoListLiveData, workInfoList -> {
-            if (this.inputTransferIdOrError.isError()) {
+            if (this.transferIdOrError.isError()) {
                 // An error from TransferClient then emit null WorkInfo. The downstream should check error before
                 // start processing the WorkInfo.
                 return null;
             } else {
-                final long transferId = this.inputTransferIdOrError.getId();
+                final long transferId = this.transferIdOrError.getId();
                 if (workInfoList == null || workInfoList.isEmpty()) {
                     Log.e(TAG, "Received null or Empty WorkInfo list for the transfer '" + transferId + "' from WorkManager." );
                     return null;
@@ -280,36 +282,36 @@ final class TransferIdInfoLiveData {
     }
 
     /**
-     * Map any error reported by TransferClient via inputTransferIdOrError to appropriate event
-     * in output TransferInfo LiveData.
+     * Map any error reported by TransferClient via transferIdOrErrorLiveData to appropriate event
+     * that transferInfoLiveData emits.
      */
     private void mapErrorFromTransferClient() {
-        if (this.inputTransferIdOrError.isError()) {
-            if (this.inputTransferIdOrError.getOperation() == TransferIdOrError.Operation.RESUME) {
-                if (this.inputTransferIdOrError.isNotFoundError()) {
+        if (this.transferIdOrError.isError()) {
+            if (this.transferIdOrError.getOperation() == TransferIdOrError.Operation.RESUME) {
+                if (this.transferIdOrError.isNotFoundError()) {
                     // Follow the same convention as WorkManager, i.e. if an Work is
                     // unknown then emit null. Here application provided transfer id was not
                     // identifying a transfer record.
                     this.transferInfoLiveData.setValue(null);
                     this.setLastWorkInfoState(WorkInfo.State.FAILED);
                     return;
-                } else if (this.inputTransferIdOrError.isTerminatedError()) {
-                    TransferIdOrError.TransferInTerminatedStateError tError = this.inputTransferIdOrError.getError();
+                } else if (this.transferIdOrError.isTerminatedError()) {
+                    TransferIdOrError.TransferInTerminatedStateError tError = this.transferIdOrError.getError();
                     if (tError.isCompleted()) {
                         this.transferInfoLiveData
-                            .setValue(TransferInfo.createCompleted(this.inputTransferIdOrError.getId()));
+                            .setValue(TransferInfo.createCompleted(this.transferIdOrError.getId()));
                         this.setLastWorkInfoState(WorkInfo.State.SUCCEEDED);
                         return;
                     }
                 }
-                this.transferInfoLiveData.setValue(TransferInfo.createFailed(this.inputTransferIdOrError.getId(),
-                    this.inputTransferIdOrError.getErrorMessage()));
+                this.transferInfoLiveData.setValue(TransferInfo.createFailed(this.transferIdOrError.getId(),
+                    this.transferIdOrError.getErrorMessage()));
                 this.setLastWorkInfoState(WorkInfo.State.FAILED);
                 return;
             } else {
                 // TransferIdOrError.Operation.UPLOAD_DOWNLOAD
-                this.transferInfoLiveData.setValue(TransferInfo.createFailed(this.inputTransferIdOrError.getId(),
-                    this.inputTransferIdOrError.getErrorMessage()));
+                this.transferInfoLiveData.setValue(TransferInfo.createFailed(this.transferIdOrError.getId(),
+                    this.transferIdOrError.getErrorMessage()));
                 this.setLastWorkInfoState(WorkInfo.State.FAILED);
                 return;
             }
@@ -319,7 +321,7 @@ final class TransferIdInfoLiveData {
     /**
      * Try to retrieve transfer progress from a {@link WorkInfo}.
      *
-     * @param workInfo the work info from transfer Worker
+     * @param workInfo the WorkInfo from transfer Worker
      * @return the progress description, null if description is not available in the WorkInfo.
      */
     private static TransferInfo.Progress tryGetWorkerProgress(WorkInfo workInfo) {
@@ -437,19 +439,15 @@ final class TransferIdInfoLiveData {
     }
 
     /**
-     * Instance of this type is used by TransferClient methods to set any flag that it want
-     * TransferInfo LiveData source of the transfer to know.
+     * An instance of this type is used by TransferClient methods to communicate any flag to a TransferInfo
+     * LiveData source.
      *
-     * If a transfer has any 'active Observers' then that transfer's {@link TransferFlags}
-     * and LiveData pair (TransferInfo and TransferIdOrError LiveData) will be tracked
-     * in the {@link TransferIdInfoLiveDataCache} cache. By 'active Observers', we mean the
-     * Observers of TransferInfo LiveData those are not GC-ed yet hence the corresponding cache entry.
-     *
-     * The cache is shared across all {@link TransferClient} instances within a application process.
-     * This enables all Observers of a transfer [e.g. Observers of upload(tid: 1), Observers of
-     * resume(tid: 1)] to share the same source TransferInfo LiveData. Because of TransferInfo LiveData
-     * sharing, the effect of any flag set in {@link TransferFlags} by one {@link TransferClient} will be
-     * visible to Observers of same transfer in a different {@link TransferClient}.
+     * If a transfer has any 'active Observers' then that transfer's {@link TransferFlags} and LiveData pair
+     * (TransferInfo and TransferIdOrError) will be tracked in the {@link TransferIdInfoLiveDataCache} cache.
+     * All {@link TransferClient} instances within an application process share the same cache.
+     * The cache enables all Observers of a transfer [e.g. Observers of upload(tid: 1), Observers of resume(tid: 1)]
+     * to share the same source TransferInfo LiveData. Since TransferFlags is also cached along with  LiveData pair,
+     * changes to it are visible in the LiveData source.
      */
     final static class TransferFlags {
         private volatile boolean userPaused;

@@ -44,7 +44,7 @@ import com.azure.android.storage.blob.transfer.TransferIdInfoLiveData.TransferFl
  * directly or indirectly, since that will prevent the TransferIdOrError LiveData
  * from being collected.
  */
-final public class TransferIdInfoLiveDataCache {
+final class TransferIdInfoLiveDataCache {
     private static final String TAG = TransferIdInfoLiveDataCache.class.getSimpleName();
     // the internal map with each Entry in the format
     //  {
@@ -75,7 +75,7 @@ final public class TransferIdInfoLiveDataCache {
      * {@code TransferInfo} LiveData
      */
     @MainThread
-    public TransferIdInfoLiveData.LiveDataPair create(long transferId, Context context) {
+    TransferIdInfoLiveData.LiveDataPair create(long transferId, Context context) {
         this.expunge();
         final TransferIdInfoLiveData.Result result = TransferIdInfoLiveData.create(context);
         final TransferIdInfoLiveData.LiveDataPair liveDataPair = result.getLiveDataPair();
@@ -100,7 +100,7 @@ final public class TransferIdInfoLiveDataCache {
      * @return the pair composing created TransferIdOrError LiveData and associated TransferInfo LiveData
      */
     @MainThread
-    public TransferIdInfoLiveData.LiveDataPair getOrCreate(long transferId, Context context) {
+    TransferIdInfoLiveData.LiveDataPair getOrCreate(long transferId, Context context) {
         this.expunge();
         final TransferInfoLiveDataWeakReference ref = this.map.get(transferId);
         if (ref != null) {
@@ -121,7 +121,7 @@ final public class TransferIdInfoLiveDataCache {
      * @return the {@link TransferFlags}
      */
     @MainThread
-    public TransferIdInfoLiveData.TransferFlags getTransferFlags(long transferId) {
+    TransferIdInfoLiveData.TransferFlags getTransferFlags(long transferId) {
         this.expunge();
         final TransferInfoLiveDataWeakReference ref = this.map.get(transferId);
         if (ref != null) {

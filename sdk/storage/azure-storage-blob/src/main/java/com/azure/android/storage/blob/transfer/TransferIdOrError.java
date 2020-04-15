@@ -20,7 +20,7 @@ import java.lang.annotation.RetentionPolicy;
  * TransferClient methods encountered or could detect, this type is not used to channel the real time
  * error happened in the background worker.
  */
-public final class TransferIdOrError {
+final class TransferIdOrError {
     // the transfer operation type (upload_download, resume)
     private final @Operation int operation;
     // the transfer id.
@@ -35,7 +35,7 @@ public final class TransferIdOrError {
      * @param id the transfer id of a transfer
      * @return TransferIdOrError composing a valid transfer id
      */
-    public static TransferIdOrError id(@NonNull @Operation int operation, long id) {
+    static TransferIdOrError id(@NonNull @Operation int operation, long id) {
         return new TransferIdOrError(operation, id, null);
     }
 
@@ -112,7 +112,7 @@ public final class TransferIdOrError {
      *
      * @return the transfer id
      */
-    public long getId() {
+    long getId() {
         return this.id;
     }
 
@@ -121,7 +121,7 @@ public final class TransferIdOrError {
      *
      * @return true for error, false otherwise
      */
-    public boolean isError() {
+    boolean isError() {
         return this.error != null;
     }
 
@@ -202,7 +202,6 @@ public final class TransferIdOrError {
         Operation.RESUME,
     })
     @Retention(RetentionPolicy.SOURCE)
-    public
     @interface Operation {
         int UPLOAD_DOWNLOAD = 1;
         int RESUME = 2;

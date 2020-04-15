@@ -77,7 +77,7 @@ public class TransferClient {
      */
     public LiveData<TransferInfo> upload(String containerName, String blobName, File file) {
         // UI_Thread
-        final MutableLiveData<TransferIdOrError> idOrErrorChannel = new MutableLiveData<>();
+        final MutableLiveData<TransferIdOrError> idOrErrorLiveData = new MutableLiveData<>();
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
@@ -104,19 +104,19 @@ public class TransferClient {
                         ExistingWorkPolicy.KEEP,
                         uploadWorkRequest)
                     .enqueue();
-                idOrErrorChannel.postValue(TransferIdOrError.id(TransferIdOrError.Operation.UPLOAD_DOWNLOAD, transferId));
+                idOrErrorLiveData.postValue(TransferIdOrError.id(TransferIdOrError.Operation.UPLOAD_DOWNLOAD, transferId));
             } catch (Exception e) {
-                idOrErrorChannel.postValue(TransferIdOrError.error(TransferIdOrError.Operation.UPLOAD_DOWNLOAD, e));
+                idOrErrorLiveData.postValue(TransferIdOrError.error(TransferIdOrError.Operation.UPLOAD_DOWNLOAD, e));
             }
         });
         // UI_Thread
-        return toCachedTransferInfoLiveData(idOrErrorChannel, false);
+        return toCachedTransferInfoLiveData(idOrErrorLiveData, false);
     }
 
     /**
      * Pause a transfer identified by the given transfer id. The pause operation
-     * is a best-effort and it is possible that a transfer that is already executing
-     * may continue to transfer.
+     * is a best-effort, and a transfer that is already executing may continue to
+     * transfer.
      *
      * Upon successful scheduling of the pause, any observer observing on
      * {@link LiveData<TransferInfo>} for this transfer receives a {@link TransferInfo}
@@ -152,10 +152,10 @@ public class TransferClient {
     }
 
     /**
-     * Resume a transfer that was paused.
+     * Resume a paused transfer.
      *
-     * @param @param transferId the transfer id identifies the transfer to resume.
-     * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
+     * @param transferId the transfer id identifies the transfer to resume.
+     * @return LiveData that streams {@link TransferInfo} describing the current state of the transfer
      */
     public LiveData<TransferInfo> resume(long transferId) {
         // UI_Thread
@@ -180,12 +180,10 @@ public class TransferClient {
                     } else {
                         throw new RuntimeException("Download::resume() NotImplemented");
                     }
-                    //
-                    // Resume will resubmit the work to WorkManager with policy as KEEP.
-                    // which means if the work is already running then this resume() call
-                    // is NO-OP. We return the LiveData to the caller that can be observed
-                    // for TransferInfo events of the already running work.
-                    //
+                    // resume() will resubmit the work to WorkManager with the policy as KEEP.
+                    // With this policy, if the work is already running, then this resume() call is NO-OP,
+                    // we return the LiveData to the caller that streams the TransferInfo events of
+                    // the already running work.
                     WorkManager.getInstance(context)
                         .beginUniqueWork(toTransferUniqueWorkName(transferId),
                             ExistingWorkPolicy.KEEP,
@@ -215,18 +213,18 @@ public class TransferClient {
      * Subscribe to a TransferIdOrError LiveData and transform that to TransferInfo LiveData.
      *
      * This method caches or uses cached {@link LiveData<TransferInfo>} to stream TransferInfo.
-     * If provided TransferIdOrError LiveData emit an error then cache won't be used.
+     * If provided TransferIdOrError LiveData emits an error, then cache won't be used.
      *
-     * @param idOrErrorChannel the TransferIdOrError LiveData
+     * @param idOrErrorLiveData the TransferIdOrError LiveData
      * @param isResume true if the transfer id emitted by the TransferIdOrError LiveData identifies
      *                 a transfer to be resumed, false for a new upload or download transfer.
      * @return the TransferInfo LiveData
      */
     @MainThread
-    private LiveData<TransferInfo> toCachedTransferInfoLiveData(LiveData<TransferIdOrError> idOrErrorChannel,
+    private LiveData<TransferInfo> toCachedTransferInfoLiveData(LiveData<TransferIdOrError> idOrErrorLiveData,
                                                                 boolean isResume) {
         // UI_Thread
-        return Transformations.switchMap(idOrErrorChannel, idOrError -> {
+        return Transformations.switchMap(idOrErrorLiveData, idOrError -> {
             if (idOrError.isError()) {
                 final TransferIdInfoLiveData.Result result = TransferIdInfoLiveData.create(context);
                 final TransferIdInfoLiveData.LiveDataPair pair = result.getLiveDataPair();
@@ -234,17 +232,20 @@ public class TransferClient {
                 return pair.getTransferInfoLiveData();
             } else {
                 if (isResume) {
-                    // If application process already has a cached LiveData pair for the same transfer
-                    // then use it, otherwise create, cache and use.
+                    // If the application process already has a cached LiveData pair for the same transfer,
+                    // then use it, otherwise create, cache, and use.
                     final TransferIdInfoLiveData.LiveDataPair pair
                         = TRANSFER_ID_INFO_CACHE.getOrCreate(idOrError.getId(), context);
                     pair.getTransferIdOrErrorLiveData().setValue(idOrError);
                     return pair.getTransferInfoLiveData();
                 } else {
-                    // Create a transfer LiveData pair cache entry and use it.
-                    // Any future resume operation on the same transfer will use this pair as long as
-                    // both operations (upload_download and resume) happened in the same application
-                    // process and the cache entry is not GC-ed.
+                    // For a new upload or download transfer, create a transfer LiveData pair
+                    // (TransferIdOrError, TransferInfo) cache entry and use them.
+                    // Any future resume operation on the same transfer will use this pair
+                    // as long as:
+                    //     1. both upload or download transfer, and the corresponding resume happens
+                    //        in the same application process
+                    //     2. and the cache entry is not GC-ed.
                     final TransferIdInfoLiveData.LiveDataPair pair
                         = TRANSFER_ID_INFO_CACHE.create(idOrError.getId(), context);
                     pair.getTransferIdOrErrorLiveData().setValue(idOrError);
@@ -257,7 +258,7 @@ public class TransferClient {
     /**
      * Do pre-validations to see a transfer can be resumed.
      *
-     * @param transferId the transfer id to check for resume eligibility
+     * @param transferId identifies the transfer to check for resume eligibility
      * @param idOrErrorChannel the LiveData to post the error if the transfer cannot be resumed
      * @return result of check
      */
@@ -297,7 +298,7 @@ public class TransferClient {
     /**
      * Do pre-validations to see a transfer can be paused.
      *
-     * @param transferId the transfer id to check for pause eligibility
+     * @param transferId identifies the transfer to check for pause eligibility
      * @return result of check
      */
     private PauseCheck checkPauseable(long transferId) {
