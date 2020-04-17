@@ -5,10 +5,7 @@
     "authorities" : [
         {
             "type": "AAD",
-            "audience": {
-                "type": "AzureADMyOrg",
-                "tenant_id": "{tenant-id}"
-            }
+            "authority_url": "https://login.microsoftonline.com/{tenant-id}"
         }
     ]
 }

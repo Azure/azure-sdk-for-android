@@ -45,7 +45,7 @@ dependencies {
     implementation "com.google.dagger:dagger-android:2.20"
     implementation "com.google.dagger:dagger-android-support:2.20"
     //noinspection GradleDynamicVersion
-    implementation "com.microsoft.identity.client:msal:0.3+"
+    implementation "com.microsoft.identity.client:msal:1.0+"
     implementation "com.fasterxml.jackson.core:jackson-databind:2.9.9"
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.9.9"
     implementation "com.jakewharton.threetenabp:threetenabp:1.2.1"
