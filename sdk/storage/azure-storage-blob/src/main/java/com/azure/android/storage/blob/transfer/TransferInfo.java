@@ -26,6 +26,8 @@ public final class TransferInfo {
     private final @State int state;
     // the transfer progress.
     private final Progress progress;
+    // the string describing transfer failure reason
+    private final String errorMessage;
 
     /**
      * Create TransferInfo for a given state.
@@ -37,6 +39,7 @@ public final class TransferInfo {
         this.id = id;
         this.state = state;
         this.progress = null;
+        this.errorMessage = null;
     }
 
     /**
@@ -49,6 +52,20 @@ public final class TransferInfo {
         this.id = id;
         this.state = State.RECEIVED_PROGRESS;
         this.progress = progress;
+        this.errorMessage = null;
+    }
+
+    /**
+     * Create TransferInfo for {@link State#FAILED} state.
+     *
+     * @param id the transfer id
+     * @param errorMessage the string describing transfer failure reason
+     */
+    private TransferInfo(long id, String errorMessage) {
+        this.id = id;
+        this.state = State.FAILED;
+        this.progress = null;
+        this.errorMessage = errorMessage;
     }
 
     /**
@@ -94,6 +111,16 @@ public final class TransferInfo {
     }
 
     /**
+     * Create a {@link TransferInfo} indicating that transfer is now paused by the user.
+     *
+     * @param transferId the transfer id
+     * @return {@link TransferInfo}
+     */
+    static TransferInfo createUserPaused(long transferId) {
+        return new TransferInfo(transferId, State.USER_PAUSED);
+    }
+
+    /**
      * Create a {@link TransferInfo} indicating the transfer is completed.
      *
      * @param transferId the transfer id
@@ -107,10 +134,21 @@ public final class TransferInfo {
      * Create a {@link TransferInfo} indicating the transfer is failed.
      *
      * @param transferId the transfer id
+     * @param errorMessage the string describing transfer failure reason
      * @return {@link TransferInfo}
      */
-    static TransferInfo createFailed(long transferId) {
-        return new TransferInfo(transferId, State.FAILED);
+    static TransferInfo createFailed(long transferId, String errorMessage) {
+        return new TransferInfo(transferId, errorMessage);
+    }
+
+    /**
+     * Create a {@link TransferInfo} indicating the transfer is cancelled.
+     *
+     * @param transferId the transfer id
+     * @return {@link TransferInfo}
+     */
+    static TransferInfo createCancelled(long transferId) {
+        return new TransferInfo(transferId, State.CANCELLED);
     }
 
     /**
@@ -143,15 +181,28 @@ public final class TransferInfo {
     }
 
     /**
+     * Get the error message. Note that error message is only available
+     * for the state ({@link State#FAILED}, for other states calling this
+     * method returns {@code null}.
+     *
+     * @return the string describing transfer failure reason
+     */
+    public String getErrorMessage() {
+        return this.errorMessage;
+    }
+
+    /**
      * The current lifecycle state of the transfer.
      */
     @IntDef({
         State.STARTED,
         State.RECEIVED_PROGRESS,
         State.SYSTEM_PAUSED,
+        State.USER_PAUSED,
         State.RESUMED,
         State.COMPLETED,
-        State.FAILED
+        State.FAILED,
+        State.CANCELLED
     })
     @Retention(RetentionPolicy.SOURCE)
     public @interface State {
@@ -171,17 +222,26 @@ public final class TransferInfo {
          */
         int SYSTEM_PAUSED = 3;
         /**
+         * Used to indicate that the transfer is paused by the user.
+         * The user has to request resume for a transfer in this state to continue.
+         */
+        int USER_PAUSED = 4;
+        /**
          * Used to indicate that the transfer that was paused is resumed.
          */
-        int RESUMED = 4;
+        int RESUMED = 5;
         /**
          * Used to indicate that the transfer has been completed.
          */
-        int COMPLETED = 5;
+        int COMPLETED = 6;
         /**
          * Used to indicate that the transfer has been failed.
          */
-        int FAILED = 6;
+        int FAILED = 7;
+        /**
+         * Used to indicate that the transfer is cancelled.
+         */
+        int CANCELLED = 8;
     }
 
     /**
