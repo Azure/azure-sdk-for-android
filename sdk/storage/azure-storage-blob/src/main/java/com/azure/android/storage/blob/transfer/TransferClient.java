@@ -77,7 +77,7 @@ public class TransferClient {
      */
     public LiveData<TransferInfo> upload(String containerName, String blobName, File file) {
         // UI_Thread
-        final MutableLiveData<TransferIdOrError> idOrErrorLiveData = new MutableLiveData<>();
+        final MutableLiveData<TransferOperationResult> transferOpResultLiveData = new MutableLiveData<>();
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
@@ -104,13 +104,15 @@ public class TransferClient {
                         ExistingWorkPolicy.KEEP,
                         uploadWorkRequest)
                     .enqueue();
-                idOrErrorLiveData.postValue(TransferIdOrError.id(TransferIdOrError.Operation.UPLOAD_DOWNLOAD, transferId));
+                transferOpResultLiveData
+                    .postValue(TransferOperationResult.id(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, transferId));
             } catch (Exception e) {
-                idOrErrorLiveData.postValue(TransferIdOrError.error(TransferIdOrError.Operation.UPLOAD_DOWNLOAD, e));
+                transferOpResultLiveData
+                    .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, e));
             }
         });
         // UI_Thread
-        return toCachedTransferInfoLiveData(idOrErrorLiveData, false);
+        return toCachedTransferInfoLiveData(transferOpResultLiveData, false);
     }
 
     /**
@@ -159,11 +161,11 @@ public class TransferClient {
      */
     public LiveData<TransferInfo> resume(long transferId) {
         // UI_Thread
-        final MutableLiveData<TransferIdOrError> idOrErrorChannel = new MutableLiveData<>();
+        final MutableLiveData<TransferOperationResult> transferOpResultLiveData = new MutableLiveData<>();
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
-                final ResumeCheck resumeCheck = checkResumeable(transferId, idOrErrorChannel);
+                final ResumeCheck resumeCheck = checkResumeable(transferId, transferOpResultLiveData);
                 if (resumeCheck.canResume) {
                     StorageBlobClientsMap.put(transferId, blobClient);
                     final OneTimeWorkRequest workRequest;
@@ -189,14 +191,16 @@ public class TransferClient {
                             ExistingWorkPolicy.KEEP,
                             workRequest)
                         .enqueue();
-                    idOrErrorChannel.postValue(TransferIdOrError.id(TransferIdOrError.Operation.RESUME, transferId));
+                    transferOpResultLiveData
+                        .postValue(TransferOperationResult.id(TransferOperationResult.Operation.RESUME, transferId));
                 }
             } catch (Exception e) {
-                idOrErrorChannel.postValue(TransferIdOrError.error(TransferIdOrError.Operation.RESUME, e));
+                transferOpResultLiveData
+                    .postValue(TransferOperationResult.error(TransferOperationResult.Operation.RESUME, e));
             }
         });
         // UI_Thread
-        return toCachedTransferInfoLiveData(idOrErrorChannel, true);
+        return toCachedTransferInfoLiveData(transferOpResultLiveData, true);
     }
 
     /**
@@ -210,45 +214,45 @@ public class TransferClient {
     }
 
     /**
-     * Subscribe to a TransferIdOrError LiveData and transform that to TransferInfo LiveData.
+     * Subscribe to a TransferOperationResult LiveData and transform that to TransferInfo LiveData.
      *
      * This method caches or uses cached {@link LiveData<TransferInfo>} to stream TransferInfo.
-     * If provided TransferIdOrError LiveData emits an error, then cache won't be used.
+     * If provided TransferOperationResult LiveData emits an error, then cache won't be used.
      *
-     * @param idOrErrorLiveData the TransferIdOrError LiveData
-     * @param isResume true if the transfer id emitted by the TransferIdOrError LiveData identifies
-     *                 a transfer to be resumed, false for a new upload or download transfer.
+     * @param transferOpResultLiveData the LiveData to channel transfer operation initiation result
+     * @param isResume true if the transfer id emitted by the transferOpResultLiveData LiveData
+     *   identifies a transfer to be resumed, false for a new upload or download transfer.
      * @return the TransferInfo LiveData
      */
     @MainThread
-    private LiveData<TransferInfo> toCachedTransferInfoLiveData(LiveData<TransferIdOrError> idOrErrorLiveData,
+    private LiveData<TransferInfo> toCachedTransferInfoLiveData(LiveData<TransferOperationResult> transferOpResultLiveData,
                                                                 boolean isResume) {
         // UI_Thread
-        return Transformations.switchMap(idOrErrorLiveData, idOrError -> {
-            if (idOrError.isError()) {
+        return Transformations.switchMap(transferOpResultLiveData, transferOpResult -> {
+            if (transferOpResult.isError()) {
                 final TransferIdInfoLiveData.Result result = TransferIdInfoLiveData.create(context);
                 final TransferIdInfoLiveData.LiveDataPair pair = result.getLiveDataPair();
-                pair.getTransferIdOrErrorLiveData().setValue(idOrError);
+                pair.getTransferOpResultLiveData().setValue(transferOpResult);
                 return pair.getTransferInfoLiveData();
             } else {
                 if (isResume) {
                     // If the application process already has a cached LiveData pair for the same transfer,
                     // then use it, otherwise create, cache, and use.
                     final TransferIdInfoLiveData.LiveDataPair pair
-                        = TRANSFER_ID_INFO_CACHE.getOrCreate(idOrError.getId(), context);
-                    pair.getTransferIdOrErrorLiveData().setValue(idOrError);
+                        = TRANSFER_ID_INFO_CACHE.getOrCreate(transferOpResult.getId(), context);
+                    pair.getTransferOpResultLiveData().setValue(transferOpResult);
                     return pair.getTransferInfoLiveData();
                 } else {
                     // For a new upload or download transfer, create a transfer LiveData pair
-                    // (TransferIdOrError, TransferInfo) cache entry and use them.
+                    // (TransferOperationResult, TransferInfo) cache entry and use them.
                     // Any future resume operation on the same transfer will use this pair
                     // as long as:
                     //     1. both upload or download transfer, and the corresponding resume happens
                     //        in the same application process
                     //     2. and the cache entry is not GC-ed.
                     final TransferIdInfoLiveData.LiveDataPair pair
-                        = TRANSFER_ID_INFO_CACHE.create(idOrError.getId(), context);
-                    pair.getTransferIdOrErrorLiveData().setValue(idOrError);
+                        = TRANSFER_ID_INFO_CACHE.create(transferOpResult.getId(), context);
+                    pair.getTransferOpResultLiveData().setValue(transferOpResult);
                     return pair.getTransferInfoLiveData();
                 }
             }
@@ -259,18 +263,19 @@ public class TransferClient {
      * Do pre-validations to see a transfer can be resumed.
      *
      * @param transferId identifies the transfer to check for resume eligibility
-     * @param idOrErrorChannel the LiveData to post the error if the transfer cannot be resumed
+     * @param transferOpResultLiveData the LiveData to post the error if the transfer cannot be resumed
      * @return result of check
      */
-    private ResumeCheck checkResumeable(long transferId, MutableLiveData<TransferIdOrError> idOrErrorChannel) {
+    private ResumeCheck checkResumeable(long transferId,
+                                        MutableLiveData<TransferOperationResult> transferOpResultLiveData) {
         // Check for Upload Record
         BlobUploadEntity uploadBlob = db.uploadDao().getBlob(transferId);
         if (uploadBlob != null) {
             if (uploadBlob.state == BlobUploadState.FAILED) {
-                idOrErrorChannel.postValue(TransferIdOrError.alreadyInFailedStateError(transferId));
+                transferOpResultLiveData.postValue(TransferOperationResult.alreadyInFailedStateError(transferId));
                 return new ResumeCheck(false, true);
             } else if (uploadBlob.state == BlobUploadState.COMPLETED) {
-                idOrErrorChannel.postValue(TransferIdOrError.alreadyInCompletedStateError(transferId));
+                transferOpResultLiveData.postValue(TransferOperationResult.alreadyInCompletedStateError(transferId));
                 return new ResumeCheck(false, true);
             }
             return new ResumeCheck(true, true);
@@ -278,7 +283,7 @@ public class TransferClient {
         // TODO: Check for Download Record
 
         // No upload or download transfer found.
-        idOrErrorChannel.postValue(TransferIdOrError.notFoundError(transferId));
+        transferOpResultLiveData.postValue(TransferOperationResult.notFoundError(transferId));
         return new ResumeCheck(false, false);
     }
 

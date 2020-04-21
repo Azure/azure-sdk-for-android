@@ -19,11 +19,11 @@ import com.azure.android.storage.blob.transfer.TransferIdInfoLiveData.TransferFl
 
 /**
  * A Hash table based cache, with each entry has transferId as 'key' and 'value' as reference
- * to {@link TransferFlags}, {@link LiveData<TransferIdOrError>} and weak reference to
+ * to {@link TransferFlags}, {@link LiveData<TransferOperationResult>} and weak reference to
  * {@link LiveData<TransferInfo>}.
  *
- * The LiveData pair, i.e. TransferIdOrError LiveData and the TransferInfo LiveData
- * in a 'value' is related such that, when transferId set on TransferIdOrError LiveData
+ * The LiveData pair, i.e. TransferOperationResult LiveData and the TransferInfo LiveData
+ * in a 'value' is related such that, when transferId set on TransferOperationResult LiveData
  * then transferInfo of corresponding transfer will start streaming from TransferInfo
  * LiveData.
  *
@@ -39,9 +39,9 @@ import com.azure.android.storage.blob.transfer.TransferIdInfoLiveData.TransferFl
  * upload(tid: 1), Observers of resume(tid: 1)] to listen to same TransferInfo LiveData,
  * irrespective of the TransferClient they used to get the TransferInfo LiveData.
  *
- * The cache implementation assumes that the TransferIdOrError LiveData in the value
+ * The cache implementation assumes that the TransferOperationResult LiveData in the value
  * do not strongly refer to the TransferInfo LiveData in the same value either
- * directly or indirectly, since that will prevent the TransferIdOrError LiveData
+ * directly or indirectly, since that will prevent the TransferOperationResult LiveData
  * from being collected.
  */
 final class TransferIdInfoLiveDataCache {
@@ -51,7 +51,7 @@ final class TransferIdInfoLiveDataCache {
     //    key: transferId,
     //    value: {
     //        weak-ref: LiveData<TransferInfo>,
-    //        ref: LiveData<TransferIdOrError>,
+    //        ref: LiveData<TransferOperationResult>,
     //        ref: transferFlags
     //    }
     //  }
@@ -60,18 +60,18 @@ final class TransferIdInfoLiveDataCache {
     private final ReferenceQueue<LiveData<TransferInfo>> queue = new ReferenceQueue<>();
 
     /**
-     * Create a TransferIdOrError LiveData and a TransferInfo LiveData, associate it
+     * Create a TransferOperationResult LiveData and a TransferInfo LiveData, associate it
      * with given {@code transferId} parameter and store them in the cache. This method return these
      * two LiveData in a {@Link TransferIdInfoLiveData#Pair}.
      *
-     * When a transferId is set to TransferIdOrError LiveData then the TransferInfo LiveData stream
+     * When a transferId is set to TransferOperationResult LiveData then the TransferInfo LiveData stream
      * TransferInfo of the Transfer identified by that transferId. When transferId is set to
-     * the TransferIdOrError LiveData it must be same as the transferId parameter.
+     * the TransferOperationResult LiveData it must be same as the transferId parameter.
      *
      * @param transferId the transferId to use as the key to identify the created LiveData
      *                   instances.
      * @param context the context
-     * @return the pair composing created {@code TransferIdOrError} LiveData and associated
+     * @return the pair composing created {@code TransferOperationResult} LiveData and associated
      * {@code TransferInfo} LiveData
      */
     @MainThread
@@ -81,7 +81,7 @@ final class TransferIdInfoLiveDataCache {
         final TransferIdInfoLiveData.LiveDataPair liveDataPair = result.getLiveDataPair();
         this.map.put(transferId,
             new TransferInfoLiveDataWeakReference(liveDataPair.getTransferInfoLiveData(),
-                liveDataPair.getTransferIdOrErrorLiveData(),
+                liveDataPair.getTransferOpResultLiveData(),
                 result.getTransferFlags(),
                 transferId,
                 this.queue));
@@ -89,15 +89,15 @@ final class TransferIdInfoLiveDataCache {
     }
 
     /**
-     * Check whether the TransferIdOrError LiveData and the TransferInfo LiveData that is identified
-     * by the given {@code transferId} key already exists in the cache, if it exists then return
-     * the two LiveData in a {@Link TransferIdInfoLiveData#Pair}. If it does not exists then create,
+     * Check whether the TransferOperationResult LiveData and the TransferInfo LiveData that is
+     * identified by the given {@code transferId} key already exists in the cache, if it exists then
+     * return the two LiveData in a {@Link TransferIdInfoLiveData#Pair}. If it does not exists then create,
      * store and return them, see {@link TransferIdInfoLiveDataCache#create(long, Context)}
      * for more details.
      *
      * @param transferId the transferId to use as the key to identify the LiveData instances.
      * @param context the context
-     * @return the pair composing created TransferIdOrError LiveData and associated TransferInfo LiveData
+     * @return the pair composing created TransferOperationResult LiveData and associated TransferInfo LiveData
      */
     @MainThread
     TransferIdInfoLiveData.LiveDataPair getOrCreate(long transferId, Context context) {
@@ -106,7 +106,7 @@ final class TransferIdInfoLiveDataCache {
         if (ref != null) {
             final LiveData<TransferInfo> transferInfoLiveData = ref.get();
             if (transferInfoLiveData != null) {
-                return new TransferIdInfoLiveData.LiveDataPair(ref.getTransferIdLiveData(),
+                return new TransferIdInfoLiveData.LiveDataPair(ref.getTransferOpResultLiveData(),
                     transferInfoLiveData);
             }
         }
@@ -137,7 +137,8 @@ final class TransferIdInfoLiveDataCache {
     @SuppressWarnings("unchecked")
     private void expunge() {
         int cnt = 0;
-        for (Reference<?> staledReference; (staledReference = this.queue.poll()) != null;) {
+        Reference<?> staledReference;
+        while ((staledReference = this.queue.poll()) != null) {
             TransferInfoLiveDataWeakReference tReference = (TransferInfoLiveDataWeakReference) staledReference;
             tReference.expunge();
             this.map.remove(tReference.getTransferId());
@@ -147,32 +148,32 @@ final class TransferIdInfoLiveDataCache {
     }
 
     /**
-     * Reference holding weak reference to TransferInfo LiveData and strong reference to TransferIdOrError
+     * Reference holding weak reference to TransferInfo LiveData and strong reference to TransferOperationResult
      * LiveData and {@link TransferFlags}.
      */
     private static class TransferInfoLiveDataWeakReference extends WeakReference<LiveData<TransferInfo>> {
         private final long transferId;
-        private MutableLiveData<TransferIdOrError> transferIdLiveData;
+        private MutableLiveData<TransferOperationResult> transferOpResultLiveData;
         private TransferIdInfoLiveData.TransferFlags transferFlags;
 
         /**
          * Create a weak reference to TransferInfo LiveData.
          *
          * @param transferInfoLiveData the referent TransferInfo LiveData that this weak reference refer to
-         * @param transferIdLiveData the TransferIdOrError LiveData
+         * @param transferOpResultLiveData the TransferOperationResult LiveData
          * @param transferFlags the transfer flags object
          * @param transferId the transfer id
          * @param queue the reference queue for GC to enqueue this weak reference when once the
          *              referent TransferInfo LiveData is collected
          */
         TransferInfoLiveDataWeakReference(LiveData<TransferInfo> transferInfoLiveData,
-                                          MutableLiveData<TransferIdOrError> transferIdLiveData,
+                                          MutableLiveData<TransferOperationResult> transferOpResultLiveData,
                                           TransferIdInfoLiveData.TransferFlags transferFlags,
                                           long transferId,
                                           ReferenceQueue<LiveData<TransferInfo>> queue) {
             super(transferInfoLiveData, queue);
             this.transferId = transferId;
-            this.transferIdLiveData = transferIdLiveData;
+            this.transferOpResultLiveData = transferOpResultLiveData;
             this.transferFlags = transferFlags;
         }
 
@@ -193,8 +194,8 @@ final class TransferIdInfoLiveDataCache {
          *
          * @return the transferId LiveData
          */
-        MutableLiveData<TransferIdOrError> getTransferIdLiveData() {
-            return this.transferIdLiveData;
+        MutableLiveData<TransferOperationResult> getTransferOpResultLiveData() {
+            return this.transferOpResultLiveData;
         }
 
         /**
@@ -212,7 +213,7 @@ final class TransferIdInfoLiveDataCache {
          */
         void expunge() {
             if (this.get() == null) {
-                this.transferIdLiveData = null;
+                this.transferOpResultLiveData = null;
                 this.transferFlags = null;
             }
         }

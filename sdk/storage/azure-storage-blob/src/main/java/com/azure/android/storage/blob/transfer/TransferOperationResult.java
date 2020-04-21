@@ -12,15 +12,16 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Package private.
  *
- * The type used by the methods in {@link TransferClient} (e.g. upload, download, resume) to
- * communicate data from background {@link SerialExecutor} to {@link TransferIdInfoLiveData}.
+ * The type used by the operations in {@link TransferClient} (e.g. upload, download, resume) to
+ * communicate initial result of the async operation from background {@link SerialExecutor}
+ * to {@link TransferIdInfoLiveData}.
  *
- * The data includes the operation type, the actual transfer id of a transfer or an error indicating
- * the failure detected by TransferClient. Note that this type is used only to channel the error that
- * TransferClient methods encountered or could detect, this type is not used to channel the real time
- * error happened in the background worker.
+ * The operation result includes the operation type, the actual transfer id of a transfer or an error
+ * indicating the failure detected by TransferClient. Note that this type is used only to channel the
+ * error that TransferClient methods encountered or could detect, this type is not used to channel any
+ * error happened in the background worker executing wire transfer.
  */
-final class TransferIdOrError {
+final class TransferOperationResult {
     // the transfer operation type (upload_download, resume)
     private final @Operation int operation;
     // the transfer id.
@@ -29,71 +30,71 @@ final class TransferIdOrError {
     private final Throwable error;
 
     /**
-     * Create a TransferIdOrError object indicating a valid transfer id.
+     * Create a {@link TransferOperationResult} object indicating a valid transfer id.
      *
      * @param operation the transfer operation type - upload_download, resume
      * @param id the transfer id of a transfer
-     * @return TransferIdOrError composing a valid transfer id
+     * @return {@link TransferOperationResult} composing a valid transfer id
      */
-    static TransferIdOrError id(@NonNull @Operation int operation, long id) {
-        return new TransferIdOrError(operation, id, null);
+    static TransferOperationResult id(@NonNull @Operation int operation, long id) {
+        return new TransferOperationResult(operation, id, null);
     }
 
     /**
-     * Create a TransferIdOrError object indicating an error when performing
+     * Create a {@link TransferOperationResult} object indicating an error when performing
      * a transfer operation otherwise would have yielded a transfer id.
      *
      * @param operation the transfer operation type - upload_download, resume
      * @param error the error happened in a TransferClient operation
-     * @return TransferIdOrError composing an error
+     * @return {@link TransferOperationResult} composing an error
      */
-    static TransferIdOrError error(@NonNull @Operation int operation, @NonNull Throwable error) {
-        return new TransferIdOrError(operation, -1, error);
+    static TransferOperationResult error(@NonNull @Operation int operation, @NonNull Throwable error) {
+        return new TransferOperationResult(operation, -1, error);
     }
 
     /**
-     * Create a TransferIdOrError object indicating that resume operation cannot be performed
+     * Create a {@link TransferOperationResult} object indicating that resume operation cannot be performed
      * because provided id is not identifying a transfer.
      *
      * @param id the non-existing transfer id
-     * @return TransferIdOrError composing the error
+     * @return {@link TransferOperationResult} composing the error
      */
-    static TransferIdOrError notFoundError(long id) {
+    static TransferOperationResult notFoundError(long id) {
         return error(Operation.RESUME, id, new TransferNotFoundError(id));
     }
 
     /**
-     * Create a TransferIdOrError object indicating that a resume operation cannot be performed because
+     * Create a {@link TransferOperationResult} object indicating that a resume operation cannot be performed because
      * the transfer with given id is is already Completed.
      *
      * @param id the transfer id
-     * @return TransferIdOrError composing the error
+     * @return {@link TransferOperationResult} composing the error
      */
-    static TransferIdOrError alreadyInCompletedStateError(long id) {
+    static TransferOperationResult alreadyInCompletedStateError(long id) {
         return error(Operation.RESUME, id,
             new TransferInTerminatedStateError(id, TransferInTerminatedStateError.State.COMPLETED));
     }
 
     /**
-     * Create a TransferIdOrError object indicating that the resume operation cannot be performed because
+     * Create a {@link TransferOperationResult} object indicating that the resume operation cannot be performed because
      * transfer with given id is is already Failed.
      *
      * @param id the transfer id
-     * @return TransferIdOrError composing the error
+     * @return {@link TransferOperationResult} composing the error
      */
-    static TransferIdOrError alreadyInFailedStateError(long id) {
+    static TransferOperationResult alreadyInFailedStateError(long id) {
         return error(Operation.RESUME, id,
             new TransferInTerminatedStateError(id, TransferInTerminatedStateError.State.FAILED));
     }
 
     /**
-     * Create a TransferIdOrError object indicating that the resume operation cannot be performed because
+     * Create a {@link TransferOperationResult} object indicating that the resume operation cannot be performed because
      * transfer with given id is is already Cancelled.
      *
      * @param id the transfer id
-     * @return TransferIdOrError composing the error
+     * @return {@link TransferOperationResult} composing the error
      */
-    static TransferIdOrError alreadyInCancelledStateError(long id) {
+    static TransferOperationResult alreadyInCancelledStateError(long id) {
         return error(Operation.RESUME, id,
             new TransferInTerminatedStateError(id, TransferInTerminatedStateError.State.CANCELED));
     }
@@ -172,26 +173,26 @@ final class TransferIdOrError {
     }
 
     /**
-     * Create a TransferIdOrError object indicating an error when performing a transfer
+     * Create a {@link TransferOperationResult} object indicating an error when performing a transfer
      * operation identified by the given id.
      *
      * @param operation the transfer operation type - upload_download, resume
      * @param id the id
      * @param error the error happened in a TransferClient operation
-     * @return TransferIdOrError composing an error
+     * @return {@link TransferOperationResult} composing an error
      */
-    private static TransferIdOrError error(@NonNull @Operation int operation, long id, @NonNull Throwable error) {
-        return new TransferIdOrError(operation, id, error);
+    private static TransferOperationResult error(@NonNull @Operation int operation, long id, @NonNull Throwable error) {
+        return new TransferOperationResult(operation, id, error);
     }
 
     /**
-     * Create a TransferIdOrError.
+     * Create a {@link TransferOperationResult}.
      *
      * @param operation the transfer operation type - upload_download, resume
      * @param id the transfer id of a transfer
      * @param error the error happened during book keeping
      */
-    private TransferIdOrError(@NonNull @Operation int operation, long id, Throwable error) {
+    private TransferOperationResult(@NonNull @Operation int operation, long id, Throwable error) {
         this.operation = operation;
         this.id = id;
         this.error = error;
