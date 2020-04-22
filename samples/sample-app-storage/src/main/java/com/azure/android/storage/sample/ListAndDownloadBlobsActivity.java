@@ -2,11 +2,13 @@ package com.azure.android.storage.sample;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -20,9 +22,12 @@ import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.sample.core.util.paging.PageLoadState;
+import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservable;
 import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObserver;
 import com.azure.android.storage.sample.core.util.tokenrequest.TokenResponseCallback;
+import com.microsoft.identity.client.IMultipleAccountPublicClientApplication;
 import com.microsoft.identity.client.PublicClientApplication;
+import com.microsoft.identity.client.exception.MsalException;
 
 import javax.inject.Inject;
 
@@ -35,6 +40,7 @@ public class ListAndDownloadBlobsActivity extends AppCompatActivity {
     @Inject
     StorageBlobClient storageBlobClient;
 
+    private static final String TAG = ContainerBlobsActivity.class.getSimpleName();
     private ContainerBlobsPaginationViewModel viewModel;
 
     private RecyclerView recyclerView;
@@ -56,15 +62,28 @@ public class ListAndDownloadBlobsActivity extends AppCompatActivity {
             .get(ContainerBlobsPaginationViewModel.class);
 
         // Set up Login
-        PublicClientApplication aadApp = new PublicClientApplication(this.getApplicationContext(),
-            R.raw.authorization_configuration);
+        TokenRequestObservable tokenRequestObservable = this.viewModel.getTokenRequestObservable();
+        LifecycleOwner lifecycleOwner = this;
 
-        this.viewModel.getTokenRequestObservable().observe(this, new TokenRequestObserver() {
-            @Override
-            public void onTokenRequest(String[] scopes, TokenResponseCallback callback) {
-                MsalClient.signIn(aadApp, getActivity(), scopes, callback);
-            }
-        });
+        PublicClientApplication.createMultipleAccountPublicClientApplication(
+            this.getApplicationContext(),
+            R.raw.authorization_configuration,
+            new PublicClientApplication.IMultipleAccountApplicationCreatedListener() {
+                @Override
+                public void onCreated(IMultipleAccountPublicClientApplication application) {
+                    tokenRequestObservable.observe(lifecycleOwner, new TokenRequestObserver() {
+                        @Override
+                        public void onTokenRequest(String[] scopes, TokenResponseCallback callback) {
+                            MsalClient.signIn(application, getActivity(), scopes, callback);
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(MsalException exception) {
+                    Log.e(TAG, "Exception found when trying to sign in.", exception);
+                }
+            });
 
         ContainerBlobsPaginationRepository repository = (ContainerBlobsPaginationRepository) this.viewModel.getRepository();
 

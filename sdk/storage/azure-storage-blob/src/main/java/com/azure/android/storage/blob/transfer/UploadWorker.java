@@ -12,6 +12,8 @@ import androidx.work.Data;
 import androidx.work.ListenableWorker;
 import androidx.work.WorkerParameters;
 
+import com.azure.android.core.util.CoreUtil;
+import com.azure.android.storage.blob.models.BlobStorageException;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
@@ -95,7 +97,21 @@ class UploadWorker extends ListenableWorker {
 
                 @Override
                 public void onError(Throwable t) {
-                    completer.setException(t);
+                    String errorMessage = null;
+                    if (t instanceof BlobStorageException) {
+                        errorMessage = Util.tryGetNormalizedError((BlobStorageException) t);
+                    }
+                    if (CoreUtil.isNullOrEmpty(errorMessage)) {
+                        errorMessage = t.getMessage();
+                    }
+                    int lenToTrim = errorMessage.length() - Data.MAX_DATA_BYTES;
+                    if (lenToTrim > 0) {
+                        errorMessage = errorMessage.substring(0, errorMessage.length() - lenToTrim);
+                    }
+                    Data errorOutput = new Data.Builder()
+                        .putString(Constants.OUTPUT_ERROR_MESSAGE_KEY, errorMessage)
+                        .build();
+                    completer.set(Result.failure(errorOutput));
                 }
             };
             UploadHandler handler = UploadHandler.create(getApplicationContext(),
