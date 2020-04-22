@@ -15,11 +15,9 @@ import androidx.work.WorkerParameters;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * Package private.
- * <p>
  * {@link ListenableWorker} for performing a single blob download using {@link DownloadHandler}.
  */
-public class DownloadWorker extends ListenableWorker {
+class DownloadWorker extends ListenableWorker {
     private static final String TAG = DownloadWorker.class.getSimpleName();
 
     /**

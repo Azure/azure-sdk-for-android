@@ -97,7 +97,7 @@ public class StorageBlobClient {
      * @param maxResults    Specifies the maximum number of blobs to return.
      * @param include       Include this parameter to specify one or more datasets to include in the response.
      * @param timeout       The timeout parameter is expressed in seconds. For more information, see
-     *                      &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     *                      &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
      *                      the analytics logs when storage analytics logging is enabled.
      * @return A response object containing a list of blobs.
@@ -126,7 +126,7 @@ public class StorageBlobClient {
      * @param maxResults    Specifies the maximum number of blobs to return.
      * @param include       Include this parameter to specify one or more datasets to include in the response.
      * @param timeout       The timeout parameter is expressed in seconds. For more information, see
-     *                      &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     *                      &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
      *                      the analytics logs when storage analytics logging is enabled.
      * @param callback      Callback that receives the response.
@@ -183,9 +183,9 @@ public class StorageBlobClient {
      * @param blobName              The blob name.
      * @param snapshot              The snapshot parameter is an opaque DateTime value that, when present, specifies
      *                              the blob snapshot to retrieve. For more information on working with blob snapshots,
-     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param timeout               The timeout parameter is expressed in seconds. For more information, see
-     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param version               Specifies the version of the operation to use for this request.
      * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
      *                              variety of requests to the conditions present. These conditions are entirely
@@ -195,14 +195,14 @@ public class StorageBlobClient {
      * @param cpkInfo               Additional parameters for the operation.
      * @return The response information returned from the server when downloading a blob.
      */
-    public BlobDownloadHeaders downloadWithHeaders(String containerName,
-                                                   String blobName,
-                                                   String snapshot,
-                                                   Integer timeout,
-                                                   String version,
-                                                   BlobRequestConditions blobRequestConditions,
-                                                   String requestId,
-                                                   CpkInfo cpkInfo) {
+    public BlobDownloadHeaders getBlobPropertiesWithHeaders(String containerName,
+                                                            String blobName,
+                                                            String snapshot,
+                                                            Integer timeout,
+                                                            String version,
+                                                            BlobRequestConditions blobRequestConditions,
+                                                            String requestId,
+                                                            CpkInfo cpkInfo) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
         return storageBlobServiceClient.getBlobPropertiesWithHeaders(containerName,
@@ -222,9 +222,9 @@ public class StorageBlobClient {
      * @param blobName              The blob name.
      * @param snapshot              The snapshot parameter is an opaque DateTime value that, when present, specifies
      *                              the blob snapshot to retrieve. For more information on working with blob snapshots,
-     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param timeout               The timeout parameter is expressed in seconds. For more information, see
-     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param version               Specifies the version of the operation to use for this request.
      * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
      *                              variety of requests to the conditions present. These conditions are entirely
@@ -289,9 +289,9 @@ public class StorageBlobClient {
      * @param blobName              The blob name.
      * @param snapshot              The snapshot parameter is an opaque DateTime value that, when present, specifies
      *                              the blob snapshot to retrieve. For more information on working with blob snapshots,
-     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout               The timeout parameter is expressed in seconds. For more information, see &lt;a
-     *                              href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
+     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param range                 Return only the bytes of the blob in the specified range.
      * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
      *                              variety of requests to the conditions present. These conditions are entirely
@@ -344,9 +344,9 @@ public class StorageBlobClient {
      * @param blobName              The blob name.
      * @param snapshot              The snapshot parameter is an opaque DateTime value that, when present, specifies
      *                              the blob snapshot to retrieve. For more information on working with blob snapshots,
-     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param timeout               The timeout parameter is expressed in seconds. For more information, see
-     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param range                 Return only the bytes of the blob in the specified range.
      * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
      *                              variety of requests to the conditions present. These conditions are entirely optional.

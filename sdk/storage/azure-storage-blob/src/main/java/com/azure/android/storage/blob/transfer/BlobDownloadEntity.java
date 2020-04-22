@@ -107,18 +107,18 @@ final class BlobDownloadEntity {
     }
 
     /**
-     * Set the commit (the last stage of upload) failure error.
+     * Set the download failure error.
      *
-     * @param t the error
+     * @param t The error
      */
     void setDownloadError(Throwable t) {
         downloadError = t;
     }
 
     /**
-     * Get the commit failure error.
+     * Get the download failure error.
      *
-     * @return the commit failure error or null if there is no error
+     * @return The download failure error or null if there is no error.
      */
     Throwable getDownloadError() {
         return downloadError;

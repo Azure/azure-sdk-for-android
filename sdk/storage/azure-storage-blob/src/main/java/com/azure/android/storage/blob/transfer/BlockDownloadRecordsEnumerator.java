@@ -28,7 +28,7 @@ final class BlockDownloadRecordsEnumerator {
      * @param skipStates The state of the entities to be skipped from enumeration.
      */
     BlockDownloadRecordsEnumerator(TransferDatabase db, long downloadId, List<BlockTransferState> skipStates) {
-        cursor = 0;
+        this.cursor = 0;
         this.db = db;
         this.downloadId = downloadId;
         this.skipStates = skipStates;

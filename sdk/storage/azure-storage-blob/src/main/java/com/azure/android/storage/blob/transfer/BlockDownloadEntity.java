@@ -44,9 +44,6 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 final class BlockDownloadEntity {
     /**
      * A unique key for the block download metadata.
-     *
-     * This key identifies the metadata in the local store, which is different from
-     * {@link BlockDownloadEntity#blockId}. Block ID is used by the storage service to uniquely identify the block.
      */
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "key")
@@ -77,7 +74,7 @@ final class BlockDownloadEntity {
     public long blockSize;
 
     /**
-     * The base64 block ID used by the storage service to uniquely identify the block.
+     * The base64 block ID used to uniquely identify the block.
      */
     @ColumnInfo(name = "block_id")
     public String blockId;
@@ -126,7 +123,7 @@ final class BlockDownloadEntity {
      * Set the {@link BlobDownloadEntity#key} for this block. This is the foreign key referring
      * the BlobDownloadEntity this block is a part of.
      *
-     * @param blobKey the block key (aka downloadId)
+     * @param blobKey The blob key (a.k.a. downloadId).
      */
     void setBlobKey(long blobKey) {
         this.blobKey = blobKey;

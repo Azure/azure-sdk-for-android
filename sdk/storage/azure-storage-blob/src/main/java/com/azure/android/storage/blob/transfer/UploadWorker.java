@@ -15,11 +15,9 @@ import androidx.work.WorkerParameters;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * Package private.
- *
  * {@link ListenableWorker} for performing a single file upload using {@link UploadHandler}.
  */
-public class UploadWorker extends ListenableWorker {
+class UploadWorker extends ListenableWorker {
     private static final String TAG = UploadWorker.class.getSimpleName();
     // The number of blob blocks to be uploaded in parallel.
     private int blocksUploadConcurrency;

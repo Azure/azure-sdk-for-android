@@ -44,7 +44,7 @@ final class DownloadHandler extends Handler {
     private final Context appContext;
     private final int blocksDownloadConcurrency;
     private final long downloadId;
-    private final HashMap<String, Pair<BlockDownloadEntity, ServiceCall>> runningBlockDonwloads;
+    private final HashMap<String, Pair<BlockDownloadEntity, ServiceCall>> runningBlockDownloads;
     private final TransferStopToken transferStopToken;
 
     private TransferHandlerListener transferHandlerListener;
@@ -68,7 +68,7 @@ final class DownloadHandler extends Handler {
         this.appContext = appContext;
         this.blocksDownloadConcurrency = blocksDownloadConcurrency;
         this.downloadId = downloadId;
-        runningBlockDonwloads = new HashMap<>(this.blocksDownloadConcurrency);
+        runningBlockDownloads = new HashMap<>(this.blocksDownloadConcurrency);
         transferStopToken = new TransferStopToken(DownloadHandlerMessage.createStopMessage(this));
     }
 
@@ -191,14 +191,14 @@ final class DownloadHandler extends Handler {
         finalizeIfStopped();
 
         String blockId = DownloadHandlerMessage.getBlockIdFromMessage(message);
-        Pair<BlockDownloadEntity, ServiceCall> pair = runningBlockDonwloads.remove(blockId);
+        Pair<BlockDownloadEntity, ServiceCall> pair = runningBlockDownloads.remove(blockId);
         BlockDownloadEntity downloadedBlock = pair.first;
         totalBytesDownloaded += downloadedBlock.blockSize;
         transferHandlerListener.onTransferProgress(blob.blobSize, totalBytesDownloaded);
         List<BlockDownloadEntity> blocks = blocksItr.getNext(1);
 
         if (blocks.isEmpty()) {
-            if (runningBlockDonwloads.isEmpty()) {
+            if (runningBlockDownloads.isEmpty()) {
                 db.downloadDao().updateBlobState(downloadId, BlobTransferState.COMPLETED);
 
                 Message nextMessage = DownloadHandlerMessage.createBlobDownloadCompletedMessage(DownloadHandler.this);
@@ -220,9 +220,9 @@ final class DownloadHandler extends Handler {
      */
     private void handleDownloadFailed(Message message) {
         String blockId = DownloadHandlerMessage.getBlockIdFromMessage(message);
-        Pair<BlockDownloadEntity, ServiceCall> failedPair = runningBlockDonwloads.remove(blockId);
+        Pair<BlockDownloadEntity, ServiceCall> failedPair = runningBlockDownloads.remove(blockId);
 
-        for (Pair<BlockDownloadEntity, ServiceCall> pair : runningBlockDonwloads.values()) {
+        for (Pair<BlockDownloadEntity, ServiceCall> pair : runningBlockDownloads.values()) {
             pair.second.cancel();
         }
 
@@ -244,7 +244,7 @@ final class DownloadHandler extends Handler {
         if (transferStopToken.isStopped()) {
             Log.v(TAG, "finalizeIfStopped(): Stop request received, finalizing");
 
-            for (Pair<BlockDownloadEntity, ServiceCall> pair : runningBlockDonwloads.values()) {
+            for (Pair<BlockDownloadEntity, ServiceCall> pair : runningBlockDownloads.values()) {
                 pair.second.cancel();
             }
 
@@ -322,7 +322,7 @@ final class DownloadHandler extends Handler {
                     }
                 });
 
-            runningBlockDonwloads.put(block.blockId, Pair.create(block, call));
+            runningBlockDownloads.put(block.blockId, Pair.create(block, call));
         }
     }
 

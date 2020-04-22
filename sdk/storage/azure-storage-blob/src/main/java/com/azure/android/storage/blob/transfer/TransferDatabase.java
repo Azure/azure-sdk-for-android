@@ -41,7 +41,7 @@ abstract class TransferDatabase extends RoomDatabase {
     /**
      * Get the Data Access Object that exposes operations to store and retrieve download metadata.
      *
-     * @return Data Access Object for upload.
+     * @return Data Access Object for download.
      */
     public abstract DownloadDao downloadDao();
 

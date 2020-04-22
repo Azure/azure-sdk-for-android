@@ -6,8 +6,8 @@ package com.azure.android.storage.blob.transfer;
 /**
  * Package private.
  *
- * Contract to listen for various events from {@link UploadHandler} or {@link DownloadHandler} when handler upload a
- * single file.
+ * Contract to listen for various events from {@link UploadHandler} or {@link DownloadHandler} when the handler
+ * transfers a single file.
  */
 interface TransferHandlerListener {
     /**
