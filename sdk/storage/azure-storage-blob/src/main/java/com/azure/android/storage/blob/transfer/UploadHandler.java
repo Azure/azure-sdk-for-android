@@ -152,17 +152,23 @@ final class UploadHandler extends Handler {
             this.uploadHandlerListener.onComplete();
             this.getLooper().quit();
         } else {
-            this.blobClient = StorageBlobClientsMap.get(this.uploadId);
-            this.totalBytesUploaded = this.db.uploadDao().getUploadedBytesCount(this.uploadId);
-            this.uploadHandlerListener.onUploadProgress(blob.fileSize, totalBytesUploaded);
-            List<BlockUploadState> skip = new ArrayList();
-            skip.add(BlockUploadState.COMPLETED);
-            this.blocksItr = new BlockUploadRecordsEnumerator(this.db, this.uploadId, skip);
-            List<BlockUploadEntity> blocks = this.blocksItr.getNext(this.blocksUploadConcurrency);
-            if (blocks.size() == 0) {
-                this.commitBlocks();
+            this.blobClient = TransferClient.STORAGE_BLOB_CLIENTS.get(this.blob.storageBlobClientId);
+            if (this.blobClient == null) {
+                this.uploadHandlerListener
+                    .onError(new UnresolvedStorageBlobClientIdException(this.blob.storageBlobClientId));
+                this.getLooper().quit();
             } else {
-                this.stageBlocks(blocks);
+                this.totalBytesUploaded = this.db.uploadDao().getUploadedBytesCount(this.uploadId);
+                this.uploadHandlerListener.onUploadProgress(blob.fileSize, totalBytesUploaded);
+                List<BlockUploadState> skip = new ArrayList();
+                skip.add(BlockUploadState.COMPLETED);
+                this.blocksItr = new BlockUploadRecordsEnumerator(this.db, this.uploadId, skip);
+                List<BlockUploadEntity> blocks = this.blocksItr.getNext(this.blocksUploadConcurrency);
+                if (blocks.size() == 0) {
+                    this.commitBlocks();
+                } else {
+                    this.stageBlocks(blocks);
+                }
             }
         }
     }
