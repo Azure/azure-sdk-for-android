@@ -19,7 +19,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 /**
  * {@link ListenableWorker} for performing a single file upload using {@link UploadHandler}.
  */
-class UploadWorker extends ListenableWorker {
+public class UploadWorker extends ListenableWorker {
     private static final String TAG = UploadWorker.class.getSimpleName();
     // The number of blob blocks to be uploaded in parallel.
     private int blocksUploadConcurrency;
@@ -109,7 +109,7 @@ class UploadWorker extends ListenableWorker {
                         errorMessage = errorMessage.substring(0, errorMessage.length() - lenToTrim);
                     }
                     Data errorOutput = new Data.Builder()
-                        .putString(Constants.OUTPUT_ERROR_MESSAGE_KEY, errorMessage)
+                        .putString(TransferConstants.OUTPUT_ERROR_MESSAGE_KEY, errorMessage)
                         .build();
                     completer.set(Result.failure(errorOutput));
                 }

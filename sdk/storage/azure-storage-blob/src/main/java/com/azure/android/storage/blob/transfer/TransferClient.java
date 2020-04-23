@@ -17,6 +17,7 @@ import androidx.lifecycle.Transformations;
 import androidx.work.Constraints;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
+import androidx.work.ListenableWorker;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
@@ -124,41 +125,50 @@ public class TransferClient {
      * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
      */
     public LiveData<TransferInfo> download(String containerName, String blobName, File file) {
-        MutableLiveData<Long> transferIdLiveData = new MutableLiveData<>();
+        // UI_Thread
+        final MutableLiveData<TransferOperationResult> transferOpResultLiveData = new MutableLiveData<>();
 
         this.serialTaskExecutor.execute(() -> {
-            BlobDownloadEntity blob = new BlobDownloadEntity(containerName, blobName, file);
-            long blobSize = blobClient.getBlobProperties(containerName, blobName).getContentLength();
-            List<BlockDownloadEntity> blocks
-                = BlockDownloadEntity.createEntitiesForBlob(file, blobSize, Constants.DEFAULT_BLOCK_SIZE);
-            long downloadId = db.downloadDao().createDownloadRecord(blob, blocks);
+            // BG_Thread
+            try {
+                BlobDownloadEntity blob = new BlobDownloadEntity(containerName, blobName, file);
+                long blobSize = blobClient.getBlobProperties(containerName, blobName).getContentLength();
+                List<BlockDownloadEntity> blocks
+                    = BlockDownloadEntity.createEntitiesForBlob(file, blobSize, Constants.DEFAULT_BLOCK_SIZE);
+                long transferId = db.downloadDao().createDownloadRecord(blob, blocks);
 
-            db.downloadDao().updateBlobSize(downloadId, blobSize);
+                db.downloadDao().updateBlobSize(transferId, blobSize);
 
-            Log.v(TAG, "download(): Download record created: " + downloadId);
+                Log.v(TAG, "download(): Download record created: " + transferId);
 
-            StorageBlobClientsMap.put(downloadId, blobClient);
+                StorageBlobClientsMap.put(transferId, blobClient);
 
-            Data inputData = new Data.Builder()
-                .putLong(DownloadWorker.Constants.INPUT_BLOB_DOWNLOAD_ID_KEY, downloadId)
-                .build();
-            OneTimeWorkRequest downloadWorkRequest = new OneTimeWorkRequest
-                .Builder(DownloadWorker.class)
-                .setConstraints(constraints)
-                .setInputData(inputData)
-                .build();
+                Data inputData = new Data.Builder()
+                    .putLong(DownloadWorker.Constants.INPUT_BLOB_DOWNLOAD_ID_KEY, transferId)
+                    .build();
+                OneTimeWorkRequest downloadWorkRequest = new OneTimeWorkRequest
+                    .Builder(DownloadWorker.class)
+                    .setConstraints(constraints)
+                    .setInputData(inputData)
+                    .build();
 
-            Log.v(TAG, "download(): enqueuing DownloadWorker: " + downloadId);
+                Log.v(TAG, "download(): enqueuing DownloadWorker: " + transferId);
 
-            WorkManager.getInstance(context)
-                .beginUniqueWork(toTransferUniqueWorkName(downloadId),
-                    ExistingWorkPolicy.KEEP,
-                    downloadWorkRequest)
-                .enqueue();
-            transferIdLiveData.postValue(downloadId);
+                WorkManager.getInstance(context)
+                    .beginUniqueWork(toTransferUniqueWorkName(transferId),
+                        ExistingWorkPolicy.KEEP,
+                        downloadWorkRequest)
+                    .enqueue();
+                transferOpResultLiveData
+                    .postValue(TransferOperationResult.id(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, transferId));
+            } catch (Exception e) {
+                transferOpResultLiveData
+                    .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, e));
+            }
         });
 
-        return new TransferIdMappedToTransferInfo().getTransferInfoLiveData(context, transferIdLiveData);
+        // UI_Thread
+        return toCachedTransferInfoLiveData(transferOpResultLiveData, false);
     }
 
     /**
@@ -176,19 +186,23 @@ public class TransferClient {
     public void pause(long transferId) {
         // UI_Thread
         final TransferIdInfoLiveData.TransferFlags transferFlags = TRANSFER_ID_INFO_CACHE.getTransferFlags(transferId);
+
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
-                final PauseCheck pauseCheck = checkPauseable(transferId);
-                if (pauseCheck.canPause) {
-                    if (pauseCheck.isUpload) {
-                        db.uploadDao().updateUploadInterruptState(transferId, UploadInterruptState.USER_PAUSED);
+                final StopCheck stopCheck = checkStoppable(transferId);
+
+                if (stopCheck.canStop) {
+                    if (stopCheck.isUpload) {
+                        db.uploadDao().updateUploadInterruptState(transferId, TransferInterruptState.USER_PAUSED);
                     } else {
-                        throw new RuntimeException("Download::pause() NotImplemented");
+                        db.downloadDao().updateDownloadInterruptState(transferId, TransferInterruptState.USER_PAUSED);
                     }
+
                     if (transferFlags != null) {
                         transferFlags.setUserPaused();
                     }
+
                     WorkManager
                         .getInstance(context)
                         .cancelUniqueWork(toTransferUniqueWorkName(transferId));
@@ -212,22 +226,34 @@ public class TransferClient {
             // BG_Thread
             try {
                 final ResumeCheck resumeCheck = checkResumeable(transferId, transferOpResultLiveData);
+
                 if (resumeCheck.canResume) {
                     StorageBlobClientsMap.put(transferId, blobClient);
                     final OneTimeWorkRequest workRequest;
+                    String blobTransferIdKey, logMessage;
+                    Class<? extends ListenableWorker> workerClass;
+
                     if (resumeCheck.isUpload) {
-                        Data inputData = new Data.Builder()
-                            .putLong(UploadWorker.Constants.INPUT_BLOB_UPLOAD_ID_KEY, transferId)
-                            .build();
-                        workRequest = new OneTimeWorkRequest
-                            .Builder(UploadWorker.class)
-                            .setConstraints(constraints)
-                            .setInputData(inputData)
-                            .build();
-                        Log.v(TAG, "Upload::resume() Enqueuing UploadWorker: " + transferId);
-                    } else {
-                        throw new RuntimeException("Download::resume() NotImplemented");
+                        blobTransferIdKey = UploadWorker.Constants.INPUT_BLOB_UPLOAD_ID_KEY;
+                        logMessage = "Upload::resume() Enqueuing UploadWorker: " + transferId;
+                        workerClass = UploadWorker.class;
+                    } else { // Download
+                        blobTransferIdKey = DownloadWorker.Constants.INPUT_BLOB_DOWNLOAD_ID_KEY;
+                        logMessage = "Download::resume() Enqueuing DownloadWorker: " + transferId;
+                        workerClass = DownloadWorker.class;
                     }
+
+                    Data inputData = new Data.Builder()
+                        .putLong(blobTransferIdKey, transferId)
+                        .build();
+                    workRequest = new OneTimeWorkRequest
+                        .Builder(workerClass)
+                        .setConstraints(constraints)
+                        .setInputData(inputData)
+                        .build();
+
+                    Log.v(TAG, logMessage);
+
                     // resume() will resubmit the work to WorkManager with the policy as KEEP.
                     // With this policy, if the work is already running, then this resume() call is NO-OP,
                     // we return the LiveData to the caller that streams the TransferInfo events of
@@ -250,30 +276,35 @@ public class TransferClient {
     }
 
     /**
-     * Cancel a transfer.
+     * Cancel a transfer identified by the given transfer ID. The cancel operation is a best-effort, and a transfer
+     * that is already executing may continue to transfer.
      *
-     * @param transferId Unique identifier of the operation to cancel.
+     * Upon successful scheduling of the cancellation, any observer observing on {@link LiveData<TransferInfo>} for
+     * this transfer receives a {@link TransferInfo} event with state {@link TransferInfo.State#CANCELLED}.
+     *
+     * @param transferId The transfer ID identifies the transfer to cancel.
      */
-    public LiveData<Boolean> cancel(long transferId) {
-        MutableLiveData<Boolean> cancelLiveData = new MutableLiveData<>();
-
+    // P2: Currently no return value, evaluate any possible return value later.
+    public void cancel(long transferId) {
         this.serialTaskExecutor.execute(() -> {
             try {
-                WorkManager.getInstance(context).cancelUniqueWork(toTransferUniqueWorkName(transferId));
+                final StopCheck stopCheck = checkStoppable(transferId);
 
-                BlobDownloadEntity blob = db.downloadDao().getDownloadRecord(transferId).blob;
+                if (stopCheck.canStop) {
+                    if (stopCheck.isUpload) {
+                        db.uploadDao().updateUploadInterruptState(transferId, TransferInterruptState.USER_CANCELLED);
+                    } else {
+                        db.downloadDao().updateDownloadInterruptState(transferId, TransferInterruptState.USER_CANCELLED);
+                    }
 
-                db.downloadDao().updateDownloadInterruptState(blob.key, TransferInterruptState.USER_CANCELLED);
-
-                cancelLiveData.postValue(true);
+                    WorkManager
+                        .getInstance(context)
+                        .cancelUniqueWork(toTransferUniqueWorkName(transferId));
+                }
             } catch (Exception e) {
-                Log.w(TAG, "Could not cancel transfer with ID: " + transferId, e);
-
-                cancelLiveData.postValue(false);
+                Log.e(TAG, "Unable to schedule cancellation for transfer with ID: " + transferId, e);
             }
         });
-
-        return cancelLiveData;
     }
 
     /**
@@ -341,19 +372,30 @@ public class TransferClient {
      */
     private ResumeCheck checkResumeable(long transferId,
                                         MutableLiveData<TransferOperationResult> transferOpResultLiveData) {
-        // Check for Upload Record
+        // Check for transfer record
         BlobUploadEntity uploadBlob = db.uploadDao().getBlob(transferId);
+        BlobDownloadEntity downloadBlob = db.downloadDao().getBlob(transferId);
+        BlobTransferState blobTransferState = null;
+
         if (uploadBlob != null) {
-            if (uploadBlob.state == BlobUploadState.FAILED) {
+            blobTransferState = uploadBlob.state;
+        } else if (downloadBlob != null) {
+            blobTransferState = downloadBlob.state;
+        }
+
+        if (blobTransferState != null) {
+            if (blobTransferState == BlobTransferState.FAILED) {
                 transferOpResultLiveData.postValue(TransferOperationResult.alreadyInFailedStateError(transferId));
+
                 return new ResumeCheck(false, true);
-            } else if (uploadBlob.state == BlobUploadState.COMPLETED) {
+            } else if (blobTransferState == BlobTransferState.COMPLETED) {
                 transferOpResultLiveData.postValue(TransferOperationResult.alreadyInCompletedStateError(transferId));
+
                 return new ResumeCheck(false, true);
             }
+
             return new ResumeCheck(true, true);
         }
-        // TODO: Check for Download Record
 
         // No upload or download transfer found.
         transferOpResultLiveData.postValue(TransferOperationResult.notFoundError(transferId));
@@ -374,37 +416,46 @@ public class TransferClient {
     }
 
     /**
-     * Do pre-validations to see a transfer can be paused.
+     * Do pre-validations to see a transfer can be stopped (paused/cancelled).
      *
-     * @param transferId identifies the transfer to check for pause eligibility
-     * @return result of check
+     * @param transferId Identifies the transfer to check for stopping eligibility.
+     * @return Result of check.
      */
-    private PauseCheck checkPauseable(long transferId) {
-        // Check for Upload Record
-        BlobUploadEntity blob = db.uploadDao().getBlob(transferId);
-        if (blob != null) {
-            if (blob.state == BlobUploadState.FAILED) {
-                return new PauseCheck(false, true);
-            } else if (blob.state == BlobUploadState.COMPLETED) {
-                return new PauseCheck(false, true);
-            }
-            return new PauseCheck(true, true);
+    private StopCheck checkStoppable(long transferId) {
+        // Check for transfer record
+        BlobUploadEntity uploadBlob = db.uploadDao().getBlob(transferId);
+        BlobDownloadEntity downloadBlob = db.downloadDao().getBlob(transferId);
+        BlobTransferState blobTransferState = null;
+
+        if (uploadBlob != null) {
+            blobTransferState = uploadBlob.state;
+        } else if (downloadBlob != null) {
+            blobTransferState = downloadBlob.state;
         }
-        // TODO: Check for Download Record
+
+        if (blobTransferState != null) {
+            if (blobTransferState == BlobTransferState.FAILED) {
+                return new StopCheck(false, true);
+            } else if (blobTransferState == BlobTransferState.COMPLETED) {
+                return new StopCheck(false, true);
+            }
+
+            return new StopCheck(true, true);
+        }
 
         // No upload or download transfer found.
-        return new PauseCheck(false, false);
+        return new StopCheck(false, false);
     }
 
-    /** Result of {@link this#checkPauseable(long)}} **/
-    private static final class PauseCheck {
+    /** Result of {@link this#checkStoppable(long)}} **/
+    private static final class StopCheck {
         // flag indicating whether transfer is pause-able or not.
-        private final boolean canPause;
+        private final boolean canStop;
         // if pause-able then this flag indicates the transfer type (upload|download)
         final boolean isUpload;
 
-        private PauseCheck(boolean canPause, boolean isUpload) {
-            this.canPause = canPause;
+        private StopCheck(boolean canStop, boolean isUpload) {
+            this.canStop = canStop;
             this.isUpload = isUpload;
         }
     }

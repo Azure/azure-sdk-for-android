@@ -40,7 +40,7 @@ public class ListAndDownloadBlobsActivity extends AppCompatActivity {
     @Inject
     StorageBlobClient storageBlobClient;
 
-    private static final String TAG = ContainerBlobsActivity.class.getSimpleName();
+    private static final String TAG = ListAndDownloadBlobsActivity.class.getSimpleName();
     private ContainerBlobsPaginationViewModel viewModel;
 
     private RecyclerView recyclerView;

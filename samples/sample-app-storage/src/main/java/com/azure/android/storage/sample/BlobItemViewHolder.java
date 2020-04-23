@@ -60,12 +60,12 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
 
                             Button cancelButton = mainActivityView.findViewById(R.id.cancel_button);
 
-                            cancelButton.setOnClickListener(v -> transferClient.cancel(transferId)
-                                .observe((LifecycleOwner) parent.getContext(), aBoolean -> {
-                                    hideProgress(mainActivityView);
-                                    Toast.makeText(parent.getContext(), "Download cancelled", Toast.LENGTH_SHORT)
-                                        .show();
-                            }));
+                            cancelButton.setOnClickListener(v -> {
+                                transferClient.cancel(transferId);
+                                hideProgress(mainActivityView);
+                                Toast.makeText(parent.getContext(), "Download cancelled", Toast.LENGTH_SHORT)
+                                    .show();
+                            });
                         }
 
                         @Override

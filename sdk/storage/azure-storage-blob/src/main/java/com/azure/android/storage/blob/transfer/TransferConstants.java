@@ -26,4 +26,8 @@ final class TransferConstants {
      * total bytes downloaded so far.
      */
     static final String PROGRESS_BYTES_TRANSFERRED = "BYTES_TRANSFERRED";
+    /**
+     * Identifies an entry in the output {@link Data} that holds error message.
+     */
+    static final String OUTPUT_ERROR_MESSAGE_KEY = "oemk";
 }

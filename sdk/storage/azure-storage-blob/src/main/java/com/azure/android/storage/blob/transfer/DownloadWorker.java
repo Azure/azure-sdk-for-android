@@ -17,7 +17,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 /**
  * {@link ListenableWorker} for performing a single blob download using {@link DownloadHandler}.
  */
-class DownloadWorker extends ListenableWorker {
+public class DownloadWorker extends ListenableWorker {
     private static final String TAG = DownloadWorker.class.getSimpleName();
 
     /**

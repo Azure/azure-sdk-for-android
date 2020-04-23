@@ -8,17 +8,22 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.sample.config.StorageConfiguration;
+import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservable;
 import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservableAuthInterceptor;
 import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObserver;
 import com.azure.android.storage.sample.core.util.tokenrequest.TokenResponseCallback;
+import com.microsoft.identity.client.IMultipleAccountPublicClientApplication;
 import com.microsoft.identity.client.PublicClientApplication;
+import com.microsoft.identity.client.exception.MsalException;
 
 import java.io.File;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -49,19 +54,32 @@ public class UploadFileActivity extends AppCompatActivity {
         this.storageConfiguration = StorageConfiguration.create(getApplicationContext());
 
         // Set up Login
-        PublicClientApplication aadApp = new PublicClientApplication(this.getApplicationContext(),
-            R.raw.authorization_configuration);
-
-        final List<String> blobEndpointScopes = Arrays.asList(storageBlobClient.getBlobServiceUrl() + ".default");
+        final List<String> blobEndpointScopes = Collections.singletonList(storageBlobClient.getBlobServiceUrl() + ".default");
         TokenRequestObservableAuthInterceptor authInterceptor =
             new TokenRequestObservableAuthInterceptor(blobEndpointScopes);
 
-        authInterceptor.getTokenRequestObservable().observe(this, new TokenRequestObserver() {
-            @Override
-            public void onTokenRequest(String[] scopes, TokenResponseCallback callback) {
-                MsalClient.signIn(aadApp, getActivity(), scopes, callback);
-            }
-        });
+        TokenRequestObservable tokenRequestObservable = authInterceptor.getTokenRequestObservable();
+        LifecycleOwner lifecycleOwner = this;
+
+        PublicClientApplication.createMultipleAccountPublicClientApplication(
+            this.getApplicationContext(),
+            R.raw.authorization_configuration,
+            new PublicClientApplication.IMultipleAccountApplicationCreatedListener() {
+                @Override
+                public void onCreated(IMultipleAccountPublicClientApplication application) {
+                    tokenRequestObservable.observe(lifecycleOwner, new TokenRequestObserver() {
+                        @Override
+                        public void onTokenRequest(String[] scopes, TokenResponseCallback callback) {
+                            MsalClient.signIn(application, getActivity(), scopes, callback);
+                        }
+                    });
+                }
+
+                @Override
+                public void onError(MsalException exception) {
+                    Log.e(TAG, "Exception found when trying to sign in.", exception);
+                }
+            });
 
         // Create a new StorageBlobClient from the existing client with different base URL and credentials but sharing
         // the underlying OkHttp Client.
