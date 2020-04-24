@@ -18,7 +18,7 @@ final class UnresolvedStorageBlobClientIdException extends RuntimeException {
     /**
      * Creates {@link UnresolvedStorageBlobClientIdException}.
      *
-     * @param storageBlobClientId the StorageClient id failed to resolve
+     * @param storageBlobClientId the id for the storage blob client that could not be resolved
      */
     UnresolvedStorageBlobClientIdException(String storageBlobClientId) {
         super(MESSAGE_PREFIX + storageBlobClientId);
