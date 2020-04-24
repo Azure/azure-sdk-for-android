@@ -374,16 +374,24 @@ public class TransferClient {
                                         MutableLiveData<TransferOperationResult> transferOpResultLiveData) {
         // Check for transfer record
         BlobUploadEntity uploadBlob = db.uploadDao().getBlob(transferId);
-        BlobDownloadEntity downloadBlob = db.downloadDao().getBlob(transferId);
         BlobTransferState blobTransferState = null;
 
         if (uploadBlob != null) {
             blobTransferState = uploadBlob.state;
-        } else if (downloadBlob != null) {
-            blobTransferState = downloadBlob.state;
+        } else {
+            BlobDownloadEntity downloadBlob = db.downloadDao().getBlob(transferId);
+
+            if (downloadBlob != null) {
+                blobTransferState = downloadBlob.state;
+            }
         }
 
-        if (blobTransferState != null) {
+        if (blobTransferState == null) {
+            // No upload or download transfer found.
+            transferOpResultLiveData.postValue(TransferOperationResult.notFoundError(transferId));
+
+            return new ResumeCheck(false, false);
+        } else {
             if (blobTransferState == BlobTransferState.FAILED) {
                 transferOpResultLiveData.postValue(TransferOperationResult.alreadyInFailedStateError(transferId));
 
@@ -396,17 +404,13 @@ public class TransferClient {
 
             return new ResumeCheck(true, true);
         }
-
-        // No upload or download transfer found.
-        transferOpResultLiveData.postValue(TransferOperationResult.notFoundError(transferId));
-        return new ResumeCheck(false, false);
     }
 
     /** Result of {@link this#checkResumeable(long, MutableLiveData)}} **/
     private static final class ResumeCheck {
-        // flag indicating whether transfer is resume-able or not.
+        // Flag indicating whether transfer can be resumed.
         final boolean canResume;
-        // if resume-able then this flag indicates the transfer type (upload|download)
+        // If the transfer can be resumed then this flag indicates the transfer type (upload|download).
         final boolean isUpload;
 
         ResumeCheck(boolean canResume, boolean isUpload) {
@@ -424,16 +428,22 @@ public class TransferClient {
     private StopCheck checkStoppable(long transferId) {
         // Check for transfer record
         BlobUploadEntity uploadBlob = db.uploadDao().getBlob(transferId);
-        BlobDownloadEntity downloadBlob = db.downloadDao().getBlob(transferId);
         BlobTransferState blobTransferState = null;
 
         if (uploadBlob != null) {
             blobTransferState = uploadBlob.state;
-        } else if (downloadBlob != null) {
-            blobTransferState = downloadBlob.state;
+        } else {
+            BlobDownloadEntity downloadBlob = db.downloadDao().getBlob(transferId);
+
+            if (downloadBlob != null) {
+                blobTransferState = downloadBlob.state;
+            }
         }
 
-        if (blobTransferState != null) {
+        if (blobTransferState == null) {
+            // No upload or download transfer found.
+            return new StopCheck(false, false);
+        } else {
             if (blobTransferState == BlobTransferState.FAILED) {
                 return new StopCheck(false, true);
             } else if (blobTransferState == BlobTransferState.COMPLETED) {
@@ -442,16 +452,13 @@ public class TransferClient {
 
             return new StopCheck(true, true);
         }
-
-        // No upload or download transfer found.
-        return new StopCheck(false, false);
     }
 
     /** Result of {@link this#checkStoppable(long)}} **/
     private static final class StopCheck {
-        // flag indicating whether transfer is pause-able or not.
+        // Flag indicating whether transfer can be paused or cancelled.
         private final boolean canStop;
-        // if pause-able then this flag indicates the transfer type (upload|download)
+        // If the transfer can be paused or cancelled then this flag indicates the transfer type (upload|download).
         final boolean isUpload;
 
         private StopCheck(boolean canStop, boolean isUpload) {
