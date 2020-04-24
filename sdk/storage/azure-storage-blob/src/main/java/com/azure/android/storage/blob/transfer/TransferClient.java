@@ -86,7 +86,7 @@ public class TransferClient {
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
-                if (!TransferClient.STORAGE_BLOB_CLIENTS.isExists(storageBlobClientId)) {
+                if (!TransferClient.STORAGE_BLOB_CLIENTS.contains(storageBlobClientId)) {
                     transferOpResultLiveData.postValue(TransferOperationResult
                         .unResolvedStorageClientIdError(TransferOperationResult.Operation.UPLOAD_DOWNLOAD,
                             storageBlobClientId));
