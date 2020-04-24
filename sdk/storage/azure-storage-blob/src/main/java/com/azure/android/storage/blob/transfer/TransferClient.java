@@ -393,7 +393,7 @@ public class TransferClient {
          *   If your application uses multiple clients with different configurations, use a value unique
          *   to both your application and the configuration (e.g. "MyApplication.userClient").
          * @param storageBlobClient the blob storage client
-         * @return Builder with provided blob storage client set
+         * @return Builder with the provided blob storage client set
          */
         public Builder addStorageBlobClient(@NonNull String storageBlobClientId,
                                             @NonNull StorageBlobClient storageBlobClient) {
