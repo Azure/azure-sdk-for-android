@@ -48,7 +48,7 @@ final class StorageBlobClientMap {
      * @param storageBlobClientId the unique id of the blob storage client
      * @return {@code true} if this map contains a blob storage client for the specified id
      */
-    boolean isExists(@NonNull String storageBlobClientId) {
+    boolean contains(@NonNull String storageBlobClientId) {
         return this.map.containsKey(storageBlobClientId);
     }
 
