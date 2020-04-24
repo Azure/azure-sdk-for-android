@@ -339,11 +339,11 @@ final class TransferIdInfoLiveData {
         if (progress == null) {
             return null;
         }
-        long totalBytes = progress.getLong(UploadWorker.Constants.PROGRESS_TOTAL_BYTES, -1);
+        long totalBytes = progress.getLong(TransferConstants.PROGRESS_TOTAL_BYTES, -1);
         if (totalBytes == -1) {
             return null;
         }
-        long bytesTransferred = progress.getLong(UploadWorker.Constants.PROGRESS_BYTES_UPLOADED, -1);
+        long bytesTransferred = progress.getLong(TransferConstants.PROGRESS_BYTES_TRANSFERRED, -1);
         return new TransferInfo.Progress(totalBytes, bytesTransferred);
     }
 
@@ -358,7 +358,7 @@ final class TransferIdInfoLiveData {
         if (data == null) {
             return null;
         }
-        return data.getString(UploadWorker.Constants.OUTPUT_ERROR_MESSAGE_KEY);
+        return data.getString(TransferConstants.OUTPUT_ERROR_MESSAGE_KEY);
     }
 
     /**

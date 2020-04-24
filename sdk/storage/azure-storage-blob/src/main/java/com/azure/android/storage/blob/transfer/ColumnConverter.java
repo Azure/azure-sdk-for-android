@@ -12,32 +12,32 @@ import androidx.room.TypeConverter;
  */
 final class ColumnConverter {
     @TypeConverter
-    public int fromBlobUploadState(BlobUploadState state) {
+    public int fromBlobTransferState(BlobTransferState state) {
         return state.ordinal();
     }
 
     @TypeConverter
-    public BlobUploadState toBlobUploadState(int ordinal) {
-        return BlobUploadState.values()[ordinal];
+    public BlobTransferState toBlobTransferState(int ordinal) {
+        return BlobTransferState.values()[ordinal];
     }
 
     @TypeConverter
-    public int fromBlockUploadState(BlockUploadState state) {
+    public int fromBlockTransferState(BlockTransferState state) {
         return state.ordinal();
     }
 
     @TypeConverter
-    public BlockUploadState toBlockUploadState(int ordinal) {
-        return BlockUploadState.values()[ordinal];
+    public BlockTransferState toBlockTransferState(int ordinal) {
+        return BlockTransferState.values()[ordinal];
     }
 
     @TypeConverter
-    public int fromUploadInterruptState(UploadInterruptState state) {
+    public int fromTransferInterruptState(TransferInterruptState state) {
         return state.ordinal();
     }
 
     @TypeConverter
-    public UploadInterruptState toUploadInterruptState(int ordinal) {
-        return UploadInterruptState.values()[ordinal];
+    public TransferInterruptState toTransferInterruptState(int ordinal) {
+        return TransferInterruptState.values()[ordinal];
     }
 }

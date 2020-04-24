@@ -9,8 +9,11 @@ import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.storage.blob.models.AccessTier;
+import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
+import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
+import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
@@ -59,9 +62,9 @@ public class StorageBlobClient {
     /**
      * Gets a list of blobs identified by a page id in a given container.
      *
-     * @param pageId Identifies the portion of the list to be returned.
+     * @param pageId        Identifies the portion of the list to be returned.
      * @param containerName The container name.
-     * @param options The page options.
+     * @param options       The page options.
      * @return A list of blobs.
      */
     public List<BlobItem> getBlobsInPage(String pageId,
@@ -73,10 +76,10 @@ public class StorageBlobClient {
     /**
      * Gets a list of blobs identified by a page id in a given container.
      *
-     * @param pageId Identifies the portion of the list to be returned.
+     * @param pageId        Identifies the portion of the list to be returned.
      * @param containerName The container name.
-     * @param options The page options.
-     * @param callback Callback that receives the retrieved blob list.
+     * @param options       The page options.
+     * @param callback      Callback that receives the retrieved blob list.
      */
     public void getBlobsInPage(String pageId,
                                String containerName,
@@ -88,15 +91,15 @@ public class StorageBlobClient {
     /**
      * Gets a list of blobs identified by a page id in a given container.
      *
-     * @param pageId Identifies the portion of the list to be returned.
+     * @param pageId        Identifies the portion of the list to be returned.
      * @param containerName The container name.
-     * @param prefix Filters the results to return only blobs whose name begins with the specified prefix.
-     * @param maxResults Specifies the maximum number of blobs to return.
-     * @param include Include this parameter to specify one or more datasets to include in the response.
-     * @param timeout The timeout parameter is expressed in seconds. For more information, see
-     * &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestId Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
-     * the analytics logs when storage analytics logging is enabled.
+     * @param prefix        Filters the results to return only blobs whose name begins with the specified prefix.
+     * @param maxResults    Specifies the maximum number of blobs to return.
+     * @param include       Include this parameter to specify one or more datasets to include in the response.
+     * @param timeout       The timeout parameter is expressed in seconds. For more information, see
+     *                      &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
+     *                      the analytics logs when storage analytics logging is enabled.
      * @return A response object containing a list of blobs.
      */
     public ContainersListBlobFlatSegmentResponse getBlobsInPageWithRestResponse(String pageId,
@@ -117,16 +120,16 @@ public class StorageBlobClient {
     /**
      * Gets a list of blobs identified by a page id in a given container.
      *
-     * @param pageId Identifies the portion of the list to be returned.
+     * @param pageId        Identifies the portion of the list to be returned.
      * @param containerName The container name.
-     * @param prefix Filters the results to return only blobs whose name begins with the specified prefix.
-     * @param maxResults Specifies the maximum number of blobs to return.
-     * @param include Include this parameter to specify one or more datasets to include in the response.
-     * @param timeout The timeout parameter is expressed in seconds. For more information, see
-     * &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestId Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
-     * the analytics logs when storage analytics logging is enabled.
-     * @param callback Callback that receives the response.
+     * @param prefix        Filters the results to return only blobs whose name begins with the specified prefix.
+     * @param maxResults    Specifies the maximum number of blobs to return.
+     * @param include       Include this parameter to specify one or more datasets to include in the response.
+     * @param timeout       The timeout parameter is expressed in seconds. For more information, see
+     *                      &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
+     *                      the analytics logs when storage analytics logging is enabled.
+     * @param callback      Callback that receives the response.
      */
     public void getBlobsInPageWithRestResponse(String pageId,
                                                String containerName,
@@ -143,6 +146,249 @@ public class StorageBlobClient {
             include,
             timeout,
             requestId,
+            callback);
+    }
+
+    /**
+     * Reads the blob's metadata & properties.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     */
+    public BlobDownloadHeaders getBlobProperties(String containerName,
+                                                 String blobName) {
+        return storageBlobServiceClient.getBlobProperties(containerName,
+            blobName);
+    }
+
+    /**
+     * Reads the blob's metadata & properties.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param callback      Callback that receives the response.
+     */
+    public ServiceCall getBlobProperties(String containerName,
+                                         String blobName,
+                                         Callback<BlobDownloadHeaders> callback) {
+        return storageBlobServiceClient.getBlobProperties(containerName,
+            blobName,
+            callback);
+    }
+
+    /**
+     * Reads a blob's metadata & properties.
+     *
+     * @param containerName         The container name.
+     * @param blobName              The blob name.
+     * @param snapshot              The snapshot parameter is an opaque DateTime value that, when present, specifies
+     *                              the blob snapshot to retrieve. For more information on working with blob snapshots,
+     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
+     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version               Specifies the version of the operation to use for this request.
+     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
+     *                              variety of requests to the conditions present. These conditions are entirely
+     *                              optional.
+     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                              recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo               Additional parameters for the operation.
+     * @return The response information returned from the server when downloading a blob.
+     */
+    public BlobDownloadHeaders getBlobPropertiesWithHeaders(String containerName,
+                                                            String blobName,
+                                                            String snapshot,
+                                                            Integer timeout,
+                                                            String version,
+                                                            BlobRequestConditions blobRequestConditions,
+                                                            String requestId,
+                                                            CpkInfo cpkInfo) {
+        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
+
+        return storageBlobServiceClient.getBlobPropertiesWithHeaders(containerName,
+            blobName,
+            snapshot,
+            timeout,
+            version,
+            blobRequestConditions.getLeaseId(),
+            requestId,
+            cpkInfo);
+    }
+
+    /**
+     * Reads a blob's metadata & properties.
+     *
+     * @param containerName         The container name.
+     * @param blobName              The blob name.
+     * @param snapshot              The snapshot parameter is an opaque DateTime value that, when present, specifies
+     *                              the blob snapshot to retrieve. For more information on working with blob snapshots,
+     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
+     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version               Specifies the version of the operation to use for this request.
+     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
+     *                              variety of requests to the conditions present. These conditions are entirely
+     *                              optional.
+     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                              recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo               Additional parameters for the operation.
+     */
+    public ServiceCall getBlobPropertiesWithHeaders(String containerName,
+                                                    String blobName,
+                                                    String snapshot,
+                                                    Integer timeout,
+                                                    String version,
+                                                    BlobRequestConditions blobRequestConditions,
+                                                    String requestId,
+                                                    CpkInfo cpkInfo,
+                                                    Callback<BlobDownloadHeaders> callback) {
+        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
+
+        return storageBlobServiceClient.getBlobPropertiesWithHeaders(containerName,
+            blobName,
+            snapshot,
+            timeout,
+            version,
+            blobRequestConditions.getLeaseId(),
+            requestId,
+            cpkInfo,
+            callback);
+    }
+
+    /**
+     * Reads the entire blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     */
+    public BlobDownloadAsyncResponse download(String containerName,
+                                              String blobName) {
+        return storageBlobServiceClient.download(containerName,
+            blobName);
+    }
+
+    /**
+     * Reads the entire blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param callback      Callback that receives the response.
+     */
+    public ServiceCall download(String containerName,
+                                String blobName,
+                                Callback<BlobDownloadAsyncResponse> callback) {
+        return storageBlobServiceClient.download(containerName,
+            blobName,
+            callback);
+    }
+
+    /**
+     * Reads a range of bytes from a blob.
+     *
+     * @param containerName         The container name.
+     * @param blobName              The blob name.
+     * @param snapshot              The snapshot parameter is an opaque DateTime value that, when present, specifies
+     *                              the blob snapshot to retrieve. For more information on working with blob snapshots,
+     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
+     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param range                 Return only the bytes of the blob in the specified range.
+     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
+     *                              variety of requests to the conditions present. These conditions are entirely
+     *                              optional.
+     * @param getRangeContentMd5    When set to true and specified together with the Range, the service returns the
+     *                              MD5 hash for the range, as long as the range is less than or equal to 4 MB in size.
+     * @param getRangeContentCrc64  When set to true and specified together with the Range, the service returns the
+     *                              CRC64 hash for the range, as long as the range is less than or equal to 4 MB in size.
+     * @param version               Specifies the version of the operation to use for this request.
+     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                              recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo               Additional parameters for the operation.
+     * @return The response information returned from the server when downloading a blob.
+     */
+    public BlobDownloadAsyncResponse downloadWithHeaders(String containerName,
+                                                         String blobName,
+                                                         String snapshot,
+                                                         Integer timeout,
+                                                         BlobRange range,
+                                                         BlobRequestConditions blobRequestConditions,
+                                                         Boolean getRangeContentMd5,
+                                                         Boolean getRangeContentCrc64,
+                                                         String version,
+                                                         String requestId,
+                                                         CpkInfo cpkInfo) {
+        range = range == null ? new BlobRange(0) : range;
+        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
+
+        return storageBlobServiceClient.downloadWithRestResponse(containerName,
+            blobName,
+            snapshot,
+            timeout,
+            range.toHeaderValue(),
+            blobRequestConditions.getLeaseId(),
+            getRangeContentMd5,
+            getRangeContentCrc64,
+            blobRequestConditions.getIfModifiedSince(),
+            blobRequestConditions.getIfUnmodifiedSince(),
+            blobRequestConditions.getIfMatch(),
+            blobRequestConditions.getIfNoneMatch(),
+            version,
+            requestId,
+            cpkInfo);
+    }
+
+    /**
+     * Reads a range of bytes from a blob.
+     *
+     * @param containerName         The container name.
+     * @param blobName              The blob name.
+     * @param snapshot              The snapshot parameter is an opaque DateTime value that, when present, specifies
+     *                              the blob snapshot to retrieve. For more information on working with blob snapshots,
+     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
+     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param range                 Return only the bytes of the blob in the specified range.
+     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
+     *                              variety of requests to the conditions present. These conditions are entirely optional.
+     * @param getRangeContentMd5    When set to true and specified together with the Range, the service returns the
+     *                              MD5 hash for the range, as long as the range is less than or equal to 4 MB in size.
+     * @param getRangeContentCrc64  When set to true and specified together with the Range, the service returns the
+     *                              CRC64 hash for the range, as long as the range is less than or equal to 4 MB in size.
+     * @param version               Specifies the version of the operation to use for this request.
+     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                              recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo               Additional parameters for the operation.
+     */
+    public ServiceCall downloadWithHeaders(String containerName,
+                                           String blobName,
+                                           String snapshot,
+                                           Integer timeout,
+                                           BlobRange range,
+                                           BlobRequestConditions blobRequestConditions,
+                                           Boolean getRangeContentMd5,
+                                           Boolean getRangeContentCrc64,
+                                           String version,
+                                           String requestId,
+                                           CpkInfo cpkInfo,
+                                           Callback<BlobDownloadAsyncResponse> callback) {
+        range = range == null ? new BlobRange(0) : range;
+        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
+
+        return storageBlobServiceClient.downloadWithRestResponse(containerName,
+            blobName,
+            snapshot,
+            timeout,
+            range.toHeaderValue(),
+            blobRequestConditions.getLeaseId(),
+            getRangeContentMd5,
+            getRangeContentCrc64,
+            blobRequestConditions.getIfModifiedSince(),
+            blobRequestConditions.getIfUnmodifiedSince(),
+            blobRequestConditions.getIfMatch(),
+            blobRequestConditions.getIfNoneMatch(),
+            version,
+            requestId,
+            cpkInfo,
             callback);
     }
 

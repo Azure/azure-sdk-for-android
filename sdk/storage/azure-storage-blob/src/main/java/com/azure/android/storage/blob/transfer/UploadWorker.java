@@ -17,18 +17,16 @@ import com.azure.android.storage.blob.models.BlobStorageException;
 import com.google.common.util.concurrent.ListenableFuture;
 
 /**
- * Package private.
- *
  * {@link ListenableWorker} for performing a single file upload using {@link UploadHandler}.
  */
-class UploadWorker extends ListenableWorker {
+public class UploadWorker extends ListenableWorker {
     private static final String TAG = UploadWorker.class.getSimpleName();
     // The number of blob blocks to be uploaded in parallel.
     private int blocksUploadConcurrency;
     // The key of the blob upload metadata entity describing the file to be uploaded.
     private long blobUploadId;
     // A token to signal {@link UploadHandler} that it should be stopped.
-    private UploadStopToken uploadStopToken;
+    private TransferStopToken transferStopToken;
 
     /**
      * Create the upload worker.
@@ -54,10 +52,10 @@ class UploadWorker extends ListenableWorker {
             throw new IllegalArgumentException("Worker created with no or non-positive input blobUploadId.");
         }
         this.blocksUploadConcurrency
-            = getInputData().getInt(Constants.INPUT_BLOCKS_UPLOAD_CONCURRENCY_KEY,
-            Constants.DEFAULT_BLOCKS_UPLOAD_CONCURRENCY);
+            = getInputData().getInt(TransferConstants.INPUT_BLOCKS_UPLOAD_CONCURRENCY_KEY,
+            TransferConstants.DEFAULT_BLOCKS_UPLOAD_CONCURRENCY);
         if (this.blocksUploadConcurrency <= 0) {
-            this.blocksUploadConcurrency = Constants.DEFAULT_BLOCKS_UPLOAD_CONCURRENCY;
+            this.blocksUploadConcurrency = TransferConstants.DEFAULT_BLOCKS_UPLOAD_CONCURRENCY;
         }
     }
 
@@ -73,12 +71,12 @@ class UploadWorker extends ListenableWorker {
     public ListenableFuture<Result> startWork() {
         Log.v(TAG, "startWork() called." + this);
         ListenableFuture<Result> listenableFuture = CallbackToFutureAdapter.getFuture(completer -> {
-            UploadHandlerListener uploadHandlerListener = new UploadHandlerListener() {
+            TransferHandlerListener transferHandlerListener = new TransferHandlerListener() {
                 @Override
-                public void onUploadProgress(long totalBytes, long bytesUploaded) {
+                public void onTransferProgress(long totalBytes, long bytesTransferred) {
                     setProgressAsync(new Data.Builder()
-                        .putLong(Constants.PROGRESS_TOTAL_BYTES, totalBytes)
-                        .putLong(Constants.PROGRESS_BYTES_UPLOADED, bytesUploaded)
+                        .putLong(TransferConstants.PROGRESS_TOTAL_BYTES, totalBytes)
+                        .putLong(TransferConstants.PROGRESS_BYTES_TRANSFERRED, bytesTransferred)
                         .build());
                 }
 
@@ -111,7 +109,7 @@ class UploadWorker extends ListenableWorker {
                         errorMessage = errorMessage.substring(0, errorMessage.length() - lenToTrim);
                     }
                     Data errorOutput = new Data.Builder()
-                        .putString(Constants.OUTPUT_ERROR_MESSAGE_KEY, errorMessage)
+                        .putString(TransferConstants.OUTPUT_ERROR_MESSAGE_KEY, errorMessage)
                         .build();
                     completer.set(Result.failure(errorOutput));
                 }
@@ -119,8 +117,8 @@ class UploadWorker extends ListenableWorker {
             UploadHandler handler = UploadHandler.create(getApplicationContext(),
                 this.blocksUploadConcurrency,
                 this.blobUploadId);
-            this.uploadStopToken = handler.beginUpload(uploadHandlerListener);
-            return uploadHandlerListener;
+            this.transferStopToken = handler.beginUpload(transferHandlerListener);
+            return transferHandlerListener;
         });
         return listenableFuture;
     }
@@ -133,38 +131,15 @@ class UploadWorker extends ListenableWorker {
     @Override
     public void onStopped() {
         Log.v(TAG, "onStopped() called." + this);
-        this.uploadStopToken.stop();
+        this.transferStopToken.stop();
     }
 
     static class Constants {
-        /**
-         * Identifies an entry in {@link WorkerParameters} input to {@link UploadWorker} that
-         * holds blocksUploadConcurrency value.
-         */
-        static final String INPUT_BLOCKS_UPLOAD_CONCURRENCY_KEY = "ick";
         /**
          * Identifies an entry in {@link WorkerParameters} input to {@link UploadWorker} that
          * holds blob uploadId.
          * An uploadId is the key to a blob upload metadata entity in local store.
          */
         static final String INPUT_BLOB_UPLOAD_ID_KEY = "ibuik";
-        /**
-         * The default block upload parallelism.
-         */
-        static final int DEFAULT_BLOCKS_UPLOAD_CONCURRENCY = 3;
-        /**
-         * Identifies an entry {@link Data} passed to {@link ListenableWorker#setProgressAsync(Data)},
-         * holding the total bytes to upload.
-         */
-        static final String PROGRESS_TOTAL_BYTES = "TOTAL_BYTES";
-        /**
-         * Identifies an entry {@link Data} passed to {@link ListenableWorker#setProgressAsync(Data)},
-         * holding the total bytes uploaded so far.
-         */
-        static final String PROGRESS_BYTES_UPLOADED = "BYTES_UPLOADED";
-        /**
-         * Identifies an entry in the output {@link Data} that holds error message.
-         */
-        static final String OUTPUT_ERROR_MESSAGE_KEY = "oemk";
     }
 }

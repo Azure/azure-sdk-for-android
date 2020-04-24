@@ -11,39 +11,39 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Package private.
  *
- * A map of configured {@link StorageBlobClient} used by {@link UploadHandler} instances to
+ * A map of configured {@link StorageBlobClient} used by {@link UploadHandler} and {@link DownloadHandler} instances to
  * make API calls.
  */
 final class StorageBlobClientsMap {
     private static Map<Long, StorageBlobClient> clientsMap = new ConcurrentHashMap<>();
 
     /**
-     * Set a {@link StorageBlobClient} to be used for an upload.
+     * Set a {@link StorageBlobClient} to be used for a transfer.
      *
-     * @param uploadId the upload id
-     * @param client the client
+     * @param transferId The transfer ID.
+     * @param client The client.
      */
-    static void put(long uploadId, StorageBlobClient client) {
-        clientsMap.put(uploadId, client);
+    static void put(long transferId, StorageBlobClient client) {
+        clientsMap.put(transferId, client);
     }
 
     /**
-     * Get the {@link StorageBlobClient} to be used for an upload.
+     * Get the {@link StorageBlobClient} to be used for a transfer.
      *
-     * @param uploadId the upload id
+     * @param transferId The transfer ID.
      * @return the client
      */
-    static StorageBlobClient get(long uploadId) {
-        return clientsMap.get(uploadId);
+    static StorageBlobClient get(long transferId) {
+        return clientsMap.get(transferId);
     }
 
     /**
-     * Removes {@link StorageBlobClient} set for an upload.
+     * Removes {@link StorageBlobClient} set for a transfer.
      *
-     * @param uploadId the upload id
+     * @param transferId The transfer ID.
      */
-    static void remove(long uploadId) {
-        clientsMap.remove(uploadId);
+    static void remove(long transferId) {
+        clientsMap.remove(transferId);
     }
 
     /**

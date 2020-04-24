@@ -17,9 +17,11 @@ import androidx.room.TypeConverters;
  * Defines the local store for transfer (upload, download) metadata.
  *
  * @see BlobUploadEntity
+ * @see BlobDownloadEntity
  * @see BlockUploadEntity
  */
-@Database(entities = {BlobUploadEntity.class, BlockUploadEntity.class}, version = 1)
+@Database(entities = {BlobUploadEntity.class, BlockUploadEntity.class, BlobDownloadEntity.class,
+    BlockDownloadEntity.class}, version = 1)
 @TypeConverters(ColumnConverter.class)
 abstract class TransferDatabase extends RoomDatabase {
     /**
@@ -35,6 +37,13 @@ abstract class TransferDatabase extends RoomDatabase {
      * @return Data Access Object for upload
      */
     public abstract UploadDao uploadDao();
+
+    /**
+     * Get the Data Access Object that exposes operations to store and retrieve download metadata.
+     *
+     * @return Data Access Object for download.
+     */
+    public abstract DownloadDao downloadDao();
 
     /**
      * Get a singleton instance of {@link TransferDatabase}.

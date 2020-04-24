@@ -111,7 +111,7 @@ public abstract class PaginationViewModel<R extends PaginationDescriptionReposit
     /**
      * @return get the repository backing the page data for this view
      */
-    protected R getRepository() {
+    public R getRepository() {
         return this.repository;
     }
 }

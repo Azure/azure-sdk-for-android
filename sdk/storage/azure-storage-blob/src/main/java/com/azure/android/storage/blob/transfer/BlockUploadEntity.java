@@ -85,7 +85,7 @@ final class BlockUploadEntity {
      */
     @ColumnInfo(name = "block_upload_state")
     @TypeConverters(ColumnConverter.class)
-    public volatile BlockUploadState state;
+    public volatile BlockTransferState state;
     /**
      * holds the exception indicating the reason for block staging (upload) failure.
      *
@@ -115,7 +115,7 @@ final class BlockUploadEntity {
         this.filePath = filePath;
         this.fileOffset = fileOffset;
         this.blockSize = blockSize;
-        this.state = BlockUploadState.WAIT_TO_BEGIN;
+        this.state = BlockTransferState.WAIT_TO_BEGIN;
     }
 
     /**

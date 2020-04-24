@@ -6,23 +6,23 @@ package com.azure.android.storage.blob.transfer;
 /**
  * Package private.
  *
- * Describes block upload state.
+ * Describes block transfer state.
  */
-enum BlockUploadState {
+enum BlockTransferState {
     /**
-     * Block is yet to be uploaded.
+     * Block is yet to be transferred.
      */
     WAIT_TO_BEGIN,
     /**
-     * Block upload is in progress.
+     * Block transfer is in progress.
      */
     IN_PROGRESS,
     /**
-     * Block is uploaded.
+     * Block is transferred.
      */
     COMPLETED,
     /**
-     * Block upload is failed.
+     * Block transfer is failed.
      */
     FAILED,
 }

@@ -56,13 +56,13 @@ final class BlobUploadEntity {
      */
     @ColumnInfo(name = "blob_upload_state")
     @TypeConverters(ColumnConverter.class)
-    public volatile BlobUploadState state;
+    public volatile BlobTransferState state;
     /**
      * Indicate the reason for interrupting (stopping) blob upload.
      */
-    @ColumnInfo(name = "upload_interrupt_state")
+    @ColumnInfo(name = "transfer_interrupt_state")
     @TypeConverters(ColumnConverter.class)
-    public UploadInterruptState interruptState;
+    public TransferInterruptState interruptState;
     /**
      * holds the exception indicating the reason for commit (the last
      * stage of upload) failure.
@@ -97,8 +97,8 @@ final class BlobUploadEntity {
         this.fileSize = (int) file.length();
         this.containerName = containerName;
         this.blobName = blobName;
-        this.state = BlobUploadState.WAIT_TO_BEGIN;
-        this.interruptState = UploadInterruptState.NONE;
+        this.state = BlobTransferState.WAIT_TO_BEGIN;
+        this.interruptState = TransferInterruptState.NONE;
     }
 
     /**

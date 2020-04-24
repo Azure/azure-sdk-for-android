@@ -17,7 +17,7 @@ final class BlockUploadRecordsEnumerator {
     private int cursor;
     private final TransferDatabase db;
     private final long blobUploadId;
-    private final List<BlockUploadState> skipStates;
+    private final List<BlockTransferState> skipStates;
 
     /**
      * Create {@link BlockUploadRecordsEnumerator} to enumerate the set of {@link BlockUploadEntity}
@@ -27,7 +27,7 @@ final class BlockUploadRecordsEnumerator {
      * @param uploadId the upload id
      * @param skipStates the state of the entities to be skipped from enumeration
      */
-    BlockUploadRecordsEnumerator(TransferDatabase db, long uploadId, List<BlockUploadState> skipStates) {
+    BlockUploadRecordsEnumerator(TransferDatabase db, long uploadId, List<BlockTransferState> skipStates) {
         this.cursor = 0;
         this.db = db;
         this.blobUploadId = uploadId;

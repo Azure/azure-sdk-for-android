@@ -38,6 +38,10 @@ final class ContainerBlobsPaginationRepository
                 .build();
     }
 
+    public StorageBlobClient getStorageBlobClient() {
+        return storageBlobClient;
+    }
+
     @Override
     public TokenRequestObservable getTokenRequestObservable() {
         return this.authInterceptor.getTokenRequestObservable();
