@@ -13,7 +13,7 @@ package com.azure.android.storage.blob.transfer;
  * @see UploadHandlerListener
  */
 final class UnresolvedStorageBlobClientIdException extends RuntimeException {
-    private static final String MESSAGE_PREFIX = "UnResolvedStorageClientId:";
+    private static final String MESSAGE_PREFIX = "UnresolvedStorageClientId:";
 
     /**
      * Creates {@link UnresolvedStorageBlobClientIdException}.
