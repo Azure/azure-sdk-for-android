@@ -36,7 +36,7 @@ final class StorageBlobClientMap {
      * Get the {@link StorageBlobClient} for a specified id.
      *
      * @param storageBlobClientId the unique id of the {@link StorageBlobClient} to retrieve
-     * @return the the blob storage client if exists, null otherwise
+     * @return the blob storage client if exists, null otherwise
      */
     StorageBlobClient get(String storageBlobClientId) {
         return this.map.get(storageBlobClientId);
