@@ -57,7 +57,7 @@ final class TransferOperationResult {
      * because there is no StorageBlobClient with the provided id.
      *
      * @param operation the transfer operation type - upload_download, resume
-     * @param storageClientId the blob storage client id that is failed to resolveq
+     * @param storageClientId the id of the storage blob client that could not be resolved
      * @return {@link TransferOperationResult} composing the error
      */
     static TransferOperationResult unResolvedStorageClientIdError(@NonNull @Operation int operation,
