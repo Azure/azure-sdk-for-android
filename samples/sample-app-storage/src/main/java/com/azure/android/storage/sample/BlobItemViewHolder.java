@@ -52,7 +52,7 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
             File file = new File(path, blobName);
 
             try {
-                transferClient.download(containerName, blobName, file)
+                transferClient.download(Constants.STORAGE_BLOB_CLIENT_ID, containerName, blobName, file)
                     .observe((LifecycleOwner) parent.getContext(), new TransferObserver() {
                         @Override
                         public void onStart(long transferId) {

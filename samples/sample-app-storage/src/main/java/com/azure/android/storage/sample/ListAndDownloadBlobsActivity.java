@@ -88,7 +88,7 @@ public class ListAndDownloadBlobsActivity extends AppCompatActivity {
         ContainerBlobsPaginationRepository repository = (ContainerBlobsPaginationRepository) this.viewModel.getRepository();
 
         TransferClient transferClient = new TransferClient.Builder(getApplicationContext())
-            .setStorageClient(repository.getStorageBlobClient())
+            .addStorageBlobClient(Constants.STORAGE_BLOB_CLIENT_ID, repository.getStorageBlobClient())
             .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
             .build();
 
