@@ -149,34 +149,38 @@ final class DownloadHandler extends Handler {
      * Handler. This stage also starts a download operation.
      */
     private void handleInit() {
-        db = TransferDatabase.get(appContext);
-        blob = db.downloadDao().getBlob(downloadId);
+        this.db = TransferDatabase.get(appContext);
+        this.blob = db.downloadDao().getBlob(downloadId);
 
-        if (blob.interruptState == TransferInterruptState.PURGE) {
-            transferHandlerListener.onError(new RuntimeException("Download operation with id '" + downloadId +
+        if (this.blob.interruptState == TransferInterruptState.PURGE) {
+            this.transferHandlerListener.onError(new RuntimeException("Download operation with id '" + downloadId +
                 "' is already CANCELLED and cannot be RESTARTED or RESUMED."));
             getLooper().quit();
-        } else if (blob.state == BlobTransferState.COMPLETED) {
-            transferHandlerListener.onTransferProgress(blob.blobSize, blob.blobSize);
-            transferHandlerListener.onComplete();
-            getLooper().quit();
+        } else if (this.blob.state == BlobTransferState.COMPLETED) {
+            this.transferHandlerListener.onTransferProgress(blob.blobSize, blob.blobSize);
+            this.transferHandlerListener.onComplete();
+            this.getLooper().quit();
         } else {
-            blobClient = StorageBlobClientsMap.get(downloadId);
 
-            totalBytesDownloaded = this.db.downloadDao().getDownloadedBytesCount(downloadId);
-            transferHandlerListener.onTransferProgress(blob.blobSize, totalBytesDownloaded);
-
-            List<BlockTransferState> skip = new ArrayList<>();
-            skip.add(BlockTransferState.COMPLETED);
-            blocksItr = new BlockDownloadRecordsEnumerator(db, downloadId, skip);
-            List<BlockDownloadEntity> blocks = blocksItr.getNext(blocksDownloadConcurrency);
-
-            if (blobClient == null) {
-                Log.w(TAG, "Could not retrieve blob client to download with.");
-            } else if (blocks.size() != 0) {
-                downloadBlocks(blocks);
+            this.blobClient = TransferClient.STORAGE_BLOB_CLIENTS.get(this.blob.storageBlobClientId);
+            if (this.blobClient == null) {
+                this.transferHandlerListener
+                    .onError(new UnresolvedStorageBlobClientIdException(this.blob.storageBlobClientId));
+                this.getLooper().quit();
             } else {
-                Log.w(TAG, "All blocks have been downloaded.");
+                this.totalBytesDownloaded = this.db.downloadDao().getDownloadedBytesCount(downloadId);
+                this.transferHandlerListener.onTransferProgress(blob.blobSize, totalBytesDownloaded);
+
+                List<BlockTransferState> skip = new ArrayList<>();
+                skip.add(BlockTransferState.COMPLETED);
+                this.blocksItr = new BlockDownloadRecordsEnumerator(db, downloadId, skip);
+                List<BlockDownloadEntity> blocks = blocksItr.getNext(blocksDownloadConcurrency);
+
+                if (blocks.size() != 0) {
+                    downloadBlocks(blocks);
+                } else {
+                    Log.w(TAG, "All blocks have been downloaded.");
+                }
             }
         }
     }
