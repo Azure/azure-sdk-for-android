@@ -111,11 +111,11 @@ public class UploadFileActivity extends AppCompatActivity {
 
         try {
             TransferClient transferClient = new TransferClient.Builder(getApplicationContext())
-                .setStorageClient(storageBlobClient)
+                .addStorageBlobClient(Constants.STORAGE_BLOB_CLIENT_ID, storageBlobClient)
                 .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
                 .build();
 
-            transferClient.upload(containerName, blobName, fileToUpload)
+            transferClient.upload(Constants.STORAGE_BLOB_CLIENT_ID, containerName, blobName, fileToUpload)
                 .observe(this, new TransferObserver() {
                     @Override
                     public void onStart(long transferId) {

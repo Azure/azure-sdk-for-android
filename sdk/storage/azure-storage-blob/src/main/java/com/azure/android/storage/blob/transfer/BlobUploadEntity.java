@@ -42,6 +42,13 @@ final class BlobUploadEntity {
     @ColumnInfo(name = "file_size")
     public int fileSize;
     /**
+     * Identifies the {@link com.azure.android.storage.blob.StorageBlobClient}
+     * to be used for the file upload.
+     * @see StorageBlobClientMap
+     */
+    @ColumnInfo(name = "storage_blob_client_id")
+    public String storageBlobClientId;
+    /**
      * The name of the Azure Storage Container to upload the file to.
      */
     @ColumnInfo(name = "container_name")
@@ -81,20 +88,24 @@ final class BlobUploadEntity {
     /**
      * Create a new BlobUploadEntity to persist in local store.
      *
+     * @param storageBlobClientId identifies the blob storage client to be used
      * @param containerName the container name
      * @param blobName the blob name
      * @param file the local file
      */
     @Ignore
-    BlobUploadEntity(String containerName,
-                            String blobName,
-                            File file) {
+    BlobUploadEntity(String storageBlobClientId,
+                     String containerName,
+                     String blobName,
+                     File file) {
+        Objects.requireNonNull(storageBlobClientId);
         Objects.requireNonNull(containerName);
         Objects.requireNonNull(blobName);
         Objects.requireNonNull(file);
 
         this.filePath = file.getAbsolutePath();
         this.fileSize = (int) file.length();
+        this.storageBlobClientId = storageBlobClientId;
         this.containerName = containerName;
         this.blobName = blobName;
         this.state = BlobTransferState.WAIT_TO_BEGIN;

@@ -53,6 +53,19 @@ final class TransferOperationResult {
     }
 
     /**
+     * Create a TransferOperationResult object indicating that transfer operation cannot be performed
+     * because there is no StorageBlobClient with the provided id.
+     *
+     * @param operation the transfer operation type - upload_download, resume
+     * @param storageClientId the id of the storage blob client that could not be resolved
+     * @return {@link TransferOperationResult} composing the error
+     */
+    static TransferOperationResult unresolvedStorageClientIdError(@NonNull @Operation int operation,
+                                                                  String storageClientId) {
+        return error(operation, new UnresolvedStorageBlobClientIdException(storageClientId));
+    }
+
+    /**
      * Create a {@link TransferOperationResult} object indicating that resume operation cannot be performed
      * because provided id is not identifying a transfer.
      *

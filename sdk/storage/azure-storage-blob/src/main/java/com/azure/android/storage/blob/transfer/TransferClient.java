@@ -26,7 +26,9 @@ import androidx.work.impl.WorkManagerImpl;
 import com.azure.android.storage.blob.StorageBlobClient;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -34,11 +36,13 @@ import java.util.concurrent.Executors;
  * A type that exposes blob transfer APIs.
  */
 public class TransferClient {
+    // the static shared map of StorageBlobClient instances for transfers, with package
+    // scoped access. StorageBlobClient instances are added from TransferClient.Builder
+    // and used by Upload|Download handlers.
+    static final StorageBlobClientMap STORAGE_BLOB_CLIENTS = new StorageBlobClientMap();
     private static final String TAG = TransferClient.class.getSimpleName();
     // the application context.
     private final Context context;
-    // the default storage client for all transfers.
-    private final StorageBlobClient blobClient;
     // the constraints to meet to run the transfers.
     private final Constraints constraints;
     // the executor for internal book keeping.
@@ -53,42 +57,47 @@ public class TransferClient {
      * for transfers.
      *
      * @param context the context
-     * @param blobClient the blob storage client
      * @param constraints the constraints to meet to run transfers
      * @param serialTaskExecutor the executor for all internal book keeping purposes
+     * @param storageBlobClients the blob storage clients for transfers
      */
     private TransferClient(Context context,
-                           StorageBlobClient blobClient,
                            Constraints constraints,
-                           SerialExecutor serialTaskExecutor) {
+                           SerialExecutor serialTaskExecutor,
+                           Map<String, StorageBlobClient> storageBlobClients) {
         this.context = context;
-        this.blobClient = blobClient;
         this.constraints = constraints;
         this.serialTaskExecutor = serialTaskExecutor;
         this.db = TransferDatabase.get(context);
+        STORAGE_BLOB_CLIENTS.putAll(storageBlobClients);
     }
 
     /**
      * Upload a file.
      *
+     * @param storageBlobClientId the identifier of the blob storage client to use for the upload
      * @param containerName the container to upload the file to
      * @param blobName the name of the target blob holding uploaded file
      * @param file the local file to upload
      * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
      */
-    public LiveData<TransferInfo> upload(String containerName, String blobName, File file) {
+    public LiveData<TransferInfo> upload(String storageBlobClientId, String containerName, String blobName, File file) {
         // UI_Thread
         final MutableLiveData<TransferOperationResult> transferOpResultLiveData = new MutableLiveData<>();
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
-                BlobUploadEntity blob = new BlobUploadEntity(containerName, blobName, file);
+                if (!TransferClient.STORAGE_BLOB_CLIENTS.contains(storageBlobClientId)) {
+                    transferOpResultLiveData.postValue(TransferOperationResult
+                        .unresolvedStorageClientIdError(TransferOperationResult.Operation.UPLOAD_DOWNLOAD,
+                            storageBlobClientId));
+                    return;
+                }
+                BlobUploadEntity blob = new BlobUploadEntity(storageBlobClientId, containerName, blobName, file);
                 List<BlockUploadEntity> blocks
                     = BlockUploadEntity.createEntitiesForFile(file, Constants.DEFAULT_BLOCK_SIZE);
                 long transferId = db.uploadDao().createUploadRecord(blob, blocks);
                 Log.v(TAG, "upload(): upload record created: " + transferId);
-
-                StorageBlobClientsMap.put(transferId, blobClient);
 
                 Data inputData = new Data.Builder()
                     .putLong(UploadWorker.Constants.INPUT_BLOB_UPLOAD_ID_KEY, transferId)
@@ -119,20 +128,29 @@ public class TransferClient {
     /**
      * Download a blob.
      *
+     * @param storageBlobClientId the identifier of the blob storage client to use for the download
      * @param containerName The container to download the blob from.
      * @param blobName The name of the target blob to download.
      * @param file The local file to download to.
      * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
      */
-    public LiveData<TransferInfo> download(String containerName, String blobName, File file) {
+    public LiveData<TransferInfo> download(String storageBlobClientId, String containerName, String blobName, File file) {
         // UI_Thread
         final MutableLiveData<TransferOperationResult> transferOpResultLiveData = new MutableLiveData<>();
 
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
-                BlobDownloadEntity blob = new BlobDownloadEntity(containerName, blobName, file);
+                StorageBlobClient blobClient = TransferClient.STORAGE_BLOB_CLIENTS.get(storageBlobClientId);
+                if (blobClient == null) {
+                    transferOpResultLiveData.postValue(TransferOperationResult
+                        .unresolvedStorageClientIdError(TransferOperationResult.Operation.UPLOAD_DOWNLOAD,
+                            storageBlobClientId));
+                    return;
+                }
+
                 long blobSize = blobClient.getBlobProperties(containerName, blobName).getContentLength();
+                BlobDownloadEntity blob = new BlobDownloadEntity(storageBlobClientId, containerName, blobName, file);
                 List<BlockDownloadEntity> blocks
                     = BlockDownloadEntity.createEntitiesForBlob(file, blobSize, Constants.DEFAULT_BLOCK_SIZE);
                 long transferId = db.downloadDao().createDownloadRecord(blob, blocks);
@@ -140,8 +158,6 @@ public class TransferClient {
                 db.downloadDao().updateBlobSize(transferId, blobSize);
 
                 Log.v(TAG, "download(): Download record created: " + transferId);
-
-                StorageBlobClientsMap.put(transferId, blobClient);
 
                 Data inputData = new Data.Builder()
                     .putLong(DownloadWorker.Constants.INPUT_BLOB_DOWNLOAD_ID_KEY, transferId)
@@ -228,7 +244,6 @@ public class TransferClient {
                 final ResumeCheck resumeCheck = checkResumeable(transferId, transferOpResultLiveData);
 
                 if (resumeCheck.canResume) {
-                    StorageBlobClientsMap.put(transferId, blobClient);
                     final OneTimeWorkRequest workRequest;
                     String blobTransferIdKey, logMessage;
                     Class<? extends ListenableWorker> workerClass;
@@ -375,14 +390,17 @@ public class TransferClient {
         // Check for transfer record
         BlobUploadEntity uploadBlob = db.uploadDao().getBlob(transferId);
         BlobTransferState blobTransferState = null;
+        String storageBlobClientId = null;
 
         if (uploadBlob != null) {
             blobTransferState = uploadBlob.state;
+            storageBlobClientId = uploadBlob.storageBlobClientId;
         } else {
             BlobDownloadEntity downloadBlob = db.downloadDao().getBlob(transferId);
 
             if (downloadBlob != null) {
                 blobTransferState = downloadBlob.state;
+                storageBlobClientId = downloadBlob.storageBlobClientId;
             }
         }
 
@@ -398,6 +416,13 @@ public class TransferClient {
                 return new ResumeCheck(false, true);
             } else if (blobTransferState == BlobTransferState.COMPLETED) {
                 transferOpResultLiveData.postValue(TransferOperationResult.alreadyInCompletedStateError(transferId));
+
+                return new ResumeCheck(false, true);
+            } else if (!TransferClient.STORAGE_BLOB_CLIENTS.contains(storageBlobClientId)) {
+                transferOpResultLiveData
+                    .postValue(TransferOperationResult
+                        .unresolvedStorageClientIdError(TransferOperationResult.Operation.UPLOAD_DOWNLOAD,
+                            uploadBlob.storageBlobClientId));
 
                 return new ResumeCheck(false, true);
             }
@@ -473,8 +498,8 @@ public class TransferClient {
     public static final class Builder {
         // the application context.
         private Context context;
-        // the default storage client for all transfers.
-        private StorageBlobClient storageBlobClient;
+        // a map of storage clients to use for transfers.
+        private Map<String, StorageBlobClient> storageBlobClients = new HashMap<>();
         // indicate whether the device should be charging for running the transfers.
         private boolean requiresCharging = false;
         // indicate whether the device should be idle for running the transfers.
@@ -497,13 +522,22 @@ public class TransferClient {
         }
 
         /**
-         * Set the storage blob client to use for all transfers.
+         * Add a {@link StorageBlobClient} to be used for transfers.
          *
-         * @param storageBlobClient the storage blob client
-         * @return Builder with provided Storage Blob Client set
+         * @param storageBlobClientId the unique name or id for the blob storage client.
+         *   This identifier is used to associate the given blob storage client with transfers
+         *   that {@link TransferClient} creates. When a transfer is reloaded from disk (e.g. after an
+         *   application crash), it can only be resumed once a client with the same storageBlobClientId
+         *   has been initialized. If your application only uses a single {@link StorageBlobClient},
+         *   it is recommended to use a value unique to your application (e.g. "MyApplication").
+         *   If your application uses multiple clients with different configurations, use a value unique
+         *   to both your application and the configuration (e.g. "MyApplication.userClient").
+         * @param storageBlobClient the blob storage client
+         * @return Builder with the provided blob storage client set
          */
-        public Builder setStorageClient(@NonNull StorageBlobClient storageBlobClient) {
-            this.storageBlobClient = storageBlobClient;
+        public Builder addStorageBlobClient(@NonNull String storageBlobClientId,
+                                            @NonNull StorageBlobClient storageBlobClient) {
+            this.storageBlobClients.put(storageBlobClientId, storageBlobClient);
             return this;
         }
 
@@ -594,8 +628,8 @@ public class TransferClient {
         // androidx.work.Configuration Object access
         @SuppressLint("RestrictedApi")
         public TransferClient build() {
-            if (this.storageBlobClient == null) {
-                throw new IllegalArgumentException("storageBlobClient must be set.");
+            if (this.storageBlobClients.isEmpty()) {
+                throw new IllegalArgumentException("At least one storageBlobClient must be set.");
             }
             final Constraints.Builder constraintsBuilder = new Constraints.Builder();
             constraintsBuilder.setRequiresCharging(this.requiresCharging);
@@ -624,9 +658,9 @@ public class TransferClient {
                 }
             }
             return new TransferClient(this.context,
-                this.storageBlobClient,
                 constraintsBuilder.build(),
-                this.serialTaskExecutor);
+                this.serialTaskExecutor,
+                this.storageBlobClients);
         }
     }
 

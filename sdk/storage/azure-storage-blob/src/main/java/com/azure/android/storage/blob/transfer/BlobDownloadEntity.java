@@ -57,6 +57,14 @@ final class BlobDownloadEntity {
     public String filePath;
 
     /**
+     * Identifies the {@link com.azure.android.storage.blob.StorageBlobClient}
+     * to be used for the file download.
+     * @see StorageBlobClientMap
+     */
+    @ColumnInfo(name = "storage_blob_client_id")
+    public String storageBlobClientId;
+
+    /**
      * The current state of the blob download operation.
      */
     @ColumnInfo(name = "blob_download_state")
@@ -87,18 +95,22 @@ final class BlobDownloadEntity {
     /**
      * Create a new BlobDownloadEntity to persist in local store.
      *
+     * @param storageBlobClientId identifies the blob storage client to be used
      * @param containerName The container name.
      * @param blobName The blob name.
      * @param file The local file.
      */
     @Ignore
-    BlobDownloadEntity(String containerName,
+    BlobDownloadEntity(String storageBlobClientId,
+                       String containerName,
                        String blobName,
                        File file) {
+        Objects.requireNonNull(storageBlobClientId);
         Objects.requireNonNull(containerName);
         Objects.requireNonNull(blobName);
         Objects.requireNonNull(file);
 
+        this.storageBlobClientId = storageBlobClientId;
         this.containerName = containerName;
         this.blobName = blobName;
         filePath = file.getAbsolutePath();
