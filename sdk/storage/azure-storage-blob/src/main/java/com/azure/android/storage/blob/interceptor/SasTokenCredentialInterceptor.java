@@ -28,16 +28,19 @@ public class SasTokenCredentialInterceptor implements Interceptor {
     public Response intercept(Chain chain) throws IOException {
         HttpUrl requestURL = chain.request().url();
 
-        String encodedQuery = requestURL.encodedQuery();
-        if (!isNullOrEmpty(encodedQuery)) {
-            encodedQuery += "&";
-        }
-
         String sasToken = this.credential.getSasToken();
-        // SAS token is already encoded so its safe to append it to the encoded query from source request.
-        encodedQuery += sasToken.startsWith("?")
+        sasToken = sasToken.startsWith("?")
             ? sasToken.substring(1)
             : sasToken;
+
+        // SAS token is already encoded so its safe to append it to the encoded query from source request.
+        String encodedQuery = requestURL.encodedQuery();
+
+        if (isNullOrEmpty(encodedQuery)) {
+            encodedQuery = sasToken;
+        } else {
+            encodedQuery += "&" + sasToken;
+        }
 
         HttpUrl newURL = requestURL
             .newBuilder()
