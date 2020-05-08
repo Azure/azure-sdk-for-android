@@ -8,7 +8,7 @@ buildscript {
 
     ext {
         androidBuildToolsVersion = "29.0.3"
-        androidGradlePluginVersion = "3.6.0"
+        androidGradlePluginVersion = "3.6.3"
     }
 
     dependencies {
@@ -158,7 +158,7 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
     project.gradle.startParameter.taskNames.each { task ->
         task = task.split(':').last()
 
-        if (tasks.findByPath(task) == null) {
+        if (task != "wrapper" && tasks.findByPath(task) == null) {
             tasks.create(task) {
                 subprojects.each { dependsOn("$it.name:$task") }
             }
