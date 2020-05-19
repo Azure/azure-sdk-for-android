@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         this.uploadFileButton.setOnClickListener(v -> {
             Log.d("MainActivity", "setOnClickListener(): Upload file button.");
 
-            Intent chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+            Intent chooseFile = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             chooseFile.setType("*/*");
             chooseFile = Intent.createChooser(chooseFile, "Select a file to upload.");
             startActivityForResult(chooseFile, PICK_FILE_RESULT_CODE);
