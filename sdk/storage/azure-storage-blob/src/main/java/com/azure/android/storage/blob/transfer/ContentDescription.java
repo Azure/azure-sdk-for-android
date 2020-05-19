@@ -7,7 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.UriPermission;
 import android.content.res.AssetFileDescriptor;
+import android.database.Cursor;
 import android.net.Uri;
+import android.provider.OpenableColumns;
 
 import androidx.annotation.MainThread;
 
@@ -94,10 +96,11 @@ final class ContentDescription {
     long getLength() throws Throwable {
         final long contentLength;
         if (this.useContentResolver) {
-            try (AssetFileDescriptor descriptor
-                     = this.context.getContentResolver().openAssetFileDescriptor(contentUri, "r")) {
-                contentLength = descriptor.getLength();
-            }
+            // https://developer.android.com/training/secure-file-sharing/retrieve-info
+            final Cursor cursor = this.context.getContentResolver().query(this.contentUri, null, null, null, null);
+            final int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+            cursor.moveToFirst();
+            contentLength = cursor.getLong(sizeIndex);
         } else {
             File file = new File(contentUri.getPath());
             contentLength = file.length();
