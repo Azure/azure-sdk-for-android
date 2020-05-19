@@ -9,7 +9,6 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
-import java.io.File;
 import java.util.Objects;
 
 /**
@@ -32,15 +31,20 @@ final class BlobUploadEntity {
     @ColumnInfo(name = "key")
     public Long key;
     /**
-     * The absolute path to the file to be uploaded as blob.
+     * The URI to the content to be uploaded as blob.
      */
-    @ColumnInfo(name = "file_path")
-    public String filePath;
+    @ColumnInfo(name = "content_uri")
+    public String contentUri;
     /**
-     * The file size in bytes.
+     * The content size in bytes (i.e. the total size of the blob once uploaded).
      */
-    @ColumnInfo(name = "file_size")
-    public int fileSize;
+    @ColumnInfo(name = "content_size")
+    public long contentSize;
+    /**
+     * Indicate whether android.content.ContentResolver should be used to resolve the contentUri.
+     */
+    @ColumnInfo(name = "use_content_resolver")
+    public boolean useContentResolver;
     /**
      * Identifies the {@link com.azure.android.storage.blob.StorageBlobClient}
      * to be used for the file upload.
@@ -91,20 +95,22 @@ final class BlobUploadEntity {
      * @param storageBlobClientId identifies the blob storage client to be used
      * @param containerName the container name
      * @param blobName the blob name
-     * @param file the local file
+     * @param contentDescription describes the content to be uploaded
      */
     @Ignore
     BlobUploadEntity(String storageBlobClientId,
                      String containerName,
                      String blobName,
-                     File file) {
+                     ContentDescription contentDescription) throws Throwable {
         Objects.requireNonNull(storageBlobClientId);
         Objects.requireNonNull(containerName);
         Objects.requireNonNull(blobName);
-        Objects.requireNonNull(file);
+        Objects.requireNonNull(contentDescription);
 
-        this.filePath = file.getAbsolutePath();
-        this.fileSize = (int) file.length();
+        this.contentUri = contentDescription.getUri().toString();
+        this.contentSize = contentDescription.getLength();
+        this.useContentResolver = contentDescription.isUseContentResolver();
+
         this.storageBlobClientId = storageBlobClientId;
         this.containerName = containerName;
         this.blobName = blobName;
@@ -134,8 +140,9 @@ final class BlobUploadEntity {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(" key:" + this.key);
-        builder.append(" filePath:" + this.filePath);
-        builder.append(" fileSize:" + this.fileSize);
+        builder.append(" contentUri:" + this.contentUri);
+        builder.append(" contentSize:" + this.contentSize);
+        builder.append(" useContentResolver:" + this.useContentResolver);
         builder.append(" containerName:" + this.containerName);
         builder.append(" blobName:" + this.blobName);
         builder.append(" state:" + this.state);

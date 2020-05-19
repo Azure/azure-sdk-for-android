@@ -5,6 +5,7 @@ package com.azure.android.storage.blob.transfer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
@@ -73,7 +74,7 @@ public class TransferClient {
     }
 
     /**
-     * Upload a file.
+     * Upload content of a file.
      *
      * @param storageBlobClientId the identifier of the blob storage client to use for the upload
      * @param containerName the container to upload the file to
@@ -83,7 +84,48 @@ public class TransferClient {
      */
     public LiveData<TransferInfo> upload(String storageBlobClientId, String containerName, String blobName, File file) {
         // UI_Thread
+        return upload(storageBlobClientId, containerName, blobName,
+            new ContentDescription(this.context, Uri.fromFile(file), false));
+    }
+
+    /**
+     * Upload content identified by a given Uri.
+     *
+     * @param storageBlobClientId the identifier of the blob storage client to use for the upload
+     * @param containerName the container to upload the file to
+     * @param blobName the name of the target blob holding uploaded file
+     * @param contentUri uri to the content to upload
+     * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
+     */
+    public LiveData<TransferInfo> upload(String storageBlobClientId, String containerName, String blobName, Uri contentUri) {
+        // UI_Thread
+        return upload(storageBlobClientId, containerName, blobName,
+            new ContentDescription(this.context, contentUri, true));
+    }
+
+    /**
+     * Upload the content described by the given {@link ContentDescription}.
+     *
+     * @param storageBlobClientId the identifier of the blob storage client to use for the upload
+     * @param containerName the container to upload the file to
+     * @param blobName the name of the target blob holding uploaded file
+     * @param contentDescription describes the content to be uploaded
+     * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
+     */
+    private LiveData<TransferInfo> upload(String storageBlobClientId,
+                                          String containerName,
+                                          String blobName,
+                                          ContentDescription contentDescription) {
+        // UI_Thread
         final MutableLiveData<TransferOperationResult> transferOpResultLiveData = new MutableLiveData<>();
+        try {
+            // Take permission immediately in the UI_Thread (granting may require UI interaction).
+            contentDescription.takePersistableReadPermission();
+        } catch (Throwable e) {
+            transferOpResultLiveData
+                .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, e));
+            return toCachedTransferInfoLiveData(transferOpResultLiveData, false);
+        }
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
@@ -93,9 +135,9 @@ public class TransferClient {
                             storageBlobClientId));
                     return;
                 }
-                BlobUploadEntity blob = new BlobUploadEntity(storageBlobClientId, containerName, blobName, file);
+                BlobUploadEntity blob = new BlobUploadEntity(storageBlobClientId, containerName, blobName, contentDescription);
                 List<BlockUploadEntity> blocks
-                    = BlockUploadEntity.createEntitiesForFile(file, Constants.DEFAULT_BLOCK_SIZE);
+                    = BlockUploadEntity.createEntitiesForContent(contentDescription, Constants.DEFAULT_BLOCK_SIZE);
                 long transferId = db.uploadDao().createUploadRecord(blob, blocks);
                 Log.v(TAG, "upload(): upload record created: " + transferId);
 
@@ -116,7 +158,7 @@ public class TransferClient {
                     .enqueue();
                 transferOpResultLiveData
                     .postValue(TransferOperationResult.id(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, transferId));
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 transferOpResultLiveData
                     .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, e));
             }
