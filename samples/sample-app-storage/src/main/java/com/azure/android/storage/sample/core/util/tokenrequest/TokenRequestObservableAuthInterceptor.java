@@ -1,6 +1,6 @@
 package com.azure.android.storage.sample.core.util.tokenrequest;
 
-import com.azure.android.storage.sample.core.credential.AccessToken;
+import com.azure.android.core.credential.AccessToken;
 
 import org.threeten.bp.Duration;
 
@@ -14,11 +14,11 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * An OkHttp interceptor that uses {@link TokenRequestObservable} to retrieve the access-token
- * and set it to Authorization Bearer header.
+ * An OkHttp interceptor that uses {@link TokenRequestObservable} to retrieve the access token and set it to
+ * as a the value for the Authorization Bearer header.
  */
 public class TokenRequestObservableAuthInterceptor implements Interceptor {
-    // The Observable to send and Observe token request.
+    // The Observable to send and observe a token request.
     private final TokenRequestObservable requestObservable = new TokenRequestObservable();
     // The scope for the requested token.
     private final List<String> scopes;
@@ -30,15 +30,15 @@ public class TokenRequestObservableAuthInterceptor implements Interceptor {
     /**
      * Creates TokenRequestObservableAuthInterceptor.
      *
-     * @param scopes the scope for the requested token
+     * @param scopes The scope for the requested token.
      */
     public TokenRequestObservableAuthInterceptor(List<String> scopes) {
         this.scopes = new ArrayList<>(scopes);
     }
 
     /**
-     * @return the token request observable that UI can Observe for access-token
-     * request coming from this interceptor.
+     * @return The token request observable that the UI can observe for access token request coming from this
+     * interceptor.
      */
     public TokenRequestObservable getTokenRequestObservable() {
         return this.requestObservable;
@@ -46,12 +46,12 @@ public class TokenRequestObservableAuthInterceptor implements Interceptor {
 
     @Override
     public Response intercept(Chain chain) throws IOException {
-        if (this.accessToken != null && !this.accessToken.isExpired()) {
-            return setAuthenticationHeader(chain, this.accessToken);
-        } else {
+        if (this.accessToken == null || this.accessToken.isExpired()) {
             this.sendRequestLock.lock();
+
             try {
                 TokenRequestHandle handle = this.requestObservable.sendRequest(this.scopes);
+
                 try {
                     this.accessToken = handle.waitForToken(Duration.ofSeconds(60));
                 } catch (Throwable t) {
@@ -60,15 +60,17 @@ public class TokenRequestObservableAuthInterceptor implements Interceptor {
             } finally {
                 this.sendRequestLock.unlock();
             }
-            return setAuthenticationHeader(chain, this.accessToken);
         }
+
+        return setAuthenticationHeader(chain, this.accessToken);
     }
 
     private static Response setAuthenticationHeader(Chain chain, AccessToken accessToken) throws IOException {
         Request authRequest = chain.request()
-                .newBuilder()
-                .addHeader("Authorization", "Bearer " + accessToken.getToken())
-                .build();
+            .newBuilder()
+            .addHeader("Authorization", "Bearer " + accessToken.getToken())
+            .build();
+
         return chain.proceed(authRequest);
     }
 }

@@ -3,7 +3,7 @@
 
 package com.azure.android.storage.blob.interceptor;
 
-import com.azure.android.storage.blob.credentials.SasTokenCredential;
+import com.azure.android.storage.blob.credential.SasTokenCredential;
 
 import java.io.IOException;
 

@@ -2,7 +2,7 @@ package com.azure.android.storage.sample.core.util.tokenrequest;
 
 import androidx.lifecycle.Observer;
 
-import com.azure.android.storage.sample.core.credential.AccessToken;
+import com.azure.android.core.credential.AccessToken;
 
 /**
  * An Observer of {@link TokenRequestObservable}.
@@ -28,9 +28,8 @@ public abstract class TokenRequestObserver implements Observer<TokenRequestHandl
     /**
      * Invoked when {@link TokenRequestObservable} emits a token request event.
      *
-     * @param scopes the scope of the requested token
-     * @param callback the callback that this observer use to notify the result
-     *                 of token retrieval
+     * @param scopes The scope of the requested token.
+     * @param callback The callback that this observer use to notify the result of token retrieval.
      */
     public abstract void onTokenRequest(String[] scopes, TokenResponseCallback callback);
 }
