@@ -281,7 +281,7 @@ final class DownloadHandler extends Handler {
 
             Log.v(TAG, "downloadBlob(): Downloading block: " + block.blockId + getThreadName());
 
-            ServiceCall call = blobClient.downloadWithHeaders(blob.containerName,
+            ServiceCall call = blobClient.downloadWithRestResponse(blob.containerName,
                 blob.blobName,
                 null,
                 null,

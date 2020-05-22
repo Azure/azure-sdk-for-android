@@ -195,17 +195,17 @@ public class StorageBlobClient {
      * @param cpkInfo               Additional parameters for the operation.
      * @return The response information returned from the server when downloading a blob.
      */
-    public BlobDownloadHeaders getBlobPropertiesWithHeaders(String containerName,
-                                                            String blobName,
-                                                            String snapshot,
-                                                            Integer timeout,
-                                                            String version,
-                                                            BlobRequestConditions blobRequestConditions,
-                                                            String requestId,
-                                                            CpkInfo cpkInfo) {
+    public BlobDownloadHeaders getBlobPropertiesAsHeaders(String containerName,
+                                                          String blobName,
+                                                          String snapshot,
+                                                          Integer timeout,
+                                                          String version,
+                                                          BlobRequestConditions blobRequestConditions,
+                                                          String requestId,
+                                                          CpkInfo cpkInfo) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-        return storageBlobServiceClient.getBlobPropertiesWithHeaders(containerName,
+        return storageBlobServiceClient.getBlobPropertiesAsHeaders(containerName,
             blobName,
             snapshot,
             timeout,
@@ -233,18 +233,18 @@ public class StorageBlobClient {
      *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo               Additional parameters for the operation.
      */
-    public ServiceCall getBlobPropertiesWithHeaders(String containerName,
-                                                    String blobName,
-                                                    String snapshot,
-                                                    Integer timeout,
-                                                    String version,
-                                                    BlobRequestConditions blobRequestConditions,
-                                                    String requestId,
-                                                    CpkInfo cpkInfo,
-                                                    Callback<BlobDownloadHeaders> callback) {
+    public ServiceCall getBlobPropertiesAsHeaders(String containerName,
+                                                  String blobName,
+                                                  String snapshot,
+                                                  Integer timeout,
+                                                  String version,
+                                                  BlobRequestConditions blobRequestConditions,
+                                                  String requestId,
+                                                  CpkInfo cpkInfo,
+                                                  Callback<BlobDownloadHeaders> callback) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-        return storageBlobServiceClient.getBlobPropertiesWithHeaders(containerName,
+        return storageBlobServiceClient.getBlobPropertiesAsHeaders(containerName,
             blobName,
             snapshot,
             timeout,
@@ -306,17 +306,17 @@ public class StorageBlobClient {
      * @param cpkInfo               Additional parameters for the operation.
      * @return The response information returned from the server when downloading a blob.
      */
-    public BlobDownloadAsyncResponse downloadWithHeaders(String containerName,
-                                                         String blobName,
-                                                         String snapshot,
-                                                         Integer timeout,
-                                                         BlobRange range,
-                                                         BlobRequestConditions blobRequestConditions,
-                                                         Boolean getRangeContentMd5,
-                                                         Boolean getRangeContentCrc64,
-                                                         String version,
-                                                         String requestId,
-                                                         CpkInfo cpkInfo) {
+    public BlobDownloadAsyncResponse downloadWithRestResponse(String containerName,
+                                                              String blobName,
+                                                              String snapshot,
+                                                              Integer timeout,
+                                                              BlobRange range,
+                                                              BlobRequestConditions blobRequestConditions,
+                                                              Boolean getRangeContentMd5,
+                                                              Boolean getRangeContentCrc64,
+                                                              String version,
+                                                              String requestId,
+                                                              CpkInfo cpkInfo) {
         range = range == null ? new BlobRange(0) : range;
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
@@ -359,18 +359,18 @@ public class StorageBlobClient {
      *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo               Additional parameters for the operation.
      */
-    public ServiceCall downloadWithHeaders(String containerName,
-                                           String blobName,
-                                           String snapshot,
-                                           Integer timeout,
-                                           BlobRange range,
-                                           BlobRequestConditions blobRequestConditions,
-                                           Boolean getRangeContentMd5,
-                                           Boolean getRangeContentCrc64,
-                                           String version,
-                                           String requestId,
-                                           CpkInfo cpkInfo,
-                                           Callback<BlobDownloadAsyncResponse> callback) {
+    public ServiceCall downloadWithRestResponse(String containerName,
+                                                String blobName,
+                                                String snapshot,
+                                                Integer timeout,
+                                                BlobRange range,
+                                                BlobRequestConditions blobRequestConditions,
+                                                Boolean getRangeContentMd5,
+                                                Boolean getRangeContentCrc64,
+                                                String version,
+                                                String requestId,
+                                                CpkInfo cpkInfo,
+                                                Callback<BlobDownloadAsyncResponse> callback) {
         range = range == null ? new BlobRange(0) : range;
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
