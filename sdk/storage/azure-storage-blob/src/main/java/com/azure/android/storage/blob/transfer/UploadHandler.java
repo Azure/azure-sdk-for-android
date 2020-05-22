@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import com.azure.android.core.http.ServiceCall;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlockBlobItem;
+import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -276,14 +277,16 @@ final class UploadHandler extends Handler {
     private void stageBlocks(List<BlockUploadEntity> blocks) {
         for (BlockUploadEntity block : blocks) {
             this.finalizeIfStopped();
+
             Log.v(TAG, "stageBlocks(): Uploading block:" + block.blockId + threadName());
+
             ServiceCall call = this.blobClient.stageBlock(this.blob.containerName,
                 this.blob.blobName,
                 block.blockId,
                 block.getBlockContent(),
-                null, new com.azure.android.core.http.Callback<Void>() {
+                null, new com.azure.android.core.http.Callback<BlockBlobsStageBlockResponse>() {
                     @Override
-                    public void onResponse(Void response) {
+                    public void onResponse(BlockBlobsStageBlockResponse response) {
                         Log.v(TAG, "stageBlocks(): Block uploaded:" + block.blockId + threadName());
                         db.uploadDao().updateBlockState(block.key, BlockTransferState.COMPLETED);
                         Message nextMessage = UploadHandlerMessage
@@ -310,8 +313,11 @@ final class UploadHandler extends Handler {
      */
     private void commitBlocks() {
         this.finalizeIfStopped();
+
         Log.v(TAG, "commitBlocks(): All blocks uploaded, committing them." + threadName());
+
         List<String> blockIds = this.db.uploadDao().getBlockIds(this.uploadId);
+
         this.blobClient.commitBlockList(blob.containerName,
             blob.blobName,
             blockIds,
