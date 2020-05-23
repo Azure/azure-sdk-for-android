@@ -27,7 +27,7 @@ public class NormalizeEtagInterceptorTest {
     public void intercept() throws IOException, InterruptedException {
         // Given a client with a NormalizeEtagInterceptor.
 
-            // When receiving a response with an ETag in the headers.
+        // When receiving a response with an ETag in the headers.
         mockWebServer.enqueue(new MockResponse().addHeader(HttpHeader.ETAG, etag));
         Request request = getSimpleRequest(mockWebServer);
         okhttp3.Response response = okHttpClient.newCall(request).execute();
