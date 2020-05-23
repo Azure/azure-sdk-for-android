@@ -10,11 +10,12 @@ import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
-import com.azure.android.storage.blob.models.BlobDownloadHeaders;
+import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.Interceptor;
+import okhttp3.ResponseBody;
 
 /**
  * Client for Storage Blob service.
@@ -161,10 +163,9 @@ public class StorageBlobClient {
      * @param containerName The container name.
      * @param blobName      The blob name.
      */
-    public BlobDownloadHeaders getBlobProperties(String containerName,
-                                                 String blobName) {
-        return storageBlobServiceClient.getBlobProperties(containerName,
-            blobName);
+    public BlobGetPropertiesHeaders getBlobProperties(String containerName,
+                                                      String blobName) {
+        return storageBlobServiceClient.getBlobProperties(containerName,  blobName);
     }
 
     /**
@@ -176,7 +177,7 @@ public class StorageBlobClient {
      */
     public ServiceCall getBlobProperties(String containerName,
                                          String blobName,
-                                         Callback<BlobDownloadHeaders> callback) {
+                                         Callback<BlobGetPropertiesHeaders> callback) {
         return storageBlobServiceClient.getBlobProperties(containerName,
             blobName,
             callback);
@@ -201,17 +202,17 @@ public class StorageBlobClient {
      * @param cpkInfo               Additional parameters for the operation.
      * @return The response information returned from the server when downloading a blob.
      */
-    public BlobDownloadHeaders getBlobPropertiesAsHeaders(String containerName,
-                                                          String blobName,
-                                                          String snapshot,
-                                                          Integer timeout,
-                                                          String version,
-                                                          BlobRequestConditions blobRequestConditions,
-                                                          String requestId,
-                                                          CpkInfo cpkInfo) {
+    public BlobGetPropertiesResponse getBlobPropertiesWithRestResponse(String containerName,
+                                                                       String blobName,
+                                                                       String snapshot,
+                                                                       Integer timeout,
+                                                                       String version,
+                                                                       BlobRequestConditions blobRequestConditions,
+                                                                       String requestId,
+                                                                       CpkInfo cpkInfo) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-        return storageBlobServiceClient.getBlobPropertiesAsHeaders(containerName,
+        return storageBlobServiceClient.getBlobPropertiesWithRestResponse(containerName,
             blobName,
             snapshot,
             timeout,
@@ -239,18 +240,18 @@ public class StorageBlobClient {
      *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo               Additional parameters for the operation.
      */
-    public ServiceCall getBlobPropertiesAsHeaders(String containerName,
-                                                  String blobName,
-                                                  String snapshot,
-                                                  Integer timeout,
-                                                  String version,
-                                                  BlobRequestConditions blobRequestConditions,
-                                                  String requestId,
-                                                  CpkInfo cpkInfo,
-                                                  Callback<BlobDownloadHeaders> callback) {
+    public ServiceCall getBlobPropertiesWithRestResponse(String containerName,
+                                                         String blobName,
+                                                         String snapshot,
+                                                         Integer timeout,
+                                                         String version,
+                                                         BlobRequestConditions blobRequestConditions,
+                                                         String requestId,
+                                                         CpkInfo cpkInfo,
+                                                         Callback<BlobGetPropertiesResponse> callback) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-        return storageBlobServiceClient.getBlobPropertiesAsHeaders(containerName,
+        return storageBlobServiceClient.getBlobPropertiesWithRestResponse(containerName,
             blobName,
             snapshot,
             timeout,
@@ -267,8 +268,8 @@ public class StorageBlobClient {
      * @param containerName The container name.
      * @param blobName      The blob name.
      */
-    public BlobDownloadAsyncResponse download(String containerName,
-                                              String blobName) {
+    public ResponseBody download(String containerName,
+                                 String blobName) {
         return storageBlobServiceClient.download(containerName,
             blobName);
     }
@@ -282,7 +283,7 @@ public class StorageBlobClient {
      */
     public ServiceCall download(String containerName,
                                 String blobName,
-                                Callback<BlobDownloadAsyncResponse> callback) {
+                                Callback<ResponseBody> callback) {
         return storageBlobServiceClient.download(containerName,
             blobName,
             callback);
