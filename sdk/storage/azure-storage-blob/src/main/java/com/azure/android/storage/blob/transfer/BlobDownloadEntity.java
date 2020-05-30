@@ -9,7 +9,6 @@ import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
 
-import java.io.File;
 import java.util.Objects;
 
 /**
@@ -51,10 +50,16 @@ final class BlobDownloadEntity {
     public long blobSize;
 
     /**
-     * The absolute path to the file to be uploaded as blob.
+     * The URI to the content to store the downloaded blob.
      */
-    @ColumnInfo(name = "file_path")
-    public String filePath;
+    @ColumnInfo(name = "content_uri")
+    public String contentUri;
+
+    /**
+     * Indicate whether android.content.ContentResolver should be used to resolve the contentUri.
+     */
+    @ColumnInfo(name = "use_content_resolver")
+    public boolean useContentResolver;
 
     /**
      * Identifies the {@link com.azure.android.storage.blob.StorageBlobClient}
@@ -98,22 +103,26 @@ final class BlobDownloadEntity {
      * @param storageBlobClientId identifies the blob storage client to be used
      * @param containerName The container name.
      * @param blobName The blob name.
-     * @param file The local file.
+     * @param blobSize The blob size.
+     * @param content describes the content to store the downloaded blob.
      */
     @Ignore
     BlobDownloadEntity(String storageBlobClientId,
                        String containerName,
                        String blobName,
-                       File file) {
+                       long blobSize,
+                       WritableContent content) {
         Objects.requireNonNull(storageBlobClientId);
         Objects.requireNonNull(containerName);
         Objects.requireNonNull(blobName);
-        Objects.requireNonNull(file);
+        Objects.requireNonNull(content);
 
         this.storageBlobClientId = storageBlobClientId;
         this.containerName = containerName;
         this.blobName = blobName;
-        filePath = file.getAbsolutePath();
+        this.blobSize = blobSize;
+        this.contentUri = content.getUri().toString();
+        this.useContentResolver = content.isUseContentResolver();
         state = BlobTransferState.WAIT_TO_BEGIN;
         interruptState = TransferInterruptState.NONE;
     }
@@ -143,7 +152,9 @@ final class BlobDownloadEntity {
         builder.append(" key:").append(key)
             .append(" containerName:").append(containerName)
             .append(" blobName:").append(blobName)
-            .append(" filePath:").append(filePath)
+            .append(" blobSize:" + this.blobSize)
+            .append(" contentUri:" + this.contentUri)
+            .append(" useContentResolver:" + this.useContentResolver)
             .append(" state:").append(state)
             .append(" interruptState:").append(interruptState);
 

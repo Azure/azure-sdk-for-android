@@ -182,9 +182,51 @@ public class TransferClient {
      * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
      */
     public LiveData<TransferInfo> download(String storageBlobClientId, String containerName, String blobName, File file) {
+        return download(storageBlobClientId,
+            containerName,
+            blobName,
+            new WritableContent(this.context, Uri.fromFile(file), false));
+    }
+
+    /**
+     * Download a blob.
+     *
+     * @param storageBlobClientId the identifier of the blob storage client to use for the download
+     * @param containerName The container to download the blob from.
+     * @param blobName The name of the target blob to download.
+     * @param contentUri The uri to the local content to write the downloaded blob
+     * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
+     */
+    public LiveData<TransferInfo> download(String storageBlobClientId, String containerName, String blobName, Uri contentUri) {
+        return download(storageBlobClientId,
+            containerName,
+            blobName,
+            new WritableContent(this.context, contentUri, false));
+    }
+
+    /**
+     * Download a blob.
+     *
+     * @param storageBlobClientId the identifier of the blob storage client to use for the download
+     * @param containerName The container to download the blob from.
+     * @param blobName The name of the target blob to download.
+     * @param writableContent describes the Content in the device to store the downloaded blob.
+     * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
+     */
+    public LiveData<TransferInfo> download(String storageBlobClientId,
+                                           String containerName,
+                                           String blobName,
+                                           WritableContent writableContent) {
         // UI_Thread
         final MutableLiveData<TransferOperationResult> transferOpResultLiveData = new MutableLiveData<>();
-
+        try {
+            // Take permission immediately in the UI_Thread (granting may require UI interaction).
+            writableContent.takePersistableWritePermission();
+        } catch (Throwable e) {
+            transferOpResultLiveData
+                .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, e));
+            return toCachedTransferInfoLiveData(transferOpResultLiveData, false);
+        }
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
@@ -197,12 +239,14 @@ public class TransferClient {
                 }
 
                 long blobSize = blobClient.getBlobProperties(containerName, blobName).getContentLength();
-                BlobDownloadEntity blob = new BlobDownloadEntity(storageBlobClientId, containerName, blobName, file);
+                BlobDownloadEntity blob = new BlobDownloadEntity(storageBlobClientId,
+                    containerName,
+                    blobName,
+                    blobSize,
+                    writableContent);
                 List<BlockDownloadEntity> blocks
-                    = BlockDownloadEntity.createEntitiesForBlob(file, blobSize, Constants.DEFAULT_BLOCK_SIZE);
+                    = BlockDownloadEntity.createBlockEntities(blobSize, Constants.DEFAULT_BLOCK_SIZE);
                 long transferId = db.downloadDao().createDownloadRecord(blob, blocks);
-
-                db.downloadDao().updateBlobSize(transferId, blobSize);
 
                 Log.v(TAG, "download(): Download record created: " + transferId);
 

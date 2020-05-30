@@ -4,6 +4,7 @@
 package com.azure.android.storage.blob.transfer;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -18,8 +19,6 @@ import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
 import com.azure.android.storage.blob.models.BlobRange;
 
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,6 +50,8 @@ final class DownloadHandler extends Handler {
     private BlobDownloadEntity blob;
     private long totalBytesDownloaded;
     private BlockDownloadRecordsEnumerator blocksItr;
+    // The content in the device to store the downloaded blob.
+    private WritableContent content;
     private StorageBlobClient blobClient;
 
     /**
@@ -167,6 +168,16 @@ final class DownloadHandler extends Handler {
                     .onError(new UnresolvedStorageBlobClientIdException(this.blob.storageBlobClientId));
                 this.getLooper().quit();
             } else {
+                this.content = new WritableContent(appContext,
+                    Uri.parse(this.blob.contentUri),
+                    this.blob.useContentResolver);
+                try {
+                    this.content.openForWrite(appContext);
+                } catch (Throwable t) {
+                    this.transferHandlerListener.onError(new RuntimeException("Download operation with id '" + downloadId +
+                        "' is cannot be processed, failed to open the content to write.", t));
+                    getLooper().quit();
+                }
                 this.totalBytesDownloaded = this.db.downloadDao().getDownloadedBytesCount(downloadId);
                 this.transferHandlerListener.onTransferProgress(blob.blobSize, totalBytesDownloaded);
 
@@ -204,6 +215,8 @@ final class DownloadHandler extends Handler {
             if (runningBlockDownloads.isEmpty()) {
                 db.downloadDao().updateBlobState(downloadId, BlobTransferState.COMPLETED);
 
+                closeContent();
+
                 transferHandlerListener.onTransferProgress(blob.blobSize, blob.blobSize);
                 transferHandlerListener.onComplete();
                 getLooper().quit();
@@ -226,8 +239,9 @@ final class DownloadHandler extends Handler {
             pair.second.cancel();
         }
 
-        Throwable downloadError = failedPair.first.getDownloadError();
+        closeContent();
 
+        Throwable downloadError = failedPair.first.getDownloadError();
         blob.setDownloadError(downloadError);
 
         transferHandlerListener.onError(downloadError);
@@ -244,6 +258,8 @@ final class DownloadHandler extends Handler {
             for (Pair<BlockDownloadEntity, ServiceCall> pair : runningBlockDownloads.values()) {
                 pair.second.cancel();
             }
+
+            closeContent();
 
             TransferInterruptState interruptState = db.downloadDao().getTransferInterruptState(downloadId);
 
@@ -278,7 +294,7 @@ final class DownloadHandler extends Handler {
                 blob.blobName,
                 null,
                 null,
-                new BlobRange(block.blobOffset, block.blockSize),
+                new BlobRange(block.blockOffset, block.blockSize),
                 null,
                 null,
                 null,
@@ -288,13 +304,12 @@ final class DownloadHandler extends Handler {
                 new com.azure.android.core.http.Callback<BlobDownloadAsyncResponse>() {
                     @Override
                     public void onResponse(BlobDownloadAsyncResponse response) {
-                        // TODO: Optimize to stream bytes instead of waiting for the whole response body. Need to
-                        //  keep track of how many bytes have been downloaded for the resume operation.
-                        try (RandomAccessFile randomAccessFile = new RandomAccessFile(blob.filePath, "rw")) {
-                            randomAccessFile.seek(block.blobOffset);
-                            randomAccessFile.write(response.getValue().bytes());
-                        } catch (IOException e) {
-                            onFailure(e);
+                        try {
+                            byte[] blockContent = response.getValue().bytes();
+                            content.writeBlock(block.blockOffset, blockContent);
+                        } catch (Throwable t) {
+                            onFailure(t);
+                            return;
                         }
 
                         Log.v(TAG, "downloadBlock(): Block downloaded:" + block.blockId + getThreadName());
@@ -320,6 +335,14 @@ final class DownloadHandler extends Handler {
                 });
 
             runningBlockDownloads.put(block.blockId, Pair.create(block, call));
+        }
+    }
+
+    private void closeContent() {
+        try {
+            this.content.close();
+        } catch (Throwable t) {
+            Log.i(TAG, "content::close()", t);
         }
     }
 
