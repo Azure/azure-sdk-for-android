@@ -85,7 +85,7 @@ public class TransferClient {
     public LiveData<TransferInfo> upload(String storageBlobClientId, String containerName, String blobName, File file) {
         // UI_Thread
         return upload(storageBlobClientId, containerName, blobName,
-            new ContentDescription(this.context, Uri.fromFile(file), false));
+            new ReadableContent(this.context, Uri.fromFile(file), false));
     }
 
     /**
@@ -94,33 +94,35 @@ public class TransferClient {
      * @param storageBlobClientId the identifier of the blob storage client to use for the upload
      * @param containerName the container to upload the file to
      * @param blobName the name of the target blob holding uploaded file
-     * @param contentUri uri to the content to upload
+     * @param contentUri uri to the Content to upload, the contentUri is resolved using
+     *   {@link android.content.ContentResolver#openAssetFileDescriptor(Uri, String)}
+     *   with mode as "r". The supported  URI schemes are content:// file:// and android.resource://
      * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
      */
     public LiveData<TransferInfo> upload(String storageBlobClientId, String containerName, String blobName, Uri contentUri) {
         // UI_Thread
         return upload(storageBlobClientId, containerName, blobName,
-            new ContentDescription(this.context, contentUri, true));
+            new ReadableContent(this.context, contentUri, true));
     }
 
     /**
-     * Upload the content described by the given {@link ContentDescription}.
+     * Upload the content described by the given {@link ReadableContent}.
      *
      * @param storageBlobClientId the identifier of the blob storage client to use for the upload
      * @param containerName the container to upload the file to
      * @param blobName the name of the target blob holding uploaded file
-     * @param contentDescription describes the content to be uploaded
+     * @param readableContent describes the Content to read and upload
      * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
      */
     private LiveData<TransferInfo> upload(String storageBlobClientId,
                                           String containerName,
                                           String blobName,
-                                          ContentDescription contentDescription) {
+                                          ReadableContent readableContent) {
         // UI_Thread
         final MutableLiveData<TransferOperationResult> transferOpResultLiveData = new MutableLiveData<>();
         try {
             // Take permission immediately in the UI_Thread (granting may require UI interaction).
-            contentDescription.takePersistableReadPermission();
+            readableContent.takePersistableReadPermission();
         } catch (Throwable e) {
             transferOpResultLiveData
                 .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, e));
@@ -135,9 +137,12 @@ public class TransferClient {
                             storageBlobClientId));
                     return;
                 }
-                BlobUploadEntity blob = new BlobUploadEntity(storageBlobClientId, containerName, blobName, contentDescription);
+                BlobUploadEntity blob = new BlobUploadEntity(storageBlobClientId,
+                    containerName,
+                    blobName,
+                    readableContent);
                 List<BlockUploadEntity> blocks
-                    = BlockUploadEntity.createEntitiesForContent(contentDescription, Constants.DEFAULT_BLOCK_SIZE);
+                    = BlockUploadEntity.createBlockEntities(readableContent.getLength(), Constants.DEFAULT_BLOCK_SIZE);
                 long transferId = db.uploadDao().createUploadRecord(blob, blocks);
                 Log.v(TAG, "upload(): upload record created: " + transferId);
 

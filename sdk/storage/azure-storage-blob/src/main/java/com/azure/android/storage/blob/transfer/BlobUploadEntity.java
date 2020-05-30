@@ -95,21 +95,21 @@ final class BlobUploadEntity {
      * @param storageBlobClientId identifies the blob storage client to be used
      * @param containerName the container name
      * @param blobName the blob name
-     * @param contentDescription describes the content to be uploaded
+     * @param content describes the content to be read while uploading
      */
     @Ignore
     BlobUploadEntity(String storageBlobClientId,
                      String containerName,
                      String blobName,
-                     ContentDescription contentDescription) throws Throwable {
+                     ReadableContent content) throws Throwable {
         Objects.requireNonNull(storageBlobClientId);
         Objects.requireNonNull(containerName);
         Objects.requireNonNull(blobName);
-        Objects.requireNonNull(contentDescription);
+        Objects.requireNonNull(content);
 
-        this.contentUri = contentDescription.getUri().toString();
-        this.contentSize = contentDescription.getLength();
-        this.useContentResolver = contentDescription.isUseContentResolver();
+        this.contentUri = content.getUri().toString();
+        this.contentSize = content.getLength();
+        this.useContentResolver = content.isUseContentResolver();
 
         this.storageBlobClientId = storageBlobClientId;
         this.containerName = containerName;

@@ -4,6 +4,7 @@
 package com.azure.android.storage.blob.transfer;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -50,6 +51,8 @@ final class UploadHandler extends Handler {
     private BlobUploadEntity blob;
     private long totalBytesUploaded;
     private BlockUploadRecordsEnumerator blocksItr;
+    //  The content in the device representing the data to be read and uploaded.
+    private ReadableContent content;
     private StorageBlobClient blobClient;
 
     /**
@@ -159,6 +162,9 @@ final class UploadHandler extends Handler {
                     .onError(new UnresolvedStorageBlobClientIdException(this.blob.storageBlobClientId));
                 this.getLooper().quit();
             } else {
+                this.content = new ReadableContent(appContext,
+                    Uri.parse(this.blob.contentUri),
+                    this.blob.useContentResolver);
                 this.totalBytesUploaded = this.db.uploadDao().getUploadedBytesCount(this.uploadId);
                 this.transferHandlerListener.onTransferProgress(blob.contentSize, totalBytesUploaded);
                 List<BlockTransferState> skip = new ArrayList();
@@ -279,7 +285,7 @@ final class UploadHandler extends Handler {
             Log.v(TAG, "stageBlocks(): Uploading block:" + block.blockId + threadName());
             byte [] blockContent;
             try {
-                blockContent = block.getBlockContent(appContext);
+                blockContent = content.readBlock(block.blockOffset, block.blockSize);
             } catch (Throwable t) {
                 Log.e(TAG,  "stageBlocks(): failure in reading content:" + block.blockId + threadName(), t);
                 db.uploadDao().updateBlockState(block.key, BlockTransferState.FAILED);

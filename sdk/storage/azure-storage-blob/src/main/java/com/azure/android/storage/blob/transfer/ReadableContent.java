@@ -21,42 +21,29 @@ import java.util.List;
 /**
  * Package private.
  *
- * A type that describes and enables operations on a content identifiable by a content URI.
- * The actual content is the data that needs to be transferred to Azure Blob Storage.
+ * A type that describes a content in the device from which data can be read.
  */
-final class ContentDescription {
+final class ReadableContent {
     private final Context context;
     private final Uri contentUri;
     private final boolean useContentResolver;
 
     /**
-     * Create ContentDescription representing a content in the device identified a given content URI.
+     * Create ReadableContent representing a content in the device from which data can be read.
      *
      * @param context the context
      * @param contentUri the content URI identifying the content
      * @param useContentResolver indicate whether to use {@link android.content.ContentResolver} to resolve
      *                           the content URI
      */
-    ContentDescription(Context context, String contentUri, boolean useContentResolver) {
-        this(context, Uri.parse(contentUri), useContentResolver);
-    }
-
-    /**
-     * Create ContentDescription representing a content in the device identified a given content URI.
-     *
-     * @param context the context
-     * @param contentUri the content URI identifying the content
-     * @param useContentResolver indicate whether to use {@link android.content.ContentResolver} to resolve
-     *                           the content URI
-     */
-    ContentDescription(Context context, Uri contentUri, boolean useContentResolver) {
+    ReadableContent(Context context, Uri contentUri, boolean useContentResolver) {
         this.context = context;
         this.contentUri = contentUri;
         this.useContentResolver = useContentResolver;
     }
 
     /**
-     * Get the {@link Uri} to the content to upload.
+     * Get the {@link Uri} to the content.
      *
      * @return the content URI
      */
@@ -76,13 +63,13 @@ final class ContentDescription {
     /**
      * Attempt to take persistable read permission on the content.
      *
-     * @throws Throwable if granting of read permission failed.
+     * @throws IllegalStateException if read permission is not granted
      */
     @MainThread
-    void takePersistableReadPermission() throws Throwable {
+    void takePersistableReadPermission() throws IllegalStateException {
         if (this.useContentResolver) {
             this.context.getContentResolver()
-                .takePersistableUriPermission(contentUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                .takePersistableUriPermission(this.contentUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
             checkPersistableReadGranted();
         }
     }
@@ -112,16 +99,20 @@ final class ContentDescription {
     }
 
     /**
-     * Get a block of bytes from the content.
+     * Read a block of bytes from the content.
      *
      * @param blockOffset the start offset of the block
      * @param blockSize the size of the block
      * @return block of bytes in the range [blockOffset, blockOffset + blockSize]
-     * @throws Throwable if reading of block fails
+     * @throws IOException the IO error when attempting to read
+     * @throws IllegalStateException if read permission is not granted or revoked
      */
-    byte [] getBlock(int blockOffset, int blockSize) throws Throwable {
+    byte[] readBlock(int blockOffset, int blockSize) throws IOException, IllegalStateException {
         if (this.useContentResolver) {
             this.checkPersistableReadGranted();
+            // ContentResolver::openFileDescriptor works but we use openAssetFileDescriptor
+            // so that providers that returns subsection of file gets supported.
+            // The "r" (read) mode is used so that the content providers that don't support write can also consumed.
             try (AssetFileDescriptor descriptor
                      = this.context.getContentResolver().openAssetFileDescriptor(this.contentUri, "r")) {
                 try (FileInputStream fileInputStream = descriptor.createInputStream()) {
@@ -147,7 +138,7 @@ final class ContentDescription {
      *
      * @throws Throwable if permission is not granted
      */
-    private void checkPersistableReadGranted() throws Throwable {
+    private void checkPersistableReadGranted() throws IllegalStateException {
         if (this.useContentResolver) {
             final List<UriPermission> permissions = this.context.getContentResolver().getPersistedUriPermissions();
             boolean grantedRead = false;
@@ -158,7 +149,7 @@ final class ContentDescription {
                 }
             }
             if (!grantedRead) {
-                throw new Throwable("Read permission for the content '" + contentUri + "' is not granted or revoked.");
+                throw new IllegalStateException("Read permission for the content '" + contentUri + "' is not granted or revoked.");
             }
         }
     }
@@ -175,7 +166,7 @@ final class ContentDescription {
         while(skipped < seekTo) {
             long m = stream.skip(seekTo - skipped);
             if (m < 0) {
-                throw new IOException("FileInputStream::seek returns negative value.");
+                throw new IOException("FileInputStream::seek returned negative value.");
             }
             if (m == 0) {
                 if (stream.read() == -1) {

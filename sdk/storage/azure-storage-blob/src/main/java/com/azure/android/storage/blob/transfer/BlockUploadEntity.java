@@ -3,8 +3,6 @@
 
 package com.azure.android.storage.blob.transfer;
 
-import android.content.Context;
-
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
@@ -59,16 +57,6 @@ final class BlockUploadEntity {
     @ColumnInfo(name = "blob_key")
     public long blobKey;
     /**
-     * The URI to the content that the block is a part of.
-     */
-    @ColumnInfo(name = "content_uri")
-    public String contentUri;
-    /**
-     * Indicate whether android.content.ContentResolver should be used to resolve the contentUri.
-     */
-    @ColumnInfo(name = "use_content_resolver")
-    public boolean useContentResolver;
-    /**
      * The offset in the content from which the block starts.
      */
     @ColumnInfo(name = "block_offset")
@@ -107,17 +95,12 @@ final class BlockUploadEntity {
      * Create a new BlockUploadEntity to persist in local store.
      *
      * @param blockId the base64 block id
-     * @param contentUri the URI to the content that the block is a part of
-     * @param useContentResolver indicate whether android.content.ContentResolver should be used to resolve the contentUri
      * @param blockOffset the offset in the content from which the block starts
      * @param blockSize the block size in bytes
      */
-    private BlockUploadEntity(String blockId, String contentUri, boolean useContentResolver, int blockOffset, int blockSize) {
+    private BlockUploadEntity(String blockId, int blockOffset, int blockSize) {
         Objects.requireNonNull(blockId);
-        Objects.requireNonNull(contentUri);
         this.blockId = blockId;
-        this.contentUri = contentUri;
-        this.useContentResolver = useContentResolver;
         this.blockOffset = blockOffset;
         this.blockSize = blockSize;
         this.state = BlockTransferState.WAIT_TO_BEGIN;
@@ -152,26 +135,19 @@ final class BlockUploadEntity {
     }
 
     /**
-     * Factory method to create a collection of {@link BlockUploadEntity} for a file.
+     * Factory method to create a collection of {@link BlockUploadEntity} describing content blocks to upload.
      *
-     * @param contentDescription describes the content to be uploaded
-     * @param blockSize block size in bytes
-     * @return collection of {@link BlockUploadEntity} describing each block of the file
-     * @throws Throwable if there is any failure in creating entity objects, such as getting
-     * the size of content from the file system.
+     * @param contentSize the total size of the content to upload
+     * @param blockSize the size of one block in the content
+     * @return the collection of {@link BlockUploadEntity} describing each block of the content to upload
      */
-    static List<BlockUploadEntity> createEntitiesForContent(ContentDescription contentDescription,
-                                                            int blockSize) throws Throwable {
-        final String contentUri = contentDescription.getUri().toString();
-        final long contentSize = contentDescription.getLength();
-        final boolean useContentResolver = contentDescription.isUseContentResolver();
+    static List<BlockUploadEntity> createBlockEntities(long contentSize,
+                                                       int blockSize) {
         final List<BlockUploadEntity> blockUploadEntities = new ArrayList<>();
         if (contentSize <= blockSize) {
             final String blockId = Base64Util.encodeToString(UUID.randomUUID().toString().getBytes(UTF_8));
             BlockUploadEntity blockUploadEntity = new BlockUploadEntity(
                 blockId,
-                contentUri,
-                useContentResolver,
                 0,
                 (int) contentSize);
             blockUploadEntities.add(blockUploadEntity);
@@ -184,8 +160,6 @@ final class BlockUploadEntity {
                 final int currentBlockLength = (int) Math.min(blockSize, remainingLength);
                 BlockUploadEntity blockUploadEntity = new BlockUploadEntity(
                     blockId,
-                    contentUri,
-                    useContentResolver,
                     fileOffset,
                     currentBlockLength);
                 blockUploadEntities.add(blockUploadEntity);
@@ -196,22 +170,11 @@ final class BlockUploadEntity {
         return blockUploadEntities;
     }
 
-    /**
-     * Get the block content from the file in the local file system.
-     *
-     * @return the byte array holding block content
-     */
-    byte[] getBlockContent(Context context) throws Throwable {
-        ContentDescription contentDescription = new ContentDescription(context, this.contentUri, this.useContentResolver);
-        return contentDescription.getBlock(this.blockOffset, this.blockSize);
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(" key:" + this.key);
         builder.append(" blobKey:" + this.blobKey);
-        builder.append(" contentUri:" + this.contentUri);
         builder.append(" blockOffset:" + this.blockOffset);
         builder.append(" blockSize:" + this.blockSize);
         builder.append(" state:" + this.state);
