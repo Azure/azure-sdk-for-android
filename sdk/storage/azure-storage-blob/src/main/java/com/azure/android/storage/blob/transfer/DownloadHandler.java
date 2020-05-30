@@ -39,7 +39,6 @@ import java.util.Objects;
  */
 final class DownloadHandler extends Handler {
     private static final String TAG = DownloadHandler.class.getSimpleName();
-    private static final int BUFFER_SIZE = 2048; // Max allowed OkHttp buffer size.
 
     private final Context appContext;
     private final int blocksDownloadConcurrency;
@@ -205,9 +204,6 @@ final class DownloadHandler extends Handler {
             if (runningBlockDownloads.isEmpty()) {
                 db.downloadDao().updateBlobState(downloadId, BlobTransferState.COMPLETED);
 
-                Message nextMessage = DownloadHandlerMessage.createBlobDownloadCompletedMessage(DownloadHandler.this);
-                nextMessage.sendToTarget();
-
                 transferHandlerListener.onTransferProgress(blob.blobSize, blob.blobSize);
                 transferHandlerListener.onComplete();
                 getLooper().quit();
@@ -233,9 +229,6 @@ final class DownloadHandler extends Handler {
         Throwable downloadError = failedPair.first.getDownloadError();
 
         blob.setDownloadError(downloadError);
-
-        Message nextMessage = DownloadHandlerMessage.createBlobDownloadFailedMessage(DownloadHandler.this);
-        nextMessage.sendToTarget();
 
         transferHandlerListener.onError(downloadError);
         getLooper().quit();

@@ -168,8 +168,8 @@ final class BlockDownloadEntity {
 
             blockDownloadEntities.add(blockDownloadEntity);
         } else {
-            long remainingLength = blobSize - blockSize;
-            long blobOffset = blockSize;
+            long remainingLength = blobSize;
+            long blobOffset = 0;
             int blocksCount = (int) Math.ceil(remainingLength / (double) blockSize);
 
             for (int i = 0; i < blocksCount; i++) {
