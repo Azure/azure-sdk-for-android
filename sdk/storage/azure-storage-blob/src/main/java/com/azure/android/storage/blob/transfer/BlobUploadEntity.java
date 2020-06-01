@@ -31,7 +31,7 @@ final class BlobUploadEntity {
     @ColumnInfo(name = "key")
     public Long key;
     /**
-     * The URI to the content to be uploaded as blob.
+     * The URI to the content to be uploaded as a blob.
      */
     @ColumnInfo(name = "content_uri")
     public String contentUri;

@@ -37,8 +37,8 @@ final class WritableContent {
      * Create WritableContent describing a content in the device on which data can be written.
      *
      * @param context the context
-     * @param contentUri the content URI identifying the content
-     * @param useContentResolver indicate whether to use {@link android.content.ContentResolver} to resolve
+     * @param contentUri the URI identifying the content
+     * @param useContentResolver indicates whether to use {@link android.content.ContentResolver} to resolve
      *                           the content URI
      */
     WritableContent(Context context, Uri contentUri, boolean useContentResolver) {
@@ -59,7 +59,7 @@ final class WritableContent {
     /**
      * Check whether to use {@link android.content.ContentResolver} to resolve the content URI.
      *
-     * @return true if resolving content URI requires content resolver.
+     * @return true if resolving content URI requires {@link android.content.ContentResolver}.
      */
     boolean isUseContentResolver() {
         return this.useContentResolver;
@@ -82,7 +82,7 @@ final class WritableContent {
     /**
      * Open the content for writing.
      *
-     * @throws IOException if fails to open underlying content resource in write mode
+     * @throws IOException if not possible to open underlying content resource in write mode
      * @throws IllegalStateException if write permission to the content is not granted/revoked or
      *     the channel was already opened and disposed
      */
@@ -138,9 +138,9 @@ final class WritableContent {
     }
 
     /**
-     * close the content.
+     * Close the content.
      *
-     * @throws IOException if close operation fails
+     * @throws IOException if the close operation fails
      */
     void close() throws IOException {
         if (this.useContentResolver) {
@@ -153,10 +153,10 @@ final class WritableContent {
     }
 
     /**
-     * Check a persistable write permission is granted on the content.
+     * Check if persistable write permission is granted on the content.
      *
-     * @param context the context to access content resolver
-     * @param contentUri the content uri
+     * @param context the context to access {@link android.content.ContentResolver}
+     * @param contentUri the content URI
      * @throws IllegalStateException if permission is not granted
      */
     private static void checkPersistableWriteGranted(Context context, Uri contentUri) throws IllegalStateException {
@@ -188,10 +188,10 @@ final class WritableContent {
         /**
          * Creates WriteToContentChannel to write to the Content identified by the given ContentUri.
          *
-         * @param context the context to resolve the content uri
-         * @param contentUri the uri of the content to write to using this Channel.
+         * @param context the context to resolve the content URI
+         * @param contentUri the URI of the content to write to using this Channel.
          *
-         * @throws IOException if fails to open underlying content resource in write mode
+         * @throws IOException if failed to open the underlying content resource in write mode
          * @throws IllegalStateException if write permission to the content is not granted or revoked
          */
         static WriteToContentChannel create(Context context, Uri contentUri) throws IOException, IllegalStateException {

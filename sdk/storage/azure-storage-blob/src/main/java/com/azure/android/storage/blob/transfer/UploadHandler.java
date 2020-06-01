@@ -287,7 +287,7 @@ final class UploadHandler extends Handler {
             try {
                 blockContent = content.readBlock(block.blockOffset, block.blockSize);
             } catch (Throwable t) {
-                Log.e(TAG,  "stageBlocks(): failure in reading content:" + block.blockId + threadName(), t);
+                Log.e(TAG,  "stageBlocks(): failure in reading content. Block id: " + block.blockId + ". Thread name: " + threadName(), t);
                 db.uploadDao().updateBlockState(block.key, BlockTransferState.FAILED);
                 block.setStagingError(t);
                 Message nextMessage = UploadHandlerMessage

@@ -32,8 +32,8 @@ final class ReadableContent {
      * Create ReadableContent representing a content in the device from which data can be read.
      *
      * @param context the context
-     * @param contentUri the content URI identifying the content
-     * @param useContentResolver indicate whether to use {@link android.content.ContentResolver} to resolve
+     * @param contentUri the URI identifying the content
+     * @param useContentResolver indicates whether to use {@link android.content.ContentResolver} to resolve
      *                           the content URI
      */
     ReadableContent(Context context, Uri contentUri, boolean useContentResolver) {
@@ -103,7 +103,7 @@ final class ReadableContent {
      *
      * @param blockOffset the start offset of the block
      * @param blockSize the size of the block
-     * @return block of bytes in the range [blockOffset, blockOffset + blockSize]
+     * @return an array of bytes taken from the content in the range [blockOffset, blockOffset + blockSize]
      * @throws IOException the IO error when attempting to read
      * @throws IllegalStateException if read permission is not granted or revoked
      */
@@ -111,8 +111,8 @@ final class ReadableContent {
         if (this.useContentResolver) {
             this.checkPersistableReadGranted();
             // ContentResolver::openFileDescriptor works but we use openAssetFileDescriptor
-            // so that providers that returns subsection of file gets supported.
-            // The "r" (read) mode is used so that the content providers that don't support write can also consumed.
+            // so that providers that return subsections of a file are supported.
+            // The "r" (read) mode is used so that the content providers that don't support write can also be consumed.
             try (AssetFileDescriptor descriptor
                      = this.context.getContentResolver().openAssetFileDescriptor(this.contentUri, "r")) {
                 try (FileInputStream fileInputStream = descriptor.createInputStream()) {
@@ -158,7 +158,7 @@ final class ReadableContent {
      * Seek the stream read cursor to the given position.
      *
      * @param stream the stream
-     * @param seekTo the seek position
+     * @param seekTo the stream position to seek
      * @throws IOException if seek fails
      */
     private static void seek(FileInputStream stream, long seekTo) throws IOException {
@@ -181,7 +181,7 @@ final class ReadableContent {
     }
 
     /**
-     * Read the stream content into a buffer starting from stream's read cursor position.
+     * Read the stream content into a buffer starting from the stream's read cursor position.
      *
      * @param stream the file stream
      * @param buffer the output buffer

@@ -175,7 +175,7 @@ final class DownloadHandler extends Handler {
                     this.content.openForWrite(appContext);
                 } catch (Throwable t) {
                     this.transferHandlerListener.onError(new RuntimeException("Download operation with id '" + downloadId +
-                        "' is cannot be processed, failed to open the content to write.", t));
+                        "' cannot be processed, failed to open the content to write.", t));
                     getLooper().quit();
                 }
                 this.totalBytesDownloaded = this.db.downloadDao().getDownloadedBytesCount(downloadId);

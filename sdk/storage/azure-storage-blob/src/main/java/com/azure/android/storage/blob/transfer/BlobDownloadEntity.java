@@ -50,7 +50,7 @@ final class BlobDownloadEntity {
     public long blobSize;
 
     /**
-     * The URI to the content to store the downloaded blob.
+     * The URI to the content where the downloaded blob will be stored.
      */
     @ColumnInfo(name = "content_uri")
     public String contentUri;
@@ -104,7 +104,7 @@ final class BlobDownloadEntity {
      * @param containerName The container name.
      * @param blobName The blob name.
      * @param blobSize The blob size.
-     * @param content describes the content to store the downloaded blob.
+     * @param content Describes the content where the downloaded blob will be stored.
      */
     @Ignore
     BlobDownloadEntity(String storageBlobClientId,

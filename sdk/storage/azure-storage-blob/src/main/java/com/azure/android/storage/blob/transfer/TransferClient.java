@@ -74,7 +74,7 @@ public class TransferClient {
     }
 
     /**
-     * Upload content of a file.
+     * Upload the content of a file.
      *
      * @param storageBlobClientId the identifier of the blob storage client to use for the upload
      * @param containerName the container to upload the file to
@@ -94,9 +94,9 @@ public class TransferClient {
      * @param storageBlobClientId the identifier of the blob storage client to use for the upload
      * @param containerName the container to upload the file to
      * @param blobName the name of the target blob holding uploaded file
-     * @param contentUri uri to the Content to upload, the contentUri is resolved using
+     * @param contentUri URI to the Content to upload, the contentUri is resolved using
      *   {@link android.content.ContentResolver#openAssetFileDescriptor(Uri, String)}
-     *   with mode as "r". The supported  URI schemes are content:// file:// and android.resource://
+     *   with mode as "r". The supported URI schemes are: 'content://', 'file://' and 'android.resource://'
      * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
      */
     public LiveData<TransferInfo> upload(String storageBlobClientId, String containerName, String blobName, Uri contentUri) {
@@ -194,7 +194,7 @@ public class TransferClient {
      * @param storageBlobClientId the identifier of the blob storage client to use for the download
      * @param containerName The container to download the blob from.
      * @param blobName The name of the target blob to download.
-     * @param contentUri The uri to the local content to write the downloaded blob
+     * @param contentUri The URI to the local content where the downloaded blob will be stored.
      * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
      */
     public LiveData<TransferInfo> download(String storageBlobClientId, String containerName, String blobName, Uri contentUri) {
