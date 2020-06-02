@@ -92,7 +92,7 @@ final class WritableContent {
                 if (this.contentChannel == null) {
                     this.contentChannel = WriteToContentChannel.create(context, this.contentUri);
                 } else if (this.contentChannel.isClosed()) {
-                    throw new IllegalStateException("A closed Content Channel cannot be opened.");
+                    throw new IllegalStateException("A closed content Channel cannot be opened.");
                 }
             }
         }
@@ -117,7 +117,7 @@ final class WritableContent {
             // https://commonsware.com/blog/2016/03/15/how-consume-content-uri.html
             // Obtaining a RandomAccessFile requires the raw-path to the file backing the ContentUri.
             //
-            // So to write to Content, instead of RandomAccessFile we will use FileChannel, specifically
+            // So to write to content, instead of RandomAccessFile we will use FileChannel, specifically
             // we a shared instance of FileChannel to write the blocks downloaded by concurrent (OkHttp) threads.
             // Operations in FileChannel instance are concurrent safe.
             // https://developer.android.com/reference/java/nio/channels/FileChannel

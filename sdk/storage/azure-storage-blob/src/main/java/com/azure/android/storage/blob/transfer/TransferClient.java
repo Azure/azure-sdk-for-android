@@ -201,7 +201,7 @@ public class TransferClient {
         return download(storageBlobClientId,
             containerName,
             blobName,
-            new WritableContent(this.context, contentUri, false));
+            new WritableContent(this.context, contentUri, true));
     }
 
     /**
