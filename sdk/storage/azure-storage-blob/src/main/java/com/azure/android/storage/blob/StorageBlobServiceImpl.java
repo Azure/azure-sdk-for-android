@@ -466,11 +466,11 @@ final class StorageBlobServiceImpl {
         return new ServiceCall(callAndOptionalResult.getCall());
     }
 
-    BlockBlobsStageBlockResponse stageBlock(String containerName,
-                           String blobName,
-                           String base64BlockId,
-                           byte[] blockContent,
-                           byte[] contentMd5) {
+    Void stageBlock(String containerName,
+                    String blobName,
+                    String base64BlockId,
+                    byte[] blockContent,
+                    byte[] contentMd5) {
         return this.stageBlockWithRestResponse(containerName,
             blobName,
             base64BlockId,
@@ -480,7 +480,7 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null);
+            null).getValue();
     }
 
     ServiceCall stageBlock(String containerName,
@@ -488,7 +488,7 @@ final class StorageBlobServiceImpl {
                            String base64BlockId,
                            byte[] blockContent,
                            byte[] contentMd5,
-                           Callback<BlockBlobsStageBlockResponse> callback) {
+                           Callback<Void> callback) {
         return this.stageBlockWithRestResponse(containerName,
             blobName,
             base64BlockId,
@@ -502,7 +502,7 @@ final class StorageBlobServiceImpl {
             new Callback<BlockBlobsStageBlockResponse>() {
                 @Override
                 public void onResponse(BlockBlobsStageBlockResponse response) {
-                    callback.onResponse(null);
+                    callback.onResponse(response.getValue());
                 }
 
                 @Override
@@ -719,20 +719,14 @@ final class StorageBlobServiceImpl {
                                 typedContent,
                                 typedHeader));
                         } else {
-                            ResponseBody responseBody = response.body();
-                            String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                            String strContent = readAsString(response.body());
 
-                            callback.onFailure(
-                                new BlobStorageException("Response failed with code: " + response.code() + " and " +
-                                    message, response.raw()));
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()));
                         }
                     } else {
-                        ResponseBody responseBody = response.errorBody();
-                        String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                        String strContent = readAsString(response.errorBody());
 
-                        callback.onFailure(
-                            new BlobStorageException("Response failed with code: " + response.code() + " and " +
-                                message, response.raw()));
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
                     }
                 }
 
@@ -773,18 +767,14 @@ final class StorageBlobServiceImpl {
 
                     return new CallAndOptionalResult<>(call, result);
                 } else {
-                    ResponseBody responseBody = response.body();
-                    String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                    String strContent = readAsString(response.body());
 
-                    throw new BlobStorageException("Response failed with code: " + response.code() + " and " + message,
-                        response.raw());
+                    throw new BlobStorageException(strContent, response.raw());
                 }
             } else {
-                ResponseBody responseBody = response.errorBody();
-                String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                String strContent = readAsString(response.errorBody());
 
-                throw new BlobStorageException("Response failed with code: " + response.code() + " and " + message,
-                    response.raw());
+                throw new BlobStorageException(strContent, response.raw());
             }
         }
     }
@@ -835,16 +825,13 @@ final class StorageBlobServiceImpl {
                                 typedHeaders));
                         } else {
                             callback.onFailure(
-                                new BlobStorageException("Response failed with code: " + response.code() +
-                                    " and no message", response.raw()));
+                                new BlobStorageException("Response failed with error code: " + response.code(),
+                                    response.raw()));
                         }
                     } else {
-                        ResponseBody responseBody = response.errorBody();
-                        String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                        String strContent = readAsString(response.errorBody());
 
-                        callback.onFailure(
-                            new BlobStorageException("Response failed with code: " + response.code() + " and " +
-                                message, response.raw()));
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
                     }
                 }
 
@@ -882,15 +869,13 @@ final class StorageBlobServiceImpl {
 
                     return new CallAndOptionalResult<>(call, result);
                 } else {
-                    throw new BlobStorageException("Response failed with code: " + response.code() + " and no message",
+                    throw new BlobStorageException("Response failed with error code: " + response.code(),
                         response.raw());
                 }
             } else {
-                ResponseBody responseBody = response.errorBody();
-                String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                String strContent = readAsString(response.errorBody());
 
-                throw new BlobStorageException("Response failed with code: " + response.code() + " and " + message,
-                    response.raw());
+                throw new BlobStorageException(strContent, response.raw());
             }
         }
     }
@@ -959,20 +944,14 @@ final class StorageBlobServiceImpl {
                                 response.body(),
                                 typedHeaders));
                         } else {
-                            ResponseBody responseBody = response.body();
-                            String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                            String strContent = readAsString(response.body());
 
-                            callback.onFailure(
-                                new BlobStorageException("Response failed with code: " + response.code() + " and " +
-                                    message, response.raw()));
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()));
                         }
                     } else {
-                        ResponseBody responseBody = response.errorBody();
-                        String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                        String strContent = readAsString(response.errorBody());
 
-                        callback.onFailure(
-                            new BlobStorageException("Response failed with code: " + response.code() + " and " +
-                                message, response.raw()));
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
                     }
                 }
 
@@ -1016,18 +995,14 @@ final class StorageBlobServiceImpl {
 
                     return new CallAndOptionalResult<>(call, result);
                 } else {
-                    ResponseBody responseBody = response.body();
-                    String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                    String strContent = readAsString(response.body());
 
-                    throw new BlobStorageException("Response failed with code: " + response.code() + " and " + message,
-                        response.raw());
+                    throw new BlobStorageException(strContent, response.raw());
                 }
             } else {
-                ResponseBody responseBody = response.errorBody();
-                String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                String strContent = readAsString(response.errorBody());
 
-                throw new BlobStorageException("Response failed with code: " + response.code() + " and " + message,
-                    response.raw());
+                throw new BlobStorageException(strContent, response.raw());
             }
         }
     }
@@ -1089,20 +1064,14 @@ final class StorageBlobServiceImpl {
                                 null,
                                 typedHeader));
                         } else {
-                            ResponseBody responseBody = response.body();
-                            String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                            String strContent = readAsString(response.body());
 
-                            callback.onFailure(
-                                new BlobStorageException("Response failed with code: " + response.code() + " and " +
-                                    message, response.raw()));
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()));
                         }
                     } else {
-                        ResponseBody responseBody = response.errorBody();
-                        String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                        String strContent = readAsString(response.errorBody());
 
-                        callback.onFailure(
-                            new BlobStorageException("Response failed with code: " + response.code() + " and " +
-                                message, response.raw()));
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
                     }
                 }
 
@@ -1143,18 +1112,14 @@ final class StorageBlobServiceImpl {
                         typedHeader);
                     return new CallAndOptionalResult<>(call, result);
                 } else {
-                    ResponseBody responseBody = response.body();
-                    String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                    String strContent = readAsString(response.body());
 
-                    throw new BlobStorageException("Response failed with code: " + response.code() + " and " + message,
-                        response.raw());
+                    throw new BlobStorageException(strContent, response.raw());
                 }
             } else {
-                ResponseBody responseBody = response.errorBody();
-                String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                String strContent = readAsString(response.errorBody());
 
-                throw new BlobStorageException("Response failed with code: " + response.code() + " and " + message,
-                    response.raw());
+                throw new BlobStorageException(strContent, response.raw());
             }
         }
     }
@@ -1298,20 +1263,14 @@ final class StorageBlobServiceImpl {
                                 null,
                                 typedHeader));
                         } else {
-                            ResponseBody responseBody = response.body();
-                            String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                            String strContent = readAsString(response.body());
 
-                            callback.onFailure(
-                                new BlobStorageException("Response failed with code: " + response.code() + " and " +
-                                    message, response.raw()));
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()));
                         }
                     } else {
-                        ResponseBody responseBody = response.errorBody();
-                        String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                        String strContent = readAsString(response.errorBody());
 
-                        callback.onFailure(
-                            new BlobStorageException("Response failed with code: " + response.code() + " and " +
-                                message, response.raw()));
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
                     }
                 }
 
@@ -1364,18 +1323,14 @@ final class StorageBlobServiceImpl {
 
                     return new CallAndOptionalResult<>(call, result);
                 } else {
-                    ResponseBody responseBody = response.body();
-                    String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                    String strContent = readAsString(response.body());
 
-                    throw new BlobStorageException("Response failed with code: " + response.code() + " and " + message,
-                        response.raw());
+                    throw new BlobStorageException(strContent, response.raw());
                 }
             } else {
-                ResponseBody responseBody = response.errorBody();
-                String message = responseBody == null ? "no message" : "message: " + readAsString(responseBody);
+                String strContent = readAsString(response.errorBody());
 
-                throw new BlobStorageException("Response failed with code: " + response.code() + " and " + message,
-                    response.raw());
+                throw new BlobStorageException(strContent, response.raw());
             }
         }
     }
@@ -1394,6 +1349,10 @@ final class StorageBlobServiceImpl {
     }
 
     private static String readAsString(ResponseBody body) {
+        if (body == null) {
+            return "";
+        }
+
         try {
             return new String(body.bytes());
         } catch (IOException ioe) {
