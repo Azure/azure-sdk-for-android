@@ -4,6 +4,7 @@
 package com.azure.android.core.http.interceptor;
 
 import com.azure.android.core.http.HttpHeader;
+import com.azure.android.core.internal.util.test.EnqueueMockResponse;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -15,9 +16,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.mockwebserver.MockWebServer;
 
-import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClientWithInterceptor;
-import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequest;
-import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequestWithHeader;
+import static com.azure.android.core.internal.util.test.TestUtils.buildOkHttpClientWithInterceptor;
+import static com.azure.android.core.internal.util.test.TestUtils.getSimpleRequest;
+import static com.azure.android.core.internal.util.test.TestUtils.getSimpleRequestWithHeader;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;

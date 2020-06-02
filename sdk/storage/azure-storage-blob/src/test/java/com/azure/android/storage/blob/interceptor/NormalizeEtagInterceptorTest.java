@@ -11,8 +11,8 @@ import okhttp3.Request;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
-import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClientWithInterceptor;
-import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequest;
+import static com.azure.android.core.internal.util.test.TestUtils.buildOkHttpClientWithInterceptor;
+import static com.azure.android.core.internal.util.test.TestUtils.getSimpleRequest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
