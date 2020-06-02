@@ -6,8 +6,8 @@ import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
-import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
+import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
@@ -33,6 +33,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 public class StorageBlobClientTest {
     private static final MockWebServer mockWebServer = new MockWebServer();
@@ -458,13 +459,13 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response without body and status code 201 will be returned by the server.
-        BlockBlobsStageBlockResponse response = storageBlobClient.stageBlock("testContainer",
+        Void response = storageBlobClient.stageBlock("testContainer",
             "testBlob",
             null,
             new byte[0],
             null);
 
-        assertEquals(201, response.getStatusCode());
+        assertNull(response);
     }
 
     @Test
@@ -482,11 +483,11 @@ public class StorageBlobClientTest {
             null,
             new byte[0],
             null,
-            new Callback<BlockBlobsStageBlockResponse>() {
+            new Callback<Void>() {
                 @Override
-                public void onResponse(BlockBlobsStageBlockResponse response) {
+                public void onResponse(Void response) {
                     // Then a response without body and status code 201 will be returned by the server to the callback.
-                    assertEquals(201, response.getStatusCode());
+                    assertNull(response);
                 }
 
                 @Override
