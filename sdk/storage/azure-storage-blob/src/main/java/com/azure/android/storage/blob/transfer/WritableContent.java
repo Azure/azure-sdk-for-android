@@ -29,7 +29,7 @@ final class WritableContent {
     private final Context context;
     private final Uri contentUri;
     private final boolean useContentResolver;
-    // Channel to write to the Content if ContentResolver is required to resolve the Content,
+    // Channel to write to the content if ContentResolver is required to resolve the content,
     // i.e. when useContentResolver == true
     private WriteToContentChannel contentChannel;
 
@@ -61,7 +61,7 @@ final class WritableContent {
      *
      * @return true if resolving content URI requires {@link android.content.ContentResolver}.
      */
-    boolean isUseContentResolver() {
+    boolean isUsingContentResolver() {
         return this.useContentResolver;
     }
 
@@ -175,7 +175,7 @@ final class WritableContent {
     }
 
     /**
-     * A Channel to write to a Content identified by a ContentUri.
+     * A Channel to write to a content identified by a ContentUri.
      */
     private static class WriteToContentChannel implements Closeable {
         private final Context context;
@@ -186,7 +186,7 @@ final class WritableContent {
         private final AtomicBoolean isClosed = new AtomicBoolean(false);
 
         /**
-         * Creates WriteToContentChannel to write to the Content identified by the given ContentUri.
+         * Creates WriteToContentChannel to write to the content identified by the given ContentUri.
          *
          * @param context the context to resolve the content URI
          * @param contentUri the URI of the content to write to using this Channel.

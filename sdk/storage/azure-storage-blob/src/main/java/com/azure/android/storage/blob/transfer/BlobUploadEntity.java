@@ -109,7 +109,7 @@ final class BlobUploadEntity {
 
         this.contentUri = content.getUri().toString();
         this.contentSize = content.getLength();
-        this.useContentResolver = content.isUseContentResolver();
+        this.useContentResolver = content.isUsingContentResolver();
 
         this.storageBlobClientId = storageBlobClientId;
         this.containerName = containerName;

@@ -7,14 +7,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.UriPermission;
 import android.content.res.AssetFileDescriptor;
-import android.database.Cursor;
 import android.net.Uri;
-import android.provider.OpenableColumns;
 
 import androidx.annotation.MainThread;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.List;
 
@@ -56,7 +55,7 @@ final class ReadableContent {
      *
      * @return true if resolving content URI requires content resolver.
      */
-    boolean isUseContentResolver() {
+    boolean isUsingContentResolver() {
         return this.useContentResolver;
     }
 
@@ -78,24 +77,29 @@ final class ReadableContent {
      * Get the total size of the content in bytes.
      *
      * @return the content size in bytes
-     * @throws Throwable if retrieval of content length fails
+     * @throws FileNotFoundException if the content does not exists
+     * @throws UnsupportedOperationException if content length is unknown
+     * @throws IOException if there is a failure when closing the content opened to fetch the length
      */
-    long getLength() throws Throwable {
-        final long contentLength;
+    long getLength() throws IOException, UnsupportedOperationException {
         if (this.useContentResolver) {
-            // https://developer.android.com/training/secure-file-sharing/retrieve-info
-            final Cursor cursor = this.context.getContentResolver().query(this.contentUri, null, null, null, null);
-            final int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
-            cursor.moveToFirst();
-            contentLength = cursor.getLong(sizeIndex);
+            final long contentLength;
+            // Note: openAssetFileDescriptor throws FileNotFoundException if content not exists.
+            try (AssetFileDescriptor descriptor
+                     = this.context.getContentResolver().openAssetFileDescriptor(this.contentUri, "r")) {
+                contentLength = descriptor.getLength();
+            }
+            if (contentLength == AssetFileDescriptor.UNKNOWN_LENGTH) {
+                throw new UnsupportedOperationException("The size of the content '" + contentUri + "' is unknown.");
+            }
+            return contentLength;
         } else {
-            File file = new File(contentUri.getPath());
-            contentLength = file.length();
+            final File file = new File(contentUri.getPath());
+            if (!file.exists() || !file.isFile()) {
+                throw new FileNotFoundException("File resource does not exist: " + contentUri.getPath());
+            }
+            return file.length();
         }
-        if (contentLength == -1) {
-            throw new Throwable("Unable to get size of the content '" + contentUri + "'.");
-        }
-        return contentLength;
     }
 
     /**
@@ -104,6 +108,7 @@ final class ReadableContent {
      * @param blockOffset the start offset of the block
      * @param blockSize the size of the block
      * @return an array of bytes taken from the content in the range [blockOffset, blockOffset + blockSize]
+     * @throws FileNotFoundException if the content does not exists
      * @throws IOException the IO error when attempting to read
      * @throws IllegalStateException if read permission is not granted or revoked
      */
@@ -162,20 +167,24 @@ final class ReadableContent {
      * @throws IOException if seek fails
      */
     private static void seek(FileInputStream stream, long seekTo) throws IOException {
-        int skipped = 0;
-        while(skipped < seekTo) {
-            long m = stream.skip(seekTo - skipped);
-            if (m < 0) {
+        int totalBytesSkipped = 0;
+        while(totalBytesSkipped < seekTo) {
+            final long bytesSkipped = stream.skip(seekTo - totalBytesSkipped);
+            if (bytesSkipped < 0) {
                 throw new IOException("FileInputStream::seek returned negative value.");
             }
-            if (m == 0) {
+            if (bytesSkipped == 0) {
+                // 0 can be returned from Stream::skip if EOF reached OR unable to skip at the moment.
+                // Read one byte to see it's due to EOF.
                 if (stream.read() == -1) {
+                    // EOF hence return.
                     return;
                 } else {
-                    skipped++;
+                    // not EOF but stream::read returned a byte.
+                    totalBytesSkipped++;
                 }
             } else {
-                skipped += m;
+                totalBytesSkipped += bytesSkipped;
             }
         }
     }

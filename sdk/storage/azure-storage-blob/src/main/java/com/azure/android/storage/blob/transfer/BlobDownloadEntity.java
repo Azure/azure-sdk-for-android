@@ -122,7 +122,7 @@ final class BlobDownloadEntity {
         this.blobName = blobName;
         this.blobSize = blobSize;
         this.contentUri = content.getUri().toString();
-        this.useContentResolver = content.isUseContentResolver();
+        this.useContentResolver = content.isUsingContentResolver();
         state = BlobTransferState.WAIT_TO_BEGIN;
         interruptState = TransferInterruptState.NONE;
     }
