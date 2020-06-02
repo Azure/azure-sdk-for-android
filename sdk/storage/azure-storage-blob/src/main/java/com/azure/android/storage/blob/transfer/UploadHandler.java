@@ -304,7 +304,7 @@ final class UploadHandler extends Handler {
                 blockContent,
                 null, new com.azure.android.core.http.Callback<Void>() {
                     @Override
-                    public void onResponse(BlockBlobsStageBlockResponse response) {
+                    public void onResponse(Void response) {
                         Log.v(TAG, "stageBlocks(): Block uploaded:" + block.blockId + threadName());
                         db.uploadDao().updateBlockState(block.key, BlockTransferState.COMPLETED);
                         Message nextMessage = UploadHandlerMessage
