@@ -1,4 +1,4 @@
-package com.azure.android.core.internal.util.test;
+package com.azure.android.core.common;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;

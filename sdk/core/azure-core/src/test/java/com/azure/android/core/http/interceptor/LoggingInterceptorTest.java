@@ -1,7 +1,7 @@
 package com.azure.android.core.http.interceptor;
 
 import com.azure.android.core.http.HttpHeader;
-import com.azure.android.core.internal.util.test.EnqueueMockResponse;
+import com.azure.android.core.common.EnqueueMockResponse;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,13 +27,13 @@ import okio.BufferedSink;
 
 import static com.azure.android.core.http.interceptor.LoggingInterceptor.MAX_BODY_LOG_SIZE;
 import static com.azure.android.core.http.interceptor.LoggingInterceptor.REDACTED_PLACEHOLDER;
-import static com.azure.android.core.internal.util.test.TestUtils.buildOkHttpClientWithInterceptor;
-import static com.azure.android.core.internal.util.test.TestUtils.getSimpleRequest;
-import static com.azure.android.core.internal.util.test.TestUtils.getSimpleRequestWithHeader;
-import static com.azure.android.core.internal.util.test.TestUtils.getSimpleRequestWithHeaders;
-import static com.azure.android.core.internal.util.test.TestUtils.getSimpleRequestWithQueryParam;
-import static com.azure.android.core.internal.util.test.TestUtils.getSimpleRequestWithQueryParams;
-import static com.azure.android.core.internal.util.test.TestUtils.getStackTraceString;
+import static com.azure.android.core.common.TestUtils.buildOkHttpClientWithInterceptor;
+import static com.azure.android.core.common.TestUtils.getSimpleRequest;
+import static com.azure.android.core.common.TestUtils.getSimpleRequestWithHeader;
+import static com.azure.android.core.common.TestUtils.getSimpleRequestWithHeaders;
+import static com.azure.android.core.common.TestUtils.getSimpleRequestWithQueryParam;
+import static com.azure.android.core.common.TestUtils.getSimpleRequestWithQueryParams;
+import static com.azure.android.core.common.TestUtils.getStackTraceString;
 import static com.azure.android.core.util.logging.ClientLogger.LOG_LEVEL_DEBUG;
 import static com.azure.android.core.util.logging.ClientLogger.LOG_LEVEL_INFO;
 import static com.azure.android.core.util.logging.ClientLogger.LOG_LEVEL_WARNING;

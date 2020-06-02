@@ -17,6 +17,7 @@ android {
 
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/schema".toString())
+        test.java.srcDirs += files("${project(':sdk:core:azure-core').projectDir}/src/test/java/com/azure/android/core/common")
     }
 }
 
