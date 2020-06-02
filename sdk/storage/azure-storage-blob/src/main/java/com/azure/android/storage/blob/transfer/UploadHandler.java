@@ -4,6 +4,7 @@
 package com.azure.android.storage.blob.transfer;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
@@ -51,6 +52,8 @@ final class UploadHandler extends Handler {
     private BlobUploadEntity blob;
     private long totalBytesUploaded;
     private BlockUploadRecordsEnumerator blocksItr;
+    //  The content in the device representing the data to be read and uploaded.
+    private ReadableContent content;
     private StorageBlobClient blobClient;
 
     /**
@@ -150,7 +153,7 @@ final class UploadHandler extends Handler {
                 + this.uploadId + "' is already CANCELLED and cannot be RESTARTED or RESUMED."));
             this.getLooper().quit();
         } else if (this.blob.state == BlobTransferState.COMPLETED) {
-            this.transferHandlerListener.onTransferProgress(blob.fileSize, blob.fileSize);
+            this.transferHandlerListener.onTransferProgress(blob.contentSize, blob.contentSize);
             this.transferHandlerListener.onComplete();
             this.getLooper().quit();
         } else {
@@ -160,8 +163,11 @@ final class UploadHandler extends Handler {
                     .onError(new UnresolvedStorageBlobClientIdException(this.blob.storageBlobClientId));
                 this.getLooper().quit();
             } else {
+                this.content = new ReadableContent(appContext,
+                    Uri.parse(this.blob.contentUri),
+                    this.blob.useContentResolver);
                 this.totalBytesUploaded = this.db.uploadDao().getUploadedBytesCount(this.uploadId);
-                this.transferHandlerListener.onTransferProgress(blob.fileSize, totalBytesUploaded);
+                this.transferHandlerListener.onTransferProgress(blob.contentSize, totalBytesUploaded);
                 List<BlockTransferState> skip = new ArrayList();
                 skip.add(BlockTransferState.COMPLETED);
                 this.blocksItr = new BlockUploadRecordsEnumerator(this.db, this.uploadId, skip);
@@ -191,7 +197,7 @@ final class UploadHandler extends Handler {
         Pair<BlockUploadEntity, ServiceCall> p = this.runningBlockUploads.remove(blockId);
         BlockUploadEntity blockStaged = p.first;
         this.totalBytesUploaded += blockStaged.blockSize;
-        this.transferHandlerListener.onTransferProgress(this.blob.fileSize, this.totalBytesUploaded);
+        this.transferHandlerListener.onTransferProgress(this.blob.contentSize, this.totalBytesUploaded);
         List<BlockUploadEntity> blocks = blocksItr.getNext(1);
         if (blocks.isEmpty()) {
             if (runningBlockUploads.isEmpty()) {
@@ -227,7 +233,7 @@ final class UploadHandler extends Handler {
      * and terminates the handler.
      */
     private void handleCommitCompleted() {
-        this.transferHandlerListener.onTransferProgress(this.blob.fileSize, this.blob.fileSize);
+        this.transferHandlerListener.onTransferProgress(this.blob.contentSize, this.blob.contentSize);
         this.transferHandlerListener.onComplete();
         this.getLooper().quit();
     }
@@ -279,12 +285,24 @@ final class UploadHandler extends Handler {
             this.finalizeIfStopped();
 
             Log.v(TAG, "stageBlocks(): Uploading block:" + block.blockId + threadName());
+            byte [] blockContent;
+            try {
+                blockContent = content.readBlock(block.blockOffset, block.blockSize);
+            } catch (Throwable t) {
+                Log.e(TAG,  "stageBlocks(): failure in reading content. Block id: " + block.blockId + ". Thread name: " + threadName(), t);
+                db.uploadDao().updateBlockState(block.key, BlockTransferState.FAILED);
+                block.setStagingError(t);
+                Message nextMessage = UploadHandlerMessage
+                    .createStagingFailedMessage(UploadHandler.this, block.blockId);
+                nextMessage.sendToTarget();
+                return;
+            }
 
             ServiceCall call = this.blobClient.stageBlock(this.blob.containerName,
                 this.blob.blobName,
                 block.blockId,
-                block.getBlockContent(),
-                null, new com.azure.android.core.http.Callback<BlockBlobsStageBlockResponse>() {
+                blockContent,
+                null, new com.azure.android.core.http.Callback<Void>() {
                     @Override
                     public void onResponse(BlockBlobsStageBlockResponse response) {
                         Log.v(TAG, "stageBlocks(): Block uploaded:" + block.blockId + threadName());

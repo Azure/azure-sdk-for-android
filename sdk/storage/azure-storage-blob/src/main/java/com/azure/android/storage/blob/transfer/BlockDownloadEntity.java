@@ -13,7 +13,6 @@ import androidx.room.TypeConverters;
 
 import com.azure.android.core.util.Base64Util;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -62,10 +61,10 @@ final class BlockDownloadEntity {
     public String filePath;
 
     /**
-     * The offset in the file from which block contents starts.
+     * The offset in the blob from which block contents starts.
      */
-    @ColumnInfo(name = "blob_offset")
-    public long blobOffset;
+    @ColumnInfo(name = "block_offset")
+    public long blockOffset;
 
     /**
      * The block size in bytes.
@@ -104,17 +103,14 @@ final class BlockDownloadEntity {
      * Create a new BlockDownloadEntity to persist in local store.
      *
      * @param blockId The base64 block ID
-     * @param filePath The absolute path to the file that the block is a part of.
-     * @param blobOffset The offset in the file from which block contents starts.
+     * @param blockOffset The offset in the blob from which block contents starts.
      * @param blockSize The block size in bytes.
      */
-    private BlockDownloadEntity(String blockId, String filePath, long blobOffset, long blockSize) {
+    private BlockDownloadEntity(String blockId, long blockOffset, long blockSize) {
         Objects.requireNonNull(blockId);
-        Objects.requireNonNull(filePath);
 
         this.blockId = blockId;
-        this.filePath = filePath;
-        this.blobOffset = blobOffset;
+        this.blockOffset = blockOffset;
         this.blockSize = blockSize;
         this.state = BlockTransferState.WAIT_TO_BEGIN;
     }
@@ -150,26 +146,25 @@ final class BlockDownloadEntity {
     /**
      * Factory method to create a collection of {@link BlockDownloadEntity} for a blob.
      *
-     * @param blobSize The size of the blob being downloaded.
-     * @param blockSize Block size in bytes.
-     * @return A collection of {@link BlockDownloadEntity} describing each block of the blob.
+     * @param blobSize The size of the blob to download.
+     * @param blockSize The size of one block in the blob.
+     * @return A collection of {@link BlockDownloadEntity} describing each block of the blob to download.
      */
-    static List<BlockDownloadEntity> createEntitiesForBlob(File file, long blobSize, long blockSize) {
-        final String filePath = file.getAbsolutePath();
+    static List<BlockDownloadEntity> createBlockEntities(long blobSize,
+                                                         long blockSize) {
         final List<BlockDownloadEntity> blockDownloadEntities = new ArrayList<>();
 
         if (blobSize <= blockSize) {
             final String blockId = Base64Util.encodeToString(UUID.randomUUID().toString().getBytes(UTF_8));
 
             BlockDownloadEntity blockDownloadEntity = new BlockDownloadEntity(blockId,
-                filePath,
                 0,
                 (int) blobSize);
 
             blockDownloadEntities.add(blockDownloadEntity);
         } else {
-            long remainingLength = blobSize - blockSize;
-            long blobOffset = blockSize;
+            long remainingLength = blobSize;
+            long blobOffset = 0;
             int blocksCount = (int) Math.ceil(remainingLength / (double) blockSize);
 
             for (int i = 0; i < blocksCount; i++) {
@@ -177,7 +172,6 @@ final class BlockDownloadEntity {
                 final long currentBlockLength = Math.min(blockSize, remainingLength);
 
                 BlockDownloadEntity blockDownloadEntity = new BlockDownloadEntity(blockId,
-                    filePath,
                     blobOffset,
                     currentBlockLength);
 
@@ -198,7 +192,7 @@ final class BlockDownloadEntity {
         builder.append(" key:").append(this.key)
             .append(" blobKey:").append(this.blobKey)
             .append(" filePath:").append(this.filePath)
-            .append(" blobOffset:").append(this.blobOffset)
+            .append(" blockOffset:").append(this.blockOffset)
             .append(" blockSize:").append(this.blockSize)
             .append(" state:").append(this.state);
 

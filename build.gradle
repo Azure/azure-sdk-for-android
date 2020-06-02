@@ -8,7 +8,7 @@ buildscript {
 
     ext {
         androidBuildToolsVersion = "29.0.3"
-        androidGradlePluginVersion = "3.6.0"
+        androidGradlePluginVersion = "3.6.3"
     }
 
     dependencies {
@@ -144,11 +144,11 @@ allprojects {
         jacksonVersion = "2.9.9"
         okHttpVersion = "3.13.1"
         retrofitVersion = "2.6.2"
-        roomVersion = "2.2.4"
+        roomVersion = "2.2.5"
         staxApiVersion = "1.0-2"
         threeTenAbpVersion = "1.2.1"
         threeTenBpVersion = "1.4.0"
-        workVersion = "2.3.2"
+        workVersion = "2.3.4"
     }
 }
 
@@ -158,7 +158,7 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
     project.gradle.startParameter.taskNames.each { task ->
         task = task.split(':').last()
 
-        if (tasks.findByPath(task) == null) {
+        if (task != "wrapper" && tasks.findByPath(task) == null) {
             tasks.create(task) {
                 subprojects.each { dependsOn("$it.name:$task") }
             }

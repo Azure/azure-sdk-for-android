@@ -7,6 +7,16 @@ android {
     defaultConfig {
         versionCode project.versionCode
         versionName project.version
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation":"$projectDir/schema".toString()]
+            }
+        }
+    }
+
+    sourceSets {
+        androidTest.assets.srcDirs += files("$projectDir/schema".toString())
     }
 
     sourceSets {
