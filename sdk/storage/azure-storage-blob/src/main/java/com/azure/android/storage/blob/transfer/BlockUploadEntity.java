@@ -13,10 +13,6 @@ import androidx.room.TypeConverters;
 
 import com.azure.android.core.util.Base64Util;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -61,15 +57,10 @@ final class BlockUploadEntity {
     @ColumnInfo(name = "blob_key")
     public long blobKey;
     /**
-     * The absolute path to the file that the block is a part of.
+     * The offset in the content from which the block starts.
      */
-    @ColumnInfo(name = "file_path")
-    public String filePath;
-    /**
-     * The offset in the file from which block contents starts.
-     */
-    @ColumnInfo(name = "file_offset")
-    public int fileOffset;
+    @ColumnInfo(name = "block_offset")
+    public int blockOffset;
     /**
      * The block size in bytes.
      */
@@ -104,16 +95,13 @@ final class BlockUploadEntity {
      * Create a new BlockUploadEntity to persist in local store.
      *
      * @param blockId the base64 block id
-     * @param filePath the absolute path to the file that the block is a part of
-     * @param fileOffset the offset in the file from which block contents starts
+     * @param blockOffset the offset in the content from which the block starts
      * @param blockSize the block size in bytes
      */
-    private BlockUploadEntity(String blockId, String filePath, int fileOffset, int blockSize) {
+    private BlockUploadEntity(String blockId, int blockOffset, int blockSize) {
         Objects.requireNonNull(blockId);
-        Objects.requireNonNull(filePath);
         this.blockId = blockId;
-        this.filePath = filePath;
-        this.fileOffset = fileOffset;
+        this.blockOffset = blockOffset;
         this.blockSize = blockSize;
         this.state = BlockTransferState.WAIT_TO_BEGIN;
     }
@@ -147,25 +135,24 @@ final class BlockUploadEntity {
     }
 
     /**
-     * Factory method to create a collection of {@link BlockUploadEntity} for a file.
+     * Factory method to create a collection of {@link BlockUploadEntity} describing content blocks to upload.
      *
-     * @param file the file
-     * @param blockSize block size in bytes
-     * @return collection of {@link BlockUploadEntity} describing each block of the file
+     * @param contentSize the total size of the content to upload
+     * @param blockSize the size of one block in the content
+     * @return the collection of {@link BlockUploadEntity} describing each block of the content to upload
      */
-    static List<BlockUploadEntity> createEntitiesForFile(File file, long blockSize) {
-        final String filePath = file.getAbsolutePath();
+    static List<BlockUploadEntity> createBlockEntities(long contentSize,
+                                                       int blockSize) {
         final List<BlockUploadEntity> blockUploadEntities = new ArrayList<>();
-        if (file.length() <= blockSize) {
+        if (contentSize <= blockSize) {
             final String blockId = Base64Util.encodeToString(UUID.randomUUID().toString().getBytes(UTF_8));
             BlockUploadEntity blockUploadEntity = new BlockUploadEntity(
                 blockId,
-                filePath,
                 0,
-                (int) file.length());
+                (int) contentSize);
             blockUploadEntities.add(blockUploadEntity);
         } else {
-            long remainingLength = file.length();
+            long remainingLength = contentSize;
             int fileOffset = 0;
             int blocksCount = (int) Math.ceil(remainingLength / (double) blockSize);
             for (int i = 0; i < blocksCount; i++) {
@@ -173,7 +160,6 @@ final class BlockUploadEntity {
                 final int currentBlockLength = (int) Math.min(blockSize, remainingLength);
                 BlockUploadEntity blockUploadEntity = new BlockUploadEntity(
                     blockId,
-                    filePath,
                     fileOffset,
                     currentBlockLength);
                 blockUploadEntities.add(blockUploadEntity);
@@ -184,84 +170,17 @@ final class BlockUploadEntity {
         return blockUploadEntities;
     }
 
-    /**
-     * Get the block content from the file in the local file system.
-     *
-     * @return the byte array holding block content
-     */
-    byte[] getBlockContent() {
-        File file = new File(this.filePath);
-        try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            seek(fileInputStream, this.fileOffset);
-            byte [] blockContent = new byte[this.blockSize];
-            read(fileInputStream, blockContent);
-            return blockContent;
-        } catch (FileNotFoundException ffe) {
-            throw new RuntimeException(ffe);
-        } catch (IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(" key:" + this.key);
         builder.append(" blobKey:" + this.blobKey);
-        builder.append(" filePath:" + this.filePath);
-        builder.append(" fileOffset:" + this.fileOffset);
+        builder.append(" blockOffset:" + this.blockOffset);
         builder.append(" blockSize:" + this.blockSize);
         builder.append(" state:" + this.state);
         if (this.stagingError != null) {
             builder.append(" stagingError:" + this.stagingError.getMessage());
         }
         return builder.toString();
-    }
-
-    /**
-     * Seek the stream read cursor to the given position.
-     *
-     * @param stream the stream
-     * @param seekTo the seek position
-     * @throws IOException if seek fails
-     */
-    private static void seek(FileInputStream stream, long seekTo) throws IOException {
-        int skipped = 0;
-        while(skipped < seekTo) {
-            long m = stream.skip(seekTo - skipped);
-            if (m < 0) {
-                throw new IOException("FileInputStream::seek returns negative value.");
-            }
-            if (m == 0) {
-                if (stream.read() == -1) {
-                    return;
-                } else {
-                    skipped++;
-                }
-            } else {
-                skipped += m;
-            }
-        }
-    }
-
-    /**
-     * Read the stream content into a buffer starting from stream's read cursor position.
-     *
-     * @param stream the file stream
-     * @param buffer the output buffer
-     * @return the number of bytes read
-     * @throws IOException if read fails
-     */
-    private static int read(FileInputStream stream, byte [] buffer) throws IOException {
-        int bytesToRead = buffer.length;
-        int bytesRead = 0;
-        while (bytesRead < bytesToRead) {
-            int m = stream.read(buffer, bytesRead, bytesToRead - bytesRead);
-            if (m == -1) {
-                break;
-            }
-            bytesRead += m;
-        }
-        return bytesRead;
     }
 }

@@ -5,6 +5,7 @@ package com.azure.android.storage.blob.transfer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
@@ -73,7 +74,7 @@ public class TransferClient {
     }
 
     /**
-     * Upload a file.
+     * Upload the content of a file.
      *
      * @param storageBlobClientId the identifier of the blob storage client to use for the upload
      * @param containerName the container to upload the file to
@@ -83,7 +84,50 @@ public class TransferClient {
      */
     public LiveData<TransferInfo> upload(String storageBlobClientId, String containerName, String blobName, File file) {
         // UI_Thread
+        return upload(storageBlobClientId, containerName, blobName,
+            new ReadableContent(this.context, Uri.fromFile(file), false));
+    }
+
+    /**
+     * Upload content identified by a given Uri.
+     *
+     * @param storageBlobClientId the identifier of the blob storage client to use for the upload
+     * @param containerName the container to upload the file to
+     * @param blobName the name of the target blob holding uploaded file
+     * @param contentUri URI to the Content to upload, the contentUri is resolved using
+     *   {@link android.content.ContentResolver#openAssetFileDescriptor(Uri, String)}
+     *   with mode as "r". The supported URI schemes are: 'content://', 'file://' and 'android.resource://'
+     * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
+     */
+    public LiveData<TransferInfo> upload(String storageBlobClientId, String containerName, String blobName, Uri contentUri) {
+        // UI_Thread
+        return upload(storageBlobClientId, containerName, blobName,
+            new ReadableContent(this.context, contentUri, true));
+    }
+
+    /**
+     * Upload the content described by the given {@link ReadableContent}.
+     *
+     * @param storageBlobClientId the identifier of the blob storage client to use for the upload
+     * @param containerName the container to upload the file to
+     * @param blobName the name of the target blob holding uploaded file
+     * @param readableContent describes the Content to read and upload
+     * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
+     */
+    private LiveData<TransferInfo> upload(String storageBlobClientId,
+                                          String containerName,
+                                          String blobName,
+                                          ReadableContent readableContent) {
+        // UI_Thread
         final MutableLiveData<TransferOperationResult> transferOpResultLiveData = new MutableLiveData<>();
+        try {
+            // Take permission immediately in the UI_Thread (granting may require UI interaction).
+            readableContent.takePersistableReadPermission();
+        } catch (Throwable e) {
+            transferOpResultLiveData
+                .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, e));
+            return toCachedTransferInfoLiveData(transferOpResultLiveData, false);
+        }
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
@@ -93,9 +137,12 @@ public class TransferClient {
                             storageBlobClientId));
                     return;
                 }
-                BlobUploadEntity blob = new BlobUploadEntity(storageBlobClientId, containerName, blobName, file);
+                BlobUploadEntity blob = new BlobUploadEntity(storageBlobClientId,
+                    containerName,
+                    blobName,
+                    readableContent);
                 List<BlockUploadEntity> blocks
-                    = BlockUploadEntity.createEntitiesForFile(file, Constants.DEFAULT_BLOCK_SIZE);
+                    = BlockUploadEntity.createBlockEntities(readableContent.getLength(), Constants.DEFAULT_BLOCK_SIZE);
                 long transferId = db.uploadDao().createUploadRecord(blob, blocks);
                 Log.v(TAG, "upload(): upload record created: " + transferId);
 
@@ -116,7 +163,7 @@ public class TransferClient {
                     .enqueue();
                 transferOpResultLiveData
                     .postValue(TransferOperationResult.id(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, transferId));
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 transferOpResultLiveData
                     .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, e));
             }
@@ -135,9 +182,51 @@ public class TransferClient {
      * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
      */
     public LiveData<TransferInfo> download(String storageBlobClientId, String containerName, String blobName, File file) {
+        return download(storageBlobClientId,
+            containerName,
+            blobName,
+            new WritableContent(this.context, Uri.fromFile(file), false));
+    }
+
+    /**
+     * Download a blob.
+     *
+     * @param storageBlobClientId the identifier of the blob storage client to use for the download
+     * @param containerName The container to download the blob from.
+     * @param blobName The name of the target blob to download.
+     * @param contentUri The URI to the local content where the downloaded blob will be stored.
+     * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
+     */
+    public LiveData<TransferInfo> download(String storageBlobClientId, String containerName, String blobName, Uri contentUri) {
+        return download(storageBlobClientId,
+            containerName,
+            blobName,
+            new WritableContent(this.context, contentUri, true));
+    }
+
+    /**
+     * Download a blob.
+     *
+     * @param storageBlobClientId the identifier of the blob storage client to use for the download
+     * @param containerName The container to download the blob from.
+     * @param blobName The name of the target blob to download.
+     * @param writableContent describes the Content in the device to store the downloaded blob.
+     * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
+     */
+    public LiveData<TransferInfo> download(String storageBlobClientId,
+                                           String containerName,
+                                           String blobName,
+                                           WritableContent writableContent) {
         // UI_Thread
         final MutableLiveData<TransferOperationResult> transferOpResultLiveData = new MutableLiveData<>();
-
+        try {
+            // Take permission immediately in the UI_Thread (granting may require UI interaction).
+            writableContent.takePersistableWritePermission();
+        } catch (Throwable e) {
+            transferOpResultLiveData
+                .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, e));
+            return toCachedTransferInfoLiveData(transferOpResultLiveData, false);
+        }
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
@@ -150,12 +239,14 @@ public class TransferClient {
                 }
 
                 long blobSize = blobClient.getBlobProperties(containerName, blobName).getContentLength();
-                BlobDownloadEntity blob = new BlobDownloadEntity(storageBlobClientId, containerName, blobName, file);
+                BlobDownloadEntity blob = new BlobDownloadEntity(storageBlobClientId,
+                    containerName,
+                    blobName,
+                    blobSize,
+                    writableContent);
                 List<BlockDownloadEntity> blocks
-                    = BlockDownloadEntity.createEntitiesForBlob(file, blobSize, Constants.DEFAULT_BLOCK_SIZE);
+                    = BlockDownloadEntity.createBlockEntities(blobSize, Constants.DEFAULT_BLOCK_SIZE);
                 long transferId = db.downloadDao().createDownloadRecord(blob, blocks);
-
-                db.downloadDao().updateBlobSize(transferId, blobSize);
 
                 Log.v(TAG, "download(): Download record created: " + transferId);
 
