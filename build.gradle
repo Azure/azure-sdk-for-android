@@ -155,10 +155,12 @@ allprojects {
 // Synthesize dependencies for service-level projects so that running a task on a service-level project automatically
 // runs it on all sub-projects of that project
 configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 2 }) {
+    apply plugin: "org.gradle.help-tasks"
+    def setupTasks = ["init", "wrapper"]
+
     project.gradle.startParameter.taskNames.each { task ->
         task = task.split(':').last()
-
-        if (task != "wrapper" && tasks.findByPath(task) == null) {
+        if (!task.startsWith("-") && !setupTasks.contains(task) && tasks.findByPath(task) == null) {
             tasks.create(task) {
                 subprojects.each { dependsOn("$it.name:$task") }
             }
