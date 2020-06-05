@@ -10,11 +10,12 @@ import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
-import com.azure.android.storage.blob.models.BlobDownloadHeaders;
+import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
@@ -28,6 +29,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.Interceptor;
+import okhttp3.ResponseBody;
 
 /**
  * Client for Storage Blob service.
@@ -70,7 +72,9 @@ public class StorageBlobClient {
     public List<BlobItem> getBlobsInPage(String pageId,
                                          String containerName,
                                          ListBlobsOptions options) {
-        return this.storageBlobServiceClient.getBlobsInPage(pageId, containerName, options);
+        return this.storageBlobServiceClient.getBlobsInPage(pageId,
+            containerName,
+            options);
     }
 
     /**
@@ -81,11 +85,14 @@ public class StorageBlobClient {
      * @param options       The page options.
      * @param callback      Callback that receives the retrieved blob list.
      */
-    public void getBlobsInPage(String pageId,
-                               String containerName,
-                               ListBlobsOptions options,
-                               Callback<List<BlobItem>> callback) {
-        this.storageBlobServiceClient.getBlobsInPage(pageId, containerName, options, callback);
+    public ServiceCall getBlobsInPage(String pageId,
+                                      String containerName,
+                                      ListBlobsOptions options,
+                                      Callback<List<BlobItem>> callback) {
+        return this.storageBlobServiceClient.getBlobsInPage(pageId,
+            containerName,
+            options,
+            callback);
     }
 
     /**
@@ -109,7 +116,8 @@ public class StorageBlobClient {
                                                                                 List<ListBlobsIncludeItem> include,
                                                                                 Integer timeout,
                                                                                 String requestId) {
-        return this.storageBlobServiceClient.getBlobsInPageWithRestResponse(pageId, containerName,
+        return this.storageBlobServiceClient.getBlobsInPageWithRestResponse(pageId,
+            containerName,
             prefix,
             maxResults,
             include,
@@ -131,15 +139,15 @@ public class StorageBlobClient {
      *                      the analytics logs when storage analytics logging is enabled.
      * @param callback      Callback that receives the response.
      */
-    public void getBlobsInPageWithRestResponse(String pageId,
-                                               String containerName,
-                                               String prefix,
-                                               Integer maxResults,
-                                               List<ListBlobsIncludeItem> include,
-                                               Integer timeout,
-                                               String requestId,
-                                               Callback<ContainersListBlobFlatSegmentResponse> callback) {
-        this.storageBlobServiceClient.getBlobsInPageWithRestResponse(pageId,
+    public ServiceCall getBlobsInPageWithRestResponse(String pageId,
+                                                      String containerName,
+                                                      String prefix,
+                                                      Integer maxResults,
+                                                      List<ListBlobsIncludeItem> include,
+                                                      Integer timeout,
+                                                      String requestId,
+                                                      Callback<ContainersListBlobFlatSegmentResponse> callback) {
+        return this.storageBlobServiceClient.getBlobsInPageWithRestResponse(pageId,
             containerName,
             prefix,
             maxResults,
@@ -155,10 +163,9 @@ public class StorageBlobClient {
      * @param containerName The container name.
      * @param blobName      The blob name.
      */
-    public BlobDownloadHeaders getBlobProperties(String containerName,
-                                                 String blobName) {
-        return storageBlobServiceClient.getBlobProperties(containerName,
-            blobName);
+    public BlobGetPropertiesHeaders getBlobProperties(String containerName,
+                                                      String blobName) {
+        return storageBlobServiceClient.getBlobProperties(containerName,  blobName);
     }
 
     /**
@@ -170,7 +177,7 @@ public class StorageBlobClient {
      */
     public ServiceCall getBlobProperties(String containerName,
                                          String blobName,
-                                         Callback<BlobDownloadHeaders> callback) {
+                                         Callback<BlobGetPropertiesHeaders> callback) {
         return storageBlobServiceClient.getBlobProperties(containerName,
             blobName,
             callback);
@@ -195,17 +202,17 @@ public class StorageBlobClient {
      * @param cpkInfo               Additional parameters for the operation.
      * @return The response information returned from the server when downloading a blob.
      */
-    public BlobDownloadHeaders getBlobPropertiesWithHeaders(String containerName,
-                                                            String blobName,
-                                                            String snapshot,
-                                                            Integer timeout,
-                                                            String version,
-                                                            BlobRequestConditions blobRequestConditions,
-                                                            String requestId,
-                                                            CpkInfo cpkInfo) {
+    public BlobGetPropertiesResponse getBlobPropertiesWithRestResponse(String containerName,
+                                                                       String blobName,
+                                                                       String snapshot,
+                                                                       Integer timeout,
+                                                                       String version,
+                                                                       BlobRequestConditions blobRequestConditions,
+                                                                       String requestId,
+                                                                       CpkInfo cpkInfo) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-        return storageBlobServiceClient.getBlobPropertiesWithHeaders(containerName,
+        return storageBlobServiceClient.getBlobPropertiesWithRestResponse(containerName,
             blobName,
             snapshot,
             timeout,
@@ -233,18 +240,18 @@ public class StorageBlobClient {
      *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo               Additional parameters for the operation.
      */
-    public ServiceCall getBlobPropertiesWithHeaders(String containerName,
-                                                    String blobName,
-                                                    String snapshot,
-                                                    Integer timeout,
-                                                    String version,
-                                                    BlobRequestConditions blobRequestConditions,
-                                                    String requestId,
-                                                    CpkInfo cpkInfo,
-                                                    Callback<BlobDownloadHeaders> callback) {
+    public ServiceCall getBlobPropertiesWithRestResponse(String containerName,
+                                                         String blobName,
+                                                         String snapshot,
+                                                         Integer timeout,
+                                                         String version,
+                                                         BlobRequestConditions blobRequestConditions,
+                                                         String requestId,
+                                                         CpkInfo cpkInfo,
+                                                         Callback<BlobGetPropertiesResponse> callback) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-        return storageBlobServiceClient.getBlobPropertiesWithHeaders(containerName,
+        return storageBlobServiceClient.getBlobPropertiesWithRestResponse(containerName,
             blobName,
             snapshot,
             timeout,
@@ -261,8 +268,8 @@ public class StorageBlobClient {
      * @param containerName The container name.
      * @param blobName      The blob name.
      */
-    public BlobDownloadAsyncResponse download(String containerName,
-                                              String blobName) {
+    public ResponseBody download(String containerName,
+                                 String blobName) {
         return storageBlobServiceClient.download(containerName,
             blobName);
     }
@@ -276,7 +283,7 @@ public class StorageBlobClient {
      */
     public ServiceCall download(String containerName,
                                 String blobName,
-                                Callback<BlobDownloadAsyncResponse> callback) {
+                                Callback<ResponseBody> callback) {
         return storageBlobServiceClient.download(containerName,
             blobName,
             callback);
@@ -306,17 +313,17 @@ public class StorageBlobClient {
      * @param cpkInfo               Additional parameters for the operation.
      * @return The response information returned from the server when downloading a blob.
      */
-    public BlobDownloadAsyncResponse downloadWithHeaders(String containerName,
-                                                         String blobName,
-                                                         String snapshot,
-                                                         Integer timeout,
-                                                         BlobRange range,
-                                                         BlobRequestConditions blobRequestConditions,
-                                                         Boolean getRangeContentMd5,
-                                                         Boolean getRangeContentCrc64,
-                                                         String version,
-                                                         String requestId,
-                                                         CpkInfo cpkInfo) {
+    public BlobDownloadAsyncResponse downloadWithRestResponse(String containerName,
+                                                              String blobName,
+                                                              String snapshot,
+                                                              Integer timeout,
+                                                              BlobRange range,
+                                                              BlobRequestConditions blobRequestConditions,
+                                                              Boolean getRangeContentMd5,
+                                                              Boolean getRangeContentCrc64,
+                                                              String version,
+                                                              String requestId,
+                                                              CpkInfo cpkInfo) {
         range = range == null ? new BlobRange(0) : range;
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
@@ -359,18 +366,18 @@ public class StorageBlobClient {
      *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo               Additional parameters for the operation.
      */
-    public ServiceCall downloadWithHeaders(String containerName,
-                                           String blobName,
-                                           String snapshot,
-                                           Integer timeout,
-                                           BlobRange range,
-                                           BlobRequestConditions blobRequestConditions,
-                                           Boolean getRangeContentMd5,
-                                           Boolean getRangeContentCrc64,
-                                           String version,
-                                           String requestId,
-                                           CpkInfo cpkInfo,
-                                           Callback<BlobDownloadAsyncResponse> callback) {
+    public ServiceCall downloadWithRestResponse(String containerName,
+                                                String blobName,
+                                                String snapshot,
+                                                Integer timeout,
+                                                BlobRange range,
+                                                BlobRequestConditions blobRequestConditions,
+                                                Boolean getRangeContentMd5,
+                                                Boolean getRangeContentCrc64,
+                                                String version,
+                                                String requestId,
+                                                CpkInfo cpkInfo,
+                                                Callback<BlobDownloadAsyncResponse> callback) {
         range = range == null ? new BlobRange(0) : range;
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
@@ -392,28 +399,28 @@ public class StorageBlobClient {
             callback);
     }
 
-    public void stageBlock(String containerName,
+    public Void stageBlock(String containerName,
                            String blobName,
                            String base64BlockId,
-                           byte[] content,
+                           byte[] blockContent,
                            byte[] contentMd5) {
-        this.storageBlobServiceClient.stageBlock(containerName,
+        return this.storageBlobServiceClient.stageBlock(containerName,
             blobName,
             base64BlockId,
-            content,
+            blockContent,
             contentMd5);
     }
 
     public ServiceCall stageBlock(String containerName,
                                   String blobName,
                                   String base64BlockId,
-                                  byte[] body,
+                                  byte[] blockContent,
                                   byte[] contentMd5,
                                   Callback<Void> callback) {
         return this.storageBlobServiceClient.stageBlock(containerName,
             blobName,
             base64BlockId,
-            body,
+            blockContent,
             contentMd5,
             callback);
     }
@@ -440,18 +447,18 @@ public class StorageBlobClient {
             cpkInfo);
     }
 
-    public void stageBlockWithRestResponse(String containerName,
-                                           String blobName,
-                                           String base64BlockId,
-                                           byte[] body,
-                                           byte[] transactionalContentMD5,
-                                           byte[] transactionalContentCrc64,
-                                           Integer timeout,
-                                           String leaseId,
-                                           String requestId,
-                                           CpkInfo cpkInfo,
-                                           Callback<BlockBlobsStageBlockResponse> callback) {
-        this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
+    public ServiceCall stageBlockWithRestResponse(String containerName,
+                                                  String blobName,
+                                                  String base64BlockId,
+                                                  byte[] body,
+                                                  byte[] transactionalContentMD5,
+                                                  byte[] transactionalContentCrc64,
+                                                  Integer timeout,
+                                                  String leaseId,
+                                                  String requestId,
+                                                  CpkInfo cpkInfo,
+                                                  Callback<BlockBlobsStageBlockResponse> callback) {
+        return this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
             blobName,
             base64BlockId,
             body,
@@ -474,12 +481,12 @@ public class StorageBlobClient {
             overwrite);
     }
 
-    public void commitBlockList(String containerName,
-                                String blobName,
-                                List<String> base64BlockIds,
-                                boolean overwrite,
-                                Callback<BlockBlobItem> callBack) {
-        this.storageBlobServiceClient.commitBlockList(containerName,
+    public ServiceCall commitBlockList(String containerName,
+                                       String blobName,
+                                       List<String> base64BlockIds,
+                                       boolean overwrite,
+                                       Callback<BlockBlobItem> callBack) {
+        return this.storageBlobServiceClient.commitBlockList(containerName,
             blobName,
             base64BlockIds,
             overwrite,
@@ -513,20 +520,20 @@ public class StorageBlobClient {
             tier);
     }
 
-    public void commitBlockListWithRestResponse(String containerName,
-                                                String blobName,
-                                                List<String> base64BlockIds,
-                                                byte[] transactionalContentMD5,
-                                                byte[] transactionalContentCrc64,
-                                                Integer timeout,
-                                                BlobHttpHeaders blobHttpHeaders,
-                                                Map<String, String> metadata,
-                                                BlobRequestConditions requestConditions,
-                                                String requestId,
-                                                CpkInfo cpkInfo,
-                                                AccessTier tier,
-                                                Callback<BlockBlobsCommitBlockListResponse> callback) {
-        this.storageBlobServiceClient.commitBlockListWithRestResponse(containerName,
+    public ServiceCall commitBlockListWithRestResponse(String containerName,
+                                                       String blobName,
+                                                       List<String> base64BlockIds,
+                                                       byte[] transactionalContentMD5,
+                                                       byte[] transactionalContentCrc64,
+                                                       Integer timeout,
+                                                       BlobHttpHeaders blobHttpHeaders,
+                                                       Map<String, String> metadata,
+                                                       BlobRequestConditions requestConditions,
+                                                       String requestId,
+                                                       CpkInfo cpkInfo,
+                                                       AccessTier tier,
+                                                       Callback<BlockBlobsCommitBlockListResponse> callback) {
+        return this.storageBlobServiceClient.commitBlockListWithRestResponse(containerName,
             blobName,
             base64BlockIds,
             transactionalContentMD5,

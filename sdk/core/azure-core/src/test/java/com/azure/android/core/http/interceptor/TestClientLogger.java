@@ -6,7 +6,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.azure.android.core.http.interceptor.TestUtils.getStackTraceString;
+import static com.azure.android.core.common.TestUtils.getStackTraceString;
 
 class TestClientLogger implements ClientLogger {
     private final List<AbstractMap.SimpleEntry<Integer, String>> logs = new ArrayList<>();

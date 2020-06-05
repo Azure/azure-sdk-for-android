@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import com.azure.android.core.http.ServiceCall;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlockBlobItem;
+import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -282,6 +283,7 @@ final class UploadHandler extends Handler {
     private void stageBlocks(List<BlockUploadEntity> blocks) {
         for (BlockUploadEntity block : blocks) {
             this.finalizeIfStopped();
+
             Log.v(TAG, "stageBlocks(): Uploading block:" + block.blockId + threadName());
             byte [] blockContent;
             try {
@@ -329,8 +331,11 @@ final class UploadHandler extends Handler {
      */
     private void commitBlocks() {
         this.finalizeIfStopped();
+
         Log.v(TAG, "commitBlocks(): All blocks uploaded, committing them." + threadName());
+
         List<String> blockIds = this.db.uploadDao().getBlockIds(this.uploadId);
+
         this.blobClient.commitBlockList(blob.containerName,
             blob.blobName,
             blockIds,
