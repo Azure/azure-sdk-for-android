@@ -3,11 +3,14 @@
 
 package com.azure.android.storage.blob.transfer;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
+import androidx.work.Constraints;
 
 import java.util.Objects;
 
@@ -82,7 +85,12 @@ final class BlobDownloadEntity {
     @ColumnInfo(name = "transfer_interrupt_state")
     @TypeConverters(ColumnConverter.class)
     public TransferInterruptState interruptState;
-
+    /**
+     * The constraints to be satisfied to run the download operation.
+     */
+    @Embedded
+    @NonNull
+    public ConstraintsColumn constraintsColumn = ConstraintsColumn.NONE;
     /**
      * Holds the exception indicating the reason for download failure.
      *
@@ -105,17 +113,20 @@ final class BlobDownloadEntity {
      * @param blobName The blob name.
      * @param blobSize The blob size.
      * @param content Describes the content where the downloaded blob will be stored.
+     * @param constraints the constraints to be satisfied to run the download operation.
      */
     @Ignore
     BlobDownloadEntity(String storageBlobClientId,
                        String containerName,
                        String blobName,
                        long blobSize,
-                       WritableContent content) {
+                       WritableContent content,
+                       Constraints constraints) {
         Objects.requireNonNull(storageBlobClientId);
         Objects.requireNonNull(containerName);
         Objects.requireNonNull(blobName);
         Objects.requireNonNull(content);
+        Objects.requireNonNull(constraints);
 
         this.storageBlobClientId = storageBlobClientId;
         this.containerName = containerName;
@@ -125,6 +136,7 @@ final class BlobDownloadEntity {
         this.useContentResolver = content.isUsingContentResolver();
         state = BlobTransferState.WAIT_TO_BEGIN;
         interruptState = TransferInterruptState.NONE;
+        constraintsColumn = ConstraintsColumn.fromConstraints(constraints);
     }
 
     /**

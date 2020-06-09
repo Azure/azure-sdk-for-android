@@ -149,7 +149,7 @@ final class DownloadHandler extends Handler {
      * Handler. This stage also starts a download operation.
      */
     private void handleInit() {
-        this.db = TransferDatabase.get(appContext);
+        this.db = TransferDatabase.getInstance(appContext);
         this.blob = db.downloadDao().getBlob(downloadId);
 
         if (this.blob.interruptState == TransferInterruptState.PURGE) {
