@@ -84,6 +84,7 @@ public class StorageBlobClient {
      * @param containerName The container name.
      * @param options       The page options.
      * @param callback      Callback that receives the retrieved blob list.
+     * @return The service call object, representing the request scheduled for execution.
      */
     public ServiceCall getBlobsInPage(String pageId,
                                       String containerName,
@@ -138,6 +139,7 @@ public class StorageBlobClient {
      * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
      *                      the analytics logs when storage analytics logging is enabled.
      * @param callback      Callback that receives the response.
+     * @return The service call object, representing the request scheduled for execution.
      */
     public ServiceCall getBlobsInPageWithRestResponse(String pageId,
                                                       String containerName,
@@ -174,6 +176,7 @@ public class StorageBlobClient {
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
+     * @return The service call object, representing the request scheduled for execution.
      */
     public ServiceCall getBlobProperties(String containerName,
                                          String blobName,
@@ -239,6 +242,7 @@ public class StorageBlobClient {
      * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
      *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo               Additional parameters for the operation.
+     * @return The service call object, representing the request scheduled for execution.
      */
     public ServiceCall getBlobPropertiesWithRestResponse(String containerName,
                                                          String blobName,
@@ -280,6 +284,7 @@ public class StorageBlobClient {
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
+     * @return The service call object, representing the request scheduled for execution.
      */
     public ServiceCall download(String containerName,
                                 String blobName,
@@ -365,6 +370,8 @@ public class StorageBlobClient {
      * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
      *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo               Additional parameters for the operation.
+     * @param callback              Callback that receives the response.
+     * @return The service call object, representing the request scheduled for execution.
      */
     public ServiceCall downloadWithRestResponse(String containerName,
                                                 String blobName,
@@ -399,6 +406,17 @@ public class StorageBlobClient {
             callback);
     }
 
+    /**
+     * Creates a new block to be committed as part of a blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param base64BlockId A valid Base64 string value that identifies the block. Prior to encoding, the string must
+     *                      be less than or equal to 64 bytes in size. For a given blob, the length of the value specified
+     *                      for the base64BlockId parameter must be the same size for each block.
+     * @param blockContent  the block content in bytes
+     * @param contentMd5    the transactional md5 for the body, to be validated by the service.
+     */
     public Void stageBlock(String containerName,
                            String blobName,
                            String base64BlockId,
@@ -411,6 +429,19 @@ public class StorageBlobClient {
             contentMd5);
     }
 
+    /**
+     * Creates a new block to be committed as part of a blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param base64BlockId A valid Base64 string value that identifies the block. Prior to encoding, the string must
+     *                      be less than or equal to 64 bytes in size. For a given blob, the length of the value specified
+     *                      for the base64BlockId parameter must be the same size for each block.
+     * @param blockContent  the block content in bytes
+     * @param contentMd5    the transactional md5 for the body, to be validated by the service.
+     * @param callback      Callback that receives the response.
+     * @return The service call object, representing the request scheduled for execution.
+     */
     public ServiceCall stageBlock(String containerName,
                                   String blobName,
                                   String base64BlockId,
@@ -425,12 +456,31 @@ public class StorageBlobClient {
             callback);
     }
 
+    /**
+     * Creates a new block to be committed as part of a blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param base64BlockId A valid Base64 string value that identifies the block. Prior to encoding, the string must
+     *                      be less than or equal to 64 bytes in size. For a given blob, the length of the value specified
+     *                      for the base64BlockId parameter must be the same size for each block.
+     * @param blockContent  the block content in bytes
+     * @param contentMd5    the transactional md5 for the block content, to be validated by the service.
+     * @param contentCrc64  Specify the transactional crc64 for the block content, to be validated by the service.
+     * @param timeout       The timeout parameter is expressed in seconds. For more information,
+     *     see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param leaseId       If specified, the staging only succeeds if the resource's lease is active and matches this ID.
+     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded
+     *                      in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo       Additional parameters for the operation.
+     * @return The response object
+     */
     public BlockBlobsStageBlockResponse stageBlockWithRestResponse(String containerName,
                                                                    String blobName,
                                                                    String base64BlockId,
-                                                                   byte[] body,
-                                                                   byte[] transactionalContentMD5,
-                                                                   byte[] transactionalContentCrc64,
+                                                                   byte[] blockContent,
+                                                                   byte[] contentMd5,
+                                                                   byte[] contentCrc64,
                                                                    Integer timeout,
                                                                    String leaseId,
                                                                    String requestId,
@@ -438,21 +488,41 @@ public class StorageBlobClient {
         return this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
             blobName,
             base64BlockId,
-            body,
-            transactionalContentMD5,
-            transactionalContentCrc64,
+            blockContent,
+            contentMd5,
+            contentCrc64,
             timeout,
             leaseId,
             requestId,
             cpkInfo);
     }
 
+    /**
+     * Creates a new block to be committed as part of a blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param base64BlockId A valid Base64 string value that identifies the block. Prior to encoding, the string must
+     *                      be less than or equal to 64 bytes in size. For a given blob, the length of the value specified
+     *                      for the base64BlockId parameter must be the same size for each block.
+     * @param blockContent  the block content in bytes
+     * @param contentMd5    the transactional md5 for the block content, to be validated by the service.
+     * @param contentCrc64  Specify the transactional crc64 for the block content, to be validated by the service.
+     * @param timeout       The timeout parameter is expressed in seconds. For more information,
+     *                      see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param leaseId       If specified, the staging only succeeds if the resource's lease is active and matches this ID.
+     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded
+     *                      in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo       Additional parameters for the operation.
+     * @param callback      Callback that receives the response.
+     * @return The service call object, representing the request scheduled for execution.
+     */
     public ServiceCall stageBlockWithRestResponse(String containerName,
                                                   String blobName,
                                                   String base64BlockId,
-                                                  byte[] body,
-                                                  byte[] transactionalContentMD5,
-                                                  byte[] transactionalContentCrc64,
+                                                  byte[] blockContent,
+                                                  byte[] contentMd5,
+                                                  byte[] contentCrc64,
                                                   Integer timeout,
                                                   String leaseId,
                                                   String requestId,
@@ -461,9 +531,9 @@ public class StorageBlobClient {
         return this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
             blobName,
             base64BlockId,
-            body,
-            transactionalContentMD5,
-            transactionalContentCrc64,
+            blockContent,
+            contentMd5,
+            contentCrc64,
             timeout,
             leaseId,
             requestId,
@@ -471,6 +541,20 @@ public class StorageBlobClient {
             callback);
     }
 
+    /**
+     * The Commit Block List operation writes a blob by specifying the list of block IDs that make up the blob.
+     * In order to be written as part of a blob, a block must have been successfully written to the server in a prior
+     * Put Block operation. You can call Put Block List to update a blob by uploading only those blocks that have
+     * changed, then committing the new and existing blocks together. You can do this by specifying whether to commit
+     * a block from the committed block list or from the uncommitted block list, or to commit the most recently uploaded
+     * version of the block, whichever list it may belong to.
+     *
+     * @param containerName  The container name.
+     * @param blobName       The blob name.
+     * @param base64BlockIds The block IDs.
+     * @param overwrite      Indicate whether to overwrite the block list if already exists
+     * @return the properties about a block blob
+     */
     public BlockBlobItem commitBlockList(String containerName,
                                          String blobName,
                                          List<String> base64BlockIds,
@@ -481,24 +565,63 @@ public class StorageBlobClient {
             overwrite);
     }
 
+    /**
+     * The Commit Block List operation writes a blob by specifying the list of block IDs that make up the blob.
+     * In order to be written as part of a blob, a block must have been successfully written to the server in a prior
+     * Put Block operation. You can call Put Block List to update a blob by uploading only those blocks that have
+     * changed, then committing the new and existing blocks together. You can do this by specifying whether to commit
+     * a block from the committed block list or from the uncommitted block list, or to commit the most recently uploaded
+     * version of the block, whichever list it may belong to.
+     *
+     * @param containerName  The container name.
+     * @param blobName       The blob name.
+     * @param base64BlockIds The block IDs.
+     * @param overwrite      Indicate whether to overwrite the block list if already exists
+     * @param callback       Callback that receives the response.
+     * @return The service call object, representing the request scheduled for execution.
+     */
     public ServiceCall commitBlockList(String containerName,
                                        String blobName,
                                        List<String> base64BlockIds,
                                        boolean overwrite,
-                                       Callback<BlockBlobItem> callBack) {
+                                       Callback<BlockBlobItem> callback) {
         return this.storageBlobServiceClient.commitBlockList(containerName,
             blobName,
             base64BlockIds,
             overwrite,
-            callBack);
+            callback);
     }
 
 
+    /**
+     * The Commit Block List operation writes a blob by specifying the list of block IDs that make up the blob.
+     * In order to be written as part of a blob, a block must have been successfully written to the server in a prior
+     * Put Block operation. You can call Put Block List to update a blob by uploading only those blocks that have
+     * changed, then committing the new and existing blocks together. You can do this by specifying whether to commit
+     * a block from the committed block list or from the uncommitted block list, or to commit the most recently uploaded
+     * version of the block, whichever list it may belong to.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param base64BlockIds    The block IDs.
+     * @param contentMD5        Specify the transactional md5 for the body, to be validated by the service.
+     * @param contentCrc64      Specify the transactional crc64 for the body, to be validated by the service.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information,
+     *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param blobHttpHeaders   Additional parameters for the operation.
+     * @param metadata          Specifies a user-defined name-value pair associated with the blob.
+     * @param requestConditions requests to the conditions
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded
+     *                          in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo           Additional parameters for the operation.
+     * @param tier              Indicates the tier to be set on the blob.
+     * @return The response object.
+     */
     public BlockBlobsCommitBlockListResponse commitBlockListWithRestResponse(String containerName,
                                                                              String blobName,
                                                                              List<String> base64BlockIds,
-                                                                             byte[] transactionalContentMD5,
-                                                                             byte[] transactionalContentCrc64,
+                                                                             byte[] contentMD5,
+                                                                             byte[] contentCrc64,
                                                                              Integer timeout,
                                                                              BlobHttpHeaders blobHttpHeaders,
                                                                              Map<String, String> metadata,
@@ -509,8 +632,8 @@ public class StorageBlobClient {
         return this.storageBlobServiceClient.commitBlockListWithRestResponse(containerName,
             blobName,
             base64BlockIds,
-            transactionalContentMD5,
-            transactionalContentCrc64,
+            contentMD5,
+            contentCrc64,
             timeout,
             blobHttpHeaders,
             metadata,
@@ -520,11 +643,36 @@ public class StorageBlobClient {
             tier);
     }
 
+    /**
+     * The Commit Block List operation writes a blob by specifying the list of block IDs that make up the blob.
+     * In order to be written as part of a blob, a block must have been successfully written to the server in a prior
+     * Put Block operation. You can call Put Block List to update a blob by uploading only those blocks that have
+     * changed, then committing the new and existing blocks together. You can do this by specifying whether to commit
+     * a block from the committed block list or from the uncommitted block list, or to commit the most recently uploaded
+     * version of the block, whichever list it may belong to.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param base64BlockIds    The block IDs.
+     * @param contentMD5        Specify the transactional md5 for the body, to be validated by the service.
+     * @param contentCrc64      Specify the transactional crc64 for the body, to be validated by the service.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information,
+     *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param blobHttpHeaders   Additional parameters for the operation.
+     * @param metadata          Specifies a user-defined name-value pair associated with the blob.
+     * @param requestConditions requests to the conditions
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded
+     *                          in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo           Additional parameters for the operation.
+     * @param tier              Indicates the tier to be set on the blob.
+     * @param callback          Callback that receives the response.
+     * @return The service call object, representing the request scheduled for execution.
+     */
     public ServiceCall commitBlockListWithRestResponse(String containerName,
                                                        String blobName,
                                                        List<String> base64BlockIds,
-                                                       byte[] transactionalContentMD5,
-                                                       byte[] transactionalContentCrc64,
+                                                       byte[] contentMD5,
+                                                       byte[] contentCrc64,
                                                        Integer timeout,
                                                        BlobHttpHeaders blobHttpHeaders,
                                                        Map<String, String> metadata,
@@ -536,8 +684,8 @@ public class StorageBlobClient {
         return this.storageBlobServiceClient.commitBlockListWithRestResponse(containerName,
             blobName,
             base64BlockIds,
-            transactionalContentMD5,
-            transactionalContentCrc64,
+            contentMD5,
+            contentCrc64,
             timeout,
             blobHttpHeaders,
             metadata,
