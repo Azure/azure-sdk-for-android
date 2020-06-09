@@ -38,7 +38,7 @@ import static org.junit.Assert.assertNull;
 public class StorageBlobClientTest {
     private static final MockWebServer mockWebServer = new MockWebServer();
     private static final String BASE_URL = mockWebServer.url("/").toString();
-    private static StorageBlobClient storageBlobClient = new StorageBlobClient.Builder(
+    private static StorageBlobClient storageBlobClient = new StorageBlobClient.Builder("client.test.1",
         new ServiceClient.Builder()
             .setBaseUrl(BASE_URL)
             .setSerializationFormat(SerializerFormat.XML))
@@ -55,7 +55,7 @@ public class StorageBlobClientTest {
         // Given a StorageBlobClient.
 
         // When creating another client based on the first one.
-        StorageBlobClient otherStorageBlobClient = storageBlobClient.newBuilder().build();
+        StorageBlobClient otherStorageBlobClient = storageBlobClient.newBuilder("client.test.2").build();
 
         // Then the new client will contain the same properties as the original.
         assertEquals(storageBlobClient.getBlobServiceUrl(), otherStorageBlobClient.getBlobServiceUrl());
