@@ -747,7 +747,7 @@ public class StorageBlobClient {
          * @param storageBlobClientId the unique id for the {@link StorageBlobClient} this builder builds.
          * @param serviceClientBuilder The {@link com.azure.android.core.http.ServiceClient.Builder}.
          */
-        private Builder(String storageBlobClientId, ServiceClient.Builder serviceClientBuilder) {
+        public Builder(String storageBlobClientId, ServiceClient.Builder serviceClientBuilder) {
             this(storageBlobClientId, serviceClientBuilder, new Constraints.Builder());
             this.transferConstraintsBuilder
                 .setRequiredNetworkType(NetworkType.CONNECTED);
