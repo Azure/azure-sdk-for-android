@@ -451,8 +451,8 @@ public class StorageBlobClient {
      * @param base64BlockId A valid Base64 string value that identifies the block. Prior to encoding, the string must
      *                      be less than or equal to 64 bytes in size. For a given blob, the length of the value specified
      *                      for the base64BlockId parameter must be the same size for each block.
-     * @param blockContent  the block content in bytes
-     * @param contentMd5    the transactional md5 for the body, to be validated by the service.
+     * @param blockContent  The block content in bytes.
+     * @param contentMd5    The transactional MD5 for the body, to be validated by the service.
      */
     public Void stageBlock(String containerName,
                            String blobName,
@@ -474,8 +474,8 @@ public class StorageBlobClient {
      * @param base64BlockId A valid Base64 string value that identifies the block. Prior to encoding, the string must
      *                      be less than or equal to 64 bytes in size. For a given blob, the length of the value specified
      *                      for the base64BlockId parameter must be the same size for each block.
-     * @param blockContent  the block content in bytes
-     * @param contentMd5    the transactional md5 for the body, to be validated by the service.
+     * @param blockContent  The block content in bytes.
+     * @param contentMd5    The transactional MD5 for the body, to be validated by the service.
      * @param callback      Callback that receives the response.
      * @return The service call object, representing the request scheduled for execution.
      */
@@ -501,16 +501,16 @@ public class StorageBlobClient {
      * @param base64BlockId A valid Base64 string value that identifies the block. Prior to encoding, the string must
      *                      be less than or equal to 64 bytes in size. For a given blob, the length of the value specified
      *                      for the base64BlockId parameter must be the same size for each block.
-     * @param blockContent  the block content in bytes
-     * @param contentMd5    the transactional md5 for the block content, to be validated by the service.
+     * @param blockContent  The block content in bytes.
+     * @param contentMd5    The transactional MD5 for the block content, to be validated by the service.
      * @param contentCrc64  Specify the transactional crc64 for the block content, to be validated by the service.
      * @param timeout       The timeout parameter is expressed in seconds. For more information,
      *     see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param leaseId       If specified, the staging only succeeds if the resource's lease is active and matches this ID.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded
+     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded.
      *                      in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo       Additional parameters for the operation.
-     * @return The response object
+     * @return The response object.
      */
     public BlockBlobsStageBlockResponse stageBlockWithRestResponse(String containerName,
                                                                    String blobName,
@@ -542,13 +542,13 @@ public class StorageBlobClient {
      * @param base64BlockId A valid Base64 string value that identifies the block. Prior to encoding, the string must
      *                      be less than or equal to 64 bytes in size. For a given blob, the length of the value specified
      *                      for the base64BlockId parameter must be the same size for each block.
-     * @param blockContent  the block content in bytes
-     * @param contentMd5    the transactional md5 for the block content, to be validated by the service.
+     * @param blockContent  The block content in bytes.
+     * @param contentMd5    The transactional MD5 for the block content, to be validated by the service.
      * @param contentCrc64  Specify the transactional crc64 for the block content, to be validated by the service.
      * @param timeout       The timeout parameter is expressed in seconds. For more information,
      *                      see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param leaseId       If specified, the staging only succeeds if the resource's lease is active and matches this ID.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded
+     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded.
      *                      in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo       Additional parameters for the operation.
      * @param callback      Callback that receives the response.
@@ -647,7 +647,7 @@ public class StorageBlobClient {
      *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param blobHttpHeaders   Additional Http headers for this operation.
      * @param metadata          Specifies a user-defined name-value pair associated with the blob.
-     * @param requestConditions requests to the conditions
+     * @param requestConditions {@link BlobRequestConditions}.
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded
      *                          in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo           Additional parameters for the operation.
@@ -697,7 +697,7 @@ public class StorageBlobClient {
      *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param blobHttpHeaders   Additional Http headers for this operation.
      * @param metadata          Specifies a user-defined name-value pair associated with the blob.
-     * @param requestConditions requests to the conditions
+     * @param requestConditions {@link BlobRequestConditions}.
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded
      *                          in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo           Additional parameters for the operation.
