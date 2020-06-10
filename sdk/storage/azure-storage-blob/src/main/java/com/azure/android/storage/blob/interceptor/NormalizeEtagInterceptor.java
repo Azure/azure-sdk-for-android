@@ -15,11 +15,17 @@ import okhttp3.Response;
  */
 public class NormalizeEtagInterceptor implements Interceptor {
     /**
+     * Intercept the service returned ETag value and normalize it if required.
+     *
+     * <p>
      * The service is inconsistent in whether or not the ETag header value has quotes. This method will check if the
      * response returns an ETag value, and if it does, remove any quotes that may be present to give the user a more
      * predictable format to work with.
      *
-     * @return An updated response with post processing steps applied.
+     * @param chain provide access to the response containing ETag header to normalize.
+     *
+     * @return response from the next interceptor in the pipeline
+     * @throws IOException if an IO error occurs while processing the request and response
      */
     @NonNull
     @Override

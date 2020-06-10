@@ -213,7 +213,7 @@ public class TransferClient {
      * @param writableContent describes the Content in the device to store the downloaded blob.
      * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
      */
-    public LiveData<TransferInfo> download(String storageBlobClientId,
+    private LiveData<TransferInfo> download(String storageBlobClientId,
                                            String containerName,
                                            String blobName,
                                            WritableContent writableContent) {
@@ -284,7 +284,7 @@ public class TransferClient {
      * transfer.
      *
      * Upon successful scheduling of the pause, any observer observing on
-     * {@link LiveData<TransferInfo>} for this transfer receives a {@link TransferInfo}
+     * the {@link LiveData} for this transfer receives a {@link TransferInfo}
      * event with state {@link TransferInfo.State#USER_PAUSED}.
      *
      * @param transferId the transfer id identifies the transfer to pause.
@@ -385,7 +385,7 @@ public class TransferClient {
      * Cancel a transfer identified by the given transfer ID. The cancel operation is a best-effort, and a transfer
      * that is already executing may continue to transfer.
      *
-     * Upon successful scheduling of the cancellation, any observer observing on {@link LiveData<TransferInfo>} for
+     * Upon successful scheduling of the cancellation, any observer observing on {@link LiveData} for
      * this transfer receives a {@link TransferInfo} event with state {@link TransferInfo.State#CANCELLED}.
      *
      * @param transferId The transfer ID identifies the transfer to cancel.
@@ -426,7 +426,7 @@ public class TransferClient {
     /**
      * Subscribe to a TransferOperationResult LiveData and transform that to TransferInfo LiveData.
      *
-     * This method caches or uses cached {@link LiveData<TransferInfo>} to stream TransferInfo.
+     * This method caches or uses cached {@link LiveData} to stream {@link TransferInfo}.
      * If provided TransferOperationResult LiveData emits an error, then cache won't be used.
      *
      * @param transferOpResultLiveData the LiveData to channel transfer operation initiation result
@@ -607,6 +607,8 @@ public class TransferClient {
 
         /**
          * Create a new {@link TransferClient} builder.
+         *
+         * @param context the application context
          */
         public Builder(@NonNull Context context) {
             this.context = context;

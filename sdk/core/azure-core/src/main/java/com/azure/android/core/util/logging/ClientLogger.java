@@ -57,14 +57,19 @@ public interface ClientLogger {
      */
     int LOG_LEVEL_ERROR = 4;
 
+
     /**
-     * Returns the logger's log level.
+     * Get the current log level.
+     *
+     * @return the current log level
      */
     @LogLevel
     int getLogLevel();
 
     /**
      * Sets the log level for the logger.
+     *
+     * @param logLevel the log level
      */
     void setLogLevel(@LogLevel int logLevel);
 

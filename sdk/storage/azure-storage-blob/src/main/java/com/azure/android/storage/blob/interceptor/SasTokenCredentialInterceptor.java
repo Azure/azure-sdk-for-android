@@ -24,6 +24,14 @@ public class SasTokenCredentialInterceptor implements Interceptor {
         this.credential = credential;
     }
 
+    /**
+     * Intercept the current request in the pipeline and apply the SAS token.
+     *
+     * @param chain provide access to the request to apply the SAS token
+     *
+     * @return response from the next interceptor in the pipeline
+     * @throws IOException if an IO error occurs while processing the request and response
+     */
     @Override
     public Response intercept(Chain chain) throws IOException {
         HttpUrl requestURL = chain.request().url();
