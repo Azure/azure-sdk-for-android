@@ -15,7 +15,7 @@ import okhttp3.Response;
 import static com.azure.android.core.util.CoreUtil.isNullOrEmpty;
 
 /**
- *  Pipeline interceptor that append SAS token to the request Uri.
+ *  Pipeline interceptor that append SAS token to the request URI.
  */
 public class SasTokenCredentialInterceptor implements Interceptor {
     private final SasTokenCredential credential;
@@ -29,7 +29,7 @@ public class SasTokenCredentialInterceptor implements Interceptor {
      *
      * @param chain Provide access to the request to apply the SAS token.
      *
-     * @return Response from the next interceptor in the pipeline.
+     * @return Response From the next interceptor in the pipeline.
      * @throws IOException If an IO error occurs while processing the request and response.
      */
     @Override

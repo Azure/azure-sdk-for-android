@@ -20,9 +20,9 @@ import okhttp3.Response;
  */
 public class RequestIdInterceptor implements Interceptor {
     /**
-     * Intercept the current request in the pipeline and apply x-ms-client-request-id header.
-     *
-     * @param chain provide access to the request to apply the x-ms-client-request-id header.
+     * Intercept the current request in the pipeline and apply the "x-ms-client-request-id" header.
+
+     * @param chain Provide access to the request to apply the "x-ms-client-request-id" header.
      *
      * @return Response from the next interceptor in the pipeline.
      * @throws IOException If an IO error occurs while processing the request and response.

@@ -31,7 +31,7 @@ public final class ServiceCall {
     /**
      * Check whether {@link #cancel()} was called.
      *
-     * @return true if {@link #cancel()} was called.
+     * @return true If {@link #cancel()} was called.
      */
     public boolean isCanceled() {
         return this.call.isCanceled();

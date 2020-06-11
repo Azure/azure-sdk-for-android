@@ -249,7 +249,7 @@ public class StorageBlobClient {
      * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
      *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo               Additional parameters for the operation.
-     *  @param callback             Callback that receives the response.
+     * @param callback             Callback that receives the response.
      * @return The service call object, representing the request scheduled for execution.
      */
     public ServiceCall getBlobPropertiesWithRestResponse(String containerName,
@@ -286,7 +286,7 @@ public class StorageBlobClient {
      *`
      * @param containerName The container name.
      * @param blobName      The blob name.
-     * @return the response containing blob bytes
+     * @return The response containing the blob's bytes.
      */
     public ResponseBody rawDownload(String containerName,
                                     String blobName) {
@@ -590,7 +590,7 @@ public class StorageBlobClient {
      * @param blobName       The blob name.
      * @param base64BlockIds The block IDs.
      * @param overwrite      Indicate whether to overwrite the block list if already exists.
-     * @return the properties of the block blob
+     * @return The properties of the block blob
      */
     public BlockBlobItem commitBlockList(String containerName,
                                          String blobName,

@@ -35,7 +35,7 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
     /**
      * Constructor that adds two mandatory headers used by Storage and uses a provided {@link ClientLogger}.
      *
-     * @param clientLogger the logger
+     * @param clientLogger The logger.
      */
     public ResponseHeadersValidationInterceptor(ClientLogger clientLogger) {
         headerNames.add(CLIENT_ID_HEADER);
@@ -47,7 +47,7 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
      * Constructor that accepts a list of header names to validate. Adds two mandatory Storage header names as well.
      * and uses a default {@link ClientLogger}.
      *
-     * @param headerNames the header names
+     * @param headerNames The header names.
      */
     public ResponseHeadersValidationInterceptor(Collection<String> headerNames) {
         this(headerNames, ClientLogger.getDefault(ResponseHeadersValidationInterceptor.class));
@@ -57,8 +57,8 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
      * Constructor that accepts a list of header names to validate. Adds two mandatory Storage header names as well
      * and uses a provided {@link ClientLogger}.
      *
-     * @param headerNames  the header names
-     * @param clientLogger the logger
+     * @param headerNames The header names.
+     * @param clientLogger The logger.
      */
     public ResponseHeadersValidationInterceptor(Collection<String> headerNames, ClientLogger clientLogger) {
         headerNames.add(CLIENT_ID_HEADER);
@@ -72,7 +72,7 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
      *
      * @param chain Provide access to the response to be validated.
      *
-     * @return Response from the next interceptor in the pipeline.
+     * @return Response From the next interceptor in the pipeline.
      * @throws IOException If an IO error occurs while processing the request and response.
      */
     @NonNull

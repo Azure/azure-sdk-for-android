@@ -40,9 +40,9 @@ public class CurlLoggingInterceptor implements Interceptor {
     }
 
     /**
-     * Intercept and log a request response pair in the pipeline as cURL commands.
+     * Intercept and log a request-response pair in the pipeline as cURL commands.
      *
-     * @param chain provide access to the request and response to log.
+     * @param chain Provide access to the request and response to log.
      *
      * @return Response from the next interceptor in the pipeline.
      * @throws IOException If an IO error occurs while processing the request and response.

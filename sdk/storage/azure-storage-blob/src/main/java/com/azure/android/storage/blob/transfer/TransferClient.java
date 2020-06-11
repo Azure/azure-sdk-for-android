@@ -207,7 +207,7 @@ public class TransferClient {
     /**
      * Download a blob.
      *
-     * @param storageBlobClientId the identifier of the blob storage client to use for the download
+     * @param storageBlobClientId The identifier of the blob storage client to use for the download
      * @param containerName The container to download the blob from.
      * @param blobName The name of the target blob to download.
      * @param writableContent Describes the Content in the device to store the downloaded blob.
@@ -608,7 +608,7 @@ public class TransferClient {
         /**
          * Create a new {@link TransferClient} builder.
          *
-         * @param context the application context
+         * @param context The application context.
          */
         public Builder(@NonNull Context context) {
             this.context = context;
@@ -625,7 +625,7 @@ public class TransferClient {
          *   it is recommended to use a value unique to your application (e.g. "MyApplication").
          *   If your application uses multiple clients with different configurations, use a value unique
          *   to both your application and the configuration (e.g. "MyApplication.userClient").
-         * @param storageBlobClient the blob storage client.
+         * @param storageBlobClient The blob storage client.
          * @return Builder with the provided blob storage client set.
          */
         public Builder addStorageBlobClient(@NonNull String storageBlobClientId,

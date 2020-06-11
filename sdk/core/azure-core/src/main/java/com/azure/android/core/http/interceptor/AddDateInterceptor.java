@@ -21,9 +21,9 @@ import okhttp3.Response;
  */
 public class AddDateInterceptor implements Interceptor {
     /**
-     * Intercept the current request in the pipeline and apply HTTP Date header.
+     * Intercept the current request in the pipeline and apply the HTTP "Date" header.
      *
-     * @param chain provide access to the request to apply the HTTP Date header.
+     * @param chain Provide access to the request to apply the HTTP Date header.
      *
      * @return Response from the next interceptor in the pipeline.
      * @throws IOException If an IO error occurs while processing the request and response.

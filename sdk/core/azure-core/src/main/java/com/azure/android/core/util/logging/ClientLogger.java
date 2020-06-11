@@ -59,9 +59,9 @@ public interface ClientLogger {
 
 
     /**
-     * Get the current log level.
+     * Gets the current log level.
      *
-     * @return the current log level
+     * @return The current log level.
      */
     @LogLevel
     int getLogLevel();
@@ -69,7 +69,7 @@ public interface ClientLogger {
     /**
      * Sets the log level for the logger.
      *
-     * @param logLevel the log level
+     * @param logLevel The log level.
      */
     void setLogLevel(@LogLevel int logLevel);
 

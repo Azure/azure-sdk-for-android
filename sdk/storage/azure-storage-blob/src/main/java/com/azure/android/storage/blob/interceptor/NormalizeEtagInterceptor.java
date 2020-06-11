@@ -24,8 +24,8 @@ public class NormalizeEtagInterceptor implements Interceptor {
      *
      * @param chain Provide access to the response containing ETag header to normalize.
      *
-     * @return Response from the next interceptor in the pipeline.
-     * @throws IOException If an IO error occurs while processing the request and response
+     * @return Response From the next interceptor in the pipeline.
+     * @throws IOException If an IO error occurs while processing the request and response.
      */
     @NonNull
     @Override

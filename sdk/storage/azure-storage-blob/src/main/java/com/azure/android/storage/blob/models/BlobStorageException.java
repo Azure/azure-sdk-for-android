@@ -59,7 +59,7 @@ public final class BlobStorageException extends HttpResponseException {
     }
 
     /**
-     * Gets the status code of the response error.
+     * Gets the status code of the error response.
      *
      * @return The status code.
      */
