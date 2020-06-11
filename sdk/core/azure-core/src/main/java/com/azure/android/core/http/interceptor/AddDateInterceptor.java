@@ -20,6 +20,14 @@ import okhttp3.Response;
  * HTTP request.
  */
 public class AddDateInterceptor implements Interceptor {
+    /**
+     * Intercept the current request in the pipeline and apply HTTP Date header.
+     *
+     * @param chain provide access to the request to apply the HTTP Date header.
+     *
+     * @return Response from the next interceptor in the pipeline.
+     * @throws IOException If an IO error occurs while processing the request and response.
+     */
     @NonNull
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {

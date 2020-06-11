@@ -10,8 +10,8 @@ import okhttp3.Interceptor;
 import okhttp3.Response;
 
 /**
- * Interceptor that wraps any potential error responses from the service and applies post processing of the response's
- * ETag header to standardize the value.
+ * Pipeline interceptor that wraps any potential error responses from the service and applies post processing
+ * of the response's ETag header to standardize the value.
  */
 public class NormalizeEtagInterceptor implements Interceptor {
     /**
@@ -22,10 +22,10 @@ public class NormalizeEtagInterceptor implements Interceptor {
      * response returns an ETag value, and if it does, remove any quotes that may be present to give the user a more
      * predictable format to work with.
      *
-     * @param chain provide access to the response containing ETag header to normalize.
+     * @param chain Provide access to the response containing ETag header to normalize.
      *
-     * @return response from the next interceptor in the pipeline
-     * @throws IOException if an IO error occurs while processing the request and response
+     * @return Response from the next interceptor in the pipeline.
+     * @throws IOException If an IO error occurs while processing the request and response
      */
     @NonNull
     @Override

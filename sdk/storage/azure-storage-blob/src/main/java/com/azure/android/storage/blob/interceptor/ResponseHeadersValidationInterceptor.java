@@ -16,7 +16,7 @@ import okhttp3.Response;
 import static com.azure.android.core.util.CoreUtil.isNullOrEmpty;
 
 /**
- * Interceptor that validates that a collection of headers have consistent values between a request and a response.
+ * Pipeline interceptor that validates that a collection of headers have consistent values between a request and a response.
  */
 public class ResponseHeadersValidationInterceptor implements Interceptor {
     private static final String CLIENT_ID_HEADER = "x-ms-client-id";
@@ -70,10 +70,10 @@ public class ResponseHeadersValidationInterceptor implements Interceptor {
     /**
      * Intercept and validate that a collection of headers have consistent values between a request and a response.
      *
-     * @param chain provide access to the response to be validated.
+     * @param chain Provide access to the response to be validated.
      *
-     * @return response from the next interceptor in the pipeline
-     * @throws IOException if an IO error occurs while processing the request and response
+     * @return Response from the next interceptor in the pipeline.
+     * @throws IOException If an IO error occurs while processing the request and response.
      */
     @NonNull
     @Override

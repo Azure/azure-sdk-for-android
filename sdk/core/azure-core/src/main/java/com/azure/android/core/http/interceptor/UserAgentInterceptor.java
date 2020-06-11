@@ -141,10 +141,16 @@ public class UserAgentInterceptor implements Interceptor {
     }
 
     /**
-     * Updates the "User-Agent" header with the value supplied in the constructor.
+     * Intercept the current request update it's the "User-Agent" header with the value supplied in the constructor.
+     *
      * <p>
      * When the User-Agent header already has a value and it differs from the value used to create this interceptor the
      * User-Agent header is updated by prepending the value in this interceptor.
+     *
+     * @param chain provide access to the request to apply the "User-Agent" header.
+     *
+     * @return Response from the next interceptor in the pipeline.
+     * @throws IOException If an IO error occurs while processing the request and response.
      */
     @NonNull
     @Override
