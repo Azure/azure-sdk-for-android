@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 
 import com.azure.android.core.http.ServiceCall;
 import com.azure.android.storage.blob.StorageBlobClient;
-import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
+import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobRange;
 
 import java.util.ArrayList;
@@ -290,7 +290,7 @@ final class DownloadHandler extends Handler {
 
             Log.v(TAG, "downloadBlob(): Downloading block: " + block.blockId + getThreadName());
 
-            ServiceCall call = blobClient.downloadWithRestResponse(blob.containerName,
+            ServiceCall call = blobClient.rawDownloadWithRestResponse(blob.containerName,
                 blob.blobName,
                 null,
                 null,
@@ -301,9 +301,9 @@ final class DownloadHandler extends Handler {
                 null,
                 null,
                 null,
-                new com.azure.android.core.http.Callback<BlobDownloadAsyncResponse>() {
+                new com.azure.android.core.http.Callback<BlobDownloadResponse>() {
                     @Override
-                    public void onResponse(BlobDownloadAsyncResponse response) {
+                    public void onResponse(BlobDownloadResponse response) {
                         try {
                             byte[] blockContent = response.getValue().bytes();
                             content.writeBlock(block.blockOffset, blockContent);

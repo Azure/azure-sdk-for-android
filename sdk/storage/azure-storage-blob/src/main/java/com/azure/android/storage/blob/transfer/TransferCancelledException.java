@@ -6,7 +6,7 @@ package com.azure.android.storage.blob.transfer;
 /**
  * Exception indicating that user cancelled the transfer operation.
  */
-public final class TransferCancelledException extends Exception {
+final class TransferCancelledException extends Exception {
     private final long transferId;
 
     /**
