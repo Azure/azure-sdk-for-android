@@ -9,6 +9,7 @@ import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.storage.blob.models.AccessTier;
+import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
@@ -21,8 +22,11 @@ import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
+import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
+
+import org.threeten.bp.OffsetDateTime;
 
 import java.util.List;
 import java.util.Map;
@@ -545,6 +549,161 @@ public class StorageBlobClient {
             requestId,
             cpkInfo,
             tier, callback);
+    }
+
+    /**
+     * Reads the blob's metadata & properties.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @return The blob's metadata.
+     */
+    Void delete(String containerName,
+                String blobName) {
+        return storageBlobServiceClient.delete(containerName,
+            blobName);
+    }
+
+    /**
+     * Reads the blob's metadata & properties.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param callback      Callback that receives the response.
+     */
+    ServiceCall delete(String containerName,
+                       String blobName,
+                       Callback<Void> callback) {
+        return storageBlobServiceClient.delete(containerName,
+            blobName,
+            callback);
+    }
+
+    /**
+     * If the storage account's soft delete feature is disabled then, when a blob is deleted, it is permanently
+     * removed from the storage account. If the storage account's soft delete feature is enabled, then, when a blob
+     * is deleted, it is marked for deletion and becomes inaccessible immediately. However, the blob service retains
+     * the blob or snapshot for the number of days specified by the DeleteRetentionPolicy section of [Storage service
+     * properties] (Set-Blob-Service-Properties.md). After the specified number of days has passed, the blob's data
+     * is permanently removed from the storage account. Note that you continue to be charged for the soft-deleted
+     * blob's storage until it is permanently removed. Use the List Blobs API and specify the "include=deleted" query
+     * parameter to discover which blobs and snapshots have been soft deleted. You can then use the Undelete Blob API
+     * to restore a soft-deleted blob. All other operations on a soft-deleted blob or snapshot causes the service to
+     * return an HTTP status code of 404 (ResourceNotFound). If the storage account's automatic snapshot feature is
+     * enabled, then, when a blob is deleted, an automatic snapshot is created. The blob becomes inaccessible
+     * immediately. All other operations on the blob causes the service to return an HTTP status code of 404
+     * (ResourceNotFound). You can access automatic snapshot using snapshot timestamp or version id. You can restore
+     * the blob by calling Put or Copy Blob API with automatic snapshot as source. Deleting automatic snapshot
+     * requires shared key or special SAS/RBAC permissions.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the
+     *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and
+     *                          matches this ID.
+     * @param deleteSnapshots   Required if the blob has associated snapshots. Specify one of the following two
+     *                          options: include: Delete the base blob and all of its snapshots. only: Delete only the blob's snapshots and not the blob itself. Possible values include: 'include', 'only'.
+     * @param ifModifiedSince   Specify this header value to operate only on a blob if it has been modified since the
+     *                          specified date/time.
+     * @param ifUnmodifiedSince Specify this header value to operate only on a blob if it has not been modified since
+     *                          the specified date/time.
+     * @param ifMatch           Specify an ETag value to operate only on blobs with a matching value.
+     * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     */
+    BlobDeleteResponse deleteWithResponse(String containerName,
+                                          String blobName,
+                                          String snapshot,
+                                          Integer timeout,
+                                          String version,
+                                          String leaseId,
+                                          DeleteSnapshotsOptionType deleteSnapshots,
+                                          OffsetDateTime ifModifiedSince,
+                                          OffsetDateTime ifUnmodifiedSince,
+                                          String ifMatch,
+                                          String ifNoneMatch,
+                                          String requestId) {
+        return storageBlobServiceClient.deleteWithResponse(containerName,
+            blobName,
+            snapshot,
+            timeout,
+            version,
+            leaseId,
+            deleteSnapshots,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
+            requestId);
+    }
+
+    /**
+     * If the storage account's soft delete feature is disabled then, when a blob is deleted, it is permanently
+     * removed from the storage account. If the storage account's soft delete feature is enabled, then, when a blob
+     * is deleted, it is marked for deletion and becomes inaccessible immediately. However, the blob service retains
+     * the blob or snapshot for the number of days specified by the DeleteRetentionPolicy section of [Storage service
+     * properties] (Set-Blob-Service-Properties.md). After the specified number of days has passed, the blob's data
+     * is permanently removed from the storage account. Note that you continue to be charged for the soft-deleted
+     * blob's storage until it is permanently removed. Use the List Blobs API and specify the "include=deleted" query
+     * parameter to discover which blobs and snapshots have been soft deleted. You can then use the Undelete Blob API
+     * to restore a soft-deleted blob. All other operations on a soft-deleted blob or snapshot causes the service to
+     * return an HTTP status code of 404 (ResourceNotFound). If the storage account's automatic snapshot feature is
+     * enabled, then, when a blob is deleted, an automatic snapshot is created. The blob becomes inaccessible
+     * immediately. All other operations on the blob causes the service to return an HTTP status code of 404
+     * (ResourceNotFound). You can access automatic snapshot using snapshot timestamp or version id. You can restore
+     * the blob by calling Put or Copy Blob API with automatic snapshot as source. Deleting automatic snapshot
+     * requires shared key or special SAS/RBAC permissions.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the
+     *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and
+     *                          matches this ID.
+     * @param deleteSnapshots   Required if the blob has associated snapshots. Specify one of the following two
+     *                          options: include: Delete the base blob and all of its snapshots. only: Delete only the blob's snapshots and not the blob itself. Possible values include: 'include', 'only'.
+     * @param ifModifiedSince   Specify this header value to operate only on a blob if it has been modified since the
+     *                          specified date/time.
+     * @param ifUnmodifiedSince Specify this header value to operate only on a blob if it has not been modified since
+     *                          the specified date/time.
+     * @param ifMatch           Specify an ETag value to operate only on blobs with a matching value.
+     * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param callback          Callback that receives the response.
+     */
+    ServiceCall deleteWithResponse(String containerName,
+                                   String blobName,
+                                   String snapshot,
+                                   Integer timeout,
+                                   String version,
+                                   String leaseId,
+                                   DeleteSnapshotsOptionType deleteSnapshots,
+                                   OffsetDateTime ifModifiedSince,
+                                   OffsetDateTime ifUnmodifiedSince,
+                                   String ifMatch,
+                                   String ifNoneMatch,
+                                   String requestId,
+                                   Callback<BlobDeleteResponse> callback) {
+        return storageBlobServiceClient.deleteWithResponse(containerName,
+            blobName,
+            snapshot,
+            timeout,
+            version,
+            leaseId,
+            deleteSnapshots,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
+            requestId,
+            callback);
     }
 
     /**

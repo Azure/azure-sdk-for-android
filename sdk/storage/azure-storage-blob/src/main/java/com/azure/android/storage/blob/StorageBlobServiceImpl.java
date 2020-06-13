@@ -13,6 +13,7 @@ import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.Base64Util;
 import com.azure.android.core.util.DateTimeRfc1123;
 import com.azure.android.storage.blob.models.AccessTier;
+import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
@@ -21,6 +22,7 @@ import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobStorageException;
+import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
@@ -30,6 +32,7 @@ import com.azure.android.storage.blob.models.BlockLookupList;
 import com.azure.android.storage.blob.models.ContainerListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
+import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.EncryptionAlgorithmType;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
@@ -50,6 +53,7 @@ import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.HEAD;
 import retrofit2.http.Header;
@@ -347,7 +351,7 @@ final class StorageBlobServiceImpl {
      *
      * @param containerName        The container name.
      * @param blobName             The blob name.
-     * @param snapshot             he snapshot parameter is an opaque DateTime value that, when present, specifies
+     * @param snapshot             The snapshot parameter is an opaque DateTime value that, when present, specifies
      *                             the blob snapshot to retrieve. For more information on working with blob
      *                             snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param timeout              The timeout parameter is expressed in seconds. For more information, see
@@ -682,6 +686,194 @@ final class StorageBlobServiceImpl {
         return new ServiceCall(callAndOptionalResult.getCall());
     }
 
+    /**
+     * Reads the blob's metadata & properties.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @return The blob's metadata.
+     */
+    Void delete(String containerName,
+                String blobName) {
+        return deleteWithResponse(containerName,
+            blobName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null).getValue();
+    }
+
+    /**
+     * Reads the blob's metadata & properties.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param callback      Callback that receives the response.
+     */
+    ServiceCall delete(String containerName,
+                       String blobName,
+                       Callback<Void> callback) {
+        return deleteWithResponse(containerName,
+            blobName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            new Callback<BlobDeleteResponse>() {
+                @Override
+                public void onResponse(BlobDeleteResponse response) {
+                    callback.onResponse(response.getValue());
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    callback.onFailure(t);
+                }
+            });
+    }
+
+    /**
+     * If the storage account's soft delete feature is disabled then, when a blob is deleted, it is permanently
+     * removed from the storage account. If the storage account's soft delete feature is enabled, then, when a blob
+     * is deleted, it is marked for deletion and becomes inaccessible immediately. However, the blob service retains
+     * the blob or snapshot for the number of days specified by the DeleteRetentionPolicy section of [Storage service
+     * properties] (Set-Blob-Service-Properties.md). After the specified number of days has passed, the blob's data
+     * is permanently removed from the storage account. Note that you continue to be charged for the soft-deleted
+     * blob's storage until it is permanently removed. Use the List Blobs API and specify the "include=deleted" query
+     * parameter to discover which blobs and snapshots have been soft deleted. You can then use the Undelete Blob API
+     * to restore a soft-deleted blob. All other operations on a soft-deleted blob or snapshot causes the service to
+     * return an HTTP status code of 404 (ResourceNotFound). If the storage account's automatic snapshot feature is
+     * enabled, then, when a blob is deleted, an automatic snapshot is created. The blob becomes inaccessible
+     * immediately. All other operations on the blob causes the service to return an HTTP status code of 404
+     * (ResourceNotFound). You can access automatic snapshot using snapshot timestamp or version id. You can restore
+     * the blob by calling Put or Copy Blob API with automatic snapshot as source. Deleting automatic snapshot
+     * requires shared key or special SAS/RBAC permissions.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the
+     *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and
+     *                          matches this ID.
+     * @param deleteSnapshots   Required if the blob has associated snapshots. Specify one of the following two
+     *                          options: include: Delete the base blob and all of its snapshots. only: Delete only the blob's snapshots and not the blob itself. Possible values include: 'include', 'only'.
+     * @param ifModifiedSince   Specify this header value to operate only on a blob if it has been modified since the
+     *                          specified date/time.
+     * @param ifUnmodifiedSince Specify this header value to operate only on a blob if it has not been modified since
+     *                          the specified date/time.
+     * @param ifMatch           Specify an ETag value to operate only on blobs with a matching value.
+     * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     */
+    BlobDeleteResponse deleteWithResponse(String containerName,
+                                          String blobName,
+                                          String snapshot,
+                                          Integer timeout,
+                                          String version,
+                                          String leaseId,
+                                          DeleteSnapshotsOptionType deleteSnapshots,
+                                          OffsetDateTime ifModifiedSince,
+                                          OffsetDateTime ifUnmodifiedSince,
+                                          String ifMatch,
+                                          String ifNoneMatch,
+                                          String requestId) {
+        return deleteWithRestResponseIntern(containerName,
+            blobName,
+            snapshot,
+            timeout,
+            version,
+            leaseId,
+            deleteSnapshots,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
+            requestId,
+            null).getResult();
+    }
+
+    /**
+     * If the storage account's soft delete feature is disabled then, when a blob is deleted, it is permanently
+     * removed from the storage account. If the storage account's soft delete feature is enabled, then, when a blob
+     * is deleted, it is marked for deletion and becomes inaccessible immediately. However, the blob service retains
+     * the blob or snapshot for the number of days specified by the DeleteRetentionPolicy section of [Storage service
+     * properties] (Set-Blob-Service-Properties.md). After the specified number of days has passed, the blob's data
+     * is permanently removed from the storage account. Note that you continue to be charged for the soft-deleted
+     * blob's storage until it is permanently removed. Use the List Blobs API and specify the "include=deleted" query
+     * parameter to discover which blobs and snapshots have been soft deleted. You can then use the Undelete Blob API
+     * to restore a soft-deleted blob. All other operations on a soft-deleted blob or snapshot causes the service to
+     * return an HTTP status code of 404 (ResourceNotFound). If the storage account's automatic snapshot feature is
+     * enabled, then, when a blob is deleted, an automatic snapshot is created. The blob becomes inaccessible
+     * immediately. All other operations on the blob causes the service to return an HTTP status code of 404
+     * (ResourceNotFound). You can access automatic snapshot using snapshot timestamp or version id. You can restore
+     * the blob by calling Put or Copy Blob API with automatic snapshot as source. Deleting automatic snapshot
+     * requires shared key or special SAS/RBAC permissions.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the
+     *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and
+     *                          matches this ID.
+     * @param deleteSnapshots   Required if the blob has associated snapshots. Specify one of the following two
+     *                          options: include: Delete the base blob and all of its snapshots. only: Delete only the blob's snapshots and not the blob itself. Possible values include: 'include', 'only'.
+     * @param ifModifiedSince   Specify this header value to operate only on a blob if it has been modified since the
+     *                          specified date/time.
+     * @param ifUnmodifiedSince Specify this header value to operate only on a blob if it has not been modified since
+     *                          the specified date/time.
+     * @param ifMatch           Specify an ETag value to operate only on blobs with a matching value.
+     * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param callback          Callback that receives the response.
+     */
+    ServiceCall deleteWithResponse(String containerName,
+                                   String blobName,
+                                   String snapshot,
+                                   Integer timeout,
+                                   String version,
+                                   String leaseId,
+                                   DeleteSnapshotsOptionType deleteSnapshots,
+                                   OffsetDateTime ifModifiedSince,
+                                   OffsetDateTime ifUnmodifiedSince,
+                                   String ifMatch,
+                                   String ifNoneMatch,
+                                   String requestId,
+                                   Callback<BlobDeleteResponse> callback) {
+        CallAndOptionalResult<BlobDeleteResponse> callAndOptionalResult = deleteWithRestResponseIntern(containerName,
+            blobName,
+            snapshot,
+            timeout,
+            version,
+            leaseId,
+            deleteSnapshots,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
+            requestId,
+            callback);
+
+        return new ServiceCall(callAndOptionalResult.getCall());
+    }
+
     private CallAndOptionalResult<ContainersListBlobFlatSegmentResponse> getBlobsInPageWithRestResponseIntern(String pageId,
                                                                                                               String containerName,
                                                                                                               String prefix,
@@ -692,18 +884,19 @@ final class StorageBlobServiceImpl {
                                                                                                               Callback<ContainersListBlobFlatSegmentResponse> callback) {
         final String resType = "container";
         final String comp = "list";
-        if (callback != null) {
-            Call<ResponseBody> call = service.listBlobFlatSegment(containerName,
-                prefix,
-                pageId,
-                maxResults,
-                this.serializerAdapter.serializeList(include, SerializerAdapter.CollectionFormat.CSV),
-                timeout,
-                XMS_VERSION,
-                requestId,
-                resType,
-                comp);
 
+        Call<ResponseBody> call = service.listBlobFlatSegment(containerName,
+            prefix,
+            pageId,
+            maxResults,
+            this.serializerAdapter.serializeList(include, SerializerAdapter.CollectionFormat.CSV),
+            timeout,
+            XMS_VERSION,
+            requestId,
+            resType,
+            comp);
+
+        if (callback != null) {
             executeCall(call, new retrofit2.Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -738,17 +931,6 @@ final class StorageBlobServiceImpl {
 
             return new CallAndOptionalResult<>(call, null);
         } else {
-            Call<ResponseBody> call = service.listBlobFlatSegment(containerName,
-                prefix,
-                pageId,
-                maxResults,
-                this.serializerAdapter.serializeList(include, SerializerAdapter.CollectionFormat.CSV),
-                timeout,
-                XMS_VERSION,
-                requestId,
-                resType,
-                comp);
-
             Response<ResponseBody> response = executeCall(call);
 
             if (response.isSuccessful()) {
@@ -798,18 +980,18 @@ final class StorageBlobServiceImpl {
             encryptionAlgorithm = cpkInfo.getEncryptionAlgorithm();
         }
 
-        if (callback != null) {
-            Call<Void> call = service.getBlobProperties(containerName,
-                blobName,
-                snapshot,
-                timeout,
-                XMS_VERSION, // TODO: Replace with 'version'.
-                leaseId,
-                requestId,
-                encryptionKey,
-                encryptionKeySha256,
-                encryptionAlgorithm);
+        Call<Void> call = service.getBlobProperties(containerName,
+            blobName,
+            snapshot,
+            timeout,
+            XMS_VERSION, // TODO: Replace with 'version'.
+            leaseId,
+            requestId,
+            encryptionKey,
+            encryptionKeySha256,
+            encryptionAlgorithm);
 
+        if (callback != null) {
             executeCall(call, new retrofit2.Callback<Void>() {
                 @Override
                 public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
@@ -843,17 +1025,6 @@ final class StorageBlobServiceImpl {
 
             return new CallAndOptionalResult<>(call, null);
         } else {
-            Call<Void> call = service.getBlobProperties(containerName,
-                blobName,
-                snapshot,
-                timeout,
-                XMS_VERSION, // TODO: Replace with 'version'.
-                leaseId,
-                requestId,
-                encryptionKey,
-                encryptionKeySha256,
-                encryptionAlgorithm);
-
             Response<Void> response = executeCall(call);
 
             if (response.isSuccessful()) {
@@ -911,25 +1082,25 @@ final class StorageBlobServiceImpl {
         DateTimeRfc1123 ifUnmodifiedSinceConverted = ifUnmodifiedSince == null ? null :
             new DateTimeRfc1123(ifUnmodifiedSince);
 
-        if (callback != null) {
-            Call<ResponseBody> call = service.download(containerName,
-                blobName,
-                snapshot,
-                timeout,
-                range,
-                leaseId,
-                rangeGetContentMd5,
-                rangeGetContentCrc64,
-                ifModifiedSinceConverted,
-                ifUnmodifiedSinceConverted,
-                ifMatch,
-                ifNoneMatch,
-                XMS_VERSION, // TODO: Replace with 'version'.
-                requestId,
-                encryptionKey,
-                encryptionKeySha256,
-                encryptionAlgorithm);
+        Call<ResponseBody> call = service.download(containerName,
+            blobName,
+            snapshot,
+            timeout,
+            range,
+            leaseId,
+            rangeGetContentMd5,
+            rangeGetContentCrc64,
+            ifModifiedSinceConverted,
+            ifUnmodifiedSinceConverted,
+            ifMatch,
+            ifNoneMatch,
+            XMS_VERSION, // TODO: Replace with 'version'.
+            requestId,
+            encryptionKey,
+            encryptionKeySha256,
+            encryptionAlgorithm);
 
+        if (callback != null) {
             executeCall(call, new retrofit2.Callback<ResponseBody>() {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
@@ -963,24 +1134,6 @@ final class StorageBlobServiceImpl {
 
             return new CallAndOptionalResult<>(call, null);
         } else {
-            Call<ResponseBody> call = service.download(containerName,
-                blobName,
-                snapshot,
-                timeout,
-                range,
-                leaseId,
-                rangeGetContentMd5,
-                rangeGetContentCrc64,
-                ifModifiedSinceConverted,
-                ifUnmodifiedSinceConverted,
-                ifMatch,
-                ifNoneMatch,
-                XMS_VERSION, // TODO: Replace with 'version'.
-                requestId,
-                encryptionKey,
-                encryptionKeySha256,
-                encryptionAlgorithm);
-
             Response<ResponseBody> response = executeCall(call);
 
             if (response.isSuccessful()) {
@@ -1034,23 +1187,23 @@ final class StorageBlobServiceImpl {
         int contentLength = blockContent.length;
         RequestBody body = RequestBody.create(MediaType.get("application/octet-stream"), blockContent);
 
-        if (callback != null) {
-            Call<ResponseBody> call = service.stageBlock(containerName,
-                blobName,
-                base64BlockId,
-                contentLength,
-                transactionalContentMD5Converted,
-                transactionalContentCrc64Converted,
-                body,
-                timeout,
-                leaseId,
-                XMS_VERSION,
-                requestId,
-                comp,
-                encryptionKey,
-                encryptionKeySha256,
-                encryptionAlgorithm);
+        Call<ResponseBody> call = service.stageBlock(containerName,
+            blobName,
+            base64BlockId,
+            contentLength,
+            transactionalContentMD5Converted,
+            transactionalContentCrc64Converted,
+            body,
+            timeout,
+            leaseId,
+            XMS_VERSION,
+            requestId,
+            comp,
+            encryptionKey,
+            encryptionKeySha256,
+            encryptionAlgorithm);
 
+        if (callback != null) {
             executeCall(call, new retrofit2.Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -1082,22 +1235,6 @@ final class StorageBlobServiceImpl {
             });
             return new CallAndOptionalResult(call, null);
         } else {
-            Call<ResponseBody> call = service.stageBlock(containerName,
-                blobName,
-                base64BlockId,
-                contentLength,
-                transactionalContentMD5Converted,
-                transactionalContentCrc64Converted,
-                body,
-                timeout,
-                leaseId,
-                XMS_VERSION,
-                requestId,
-                comp,
-                encryptionKey,
-                encryptionKeySha256,
-                encryptionAlgorithm);
-
             Response<ResponseBody> response = executeCall(call);
 
             if (response.isSuccessful()) {
@@ -1222,33 +1359,33 @@ final class StorageBlobServiceImpl {
             }
         }
 
-        if (callback != null) {
-            Call<ResponseBody> call = service.commitBlockList(containerName,
-                blobName,
-                timeout,
-                transactionalContentMD5Converted,
-                transactionalContentCrc64Converted,
-                metadata,
-                leaseId,
-                tier,
-                ifModifiedSince,
-                ifUnmodifiedSince,
-                ifMatch,
-                ifNoneMatch,
-                blocks,
-                XMS_VERSION,
-                requestId,
-                comp,
-                cacheControl,
-                contentType,
-                contentEncoding,
-                contentLanguage,
-                contentMd5Converted,
-                contentDisposition,
-                encryptionKey,
-                encryptionKeySha256,
-                encryptionAlgorithm);
+        Call<ResponseBody> call = service.commitBlockList(containerName,
+            blobName,
+            timeout,
+            transactionalContentMD5Converted,
+            transactionalContentCrc64Converted,
+            metadata,
+            leaseId,
+            tier,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
+            blocks,
+            XMS_VERSION,
+            requestId,
+            comp,
+            cacheControl,
+            contentType,
+            contentEncoding,
+            contentLanguage,
+            contentMd5Converted,
+            contentDisposition,
+            encryptionKey,
+            encryptionKeySha256,
+            encryptionAlgorithm);
 
+        if (callback != null) {
             executeCall(call, new retrofit2.Callback<ResponseBody>() {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -1281,32 +1418,6 @@ final class StorageBlobServiceImpl {
             });
             return new CallAndOptionalResult<>(call, null);
         } else {
-            Call<ResponseBody> call = service.commitBlockList(containerName,
-                blobName,
-                timeout,
-                transactionalContentMD5Converted,
-                transactionalContentCrc64Converted,
-                metadata,
-                leaseId,
-                tier,
-                ifModifiedSince,
-                ifUnmodifiedSince,
-                ifMatch,
-                ifNoneMatch,
-                blocks,
-                XMS_VERSION,
-                requestId,
-                comp,
-                cacheControl,
-                contentType,
-                contentEncoding,
-                contentLanguage,
-                contentMd5Converted,
-                contentDisposition,
-                encryptionKey,
-                encryptionKeySha256,
-                encryptionAlgorithm);
-
             Response<ResponseBody> response = executeCall(call);
 
             if (response.isSuccessful()) {
@@ -1326,6 +1437,96 @@ final class StorageBlobServiceImpl {
                     String strContent = readAsString(response.body());
 
                     throw new BlobStorageException(strContent, response.raw());
+                }
+            } else {
+                String strContent = readAsString(response.errorBody());
+
+                throw new BlobStorageException(strContent, response.raw());
+            }
+        }
+    }
+
+    private CallAndOptionalResult<BlobDeleteResponse> deleteWithRestResponseIntern(String containerName,
+                                                                                   String blobName,
+                                                                                   String snapshot,
+                                                                                   Integer timeout,
+                                                                                   String version,
+                                                                                   String leaseId,
+                                                                                   DeleteSnapshotsOptionType deleteSnapshots,
+                                                                                   OffsetDateTime ifModifiedSince,
+                                                                                   OffsetDateTime ifUnmodifiedSince,
+                                                                                   String ifMatch,
+                                                                                   String ifNoneMatch,
+                                                                                   String requestId,
+                                                                                   Callback<BlobDeleteResponse> callback) {
+        DateTimeRfc1123 ifModifiedSinceConverted = ifModifiedSince == null ? null :
+            new DateTimeRfc1123(ifModifiedSince);
+        DateTimeRfc1123 ifUnmodifiedSinceConverted = ifUnmodifiedSince == null ? null :
+            new DateTimeRfc1123(ifUnmodifiedSince);
+
+        Call<Void> call = service.delete(containerName,
+            blobName,
+            snapshot,
+            timeout,
+            leaseId,
+            deleteSnapshots,
+            ifModifiedSinceConverted,
+            ifUnmodifiedSinceConverted,
+            ifMatch,
+            ifNoneMatch,
+            XMS_VERSION, // TODO: Replace with 'version'.
+            requestId);
+
+        if (callback != null) {
+            executeCall(call, new retrofit2.Callback<Void>() {
+                @Override
+                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        if (response.code() >= 200 && response.code() < 300) {
+                            BlobDeleteHeaders typedHeaders = deserializeHeaders(response.headers(),
+                                BlobDeleteHeaders.class);
+
+                            callback.onResponse(new BlobDeleteResponse(response.raw().request(),
+                                response.code(),
+                                response.headers(),
+                                response.body(),
+                                typedHeaders));
+                        } else {
+                            callback.onFailure(new BlobStorageException("Response failed with error code: " + response.code(),
+                                response.raw()));
+                        }
+                    } else {
+                        String strContent = readAsString(response.errorBody());
+
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                    callback.onFailure(t);
+                }
+            });
+
+            return new CallAndOptionalResult<>(call, null);
+        } else {
+            Response<Void> response = executeCall(call);
+
+            if (response.isSuccessful()) {
+                if (response.code() == 200) {
+                    BlobDeleteHeaders headers = deserializeHeaders(response.headers(),
+                        BlobDeleteHeaders.class);
+
+                    BlobDeleteResponse result = new BlobDeleteResponse(response.raw().request(),
+                        response.code(),
+                        response.headers(),
+                        response.body(),
+                        headers);
+
+                    return new CallAndOptionalResult<>(call, result);
+                } else {
+                    throw new BlobStorageException("Response failed with error code: " + response.code(),
+                        response.raw());
                 }
             } else {
                 String strContent = readAsString(response.errorBody());
@@ -1485,5 +1686,19 @@ final class StorageBlobServiceImpl {
                                            @Header("x-ms-encryption-key") String encryptionKey,
                                            @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
                                            @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
+
+        @DELETE("{containerName}/{blob}")
+        Call<Void> delete(@Path("containerName") String containerName,
+                          @Path("blob") String blob,
+                          @Query("snapshot") String snapshot,
+                          @Query("timeout") Integer timeout,
+                          @Header("x-ms-lease-id") String leaseId,
+                          @Header("x-ms-delete-snapshots") DeleteSnapshotsOptionType deleteSnapshots,
+                          @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
+                          @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
+                          @Header("If-Match") String ifMatch,
+                          @Header("If-None-Match") String ifNoneMatch,
+                          @Header("x-ms-version") String version,
+                          @Header("x-ms-client-request-id") String requestId);
     }
 }
