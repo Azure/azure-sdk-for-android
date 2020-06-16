@@ -1,0 +1,11 @@
+{
+    "client_id" : "<client-id>",
+    "authorization_user_agent" : "DEFAULT",
+    "redirect_uri" : "<redirect-uri>",
+    "authorities" : [
+        {
+        "type": "AAD",
+        "authority_url": "<authority-url>"
+        }
+    ]
+}
