@@ -48,9 +48,9 @@ public final class StorageBlobClientMap {
     /**
      * Add a {@link StorageBlobClient} to this map.
      *
-     * @param storageBlobClientId the unique id of the {@link StorageBlobClient}
-     * @param storageBlobClient the blob storage client
-     * @throws IllegalArgumentException if a {@link StorageBlobClient} with the same id already exists in the map
+     * @param storageBlobClientId The unique ID of the {@link StorageBlobClient}.
+     * @param storageBlobClient The blob storage client.
+     * @throws IllegalArgumentException If a {@link StorageBlobClient} with the same ID already exists in the map.
      */
     public void add(@NonNull String storageBlobClientId, @NonNull StorageBlobClient storageBlobClient) {
         if (Build.VERSION.SDK_INT >= 24) {

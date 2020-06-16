@@ -105,7 +105,7 @@ final class BlobUploadEntity {
      * @param containerName the container name
      * @param blobName the blob name
      * @param content describes the content to be read while uploading
-     * @param constraints the constraints to be satisfied to run the upload operation
+     * @param constraints The constraints to be satisfied to run the upload operation.
      */
     @Ignore
     BlobUploadEntity(String storageBlobClientId,

@@ -26,17 +26,17 @@ public final class DownloadRequest {
     /**
      * Create DownloadRequest.
      *
-     * @param storageClientId identifies the the blob storage client for the download
-     * @param containerName the name of the container holding the blob to download
-     * @param blobName  the name of the blob to download
-     * @param writableContent the object describing the content in the device to store the downloaded blob
-     * @param constraints the constraints to be satisfied to execute the download
+     * @param storageClientId Identifies the {@link com.azure.android.storage.blob.StorageBlobClient} for the download.
+     * @param containerName   The name of the container holding the blob to download.
+     * @param blobName        The name of the blob to download.
+     * @param writableContent The object describing the content in the device to store the downloaded blob.
+     * @param constraints     The constraints to be satisfied to execute the download.
      */
     private DownloadRequest(String storageClientId,
-                    String containerName,
-                    String blobName,
-                    WritableContent writableContent,
-                    Constraints constraints) {
+                            String containerName,
+                            String blobName,
+                            WritableContent writableContent,
+                            Constraints constraints) {
         this.storageClientId = storageClientId;
         this.containerName = containerName;
         this.blobName = blobName;
@@ -47,7 +47,7 @@ public final class DownloadRequest {
     /**
      * Get the unique identifier of the blob storage client to be used for the download.
      *
-     * @return the unique identifier of the blob storage client
+     * @return The unique identifier of the {@link com.azure.android.storage.blob.StorageBlobClient}.
      */
     String getStorageClientId() {
         return this.storageClientId;
@@ -56,7 +56,7 @@ public final class DownloadRequest {
     /**
      * Get the name of the container holding the blob to download.
      *
-     * @return the container name
+     * @return The container name.
      */
     String getContainerName() {
         return this.containerName;
@@ -65,7 +65,7 @@ public final class DownloadRequest {
     /**
      * Get the name of the blob to download.
      *
-     * @return the blob name
+     * @return The blob name.
      */
     String getBlobName() {
         return this.blobName;
@@ -74,7 +74,7 @@ public final class DownloadRequest {
     /**
      * Get the object describing the content in the device to store the downloaded blob.
      *
-     * @return the content description
+     * @return The content description.
      */
     WritableContent getWritableContent() {
         return this.writableContent;
@@ -83,7 +83,7 @@ public final class DownloadRequest {
     /**
      * Get the constraints to be satisfied to execute the download.
      *
-     * @return the constraints
+     * @return The constraints.
      */
     Constraints getConstraints() {
         return this.constraints;
@@ -108,8 +108,8 @@ public final class DownloadRequest {
         /**
          * Set the unique identifier of the blob storage client to be used for the download.
          *
-         * @param storageClientId the blob storage client id
-         * @return Builder with provided blob storage client id set
+         * @param storageClientId The blob storage client ID.
+         * @return Builder with provided blob storage client ID set.
          */
         public Builder storageClientId(String storageClientId) {
             this.storageClientId = storageClientId;
@@ -119,8 +119,8 @@ public final class DownloadRequest {
         /**
          * Set the name of the container holding the blob to download.
          *
-         * @param containerName the container name
-         * @return Builder with provided container name set
+         * @param containerName The container name.
+         * @return Builder with the provided container name set.
          */
         public Builder containerName(String containerName) {
             this.containerName = containerName;
@@ -130,8 +130,8 @@ public final class DownloadRequest {
         /**
          * Set the name of the blob to download.
          *
-         * @param blobName the blob name
-         * @return Builder with provided blob name set
+         * @param blobName The blob name.
+         * @return Builder with the provided blob name set.
          */
         public Builder blobName(String blobName) {
             this.blobName = blobName;
@@ -141,8 +141,8 @@ public final class DownloadRequest {
         /**
          * Set the local file to download to.
          *
-         * @param file the file
-         * @return Builder with provided file set
+         * @param file The file.
+         * @return Builder with the provided file set.
          */
         public Builder file(File file) {
             Objects.requireNonNull(file, "'file' cannot be null.");
@@ -156,9 +156,9 @@ public final class DownloadRequest {
         /**
          * Set the content in the device where the downloaded blob will be stored.
          *
-         * @param context the application context
-         * @param uri The URI to the local content where the downloaded blob will be stored
-         * @return Builder with provided content description set
+         * @param context The application context.
+         * @param uri     The URI to the local content where the downloaded blob will be stored.
+         * @return Builder with the provided content description set.
          */
         public Builder contentUri(Context context, Uri uri) {
             Objects.requireNonNull(context, "'context' cannot be null.");
@@ -173,8 +173,8 @@ public final class DownloadRequest {
         /**
          * Set the constraints to be satisfied to execute the download.
          *
-         * @param constraints the constraints
-         * @return Builder with provided constraints set
+         * @param constraints The constraints.
+         * @return Builder with the provided constraints set.
          */
         public Builder constraints(Constraints constraints) {
             this.constraints = constraints;

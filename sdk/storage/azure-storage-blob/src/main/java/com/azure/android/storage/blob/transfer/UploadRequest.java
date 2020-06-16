@@ -14,7 +14,7 @@ import java.io.File;
 import java.util.Objects;
 
 /**
- * A type specifying parameters for upload transfer that should be enqueued in {@link TransferClient}.
+ * A type specifying parameters for an upload transfer that should be enqueued in {@link TransferClient}.
  */
 public final class UploadRequest {
     private final String storageClientId;
@@ -26,17 +26,17 @@ public final class UploadRequest {
     /**
      * Create UploadRequest.
      *
-     * @param storageClientId identifies the the blob storage client for the upload
-     * @param containerName the name of the container to upload the content to
-     * @param blobName  the name of the target blob holding uploaded content
-     * @param readableContent the object describing the content in the device that needs to be uploaded
-     * @param constraints the constraints to be satisfied to execute the upload
+     * @param storageClientId Identifies the {@link com.azure.android.storage.blob.StorageBlobClient} for the upload.
+     * @param containerName   The name of the container to upload the content to.
+     * @param blobName        The name of the target blob holding the uploaded content.
+     * @param readableContent The object describing the content in the device that needs to be uploaded.
+     * @param constraints     The constraints to be satisfied to execute the upload.
      */
     private UploadRequest(String storageClientId,
-                  String containerName,
-                  String blobName,
-                  ReadableContent readableContent,
-                  Constraints constraints) {
+                          String containerName,
+                          String blobName,
+                          ReadableContent readableContent,
+                          Constraints constraints) {
         this.storageClientId = storageClientId;
         this.containerName = containerName;
         this.blobName = blobName;
@@ -47,7 +47,7 @@ public final class UploadRequest {
     /**
      * Get the unique identifier of the blob storage client to be used for the upload.
      *
-     * @return the unique identifier of the blob storage client
+     * @return The unique identifier of the {@link com.azure.android.storage.blob.StorageBlobClient}.
      */
     String getStorageClientId() {
         return this.storageClientId;
@@ -56,7 +56,7 @@ public final class UploadRequest {
     /**
      * Get the name of the container to upload the file to.
      *
-     * @return the container name
+     * @return The container name.
      */
     String getContainerName() {
         return this.containerName;
@@ -65,7 +65,7 @@ public final class UploadRequest {
     /**
      * Get the name of the target blob holding uploaded file.
      *
-     * @return the blob name
+     * @return The blob name.
      */
     String getBlobName() {
         return this.blobName;
@@ -74,7 +74,7 @@ public final class UploadRequest {
     /**
      * Get the object describing the content in the device that needs to be uploaded.
      *
-     * @return the content description
+     * @return The content description.
      */
     ReadableContent getReadableContent() {
         return this.readableContent;
@@ -83,7 +83,7 @@ public final class UploadRequest {
     /**
      * Get the constraints to be satisfied to execute the upload.
      *
-     * @return the constraints
+     * @return The constraints.
      */
     Constraints getConstraints() {
         return this.constraints;
@@ -108,8 +108,8 @@ public final class UploadRequest {
         /**
          * Set the unique identifier of the blob storage client to be used for the upload.
          *
-         * @param storageClientId the blob storage client id
-         * @return Builder with provided blob storage client id set
+         * @param storageClientId The blob storage client ID.
+         * @return Builder with the provided blob storage client ID set.
          */
         public Builder storageClientId(String storageClientId) {
             this.storageClientId = storageClientId;
@@ -119,8 +119,8 @@ public final class UploadRequest {
         /**
          * Set the name of the container to upload the file to.
          *
-         * @param containerName the container name
-         * @return Builder with provided container name set
+         * @param containerName The container name.
+         * @return Builder with the provided container name set.
          */
         public Builder containerName(String containerName) {
             this.containerName = containerName;
@@ -128,10 +128,10 @@ public final class UploadRequest {
         }
 
         /**
-         * Set the name of the target blob holding uploaded file.
+         * Set the name of the target blob holding the uploaded file.
          *
-         * @param blobName the blob name
-         * @return Builder with provided blob name set
+         * @param blobName The blob name.
+         * @return Builder with the provided blob name set.
          */
         public Builder blobName(String blobName) {
             this.blobName = blobName;
@@ -139,10 +139,10 @@ public final class UploadRequest {
         }
 
         /**
-         * Set the file in the device to upload.
+         * Set the local file to upload.
          *
-         * @param file the file
-         * @return Builder with provided file set
+         * @param file The file.
+         * @return Builder with the provided file set.
          */
         public Builder file(File file) {
             Objects.requireNonNull(file, "'file' cannot be null.");
@@ -154,11 +154,11 @@ public final class UploadRequest {
         }
 
         /**
-         * Set the content in the device to upload.
+         * Set the content in the device to upload from.
          *
-         * @param context the application context
-         * @param uri URI to the Content to upload
-         * @return Builder with provided content description set
+         * @param context The application context.
+         * @param uri     The URI to the local content to upload.
+         * @return Builder with the provided content description set.
          */
         public Builder contentUri(Context context, Uri uri) {
             Objects.requireNonNull(context, "'context' cannot be null.");
@@ -173,8 +173,8 @@ public final class UploadRequest {
         /**
          * Set the constraints to be satisfied to execute the upload.
          *
-         * @param constraints the constraints
-         * @return Builder with provided constraints set
+         * @param constraints The constraints.
+         * @return Builder with the provided constraints set.
          */
         public Builder constraints(Constraints constraints) {
             this.constraints = constraints;
@@ -184,7 +184,7 @@ public final class UploadRequest {
         /**
          * Builds a {@link UploadRequest} based on this {@link Builder}'s configuration.
          *
-         * @return A {@link UploadRequest}.
+         * @return An {@link UploadRequest}.
          */
         public UploadRequest build() {
             if (CoreUtil.isNullOrEmpty(this.storageClientId)) {

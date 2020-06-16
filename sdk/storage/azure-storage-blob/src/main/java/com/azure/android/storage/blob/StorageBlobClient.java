@@ -67,13 +67,14 @@ public class StorageBlobClient {
     /**
      * Creates a new {@link Builder} with initial configuration copied from this {@link StorageBlobClient}.
      *
-     * @param storageBlobClientId the unique id for the new {@link StorageBlobClient}.
-     *     This identifier is used to associate the {@link StorageBlobClient} with the upload, download transfers
-     *     it initiates. When a transfer is reloaded from disk (e.g. after an application crash), it can only be
-     *     resumed once a client with the same storageBlobClientId has been initialized.
+     * @param storageBlobClientId The unique ID for the new {@link StorageBlobClient}. This identifier is used to
+     *                            associate the {@link StorageBlobClient} with the upload and download transfers it
+     *                            initiates. When a transfer is reloaded from disk (e.g. after an application crash),
+     *                            it can only be resumed once a client with the same storageBlobClientId has been
+     *                            initialized.
      * @return A new {@link Builder}.
      */
-    public StorageBlobClient.Builder newBuilder(String  storageBlobClientId) {
+    public StorageBlobClient.Builder newBuilder(String storageBlobClientId) {
         return new Builder(storageBlobClientId, this);
     }
 
@@ -89,11 +90,11 @@ public class StorageBlobClient {
     /**
      * Upload the content of a file.
      *
-     * @param context the application context
-     * @param containerName the container to upload the file to
-     * @param blobName the name of the target blob holding uploaded file
-     * @param file the local file to upload
-     * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
+     * @param context       The application context.
+     * @param containerName The container to upload the file to.
+     * @param blobName      The name of the target blob holding the uploaded file.
+     * @param file          The local file to upload.
+     * @return A LiveData that streams {@link TransferInfo} describing the current state of the transfer.
      */
     public LiveData<TransferInfo> upload(Context context,
                                          String containerName,
@@ -110,15 +111,15 @@ public class StorageBlobClient {
     }
 
     /**
-     * Upload content identified by a given Uri.
+     * Upload content identified by a given URI.
      *
-     * @param context the application context
-     * @param containerName the container to upload the file to
-     * @param blobName the name of the target blob holding uploaded file
-     * @param contentUri URI to the Content to upload, the contentUri is resolved using
-     *   {@link android.content.ContentResolver#openAssetFileDescriptor(Uri, String)}
-     *   with mode as "r". The supported URI schemes are: 'content://', 'file://' and 'android.resource://'
-     * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
+     * @param context       The application context.
+     * @param containerName The container to upload the file to.
+     * @param blobName      The name of the target blob holding the uploaded file.
+     * @param contentUri    The URI to the Content to upload, the contentUri is resolved using
+     *                      {@link android.content.ContentResolver#openAssetFileDescriptor(Uri, String)} with mode as
+     *                      "r". The supported URI schemes are: 'content://', 'file://' and 'android.resource://'.
+     * @return A LiveData that streams {@link TransferInfo} describing the current state of the transfer.
      */
     public LiveData<TransferInfo> upload(Context context,
                                          String containerName,
@@ -138,11 +139,11 @@ public class StorageBlobClient {
     /**
      * Download a blob.
      *
-     * @param context the application context
+     * @param context       The application context.
      * @param containerName The container to download the blob from.
-     * @param blobName The name of the target blob to download.
-     * @param file The local file to download to.
-     * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
+     * @param blobName      The name of the target blob to download.
+     * @param file          The local file to download to.
+     * @return A LiveData that streams {@link TransferInfo} describing the current state of the download.
      */
     public LiveData<TransferInfo> download(Context context,
                                            String containerName,
@@ -162,10 +163,10 @@ public class StorageBlobClient {
     /**
      * Download a blob.
      *
-     * @param context the application context
+     * @param context       The application context.
      * @param containerName The container to download the blob from.
-     * @param blobName The name of the target blob to download.
-     * @param contentUri The URI to the local content where the downloaded blob will be stored.
+     * @param blobName      The name of the target blob to download.
+     * @param contentUri    The URI to the local content where the downloaded blob will be stored.
      * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
      */
     public LiveData<TransferInfo> download(Context context,
@@ -184,16 +185,14 @@ public class StorageBlobClient {
     }
 
     /**
-     * Pause a transfer identified by the given transfer id. The pause operation
-     * is a best-effort, and a transfer that is already executing may continue to
-     * transfer.
+     * Pause a transfer identified by the given transfer ID. The pause operation is a best-effort, and a transfer
+     * that is already executing may continue to transfer.
+     * <p>
+     * Upon successful scheduling of the pause, any observer observing on {@link LiveData<TransferInfo>} for this
+     * transfer receives a {@link TransferInfo} event with state {@link TransferInfo.State#USER_PAUSED}.
      *
-     * Upon successful scheduling of the pause, any observer observing on
-     * {@link LiveData<TransferInfo>} for this transfer receives a {@link TransferInfo}
-     * event with state {@link TransferInfo.State#USER_PAUSED}.
-     *
-     * @param context the application context
-     * @param transferId the transfer id identifies the transfer to pause.
+     * @param context    The application context.
+     * @param transferId The transfer ID identifies the transfer to pause.
      */
     public void pause(Context context, long transferId) {
         TransferClient.getInstance(context)
@@ -203,9 +202,9 @@ public class StorageBlobClient {
     /**
      * Resume a paused transfer.
      *
-     * @param context the application context
-     * @param transferId the transfer id identifies the transfer to resume.
-     * @return LiveData that streams {@link TransferInfo} describing the current state of the transfer
+     * @param context    The application context
+     * @param transferId The transfer ID identifies the transfer to resume.
+     * @return A LiveData that streams {@link TransferInfo} describing the current state of the transfer.
      */
     public LiveData<TransferInfo> resume(Context context, long transferId) {
         return TransferClient.getInstance(context)
@@ -215,7 +214,7 @@ public class StorageBlobClient {
     /**
      * Cancel a transfer identified by the given transfer ID. The cancel operation is a best-effort, and a transfer
      * that is already executing may continue to transfer.
-     *
+     * <p>
      * Upon successful scheduling of the cancellation, any observer observing on {@link LiveData<TransferInfo>} for
      * this transfer receives a {@link TransferInfo} event with state {@link TransferInfo.State#CANCELLED}.
      *
@@ -728,10 +727,11 @@ public class StorageBlobClient {
         /**
          * Creates a {@link Builder}.
          *
-         * @param storageBlobClientId the unique id for the {@link StorageBlobClient} this builder builds.
-         *     This identifier is used to associate this {@link StorageBlobClient} with the upload, download transfers
-         *     it initiates. When a transfer is reloaded from disk (e.g. after an application crash), it can only be
-         *     resumed once a client with the same storageBlobClientId has been initialized.
+         * @param storageBlobClientId The unique ID for the {@link StorageBlobClient} this builder builds. This
+         *                            identifier is used to associate this {@link StorageBlobClient} with the upload and
+         *                            download transfers it initiates. When a transfer is reloaded from disk (e.g.
+         *                            after an application crash), it can only be resumed once a client with the same
+         *                            storageBlobClientId has been initialized.
          */
         public Builder(String storageBlobClientId) {
             this(storageBlobClientId, new ServiceClient.Builder());
@@ -744,7 +744,7 @@ public class StorageBlobClient {
          * Creates a {@link Builder} that uses the provided {@link com.azure.android.core.http.ServiceClient.Builder}
          * to build a {@link ServiceClient} for the {@link StorageBlobClient}.
          *
-         * @param storageBlobClientId the unique id for the {@link StorageBlobClient} this builder builds.
+         * @param storageBlobClientId  The unique ID for the {@link StorageBlobClient} this builder builds.
          * @param serviceClientBuilder The {@link com.azure.android.core.http.ServiceClient.Builder}.
          */
         public Builder(String storageBlobClientId, ServiceClient.Builder serviceClientBuilder) {
@@ -773,7 +773,7 @@ public class StorageBlobClient {
          * Sets the base URL for the {@link StorageBlobClient}.
          *
          * @param blobServiceUrl The blob service base URL.
-         * @return Builder with provided blob service url set
+         * @return An updated {@link Builder} with the provided blob service URL set.
          */
         public Builder setBlobServiceUrl(String blobServiceUrl) {
             Objects.requireNonNull(blobServiceUrl, "blobServiceUrl cannot be null.");
@@ -785,7 +785,7 @@ public class StorageBlobClient {
          * Sets an interceptor used to authenticate the blob service request.
          *
          * @param credentialInterceptor The credential interceptor.
-         * @return Builder with provided credentials interceptor set
+         * @return An updated {@link Builder} with the provided credentials interceptor set.
          */
         public Builder setCredentialInterceptor(Interceptor credentialInterceptor) {
             this.serviceClientBuilder.setCredentialsInterceptor(credentialInterceptor);
@@ -793,11 +793,10 @@ public class StorageBlobClient {
         }
 
         /**
-         * Sets whether device should be charging for running the transfers.
-         * The default value is {@code false}.
+         * Sets whether device should be charging for running the transfers. The default value is {@code false}.
          *
-         * @param requiresCharging {@code true} if device must be charging for the transfer to run
-         * @return Builder with provided charging requirement set
+         * @param requiresCharging {@code true} if the device must be charging for the transfer to run.
+         * @return An updated {@link Builder} with the provided charging requirement set.
          */
         public Builder setRequiresCharging(boolean requiresCharging) {
             this.transferConstraintsBuilder.setRequiresCharging(requiresCharging);
@@ -805,11 +804,10 @@ public class StorageBlobClient {
         }
 
         /**
-         * Sets whether device should be idle for running the transfers.
-         * The default value is {@code false}.
+         * Sets whether device should be idle for running the transfers. The default value is {@code false}.
          *
-         * @param requiresDeviceIdle {@code true} if device must be idle for transfers to run
-         * @return An updated {@link Builder} with these settings applied.
+         * @param requiresDeviceIdle {@code true} if the device must be idle for transfers to run.
+         * @return An updated {@link Builder} with the provided setting set.
          */
         @RequiresApi(23)
         public Builder setRequiresDeviceIdle(boolean requiresDeviceIdle) {
@@ -820,13 +818,12 @@ public class StorageBlobClient {
         }
 
         /**
-         * Sets the particular {@link NetworkType} the device should be in for running
-         * the transfers.
-         *
+         * Sets the particular {@link NetworkType} the device should be in for running the transfers.
+         * <p>
          * The default network type that {@link TransferClient} uses is {@link NetworkType#CONNECTED}.
          *
-         * @param networkType The type of network required for transfers to run
-         * @return Builder with provided network type set
+         * @param networkType The type of network required for transfers to run.
+         * @return An updated {@link Builder} with the provided network type set.
          */
         public Builder setRequiredNetworkType(@NonNull NetworkType networkType) {
             Objects.requireNonNull(networkType, "'networkType' cannot be null.");
@@ -839,12 +836,12 @@ public class StorageBlobClient {
         }
 
         /**
-         * Sets whether device battery should be at an acceptable level for running the transfers.
-         * The default value is {@code false}.
+         * Sets whether device battery should be at an acceptable level for running the transfers. The default value
+         * is {@code false}.
          *
-         * @param requiresBatteryNotLow {@code true} if the battery should be at an acceptable level
-         *                              for the transfers to run
-         * @return Builder with provided battery requirement set
+         * @param requiresBatteryNotLow {@code true} if the battery should be at an acceptable level for the
+         *                                          transfers to run.
+         * @return An updated {@link Builder} with the provided battery requirement set.
          */
         public Builder setRequiresBatteryNotLow(boolean requiresBatteryNotLow) {
             this.transferConstraintsBuilder.setRequiresBatteryNotLow(requiresBatteryNotLow);
@@ -856,8 +853,8 @@ public class StorageBlobClient {
          * the transfers. The default value is {@code false}.
          *
          * @param requiresStorageNotLow {@code true} if the available storage should not be below a
-         *                              a critical threshold for the transfer to run
-         * @return Builder with provided storage requirement set
+         *                              a critical threshold for the transfer to run.
+         * @return An updated {@link Builder} with the provided storage requirement set.
          */
         public Builder setRequiresStorageNotLow(boolean requiresStorageNotLow) {
             this.transferConstraintsBuilder.setRequiresStorageNotLow(requiresStorageNotLow);

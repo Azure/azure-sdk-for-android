@@ -56,7 +56,7 @@ public final class TransferClient {
      *
      * @param context A {@link Context} for on-demand initialization.
      * @return The singleton instance of {@link TransferClient}.
-     * @throws IllegalStateException If underlying Database or WorkManager is not initialized properly
+     * @throws IllegalStateException If underlying Database or {@link WorkManager} is not initialized properly.
      */
     public static @NonNull TransferClient getInstance(@NonNull Context context) throws IllegalStateException {
         synchronized (INIT_LOCK) {
@@ -91,7 +91,7 @@ public final class TransferClient {
     /**
      * Upload the content described by the given {@link ReadableContent}.
      *
-     * @param uploadRequest describes the upload request
+     * @param uploadRequest Describes the upload request.
      * @return LiveData that streams {@link TransferInfo} describing current state of the transfer
      */
     public LiveData<TransferInfo> upload(UploadRequest uploadRequest) {
@@ -151,7 +151,7 @@ public final class TransferClient {
     /**
      * Download a blob.
      *
-     * @param downloadRequest describes the download request
+     * @param downloadRequest Describes the download request.
      * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
      */
     public LiveData<TransferInfo> download(DownloadRequest downloadRequest) {

@@ -113,7 +113,7 @@ final class BlobDownloadEntity {
      * @param blobName The blob name.
      * @param blobSize The blob size.
      * @param content Describes the content where the downloaded blob will be stored.
-     * @param constraints the constraints to be satisfied to run the download operation.
+     * @param constraints The constraints to be satisfied to run the download operation.
      */
     @Ignore
     BlobDownloadEntity(String storageBlobClientId,
