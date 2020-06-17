@@ -12,7 +12,6 @@ import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
-import android.net.Uri;
 
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.ServiceCall;
@@ -192,7 +191,7 @@ public class StorageBlobClient {
      * Pause a transfer identified by the given transfer ID. The pause operation is a best-effort, and a transfer
      * that is already executing may continue to transfer.
      * <p>
-     * Upon successful scheduling of the pause, any observer observing on {@link LiveData<TransferInfo>} for this
+     * Upon successful scheduling of the pause, any observer observing on {@link LiveData} for this
      * transfer receives a {@link TransferInfo} event with state {@link TransferInfo.State#USER_PAUSED}.
      *
      * @param context    The application context.
@@ -219,9 +218,10 @@ public class StorageBlobClient {
      * Cancel a transfer identified by the given transfer ID. The cancel operation is a best-effort, and a transfer
      * that is already executing may continue to transfer.
      * <p>
-     * Upon successful scheduling of the cancellation, any observer observing on {@link LiveData<TransferInfo>} for
+     * Upon successful scheduling of the cancellation, any observer observing on {@link LiveData} for
      * this transfer receives a {@link TransferInfo} event with state {@link TransferInfo.State#CANCELLED}.
      *
+     * @param context    The application context.
      * @param transferId The transfer ID identifies the transfer to cancel.
      */
     public void cancel(Context context, long transferId) {
@@ -441,8 +441,8 @@ public class StorageBlobClient {
      *
      * <p>
      * This method will execute a raw HTTP GET in order to download a single blob to the destination.
-     * It is **STRONGLY** recommended that you use the {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, File)}
-     * or {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, Uri)} method instead - that method will
+     * It is **STRONGLY** recommended that you use the {@link StorageBlobClient#download(Context, String, String, File)}
+     * or {@link StorageBlobClient#download(Context, String, String, Uri)} method instead - that method will
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
      *`
@@ -461,8 +461,8 @@ public class StorageBlobClient {
      *
      * <p>
      * This method will execute a raw HTTP GET in order to download a single blob to the destination.
-     * It is **STRONGLY** recommended that you use the {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, File)}
-     * or {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, Uri)} method instead - that method will
+     * It is **STRONGLY** recommended that you use the {@link StorageBlobClient#download(Context, String, String, File)}
+     * or {@link StorageBlobClient#download(Context, String, String, Uri)} method instead - that method will
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
      *
@@ -484,8 +484,8 @@ public class StorageBlobClient {
      *
      * <p>
      * This method will execute a raw HTTP GET in order to download a single blob to the destination.
-     * It is **STRONGLY** recommended that you use the {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, File)}
-     * or {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, Uri)} method instead - that method will
+     * It is **STRONGLY** recommended that you use the {@link StorageBlobClient#download(Context, String, String, File)}
+     * or {@link StorageBlobClient#download(Context, String, String, Uri)} method instead - that method will
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
      *
@@ -546,8 +546,8 @@ public class StorageBlobClient {
      *
      * <p>
      * This method will execute a raw HTTP GET in order to download a single blob to the destination.
-     * It is **STRONGLY** recommended that you use the {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, File)}
-     * or {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, Uri)} method instead - that method will
+     * It is **STRONGLY** recommended that you use the {@link StorageBlobClient#download(Context, String, String, File)}
+     * or {@link StorageBlobClient#download(Context, String, String, Uri)} method instead - that method will
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
      *
@@ -931,7 +931,7 @@ public class StorageBlobClient {
          * The builder produced {@link ServiceClient} is used by the {@link StorageBlobClient} to make Rest API calls.
          * Multiple {@link StorageBlobClient} instances can share the same {@link ServiceClient} instance, for e.g.
          * when a new {@link StorageBlobClient} is created from an existing {@link StorageBlobClient} through
-         * {@link StorageBlobClient#newBuilder()} then both shares the same {@link ServiceClient}.
+         * {@link StorageBlobClient#newBuilder(String)} ()} then both shares the same {@link ServiceClient}.
          * The {@link ServiceClient} composes HttpClient, HTTP settings (such as connection timeout, interceptors)
          * and Retrofit for Rest calls.
          *
