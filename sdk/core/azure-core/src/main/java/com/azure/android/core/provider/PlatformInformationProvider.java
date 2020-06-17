@@ -19,14 +19,14 @@ public interface PlatformInformationProvider {
     }
 
     /**
-     * Device name.
+     * Gets the device name.
      *
      * @return The device name.
      */
     String getDeviceName();
 
     /**
-     * OS version.
+     * Gets the OS version.
      *
      * @return The device's OS version.
      */

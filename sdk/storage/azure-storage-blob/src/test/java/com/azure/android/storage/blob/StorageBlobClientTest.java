@@ -4,7 +4,7 @@ import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.ServiceCall;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
-import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
+import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobItem;
@@ -330,7 +330,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then an object with the blob's contents will be returned by the client.
-        ResponseBody response = storageBlobClient.download(
+        ResponseBody response = storageBlobClient.rawDownload(
             "testContainer",
             "testBlob");
 
@@ -348,7 +348,7 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.download("testContainer",
+        ServiceCall serviceCall = storageBlobClient.rawDownload("testContainer",
             "testBlob",
             new Callback<ResponseBody>() {
                 @Override
@@ -385,7 +385,7 @@ public class StorageBlobClientTest {
 
         // Then an object with the blob's contents will be returned by the client, including its properties and
         // details from the REST response.
-        BlobDownloadAsyncResponse response = storageBlobClient.downloadWithRestResponse("testContainer",
+        BlobDownloadResponse response = storageBlobClient.rawDownloadWithRestResponse("testContainer",
             "testBlob",
             null,
             null,
@@ -413,7 +413,7 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.downloadWithRestResponse("testContainer",
+        ServiceCall serviceCall = storageBlobClient.rawDownloadWithRestResponse("testContainer",
             "testBlob",
             null,
             null,
@@ -424,9 +424,9 @@ public class StorageBlobClientTest {
             null,
             null,
             null,
-            new Callback<BlobDownloadAsyncResponse>() {
+            new Callback<BlobDownloadResponse>() {
                 @Override
-                public void onResponse(BlobDownloadAsyncResponse response) {
+                public void onResponse(BlobDownloadResponse response) {
                     try {
                         // Then an object with the blob's contents will be returned by the client to the callback,
                         // including its properties and details from the REST response.

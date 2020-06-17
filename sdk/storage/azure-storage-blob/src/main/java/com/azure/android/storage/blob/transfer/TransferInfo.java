@@ -12,10 +12,12 @@ import java.lang.annotation.RetentionPolicy;
 /**
  * Information about a particular transfer identified by {@link TransferInfo#getId()}.
  *
+ * <p>
  * Information include the current {@link State}, progress of the transfer.
  * The state can be retrieved by calling {@link TransferInfo#getState()}.
  * The progress can be retrieved by calling {@link TransferInfo#getProgress()}.
  *
+ * <p>
  * Note that progress is only available for the state ({@link State#RECEIVED_PROGRESS},
  * getProgress() returns {@code null} for all other states.
  */
@@ -32,8 +34,8 @@ public final class TransferInfo {
     /**
      * Create TransferInfo for a given state.
      *
-     * @param id the transfer id
-     * @param state the transfer state
+     * @param id The transfer id.
+     * @param state The transfer state.
      */
     private TransferInfo(long id, @State int state) {
         this.id = id;
@@ -45,8 +47,8 @@ public final class TransferInfo {
     /**
      * Create TransferInfo for {@link State#RECEIVED_PROGRESS} state.
      *
-     * @param id the transfer id
-     * @param progress the transfer progress description
+     * @param id The transfer id.
+     * @param progress The transfer progress description.
      */
     private TransferInfo(long id, @NonNull Progress progress) {
         this.id = id;
@@ -58,8 +60,8 @@ public final class TransferInfo {
     /**
      * Create TransferInfo for {@link State#FAILED} state.
      *
-     * @param id the transfer id
-     * @param errorMessage the string describing transfer failure reason
+     * @param id The transfer id.
+     * @param errorMessage The string describing transfer failure reason.
      */
     private TransferInfo(long id, String errorMessage) {
         this.id = id;
@@ -71,8 +73,8 @@ public final class TransferInfo {
     /**
      * Create a {@link TransferInfo} indicating that transfer is accepted by system.
      *
-     * @param transferId the transfer id
-     * @return {@link TransferInfo}
+     * @param transferId The transfer id.
+     * @return {@link TransferInfo}.
      */
     static TransferInfo createStarted(long transferId) {
         return new TransferInfo(transferId, State.STARTED);
@@ -82,8 +84,8 @@ public final class TransferInfo {
      * Create a {@link TransferInfo} indicating that previously paused transfer
      * is now resumed.
      *
-     * @param transferId the transfer id
-     * @return {@link TransferInfo}
+     * @param transferId The transfer id.
+     * @return {@link TransferInfo}.
      */
     static TransferInfo createResumed(long transferId) {
         return new TransferInfo(transferId, State.RESUMED);
@@ -92,9 +94,9 @@ public final class TransferInfo {
     /**
      * Create a {@link TransferInfo} indicating that transfer made some progress.
      *
-     * @param transferId the transfer id
-     * @param progress the progress description
-     * @return {@link TransferInfo}
+     * @param transferId The transfer id.
+     * @param progress The progress description.
+     * @return {@link TransferInfo}.
      */
     static TransferInfo createProgress(long transferId, @NonNull Progress progress) {
         return new TransferInfo(transferId, progress);
@@ -103,8 +105,8 @@ public final class TransferInfo {
     /**
      * Create a {@link TransferInfo} indicating that transfer is now paused by the system.
      *
-     * @param transferId the transfer id
-     * @return {@link TransferInfo}
+     * @param transferId The transfer id.
+     * @return {@link TransferInfo}.
      */
     static TransferInfo createSystemPaused(long transferId) {
         return new TransferInfo(transferId, State.SYSTEM_PAUSED);
@@ -113,8 +115,8 @@ public final class TransferInfo {
     /**
      * Create a {@link TransferInfo} indicating that transfer is now paused by the user.
      *
-     * @param transferId the transfer id
-     * @return {@link TransferInfo}
+     * @param transferId The transfer id.
+     * @return {@link TransferInfo}.
      */
     static TransferInfo createUserPaused(long transferId) {
         return new TransferInfo(transferId, State.USER_PAUSED);
@@ -133,9 +135,9 @@ public final class TransferInfo {
     /**
      * Create a {@link TransferInfo} indicating the transfer is failed.
      *
-     * @param transferId the transfer id
-     * @param errorMessage the string describing transfer failure reason
-     * @return {@link TransferInfo}
+     * @param transferId The transfer id.
+     * @param errorMessage The string describing transfer failure reason.
+     * @return {@link TransferInfo}.
      */
     static TransferInfo createFailed(long transferId, String errorMessage) {
         return new TransferInfo(transferId, errorMessage);
@@ -144,8 +146,8 @@ public final class TransferInfo {
     /**
      * Create a {@link TransferInfo} indicating the transfer is cancelled.
      *
-     * @param transferId the transfer id
-     * @return {@link TransferInfo}
+     * @param transferId The transfer id.
+     * @return {@link TransferInfo}.
      */
     static TransferInfo createCancelled(long transferId) {
         return new TransferInfo(transferId, State.CANCELLED);
@@ -154,7 +156,7 @@ public final class TransferInfo {
     /**
      * Get the transfer id.
      *
-     * @return transfer id
+     * @return The transfer id.
      */
     public long getId() {
         return this.id;
@@ -163,7 +165,7 @@ public final class TransferInfo {
     /**
      * Get the transfer state.
      *
-     * @return transfer state
+     * @return The transfer state.
      */
     public @State int getState() {
         return this.state;
@@ -174,7 +176,7 @@ public final class TransferInfo {
      * for the state ({@link State#RECEIVED_PROGRESS}, for other states calling this
      * method returns {@code null}.
      *
-     * @return the current transfer progress
+     * @return The current transfer progress.
      */
     public Progress getProgress() {
         return this.progress;
@@ -185,7 +187,7 @@ public final class TransferInfo {
      * for the state ({@link State#FAILED}, for other states calling this
      * method returns {@code null}.
      *
-     * @return the string describing transfer failure reason
+     * @return The string describing transfer failure reason.
      */
     public String getErrorMessage() {
         return this.errorMessage;
@@ -261,8 +263,8 @@ public final class TransferInfo {
          *
          * Create Progress.
          *
-         * @param totalBytes the total bytes to transfer
-         * @param bytesTransferred the bytes transferred so far
+         * @param totalBytes The total bytes to transfer.
+         * @param bytesTransferred The bytes transferred so far.
          */
         Progress(long totalBytes, long bytesTransferred) {
             this.totalBytes = totalBytes;
@@ -272,7 +274,7 @@ public final class TransferInfo {
         /**
          * Get the total bytes to be transferred.
          *
-         * @return the total bytes to be transferred
+         * @return The total bytes to be transferred.
          */
         public long getTotalBytes() {
             return this.totalBytes;
@@ -281,7 +283,7 @@ public final class TransferInfo {
         /**
          * Get the bytes transferred so far.
          *
-         * @return the bytes transferred so far
+         * @return The bytes transferred so far.
          */
         public long getBytesTransferred() {
             return this.bytesTransferred;

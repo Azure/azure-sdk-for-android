@@ -223,10 +223,10 @@ public final class TransferClient {
      * transfer.
      *
      * Upon successful scheduling of the pause, any observer observing on
-     * {@link LiveData<TransferInfo>} for this transfer receives a {@link TransferInfo}
+     * the {@link LiveData} for this transfer receives a {@link TransferInfo}
      * event with state {@link TransferInfo.State#USER_PAUSED}.
      *
-     * @param transferId the transfer id identifies the transfer to pause.
+     * @param transferId The transfer id identifies the transfer to pause.
      */
     // P2: Currently no return value, evaluate any possible return value later.
     public void pause(long transferId) {
@@ -261,8 +261,8 @@ public final class TransferClient {
     /**
      * Resume a paused transfer.
      *
-     * @param transferId the transfer id identifies the transfer to resume.
-     * @return LiveData that streams {@link TransferInfo} describing the current state of the transfer
+     * @param transferId The transfer id identifies the transfer to resume.
+     * @return A LiveData that streams {@link TransferInfo} describing the current state of the transfer.
      */
     public LiveData<TransferInfo> resume(long transferId) {
         // UI_Thread
@@ -323,7 +323,7 @@ public final class TransferClient {
      * Cancel a transfer identified by the given transfer ID. The cancel operation is a best-effort, and a transfer
      * that is already executing may continue to transfer.
      *
-     * Upon successful scheduling of the cancellation, any observer observing on {@link LiveData<TransferInfo>} for
+     * Upon successful scheduling of the cancellation, any observer observing on {@link LiveData} for
      * this transfer receives a {@link TransferInfo} event with state {@link TransferInfo.State#CANCELLED}.
      *
      * @param transferId The transfer ID identifies the transfer to cancel.
@@ -353,8 +353,8 @@ public final class TransferClient {
     /**
      * Get unique name for a transfer work.
      *
-     * @param transferId the transfer id
-     * @return name for the transfer work
+     * @param transferId The transfer id.
+     * @return The name for the transfer work.
      */
     static String toTransferUniqueWorkName(long transferId) {
         return "azure_transfer_" + transferId;
@@ -363,13 +363,13 @@ public final class TransferClient {
     /**
      * Subscribe to a TransferOperationResult LiveData and transform that to TransferInfo LiveData.
      *
-     * This method caches or uses cached {@link LiveData<TransferInfo>} to stream TransferInfo.
+     * This method caches or uses cached {@link LiveData} to stream {@link TransferInfo}.
      * If provided TransferOperationResult LiveData emits an error, then cache won't be used.
      *
-     * @param transferOpResultLiveData the LiveData to channel transfer operation initiation result
-     * @param isResume true if the transfer id emitted by the transferOpResultLiveData LiveData
+     * @param transferOpResultLiveData The LiveData to channel transfer operation initiation result
+     * @param isResume True if the transfer id emitted by the transferOpResultLiveData LiveData
      *   identifies a transfer to be resumed, false for a new upload or download transfer.
-     * @return the TransferInfo LiveData
+     * @return The TransferInfo LiveData.
      */
     @MainThread
     private LiveData<TransferInfo> toCachedTransferInfoLiveData(LiveData<TransferOperationResult> transferOpResultLiveData,
@@ -409,9 +409,9 @@ public final class TransferClient {
     /**
      * Do pre-validations to see a transfer can be resumed.
      *
-     * @param transferId identifies the transfer to check for resume eligibility
-     * @param transferOpResultLiveData the LiveData to post the error if the transfer cannot be resumed
-     * @return result of check
+     * @param transferId Identifies the transfer to check for resume eligibility.
+     * @param transferOpResultLiveData The LiveData to post the error if the transfer cannot be resumed.
+     * @return Result of check.
      */
     private ResumeCheck checkResumeable(long transferId,
                                         MutableLiveData<TransferOperationResult> transferOpResultLiveData) {

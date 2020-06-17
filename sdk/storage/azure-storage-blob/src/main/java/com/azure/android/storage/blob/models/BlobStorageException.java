@@ -41,21 +41,27 @@ public final class BlobStorageException extends HttpResponseException {
     }
 
     /**
-     * @return The error code returned by the service.
+     * Gets the error code returned by the service.
+     *
+     * @return The error code.
      */
     public BlobErrorCode getErrorCode() {
         return BlobErrorCode.fromString(super.getResponse().header("x-ms-error-code"));
     }
 
     /**
-     * @return The message returned by the service.
+     * Gets the message returned by the service.
+     *
+     * @return The message.
      */
     public String getServiceMessage() {
         return super.getMessage();
     }
 
     /**
-     * @return The status code on the response.
+     * Gets the status code of the error response.
+     *
+     * @return The status code.
      */
     public int getStatusCode() {
         return super.getResponse().code();
