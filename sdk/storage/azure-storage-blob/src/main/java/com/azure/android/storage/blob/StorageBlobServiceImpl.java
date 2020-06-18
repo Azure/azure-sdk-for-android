@@ -687,14 +687,13 @@ final class StorageBlobServiceImpl {
     }
 
     /**
-     * Reads the blob's metadata & properties.
+     * Deletes the specified blob or snapshot. Note that deleting a blob also deletes all its snapshots.
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
-     * @return The blob's metadata.
      */
     Void delete(String containerName,
-                String blobName) {
+                        String blobName) {
         return deleteWithResponse(containerName,
             blobName,
             null,
@@ -710,11 +709,12 @@ final class StorageBlobServiceImpl {
     }
 
     /**
-     * Reads the blob's metadata & properties.
+     * Deletes the specified blob or snapshot. Note that deleting a blob also deletes all its snapshots.
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
+     * @return A handle to the service call.
      */
     ServiceCall delete(String containerName,
                        String blobName,
@@ -745,21 +745,23 @@ final class StorageBlobServiceImpl {
     }
 
     /**
+     * Deletes the specified blob or snapshot. Note that deleting a blob also deletes all its snapshots.
+     * <p>
      * If the storage account's soft delete feature is disabled then, when a blob is deleted, it is permanently
      * removed from the storage account. If the storage account's soft delete feature is enabled, then, when a blob
      * is deleted, it is marked for deletion and becomes inaccessible immediately. However, the blob service retains
-     * the blob or snapshot for the number of days specified by the DeleteRetentionPolicy section of [Storage service
-     * properties] (Set-Blob-Service-Properties.md). After the specified number of days has passed, the blob's data
-     * is permanently removed from the storage account. Note that you continue to be charged for the soft-deleted
-     * blob's storage until it is permanently removed. Use the List Blobs API and specify the "include=deleted" query
-     * parameter to discover which blobs and snapshots have been soft deleted. You can then use the Undelete Blob API
-     * to restore a soft-deleted blob. All other operations on a soft-deleted blob or snapshot causes the service to
-     * return an HTTP status code of 404 (ResourceNotFound). If the storage account's automatic snapshot feature is
-     * enabled, then, when a blob is deleted, an automatic snapshot is created. The blob becomes inaccessible
-     * immediately. All other operations on the blob causes the service to return an HTTP status code of 404
-     * (ResourceNotFound). You can access automatic snapshot using snapshot timestamp or version id. You can restore
-     * the blob by calling Put or Copy Blob API with automatic snapshot as source. Deleting automatic snapshot
-     * requires shared key or special SAS/RBAC permissions.
+     * the blob or snapshot for the number of days specified by the DeleteRetentionPolicy section of
+     * &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-service-properties"&gt; Storage service properties.&lt;/a&gt;.
+     * After the specified number of days has passed, the blob's data is permanently removed from the storage account.
+     * Note that you continue to be charged for the soft-deleted blob's storage until it is permanently removed. Use
+     * the List Blobs API and specify the "include=deleted" query parameter to discover which blobs and snapshots
+     * have been soft deleted. You can then use the Undelete Blob API to restore a soft-deleted blob. All other
+     * operations on a soft-deleted blob or snapshot causes the service to return an HTTP status code of 404
+     * (ResourceNotFound). If the storage account's automatic snapshot feature is enabled, then, when a blob is
+     * deleted, an automatic snapshot is created. The blob becomes inaccessible immediately. All other operations on
+     * the blob causes the service to return an HTTP status code of 404 (ResourceNotFound). You can access automatic
+     * snapshot using snapshot timestamp or version ID. You can restore the blob by calling Put or Copy Blob API with
+     * automatic snapshot as source. Deleting automatic snapshot requires shared key or special SAS/RBAC permissions.
      *
      * @param containerName     The container name.
      * @param blobName          The blob name.
@@ -779,6 +781,7 @@ final class StorageBlobServiceImpl {
      * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @return A response object containing the details of the delete operation.
      */
     BlobDeleteResponse deleteWithResponse(String containerName,
                                           String blobName,
@@ -808,21 +811,23 @@ final class StorageBlobServiceImpl {
     }
 
     /**
+     * Deletes the specified blob or snapshot. Note that deleting a blob also deletes all its snapshots.
+     * <p>
      * If the storage account's soft delete feature is disabled then, when a blob is deleted, it is permanently
      * removed from the storage account. If the storage account's soft delete feature is enabled, then, when a blob
      * is deleted, it is marked for deletion and becomes inaccessible immediately. However, the blob service retains
-     * the blob or snapshot for the number of days specified by the DeleteRetentionPolicy section of [Storage service
-     * properties] (Set-Blob-Service-Properties.md). After the specified number of days has passed, the blob's data
-     * is permanently removed from the storage account. Note that you continue to be charged for the soft-deleted
-     * blob's storage until it is permanently removed. Use the List Blobs API and specify the "include=deleted" query
-     * parameter to discover which blobs and snapshots have been soft deleted. You can then use the Undelete Blob API
-     * to restore a soft-deleted blob. All other operations on a soft-deleted blob or snapshot causes the service to
-     * return an HTTP status code of 404 (ResourceNotFound). If the storage account's automatic snapshot feature is
-     * enabled, then, when a blob is deleted, an automatic snapshot is created. The blob becomes inaccessible
-     * immediately. All other operations on the blob causes the service to return an HTTP status code of 404
-     * (ResourceNotFound). You can access automatic snapshot using snapshot timestamp or version id. You can restore
-     * the blob by calling Put or Copy Blob API with automatic snapshot as source. Deleting automatic snapshot
-     * requires shared key or special SAS/RBAC permissions.
+     * the blob or snapshot for the number of days specified by the DeleteRetentionPolicy section of
+     * &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-service-properties"&gt; Storage service properties.&lt;/a&gt;.
+     * After the specified number of days has passed, the blob's data is permanently removed from the storage account.
+     * Note that you continue to be charged for the soft-deleted blob's storage until it is permanently removed. Use
+     * the List Blobs API and specify the "include=deleted" query parameter to discover which blobs and snapshots
+     * have been soft deleted. You can then use the Undelete Blob API to restore a soft-deleted blob. All other
+     * operations on a soft-deleted blob or snapshot causes the service to return an HTTP status code of 404
+     * (ResourceNotFound). If the storage account's automatic snapshot feature is enabled, then, when a blob is
+     * deleted, an automatic snapshot is created. The blob becomes inaccessible immediately. All other operations on
+     * the blob causes the service to return an HTTP status code of 404 (ResourceNotFound). You can access automatic
+     * snapshot using snapshot timestamp or version ID. You can restore the blob by calling Put or Copy Blob API with
+     * automatic snapshot as source. Deleting automatic snapshot requires shared key or special SAS/RBAC permissions.
      *
      * @param containerName     The container name.
      * @param blobName          The blob name.
@@ -843,6 +848,7 @@ final class StorageBlobServiceImpl {
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param callback          Callback that receives the response.
+     * @return A handle to the service call.
      */
     ServiceCall deleteWithResponse(String containerName,
                                    String blobName,
@@ -1464,7 +1470,7 @@ final class StorageBlobServiceImpl {
         DateTimeRfc1123 ifUnmodifiedSinceConverted = ifUnmodifiedSince == null ? null :
             new DateTimeRfc1123(ifUnmodifiedSince);
 
-        Call<Void> call = service.delete(containerName,
+        Call<ResponseBody> call = service.delete(containerName,
             blobName,
             snapshot,
             timeout,
@@ -1478,22 +1484,23 @@ final class StorageBlobServiceImpl {
             requestId);
 
         if (callback != null) {
-            executeCall(call, new retrofit2.Callback<Void>() {
+            executeCall(call, new retrofit2.Callback<ResponseBody>() {
                 @Override
-                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
-                        if (response.code() >= 200 && response.code() < 300) {
+                        if (response.code() == 202) {
                             BlobDeleteHeaders typedHeaders = deserializeHeaders(response.headers(),
                                 BlobDeleteHeaders.class);
 
                             callback.onResponse(new BlobDeleteResponse(response.raw().request(),
                                 response.code(),
                                 response.headers(),
-                                response.body(),
+                                null,
                                 typedHeaders));
                         } else {
-                            callback.onFailure(new BlobStorageException("Response failed with error code: " + response.code(),
-                                response.raw()));
+                            String strContent = readAsString(response.body());
+
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()));
                         }
                     } else {
                         String strContent = readAsString(response.errorBody());
@@ -1503,30 +1510,31 @@ final class StorageBlobServiceImpl {
                 }
 
                 @Override
-                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                     callback.onFailure(t);
                 }
             });
 
             return new CallAndOptionalResult<>(call, null);
         } else {
-            Response<Void> response = executeCall(call);
+            Response<ResponseBody> response = executeCall(call);
 
             if (response.isSuccessful()) {
-                if (response.code() == 200) {
+                if (response.code() == 202) {
                     BlobDeleteHeaders headers = deserializeHeaders(response.headers(),
                         BlobDeleteHeaders.class);
 
                     BlobDeleteResponse result = new BlobDeleteResponse(response.raw().request(),
                         response.code(),
                         response.headers(),
-                        response.body(),
+                        null,
                         headers);
 
                     return new CallAndOptionalResult<>(call, result);
                 } else {
-                    throw new BlobStorageException("Response failed with error code: " + response.code(),
-                        response.raw());
+                    String strContent = readAsString(response.body());
+
+                    throw new BlobStorageException(strContent, response.raw());
                 }
             } else {
                 String strContent = readAsString(response.errorBody());
@@ -1688,17 +1696,17 @@ final class StorageBlobServiceImpl {
                                            @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
 
         @DELETE("{containerName}/{blob}")
-        Call<Void> delete(@Path("containerName") String containerName,
-                          @Path("blob") String blob,
-                          @Query("snapshot") String snapshot,
-                          @Query("timeout") Integer timeout,
-                          @Header("x-ms-lease-id") String leaseId,
-                          @Header("x-ms-delete-snapshots") DeleteSnapshotsOptionType deleteSnapshots,
-                          @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
-                          @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
-                          @Header("If-Match") String ifMatch,
-                          @Header("If-None-Match") String ifNoneMatch,
-                          @Header("x-ms-version") String version,
-                          @Header("x-ms-client-request-id") String requestId);
+        Call<ResponseBody> delete(@Path("containerName") String containerName,
+                                  @Path("blob") String blob,
+                                  @Query("snapshot") String snapshot,
+                                  @Query("timeout") Integer timeout,
+                                  @Header("x-ms-lease-id") String leaseId,
+                                  @Header("x-ms-delete-snapshots") DeleteSnapshotsOptionType deleteSnapshots,
+                                  @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
+                                  @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
+                                  @Header("If-Match") String ifMatch,
+                                  @Header("If-None-Match") String ifNoneMatch,
+                                  @Header("x-ms-version") String version,
+                                  @Header("x-ms-client-request-id") String requestId);
     }
 }

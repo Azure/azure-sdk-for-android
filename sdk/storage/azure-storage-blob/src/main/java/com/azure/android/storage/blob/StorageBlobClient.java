@@ -552,11 +552,10 @@ public class StorageBlobClient {
     }
 
     /**
-     * Reads the blob's metadata & properties.
+     * Deletes the specified blob or snapshot. Note that deleting a blob also deletes all its snapshots.
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
-     * @return The blob's metadata.
      */
     Void delete(String containerName,
                 String blobName) {
@@ -565,11 +564,12 @@ public class StorageBlobClient {
     }
 
     /**
-     * Reads the blob's metadata & properties.
+     * Deletes the specified blob or snapshot. Note that deleting a blob also deletes all its snapshots.
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
+     * @return A handle to the service call.
      */
     ServiceCall delete(String containerName,
                        String blobName,
@@ -580,21 +580,23 @@ public class StorageBlobClient {
     }
 
     /**
+     * Deletes the specified blob or snapshot. Note that deleting a blob also deletes all its snapshots.
+     * <p>
      * If the storage account's soft delete feature is disabled then, when a blob is deleted, it is permanently
      * removed from the storage account. If the storage account's soft delete feature is enabled, then, when a blob
      * is deleted, it is marked for deletion and becomes inaccessible immediately. However, the blob service retains
-     * the blob or snapshot for the number of days specified by the DeleteRetentionPolicy section of [Storage service
-     * properties] (Set-Blob-Service-Properties.md). After the specified number of days has passed, the blob's data
-     * is permanently removed from the storage account. Note that you continue to be charged for the soft-deleted
-     * blob's storage until it is permanently removed. Use the List Blobs API and specify the "include=deleted" query
-     * parameter to discover which blobs and snapshots have been soft deleted. You can then use the Undelete Blob API
-     * to restore a soft-deleted blob. All other operations on a soft-deleted blob or snapshot causes the service to
-     * return an HTTP status code of 404 (ResourceNotFound). If the storage account's automatic snapshot feature is
-     * enabled, then, when a blob is deleted, an automatic snapshot is created. The blob becomes inaccessible
-     * immediately. All other operations on the blob causes the service to return an HTTP status code of 404
-     * (ResourceNotFound). You can access automatic snapshot using snapshot timestamp or version id. You can restore
-     * the blob by calling Put or Copy Blob API with automatic snapshot as source. Deleting automatic snapshot
-     * requires shared key or special SAS/RBAC permissions.
+     * the blob or snapshot for the number of days specified by the DeleteRetentionPolicy section of
+     * &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-service-properties"&gt; Storage service properties.&lt;/a&gt;.
+     * After the specified number of days has passed, the blob's data is permanently removed from the storage account.
+     * Note that you continue to be charged for the soft-deleted blob's storage until it is permanently removed. Use
+     * the List Blobs API and specify the "include=deleted" query parameter to discover which blobs and snapshots
+     * have been soft deleted. You can then use the Undelete Blob API to restore a soft-deleted blob. All other
+     * operations on a soft-deleted blob or snapshot causes the service to return an HTTP status code of 404
+     * (ResourceNotFound). If the storage account's automatic snapshot feature is enabled, then, when a blob is
+     * deleted, an automatic snapshot is created. The blob becomes inaccessible immediately. All other operations on
+     * the blob causes the service to return an HTTP status code of 404 (ResourceNotFound). You can access automatic
+     * snapshot using snapshot timestamp or version ID. You can restore the blob by calling Put or Copy Blob API with
+     * automatic snapshot as source. Deleting automatic snapshot requires shared key or special SAS/RBAC permissions.
      *
      * @param containerName     The container name.
      * @param blobName          The blob name.
@@ -614,6 +616,7 @@ public class StorageBlobClient {
      * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @return A response object containing the details of the delete operation.
      */
     BlobDeleteResponse deleteWithResponse(String containerName,
                                           String blobName,
@@ -642,21 +645,23 @@ public class StorageBlobClient {
     }
 
     /**
+     * Deletes the specified blob or snapshot. Note that deleting a blob also deletes all its snapshots.
+     * <p>
      * If the storage account's soft delete feature is disabled then, when a blob is deleted, it is permanently
      * removed from the storage account. If the storage account's soft delete feature is enabled, then, when a blob
      * is deleted, it is marked for deletion and becomes inaccessible immediately. However, the blob service retains
-     * the blob or snapshot for the number of days specified by the DeleteRetentionPolicy section of [Storage service
-     * properties] (Set-Blob-Service-Properties.md). After the specified number of days has passed, the blob's data
-     * is permanently removed from the storage account. Note that you continue to be charged for the soft-deleted
-     * blob's storage until it is permanently removed. Use the List Blobs API and specify the "include=deleted" query
-     * parameter to discover which blobs and snapshots have been soft deleted. You can then use the Undelete Blob API
-     * to restore a soft-deleted blob. All other operations on a soft-deleted blob or snapshot causes the service to
-     * return an HTTP status code of 404 (ResourceNotFound). If the storage account's automatic snapshot feature is
-     * enabled, then, when a blob is deleted, an automatic snapshot is created. The blob becomes inaccessible
-     * immediately. All other operations on the blob causes the service to return an HTTP status code of 404
-     * (ResourceNotFound). You can access automatic snapshot using snapshot timestamp or version id. You can restore
-     * the blob by calling Put or Copy Blob API with automatic snapshot as source. Deleting automatic snapshot
-     * requires shared key or special SAS/RBAC permissions.
+     * the blob or snapshot for the number of days specified by the DeleteRetentionPolicy section of
+     * &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-service-properties"&gt; Storage service properties.&lt;/a&gt;.
+     * After the specified number of days has passed, the blob's data is permanently removed from the storage account.
+     * Note that you continue to be charged for the soft-deleted blob's storage until it is permanently removed. Use
+     * the List Blobs API and specify the "include=deleted" query parameter to discover which blobs and snapshots
+     * have been soft deleted. You can then use the Undelete Blob API to restore a soft-deleted blob. All other
+     * operations on a soft-deleted blob or snapshot causes the service to return an HTTP status code of 404
+     * (ResourceNotFound). If the storage account's automatic snapshot feature is enabled, then, when a blob is
+     * deleted, an automatic snapshot is created. The blob becomes inaccessible immediately. All other operations on
+     * the blob causes the service to return an HTTP status code of 404 (ResourceNotFound). You can access automatic
+     * snapshot using snapshot timestamp or version ID. You can restore the blob by calling Put or Copy Blob API with
+     * automatic snapshot as source. Deleting automatic snapshot requires shared key or special SAS/RBAC permissions.
      *
      * @param containerName     The container name.
      * @param blobName          The blob name.
@@ -677,6 +682,7 @@ public class StorageBlobClient {
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param callback          Callback that receives the response.
+     * @return A handle to the service call.
      */
     ServiceCall deleteWithResponse(String containerName,
                                    String blobName,
