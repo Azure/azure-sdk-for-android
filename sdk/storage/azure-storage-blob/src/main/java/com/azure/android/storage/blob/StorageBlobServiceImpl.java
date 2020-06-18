@@ -986,7 +986,7 @@ final class StorageBlobServiceImpl {
             encryptionAlgorithm = cpkInfo.getEncryptionAlgorithm();
         }
 
-        Call<Void> call = service.getBlobProperties(containerName,
+        Call<ResponseBody> call = service.getBlobProperties(containerName,
             blobName,
             snapshot,
             timeout,
@@ -998,9 +998,9 @@ final class StorageBlobServiceImpl {
             encryptionAlgorithm);
 
         if (callback != null) {
-            executeCall(call, new retrofit2.Callback<Void>() {
+            executeCall(call, new retrofit2.Callback<ResponseBody>() {
                 @Override
-                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
                         if (response.code() == 200) {
                             BlobGetPropertiesHeaders typedHeaders = deserializeHeaders(response.headers(),
@@ -1009,12 +1009,12 @@ final class StorageBlobServiceImpl {
                             callback.onResponse(new BlobGetPropertiesResponse(response.raw().request(),
                                 response.code(),
                                 response.headers(),
-                                response.body(),
+                                null,
                                 typedHeaders));
                         } else {
-                            callback.onFailure(
-                                new BlobStorageException("Response failed with error code: " + response.code(),
-                                    response.raw()));
+                            String strContent = readAsString(response.body());
+
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()));
                         }
                     } else {
                         String strContent = readAsString(response.errorBody());
@@ -1024,14 +1024,14 @@ final class StorageBlobServiceImpl {
                 }
 
                 @Override
-                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
                     callback.onFailure(t);
                 }
             });
 
             return new CallAndOptionalResult<>(call, null);
         } else {
-            Response<Void> response = executeCall(call);
+            Response<ResponseBody> response = executeCall(call);
 
             if (response.isSuccessful()) {
                 if (response.code() == 200) {
@@ -1041,13 +1041,14 @@ final class StorageBlobServiceImpl {
                     BlobGetPropertiesResponse result = new BlobGetPropertiesResponse(response.raw().request(),
                         response.code(),
                         response.headers(),
-                        response.body(),
+                        null,
                         headers);
 
                     return new CallAndOptionalResult<>(call, result);
                 } else {
-                    throw new BlobStorageException("Response failed with error code: " + response.code(),
-                        response.raw());
+                    String strContent = readAsString(response.body());
+
+                    throw new BlobStorageException(strContent, response.raw());
                 }
             } else {
                 String strContent = readAsString(response.errorBody());
@@ -1620,16 +1621,16 @@ final class StorageBlobServiceImpl {
                                                @Query("comp") String comp);
 
         @HEAD("{containerName}/{blob}")
-        Call<Void> getBlobProperties(@Path("containerName") String containerName,
-                                     @Path("blob") String blob,
-                                     @Query("snapshot") String snapshot,
-                                     @Query("timeout") Integer timeout,
-                                     @Header("x-ms-version") String version,
-                                     @Header("x-ms-lease-id") String leaseId,
-                                     @Header("x-ms-client-request-id") String requestId,
-                                     @Header("x-ms-encryption-key") String encryptionKey,
-                                     @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
-                                     @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
+        Call<ResponseBody> getBlobProperties(@Path("containerName") String containerName,
+                                             @Path("blob") String blob,
+                                             @Query("snapshot") String snapshot,
+                                             @Query("timeout") Integer timeout,
+                                             @Header("x-ms-version") String version,
+                                             @Header("x-ms-lease-id") String leaseId,
+                                             @Header("x-ms-client-request-id") String requestId,
+                                             @Header("x-ms-encryption-key") String encryptionKey,
+                                             @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
+                                             @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
 
 
         @GET("{containerName}/{blob}")
