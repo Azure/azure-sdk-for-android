@@ -23,8 +23,6 @@ import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
-import com.azure.android.storage.blob.models.BlobUndeleteHeaders;
-import com.azure.android.storage.blob.models.BlobUndeleteResponse;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
@@ -882,127 +880,6 @@ final class StorageBlobServiceImpl {
         return new ServiceCall(callAndOptionalResult.getCall());
     }
 
-    /**
-     * Undelete a blob that was previously soft-deleted.
-     * <p>
-     * Undelete restores the content and metadata of a soft-deleted blob and/or any associated soft-deleted snapshots.
-     *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     */
-    Void undelete(String containerName,
-                  String blobName) {
-        return undeleteWithResponse(containerName,
-            blobName,
-            null,
-            null,
-            null,
-            null,
-            null).getValue();
-    }
-
-    /**
-     * Undelete a blob that was previously soft-deleted.
-     * <p>
-     * Undelete restores the content and metadata of a soft-deleted blob and/or any associated soft-deleted snapshots.
-     *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @param callback      Callback that receives the response.
-     * @return A handle to the service call.
-     */
-    ServiceCall undelete(String containerName,
-                         String blobName,
-                         Callback<Void> callback) {
-        return undeleteWithResponse(containerName,
-            blobName,
-            null,
-            null,
-            null,
-            null,
-            "undelete",
-            new Callback<BlobUndeleteResponse>() {
-                @Override
-                public void onResponse(BlobUndeleteResponse response) {
-                    callback.onResponse(response.getValue());
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    callback.onFailure(t);
-                }
-            });
-    }
-
-    /**
-     * Undelete a blob that was previously soft-deleted.
-     * <p>
-     * Undelete restores the content and metadata of a soft-deleted blob and/or any associated soft-deleted snapshots.
-     *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @param url           The URL to the deleted blob.
-     * @param timeout       The timeout parameter is expressed in seconds. For more information, see
-     *                      &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                      recorded in the analytics logs when storage analytics logging is enabled.
-     * @param comp          The name of the desired operation to perform. In this case, it should be 'undelete'.
-     * @return A response object containing the details of the delete operation.
-     */
-    BlobUndeleteResponse undeleteWithResponse(String containerName,
-                                              String blobName,
-                                              String url,
-                                              Integer timeout,
-                                              String version,
-                                              String requestId,
-                                              String comp) {
-        return undeleteWithRestResponseIntern(containerName,
-            blobName,
-            url,
-            timeout,
-            version,
-            requestId,
-            comp,
-            null).getResult();
-    }
-
-    /**
-     * Undelete a blob that was previously soft-deleted.
-     * <p>
-     * Undelete restores the content and metadata of a soft-deleted blob and/or any associated soft-deleted snapshots.
-     *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @param url           The URL to the deleted blob.
-     * @param timeout       The timeout parameter is expressed in seconds. For more information, see
-     *                      &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                      recorded in the analytics logs when storage analytics logging is enabled.
-     * @param comp          The name of the desired operation to perform. In this case, it should be 'undelete'.
-     * @param callback      Callback that receives the response.
-     * @return A handle to the service call.
-     */
-    ServiceCall undeleteWithResponse(String containerName,
-                                     String blobName,
-                                     String url,
-                                     Integer timeout,
-                                     String version,
-                                     String requestId,
-                                     String comp,
-                                     Callback<BlobUndeleteResponse> callback) {
-        CallAndOptionalResult<BlobUndeleteResponse> callAndOptionalResult =
-            undeleteWithRestResponseIntern(containerName,
-                blobName,
-                url,
-                timeout,
-                version,
-                requestId,
-                comp,
-                callback);
-
-        return new ServiceCall(callAndOptionalResult.getCall());
-    }
-
     private CallAndOptionalResult<ContainersListBlobFlatSegmentResponse> getBlobsInPageWithRestResponseIntern(String pageId,
                                                                                                               String containerName,
                                                                                                               String prefix,
@@ -1668,84 +1545,6 @@ final class StorageBlobServiceImpl {
         }
     }
 
-    private CallAndOptionalResult<BlobUndeleteResponse> undeleteWithRestResponseIntern(String containerName,
-                                                                                       String blobName,
-                                                                                       String url,
-                                                                                       Integer timeout,
-                                                                                       String version,
-                                                                                       String requestId,
-                                                                                       String comp,
-                                                                                       Callback<BlobUndeleteResponse> callback) {
-        Call<ResponseBody> call = service.undelete(containerName,
-            blobName,
-            url,
-            timeout,
-            XMS_VERSION, // TODO: Replace with 'version'.
-            comp,
-            requestId);
-
-        if (callback != null) {
-            executeCall(call, new retrofit2.Callback<ResponseBody>() {
-                @Override
-                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                    if (response.isSuccessful()) {
-                        if (response.code() == 200) {
-                            BlobUndeleteHeaders typedHeaders = deserializeHeaders(response.headers(),
-                                BlobUndeleteHeaders.class);
-
-                            callback.onResponse(new BlobUndeleteResponse(response.raw().request(),
-                                response.code(),
-                                response.headers(),
-                                null,
-                                typedHeaders));
-                        } else {
-                            String strContent = readAsString(response.body());
-
-                            callback.onFailure(new BlobStorageException(strContent, response.raw()));
-                        }
-                    } else {
-                        String strContent = readAsString(response.errorBody());
-
-                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    callback.onFailure(t);
-                }
-            });
-
-            return new CallAndOptionalResult<>(call, null);
-        } else {
-            Response<ResponseBody> response = executeCall(call);
-
-            if (response.isSuccessful()) {
-                if (response.code() == 200) {
-                    BlobUndeleteHeaders headers = deserializeHeaders(response.headers(),
-                        BlobUndeleteHeaders.class);
-
-                    BlobUndeleteResponse result = new BlobUndeleteResponse(response.raw().request(),
-                        response.code(),
-                        response.headers(),
-                        null,
-                        headers);
-
-                    return new CallAndOptionalResult<>(call, result);
-                } else {
-                    String strContent = readAsString(response.body());
-
-                    throw new BlobStorageException(strContent, response.raw());
-                }
-            } else {
-                String strContent = readAsString(response.errorBody());
-
-                throw new BlobStorageException(strContent, response.raw());
-            }
-        }
-    }
-
-
     private static <T> Response<T> executeCall(Call<T> call) {
         try {
             return call.execute();
@@ -1909,14 +1708,5 @@ final class StorageBlobServiceImpl {
                                   @Header("If-None-Match") String ifNoneMatch,
                                   @Header("x-ms-version") String version,
                                   @Header("x-ms-client-request-id") String requestId);
-
-        @PUT("{containerName}/{blob}")
-        Call<ResponseBody> undelete(@Path("containerName") String containerName,
-                                    @Path("blob") String blobName,
-                                    @Query("url") String url,
-                                    @Query("timeout") Integer timeout,
-                                    @Header("x-ms-version") String version,
-                                    @Header("x-ms-client-request-id") String requestId,
-                                    @Query("comp") String comp);
     }
 }
