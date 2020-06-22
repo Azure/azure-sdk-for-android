@@ -14,7 +14,7 @@ import com.azure.android.core.util.Base64Util;
 import com.azure.android.core.util.DateTimeRfc1123;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
-import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
+import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
@@ -332,9 +332,9 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            new Callback<BlobDownloadAsyncResponse>() {
+            new Callback<BlobDownloadResponse>() {
                 @Override
-                public void onResponse(BlobDownloadAsyncResponse response) {
+                public void onResponse(BlobDownloadResponse response) {
                     callback.onResponse(response.getValue());
                 }
 
@@ -373,21 +373,21 @@ final class StorageBlobServiceImpl {
      * @param cpkInfo              Additional parameters for the operation.
      * @return A response containing the blob data.
      */
-    BlobDownloadAsyncResponse downloadWithRestResponse(String containerName,
-                                                       String blobName,
-                                                       String snapshot,
-                                                       Integer timeout,
-                                                       String range,
-                                                       String leaseId,
-                                                       Boolean rangeGetContentMd5,
-                                                       Boolean rangeGetContentCrc64,
-                                                       OffsetDateTime ifModifiedSince,
-                                                       OffsetDateTime ifUnmodifiedSince,
-                                                       String ifMatch,
-                                                       String ifNoneMatch,
-                                                       String version,
-                                                       String requestId,
-                                                       CpkInfo cpkInfo) {
+    BlobDownloadResponse downloadWithRestResponse(String containerName,
+                                                  String blobName,
+                                                  String snapshot,
+                                                  Integer timeout,
+                                                  String range,
+                                                  String leaseId,
+                                                  Boolean rangeGetContentMd5,
+                                                  Boolean rangeGetContentCrc64,
+                                                  OffsetDateTime ifModifiedSince,
+                                                  OffsetDateTime ifUnmodifiedSince,
+                                                  String ifMatch,
+                                                  String ifNoneMatch,
+                                                  String version,
+                                                  String requestId,
+                                                  CpkInfo cpkInfo) {
         return downloadWithRestResponseIntern(containerName,
             blobName,
             snapshot,
@@ -449,8 +449,8 @@ final class StorageBlobServiceImpl {
                                          String version,
                                          String requestId,
                                          CpkInfo cpkInfo,
-                                         Callback<BlobDownloadAsyncResponse> callback) {
-        CallAndOptionalResult<BlobDownloadAsyncResponse> callAndOptionalResult = this.downloadWithRestResponseIntern(containerName,
+                                         Callback<BlobDownloadResponse> callback) {
+        CallAndOptionalResult<BlobDownloadResponse> callAndOptionalResult = this.downloadWithRestResponseIntern(containerName,
             blobName,
             snapshot,
             timeout,
@@ -1058,22 +1058,22 @@ final class StorageBlobServiceImpl {
         }
     }
 
-    private CallAndOptionalResult<BlobDownloadAsyncResponse> downloadWithRestResponseIntern(String containerName,
-                                                                                            String blobName,
-                                                                                            String snapshot,
-                                                                                            Integer timeout,
-                                                                                            String range,
-                                                                                            String leaseId,
-                                                                                            Boolean rangeGetContentMd5,
-                                                                                            Boolean rangeGetContentCrc64,
-                                                                                            OffsetDateTime ifModifiedSince,
-                                                                                            OffsetDateTime ifUnmodifiedSince,
-                                                                                            String ifMatch,
-                                                                                            String ifNoneMatch,
-                                                                                            String version,
-                                                                                            String requestId,
-                                                                                            CpkInfo cpkInfo,
-                                                                                            Callback<BlobDownloadAsyncResponse> callback) {
+    private CallAndOptionalResult<BlobDownloadResponse> downloadWithRestResponseIntern(String containerName,
+                                                                                       String blobName,
+                                                                                       String snapshot,
+                                                                                       Integer timeout,
+                                                                                       String range,
+                                                                                       String leaseId,
+                                                                                       Boolean rangeGetContentMd5,
+                                                                                       Boolean rangeGetContentCrc64,
+                                                                                       OffsetDateTime ifModifiedSince,
+                                                                                       OffsetDateTime ifUnmodifiedSince,
+                                                                                       String ifMatch,
+                                                                                       String ifNoneMatch,
+                                                                                       String version,
+                                                                                       String requestId,
+                                                                                       CpkInfo cpkInfo,
+                                                                                       Callback<BlobDownloadResponse> callback) {
         String encryptionKey = null;
         String encryptionKeySha256 = null;
         EncryptionAlgorithmType encryptionAlgorithm = null;
@@ -1116,7 +1116,7 @@ final class StorageBlobServiceImpl {
                             BlobDownloadHeaders typedHeaders = deserializeHeaders(response.headers(),
                                 BlobDownloadHeaders.class);
 
-                            callback.onResponse(new BlobDownloadAsyncResponse(response.raw().request(),
+                            callback.onResponse(new BlobDownloadResponse(response.raw().request(),
                                 response.code(),
                                 response.headers(),
                                 response.body(),
@@ -1147,7 +1147,7 @@ final class StorageBlobServiceImpl {
                 if (response.code() == 200 || response.code() == 206) {
                     BlobDownloadHeaders headers = deserializeHeaders(response.headers(), BlobDownloadHeaders.class);
 
-                    BlobDownloadAsyncResponse result = new BlobDownloadAsyncResponse(response.raw().request(),
+                    BlobDownloadResponse result = new BlobDownloadResponse(response.raw().request(),
                         response.code(),
                         response.headers(),
                         response.body(),
