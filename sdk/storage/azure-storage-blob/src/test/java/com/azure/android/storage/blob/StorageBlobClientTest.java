@@ -4,6 +4,7 @@ import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.ServiceCall;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
+import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
@@ -209,11 +210,11 @@ public class StorageBlobClientTest {
         // Given a StorageBlobClient.
 
         // When requesting the properties of a blob using getBlobProperties().
-        MockResponse response = new MockResponse()
+        MockResponse mockResponse = new MockResponse()
             .setResponseCode(200)
             .setHeader("Content-Type", "application/text");
 
-        mockWebServer.enqueue(response);
+        mockWebServer.enqueue(mockResponse);
 
         // Then an object with the blob properties will be returned by the client.
         BlobGetPropertiesHeaders blobGetPropertiesHeaders = storageBlobClient.getBlobProperties("container",
@@ -227,11 +228,11 @@ public class StorageBlobClientTest {
         // Given a StorageBlobClient.
 
         // When requesting the properties of a blob using getBlobProperties() while providing a callback.
-        MockResponse response = new MockResponse()
+        MockResponse mockResponse = new MockResponse()
             .setResponseCode(200)
             .setHeader("Content-Type", "application/text");
 
-        mockWebServer.enqueue(response);
+        mockWebServer.enqueue(mockResponse);
 
         ServiceCall serviceCall = storageBlobClient.getBlobProperties("container",
             "blob",
@@ -257,16 +258,16 @@ public class StorageBlobClientTest {
     public void getBlobPropertiesWithRestResponse() {
         // Given a StorageBlobClient.
 
-        // When requesting the properties of a blob using getBlobPropertiesAsHeaders() while providing a callback
-        MockResponse response = new MockResponse()
+        // When requesting the properties of a blob using getBlobPropertiesAsHeaders().
+        MockResponse mockResponse = new MockResponse()
             .setResponseCode(200)
             .setHeader("Content-Type", "application/text");
 
-        mockWebServer.enqueue(response);
+        mockWebServer.enqueue(mockResponse);
 
         // Then the client will return an object that contains both the details of the REST response and
         // a an object with the blob properties.
-        BlobGetPropertiesResponse blobGetPropertiesResponse =
+        BlobGetPropertiesResponse response =
             storageBlobClient.getBlobPropertiesWithRestResponse("container",
                 "blob",
                 null,
@@ -276,7 +277,7 @@ public class StorageBlobClientTest {
                 null,
                 null);
 
-        assertEquals("application/text", blobGetPropertiesResponse.getDeserializedHeaders().getContentType());
+        assertEquals("application/text", response.getDeserializedHeaders().getContentType());
     }
 
     @Test
@@ -285,11 +286,11 @@ public class StorageBlobClientTest {
 
         // When requesting the properties of a blob using getBlobPropertiesWithRestResponse() while providing a
         // callback.
-        MockResponse response = new MockResponse()
+        MockResponse mockResponse = new MockResponse()
             .setResponseCode(200)
             .setHeader("Content-Type", "application/text");
 
-        mockWebServer.enqueue(response);
+        mockWebServer.enqueue(mockResponse);
 
         ServiceCall serviceCall = storageBlobClient.getBlobPropertiesWithRestResponse("container",
             "blob",
@@ -330,8 +331,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then an object with the blob's contents will be returned by the client.
-        ResponseBody response = storageBlobClient.rawDownload(
-            "testContainer",
+        ResponseBody response = storageBlobClient.rawDownload("testContainer",
             "testBlob");
 
         assertEquals("testBody", response.string());
@@ -472,7 +472,7 @@ public class StorageBlobClientTest {
     public void stageBlock_withCallback() {
         // Given a StorageBlobClient.
 
-        // When sending a block's contents for staging.
+        // When sending a block's contents for staging while providing a callback.
         MockResponse mockResponse = new MockResponse()
             .setResponseCode(201);
 
@@ -686,6 +686,122 @@ public class StorageBlobClientTest {
                     // the callback.
                     assertEquals(false, response.getBlockBlobItem().isServerEncrypted());
                     assertEquals("testEtag", response.getBlockBlobItem().getETag());
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    throw new RuntimeException(t);
+                }
+            });
+
+        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
+        assertNotNull(serviceCall);
+        assertFalse(serviceCall.isCanceled());
+    }
+
+    @Test
+    public void delete() {
+        // Given a StorageBlobClient.
+
+        // When deleting a blob using delete().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 202 will be returned by the server.
+        Void response = storageBlobClient.delete("container",
+            "blob");
+
+        assertNull(response);
+    }
+
+    @Test
+    public void delete_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When deleting a blob using delete() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        ServiceCall serviceCall = storageBlobClient.delete("container",
+            "blob",
+            new Callback<Void>() {
+                @Override
+                public void onResponse(Void response) {
+                    // Then a response without body and status code 202 will be returned by the server to the callback.
+                    assertNull(response);
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    throw new RuntimeException(t);
+                }
+            });
+
+        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
+        assertNotNull(serviceCall);
+        assertFalse(serviceCall.isCanceled());
+    }
+
+    @Test
+    public void deleteWithRestResponse() {
+        // Given a StorageBlobClient.
+
+        // When deleting a blob using deleteWithResponse().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 202 will be returned by the server.
+        BlobDeleteResponse response =
+            storageBlobClient.deleteWithResponse("container",
+                "blob",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+
+        assertEquals(202, response.getStatusCode());
+    }
+
+    @Test
+    public void deleteWithRestResponse_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When deleting a blob using delete () while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(200)
+            .setHeader("Content-Type", "application/text");
+
+        mockWebServer.enqueue(mockResponse);
+
+        ServiceCall serviceCall = storageBlobClient.deleteWithResponse("container",
+            "blob",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            new Callback<BlobDeleteResponse>() {
+                @Override
+                public void onResponse(BlobDeleteResponse response) {
+                    // Then a response without body and status code 202 will be returned by the server to the callback.
+                    assertEquals(202, response.getStatusCode());
                 }
 
                 @Override
