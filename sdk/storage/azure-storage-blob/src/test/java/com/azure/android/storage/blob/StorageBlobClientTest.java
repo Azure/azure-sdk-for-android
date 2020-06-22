@@ -8,6 +8,7 @@ import com.azure.android.storage.blob.models.BlobDownloadAsyncResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobItem;
+import com.azure.android.storage.blob.models.BlobUndeleteResponse;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
@@ -686,6 +687,111 @@ public class StorageBlobClientTest {
                     // the callback.
                     assertEquals(false, response.getBlockBlobItem().isServerEncrypted());
                     assertEquals("testEtag", response.getBlockBlobItem().getETag());
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    throw new RuntimeException(t);
+                }
+            });
+
+        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
+        assertNotNull(serviceCall);
+        assertFalse(serviceCall.isCanceled());
+    }
+
+    @Test
+    public void undelete() {
+        // Given a StorageBlobClient.
+
+        // When undeleting a blob using undelete().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(200);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 200 will be returned by the server.
+        Void response = storageBlobClient.undelete("container",
+            "blob");
+
+        assertNull(response);
+    }
+
+    @Test
+    public void undelete_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When undeleting a blob using undelete() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(200);
+
+        mockWebServer.enqueue(mockResponse);
+
+        ServiceCall serviceCall = storageBlobClient.undelete("container",
+            "blob",
+            new Callback<Void>() {
+                @Override
+                public void onResponse(Void response) {
+                    // Then a response without body and status code 200 will be returned by the server to the callback.
+                    assertNull(response);
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    throw new RuntimeException(t);
+                }
+            });
+
+        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
+        assertNotNull(serviceCall);
+        assertFalse(serviceCall.isCanceled());
+    }
+
+    @Test
+    public void deleteWithRestResponse() {
+        // Given a StorageBlobClient.
+
+        // When undeleting a blob using deleteWithResponse().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(200);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 200 will be returned by the server.
+        BlobUndeleteResponse response = storageBlobClient.undeleteWithResponse("container",
+            "blob",
+            null,
+            null,
+            null,
+            null,
+            null);
+
+        assertEquals(200, response.getStatusCode());
+    }
+
+    @Test
+    public void undeleteWithRestResponse_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When undeleting a blob using undelete() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(200)
+            .setHeader("Content-Type", "application/text");
+
+        mockWebServer.enqueue(mockResponse);
+
+        ServiceCall serviceCall = storageBlobClient.undeleteWithResponse("container",
+            "blob",
+            null,
+            null,
+            null,
+            null,
+            null,
+            new Callback<BlobUndeleteResponse>() {
+                @Override
+                public void onResponse(BlobUndeleteResponse response) {
+                    // Then a response without body and status code 200 will be returned by the server to the callback.
+                    assertEquals(200, response.getStatusCode());
                 }
 
                 @Override
