@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "830a884e1c966dfb60c1359edba6a1cd",
+    "identityHash": "676acd791313226090eed7e02bd3cc73",
     "entities": [
       {
         "tableName": "blobuploads",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `file_path` TEXT, `file_size` INTEGER NOT NULL, `storage_blob_client_id` TEXT, `container_name` TEXT, `blob_name` TEXT, `blob_upload_state` INTEGER, `transfer_interrupt_state` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `content_uri` TEXT, `content_size` INTEGER NOT NULL, `use_content_resolver` INTEGER NOT NULL, `storage_blob_client_id` TEXT, `container_name` TEXT, `blob_name` TEXT, `blob_upload_state` INTEGER, `transfer_interrupt_state` INTEGER, `required_network_type` INTEGER, `requires_charging` INTEGER NOT NULL, `requires_device_idle` INTEGER NOT NULL, `requires_battery_not_low` INTEGER NOT NULL, `requires_storage_not_low` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "key",
@@ -15,14 +15,20 @@
             "notNull": false
           },
           {
-            "fieldPath": "filePath",
-            "columnName": "file_path",
+            "fieldPath": "contentUri",
+            "columnName": "content_uri",
             "affinity": "TEXT",
             "notNull": false
           },
           {
-            "fieldPath": "fileSize",
-            "columnName": "file_size",
+            "fieldPath": "contentSize",
+            "columnName": "content_size",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "useContentResolver",
+            "columnName": "use_content_resolver",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -55,6 +61,36 @@
             "columnName": "transfer_interrupt_state",
             "affinity": "INTEGER",
             "notNull": false
+          },
+          {
+            "fieldPath": "constraintsColumn.requiredNetworkType",
+            "columnName": "required_network_type",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "constraintsColumn.requiresCharging",
+            "columnName": "requires_charging",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "constraintsColumn.requiresDeviceIdle",
+            "columnName": "requires_device_idle",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "constraintsColumn.requiresBatteryNotLow",
+            "columnName": "requires_battery_not_low",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "constraintsColumn.requiresStorageNotLow",
+            "columnName": "requires_storage_not_low",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -68,7 +104,7 @@
       },
       {
         "tableName": "blockuploads",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `blob_key` INTEGER NOT NULL, `file_path` TEXT, `file_offset` INTEGER NOT NULL, `block_size` INTEGER NOT NULL, `block_id` TEXT, `block_upload_state` INTEGER, FOREIGN KEY(`blob_key`) REFERENCES `blobuploads`(`key`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `blob_key` INTEGER NOT NULL, `block_offset` INTEGER NOT NULL, `block_size` INTEGER NOT NULL, `block_id` TEXT, `block_upload_state` INTEGER, FOREIGN KEY(`blob_key`) REFERENCES `blobuploads`(`key`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "key",
@@ -83,14 +119,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "filePath",
-            "columnName": "file_path",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "fileOffset",
-            "columnName": "file_offset",
+            "fieldPath": "blockOffset",
+            "columnName": "block_offset",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -145,7 +175,7 @@
       },
       {
         "tableName": "blobdownloads",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `container_name` TEXT, `blob_name` TEXT, `blob_size` INTEGER NOT NULL, `file_path` TEXT, `storage_blob_client_id` TEXT, `blob_download_state` INTEGER, `transfer_interrupt_state` INTEGER)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `container_name` TEXT, `blob_name` TEXT, `blob_size` INTEGER NOT NULL, `content_uri` TEXT, `use_content_resolver` INTEGER NOT NULL, `storage_blob_client_id` TEXT, `blob_download_state` INTEGER, `transfer_interrupt_state` INTEGER, `required_network_type` INTEGER, `requires_charging` INTEGER NOT NULL, `requires_device_idle` INTEGER NOT NULL, `requires_battery_not_low` INTEGER NOT NULL, `requires_storage_not_low` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "key",
@@ -172,10 +202,16 @@
             "notNull": true
           },
           {
-            "fieldPath": "filePath",
-            "columnName": "file_path",
+            "fieldPath": "contentUri",
+            "columnName": "content_uri",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "useContentResolver",
+            "columnName": "use_content_resolver",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "storageBlobClientId",
@@ -194,6 +230,36 @@
             "columnName": "transfer_interrupt_state",
             "affinity": "INTEGER",
             "notNull": false
+          },
+          {
+            "fieldPath": "constraintsColumn.requiredNetworkType",
+            "columnName": "required_network_type",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "constraintsColumn.requiresCharging",
+            "columnName": "requires_charging",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "constraintsColumn.requiresDeviceIdle",
+            "columnName": "requires_device_idle",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "constraintsColumn.requiresBatteryNotLow",
+            "columnName": "requires_battery_not_low",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "constraintsColumn.requiresStorageNotLow",
+            "columnName": "requires_storage_not_low",
+            "affinity": "INTEGER",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -207,7 +273,7 @@
       },
       {
         "tableName": "blockdownloads",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `blob_key` INTEGER NOT NULL, `file_path` TEXT, `blob_offset` INTEGER NOT NULL, `block_size` INTEGER NOT NULL, `block_id` TEXT, `block_download_state` INTEGER, FOREIGN KEY(`blob_key`) REFERENCES `blobdownloads`(`key`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `blob_key` INTEGER NOT NULL, `file_path` TEXT, `block_offset` INTEGER NOT NULL, `block_size` INTEGER NOT NULL, `block_id` TEXT, `block_download_state` INTEGER, FOREIGN KEY(`blob_key`) REFERENCES `blobdownloads`(`key`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "key",
@@ -228,8 +294,8 @@
             "notNull": false
           },
           {
-            "fieldPath": "blobOffset",
-            "columnName": "blob_offset",
+            "fieldPath": "blockOffset",
+            "columnName": "block_offset",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -286,7 +352,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '830a884e1c966dfb60c1359edba6a1cd')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '676acd791313226090eed7e02bd3cc73')"
     ]
   }
 }
