@@ -17,7 +17,6 @@ import androidx.annotation.NonNull;
 import com.azure.android.core.http.ServiceCall;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlockBlobItem;
-import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -146,7 +145,7 @@ final class UploadHandler extends Handler {
      * with the number of async operations equal to the configured blocksUploadConcurrency.
      */
     private void handleInit() {
-        this.db = TransferDatabase.get(this.appContext);
+        this.db = TransferDatabase.getInstance(this.appContext);
         this.blob = this.db.uploadDao().getBlob(uploadId);
         if (this.blob.interruptState == TransferInterruptState.PURGE) {
             this.transferHandlerListener.onError(new RuntimeException("Upload Operation with id '"

@@ -40,4 +40,14 @@ final class ColumnConverter {
     public TransferInterruptState toTransferInterruptState(int ordinal) {
         return TransferInterruptState.values()[ordinal];
     }
+
+    @TypeConverter
+    public int fromNetworkType(androidx.work.NetworkType networkType) {
+        return networkType.ordinal();
+    }
+
+    @TypeConverter
+    public androidx.work.NetworkType toNetworkType(int ordinal) {
+        return androidx.work.NetworkType.values()[ordinal];
+    }
 }

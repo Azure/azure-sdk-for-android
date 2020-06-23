@@ -3,13 +3,22 @@
 
 package com.azure.android.storage.blob;
 
+import android.content.Context;
 import android.net.Uri;
+import android.os.Build;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.lifecycle.LiveData;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
 
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.ServiceCall;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
+import com.azure.android.core.util.CoreUtil;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
@@ -27,6 +36,11 @@ import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
+import com.azure.android.storage.blob.transfer.DownloadRequest;
+import com.azure.android.storage.blob.transfer.StorageBlobClientMap;
+import com.azure.android.storage.blob.transfer.TransferClient;
+import com.azure.android.storage.blob.transfer.TransferInfo;
+import com.azure.android.storage.blob.transfer.UploadRequest;
 
 import org.threeten.bp.OffsetDateTime;
 
@@ -45,21 +59,30 @@ import okhttp3.ResponseBody;
  * This client is instantiated through {@link StorageBlobClient.Builder}.
  */
 public class StorageBlobClient {
+    private final String id;
     private final ServiceClient serviceClient;
     private final StorageBlobServiceImpl storageBlobServiceClient;
+    private final Constraints transferConstraints;
 
-    private StorageBlobClient(ServiceClient serviceClient) {
+    private StorageBlobClient(String id, ServiceClient serviceClient, Constraints transferConstraints) {
+        this.id = id;
         this.serviceClient = serviceClient;
         this.storageBlobServiceClient = new StorageBlobServiceImpl(this.serviceClient);
+        this.transferConstraints = transferConstraints;
     }
 
     /**
      * Creates a new {@link Builder} with initial configuration copied from this {@link StorageBlobClient}.
      *
+     * @param storageBlobClientId The unique ID for the new {@link StorageBlobClient}. This identifier is used to
+     *                            associate the {@link StorageBlobClient} with the upload and download transfers it
+     *                            initiates. When a transfer is reloaded from disk (e.g. after an application crash),
+     *                            it can only be resumed once a client with the same storageBlobClientId has been
+     *                            initialized.
      * @return A new {@link Builder}.
      */
-    public StorageBlobClient.Builder newBuilder() {
-        return new Builder(this);
+    public StorageBlobClient.Builder newBuilder(String storageBlobClientId) {
+        return new Builder(storageBlobClientId, this);
     }
 
     /**
@@ -69,6 +92,145 @@ public class StorageBlobClient {
      */
     public String getBlobServiceUrl() {
         return this.serviceClient.getBaseUrl();
+    }
+
+    /**
+     * Upload the content of a file.
+     *
+     * @param context       The application context.
+     * @param containerName The container to upload the file to.
+     * @param blobName      The name of the target blob holding the uploaded file.
+     * @param file          The local file to upload.
+     * @return A LiveData that streams {@link TransferInfo} describing the current state of the transfer.
+     */
+    public LiveData<TransferInfo> upload(Context context,
+                                         String containerName,
+                                         String blobName, File file) {
+        final UploadRequest request = new UploadRequest.Builder()
+            .storageClientId(this.id)
+            .containerName(containerName)
+            .blobName(blobName)
+            .file(file)
+            .constraints(this.transferConstraints)
+            .build();
+        return TransferClient.getInstance(context)
+            .upload(request);
+    }
+
+    /**
+     * Upload content identified by a given URI.
+     *
+     * @param context       The application context.
+     * @param containerName The container to upload the file to.
+     * @param blobName      The name of the target blob holding the uploaded file.
+     * @param contentUri    The URI to the Content to upload, the contentUri is resolved using
+     *                      {@link android.content.ContentResolver#openAssetFileDescriptor(Uri, String)} with mode as
+     *                      "r". The supported URI schemes are: 'content://', 'file://' and 'android.resource://'.
+     * @return A LiveData that streams {@link TransferInfo} describing the current state of the transfer.
+     */
+    public LiveData<TransferInfo> upload(Context context,
+                                         String containerName,
+                                         String blobName,
+                                         Uri contentUri) {
+        final UploadRequest request = new UploadRequest.Builder()
+            .storageClientId(this.id)
+            .containerName(containerName)
+            .blobName(blobName)
+            .contentUri(context, contentUri)
+            .constraints(this.transferConstraints)
+            .build();
+        return TransferClient.getInstance(context)
+            .upload(request);
+    }
+
+    /**
+     * Download a blob.
+     *
+     * @param context       The application context.
+     * @param containerName The container to download the blob from.
+     * @param blobName      The name of the target blob to download.
+     * @param file          The local file to download to.
+     * @return A LiveData that streams {@link TransferInfo} describing the current state of the download.
+     */
+    public LiveData<TransferInfo> download(Context context,
+                                           String containerName,
+                                           String blobName,
+                                           File file) {
+        final DownloadRequest request = new DownloadRequest.Builder()
+            .storageClientId(this.id)
+            .containerName(containerName)
+            .blobName(blobName)
+            .file(file)
+            .constraints(this.transferConstraints)
+            .build();
+        return TransferClient.getInstance(context)
+            .download(request);
+    }
+
+    /**
+     * Download a blob.
+     *
+     * @param context       The application context.
+     * @param containerName The container to download the blob from.
+     * @param blobName      The name of the target blob to download.
+     * @param contentUri    The URI to the local content where the downloaded blob will be stored.
+     * @return LiveData that streams {@link TransferInfo} describing the current state of the download.
+     */
+    public LiveData<TransferInfo> download(Context context,
+                                           String containerName,
+                                           String blobName,
+                                           Uri contentUri) {
+        final DownloadRequest request = new DownloadRequest.Builder()
+            .storageClientId(this.id)
+            .containerName(containerName)
+            .blobName(blobName)
+            .contentUri(context, contentUri)
+            .constraints(this.transferConstraints)
+            .build();
+        return TransferClient.getInstance(context)
+            .download(request);
+    }
+
+    /**
+     * Pause a transfer identified by the given transfer ID. The pause operation is a best-effort, and a transfer
+     * that is already executing may continue to transfer.
+     * <p>
+     * Upon successful scheduling of the pause, any observer observing on {@link LiveData} for this
+     * transfer receives a {@link TransferInfo} event with state {@link TransferInfo.State#USER_PAUSED}.
+     *
+     * @param context    The application context.
+     * @param transferId The transfer ID identifies the transfer to pause.
+     */
+    public void pause(Context context, long transferId) {
+        TransferClient.getInstance(context)
+            .pause(transferId);
+    }
+
+    /**
+     * Resume a paused transfer.
+     *
+     * @param context    The application context
+     * @param transferId The transfer ID identifies the transfer to resume.
+     * @return A LiveData that streams {@link TransferInfo} describing the current state of the transfer.
+     */
+    public LiveData<TransferInfo> resume(Context context, long transferId) {
+        return TransferClient.getInstance(context)
+            .resume(transferId);
+    }
+
+    /**
+     * Cancel a transfer identified by the given transfer ID. The cancel operation is a best-effort, and a transfer
+     * that is already executing may continue to transfer.
+     * <p>
+     * Upon successful scheduling of the cancellation, any observer observing on {@link LiveData} for
+     * this transfer receives a {@link TransferInfo} event with state {@link TransferInfo.State#CANCELLED}.
+     *
+     * @param context    The application context.
+     * @param transferId The transfer ID identifies the transfer to cancel.
+     */
+    public void cancel(Context context, long transferId) {
+        TransferClient.getInstance(context)
+            .cancel(transferId);
     }
 
     /**
@@ -283,8 +445,8 @@ public class StorageBlobClient {
      *
      * <p>
      * This method will execute a raw HTTP GET in order to download a single blob to the destination.
-     * It is **STRONGLY** recommended that you use the {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, File)}
-     * or {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, Uri)} method instead - that method will
+     * It is **STRONGLY** recommended that you use the {@link StorageBlobClient#download(Context, String, String, File)}
+     * or {@link StorageBlobClient#download(Context, String, String, Uri)} method instead - that method will
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
      *`
@@ -303,8 +465,8 @@ public class StorageBlobClient {
      *
      * <p>
      * This method will execute a raw HTTP GET in order to download a single blob to the destination.
-     * It is **STRONGLY** recommended that you use the {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, File)}
-     * or {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, Uri)} method instead - that method will
+     * It is **STRONGLY** recommended that you use the {@link StorageBlobClient#download(Context, String, String, File)}
+     * or {@link StorageBlobClient#download(Context, String, String, Uri)} method instead - that method will
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
      *
@@ -326,8 +488,8 @@ public class StorageBlobClient {
      *
      * <p>
      * This method will execute a raw HTTP GET in order to download a single blob to the destination.
-     * It is **STRONGLY** recommended that you use the {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, File)}
-     * or {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, Uri)} method instead - that method will
+     * It is **STRONGLY** recommended that you use the {@link StorageBlobClient#download(Context, String, String, File)}
+     * or {@link StorageBlobClient#download(Context, String, String, Uri)} method instead - that method will
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
      *
@@ -388,8 +550,8 @@ public class StorageBlobClient {
      *
      * <p>
      * This method will execute a raw HTTP GET in order to download a single blob to the destination.
-     * It is **STRONGLY** recommended that you use the {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, File)}
-     * or {@link com.azure.android.storage.blob.transfer.TransferClient#download(String, String, String, Uri)} method instead - that method will
+     * It is **STRONGLY** recommended that you use the {@link StorageBlobClient#download(Context, String, String, File)}
+     * or {@link StorageBlobClient#download(Context, String, String, Uri)} method instead - that method will
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
      *
@@ -902,13 +1064,26 @@ public class StorageBlobClient {
      * A builder to configure and build a {@link StorageBlobClient}.
      */
     public static class Builder {
+        private final String storageBlobClientId;
         private final ServiceClient.Builder serviceClientBuilder;
+        private final Constraints.Builder transferConstraintsBuilder;
+        private static final StorageBlobClientMap STORAGE_BLOB_CLIENTS;
+
+        static {
+            STORAGE_BLOB_CLIENTS = StorageBlobClientMap.getInstance();
+        }
 
         /**
          * Creates a {@link Builder}.
+         *
+         * @param storageBlobClientId The unique ID for the {@link StorageBlobClient} this builder builds. This
+         *                            identifier is used to associate this {@link StorageBlobClient} with the upload and
+         *                            download transfers it initiates. When a transfer is reloaded from disk (e.g.
+         *                            after an application crash), it can only be resumed once a client with the same
+         *                            storageBlobClientId has been initialized.
          */
-        public Builder() {
-            this(new ServiceClient.Builder());
+        public Builder(String storageBlobClientId) {
+            this(storageBlobClientId, new ServiceClient.Builder());
             this.serviceClientBuilder
                 .addInterceptor(new AddDateInterceptor())
                 .setSerializationFormat(SerializerFormat.XML);
@@ -922,22 +1097,40 @@ public class StorageBlobClient {
          * The builder produced {@link ServiceClient} is used by the {@link StorageBlobClient} to make Rest API calls.
          * Multiple {@link StorageBlobClient} instances can share the same {@link ServiceClient} instance, for e.g.
          * when a new {@link StorageBlobClient} is created from an existing {@link StorageBlobClient} through
-         * {@link StorageBlobClient#newBuilder()} then both shares the same {@link ServiceClient}.
+         * {@link StorageBlobClient#newBuilder(String)} ()} then both shares the same {@link ServiceClient}.
          * The {@link ServiceClient} composes HttpClient, HTTP settings (such as connection timeout, interceptors)
          * and Retrofit for Rest calls.
          *
+         * @param storageBlobClientId  The unique ID for the {@link StorageBlobClient} this builder builds.
          * @param serviceClientBuilder The {@link com.azure.android.core.http.ServiceClient.Builder}.
          */
-        public Builder(ServiceClient.Builder serviceClientBuilder) {
-            Objects.requireNonNull(serviceClientBuilder, "serviceClientBuilder cannot be null.");
-            this.serviceClientBuilder = serviceClientBuilder;
+        public Builder(String storageBlobClientId, ServiceClient.Builder serviceClientBuilder) {
+            this(storageBlobClientId, serviceClientBuilder, new Constraints.Builder());
+            this.transferConstraintsBuilder
+                .setRequiredNetworkType(NetworkType.CONNECTED);
+        }
+
+        private Builder(String storageBlobClientId,
+                        ServiceClient.Builder serviceClientBuilder,
+                        Constraints.Builder transferConstraintsBuilder) {
+            if (CoreUtil.isNullOrEmpty(storageBlobClientId)) {
+                throw new IllegalArgumentException("'storageBlobClientId' cannot be null or empty.");
+            }
+            if (Builder.STORAGE_BLOB_CLIENTS.contains(storageBlobClientId)) {
+                throw new IllegalArgumentException("A StorageBlobClient with id '" + storageBlobClientId + "' already exists.");
+            }
+            this.storageBlobClientId = storageBlobClientId;
+            this.serviceClientBuilder
+                = Objects.requireNonNull(serviceClientBuilder, "serviceClientBuilder cannot be null.");
+            this.transferConstraintsBuilder
+                = Objects.requireNonNull(transferConstraintsBuilder, "transferConstraintsBuilder cannot be null.");
         }
 
         /**
          * Sets the base URL for the {@link StorageBlobClient}.
          *
          * @param blobServiceUrl The blob service base URL.
-         * @return An updated {@link Builder} with the provided base URL applied.
+         * @return An updated {@link Builder} with the provided blob service URL set.
          */
         public Builder setBlobServiceUrl(String blobServiceUrl) {
             Objects.requireNonNull(blobServiceUrl, "blobServiceUrl cannot be null.");
@@ -949,10 +1142,79 @@ public class StorageBlobClient {
          * Sets an interceptor used to authenticate the blob service request.
          *
          * @param credentialInterceptor The credential interceptor.
-         * @return An updated {@link Builder} with the provided interceptor for credential applied.
+         * @return An updated {@link Builder} with the provided credentials interceptor set.
          */
         public Builder setCredentialInterceptor(Interceptor credentialInterceptor) {
             this.serviceClientBuilder.setCredentialsInterceptor(credentialInterceptor);
+            return this;
+        }
+
+        /**
+         * Sets whether device should be charging for running the transfers. The default value is {@code false}.
+         *
+         * @param requiresCharging {@code true} if the device must be charging for the transfer to run.
+         * @return An updated {@link Builder} with the provided charging requirement set.
+         */
+        public Builder setRequiresCharging(boolean requiresCharging) {
+            this.transferConstraintsBuilder.setRequiresCharging(requiresCharging);
+            return this;
+        }
+
+        /**
+         * Sets whether device should be idle for running the transfers. The default value is {@code false}.
+         *
+         * @param requiresDeviceIdle {@code true} if the device must be idle for transfers to run.
+         * @return An updated {@link Builder} with the provided setting set.
+         */
+        @RequiresApi(23)
+        public Builder setRequiresDeviceIdle(boolean requiresDeviceIdle) {
+            if (Build.VERSION.SDK_INT >= 23) {
+                this.transferConstraintsBuilder.setRequiresDeviceIdle(requiresDeviceIdle);
+            }
+            return this;
+        }
+
+        /**
+         * Sets the particular {@link NetworkType} the device should be in for running the transfers.
+         * <p>
+         * The default network type that {@link TransferClient} uses is {@link NetworkType#CONNECTED}.
+         *
+         * @param networkType The type of network required for transfers to run.
+         * @return An updated {@link Builder} with the provided network type set.
+         */
+        public Builder setRequiredNetworkType(@NonNull NetworkType networkType) {
+            Objects.requireNonNull(networkType, "'networkType' cannot be null.");
+            if (networkType == NetworkType.NOT_REQUIRED) {
+                throw new IllegalArgumentException(
+                    "The network type NOT_REQUIRED is not a valid transfer configuration.");
+            }
+            this.transferConstraintsBuilder.setRequiredNetworkType(networkType);
+            return this;
+        }
+
+        /**
+         * Sets whether device battery should be at an acceptable level for running the transfers. The default value
+         * is {@code false}.
+         *
+         * @param requiresBatteryNotLow {@code true} if the battery should be at an acceptable level for the
+         *                                          transfers to run.
+         * @return An updated {@link Builder} with the provided battery requirement set.
+         */
+        public Builder setRequiresBatteryNotLow(boolean requiresBatteryNotLow) {
+            this.transferConstraintsBuilder.setRequiresBatteryNotLow(requiresBatteryNotLow);
+            return this;
+        }
+
+        /**
+         * Sets whether the device's available storage should be at an acceptable level for running
+         * the transfers. The default value is {@code false}.
+         *
+         * @param requiresStorageNotLow {@code true} if the available storage should not be below a
+         *                              a critical threshold for the transfer to run.
+         * @return An updated {@link Builder} with the provided storage requirement set.
+         */
+        public Builder setRequiresStorageNotLow(boolean requiresStorageNotLow) {
+            this.transferConstraintsBuilder.setRequiresStorageNotLow(requiresStorageNotLow);
             return this;
         }
 
@@ -962,11 +1224,35 @@ public class StorageBlobClient {
          * @return A {@link StorageBlobClient}.
          */
         public StorageBlobClient build() {
-            return new StorageBlobClient(this.serviceClientBuilder.build());
+            Constraints transferConstraints = this.transferConstraintsBuilder.build();
+            NetworkType networkType = transferConstraints.getRequiredNetworkType();
+            if (networkType == null || networkType == NetworkType.NOT_REQUIRED) {
+                throw new IllegalArgumentException(
+                    "The null or NOT_REQUIRED NetworkType is not a valid transfer configuration.");
+            }
+            StorageBlobClient client = new StorageBlobClient(this.storageBlobClientId,
+                this.serviceClientBuilder.build(),
+                transferConstraints);
+            Builder.STORAGE_BLOB_CLIENTS.add(storageBlobClientId, client);
+            return client;
         }
 
-        private Builder(final StorageBlobClient storageBlobClient) {
-            this(storageBlobClient.serviceClient.newBuilder());
+        private Builder(String storageBlobClientId, final StorageBlobClient storageBlobClient) {
+            this(storageBlobClientId,
+                storageBlobClient.serviceClient.newBuilder(),
+                newBuilder(storageBlobClient.transferConstraints));
+        }
+
+        private static androidx.work.Constraints.Builder newBuilder(androidx.work.Constraints constraints) {
+            Constraints.Builder builder = new Constraints.Builder();
+            builder.setRequiresCharging(constraints.requiresCharging());
+            if (Build.VERSION.SDK_INT >= 23) {
+                builder.setRequiresDeviceIdle(constraints.requiresDeviceIdle());
+            }
+            builder.setRequiredNetworkType(constraints.getRequiredNetworkType());
+            builder.setRequiresBatteryNotLow(constraints.requiresBatteryNotLow());
+            builder.setRequiresStorageNotLow(constraints.requiresStorageNotLow());
+            return builder;
         }
     }
 }
