@@ -13,7 +13,7 @@ public final class SasTokenCredential {
     private final String sasToken;
 
     /**
-     * Creates a SAS token credential from the passed SAS token.
+     * Creates a SAS token credential from the provided SAS token.
      *
      * @param sasToken SAS token used to authenticate requests with the service.
      */
@@ -23,6 +23,8 @@ public final class SasTokenCredential {
     }
 
     /**
+     * Gets the SAS token.
+     *
      * @return the SAS token
      */
     public String getSasToken() {
@@ -30,10 +32,9 @@ public final class SasTokenCredential {
     }
 
     /**
-     * Creates a SAS token credential from the passed SAS token.
+     * Creates a SAS token credential from the provided SAS token.
      *
-     * <p>This method expects a pre-formatted SAS token. Each service offers helper classes to make it easier to
-     * generate the SAS token.</p>
+     * <p>This method expects a pre-formatted SAS token.</p>
      *
      * @param sasToken SAS token
      * @return a SAS token credential if {@code sasToken} is not {@code null} or empty, otherwise null.
@@ -47,7 +48,7 @@ public final class SasTokenCredential {
     }
 
     /**
-     * Creates a SAS token credential from the passed query string parameters.
+     * Creates a SAS token credential from the provided query string parameters.
      *
      * <p>The entries in the passed map will be combined into a query string that is used as the SAS token.</p>
      *

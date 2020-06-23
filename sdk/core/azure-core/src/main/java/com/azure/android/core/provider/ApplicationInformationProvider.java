@@ -22,21 +22,21 @@ public interface ApplicationInformationProvider {
     }
 
     /**
-     * Application ID.
+     * Gets the application ID.
      *
      * @return The application ID.
      */
     String getApplicationId();
 
     /**
-     * Application version.
+     * Gets the application version.
      *
      * @return The application version.
      */
     String getApplicationVersion();
 
     /**
-     * Application target SDK version.
+     * Gets the application target SDK version.
      *
      * @return The application's target SDK version.
      */

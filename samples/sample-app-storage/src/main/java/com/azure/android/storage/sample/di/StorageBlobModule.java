@@ -18,7 +18,7 @@ public class StorageBlobModule {
     @Provides
     @Singleton
     StorageBlobClient provideStorageBlobClient() {
-        return new StorageBlobClient.Builder()
+        return new StorageBlobClient.Builder("com.azure.android.storage.sample")
                 .setBlobServiceUrl(this.baseUrl)
                 .build();
     }

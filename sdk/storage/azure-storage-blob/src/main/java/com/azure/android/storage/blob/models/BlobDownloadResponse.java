@@ -12,9 +12,9 @@ import okhttp3.ResponseBody;
 /**
  * This class contains the response information returned from the server when downloading a blob.
  */
-public final class BlobDownloadAsyncResponse extends ResponseBase<BlobDownloadHeaders, ResponseBody> {
+public final class BlobDownloadResponse extends ResponseBase<BlobDownloadHeaders, ResponseBody> {
     /**
-     * Constructs a {@link BlobDownloadAsyncResponse}.
+     * Constructs a {@link BlobDownloadResponse}.
      *
      * @param request             Request sent to the service.
      * @param statusCode          Response status code returned by the service.
@@ -22,11 +22,11 @@ public final class BlobDownloadAsyncResponse extends ResponseBase<BlobDownloadHe
      * @param value               Downloaded data being returned by the service.
      * @param deserializedHeaders Headers deserialized into an object.
      */
-    public BlobDownloadAsyncResponse(Request request,
-                                     int statusCode,
-                                     Headers headers,
-                                     ResponseBody value,
-                                     BlobDownloadHeaders deserializedHeaders) {
+    public BlobDownloadResponse(Request request,
+                                int statusCode,
+                                Headers headers,
+                                ResponseBody value,
+                                BlobDownloadHeaders deserializedHeaders) {
         super(request, statusCode, headers, value, deserializedHeaders);
     }
 }

@@ -11,9 +11,9 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.work.NetworkType;
 
 import com.azure.android.storage.blob.StorageBlobClient;
-import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.sample.config.StorageConfiguration;
 import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservable;
 import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservableAuthInterceptor;
@@ -84,9 +84,10 @@ public class UploadFileActivity extends AppCompatActivity {
         // Create a new StorageBlobClient from the existing client with different base URL and credentials but sharing
         // the underlying OkHttp Client.
         storageBlobClient = storageBlobClient
-            .newBuilder()
+            .newBuilder("com.azure.android.storage.sample.upload")
             .setBlobServiceUrl(storageConfiguration.getBlobServiceUrl())
             .setCredentialInterceptor(authInterceptor)
+            .setRequiredNetworkType(NetworkType.CONNECTED)
             .build();
     }
 
@@ -116,12 +117,7 @@ public class UploadFileActivity extends AppCompatActivity {
         Log.d("Upload Content", "File size: " + fileSize);
 
         try {
-            TransferClient transferClient = new TransferClient.Builder(getApplicationContext())
-                .addStorageBlobClient(Constants.STORAGE_BLOB_CLIENT_ID, storageBlobClient)
-                .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
-                .build();
-
-            transferClient.upload(Constants.STORAGE_BLOB_CLIENT_ID, containerName, blobName, fileUri)
+            storageBlobClient.upload(getApplicationContext(), containerName, blobName, fileUri)
                 .observe(this, new TransferObserver() {
                     @Override
                     public void onStart(long transferId) {
