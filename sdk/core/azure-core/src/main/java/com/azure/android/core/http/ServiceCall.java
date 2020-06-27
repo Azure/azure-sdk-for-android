@@ -3,21 +3,18 @@
 
 package com.azure.android.core.http;
 
-import retrofit2.Call;
+import com.azure.android.core.util.Context;
 
 /**
  * Type representing handle to the service call.
  */
 public final class ServiceCall {
-    private final Call<?> call;
+    private final retrofit2.Call<?> call;
+    private final Context context;
 
-    /**
-     * Creates a service call.
-     *
-     * @param call the retrofit {@link Call} backing the service call.
-     */
-    public ServiceCall(Call<?> call) {
+    public ServiceCall(retrofit2.Call<?> call, Context context) {
         this.call = call;
+        this.context = context;
     }
 
     /**
@@ -26,6 +23,7 @@ public final class ServiceCall {
      */
     public void cancel() {
         this.call.cancel();
+        this.context.cancel();
     }
 
     /**

@@ -11,6 +11,7 @@ import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.internal.util.serializer.SerializerAdapter;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.Base64Util;
+import com.azure.android.core.util.Context;
 import com.azure.android.core.util.DateTimeRfc1123;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
@@ -56,6 +57,7 @@ import retrofit2.http.Header;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Tag;
 
 /**
  * PACKAGE PRIVATE CLASS AND METHODS
@@ -131,6 +133,7 @@ final class StorageBlobServiceImpl {
             include,
             timeout,
             requestId,
+            Context.NONE,
             null).getResult();
     }
 
@@ -142,6 +145,7 @@ final class StorageBlobServiceImpl {
                                                Integer timeout,
                                                String requestId,
                                                Callback<ContainersListBlobFlatSegmentResponse> callback) {
+        final Context context = Context.NONE;
         CallAndOptionalResult<ContainersListBlobFlatSegmentResponse> callAndOptionalResult =
             this.getBlobsInPageWithRestResponseIntern(pageId,
                 containerName,
@@ -150,9 +154,10 @@ final class StorageBlobServiceImpl {
                 include,
                 timeout,
                 requestId,
+                context,
                 callback);
 
-        return new ServiceCall(callAndOptionalResult.getCall());
+        return new ServiceCall(callAndOptionalResult.getCall(), context);
     }
 
     /**
@@ -237,6 +242,7 @@ final class StorageBlobServiceImpl {
             leaseId,
             requestId,
             cpkInfo,
+            Context.NONE,
             null).getResult();
     }
 
@@ -263,6 +269,7 @@ final class StorageBlobServiceImpl {
                                                   String requestId,
                                                   CpkInfo cpkInfo,
                                                   Callback<BlobGetPropertiesResponse> callback) {
+        final Context context = Context.NONE;
         CallAndOptionalResult<BlobGetPropertiesResponse> callAndOptionalResult =
             this.getBlobPropertiesWithRestResponseIntern(containerName,
                 blobName,
@@ -272,9 +279,10 @@ final class StorageBlobServiceImpl {
                 leaseId,
                 requestId,
                 cpkInfo,
+                context,
                 callback);
 
-        return new ServiceCall(callAndOptionalResult.getCall());
+        return new ServiceCall(callAndOptionalResult.getCall(), context);
     }
 
     /**
@@ -399,6 +407,7 @@ final class StorageBlobServiceImpl {
             version,
             requestId,
             cpkInfo,
+            Context.NONE,
             null).getResult();
     }
 
@@ -446,6 +455,7 @@ final class StorageBlobServiceImpl {
                                          String requestId,
                                          CpkInfo cpkInfo,
                                          Callback<BlobDownloadResponse> callback) {
+        final Context context = Context.NONE;
         CallAndOptionalResult<BlobDownloadResponse> callAndOptionalResult = this.downloadWithRestResponseIntern(containerName,
             blobName,
             snapshot,
@@ -461,9 +471,10 @@ final class StorageBlobServiceImpl {
             version,
             requestId,
             cpkInfo,
+            context,
             callback);
 
-        return new ServiceCall(callAndOptionalResult.getCall());
+        return new ServiceCall(callAndOptionalResult.getCall(), context);
     }
 
     Void stageBlock(String containerName,
@@ -532,6 +543,7 @@ final class StorageBlobServiceImpl {
             leaseId,
             requestId,
             cpkInfo,
+            Context.NONE,
             null).getResult();
     }
 
@@ -546,6 +558,7 @@ final class StorageBlobServiceImpl {
                                            String requestId,
                                            CpkInfo cpkInfo,
                                            Callback<BlockBlobsStageBlockResponse> callback) {
+        final Context context = Context.NONE;
         CallAndOptionalResult<BlockBlobsStageBlockResponse> callAndOptionalResult =
             this.stageBlockWithRestResponseIntern(containerName,
                 blobName,
@@ -557,9 +570,10 @@ final class StorageBlobServiceImpl {
                 leaseId,
                 requestId,
                 cpkInfo,
+                context,
                 callback);
 
-        return new ServiceCall(callAndOptionalResult.getCall());
+        return new ServiceCall(callAndOptionalResult.getCall(), context);
     }
 
     BlockBlobItem commitBlockList(String containerName,
@@ -648,6 +662,7 @@ final class StorageBlobServiceImpl {
             requestId,
             cpkInfo,
             tier,
+            Context.NONE,
             null).getResult();
     }
 
@@ -664,6 +679,7 @@ final class StorageBlobServiceImpl {
                                                 CpkInfo cpkInfo,
                                                 AccessTier tier,
                                                 Callback<BlockBlobsCommitBlockListResponse> callback) {
+        final Context context = Context.NONE;
         CallAndOptionalResult<BlockBlobsCommitBlockListResponse> callAndOptionalResult =
             this.commitBlockListWithRestResponseIntern(containerName,
                 blobName,
@@ -677,9 +693,10 @@ final class StorageBlobServiceImpl {
                 requestId,
                 cpkInfo,
                 tier,
+                context,
                 callback);
 
-        return new ServiceCall(callAndOptionalResult.getCall());
+        return new ServiceCall(callAndOptionalResult.getCall(), context);
     }
 
     private CallAndOptionalResult<ContainersListBlobFlatSegmentResponse> getBlobsInPageWithRestResponseIntern(String pageId,
@@ -689,6 +706,7 @@ final class StorageBlobServiceImpl {
                                                                                                               List<ListBlobsIncludeItem> include,
                                                                                                               Integer timeout,
                                                                                                               String requestId,
+                                                                                                              Context context,
                                                                                                               Callback<ContainersListBlobFlatSegmentResponse> callback) {
         final String resType = "container";
         final String comp = "list";
@@ -702,7 +720,8 @@ final class StorageBlobServiceImpl {
                 XMS_VERSION,
                 requestId,
                 resType,
-                comp);
+                comp,
+                context);
 
             executeCall(call, new retrofit2.Callback<ResponseBody>() {
                 @Override
@@ -747,7 +766,8 @@ final class StorageBlobServiceImpl {
                 XMS_VERSION,
                 requestId,
                 resType,
-                comp);
+                comp,
+                context);
 
             Response<ResponseBody> response = executeCall(call);
 
@@ -787,6 +807,7 @@ final class StorageBlobServiceImpl {
                                                                                                      String leaseId,
                                                                                                      String requestId,
                                                                                                      CpkInfo cpkInfo,
+                                                                                                     Context context,
                                                                                                      Callback<BlobGetPropertiesResponse> callback) {
         String encryptionKey = null;
         String encryptionKeySha256 = null;
@@ -808,7 +829,8 @@ final class StorageBlobServiceImpl {
                 requestId,
                 encryptionKey,
                 encryptionKeySha256,
-                encryptionAlgorithm);
+                encryptionAlgorithm,
+                context);
 
             executeCall(call, new retrofit2.Callback<Void>() {
                 @Override
@@ -852,7 +874,8 @@ final class StorageBlobServiceImpl {
                 requestId,
                 encryptionKey,
                 encryptionKeySha256,
-                encryptionAlgorithm);
+                encryptionAlgorithm,
+                context);
 
             Response<Void> response = executeCall(call);
 
@@ -895,6 +918,7 @@ final class StorageBlobServiceImpl {
                                                                                        String version,
                                                                                        String requestId,
                                                                                        CpkInfo cpkInfo,
+                                                                                       Context context,
                                                                                        Callback<BlobDownloadResponse> callback) {
         String encryptionKey = null;
         String encryptionKeySha256 = null;
@@ -928,7 +952,8 @@ final class StorageBlobServiceImpl {
                 requestId,
                 encryptionKey,
                 encryptionKeySha256,
-                encryptionAlgorithm);
+                encryptionAlgorithm,
+                context);
 
             executeCall(call, new retrofit2.Callback<ResponseBody>() {
                 @Override
@@ -979,7 +1004,8 @@ final class StorageBlobServiceImpl {
                 requestId,
                 encryptionKey,
                 encryptionKeySha256,
-                encryptionAlgorithm);
+                encryptionAlgorithm,
+                context);
 
             Response<ResponseBody> response = executeCall(call);
 
@@ -1017,6 +1043,7 @@ final class StorageBlobServiceImpl {
                                                                                                  String leaseId,
                                                                                                  String requestId,
                                                                                                  CpkInfo cpkInfo,
+                                                                                                 Context context,
                                                                                                  Callback<BlockBlobsStageBlockResponse> callback) {
         String encryptionKey = null;
         String encryptionKeySha256 = null;
@@ -1049,7 +1076,8 @@ final class StorageBlobServiceImpl {
                 comp,
                 encryptionKey,
                 encryptionKeySha256,
-                encryptionAlgorithm);
+                encryptionAlgorithm,
+                context);
 
             executeCall(call, new retrofit2.Callback<ResponseBody>() {
                 @Override
@@ -1096,7 +1124,8 @@ final class StorageBlobServiceImpl {
                 comp,
                 encryptionKey,
                 encryptionKeySha256,
-                encryptionAlgorithm);
+                encryptionAlgorithm,
+                context);
 
             Response<ResponseBody> response = executeCall(call);
 
@@ -1136,6 +1165,7 @@ final class StorageBlobServiceImpl {
                                                                                                            String requestId,
                                                                                                            CpkInfo cpkInfo,
                                                                                                            AccessTier tier,
+                                                                                                           Context context,
                                                                                                            Callback<BlockBlobsCommitBlockListResponse> callback) {
         requestConditions = requestConditions == null ? new BlobRequestConditions() : requestConditions;
         String leaseId = requestConditions.getLeaseId();
@@ -1247,7 +1277,8 @@ final class StorageBlobServiceImpl {
                 contentDisposition,
                 encryptionKey,
                 encryptionKeySha256,
-                encryptionAlgorithm);
+                encryptionAlgorithm,
+                context);
 
             executeCall(call, new retrofit2.Callback<ResponseBody>() {
                 @Override
@@ -1305,7 +1336,8 @@ final class StorageBlobServiceImpl {
                 contentDisposition,
                 encryptionKey,
                 encryptionKeySha256,
-                encryptionAlgorithm);
+                encryptionAlgorithm,
+                context);
 
             Response<ResponseBody> response = executeCall(call);
 
@@ -1408,7 +1440,8 @@ final class StorageBlobServiceImpl {
                                                @Header("x-ms-version") String version,
                                                @Header("x-ms-client-request-id") String requestId,
                                                @Query("restype") String resType,
-                                               @Query("comp") String comp);
+                                               @Query("comp") String comp,
+                                               @Tag Context context);
 
         @HEAD("{containerName}/{blob}")
         Call<Void> getBlobProperties(@Path("containerName") String containerName,
@@ -1420,7 +1453,8 @@ final class StorageBlobServiceImpl {
                                      @Header("x-ms-client-request-id") String requestId,
                                      @Header("x-ms-encryption-key") String encryptionKey,
                                      @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
-                                     @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
+                                     @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm,
+                                     @Tag Context context);
 
 
         @GET("{containerName}/{blob}")
@@ -1440,7 +1474,8 @@ final class StorageBlobServiceImpl {
                                     @Header("x-ms-client-request-id") String requestId,
                                     @Header("x-ms-encryption-key") String encryptionKey,
                                     @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
-                                    @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
+                                    @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm,
+                                    @Tag Context context);
 
         @PUT("{containerName}/{blob}")
         Call<ResponseBody> stageBlock(@Path("containerName") String containerName,
@@ -1457,7 +1492,8 @@ final class StorageBlobServiceImpl {
                                       @Query("comp") String comp,
                                       @Header("x-ms-encryption-key") String encryptionKey,
                                       @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
-                                      @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
+                                      @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm,
+                                      @Tag Context context);
 
         @PUT("{containerName}/{blob}")
         Call<ResponseBody> commitBlockList(@Path("containerName") String containerName,
@@ -1484,6 +1520,7 @@ final class StorageBlobServiceImpl {
                                            @Header("x-ms-blob-content-disposition") String contentDisposition,
                                            @Header("x-ms-encryption-key") String encryptionKey,
                                            @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
-                                           @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
+                                           @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm,
+                                           @Tag Context context);
     }
 }
