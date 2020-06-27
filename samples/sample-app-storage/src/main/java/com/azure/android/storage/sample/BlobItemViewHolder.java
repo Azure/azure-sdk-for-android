@@ -53,9 +53,10 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
 
             try {
                 transferClient.download(Constants.STORAGE_BLOB_CLIENT_ID, containerName, blobName, file)
+                    .getLiveData()
                     .observe((LifecycleOwner) parent.getContext(), new TransferObserver() {
                         @Override
-                        public void onStart(long transferId) {
+                        public void onStart(String transferId) {
                             Log.i(TAG, "onStart() for transfer with ID: " + transferId);
 
                             Button cancelButton = mainActivityView.findViewById(R.id.cancel_button);
@@ -69,7 +70,7 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
                         }
 
                         @Override
-                        public void onProgress(long transferId, long totalBytes, long bytesTransferred) {
+                        public void onProgress(String transferId, long totalBytes, long bytesTransferred) {
                             Log.i(TAG, "onProgress(" + totalBytes + ", " + bytesTransferred +
                                 ") for transfer with ID:" + transferId);
 
@@ -84,17 +85,17 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
                         }
 
                         @Override
-                        public void onSystemPaused(long transferId) {
+                        public void onSystemPaused(String transferId) {
                             Log.i(TAG, "onSystemPaused() for transfer with ID: " + transferId);
                         }
 
                         @Override
-                        public void onResume(long transferId) {
+                        public void onResume(String transferId) {
                             Log.i(TAG, "onResumed() for transfer with ID: " + transferId);
                         }
 
                         @Override
-                        public void onComplete(long transferId) {
+                        public void onComplete(String transferId) {
                             Log.i(TAG, "onCompleted() for transfer with ID: " + transferId);
 
                             if (progressBar != null) {
@@ -111,7 +112,7 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
                         }
 
                         @Override
-                        public void onError(long transferId, String errorMessage) {
+                        public void onError(String transferId, String errorMessage) {
                             Log.i(TAG, "onError() for transfer with ID: " + transferId + " -> : " + errorMessage);
 
                             hideProgress(mainActivityView);

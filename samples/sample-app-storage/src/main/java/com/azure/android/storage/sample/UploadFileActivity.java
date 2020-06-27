@@ -122,27 +122,28 @@ public class UploadFileActivity extends AppCompatActivity {
                 .build();
 
             transferClient.upload(Constants.STORAGE_BLOB_CLIENT_ID, containerName, blobName, fileUri)
+                .getLiveData()
                 .observe(this, new TransferObserver() {
                     @Override
-                    public void onStart(long transferId) {
+                    public void onStart(String transferId) {
                         Log.i(TAG, "onStart()");
                     }
 
-                    public void onProgress(long transferId, long totalBytes, long bytesTransferred) {
+                    public void onProgress(String transferId, long totalBytes, long bytesTransferred) {
                         Log.i(TAG, "onProgress(" + totalBytes + ", " + bytesTransferred + ")");
 
                         progressBar.setProgress((int) bytesTransferred);
                     }
 
-                    public void onSystemPaused(long transferId) {
+                    public void onSystemPaused(String transferId) {
                         Log.i(TAG, "onSystemPaused()");
                     }
 
-                    public void onResume(long transferId) {
+                    public void onResume(String transferId) {
                         Log.i(TAG, "onResumed()");
                     }
 
-                    public void onComplete(long transferId) {
+                    public void onComplete(String transferId) {
                         Log.i(TAG, "onCompleted()");
 
                         progressBar.setProgress((int) fileSize);
@@ -150,7 +151,7 @@ public class UploadFileActivity extends AppCompatActivity {
                         Toast.makeText(getApplicationContext(), "Upload complete", Toast.LENGTH_SHORT).show();
                     }
 
-                    public void onError(long transferId, String errorMessage) {
+                    public void onError(String transferId, String errorMessage) {
                         Log.i(TAG, "onError() -> : " + errorMessage);
                     }
                 });

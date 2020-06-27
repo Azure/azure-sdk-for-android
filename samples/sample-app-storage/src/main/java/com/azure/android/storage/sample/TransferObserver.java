@@ -17,7 +17,7 @@ public interface TransferObserver extends Observer<TransferInfo> {
      *
      * @param transferId the transfer id
      */
-    void onStart(long transferId);
+    void onStart(String transferId);
 
     /**
      * Called when transfer made some progress by transferring by bytes.
@@ -26,28 +26,28 @@ public interface TransferObserver extends Observer<TransferInfo> {
      * @param totalBytes the total bytes to transfer
      * @param bytesTransferred the bytes transferred so far
      */
-    void onProgress(long transferId, long totalBytes, long bytesTransferred);
+    void onProgress(String transferId, long totalBytes, long bytesTransferred);
 
     /**
      * Called when the transfer is paused by the system.
      *
      * @param transferId the transfer id
      */
-    void onSystemPaused(long transferId);
+    void onSystemPaused(String transferId);
 
     /**
      * Called when the paused transfer is resumed.
      *
      * @param transferId the transfer id
      */
-    void onResume(long transferId);
+    void onResume(String transferId);
 
     /**
      * Called when the transfer is completed.
      *
      * @param transferId the transfer id
      */
-    void onComplete(long transferId);
+    void onComplete(String transferId);
 
     /**
      * Called when an error happens.
@@ -55,7 +55,7 @@ public interface TransferObserver extends Observer<TransferInfo> {
      * @param transferId the transfer id
      * @param errorMessage the error message
      */
-    void onError(long transferId, String errorMessage);
+    void onError(String transferId, String errorMessage);
 
     @Override
     default void onChanged(TransferInfo transferInfo) {
