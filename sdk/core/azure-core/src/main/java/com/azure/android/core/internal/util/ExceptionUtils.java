@@ -22,6 +22,8 @@ public class ExceptionUtils {
     private ExceptionUtils() {
     }
 
+    public static final IOException CALL_CANCELLED_IO_EXCEPTION = new IOException("Canceled.");
+
     /**
      * Create an exception from the HTTP response.
      *

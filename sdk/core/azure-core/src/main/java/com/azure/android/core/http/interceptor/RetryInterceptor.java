@@ -3,14 +3,14 @@
 
 package com.azure.android.core.http.interceptor;
 
-import com.azure.android.core.util.Context;
+import com.azure.android.core.internal.util.ExceptionUtils;
 import com.azure.android.core.util.DateTimeRfc1123;
 
 import org.threeten.bp.Duration;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.temporal.ChronoUnit;
 
-import java.util.concurrent.CancellationException;
+import java.io.IOException;
 
 import okhttp3.Interceptor;
 import okhttp3.Request;
@@ -36,40 +36,70 @@ public class RetryInterceptor implements Interceptor {
     }
 
     @Override
-    public Response intercept(Chain chain) {
+    public Response intercept(Chain chain) throws IOException {
         final Request request = chain.request();
-        final Context context = this.getContext(request);
 
         int retryAttempts = 0;
         final int maxRetries = this.retryStrategy.getMaxRetries();
         do {
 
-            if (context.isCancelled()) {
-                throw new CancellationException("The service call is cancelled.");
+            // Check for cancellation before Proceeding the chain.
+            if (chain.call().isCanceled()) {
+                throw ExceptionUtils.CALL_CANCELLED_IO_EXCEPTION;
             }
 
             Response response = null;
             Exception exception = null;
-
+            // Proceed.
             try {
                 response = chain.proceed(request);
             } catch (Exception e) {
                 exception = e;
             }
 
+            // Check for cancellation after Proceed.
+            if (chain.call().isCanceled()) {
+                try {
+                    if (exception != null) {
+                        // The later interceptors those executes as a result of above 'chain.proceed' can throw
+                        // IOException("Cancelled") [e.g. okhttp3.internal.http.RetryAndFollowUpInterceptor]
+                        // if it identified that call is cancelled, we don't want to retry on such cases.
+                        if (exception == ExceptionUtils.CALL_CANCELLED_IO_EXCEPTION) {
+                            throw ExceptionUtils.CALL_CANCELLED_IO_EXCEPTION;
+                        } else {
+                            throw new IOException("Cancelled.", exception);
+                        }
+                    } else {
+                        throw ExceptionUtils.CALL_CANCELLED_IO_EXCEPTION;
+                    }
+                } finally {
+                    if (response != null) {
+                        // Close the current response before propagating Cancelled Exception.
+                        response.close();
+                    }
+                }
+            }
+
             if (!this.shouldRetry(response, exception, retryAttempts)) {
                 if (exception != null) {
                     throw new RuntimeException(exception);
+                } else {
+                    return response;
                 }
-                return response;
             } else {
                 final Duration duration;
                 try {
                     duration = this.calculateRetryDelay(response, exception, retryAttempts);
                 } finally {
                     if (response != null) {
+                        // Close the current response before any retry.
                         response.close();
                     }
+                }
+
+                // Check for cancellation before going into sleep.
+                if (chain.call().isCanceled()) {
+                    throw ExceptionUtils.CALL_CANCELLED_IO_EXCEPTION;
                 }
 
                 try {
@@ -113,15 +143,6 @@ public class RetryInterceptor implements Interceptor {
                 }
             }
             return this.retryStrategy.calculateRetryDelay(response, null, retryAttempts);
-        }
-    }
-
-    private Context getContext(Request request) {
-        final Object tag = request.tag();
-        if (tag != null && tag instanceof Context) {
-            return  (Context) tag;
-        } else {
-            return Context.NONE;
         }
     }
 

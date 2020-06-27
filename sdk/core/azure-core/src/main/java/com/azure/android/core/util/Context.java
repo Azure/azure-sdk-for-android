@@ -40,17 +40,4 @@ public final class Context {
         }
         return Maybe.none();
     }
-
-    public void cancel() {
-        this.isCancelled = true;
-    }
-
-    public boolean isCancelled() {
-        for (Context cxt = this; cxt != null; cxt = cxt.parent) {
-            if (cxt.isCancelled) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

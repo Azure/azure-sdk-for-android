@@ -11,7 +11,6 @@ import androidx.annotation.Nullable;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.ServiceCallTask;
 import com.azure.android.core.internal.util.ResultTaskImpl;
-import com.azure.android.core.util.Context;
 
 import java.util.concurrent.Executor;
 
@@ -55,10 +54,9 @@ final class ServiceCallTaskImpl<T> implements ServiceCallTask<T> {
     }
 
     // package private
-    void setupCancel(retrofit2.Call<?> call, Context context) {
+    void setupCancel(retrofit2.Call<?> call) {
         this.resultTaskImpl.setCancelCallback(() -> {
             call.cancel();
-            context.cancel();
         });
     }
 

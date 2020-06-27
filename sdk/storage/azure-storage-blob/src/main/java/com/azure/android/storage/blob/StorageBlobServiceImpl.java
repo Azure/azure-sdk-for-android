@@ -163,7 +163,7 @@ final class StorageBlobServiceImpl {
                     }
                 });
 
-        task.setupCancel(callAndOptionalResult.getCall(), context);
+        task.setupCancel(callAndOptionalResult.getCall());
         return task;
     }
 
@@ -288,7 +288,7 @@ final class StorageBlobServiceImpl {
                     }
                 });
 
-        task.setupCancel(callAndOptionalResult.getCall(), context);
+        task.setupCancel(callAndOptionalResult.getCall());
         return task;
     }
 
@@ -480,7 +480,7 @@ final class StorageBlobServiceImpl {
                 }
             });
 
-        task.setupCancel(callAndOptionalResult.getCall(), context);
+        task.setupCancel(callAndOptionalResult.getCall());
         return task;
     }
 
@@ -581,7 +581,7 @@ final class StorageBlobServiceImpl {
                     }
                 });
 
-        task.setupCancel(callAndOptionalResult.getCall(), context);
+        task.setupCancel(callAndOptionalResult.getCall());
         return task;
     }
 
@@ -706,7 +706,7 @@ final class StorageBlobServiceImpl {
                     }
                 });
 
-        task.setupCancel(callAndOptionalResult.getCall(), context);
+        task.setupCancel(callAndOptionalResult.getCall());
         return task;
     }
 
