@@ -3,12 +3,12 @@
 
 package com.azure.android.storage.blob.transfer;
 
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.work.WorkManager;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
@@ -70,14 +70,14 @@ final class TransferIdInfoLiveDataCache {
      *
      * @param transferId the transferId to use as the key to identify the created LiveData
      *                   instances.
-     * @param context the context
+     * @param workManager reference to the {@link WorkManager} to retrieve WorkInfo.
      * @return the pair composing created {@code TransferOperationResult} LiveData and associated
      * {@code TransferInfo} LiveData
      */
     @MainThread
-    TransferIdInfoLiveData.LiveDataPair create(String transferId, Context context) {
+    TransferIdInfoLiveData.LiveDataPair create(String transferId, WorkManager workManager) {
         this.expunge();
-        final TransferIdInfoLiveData.Result result = TransferIdInfoLiveData.create(context);
+        final TransferIdInfoLiveData.Result result = TransferIdInfoLiveData.create(workManager);
         final TransferIdInfoLiveData.LiveDataPair liveDataPair = result.getLiveDataPair();
         this.map.put(transferId,
             new TransferInfoLiveDataWeakReference(liveDataPair.getTransferInfoLiveData(),
@@ -92,15 +92,15 @@ final class TransferIdInfoLiveDataCache {
      * Check whether the TransferOperationResult LiveData and the TransferInfo LiveData that is
      * identified by the given {@code transferId} key already exists in the cache, if it exists then
      * return the two LiveData in a {@Link TransferIdInfoLiveData#Pair}. If it does not exists then create,
-     * store and return them, see {@link TransferIdInfoLiveDataCache#create(String, Context)}
+     * store and return them, see {@link TransferIdInfoLiveDataCache#create(String, WorkManager)}
      * for more details.
      *
      * @param transferId the transferId to use as the key to identify the LiveData instances.
-     * @param context the context
+     * @param workManager reference to the {@link WorkManager} to retrieve WorkInfo.
      * @return the pair composing created TransferOperationResult LiveData and associated TransferInfo LiveData
      */
     @MainThread
-    TransferIdInfoLiveData.LiveDataPair getOrCreate(String transferId, Context context) {
+    TransferIdInfoLiveData.LiveDataPair getOrCreate(String transferId, WorkManager workManager) {
         this.expunge();
         final TransferInfoLiveDataWeakReference ref = this.map.get(transferId);
         if (ref != null) {
@@ -110,7 +110,7 @@ final class TransferIdInfoLiveDataCache {
                     transferInfoLiveData);
             }
         }
-        return create(transferId, context);
+        return create(transferId, workManager);
     }
 
     /**

@@ -18,8 +18,8 @@ import androidx.core.content.FileProvider;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlobItem;
-import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.sample.config.StorageConfiguration;
 
 import java.io.File;
@@ -33,7 +33,7 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
         this.blobName = itemView.findViewById(R.id.blob_name);
     }
 
-    public static BlobItemViewHolder create(ViewGroup parent, TransferClient transferClient) {
+    public static BlobItemViewHolder create(ViewGroup parent, StorageBlobClient storageBlobClient) {
         StorageConfiguration storageConfiguration = StorageConfiguration.create(parent.getContext());
         View blobItemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.blob_item, parent, false);
 
@@ -52,7 +52,7 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
             File file = new File(path, blobName);
 
             try {
-                transferClient.download(Constants.STORAGE_BLOB_CLIENT_ID, containerName, blobName, file)
+                storageBlobClient.download(parent.getContext(), containerName, blobName, file)
                     .getLiveData()
                     .observe((LifecycleOwner) parent.getContext(), new TransferObserver() {
                         @Override
@@ -62,7 +62,7 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
                             Button cancelButton = mainActivityView.findViewById(R.id.cancel_button);
 
                             cancelButton.setOnClickListener(v -> {
-                                transferClient.cancel(transferId);
+                                storageBlobClient.cancel(parent.getContext(), transferId);
                                 hideProgress(mainActivityView);
                                 Toast.makeText(parent.getContext(), "Download cancelled", Toast.LENGTH_SHORT)
                                     .show();

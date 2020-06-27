@@ -20,7 +20,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlobItem;
-import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.sample.core.util.paging.PageLoadState;
 import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservable;
 import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObserver;
@@ -86,15 +85,11 @@ public class ListAndDownloadBlobsActivity extends AppCompatActivity {
             });
 
         ContainerBlobsPaginationRepository repository = (ContainerBlobsPaginationRepository) this.viewModel.getRepository();
-
-        TransferClient transferClient = new TransferClient.Builder(getApplicationContext())
-            .addStorageBlobClient(Constants.STORAGE_BLOB_CLIENT_ID, repository.getStorageBlobClient())
-            .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
-            .build();
+        StorageBlobClient storageBlobClient = repository.getStorageBlobClient();
 
         // Set up PagedList Adapter
         ContainerBlobsPagedListAdapter adapter =
-            new ContainerBlobsPagedListAdapter(transferClient, () -> this.viewModel.retry());
+            new ContainerBlobsPagedListAdapter(storageBlobClient, () -> this.viewModel.retry());
         this.recyclerView.setAdapter(adapter);
         this.viewModel.getPagedListObservable().observe(this, getPagedListObserver(adapter, this.recyclerView));
         this.viewModel.getLoadStateObservable().observe(this, getPageLoadStateObserver(adapter));

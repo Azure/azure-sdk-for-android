@@ -5,10 +5,12 @@ package com.azure.android.storage.blob.transfer;
 
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
+import androidx.work.Constraints;
 
 import java.util.Objects;
 
@@ -77,6 +79,12 @@ final class BlobUploadEntity {
     @TypeConverters(ColumnConverter.class)
     public TransferInterruptState interruptState;
     /**
+     * The constraints to be satisfied to run the upload operation.
+     */
+    @Embedded
+    @NonNull
+    public ConstraintsColumn constraintsColumn = ConstraintsColumn.NONE;
+    /**
      * holds the exception indicating the reason for commit (the last
      * stage of upload) failure.
      *
@@ -99,18 +107,21 @@ final class BlobUploadEntity {
      * @param containerName the container name
      * @param blobName the blob name
      * @param content describes the content to be read while uploading
+     * @param constraints The constraints to be satisfied to run the upload operation.
      */
     @Ignore
     BlobUploadEntity(String storageBlobClientId,
                      String key,
                      String containerName,
                      String blobName,
-                     ReadableContent content) throws Throwable {
+                     ReadableContent content,
+                     Constraints constraints) throws Throwable {
         Objects.requireNonNull(storageBlobClientId);
         Objects.requireNonNull(key);
         Objects.requireNonNull(containerName);
         Objects.requireNonNull(blobName);
         Objects.requireNonNull(content);
+        Objects.requireNonNull(constraints);
 
         this.key = key;
         this.contentUri = content.getUri().toString();
@@ -122,6 +133,7 @@ final class BlobUploadEntity {
         this.blobName = blobName;
         this.state = BlobTransferState.WAIT_TO_BEGIN;
         this.interruptState = TransferInterruptState.NONE;
+        this.constraintsColumn = ConstraintsColumn.fromConstraints(constraints);
     }
 
     /**

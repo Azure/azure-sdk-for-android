@@ -1,5 +1,7 @@
 package com.azure.android.storage.sample;
 
+import androidx.work.NetworkType;
+
 import com.azure.android.core.http.Callback;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlobItem;
@@ -33,8 +35,9 @@ final class ContainerBlobsPaginationRepository
         final List<String> blobEndpointScopes = Arrays.asList(storageBlobUrl + ".default");
         this.authInterceptor = new TokenRequestObservableAuthInterceptor(blobEndpointScopes);
         //
-        this.storageBlobClient = storageBlobClient.newBuilder()
+        this.storageBlobClient = storageBlobClient.newBuilder("com.azure.android.storage.sample.download")
                 .setCredentialInterceptor(this.authInterceptor)
+                .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
     }
 

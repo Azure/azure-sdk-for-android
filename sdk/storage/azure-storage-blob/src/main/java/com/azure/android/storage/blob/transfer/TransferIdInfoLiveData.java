@@ -3,7 +3,6 @@
 
 package com.azure.android.storage.blob.transfer;
 
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.MainThread;
@@ -66,14 +65,14 @@ final class TransferIdInfoLiveData {
     private TransferIdInfoLiveData() {}
 
     @MainThread
-    static TransferIdInfoLiveData.Result create(Context context) {
+    static TransferIdInfoLiveData.Result create(WorkManager workManager) {
         TransferIdInfoLiveData transferIdInfoLiveData = new TransferIdInfoLiveData();
-        return transferIdInfoLiveData.init(context);
+        return transferIdInfoLiveData.init(workManager);
     }
 
-    private TransferIdInfoLiveData.Result init(@NonNull Context context) {
+    private TransferIdInfoLiveData.Result init(@NonNull WorkManager workManager) {
         // 1. Register mapping of transferId to LiveData<WorkInfo>
-        LiveData<WorkInfo> workInfoLiveData = this.mapInputTransferIdToWorkInfoLiveData(context);
+        LiveData<WorkInfo> workInfoLiveData = this.mapInputTransferIdToWorkInfoLiveData(workManager);
         // 2. Register mapping of LiveData<WorkInfo> to LiveData<TransferInfo>
         this.transferInfoLiveData.addSource(workInfoLiveData, workInfo -> {
             // The TransferInfo events generator.
@@ -246,10 +245,10 @@ final class TransferIdInfoLiveData {
      * worker that is processing the transfer identified by the transfer id emitted by
      * {@code transferIdOrErrorLiveData}.
      *
-     * @param context the context
+     * @param workManager reference to the {@link WorkManager} to retrieve WorkInfo
      * @return a LiveData of {@link WorkInfo}
      */
-    private LiveData<WorkInfo> mapInputTransferIdToWorkInfoLiveData(Context context) {
+    private LiveData<WorkInfo> mapInputTransferIdToWorkInfoLiveData(WorkManager workManager) {
         LiveData<List<WorkInfo>> workInfoListLiveData = Transformations
             .switchMap(
                 this.transferOpResultLiveData,
@@ -265,7 +264,7 @@ final class TransferIdInfoLiveData {
                         // No error from TransferClient i.e. transfer work may exists, get the underlying
                         // LiveData<WorkInfo> for the transfer work.
                         final String transferId = this.transferOperationResult.getId();
-                        return WorkManager.getInstance(context)
+                        return workManager
                             .getWorkInfosForUniqueWorkLiveData(transferId);
                     }
                 }
@@ -408,7 +407,7 @@ final class TransferIdInfoLiveData {
     }
 
     /**
-     * Type representing result of {@link TransferIdInfoLiveData#create(Context)} method.
+     * Type representing result of {@link TransferIdInfoLiveData#create(WorkManager)} method.
      */
     final static class Result {
         private final LiveDataPair liveDataPair;

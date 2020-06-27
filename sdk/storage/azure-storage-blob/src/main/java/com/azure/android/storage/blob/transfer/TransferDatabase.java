@@ -28,7 +28,10 @@ abstract class TransferDatabase extends RoomDatabase {
      * A singleton instance of {@link TransferDatabase}.
      */
     @Ignore
-    private static TransferDatabase db;
+    private static TransferDatabase INSTANCE;
+    // An object to synchronize the creation of the singleton TransferDatabase.
+    @Ignore
+    private static final Object INIT_LOCK = new Object();
 
     /**
      * Get the Data Access Object that exposes operations to store and retrieve upload
@@ -52,11 +55,13 @@ abstract class TransferDatabase extends RoomDatabase {
      * @return a shared {@link TransferDatabase} instance
      */
     @Ignore
-    synchronized static TransferDatabase get(Context context) {
-        if (db == null) {
-            db = Room.databaseBuilder(context,
-                TransferDatabase.class, "transfersDB").build();
+    static TransferDatabase getInstance(Context context) {
+        synchronized (INIT_LOCK) {
+            if (INSTANCE == null) {
+                INSTANCE = Room.databaseBuilder(context,
+                    TransferDatabase.class, "transfersDB").build();
+            }
+            return INSTANCE;
         }
-        return db;
     }
 }

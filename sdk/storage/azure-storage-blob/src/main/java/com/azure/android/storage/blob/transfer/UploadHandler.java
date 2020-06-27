@@ -145,7 +145,7 @@ final class UploadHandler extends Handler {
      * with the number of async operations equal to the configured blocksUploadConcurrency.
      */
     private void handleInit() {
-        this.db = TransferDatabase.get(this.appContext);
+        this.db = TransferDatabase.getInstance(this.appContext);
         this.blob = this.db.uploadDao().getBlob(uploadId);
         if (this.blob.interruptState == TransferInterruptState.PURGE) {
             this.transferHandlerListener.onError(new RuntimeException("Upload Operation with id '"
