@@ -36,4 +36,28 @@ public class TransferTask {
     public boolean isCanceled() {
         return this.isCancelled ;
     }
+
+//    /**
+//     * "FEATURE TO CONSIDER AFTER PREVIEW-1"
+//     *
+//     * Attach an observer for the transfer.
+//     *
+//     * <p>
+//     * The Android LiveData from {@link this#getLiveData()} by design notify transfer
+//     * statuses in the UI Thread. The addObserver enables observing in back-ground
+//     * executors.
+//     *
+//     * @param observer the observer
+//     */
+//    public void addObserver(@NonNull TransferObserver observer) {
+//        throw new RuntimeException("NotImplemented");
+//    }
+//
+//    interface TransferObserver {
+//        void onTransferProgress(long totalBytes, long bytesTransferred);
+//        void onUserPaused();
+//        void onSystemPaused();
+//        void onComplete();
+//        void onError(Throwable t);
+//    }
 }

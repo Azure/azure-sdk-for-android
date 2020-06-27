@@ -43,6 +43,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 
 import okhttp3.Headers;
 import okhttp3.MediaType;
@@ -64,11 +65,13 @@ import retrofit2.http.Tag;
  */
 final class StorageBlobServiceImpl {
     private final StorageBlobService service;
+    private final Executor executor;
     private final SerializerAdapter serializerAdapter;
     private static String XMS_VERSION = "2019-02-02";
 
     StorageBlobServiceImpl(ServiceClient serviceClient) {
         this.service = serviceClient.getRetrofit().create(StorageBlobService.class);
+        this.executor = serviceClient.getDispatcher().executorService();
         this.serializerAdapter = serviceClient.getSerializerAdapter();
     }
 
@@ -90,33 +93,25 @@ final class StorageBlobServiceImpl {
             : response.getValue().getSegment().getBlobItems();
     }
 
-    ServiceCallTask getBlobsInPage(String pageId,
+    ServiceCallTask<List<BlobItem>> getBlobsInPageAsync(String pageId,
                                    String containerName,
-                                   ListBlobsOptions options,
-                                   Callback<List<BlobItem>> callback) {
+                                   ListBlobsOptions options) {
         options = options == null ? new ListBlobsOptions() : options;
 
-        return this.getBlobsInPageWithRestResponse(pageId,
+        final ServiceCallTask<ContainersListBlobFlatSegmentResponse> innerTask = this.getBlobsInPageWithRestResponseAsync(pageId,
             containerName,
             options.getPrefix(),
             options.getMaxResultsPerPage(),
             options.getDetails().toList(),
             null,
-            null,
-            new Callback<ContainersListBlobFlatSegmentResponse>() {
-                @Override
-                public void onResponse(ContainersListBlobFlatSegmentResponse response) {
-                    List<BlobItem> value = response.getValue().getSegment() == null
-                        ? new ArrayList<>(0)
-                        : response.getValue().getSegment().getBlobItems();
+            null);
 
-                    callback.onResponse(value);
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    callback.onFailure(t);
-                }
+        return ((ServiceCallTaskImpl<ContainersListBlobFlatSegmentResponse>)innerTask)
+            .map(response -> {
+                List<BlobItem> value = response.getValue().getSegment() == null
+                    ? new ArrayList<>(0)
+                    : response.getValue().getSegment().getBlobItems();
+                return value;
             });
     }
 
@@ -137,14 +132,14 @@ final class StorageBlobServiceImpl {
             null).getResult();
     }
 
-    ServiceCallTask getBlobsInPageWithRestResponse(String pageId,
+    ServiceCallTask<ContainersListBlobFlatSegmentResponse> getBlobsInPageWithRestResponseAsync(String pageId,
                                                    String containerName,
                                                    String prefix,
                                                    Integer maxResults,
                                                    List<ListBlobsIncludeItem> include,
                                                    Integer timeout,
-                                                   String requestId,
-                                                   Callback<ContainersListBlobFlatSegmentResponse> callback) {
+                                                   String requestId) {
+        ServiceCallTaskImpl<ContainersListBlobFlatSegmentResponse> task = new ServiceCallTaskImpl<>(executor);
         final Context context = Context.NONE;
         CallAndOptionalResult<ContainersListBlobFlatSegmentResponse> callAndOptionalResult =
             this.getBlobsInPageWithRestResponseIntern(pageId,
@@ -155,9 +150,21 @@ final class StorageBlobServiceImpl {
                 timeout,
                 requestId,
                 context,
-                callback);
+                new Callback<ContainersListBlobFlatSegmentResponse>() {
 
-        return new ServiceCallTask(callAndOptionalResult.getCall(), context);
+                    @Override
+                    public void onResponse(ContainersListBlobFlatSegmentResponse response) {
+                        task.setSucceeded(response);
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        task.setFailed(t);
+                    }
+                });
+
+        task.setupCancel(callAndOptionalResult.getCall(), context);
+        return task;
     }
 
     /**
@@ -186,30 +193,20 @@ final class StorageBlobServiceImpl {
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
-     * @param callback      Callback that receives the response.
      */
-    ServiceCallTask getBlobProperties(String containerName,
-                                      String blobName,
-                                      Callback<BlobGetPropertiesHeaders> callback) {
-        return getBlobPropertiesWithRestResponse(containerName,
+    ServiceCallTask<BlobGetPropertiesHeaders> getBlobPropertiesAsync(String containerName,
+                                      String blobName) {
+        final ServiceCallTask<BlobGetPropertiesResponse> innerTask = getBlobPropertiesWithRestResponseAsync(containerName,
             blobName,
             null,
             null,
             null,
             null,
             null,
-            null,
-            new Callback<BlobGetPropertiesResponse>() {
-                @Override
-                public void onResponse(BlobGetPropertiesResponse response) {
-                    callback.onResponse(response.getDeserializedHeaders());
-                }
+            null);
 
-                @Override
-                public void onFailure(Throwable t) {
-                    callback.onFailure(t);
-                }
-            });
+        return ((ServiceCallTaskImpl<BlobGetPropertiesResponse>)innerTask)
+            .map(response -> response.getDeserializedHeaders());
     }
 
     /**
@@ -258,17 +255,16 @@ final class StorageBlobServiceImpl {
      * @param leaseId       If specified, the operation only succeeds if the resource's lease is active and matches this ID.
      * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo       Additional parameters for the operation.
-     * @param callback      Callback that receives the response.
      */
-    ServiceCallTask getBlobPropertiesWithRestResponse(String containerName,
+    ServiceCallTask<BlobGetPropertiesResponse> getBlobPropertiesWithRestResponseAsync(String containerName,
                                                       String blobName,
                                                       String snapshot,
                                                       Integer timeout,
                                                       String version,
                                                       String leaseId,
                                                       String requestId,
-                                                      CpkInfo cpkInfo,
-                                                      Callback<BlobGetPropertiesResponse> callback) {
+                                                      CpkInfo cpkInfo) {
+        ServiceCallTaskImpl<BlobGetPropertiesResponse> task = new ServiceCallTaskImpl<>(this.executor);
         final Context context = Context.NONE;
         CallAndOptionalResult<BlobGetPropertiesResponse> callAndOptionalResult =
             this.getBlobPropertiesWithRestResponseIntern(containerName,
@@ -280,9 +276,20 @@ final class StorageBlobServiceImpl {
                 requestId,
                 cpkInfo,
                 context,
-                callback);
+                new Callback<BlobGetPropertiesResponse>() {
+                    @Override
+                    public void onResponse(BlobGetPropertiesResponse response) {
+                        task.setSucceeded(response);
+                    }
 
-        return new ServiceCallTask(callAndOptionalResult.getCall(), context);
+                    @Override
+                    public void onFailure(Throwable t) {
+                        task.setFailed(t);
+                    }
+                });
+
+        task.setupCancel(callAndOptionalResult.getCall(), context);
+        return task;
     }
 
     /**
@@ -316,12 +323,10 @@ final class StorageBlobServiceImpl {
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
-     * @param callback      Callback that receives the response.
      */
-    ServiceCallTask download(String containerName,
-                             String blobName,
-                             Callback<ResponseBody> callback) {
-        return downloadWithRestResponse(containerName,
+    ServiceCallTask<ResponseBody> downloadAsync(String containerName,
+                             String blobName) {
+        final ServiceCallTask<BlobDownloadResponse> innerTask = downloadWithRestResponseAsync(containerName,
             blobName,
             null,
             null,
@@ -335,18 +340,10 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null,
-            new Callback<BlobDownloadResponse>() {
-                @Override
-                public void onResponse(BlobDownloadResponse response) {
-                    callback.onResponse(response.getValue());
-                }
+            null);
 
-                @Override
-                public void onFailure(Throwable t) {
-                    callback.onFailure(t);
-                }
-            });
+        return ((ServiceCallTaskImpl<BlobDownloadResponse>)innerTask)
+            .map(response -> response.getValue());
     }
 
     /**
@@ -437,9 +434,8 @@ final class StorageBlobServiceImpl {
      * @param requestId            Provides a client-generated, opaque value with a 1 KB character limit that is
      *                             recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo              Additional parameters for the operation.
-     * @param callback             Callback that receives the response.
      */
-    ServiceCallTask downloadWithRestResponse(String containerName,
+    ServiceCallTask<BlobDownloadResponse> downloadWithRestResponseAsync(String containerName,
                                              String blobName,
                                              String snapshot,
                                              Integer timeout,
@@ -453,8 +449,8 @@ final class StorageBlobServiceImpl {
                                              String ifNoneMatch,
                                              String version,
                                              String requestId,
-                                             CpkInfo cpkInfo,
-                                             Callback<BlobDownloadResponse> callback) {
+                                             CpkInfo cpkInfo) {
+        ServiceCallTaskImpl<BlobDownloadResponse> task = new ServiceCallTaskImpl<>(this.executor);
         final Context context = Context.NONE;
         CallAndOptionalResult<BlobDownloadResponse> callAndOptionalResult = this.downloadWithRestResponseIntern(containerName,
             blobName,
@@ -472,9 +468,20 @@ final class StorageBlobServiceImpl {
             requestId,
             cpkInfo,
             context,
-            callback);
+            new Callback<BlobDownloadResponse>() {
+                @Override
+                public void onResponse(BlobDownloadResponse response) {
+                    task.setSucceeded(response);
+                }
 
-        return new ServiceCallTask(callAndOptionalResult.getCall(), context);
+                @Override
+                public void onFailure(Throwable t) {
+                    task.setFailed(t);
+                }
+            });
+
+        task.setupCancel(callAndOptionalResult.getCall(), context);
+        return task;
     }
 
     Void stageBlock(String containerName,
@@ -494,13 +501,12 @@ final class StorageBlobServiceImpl {
             null).getValue();
     }
 
-    ServiceCallTask stageBlock(String containerName,
+    ServiceCallTask<Void> stageBlockAsync(String containerName,
                                String blobName,
                                String base64BlockId,
                                byte[] blockContent,
-                               byte[] contentMd5,
-                               Callback<Void> callback) {
-        return this.stageBlockWithRestResponse(containerName,
+                               byte[] contentMd5) {
+        final ServiceCallTask<BlockBlobsStageBlockResponse> innerTask = this.stageBlockWithRestResponseAsync(containerName,
             blobName,
             base64BlockId,
             blockContent,
@@ -509,18 +515,10 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null,
-            new Callback<BlockBlobsStageBlockResponse>() {
-                @Override
-                public void onResponse(BlockBlobsStageBlockResponse response) {
-                    callback.onResponse(response.getValue());
-                }
+            null);
 
-                @Override
-                public void onFailure(Throwable t) {
-                    callback.onFailure(t);
-                }
-            });
+        return ((ServiceCallTaskImpl<BlockBlobsStageBlockResponse>)innerTask)
+            .map(response -> response.getValue());
     }
 
     BlockBlobsStageBlockResponse stageBlockWithRestResponse(String containerName,
@@ -547,7 +545,7 @@ final class StorageBlobServiceImpl {
             null).getResult();
     }
 
-    ServiceCallTask stageBlockWithRestResponse(String containerName,
+    ServiceCallTask<BlockBlobsStageBlockResponse> stageBlockWithRestResponseAsync(String containerName,
                                                String blobName,
                                                String base64BlockId,
                                                byte[] blockContent,
@@ -556,8 +554,8 @@ final class StorageBlobServiceImpl {
                                                Integer timeout,
                                                String leaseId,
                                                String requestId,
-                                               CpkInfo cpkInfo,
-                                               Callback<BlockBlobsStageBlockResponse> callback) {
+                                               CpkInfo cpkInfo) {
+        ServiceCallTaskImpl<BlockBlobsStageBlockResponse> task = new ServiceCallTaskImpl<>(this.executor);
         final Context context = Context.NONE;
         CallAndOptionalResult<BlockBlobsStageBlockResponse> callAndOptionalResult =
             this.stageBlockWithRestResponseIntern(containerName,
@@ -571,9 +569,20 @@ final class StorageBlobServiceImpl {
                 requestId,
                 cpkInfo,
                 context,
-                callback);
+                new Callback<BlockBlobsStageBlockResponse>() {
+                    @Override
+                    public void onResponse(BlockBlobsStageBlockResponse response) {
+                        task.setSucceeded(response);
+                    }
 
-        return new ServiceCallTask(callAndOptionalResult.getCall(), context);
+                    @Override
+                    public void onFailure(Throwable t) {
+                        task.setFailed(t);
+                    }
+                });
+
+        task.setupCancel(callAndOptionalResult.getCall(), context);
+        return task;
     }
 
     BlockBlobItem commitBlockList(String containerName,
@@ -602,18 +611,17 @@ final class StorageBlobServiceImpl {
         return response.getBlockBlobItem();
     }
 
-    ServiceCallTask commitBlockList(String containerName,
+    ServiceCallTask<BlockBlobItem> commitBlockListAsync(String containerName,
                                     String blobName,
                                     List<String> base64BlockIds,
-                                    boolean overwrite,
-                                    Callback<BlockBlobItem> callBack) {
+                                    boolean overwrite) {
         BlobRequestConditions requestConditions = null;
 
         if (!overwrite) {
             requestConditions = new BlobRequestConditions().setIfNoneMatch("*");
         }
 
-        return this.commitBlockListWithRestResponse(containerName,
+        final ServiceCallTask<BlockBlobsCommitBlockListResponse> innerTask = this.commitBlockListWithRestResponseAsync(containerName,
             blobName,
             base64BlockIds,
             null,
@@ -624,18 +632,10 @@ final class StorageBlobServiceImpl {
             requestConditions,
             null,
             null,
-            null,
-            new Callback<BlockBlobsCommitBlockListResponse>() {
-                @Override
-                public void onResponse(BlockBlobsCommitBlockListResponse response) {
-                    callBack.onResponse(response.getBlockBlobItem());
-                }
+            null);
 
-                @Override
-                public void onFailure(Throwable t) {
-                    callBack.onFailure(t);
-                }
-            });
+        return ((ServiceCallTaskImpl<BlockBlobsCommitBlockListResponse>)innerTask)
+            .map(response -> response.getBlockBlobItem());
     }
 
     BlockBlobsCommitBlockListResponse commitBlockListWithRestResponse(String containerName,
@@ -666,7 +666,7 @@ final class StorageBlobServiceImpl {
             null).getResult();
     }
 
-    ServiceCallTask commitBlockListWithRestResponse(String containerName,
+    ServiceCallTask<BlockBlobsCommitBlockListResponse> commitBlockListWithRestResponseAsync(String containerName,
                                                     String blobName,
                                                     List<String> base64BlockIds,
                                                     byte[] transactionalContentMD5,
@@ -677,8 +677,8 @@ final class StorageBlobServiceImpl {
                                                     BlobRequestConditions requestConditions,
                                                     String requestId,
                                                     CpkInfo cpkInfo,
-                                                    AccessTier tier,
-                                                    Callback<BlockBlobsCommitBlockListResponse> callback) {
+                                                    AccessTier tier) {
+        ServiceCallTaskImpl<BlockBlobsCommitBlockListResponse> task = new ServiceCallTaskImpl<>(this.executor);
         final Context context = Context.NONE;
         CallAndOptionalResult<BlockBlobsCommitBlockListResponse> callAndOptionalResult =
             this.commitBlockListWithRestResponseIntern(containerName,
@@ -694,9 +694,20 @@ final class StorageBlobServiceImpl {
                 cpkInfo,
                 tier,
                 context,
-                callback);
+                new Callback<BlockBlobsCommitBlockListResponse>() {
+                    @Override
+                    public void onResponse(BlockBlobsCommitBlockListResponse response) {
+                        task.setSucceeded(response);
+                    }
 
-        return new ServiceCallTask(callAndOptionalResult.getCall(), context);
+                    @Override
+                    public void onFailure(Throwable t) {
+                        task.setFailed(t);
+                    }
+                });
+
+        task.setupCancel(callAndOptionalResult.getCall(), context);
+        return task;
     }
 
     private CallAndOptionalResult<ContainersListBlobFlatSegmentResponse> getBlobsInPageWithRestResponseIntern(String pageId,

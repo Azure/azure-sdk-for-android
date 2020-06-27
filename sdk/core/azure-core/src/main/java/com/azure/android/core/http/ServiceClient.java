@@ -10,6 +10,7 @@ import com.azure.android.core.internal.util.serializer.SerializerFormat;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.ConnectionPool;
@@ -54,6 +55,15 @@ public class ServiceClient {
      */
     public Retrofit getRetrofit() {
         return this.retrofit;
+    }
+
+    /**
+     * Gets the {@link Dispatcher} to execute async service call.
+     *
+     * @return The dispatcher.
+     */
+    public Dispatcher getDispatcher() {
+        return this.httpClient.dispatcher();
     }
 
     /**
