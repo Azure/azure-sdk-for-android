@@ -2,17 +2,17 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "676acd791313226090eed7e02bd3cc73",
+    "identityHash": "e7633ab2eacd41680a75e5486f450257",
     "entities": [
       {
         "tableName": "blobuploads",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `content_uri` TEXT, `content_size` INTEGER NOT NULL, `use_content_resolver` INTEGER NOT NULL, `storage_blob_client_id` TEXT, `container_name` TEXT, `blob_name` TEXT, `blob_upload_state` INTEGER, `transfer_interrupt_state` INTEGER, `required_network_type` INTEGER, `requires_charging` INTEGER NOT NULL, `requires_device_idle` INTEGER NOT NULL, `requires_battery_not_low` INTEGER NOT NULL, `requires_storage_not_low` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `content_uri` TEXT, `content_size` INTEGER NOT NULL, `use_content_resolver` INTEGER NOT NULL, `storage_blob_client_id` TEXT, `container_name` TEXT, `blob_name` TEXT, `blob_upload_state` INTEGER, `transfer_interrupt_state` INTEGER, `required_network_type` INTEGER, `requires_charging` INTEGER NOT NULL, `requires_device_idle` INTEGER NOT NULL, `requires_battery_not_low` INTEGER NOT NULL, `requires_storage_not_low` INTEGER NOT NULL, PRIMARY KEY(`key`))",
         "fields": [
           {
             "fieldPath": "key",
             "columnName": "key",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "contentUri",
@@ -97,14 +97,14 @@
           "columnNames": [
             "key"
           ],
-          "autoGenerate": true
+          "autoGenerate": false
         },
         "indices": [],
         "foreignKeys": []
       },
       {
         "tableName": "blockuploads",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `blob_key` INTEGER NOT NULL, `block_offset` INTEGER NOT NULL, `block_size` INTEGER NOT NULL, `block_id` TEXT, `block_upload_state` INTEGER, FOREIGN KEY(`blob_key`) REFERENCES `blobuploads`(`key`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `blob_key` TEXT, `block_offset` INTEGER NOT NULL, `block_size` INTEGER NOT NULL, `block_id` TEXT, `block_upload_state` INTEGER, FOREIGN KEY(`blob_key`) REFERENCES `blobuploads`(`key`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "key",
@@ -115,8 +115,8 @@
           {
             "fieldPath": "blobKey",
             "columnName": "blob_key",
-            "affinity": "INTEGER",
-            "notNull": true
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "blockOffset",
@@ -175,13 +175,13 @@
       },
       {
         "tableName": "blobdownloads",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `container_name` TEXT, `blob_name` TEXT, `blob_size` INTEGER NOT NULL, `content_uri` TEXT, `use_content_resolver` INTEGER NOT NULL, `storage_blob_client_id` TEXT, `blob_download_state` INTEGER, `transfer_interrupt_state` INTEGER, `required_network_type` INTEGER, `requires_charging` INTEGER NOT NULL, `requires_device_idle` INTEGER NOT NULL, `requires_battery_not_low` INTEGER NOT NULL, `requires_storage_not_low` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` TEXT NOT NULL, `container_name` TEXT, `blob_name` TEXT, `blob_size` INTEGER NOT NULL, `content_uri` TEXT, `use_content_resolver` INTEGER NOT NULL, `storage_blob_client_id` TEXT, `blob_download_state` INTEGER, `transfer_interrupt_state` INTEGER, `required_network_type` INTEGER, `requires_charging` INTEGER NOT NULL, `requires_device_idle` INTEGER NOT NULL, `requires_battery_not_low` INTEGER NOT NULL, `requires_storage_not_low` INTEGER NOT NULL, PRIMARY KEY(`key`))",
         "fields": [
           {
             "fieldPath": "key",
             "columnName": "key",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "containerName",
@@ -266,14 +266,14 @@
           "columnNames": [
             "key"
           ],
-          "autoGenerate": true
+          "autoGenerate": false
         },
         "indices": [],
         "foreignKeys": []
       },
       {
         "tableName": "blockdownloads",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `blob_key` INTEGER NOT NULL, `file_path` TEXT, `block_offset` INTEGER NOT NULL, `block_size` INTEGER NOT NULL, `block_id` TEXT, `block_download_state` INTEGER, FOREIGN KEY(`blob_key`) REFERENCES `blobdownloads`(`key`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `blob_key` TEXT, `file_path` TEXT, `block_offset` INTEGER NOT NULL, `block_size` INTEGER NOT NULL, `block_id` TEXT, `block_download_state` INTEGER, FOREIGN KEY(`blob_key`) REFERENCES `blobdownloads`(`key`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "key",
@@ -284,8 +284,8 @@
           {
             "fieldPath": "blobKey",
             "columnName": "blob_key",
-            "affinity": "INTEGER",
-            "notNull": true
+            "affinity": "TEXT",
+            "notNull": false
           },
           {
             "fieldPath": "filePath",
@@ -352,7 +352,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '676acd791313226090eed7e02bd3cc73')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e7633ab2eacd41680a75e5486f450257')"
     ]
   }
 }
