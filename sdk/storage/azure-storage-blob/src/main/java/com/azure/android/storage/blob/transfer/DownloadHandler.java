@@ -14,7 +14,7 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.http.ServiceCall;
+import com.azure.android.core.http.ServiceCallTask;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobRange;
@@ -42,7 +42,7 @@ final class DownloadHandler extends Handler {
     private final Context appContext;
     private final int blocksDownloadConcurrency;
     private final String downloadId;
-    private final HashMap<String, Pair<BlockDownloadEntity, ServiceCall>> runningBlockDownloads;
+    private final HashMap<String, Pair<BlockDownloadEntity, ServiceCallTask>> runningBlockDownloads;
     private final TransferStopToken transferStopToken;
 
     private TransferHandlerListener transferHandlerListener;
@@ -205,7 +205,7 @@ final class DownloadHandler extends Handler {
         finalizeIfStopped();
 
         String blockId = DownloadHandlerMessage.getBlockIdFromMessage(message);
-        Pair<BlockDownloadEntity, ServiceCall> pair = runningBlockDownloads.remove(blockId);
+        Pair<BlockDownloadEntity, ServiceCallTask> pair = runningBlockDownloads.remove(blockId);
         BlockDownloadEntity downloadedBlock = pair.first;
         totalBytesDownloaded += downloadedBlock.blockSize;
         transferHandlerListener.onTransferProgress(blob.blobSize, totalBytesDownloaded);
@@ -233,9 +233,9 @@ final class DownloadHandler extends Handler {
      */
     private void handleDownloadFailed(Message message) {
         String blockId = DownloadHandlerMessage.getBlockIdFromMessage(message);
-        Pair<BlockDownloadEntity, ServiceCall> failedPair = runningBlockDownloads.remove(blockId);
+        Pair<BlockDownloadEntity, ServiceCallTask> failedPair = runningBlockDownloads.remove(blockId);
 
-        for (Pair<BlockDownloadEntity, ServiceCall> pair : runningBlockDownloads.values()) {
+        for (Pair<BlockDownloadEntity, ServiceCallTask> pair : runningBlockDownloads.values()) {
             pair.second.cancel();
         }
 
@@ -255,7 +255,7 @@ final class DownloadHandler extends Handler {
         if (transferStopToken.isStopped()) {
             Log.v(TAG, "finalizeIfStopped(): Stop request received, finalizing");
 
-            for (Pair<BlockDownloadEntity, ServiceCall> pair : runningBlockDownloads.values()) {
+            for (Pair<BlockDownloadEntity, ServiceCallTask> pair : runningBlockDownloads.values()) {
                 pair.second.cancel();
             }
 
@@ -290,7 +290,7 @@ final class DownloadHandler extends Handler {
 
             Log.v(TAG, "downloadBlob(): Downloading block: " + block.blockId + getThreadName());
 
-            ServiceCall call = blobClient.rawDownloadWithRestResponse(blob.containerName,
+            ServiceCallTask call = blobClient.rawDownloadWithRestResponse(blob.containerName,
                 blob.blobName,
                 null,
                 null,

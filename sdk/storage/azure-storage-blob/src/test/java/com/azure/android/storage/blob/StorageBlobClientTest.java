@@ -1,7 +1,7 @@
 package com.azure.android.storage.blob;
 
 import com.azure.android.core.http.Callback;
-import com.azure.android.core.http.ServiceCall;
+import com.azure.android.core.http.ServiceCallTask;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
@@ -102,7 +102,7 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.getBlobsInPage(null,
+        ServiceCallTask serviceCallTask = storageBlobClient.getBlobsInPage(null,
             "testContainer",
             null,
             new Callback<List<BlobItem>>() {
@@ -121,8 +121,8 @@ public class StorageBlobClientTest {
             });
 
         // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        assertNotNull(serviceCallTask);
+        assertFalse(serviceCallTask.isCanceled());
     }
 
     @Test
@@ -172,7 +172,7 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.getBlobsInPageWithRestResponse(null,
+        ServiceCallTask serviceCallTask = storageBlobClient.getBlobsInPageWithRestResponse(null,
             "testContainer",
             null,
             null,
@@ -200,8 +200,8 @@ public class StorageBlobClientTest {
             });
 
         // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        assertNotNull(serviceCallTask);
+        assertFalse(serviceCallTask.isCanceled());
     }
 
     @Test
@@ -233,7 +233,7 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(response);
 
-        ServiceCall serviceCall = storageBlobClient.getBlobProperties("container",
+        ServiceCallTask serviceCallTask = storageBlobClient.getBlobProperties("container",
             "blob",
             new Callback<BlobGetPropertiesHeaders>() {
                 @Override
@@ -249,8 +249,8 @@ public class StorageBlobClientTest {
             });
 
         // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        assertNotNull(serviceCallTask);
+        assertFalse(serviceCallTask.isCanceled());
     }
 
     @Test
@@ -291,7 +291,7 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(response);
 
-        ServiceCall serviceCall = storageBlobClient.getBlobPropertiesWithRestResponse("container",
+        ServiceCallTask serviceCallTask = storageBlobClient.getBlobPropertiesWithRestResponse("container",
             "blob",
             null,
             null,
@@ -314,8 +314,8 @@ public class StorageBlobClientTest {
             });
 
         // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        assertNotNull(serviceCallTask);
+        assertFalse(serviceCallTask.isCanceled());
     }
 
     @Test
@@ -348,7 +348,7 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.rawDownload("testContainer",
+        ServiceCallTask serviceCallTask = storageBlobClient.rawDownload("testContainer",
             "testBlob",
             new Callback<ResponseBody>() {
                 @Override
@@ -368,8 +368,8 @@ public class StorageBlobClientTest {
             });
 
         // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        assertNotNull(serviceCallTask);
+        assertFalse(serviceCallTask.isCanceled());
     }
 
     @Test
@@ -413,7 +413,7 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.rawDownloadWithRestResponse("testContainer",
+        ServiceCallTask serviceCallTask = storageBlobClient.rawDownloadWithRestResponse("testContainer",
             "testBlob",
             null,
             null,
@@ -444,8 +444,8 @@ public class StorageBlobClientTest {
             });
 
         // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        assertNotNull(serviceCallTask);
+        assertFalse(serviceCallTask.isCanceled());
     }
 
     @Test
@@ -478,7 +478,7 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.stageBlock("testContainer",
+        ServiceCallTask serviceCallTask = storageBlobClient.stageBlock("testContainer",
             "testBlob",
             null,
             new byte[0],
@@ -497,8 +497,8 @@ public class StorageBlobClientTest {
             });
 
         // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        assertNotNull(serviceCallTask);
+        assertFalse(serviceCallTask.isCanceled());
     }
 
     @Test
@@ -536,7 +536,7 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.stageBlockWithRestResponse("testContainer",
+        ServiceCallTask serviceCallTask = storageBlobClient.stageBlockWithRestResponse("testContainer",
             "testBlob",
             null,
             new byte[0],
@@ -560,8 +560,8 @@ public class StorageBlobClientTest {
             });
 
         // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        assertNotNull(serviceCallTask);
+        assertFalse(serviceCallTask.isCanceled());
     }
 
     @Test
@@ -600,7 +600,7 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.commitBlockList("testContainer",
+        ServiceCallTask serviceCallTask = storageBlobClient.commitBlockList("testContainer",
             "testBlob",
             null,
             true, new Callback<BlockBlobItem>() {
@@ -619,8 +619,8 @@ public class StorageBlobClientTest {
             });
 
         // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        assertNotNull(serviceCallTask);
+        assertFalse(serviceCallTask.isCanceled());
     }
 
     @Test
@@ -668,7 +668,7 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.commitBlockListWithRestResponse("testContainer",
+        ServiceCallTask serviceCallTask = storageBlobClient.commitBlockListWithRestResponse("testContainer",
             "testBlob",
             null,
             null,
@@ -695,8 +695,8 @@ public class StorageBlobClientTest {
             });
 
         // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        assertNotNull(serviceCallTask);
+        assertFalse(serviceCallTask.isCanceled());
     }
 
     private static String readFileToString(String filePath) {

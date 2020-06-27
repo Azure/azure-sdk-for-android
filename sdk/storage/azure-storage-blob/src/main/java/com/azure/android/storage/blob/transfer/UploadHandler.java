@@ -14,7 +14,7 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.http.ServiceCall;
+import com.azure.android.core.http.ServiceCallTask;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 
@@ -43,7 +43,7 @@ final class UploadHandler extends Handler {
     private final Context appContext;
     private final int blocksUploadConcurrency;
     private final String uploadId;
-    private final HashMap<String, Pair<BlockUploadEntity, ServiceCall>> runningBlockUploads;
+    private final HashMap<String, Pair<BlockUploadEntity, ServiceCallTask>> runningBlockUploads;
     private final TransferStopToken transferStopToken;
 
     private TransferHandlerListener transferHandlerListener;
@@ -193,7 +193,7 @@ final class UploadHandler extends Handler {
     private void handleStagingCompleted(Message message) {
         this.finalizeIfStopped();
         String blockId = UploadHandlerMessage.getBlockIdFromMessage(message);
-        Pair<BlockUploadEntity, ServiceCall> p = this.runningBlockUploads.remove(blockId);
+        Pair<BlockUploadEntity, ServiceCallTask> p = this.runningBlockUploads.remove(blockId);
         BlockUploadEntity blockStaged = p.first;
         this.totalBytesUploaded += blockStaged.blockSize;
         this.transferHandlerListener.onTransferProgress(this.blob.contentSize, this.totalBytesUploaded);
@@ -217,8 +217,8 @@ final class UploadHandler extends Handler {
      */
     private void handleStagingFailed(Message message) {
         String blockId = UploadHandlerMessage.getBlockIdFromMessage(message);
-        Pair<BlockUploadEntity, ServiceCall> failedPair = this.runningBlockUploads.remove(blockId);
-        for (Pair<BlockUploadEntity, ServiceCall> p : this.runningBlockUploads.values()) {
+        Pair<BlockUploadEntity, ServiceCallTask> failedPair = this.runningBlockUploads.remove(blockId);
+        for (Pair<BlockUploadEntity, ServiceCallTask> p : this.runningBlockUploads.values()) {
             p.second.cancel();
         }
         this.transferHandlerListener.onError(failedPair.first.getStagingError());
@@ -254,7 +254,7 @@ final class UploadHandler extends Handler {
     private void finalizeIfStopped() {
         if (this.transferStopToken.isStopped()) {
             Log.v(TAG, "finalizeIfStopped(): Stop request received, finalizing");
-            for (Pair<BlockUploadEntity, ServiceCall> p : this.runningBlockUploads.values()) {
+            for (Pair<BlockUploadEntity, ServiceCallTask> p : this.runningBlockUploads.values()) {
                 p.second.cancel();
             }
             TransferInterruptState interruptState = this.db.uploadDao().getTransferInterruptState(this.uploadId);
@@ -297,7 +297,7 @@ final class UploadHandler extends Handler {
                 return;
             }
 
-            ServiceCall call = this.blobClient.stageBlock(this.blob.containerName,
+            ServiceCallTask call = this.blobClient.stageBlock(this.blob.containerName,
                 this.blob.blobName,
                 block.blockId,
                 blockContent,

@@ -9,10 +9,10 @@ import com.azure.android.core.util.Context;
 /**
  * Type representing handle to the service call.
  */
-public final class ServiceCall {
+public final class ServiceCallTask {
     private final ResultTaskImpl<?> resultTaskImpl;
 
-    public ServiceCall(retrofit2.Call<?> call, Context context) {
+    public ServiceCallTask(retrofit2.Call<?> call, Context context) {
         this.resultTaskImpl = new ResultTaskImpl<>(() -> { // create with lambda to execute on cancel() call.
             call.cancel();
             context.cancel();

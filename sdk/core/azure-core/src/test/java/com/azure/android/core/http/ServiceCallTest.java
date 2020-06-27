@@ -1,5 +1,7 @@
 package com.azure.android.core.http;
 
+import com.azure.android.core.util.Context;
+
 import org.junit.Test;
 
 import java.io.IOException;
@@ -13,7 +15,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class ServiceCallTest {
-    private final ServiceCall call = new ServiceCall(new SimpleCall());
+    private final ServiceCallTask call = new ServiceCallTask(new SimpleCall(), Context.NONE);
 
     @Test
     public void cancelCall() {
