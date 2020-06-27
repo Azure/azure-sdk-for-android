@@ -3,18 +3,20 @@
 
 package com.azure.android.core.http;
 
+import com.azure.android.core.internal.util.ResultTaskImpl;
 import com.azure.android.core.util.Context;
 
 /**
  * Type representing handle to the service call.
  */
 public final class ServiceCall {
-    private final retrofit2.Call<?> call;
-    private final Context context;
+    private final ResultTaskImpl<?> resultTaskImpl;
 
     public ServiceCall(retrofit2.Call<?> call, Context context) {
-        this.call = call;
-        this.context = context;
+        this.resultTaskImpl = new ResultTaskImpl<>(() -> { // create with lambda to execute on cancel() call.
+            call.cancel();
+            context.cancel();
+        });
     }
 
     /**
@@ -22,8 +24,7 @@ public final class ServiceCall {
      * yet been executed it never will be.
      */
     public void cancel() {
-        this.call.cancel();
-        this.context.cancel();
+        this.resultTaskImpl.cancel();
     }
 
     /**
@@ -32,6 +33,6 @@ public final class ServiceCall {
      * @return true If {@link #cancel()} was called.
      */
     public boolean isCanceled() {
-        return this.call.isCanceled();
+        return this.resultTaskImpl.isCanceled();
     }
 }
