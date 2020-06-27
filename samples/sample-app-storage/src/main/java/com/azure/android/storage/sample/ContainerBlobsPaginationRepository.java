@@ -3,6 +3,7 @@ package com.azure.android.storage.sample;
 import androidx.work.NetworkType;
 
 import com.azure.android.core.http.Callback;
+import com.azure.android.core.http.ServiceCallTask;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
@@ -59,22 +60,24 @@ final class ContainerBlobsPaginationRepository
                 if (pageSize != null && pageSize > 0) {
                     options.setMaxResultsPerPage(pageSize);
                 }
-                storageBlobClient.getBlobsInPageWithRestResponse(pageIdentifier, containerName, options.getPrefix(),
+                ServiceCallTask<ContainersListBlobFlatSegmentResponse> task = storageBlobClient.getBlobsInPageWithRestResponseAsync(pageIdentifier, containerName, options.getPrefix(),
                         options.getMaxResultsPerPage(), options.getDetails().toList(),
-                        null, null, new Callback<ContainersListBlobFlatSegmentResponse>() {
-                            @Override
-                            public void onResponse(ContainersListBlobFlatSegmentResponse response) {
-                                List<BlobItem> value = response.getValue().getSegment() == null
-                                        ? new ArrayList<>(0)
-                                       : response.getValue().getSegment().getBlobItems();
-                               callback.onSuccess(value, response.getValue().getMarker(), response.getValue().getNextMarker());
-                           }
+                        null, null);
 
-                         @Override
-                            public void onFailure(Throwable t) {
-                            callback.onFailure(t);
-                        }
-                 });
+                task.addCallback(new Callback<ContainersListBlobFlatSegmentResponse>() {
+                    @Override
+                    public void onResponse(ContainersListBlobFlatSegmentResponse response) {
+                        List<BlobItem> value = response.getValue().getSegment() == null
+                            ? new ArrayList<>(0)
+                            : response.getValue().getSegment().getBlobItems();
+                        callback.onSuccess(value, response.getValue().getMarker(), response.getValue().getNextMarker());
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        callback.onFailure(t);
+                    }
+                });
             }
         };
         return DefaultPaginationDescription.create(pageItemsFetcher, this.paginationOptions);
