@@ -13,7 +13,7 @@ import java.util.List;
  */
 final class BlockDownloadRecordsEnumerator {
     private final TransferDatabase db;
-    private final long downloadId;
+    private final String downloadId;
     private final List<BlockTransferState> skipStates;
     private List<BlockDownloadEntity> blocks;
     private int cursor;
@@ -27,7 +27,7 @@ final class BlockDownloadRecordsEnumerator {
      * @param downloadId The download ID.
      * @param skipStates The state of the entities to be skipped from enumeration.
      */
-    BlockDownloadRecordsEnumerator(TransferDatabase db, long downloadId, List<BlockTransferState> skipStates) {
+    BlockDownloadRecordsEnumerator(TransferDatabase db, String downloadId, List<BlockTransferState> skipStates) {
         this.cursor = 0;
         this.db = db;
         this.downloadId = downloadId;

@@ -55,7 +55,7 @@ final class BlockUploadEntity {
      * The key of {@link BlobUploadEntity} that this {@link BlockUploadEntity} belongs to.
      */
     @ColumnInfo(name = "blob_key")
-    public long blobKey;
+    public String blobKey;
     /**
      * The offset in the content from which the block starts.
      */
@@ -112,7 +112,7 @@ final class BlockUploadEntity {
      *
      * @param blobKey the block key (aka uploadId)
      */
-    void setBlobKey(long blobKey) {
+    void setBlobKey(String blobKey) {
         this.blobKey = blobKey;
     }
 

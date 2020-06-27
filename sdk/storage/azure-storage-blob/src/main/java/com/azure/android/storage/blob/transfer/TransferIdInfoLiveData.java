@@ -103,7 +103,7 @@ final class TransferIdInfoLiveData {
                 Log.v(TAG, "Skipping the 'WorkInfo' from WorkManager with Null state.");
                 return;
             }
-            final long transferId = this.transferOperationResult.getId();
+            final String transferId = this.transferOperationResult.getId();
             this.setLastWorkInfoState(currentWorkInfoState);
             if (this.isFirstEvent()) {
                 this.setDoneFirstEvent();
@@ -264,9 +264,9 @@ final class TransferIdInfoLiveData {
                     } else {
                         // No error from TransferClient i.e. transfer work may exists, get the underlying
                         // LiveData<WorkInfo> for the transfer work.
-                        final long transferId = this.transferOperationResult.getId();
+                        final String transferId = this.transferOperationResult.getId();
                         return WorkManager.getInstance(context)
-                            .getWorkInfosForUniqueWorkLiveData(TransferClient.toTransferUniqueWorkName(transferId));
+                            .getWorkInfosForUniqueWorkLiveData(transferId);
                     }
                 }
             );
@@ -276,7 +276,7 @@ final class TransferIdInfoLiveData {
                 // start processing the WorkInfo.
                 return null;
             } else {
-                final long transferId = this.transferOperationResult.getId();
+                final String transferId = this.transferOperationResult.getId();
                 if (workInfoList == null || workInfoList.isEmpty()) {
                     Log.e(TAG, "Received null or Empty WorkInfo list for the transfer '" + transferId + "' from WorkManager." );
                     return null;
@@ -471,7 +471,7 @@ final class TransferIdInfoLiveData {
         private volatile boolean userPaused;
 
         /**
-         * Set the flag indicating that user paused a transfer by calling {@link TransferClient#pause(long)}.
+         * Set the flag indicating that user paused a transfer by calling {@link TransferClient#pause(String)}.
          */
         void setUserPaused() {
             this.userPaused = true;

@@ -24,7 +24,7 @@ public class UploadWorker extends ListenableWorker {
     // The number of blob blocks to be uploaded in parallel.
     private int blocksUploadConcurrency;
     // The key of the blob upload metadata entity describing the file to be uploaded.
-    private long blobUploadId;
+    private String blobUploadId;
     // A token to signal {@link UploadHandler} that it should be stopped.
     private TransferStopToken transferStopToken;
 
@@ -47,9 +47,9 @@ public class UploadWorker extends ListenableWorker {
                         @NonNull WorkerParameters workerParams) {
         super(appContext, workerParams);
         this.blobUploadId
-            = getInputData().getLong(Constants.INPUT_BLOB_UPLOAD_ID_KEY, -1);
-        if (this.blobUploadId <= -1) {
-            throw new IllegalArgumentException("Worker created with no or non-positive input blobUploadId.");
+            = getInputData().getString(Constants.INPUT_BLOB_UPLOAD_ID_KEY);
+        if (this.blobUploadId == null) {
+            throw new IllegalArgumentException("Worker created with null input blobUploadId.");
         }
         this.blocksUploadConcurrency
             = getInputData().getInt(TransferConstants.INPUT_BLOCKS_UPLOAD_CONCURRENCY_KEY,

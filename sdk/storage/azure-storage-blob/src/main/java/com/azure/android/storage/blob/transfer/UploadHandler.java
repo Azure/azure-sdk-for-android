@@ -17,7 +17,6 @@ import androidx.annotation.NonNull;
 import com.azure.android.core.http.ServiceCall;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlockBlobItem;
-import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,7 +42,7 @@ final class UploadHandler extends Handler {
 
     private final Context appContext;
     private final int blocksUploadConcurrency;
-    private final long uploadId;
+    private final String uploadId;
     private final HashMap<String, Pair<BlockUploadEntity, ServiceCall>> runningBlockUploads;
     private final TransferStopToken transferStopToken;
 
@@ -65,7 +64,7 @@ final class UploadHandler extends Handler {
      * @param uploadId the identifier to a {@link BlobUploadEntity} in the local store, describing
      *     the file to be uploaded
      */
-    private UploadHandler(Looper looper, Context appContext, int blocksUploadConcurrency, long uploadId) {
+    private UploadHandler(Looper looper, Context appContext, int blocksUploadConcurrency, String uploadId) {
         super(looper);
         this.appContext = appContext;
         this.blocksUploadConcurrency = blocksUploadConcurrency;
@@ -83,7 +82,7 @@ final class UploadHandler extends Handler {
      *     file to be uploaded
      * @return the UploadHandler
      */
-    static UploadHandler create(@NonNull Context appContext, int blocksUploadConcurrency, long uploadId) {
+    static UploadHandler create(@NonNull Context appContext, int blocksUploadConcurrency, String uploadId) {
         Objects.requireNonNull(appContext, "Application Context is null.");
         final HandlerThread handlerThread = new HandlerThread("UploadHandlerThread");
         handlerThread.start();

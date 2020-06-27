@@ -3,6 +3,7 @@
 
 package com.azure.android.storage.blob.transfer;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -27,9 +28,10 @@ final class BlobUploadEntity {
      *
      * Also referred as uploadId that users use to identify and manage the upload operation.
      */
-    @PrimaryKey(autoGenerate = true)
+    @NonNull
+    @PrimaryKey()
     @ColumnInfo(name = "key")
-    public Long key;
+    public String key;
     /**
      * The URI to the content to be uploaded as a blob.
      */
@@ -93,20 +95,24 @@ final class BlobUploadEntity {
      * Create a new BlobUploadEntity to persist in local store.
      *
      * @param storageBlobClientId identifies the blob storage client to be used
+     * @param key the unique ID for the entity
      * @param containerName the container name
      * @param blobName the blob name
      * @param content describes the content to be read while uploading
      */
     @Ignore
     BlobUploadEntity(String storageBlobClientId,
+                     String key,
                      String containerName,
                      String blobName,
                      ReadableContent content) throws Throwable {
         Objects.requireNonNull(storageBlobClientId);
+        Objects.requireNonNull(key);
         Objects.requireNonNull(containerName);
         Objects.requireNonNull(blobName);
         Objects.requireNonNull(content);
 
+        this.key = key;
         this.contentUri = content.getUri().toString();
         this.contentSize = content.getLength();
         this.useContentResolver = content.isUsingContentResolver();

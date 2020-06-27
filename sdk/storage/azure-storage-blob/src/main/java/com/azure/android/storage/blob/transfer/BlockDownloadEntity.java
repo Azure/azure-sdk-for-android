@@ -52,7 +52,7 @@ final class BlockDownloadEntity {
      * The key of {@link BlobDownloadEntity} that this {@link BlockDownloadEntity} belongs to.
      */
     @ColumnInfo(name = "blob_key")
-    public long blobKey;
+    public String blobKey;
 
     /**
      * The absolute path to the file that the block is a part of.
@@ -121,7 +121,7 @@ final class BlockDownloadEntity {
      *
      * @param blobKey The blob key (a.k.a. downloadId).
      */
-    void setBlobKey(long blobKey) {
+    void setBlobKey(String blobKey) {
         this.blobKey = blobKey;
     }
 

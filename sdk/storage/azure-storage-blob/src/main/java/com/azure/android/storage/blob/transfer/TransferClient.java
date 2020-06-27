@@ -30,6 +30,7 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -80,9 +81,9 @@ public class TransferClient {
      * @param containerName The container to upload the file to.
      * @param blobName The name of the target blob holding uploaded file.
      * @param file The local file to upload.
-     * @return A LiveData that streams {@link TransferInfo} describing current state of the transfer.
+     * @return The {@link TransferTask} representing the upload transfer.
      */
-    public LiveData<TransferInfo> upload(String storageBlobClientId, String containerName, String blobName, File file) {
+    public TransferTask upload(String storageBlobClientId, String containerName, String blobName, File file) {
         // UI_Thread
         return upload(storageBlobClientId, containerName, blobName,
             new ReadableContent(this.context, Uri.fromFile(file), false));
@@ -97,9 +98,9 @@ public class TransferClient {
      * @param contentUri URI to the Content to upload, the contentUri is resolved using
      *   {@link android.content.ContentResolver#openAssetFileDescriptor(Uri, String)}
      *   with mode as "r". The supported URI schemes are: 'content://', 'file://' and 'android.resource://'.
-     * @return A LiveData that streams {@link TransferInfo} describing current state of the transfer.
+     * @return The {@link TransferTask} representing the upload transfer.
      */
-    public LiveData<TransferInfo> upload(String storageBlobClientId, String containerName, String blobName, Uri contentUri) {
+    public TransferTask upload(String storageBlobClientId, String containerName, String blobName, Uri contentUri) {
         // UI_Thread
         return upload(storageBlobClientId, containerName, blobName,
             new ReadableContent(this.context, contentUri, true));
@@ -112,9 +113,9 @@ public class TransferClient {
      * @param containerName The container to upload the file to.
      * @param blobName The name of the target blob holding uploaded file.
      * @param readableContent Describes the Content to read and upload.
-     * @return A LiveData that streams {@link TransferInfo} describing current state of the transfer.
+     * @return The {@link TransferTask} representing the upload transfer.
      */
-    private LiveData<TransferInfo> upload(String storageBlobClientId,
+    private TransferTask upload(String storageBlobClientId,
                                           String containerName,
                                           String blobName,
                                           ReadableContent readableContent) {
@@ -126,8 +127,11 @@ public class TransferClient {
         } catch (Throwable e) {
             transferOpResultLiveData
                 .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, e));
-            return toCachedTransferInfoLiveData(transferOpResultLiveData, false);
+            return new TransferTask(this,
+                null,
+                toCachedTransferInfoLiveData(transferOpResultLiveData, false));
         }
+        final String transferId = UUID.randomUUID().toString();
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
@@ -138,16 +142,17 @@ public class TransferClient {
                     return;
                 }
                 BlobUploadEntity blob = new BlobUploadEntity(storageBlobClientId,
+                    transferId,
                     containerName,
                     blobName,
                     readableContent);
                 List<BlockUploadEntity> blocks
                     = BlockUploadEntity.createBlockEntities(readableContent.getLength(), Constants.DEFAULT_BLOCK_SIZE);
-                long transferId = db.uploadDao().createUploadRecord(blob, blocks);
+                db.uploadDao().createUploadRecord(blob, blocks);
                 Log.v(TAG, "upload(): upload record created: " + transferId);
 
                 Data inputData = new Data.Builder()
-                    .putLong(UploadWorker.Constants.INPUT_BLOB_UPLOAD_ID_KEY, transferId)
+                    .putString(UploadWorker.Constants.INPUT_BLOB_UPLOAD_ID_KEY, transferId)
                     .build();
                 OneTimeWorkRequest uploadWorkRequest = new OneTimeWorkRequest
                     .Builder(UploadWorker.class)
@@ -157,7 +162,7 @@ public class TransferClient {
 
                 Log.v(TAG, "upload(): enqueuing UploadWorker: " + transferId);
                 WorkManager.getInstance(context)
-                    .beginUniqueWork(toTransferUniqueWorkName(transferId),
+                    .beginUniqueWork(transferId,
                         ExistingWorkPolicy.KEEP,
                         uploadWorkRequest)
                     .enqueue();
@@ -169,7 +174,9 @@ public class TransferClient {
             }
         });
         // UI_Thread
-        return toCachedTransferInfoLiveData(transferOpResultLiveData, false);
+        return new TransferTask(this,
+            transferId,
+            toCachedTransferInfoLiveData(transferOpResultLiveData, false));
     }
 
     /**
@@ -179,9 +186,9 @@ public class TransferClient {
      * @param containerName The container to download the blob from.
      * @param blobName The name of the target blob to download.
      * @param file The local file to download to.
-     * @return A LiveData that streams {@link TransferInfo} describing the current state of the download.
+     * @return The {@link TransferTask} representing the download transfer.
      */
-    public LiveData<TransferInfo> download(String storageBlobClientId, String containerName, String blobName, File file) {
+    public TransferTask download(String storageBlobClientId, String containerName, String blobName, File file) {
         return download(storageBlobClientId,
             containerName,
             blobName,
@@ -195,9 +202,9 @@ public class TransferClient {
      * @param containerName The container to download the blob from.
      * @param blobName The name of the target blob to download.
      * @param contentUri The URI to the local content where the downloaded blob will be stored.
-     * @return A LiveData that streams {@link TransferInfo} describing the current state of the download.
+     * @return The {@link TransferTask} representing the download transfer.
      */
-    public LiveData<TransferInfo> download(String storageBlobClientId, String containerName, String blobName, Uri contentUri) {
+    public TransferTask download(String storageBlobClientId, String containerName, String blobName, Uri contentUri) {
         return download(storageBlobClientId,
             containerName,
             blobName,
@@ -211,9 +218,9 @@ public class TransferClient {
      * @param containerName The container to download the blob from.
      * @param blobName The name of the target blob to download.
      * @param writableContent Describes the Content in the device to store the downloaded blob.
-     * @return A LiveData that streams {@link TransferInfo} describing the current state of the download.
+     * @return The {@link TransferTask} representing the download transfer.
      */
-    private LiveData<TransferInfo> download(String storageBlobClientId,
+    private TransferTask download(String storageBlobClientId,
                                            String containerName,
                                            String blobName,
                                            WritableContent writableContent) {
@@ -225,8 +232,11 @@ public class TransferClient {
         } catch (Throwable e) {
             transferOpResultLiveData
                 .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, e));
-            return toCachedTransferInfoLiveData(transferOpResultLiveData, false);
+            return new TransferTask(this,
+                null,
+                toCachedTransferInfoLiveData(transferOpResultLiveData, false));
         }
+        final String transferId = UUID.randomUUID().toString();
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
@@ -240,18 +250,19 @@ public class TransferClient {
 
                 long blobSize = blobClient.getBlobProperties(containerName, blobName).getContentLength();
                 BlobDownloadEntity blob = new BlobDownloadEntity(storageBlobClientId,
+                    transferId,
                     containerName,
                     blobName,
                     blobSize,
                     writableContent);
                 List<BlockDownloadEntity> blocks
                     = BlockDownloadEntity.createBlockEntities(blobSize, Constants.DEFAULT_BLOCK_SIZE);
-                long transferId = db.downloadDao().createDownloadRecord(blob, blocks);
+                db.downloadDao().createDownloadRecord(blob, blocks);
 
                 Log.v(TAG, "download(): Download record created: " + transferId);
 
                 Data inputData = new Data.Builder()
-                    .putLong(DownloadWorker.Constants.INPUT_BLOB_DOWNLOAD_ID_KEY, transferId)
+                    .putString(DownloadWorker.Constants.INPUT_BLOB_DOWNLOAD_ID_KEY, transferId)
                     .build();
                 OneTimeWorkRequest downloadWorkRequest = new OneTimeWorkRequest
                     .Builder(DownloadWorker.class)
@@ -262,7 +273,7 @@ public class TransferClient {
                 Log.v(TAG, "download(): enqueuing DownloadWorker: " + transferId);
 
                 WorkManager.getInstance(context)
-                    .beginUniqueWork(toTransferUniqueWorkName(transferId),
+                    .beginUniqueWork(transferId,
                         ExistingWorkPolicy.KEEP,
                         downloadWorkRequest)
                     .enqueue();
@@ -275,7 +286,9 @@ public class TransferClient {
         });
 
         // UI_Thread
-        return toCachedTransferInfoLiveData(transferOpResultLiveData, false);
+        return new TransferTask(this,
+            transferId,
+            toCachedTransferInfoLiveData(transferOpResultLiveData, false));
     }
 
     /**
@@ -290,7 +303,7 @@ public class TransferClient {
      * @param transferId The transfer id identifies the transfer to pause.
      */
     // P2: Currently no return value, evaluate any possible return value later.
-    public void pause(long transferId) {
+    public void pause(String transferId) {
         // UI_Thread
         final TransferIdInfoLiveData.TransferFlags transferFlags = TRANSFER_ID_INFO_CACHE.getTransferFlags(transferId);
 
@@ -312,7 +325,7 @@ public class TransferClient {
 
                     WorkManager
                         .getInstance(context)
-                        .cancelUniqueWork(toTransferUniqueWorkName(transferId));
+                        .cancelUniqueWork(transferId);
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Unable to schedule pause for the transfer:" + transferId, e);
@@ -324,9 +337,9 @@ public class TransferClient {
      * Resume a paused transfer.
      *
      * @param transferId The transfer id identifies the transfer to resume.
-     * @return A LiveData that streams {@link TransferInfo} describing the current state of the transfer.
+     * @return The {@link TransferTask} representing the resumed transfer.
      */
-    public LiveData<TransferInfo> resume(long transferId) {
+    public TransferTask resume(String transferId) {
         // UI_Thread
         final MutableLiveData<TransferOperationResult> transferOpResultLiveData = new MutableLiveData<>();
         this.serialTaskExecutor.execute(() -> {
@@ -350,7 +363,7 @@ public class TransferClient {
                     }
 
                     Data inputData = new Data.Builder()
-                        .putLong(blobTransferIdKey, transferId)
+                        .putString(blobTransferIdKey, transferId)
                         .build();
                     workRequest = new OneTimeWorkRequest
                         .Builder(workerClass)
@@ -365,7 +378,7 @@ public class TransferClient {
                     // we return the LiveData to the caller that streams the TransferInfo events of
                     // the already running work.
                     WorkManager.getInstance(context)
-                        .beginUniqueWork(toTransferUniqueWorkName(transferId),
+                        .beginUniqueWork(transferId,
                             ExistingWorkPolicy.KEEP,
                             workRequest)
                         .enqueue();
@@ -378,7 +391,9 @@ public class TransferClient {
             }
         });
         // UI_Thread
-        return toCachedTransferInfoLiveData(transferOpResultLiveData, true);
+        return new TransferTask(this,
+            transferId,
+            toCachedTransferInfoLiveData(transferOpResultLiveData, true));
     }
 
     /**
@@ -391,7 +406,7 @@ public class TransferClient {
      * @param transferId The transfer ID identifies the transfer to cancel.
      */
     // P2: Currently no return value, evaluate any possible return value later.
-    public void cancel(long transferId) {
+    public void cancel(String transferId) {
         this.serialTaskExecutor.execute(() -> {
             try {
                 final StopCheck stopCheck = checkStoppable(transferId);
@@ -405,22 +420,12 @@ public class TransferClient {
 
                     WorkManager
                         .getInstance(context)
-                        .cancelUniqueWork(toTransferUniqueWorkName(transferId));
+                        .cancelUniqueWork(transferId);
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Unable to schedule cancellation for transfer with ID: " + transferId, e);
             }
         });
-    }
-
-    /**
-     * Get unique name for a transfer work.
-     *
-     * @param transferId The transfer id.
-     * @return The name for the transfer work.
-     */
-    static String toTransferUniqueWorkName(long transferId) {
-        return "azure_transfer_" + transferId;
     }
 
     /**
@@ -476,7 +481,7 @@ public class TransferClient {
      * @param transferOpResultLiveData The LiveData to post the error if the transfer cannot be resumed.
      * @return Result of check.
      */
-    private ResumeCheck checkResumeable(long transferId,
+    private ResumeCheck checkResumeable(String transferId,
                                         MutableLiveData<TransferOperationResult> transferOpResultLiveData) {
         // Check for transfer record
         BlobUploadEntity uploadBlob = db.uploadDao().getBlob(transferId);
@@ -522,7 +527,7 @@ public class TransferClient {
         }
     }
 
-    /** Result of {@link this#checkResumeable(long, MutableLiveData)}} **/
+    /** Result of {@link this#checkResumeable(String, MutableLiveData)}} **/
     private static final class ResumeCheck {
         // Flag indicating whether transfer can be resumed.
         final boolean canResume;
@@ -541,7 +546,7 @@ public class TransferClient {
      * @param transferId Identifies the transfer to check for stopping eligibility.
      * @return Result of check.
      */
-    private StopCheck checkStoppable(long transferId) {
+    private StopCheck checkStoppable(String transferId) {
         // Check for transfer record
         BlobUploadEntity uploadBlob = db.uploadDao().getBlob(transferId);
         BlobTransferState blobTransferState = null;
@@ -570,7 +575,7 @@ public class TransferClient {
         }
     }
 
-    /** Result of {@link this#checkStoppable(long)}} **/
+    /** Result of {@link this#checkStoppable(String)}} **/
     private static final class StopCheck {
         // Flag indicating whether transfer can be paused or cancelled.
         private final boolean canStop;

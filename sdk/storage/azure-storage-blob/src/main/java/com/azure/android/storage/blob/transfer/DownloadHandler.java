@@ -41,7 +41,7 @@ final class DownloadHandler extends Handler {
 
     private final Context appContext;
     private final int blocksDownloadConcurrency;
-    private final long downloadId;
+    private final String downloadId;
     private final HashMap<String, Pair<BlockDownloadEntity, ServiceCall>> runningBlockDownloads;
     private final TransferStopToken transferStopToken;
 
@@ -62,7 +62,7 @@ final class DownloadHandler extends Handler {
      * @param downloadId The identifier to a {@link BlobDownloadEntity} in the local store, describing the blob to be
      *                   downloaded.
      */
-    private DownloadHandler(Looper looper, Context appContext, int blocksDownloadConcurrency, long downloadId) {
+    private DownloadHandler(Looper looper, Context appContext, int blocksDownloadConcurrency, String downloadId) {
         super(looper);
 
         this.appContext = appContext;
@@ -80,7 +80,7 @@ final class DownloadHandler extends Handler {
      *                   downloaded.
      * @return The DownloadHandler.
      */
-    static DownloadHandler create(@NonNull Context appContext, int blocksDownloadConcurrency, long downloadId) {
+    static DownloadHandler create(@NonNull Context appContext, int blocksDownloadConcurrency, String downloadId) {
         Objects.requireNonNull(appContext, "Application Context is null.");
         final HandlerThread handlerThread = new HandlerThread("DownloadHandlerThread");
 

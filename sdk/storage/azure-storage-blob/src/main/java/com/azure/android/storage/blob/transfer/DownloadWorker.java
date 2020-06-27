@@ -28,7 +28,7 @@ public class DownloadWorker extends ListenableWorker {
     /**
      * The key of the blob download metadata entity describing the blob to be downloaded.
      */
-    private long blobDownloadId;
+    private String blobDownloadId;
     /**
      * A token to signal {@link DownloadHandler} that it should be stopped.
      */
@@ -53,10 +53,10 @@ public class DownloadWorker extends ListenableWorker {
                           @NonNull WorkerParameters workerParams) {
         super(appContext, workerParams);
 
-        this.blobDownloadId = getInputData().getLong(Constants.INPUT_BLOB_DOWNLOAD_ID_KEY, -1);
+        this.blobDownloadId = getInputData().getString(Constants.INPUT_BLOB_DOWNLOAD_ID_KEY);
 
-        if (this.blobDownloadId <= -1) {
-            throw new IllegalArgumentException("Worker created with no or non-positive input blobDownloadId.");
+        if (this.blobDownloadId == null) {
+            throw new IllegalArgumentException("Worker created with null input blobDownloadId.");
         }
 
         blocksDownloadConcurrency = getInputData().getInt(TransferConstants.INPUT_BLOCKS_UPLOAD_CONCURRENCY_KEY,

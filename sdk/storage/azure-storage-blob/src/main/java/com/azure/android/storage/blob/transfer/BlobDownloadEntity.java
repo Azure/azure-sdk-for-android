@@ -3,6 +3,7 @@
 
 package com.azure.android.storage.blob.transfer;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -27,9 +28,10 @@ final class BlobDownloadEntity {
      *
      * Also referred as downloadId that users use to identify and manage the download operation.
      */
-    @PrimaryKey(autoGenerate = true)
+    @NonNull
+    @PrimaryKey()
     @ColumnInfo(name = "key")
-    public Long key;
+    public String key;
 
     /**
      * The name of the Azure Storage Container to download the blob from.
@@ -101,6 +103,7 @@ final class BlobDownloadEntity {
      * Create a new BlobDownloadEntity to persist in local store.
      *
      * @param storageBlobClientId identifies the blob storage client to be used
+     * @param key The unique ID for the entity.
      * @param containerName The container name.
      * @param blobName The blob name.
      * @param blobSize The blob size.
@@ -108,15 +111,18 @@ final class BlobDownloadEntity {
      */
     @Ignore
     BlobDownloadEntity(String storageBlobClientId,
+                       String key,
                        String containerName,
                        String blobName,
                        long blobSize,
                        WritableContent content) {
         Objects.requireNonNull(storageBlobClientId);
+        Objects.requireNonNull(key);
         Objects.requireNonNull(containerName);
         Objects.requireNonNull(blobName);
         Objects.requireNonNull(content);
 
+        this.key = key;
         this.storageBlobClientId = storageBlobClientId;
         this.containerName = containerName;
         this.blobName = blobName;

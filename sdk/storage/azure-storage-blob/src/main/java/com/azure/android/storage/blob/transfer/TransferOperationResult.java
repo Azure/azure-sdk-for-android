@@ -25,7 +25,7 @@ final class TransferOperationResult {
     // the transfer operation type (upload_download, resume)
     private final @Operation int operation;
     // the transfer id.
-    private final long id;
+    private final String id;
     // the error happened in TransferClient method when processing a transfer request.
     private final Throwable error;
 
@@ -36,7 +36,7 @@ final class TransferOperationResult {
      * @param id the transfer id of a transfer
      * @return {@link TransferOperationResult} composing a valid transfer id
      */
-    static TransferOperationResult id(@NonNull @Operation int operation, long id) {
+    static TransferOperationResult id(@NonNull @Operation int operation, String id) {
         return new TransferOperationResult(operation, id, null);
     }
 
@@ -49,7 +49,7 @@ final class TransferOperationResult {
      * @return {@link TransferOperationResult} composing an error
      */
     static TransferOperationResult error(@NonNull @Operation int operation, @NonNull Throwable error) {
-        return new TransferOperationResult(operation, -1, error);
+        return new TransferOperationResult(operation, null, error);
     }
 
     /**
@@ -72,7 +72,7 @@ final class TransferOperationResult {
      * @param id the non-existing transfer id
      * @return {@link TransferOperationResult} composing the error
      */
-    static TransferOperationResult notFoundError(long id) {
+    static TransferOperationResult notFoundError(String id) {
         return error(Operation.RESUME, id, new TransferNotFoundError(id));
     }
 
@@ -83,7 +83,7 @@ final class TransferOperationResult {
      * @param id the transfer id
      * @return {@link TransferOperationResult} composing the error
      */
-    static TransferOperationResult alreadyInCompletedStateError(long id) {
+    static TransferOperationResult alreadyInCompletedStateError(String id) {
         return error(Operation.RESUME, id,
             new TransferInTerminatedStateError(id, TransferInTerminatedStateError.State.COMPLETED));
     }
@@ -95,7 +95,7 @@ final class TransferOperationResult {
      * @param id the transfer id
      * @return {@link TransferOperationResult} composing the error
      */
-    static TransferOperationResult alreadyInFailedStateError(long id) {
+    static TransferOperationResult alreadyInFailedStateError(String id) {
         return error(Operation.RESUME, id,
             new TransferInTerminatedStateError(id, TransferInTerminatedStateError.State.FAILED));
     }
@@ -107,7 +107,7 @@ final class TransferOperationResult {
      * @param id the transfer id
      * @return {@link TransferOperationResult} composing the error
      */
-    static TransferOperationResult alreadyInCancelledStateError(long id) {
+    static TransferOperationResult alreadyInCancelledStateError(String id) {
         return error(Operation.RESUME, id,
             new TransferInTerminatedStateError(id, TransferInTerminatedStateError.State.CANCELED));
     }
@@ -126,7 +126,7 @@ final class TransferOperationResult {
      *
      * @return the transfer id
      */
-    long getId() {
+    String getId() {
         return this.id;
     }
 
@@ -194,7 +194,7 @@ final class TransferOperationResult {
      * @param error the error happened in a TransferClient operation
      * @return {@link TransferOperationResult} composing an error
      */
-    private static TransferOperationResult error(@NonNull @Operation int operation, long id, @NonNull Throwable error) {
+    private static TransferOperationResult error(@NonNull @Operation int operation, String id, @NonNull Throwable error) {
         return new TransferOperationResult(operation, id, error);
     }
 
@@ -205,7 +205,7 @@ final class TransferOperationResult {
      * @param id the transfer id of a transfer
      * @param error the error happened during book keeping
      */
-    private TransferOperationResult(@NonNull @Operation int operation, long id, Throwable error) {
+    private TransferOperationResult(@NonNull @Operation int operation, String id, Throwable error) {
         this.operation = operation;
         this.id = id;
         this.error = error;
@@ -225,14 +225,14 @@ final class TransferOperationResult {
      * An internal exception indicating that a provided id is not identifying a transfer.
      */
     static class TransferNotFoundError extends Throwable {
-        private final long id;
+        private final String id;
 
         /**
          * Creates TransferNotFoundError.
          *
          * @param id the id that failed to resolve to a valid transfer
          */
-        private TransferNotFoundError(long id) {
+        private TransferNotFoundError(String id) {
             super("Transfer with id '" + id + "' is not found.");
             this.id = id;
         }
@@ -240,7 +240,7 @@ final class TransferOperationResult {
         /**
          * @return the id
          */
-        long getId() {
+        String getId() {
             return this.id;
         }
     }
@@ -251,17 +251,17 @@ final class TransferOperationResult {
      */
     static class TransferInTerminatedStateError extends Throwable {
         // the transfer id.
-        private final long transferId;
+        private final String transferId;
         // the terminal state the transfer is in.
         private final @State int state;
 
-        private TransferInTerminatedStateError(long transferId, @NonNull @State int state) {
+        private TransferInTerminatedStateError(String transferId, @NonNull @State int state) {
             super("Transfer with id '" + transferId + "' is already in terminated stage.");
             this.transferId = transferId;
             this.state = state;
         }
 
-        long getTransferId() {
+        String getTransferId() {
             return this.transferId;
         }
 

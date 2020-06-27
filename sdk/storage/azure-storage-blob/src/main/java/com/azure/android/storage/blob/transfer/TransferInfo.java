@@ -23,7 +23,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class TransferInfo {
     // the transfer id.
-    private final long id;
+    private final String id;
     // the transfer state.
     private final @State int state;
     // the transfer progress.
@@ -37,7 +37,7 @@ public final class TransferInfo {
      * @param id The transfer id.
      * @param state The transfer state.
      */
-    private TransferInfo(long id, @State int state) {
+    private TransferInfo(String id, @State int state) {
         this.id = id;
         this.state = state;
         this.progress = null;
@@ -50,7 +50,7 @@ public final class TransferInfo {
      * @param id The transfer id.
      * @param progress The transfer progress description.
      */
-    private TransferInfo(long id, @NonNull Progress progress) {
+    private TransferInfo(String id, @NonNull Progress progress) {
         this.id = id;
         this.state = State.RECEIVED_PROGRESS;
         this.progress = progress;
@@ -63,7 +63,7 @@ public final class TransferInfo {
      * @param id The transfer id.
      * @param errorMessage The string describing transfer failure reason.
      */
-    private TransferInfo(long id, String errorMessage) {
+    private TransferInfo(String id, String errorMessage) {
         this.id = id;
         this.state = State.FAILED;
         this.progress = null;
@@ -76,7 +76,7 @@ public final class TransferInfo {
      * @param transferId The transfer id.
      * @return {@link TransferInfo}.
      */
-    static TransferInfo createStarted(long transferId) {
+    static TransferInfo createStarted(String transferId) {
         return new TransferInfo(transferId, State.STARTED);
     }
 
@@ -87,7 +87,7 @@ public final class TransferInfo {
      * @param transferId The transfer id.
      * @return {@link TransferInfo}.
      */
-    static TransferInfo createResumed(long transferId) {
+    static TransferInfo createResumed(String transferId) {
         return new TransferInfo(transferId, State.RESUMED);
     }
 
@@ -98,7 +98,7 @@ public final class TransferInfo {
      * @param progress The progress description.
      * @return {@link TransferInfo}.
      */
-    static TransferInfo createProgress(long transferId, @NonNull Progress progress) {
+    static TransferInfo createProgress(String transferId, @NonNull Progress progress) {
         return new TransferInfo(transferId, progress);
     }
 
@@ -108,7 +108,7 @@ public final class TransferInfo {
      * @param transferId The transfer id.
      * @return {@link TransferInfo}.
      */
-    static TransferInfo createSystemPaused(long transferId) {
+    static TransferInfo createSystemPaused(String transferId) {
         return new TransferInfo(transferId, State.SYSTEM_PAUSED);
     }
 
@@ -118,7 +118,7 @@ public final class TransferInfo {
      * @param transferId The transfer id.
      * @return {@link TransferInfo}.
      */
-    static TransferInfo createUserPaused(long transferId) {
+    static TransferInfo createUserPaused(String transferId) {
         return new TransferInfo(transferId, State.USER_PAUSED);
     }
 
@@ -128,7 +128,7 @@ public final class TransferInfo {
      * @param transferId the transfer id
      * @return {@link TransferInfo}
      */
-    static TransferInfo createCompleted(long transferId) {
+    static TransferInfo createCompleted(String transferId) {
         return new TransferInfo(transferId, State.COMPLETED);
     }
 
@@ -139,7 +139,7 @@ public final class TransferInfo {
      * @param errorMessage The string describing transfer failure reason.
      * @return {@link TransferInfo}.
      */
-    static TransferInfo createFailed(long transferId, String errorMessage) {
+    static TransferInfo createFailed(String transferId, String errorMessage) {
         return new TransferInfo(transferId, errorMessage);
     }
 
@@ -149,7 +149,7 @@ public final class TransferInfo {
      * @param transferId The transfer id.
      * @return {@link TransferInfo}.
      */
-    static TransferInfo createCancelled(long transferId) {
+    static TransferInfo createCancelled(String transferId) {
         return new TransferInfo(transferId, State.CANCELLED);
     }
 
@@ -158,7 +158,7 @@ public final class TransferInfo {
      *
      * @return The transfer id.
      */
-    public long getId() {
+    public String getId() {
         return this.id;
     }
 
