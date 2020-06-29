@@ -20,7 +20,9 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.impl.WorkManagerImpl;
 
+import com.azure.android.core.http.ServiceCallTask;
 import com.azure.android.storage.blob.StorageBlobClient;
+import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 
 import java.util.List;
 import java.util.Map;
@@ -97,7 +99,7 @@ public final class TransferClient {
      * @param uploadRequest Describes the upload request.
      * @return The {@link TransferTask} representing the upload transfer.
      */
-    public TransferTask upload(UploadRequest uploadRequest) {
+    public LiveData<TransferInfo> upload(String transferId, UploadRequest uploadRequest) {
         final ReadableContent readableContent = uploadRequest.getReadableContent();
         final MutableLiveData<TransferOperationResult> transferOpResultLiveData = new MutableLiveData<>();
         try {
@@ -106,11 +108,8 @@ public final class TransferClient {
         } catch (Throwable e) {
             transferOpResultLiveData
                 .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, e));
-            return new TransferTask(this,
-                null,
-                toCachedTransferInfoLiveData(transferOpResultLiveData, false));
+            return toCachedTransferInfoLiveData(transferOpResultLiveData, false);
         }
-        final String transferId = UUID.randomUUID().toString();
         this.serialTaskExecutor.execute(() -> {
             try {
                 if (!TransferClient.STORAGE_BLOB_CLIENTS.contains(uploadRequest.getStorageClientId())) {
@@ -153,9 +152,7 @@ public final class TransferClient {
             }
         });
         // UI_Thread
-        return new TransferTask(this,
-            transferId,
-            toCachedTransferInfoLiveData(transferOpResultLiveData, false));
+        return toCachedTransferInfoLiveData(transferOpResultLiveData, false);
     }
 
     /**
@@ -164,7 +161,7 @@ public final class TransferClient {
      * @param downloadRequest Describes the download request.
      * @return The {@link TransferTask} representing the download transfer.
      */
-    public TransferTask download(DownloadRequest downloadRequest) {
+    public LiveData<TransferInfo> download(String transferId, DownloadRequest downloadRequest) {
         final WritableContent writableContent = downloadRequest.getWritableContent();
         final MutableLiveData<TransferOperationResult> transferOpResultLiveData = new MutableLiveData<>();
         try {
@@ -173,11 +170,8 @@ public final class TransferClient {
         } catch (Throwable e) {
             transferOpResultLiveData
                 .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, e));
-            return new TransferTask(this,
-                null,
-                toCachedTransferInfoLiveData(transferOpResultLiveData, false));
+            return toCachedTransferInfoLiveData(transferOpResultLiveData, false);
         }
-        final String transferId = UUID.randomUUID().toString();
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
@@ -189,7 +183,12 @@ public final class TransferClient {
                     return;
                 }
 
-                long blobSize = blobClient.getBlobProperties(downloadRequest.getContainerName(), downloadRequest.getBlobName()).getContentLength();
+                ServiceCallTask<BlobGetPropertiesHeaders> task
+                    = blobClient.getBlobProperties(downloadRequest.getContainerName(), downloadRequest.getBlobName());
+                BlobGetPropertiesHeaders blobHeaders = task.execute();
+
+                long blobSize = blobHeaders.getContentLength();
+
                 BlobDownloadEntity blob = new BlobDownloadEntity(downloadRequest.getStorageClientId(),
                     transferId,
                     downloadRequest.getContainerName(),
@@ -228,9 +227,7 @@ public final class TransferClient {
         });
 
         // UI_Thread
-        return new TransferTask(this,
-            transferId,
-            toCachedTransferInfoLiveData(transferOpResultLiveData, false));
+        return toCachedTransferInfoLiveData(transferOpResultLiveData, false);
     }
 
     /**
@@ -280,7 +277,7 @@ public final class TransferClient {
      * @param transferId The transfer id identifies the transfer to resume.
      * @return The {@link TransferTask} representing the resumed transfer.
      */
-    public TransferTask resume(String transferId) {
+    public LiveData<TransferInfo> resume(String transferId) {
         // UI_Thread
         final MutableLiveData<TransferOperationResult> transferOpResultLiveData = new MutableLiveData<>();
         this.serialTaskExecutor.execute(() -> {
@@ -332,9 +329,7 @@ public final class TransferClient {
             }
         });
         // UI_Thread
-        return new TransferTask(this,
-            transferId,
-            toCachedTransferInfoLiveData(transferOpResultLiveData, true));
+        return toCachedTransferInfoLiveData(transferOpResultLiveData, true);
     }
 
     /**

@@ -290,7 +290,7 @@ final class DownloadHandler extends Handler {
 
             Log.v(TAG, "downloadBlob(): Downloading block: " + block.blockId + getThreadName());
 
-            ServiceCallTask<BlobDownloadResponse> task = blobClient.rawDownloadWithRestResponseAsync(blob.containerName,
+            ServiceCallTask<BlobDownloadResponse> task = blobClient.rawDownloadWithRestResponse(blob.containerName,
                 blob.blobName,
                 null,
                 null,
@@ -302,7 +302,7 @@ final class DownloadHandler extends Handler {
                 null,
                 null);
 
-            task.addCallback(new com.azure.android.core.http.Callback<BlobDownloadResponse>() {
+            task.enqueue(new com.azure.android.core.http.Callback<BlobDownloadResponse>() {
                     @Override
                     public void onResponse(BlobDownloadResponse response) {
                         try {

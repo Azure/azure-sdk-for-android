@@ -53,7 +53,7 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
 
             try {
                 storageBlobClient.download(parent.getContext(), containerName, blobName, file)
-                    .getLiveData()
+                    .enqueue()
                     .observe((LifecycleOwner) parent.getContext(), new TransferObserver() {
                         @Override
                         public void onStart(String transferId) {

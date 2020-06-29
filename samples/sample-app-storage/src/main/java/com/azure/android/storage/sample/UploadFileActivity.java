@@ -118,7 +118,7 @@ public class UploadFileActivity extends AppCompatActivity {
 
         try {
             storageBlobClient.upload(getApplicationContext(), containerName, blobName, fileUri)
-                .getLiveData()
+                .enqueue()
                 .observe(this, new TransferObserver() {
                     @Override
                     public void onStart(String transferId) {

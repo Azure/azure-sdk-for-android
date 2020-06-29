@@ -297,13 +297,13 @@ final class UploadHandler extends Handler {
                 return;
             }
 
-            ServiceCallTask<Void> task = this.blobClient.stageBlockAsync(this.blob.containerName,
+            ServiceCallTask<Void> task = this.blobClient.stageBlock(this.blob.containerName,
                 this.blob.blobName,
                 block.blockId,
                 blockContent,
                 null);
 
-            task.addCallback(new com.azure.android.core.http.Callback<Void>() {
+            task.enqueue(new com.azure.android.core.http.Callback<Void>() {
                 @Override
                 public void onResponse(Void response) {
                     Log.v(TAG, "stageBlocks(): Block uploaded:" + block.blockId + threadName());
@@ -338,12 +338,12 @@ final class UploadHandler extends Handler {
 
         List<String> blockIds = this.db.uploadDao().getBlockIds(this.uploadId);
 
-       final ServiceCallTask<BlockBlobItem> task = this.blobClient.commitBlockListAsync(blob.containerName,
+       final ServiceCallTask<BlockBlobItem> task = this.blobClient.commitBlockList(blob.containerName,
             blob.blobName,
             blockIds,
             true);
 
-       task.addCallback(new com.azure.android.core.http.Callback<BlockBlobItem>() {
+       task.enqueue(new com.azure.android.core.http.Callback<BlockBlobItem>() {
            @Override
            public void onResponse(BlockBlobItem response) {
                Log.v(TAG, "commitBlocks(): Blocks committed." + threadName());

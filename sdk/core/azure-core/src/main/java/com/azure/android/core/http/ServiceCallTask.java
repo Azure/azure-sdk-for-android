@@ -5,7 +5,7 @@ package com.azure.android.core.http;
 
 import androidx.annotation.NonNull;
 
-import java.util.concurrent.Executor;
+import java.io.IOException;
 
 /**
  * Type representing handle to the service call.
@@ -15,7 +15,7 @@ public interface ServiceCallTask<T> {
 
     boolean isCanceled();
 
-    void addCallback(@NonNull Callback<T> callback, @NonNull Executor executor);
+    void enqueue(@NonNull Callback<T> callback);
 
-    void addCallback(@NonNull Callback<T> callback);
+    T execute() throws IOException;
 }

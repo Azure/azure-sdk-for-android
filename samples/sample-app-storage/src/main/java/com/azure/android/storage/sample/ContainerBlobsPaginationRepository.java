@@ -60,11 +60,11 @@ final class ContainerBlobsPaginationRepository
                 if (pageSize != null && pageSize > 0) {
                     options.setMaxResultsPerPage(pageSize);
                 }
-                ServiceCallTask<ContainersListBlobFlatSegmentResponse> task = storageBlobClient.getBlobsInPageWithRestResponseAsync(pageIdentifier, containerName, options.getPrefix(),
+                ServiceCallTask<ContainersListBlobFlatSegmentResponse> task = storageBlobClient.getBlobsInPageWithRestResponse(pageIdentifier, containerName, options.getPrefix(),
                         options.getMaxResultsPerPage(), options.getDetails().toList(),
                         null, null);
 
-                task.addCallback(new Callback<ContainersListBlobFlatSegmentResponse>() {
+                task.enqueue(new Callback<ContainersListBlobFlatSegmentResponse>() {
                     @Override
                     public void onResponse(ContainersListBlobFlatSegmentResponse response) {
                         List<BlobItem> value = response.getValue().getSegment() == null
