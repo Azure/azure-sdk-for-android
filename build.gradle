@@ -8,7 +8,7 @@ buildscript {
 
     ext {
         androidBuildToolsVersion = "29.0.3"
-        androidGradlePluginVersion = "3.6.3"
+        androidGradlePluginVersion = "4.0.0"
     }
 
     dependencies {
