@@ -1,2 +1,3 @@
 variables:
+    OSVmImage: 'ubuntu-20.04'
     DocWardenVersion: '0.4.2'

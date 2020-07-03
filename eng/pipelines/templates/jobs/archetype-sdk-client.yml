@@ -9,15 +9,14 @@ jobs:
       - template: ../variables/globals.yml
 
     pool:
-      vmImage: 'ubuntu-18.04'
+      vmImage: '$(OSVmImage)'
 
     steps:
       - script: sudo chmod -R go+w $ANDROID_HOME
         displayName: Make Android SDK directory writable
-      - task: Gradle@2
-        inputs:
-          tasks: 'sdk:${{parameters.ServiceDirectory}}:publish'
-          publishJUnitResults: false
+      
+      - script: |
+          ./gradlew sdk:${{parameters.ServiceDirectory}}:publish
         displayName: Build and publish
 
       - ${{ each artifact in parameters.Artifacts }}:
@@ -29,7 +28,7 @@ jobs:
 
       - publish: $(Build.ArtifactStagingDirectory)
         artifact: packages
-        displayName: Upload artifacts
+        displayName: Publish packages
 
   - job: 'Analyze'
 
@@ -37,16 +36,61 @@ jobs:
       - template: ../variables/globals.yml
 
     pool:
-      vmImage: 'ubuntu-18.04'
+      vmImage: '$(OSVmImage)'
 
     steps:
       - script: sudo chmod -R go+w $ANDROID_HOME
         displayName: Make Android SDK directory writable
+
+      - script: |
+          ./gradlew sdk:${{parameters.ServiceDirectory}}:lintDebug
+        displayName: Lint sources
+
       - task: Gradle@2
         inputs:
-          tasks: 'sdk:${{parameters.ServiceDirectory}}:build'
+          tasks: 'sdk:${{parameters.ServiceDirectory}}:assembleDebug'
           publishJUnitResults: false
           checkStyleRunAnalysis: true
-          findBugsRunAnalysis: false # Install findbugs plugin before enabling
+          findBugsRunAnalysis: false
           pmdRunAnalysis: true
         displayName: Build and analyze
+
+      - ${{ each artifact in parameters.Artifacts }}:
+        - script: |
+            mkdir -p $(Build.ArtifactStagingDirectory)/lint
+            cp sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/reports/lint-results-debug.html \
+               $(Build.ArtifactStagingDirectory)/lint/${{artifact.name}}-results-debug.html
+          displayName: Stage reports for ${{artifact.name}}
+
+      - publish: $(Build.ArtifactStagingDirectory)
+        artifact: reports
+        displayName: Publish reports
+
+  - job: 'UnitTest'
+
+    variables:
+      - template: ../variables/globals.yml
+
+    pool:
+      vmImage: '$(OSVmImage)'
+
+    steps:
+      - script: sudo chmod -R go+w $ANDROID_HOME
+        displayName: Make Android SDK directory writable
+
+      - script: |
+          ./gradlew sdk:${{parameters.ServiceDirectory}}:testDebugUnitTest
+        displayName: Build and test
+
+      - ${{ each artifact in parameters.Artifacts }}:
+        - script: |
+            cp sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/test-results/testDebugUnitTest/*.xml \
+               $(Build.ArtifactStagingDirectory)/
+          displayName: Stage test results for ${{artifact.name}}
+
+      - task: PublishTestResults@2
+        inputs:
+          searchFolder: '$(Build.ArtifactStagingDirectory)'
+          testResultsFiles: '*.xml'
+          testRunTitle: 'Unit Tests'
+        displayName: 'Publish unit test results'
