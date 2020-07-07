@@ -14,7 +14,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.storage.blob.StorageBlobClient;
+import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobRange;
 
@@ -52,7 +52,7 @@ final class DownloadHandler extends Handler {
     private BlockDownloadRecordsEnumerator blocksItr;
     // The content in the device to store the downloaded blob.
     private WritableContent content;
-    private StorageBlobClient blobClient;
+    private StorageBlobAsyncClient blobClient;
 
     /**
      * Creates and initializes a {@link DownloadHandler}.

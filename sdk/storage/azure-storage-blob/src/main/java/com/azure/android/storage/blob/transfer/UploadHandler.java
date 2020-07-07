@@ -14,7 +14,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.storage.blob.StorageBlobClient;
+import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 
@@ -54,7 +54,7 @@ final class UploadHandler extends Handler {
     private BlockUploadRecordsEnumerator blocksItr;
     //  The content in the device representing the data to be read and uploaded.
     private ReadableContent content;
-    private StorageBlobClient blobClient;
+    private StorageBlobAsyncClient blobClient;
 
     /**
      * Create and initializes {@link UploadHandler}.

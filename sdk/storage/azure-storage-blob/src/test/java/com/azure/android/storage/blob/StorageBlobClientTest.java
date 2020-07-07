@@ -39,7 +39,7 @@ import static org.junit.Assert.assertNull;
 public class StorageBlobClientTest {
     private static final MockWebServer mockWebServer = new MockWebServer();
     private static final String BASE_URL = mockWebServer.url("/").toString();
-    private static StorageBlobClient storageBlobClient = new StorageBlobClient.Builder("client.test.1",
+    private static StorageBlobAsyncClient storageBlobAsyncClient = new StorageBlobAsyncClient.Builder("client.test.1",
         new ServiceClient.Builder()
             .setBaseUrl(BASE_URL)
             .setSerializationFormat(SerializerFormat.XML))
@@ -56,15 +56,15 @@ public class StorageBlobClientTest {
         // Given a StorageBlobClient.
 
         // When creating another client based on the first one.
-        StorageBlobClient otherStorageBlobClient = storageBlobClient.newBuilder("client.test.2").build();
+        StorageBlobAsyncClient otherStorageBlobAsyncClient = storageBlobAsyncClient.newBuilder("client.test.2").build();
 
         // Then the new client will contain the same properties as the original.
-        assertEquals(storageBlobClient.getBlobServiceUrl(), otherStorageBlobClient.getBlobServiceUrl());
+        assertEquals(storageBlobAsyncClient.getBlobServiceUrl(), otherStorageBlobAsyncClient.getBlobServiceUrl());
     }
 
     @Test
     public void getBlobServiceUrl() {
-        assertEquals(storageBlobClient.getBlobServiceUrl(), BASE_URL);
+        assertEquals(storageBlobAsyncClient.getBlobServiceUrl(), BASE_URL);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        List<BlobItem> blobItems = storageBlobClient.getBlobsInPage(null,
+        List<BlobItem> blobItems = storageBlobAsyncClient.getBlobsInPage(null,
             "testContainer",
             null);
 
@@ -105,7 +105,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobClient.getBlobsInPage(null,
+        storageBlobAsyncClient.getBlobsInPage(null,
             "testContainer",
             null,
             new Callback<List<BlobItem>>() {
@@ -148,7 +148,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         ContainersListBlobFlatSegmentResponse response =
-            storageBlobClient.getBlobsInPageWithRestResponse(null,
+            storageBlobAsyncClient.getBlobsInPageWithRestResponse(null,
                 "testContainer",
                 null,
                 null,
@@ -184,7 +184,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobClient.getBlobsInPageWithRestResponse(null,
+        storageBlobAsyncClient.getBlobsInPageWithRestResponse(null,
             "testContainer",
             null,
             null,
@@ -235,7 +235,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then an object with the blob properties will be returned by the client.
-        BlobGetPropertiesHeaders blobGetPropertiesHeaders = storageBlobClient.getBlobProperties("container",
+        BlobGetPropertiesHeaders blobGetPropertiesHeaders = storageBlobAsyncClient.getBlobProperties("container",
             "blob");
 
         assertEquals("application/text", blobGetPropertiesHeaders.getContentType());
@@ -254,7 +254,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobClient.getBlobProperties("container",
+        storageBlobAsyncClient.getBlobProperties("container",
             "blob",
             new Callback<BlobGetPropertiesHeaders>() {
                 @Override
@@ -294,7 +294,7 @@ public class StorageBlobClientTest {
         // Then the client will return an object that contains both the details of the REST response and
         // a an object with the blob properties.
         BlobGetPropertiesResponse response =
-            storageBlobClient.getBlobPropertiesWithRestResponse("container",
+            storageBlobAsyncClient.getBlobPropertiesWithRestResponse("container",
                 "blob",
                 null,
                 null,
@@ -321,7 +321,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobClient.getBlobPropertiesWithRestResponse("container",
+        storageBlobAsyncClient.getBlobPropertiesWithRestResponse("container",
             "blob",
             null,
             null,
@@ -367,7 +367,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then an object with the blob's contents will be returned by the client.
-        ResponseBody response = storageBlobClient.rawDownload("testContainer",
+        ResponseBody response = storageBlobAsyncClient.rawDownload("testContainer",
             "testBlob");
 
         assertEquals("testBody", response.string());
@@ -386,7 +386,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobClient.rawDownload("testContainer",
+        storageBlobAsyncClient.rawDownload("testContainer",
             "testBlob",
             new Callback<ResponseBody>() {
                 @Override
@@ -427,7 +427,7 @@ public class StorageBlobClientTest {
 
         // Then an object with the blob's contents will be returned by the client, including its properties and
         // details from the REST response.
-        BlobDownloadResponse response = storageBlobClient.rawDownloadWithRestResponse("testContainer",
+        BlobDownloadResponse response = storageBlobAsyncClient.rawDownloadWithRestResponse("testContainer",
             "testBlob",
             null,
             null,
@@ -458,7 +458,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobClient.rawDownloadWithRestResponse("testContainer",
+        storageBlobAsyncClient.rawDownloadWithRestResponse("testContainer",
             "testBlob",
             null,
             null,
@@ -509,7 +509,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response without body and status code 201 will be returned by the server.
-        Void response = storageBlobClient.stageBlock("testContainer",
+        Void response = storageBlobAsyncClient.stageBlock("testContainer",
             "testBlob",
             null,
             new byte[0],
@@ -530,7 +530,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobClient.stageBlock("testContainer",
+        storageBlobAsyncClient.stageBlock("testContainer",
             "testBlob",
             null,
             new byte[0],
@@ -570,7 +570,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response without body and status code 201 will be returned by the server.
-        BlockBlobsStageBlockResponse response = storageBlobClient.stageBlockWithRestResponse("testContainer",
+        BlockBlobsStageBlockResponse response = storageBlobAsyncClient.stageBlockWithRestResponse("testContainer",
             "testBlob",
             null,
             new byte[0],
@@ -597,7 +597,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobClient.stageBlockWithRestResponse("testContainer",
+        storageBlobAsyncClient.stageBlockWithRestResponse("testContainer",
             "testBlob",
             null,
             new byte[0],
@@ -646,7 +646,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response with the blob's details and status code 201 will be returned by the server.
-        BlockBlobItem response = storageBlobClient.commitBlockList("testContainer",
+        BlockBlobItem response = storageBlobAsyncClient.commitBlockList("testContainer",
             "testBlob",
             null,
             true);
@@ -670,7 +670,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobClient.commitBlockList("testContainer",
+        storageBlobAsyncClient.commitBlockList("testContainer",
             "testBlob",
             null,
             true, new Callback<BlockBlobItem>() {
@@ -713,7 +713,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response with the blob's details and status code 201 will be returned by the server.
-        BlockBlobsCommitBlockListResponse response = storageBlobClient.commitBlockListWithRestResponse("testContainer",
+        BlockBlobsCommitBlockListResponse response = storageBlobAsyncClient.commitBlockListWithRestResponse("testContainer",
             "testBlob",
             null,
             null,
@@ -747,7 +747,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobClient.commitBlockListWithRestResponse("testContainer",
+        storageBlobAsyncClient.commitBlockListWithRestResponse("testContainer",
             "testBlob",
             null,
             null,
@@ -796,7 +796,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response without body and status code 202 will be returned by the server.
-        Void response = storageBlobClient.delete("container",
+        Void response = storageBlobAsyncClient.delete("container",
             "blob");
 
         assertNull(response);
@@ -814,7 +814,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobClient.delete("container",
+        storageBlobAsyncClient.delete("container",
             "blob",
             new Callback<Void>() {
                 @Override
@@ -852,7 +852,7 @@ public class StorageBlobClientTest {
 
         // Then a response without body and status code 202 will be returned by the server.
         BlobDeleteResponse response =
-            storageBlobClient.deleteWithResponse("container",
+            storageBlobAsyncClient.deleteWithResponse("container",
                 "blob",
                 null,
                 null,
@@ -882,7 +882,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobClient.deleteWithResponse("container",
+        storageBlobAsyncClient.deleteWithResponse("container",
             "blob",
             null,
             null,

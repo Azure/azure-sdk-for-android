@@ -18,7 +18,7 @@ import androidx.core.content.FileProvider;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.azure.android.storage.blob.StorageBlobClient;
+import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.sample.config.StorageConfiguration;
 
@@ -33,7 +33,7 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
         this.blobName = itemView.findViewById(R.id.blob_name);
     }
 
-    public static BlobItemViewHolder create(ViewGroup parent, StorageBlobClient storageBlobClient) {
+    public static BlobItemViewHolder create(ViewGroup parent, StorageBlobAsyncClient storageBlobAsyncClient) {
         StorageConfiguration storageConfiguration = StorageConfiguration.create(parent.getContext());
         View blobItemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.blob_item, parent, false);
 
@@ -52,7 +52,7 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
             File file = new File(path, blobName);
 
             try {
-                storageBlobClient.download(parent.getContext(), containerName, blobName, file) // TODO:anuchan
+                storageBlobAsyncClient.download(parent.getContext(), containerName, blobName, file) // TODO:anuchan
                     .observe((LifecycleOwner) parent.getContext(), new TransferObserver() {
                         @Override
                         public void onStart(long transferId) {
@@ -61,7 +61,7 @@ public class BlobItemViewHolder extends RecyclerView.ViewHolder {
                             Button cancelButton = mainActivityView.findViewById(R.id.cancel_button);
 
                             cancelButton.setOnClickListener(v -> {
-                                storageBlobClient.cancel(parent.getContext(), transferId);
+                                storageBlobAsyncClient.cancel(parent.getContext(), transferId);
                                 hideProgress(mainActivityView);
                                 Toast.makeText(parent.getContext(), "Download cancelled", Toast.LENGTH_SHORT)
                                     .show();

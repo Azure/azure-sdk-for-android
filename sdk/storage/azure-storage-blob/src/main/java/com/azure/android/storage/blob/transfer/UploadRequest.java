@@ -26,7 +26,7 @@ public final class UploadRequest {
     /**
      * Create UploadRequest.
      *
-     * @param storageClientId Identifies the {@link com.azure.android.storage.blob.StorageBlobClient} for the upload.
+     * @param storageClientId Identifies the {@link com.azure.android.storage.blob.StorageBlobAsyncClient} for the upload.
      * @param containerName   The name of the container to upload the content to.
      * @param blobName        The name of the target blob holding the uploaded content.
      * @param readableContent The object describing the content in the device that needs to be uploaded.
@@ -47,7 +47,7 @@ public final class UploadRequest {
     /**
      * Get the unique identifier of the blob storage client to be used for the upload.
      *
-     * @return The unique identifier of the {@link com.azure.android.storage.blob.StorageBlobClient}.
+     * @return The unique identifier of the {@link com.azure.android.storage.blob.StorageBlobAsyncClient}.
      */
     String getStorageClientId() {
         return this.storageClientId;

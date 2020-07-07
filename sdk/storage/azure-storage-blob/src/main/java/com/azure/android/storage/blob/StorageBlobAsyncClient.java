@@ -56,15 +56,15 @@ import okhttp3.ResponseBody;
  * Client for Storage Blob service.
  *
  * <p>
- * This client is instantiated through {@link StorageBlobClient.Builder}.
+ * This client is instantiated through {@link StorageBlobAsyncClient.Builder}.
  */
-public class StorageBlobClient {
+public class StorageBlobAsyncClient {
     private final String id;
     private final ServiceClient serviceClient;
     private final StorageBlobServiceImpl storageBlobServiceClient;
     private final Constraints transferConstraints;
 
-    private StorageBlobClient(String id, ServiceClient serviceClient, Constraints transferConstraints) {
+    private StorageBlobAsyncClient(String id, ServiceClient serviceClient, Constraints transferConstraints) {
         this.id = id;
         this.serviceClient = serviceClient;
         this.storageBlobServiceClient = new StorageBlobServiceImpl(this.serviceClient);
@@ -72,16 +72,16 @@ public class StorageBlobClient {
     }
 
     /**
-     * Creates a new {@link Builder} with initial configuration copied from this {@link StorageBlobClient}.
+     * Creates a new {@link Builder} with initial configuration copied from this {@link StorageBlobAsyncClient}.
      *
-     * @param storageBlobClientId The unique ID for the new {@link StorageBlobClient}. This identifier is used to
-     *                            associate the {@link StorageBlobClient} with the upload and download transfers it
+     * @param storageBlobClientId The unique ID for the new {@link StorageBlobAsyncClient}. This identifier is used to
+     *                            associate the {@link StorageBlobAsyncClient} with the upload and download transfers it
      *                            initiates. When a transfer is reloaded from disk (e.g. after an application crash),
      *                            it can only be resumed once a client with the same storageBlobClientId has been
      *                            initialized.
      * @return A new {@link Builder}.
      */
-    public StorageBlobClient.Builder newBuilder(String storageBlobClientId) {
+    public StorageBlobAsyncClient.Builder newBuilder(String storageBlobClientId) {
         return new Builder(storageBlobClientId, this);
     }
 
@@ -453,8 +453,8 @@ public class StorageBlobClient {
      *
      * <p>
      * This method will execute a raw HTTP GET in order to download a single blob to the destination.
-     * It is **STRONGLY** recommended that you use the {@link StorageBlobClient#download(Context, String, String, File)}
-     * or {@link StorageBlobClient#download(Context, String, String, Uri)} method instead - that method will
+     * It is **STRONGLY** recommended that you use the {@link StorageBlobAsyncClient#download(Context, String, String, File)}
+     * or {@link StorageBlobAsyncClient#download(Context, String, String, Uri)} method instead - that method will
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
      *`
@@ -473,8 +473,8 @@ public class StorageBlobClient {
      *
      * <p>
      * This method will execute a raw HTTP GET in order to download a single blob to the destination.
-     * It is **STRONGLY** recommended that you use the {@link StorageBlobClient#download(Context, String, String, File)}
-     * or {@link StorageBlobClient#download(Context, String, String, Uri)} method instead - that method will
+     * It is **STRONGLY** recommended that you use the {@link StorageBlobAsyncClient#download(Context, String, String, File)}
+     * or {@link StorageBlobAsyncClient#download(Context, String, String, Uri)} method instead - that method will
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
      *
@@ -495,8 +495,8 @@ public class StorageBlobClient {
      *
      * <p>
      * This method will execute a raw HTTP GET in order to download a single blob to the destination.
-     * It is **STRONGLY** recommended that you use the {@link StorageBlobClient#download(Context, String, String, File)}
-     * or {@link StorageBlobClient#download(Context, String, String, Uri)} method instead - that method will
+     * It is **STRONGLY** recommended that you use the {@link StorageBlobAsyncClient#download(Context, String, String, File)}
+     * or {@link StorageBlobAsyncClient#download(Context, String, String, Uri)} method instead - that method will
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
      *
@@ -560,8 +560,8 @@ public class StorageBlobClient {
      *
      * <p>
      * This method will execute a raw HTTP GET in order to download a single blob to the destination.
-     * It is **STRONGLY** recommended that you use the {@link StorageBlobClient#download(Context, String, String, File)}
-     * or {@link StorageBlobClient#download(Context, String, String, Uri)} method instead - that method will
+     * It is **STRONGLY** recommended that you use the {@link StorageBlobAsyncClient#download(Context, String, String, File)}
+     * or {@link StorageBlobAsyncClient#download(Context, String, String, Uri)} method instead - that method will
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
      *
@@ -763,7 +763,7 @@ public class StorageBlobClient {
     /**
      * The Commit Block List operation writes a blob by specifying the list of block IDs that make up the blob.
      * For a block to be written as part of a blob, the block must have been successfully written to the server in a prior
-     * {@link StorageBlobClient#stageBlock(String, String, String, byte[], byte[])} operation. You can call commit Block List
+     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[])} operation. You can call commit Block List
      * to update a blob by uploading only those blocks that have changed, then committing the new and existing blocks together.
      * You can do this by specifying whether to commit a block from the committed block list or from the uncommitted block list,
      * or to commit the most recently uploaded version of the block, whichever list it may belong to.
@@ -787,7 +787,7 @@ public class StorageBlobClient {
     /**
      * The Commit Block List operation writes a blob by specifying the list of block IDs that make up the blob.
      * For a block to be written as part of a blob, the block must have been successfully written to the server in a prior
-     * {@link StorageBlobClient#stageBlock(String, String, String, byte[], byte[])} operation. You can call commit Block List
+     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[])} operation. You can call commit Block List
      * to update a blob by uploading only those blocks that have changed, then committing the new and existing blocks together.
      * You can do this by specifying whether to commit a block from the committed block list or from the uncommitted block list,
      * or to commit the most recently uploaded version of the block, whichever list it may belong to.
@@ -814,7 +814,7 @@ public class StorageBlobClient {
     /**
      * The Commit Block List operation writes a blob by specifying the list of block IDs that make up the blob.
      * For a block to be written as part of a blob, the block must have been successfully written to the server in a prior
-     * {@link StorageBlobClient#stageBlock(String, String, String, byte[], byte[])} operation. You can call commit Block List
+     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[])} operation. You can call commit Block List
      * to update a blob by uploading only those blocks that have changed, then committing the new and existing blocks together.
      * You can do this by specifying whether to commit a block from the committed block list or from the uncommitted block list,
      * or to commit the most recently uploaded version of the block, whichever list it may belong to.
@@ -867,7 +867,7 @@ public class StorageBlobClient {
     /**
      * The Commit Block List operation writes a blob by specifying the list of block IDs that make up the blob.
      * For a block to be written as part of a blob, the block must have been successfully written to the server in a prior
-     * {@link StorageBlobClient#stageBlock(String, String, String, byte[], byte[])} operation. You can call commit Block List
+     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[])} operation. You can call commit Block List
      * to update a blob by uploading only those blocks that have changed, then committing the new and existing blocks together.
      * You can do this by specifying whether to commit a block from the committed block list or from the uncommitted block list,
      * or to commit the most recently uploaded version of the block, whichever list it may belong to.
@@ -1085,8 +1085,8 @@ public class StorageBlobClient {
     }
 
     /**
-     * Builder for {@link StorageBlobClient}.
-     * A builder to configure and build a {@link StorageBlobClient}.
+     * Builder for {@link StorageBlobAsyncClient}.
+     * A builder to configure and build a {@link StorageBlobAsyncClient}.
      */
     public static class Builder {
         private final String storageBlobClientId;
@@ -1101,8 +1101,8 @@ public class StorageBlobClient {
         /**
          * Creates a {@link Builder}.
          *
-         * @param storageBlobClientId The unique ID for the {@link StorageBlobClient} this builder builds. This
-         *                            identifier is used to associate this {@link StorageBlobClient} with the upload and
+         * @param storageBlobClientId The unique ID for the {@link StorageBlobAsyncClient} this builder builds. This
+         *                            identifier is used to associate this {@link StorageBlobAsyncClient} with the upload and
          *                            download transfers it initiates. When a transfer is reloaded from disk (e.g.
          *                            after an application crash), it can only be resumed once a client with the same
          *                            storageBlobClientId has been initialized.
@@ -1116,17 +1116,17 @@ public class StorageBlobClient {
 
         /**
          * Creates a {@link Builder} that uses the provided {@link com.azure.android.core.http.ServiceClient.Builder}
-         * to build a {@link ServiceClient} for the {@link StorageBlobClient}.
+         * to build a {@link ServiceClient} for the {@link StorageBlobAsyncClient}.
          *
          * <p>
-         * The builder produced {@link ServiceClient} is used by the {@link StorageBlobClient} to make Rest API calls.
-         * Multiple {@link StorageBlobClient} instances can share the same {@link ServiceClient} instance, for e.g.
-         * when a new {@link StorageBlobClient} is created from an existing {@link StorageBlobClient} through
-         * {@link StorageBlobClient#newBuilder(String)} ()} then both shares the same {@link ServiceClient}.
+         * The builder produced {@link ServiceClient} is used by the {@link StorageBlobAsyncClient} to make Rest API calls.
+         * Multiple {@link StorageBlobAsyncClient} instances can share the same {@link ServiceClient} instance, for e.g.
+         * when a new {@link StorageBlobAsyncClient} is created from an existing {@link StorageBlobAsyncClient} through
+         * {@link StorageBlobAsyncClient#newBuilder(String)} ()} then both shares the same {@link ServiceClient}.
          * The {@link ServiceClient} composes HttpClient, HTTP settings (such as connection timeout, interceptors)
          * and Retrofit for Rest calls.
          *
-         * @param storageBlobClientId  The unique ID for the {@link StorageBlobClient} this builder builds.
+         * @param storageBlobClientId  The unique ID for the {@link StorageBlobAsyncClient} this builder builds.
          * @param serviceClientBuilder The {@link com.azure.android.core.http.ServiceClient.Builder}.
          */
         public Builder(String storageBlobClientId, ServiceClient.Builder serviceClientBuilder) {
@@ -1152,7 +1152,7 @@ public class StorageBlobClient {
         }
 
         /**
-         * Sets the base URL for the {@link StorageBlobClient}.
+         * Sets the base URL for the {@link StorageBlobAsyncClient}.
          *
          * @param blobServiceUrl The blob service base URL.
          * @return An updated {@link Builder} with the provided blob service URL set.
@@ -1244,28 +1244,28 @@ public class StorageBlobClient {
         }
 
         /**
-         * Builds a {@link StorageBlobClient} based on this {@link Builder}'s configuration.
+         * Builds a {@link StorageBlobAsyncClient} based on this {@link Builder}'s configuration.
          *
-         * @return A {@link StorageBlobClient}.
+         * @return A {@link StorageBlobAsyncClient}.
          */
-        public StorageBlobClient build() {
+        public StorageBlobAsyncClient build() {
             Constraints transferConstraints = this.transferConstraintsBuilder.build();
             NetworkType networkType = transferConstraints.getRequiredNetworkType();
             if (networkType == null || networkType == NetworkType.NOT_REQUIRED) {
                 throw new IllegalArgumentException(
                     "The null or NOT_REQUIRED NetworkType is not a valid transfer configuration.");
             }
-            StorageBlobClient client = new StorageBlobClient(this.storageBlobClientId,
+            StorageBlobAsyncClient client = new StorageBlobAsyncClient(this.storageBlobClientId,
                 this.serviceClientBuilder.build(),
                 transferConstraints);
             Builder.STORAGE_BLOB_CLIENTS.add(storageBlobClientId, client);
             return client;
         }
 
-        private Builder(String storageBlobClientId, final StorageBlobClient storageBlobClient) {
+        private Builder(String storageBlobClientId, final StorageBlobAsyncClient storageBlobAsyncClient) {
             this(storageBlobClientId,
-                storageBlobClient.serviceClient.newBuilder(),
-                newBuilder(storageBlobClient.transferConstraints));
+                storageBlobAsyncClient.serviceClient.newBuilder(),
+                newBuilder(storageBlobAsyncClient.transferConstraints));
         }
 
         private static androidx.work.Constraints.Builder newBuilder(androidx.work.Constraints constraints) {

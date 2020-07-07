@@ -20,7 +20,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.impl.WorkManagerImpl;
 
-import com.azure.android.storage.blob.StorageBlobClient;
+import com.azure.android.storage.blob.StorageBlobAsyncClient;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -168,7 +168,7 @@ public final class TransferClient {
         this.serialTaskExecutor.execute(() -> {
             // BG_Thread
             try {
-                StorageBlobClient blobClient = TransferClient.STORAGE_BLOB_CLIENTS.get(downloadRequest.getStorageClientId());
+                StorageBlobAsyncClient blobClient = TransferClient.STORAGE_BLOB_CLIENTS.get(downloadRequest.getStorageClientId());
                 if (blobClient == null) {
                     transferOpResultLiveData.postValue(TransferOperationResult
                         .unresolvedStorageClientIdError(TransferOperationResult.Operation.UPLOAD_DOWNLOAD,
