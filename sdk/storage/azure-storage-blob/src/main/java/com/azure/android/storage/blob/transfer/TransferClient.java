@@ -20,7 +20,9 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.impl.WorkManagerImpl;
 
+import com.azure.android.core.http.Callback;
 import com.azure.android.storage.blob.StorageBlobAsyncClient;
+import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -175,38 +177,49 @@ public final class TransferClient {
                             downloadRequest.getStorageClientId()));
                     return;
                 }
+                blobClient.getBlobProperties(downloadRequest.getContainerName(), downloadRequest.getBlobName(),
+                    new Callback<BlobGetPropertiesHeaders>() {
+                        @Override
+                        public void onResponse(BlobGetPropertiesHeaders response) {
+                            final long blobSize = response.getContentLength();
+                            BlobDownloadEntity blob = new BlobDownloadEntity(downloadRequest.getStorageClientId(),
+                                downloadRequest.getContainerName(),
+                                downloadRequest.getBlobName(),
+                                blobSize,
+                                writableContent,
+                                downloadRequest.getConstraints());
+                            List<BlockDownloadEntity> blocks
+                                = BlockDownloadEntity.createBlockEntities(blobSize, Constants.DEFAULT_BLOCK_SIZE);
+                            long transferId = db.downloadDao().createDownloadRecord(blob, blocks);
 
-                long blobSize = blobClient.getBlobProperties(downloadRequest.getContainerName(), downloadRequest.getBlobName()).getContentLength();
-                BlobDownloadEntity blob = new BlobDownloadEntity(downloadRequest.getStorageClientId(),
-                    downloadRequest.getContainerName(),
-                    downloadRequest.getBlobName(),
-                    blobSize,
-                    writableContent,
-                    downloadRequest.getConstraints());
-                List<BlockDownloadEntity> blocks
-                    = BlockDownloadEntity.createBlockEntities(blobSize, Constants.DEFAULT_BLOCK_SIZE);
-                long transferId = db.downloadDao().createDownloadRecord(blob, blocks);
+                            Log.v(TAG, "download(): Download record created: " + transferId);
 
-                Log.v(TAG, "download(): Download record created: " + transferId);
+                            Data inputData = new Data.Builder()
+                                .putLong(DownloadWorker.Constants.INPUT_BLOB_DOWNLOAD_ID_KEY, transferId)
+                                .build();
+                            OneTimeWorkRequest downloadWorkRequest = new OneTimeWorkRequest
+                                .Builder(DownloadWorker.class)
+                                .setConstraints(downloadRequest.getConstraints())
+                                .setInputData(inputData)
+                                .build();
 
-                Data inputData = new Data.Builder()
-                    .putLong(DownloadWorker.Constants.INPUT_BLOB_DOWNLOAD_ID_KEY, transferId)
-                    .build();
-                OneTimeWorkRequest downloadWorkRequest = new OneTimeWorkRequest
-                    .Builder(DownloadWorker.class)
-                    .setConstraints(downloadRequest.getConstraints())
-                    .setInputData(inputData)
-                    .build();
+                            Log.v(TAG, "download(): enqueuing DownloadWorker: " + transferId);
 
-                Log.v(TAG, "download(): enqueuing DownloadWorker: " + transferId);
+                            workManager
+                                .beginUniqueWork(toTransferUniqueWorkName(transferId),
+                                    ExistingWorkPolicy.KEEP,
+                                    downloadWorkRequest)
+                                .enqueue();
+                            transferOpResultLiveData
+                                .postValue(TransferOperationResult.id(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, transferId));
+                        }
 
-                workManager
-                    .beginUniqueWork(toTransferUniqueWorkName(transferId),
-                        ExistingWorkPolicy.KEEP,
-                        downloadWorkRequest)
-                    .enqueue();
-                transferOpResultLiveData
-                    .postValue(TransferOperationResult.id(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, transferId));
+                        @Override
+                        public void onFailure(Throwable throwable) {
+                            transferOpResultLiveData
+                                .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, throwable));
+                        }
+                    });
             } catch (Exception e) {
                 transferOpResultLiveData
                     .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, e));
