@@ -12,9 +12,6 @@ jobs:
       vmImage: '$(OSVmImage)'
 
     steps:
-      - script: sudo chmod -R go+w $ANDROID_HOME
-        displayName: Make Android SDK directory writable
-      
       - script: |
           ./gradlew sdk:${{parameters.ServiceDirectory}}:publish
         displayName: Build and publish
@@ -39,9 +36,6 @@ jobs:
       vmImage: '$(OSVmImage)'
 
     steps:
-      - script: sudo chmod -R go+w $ANDROID_HOME
-        displayName: Make Android SDK directory writable
-
       - script: |
           ./gradlew sdk:${{parameters.ServiceDirectory}}:lintDebug
         displayName: Lint sources
@@ -75,9 +69,6 @@ jobs:
       vmImage: '$(OSVmImage)'
 
     steps:
-      - script: sudo chmod -R go+w $ANDROID_HOME
-        displayName: Make Android SDK directory writable
-
       - script: |
           ./gradlew sdk:${{parameters.ServiceDirectory}}:jacocoTestReportDebug
         displayName: Build and test
