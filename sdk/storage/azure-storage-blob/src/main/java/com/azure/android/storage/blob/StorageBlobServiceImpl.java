@@ -6,11 +6,12 @@ package com.azure.android.storage.blob;
 import androidx.annotation.NonNull;
 
 import com.azure.android.core.http.Callback;
-import com.azure.android.core.http.ServiceCall;
 import com.azure.android.core.http.ServiceClient;
+import com.azure.android.core.internal.util.CancellationTokenImpl;
 import com.azure.android.core.internal.util.serializer.SerializerAdapter;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.Base64Util;
+import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.DateTimeRfc1123;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
@@ -85,26 +86,28 @@ final class StorageBlobServiceImpl {
             options.getMaxResultsPerPage(),
             options.getDetails().toList(),
             null,
-            null);
+            null,
+            CancellationToken.NONE);
 
         return response.getValue().getSegment() == null
             ? new ArrayList<>(0)
             : response.getValue().getSegment().getBlobItems();
     }
 
-    ServiceCall getBlobsInPage(String pageId,
+    void getBlobsInPage(String pageId,
                                String containerName,
                                ListBlobsOptions options,
                                Callback<List<BlobItem>> callback) {
         options = options == null ? new ListBlobsOptions() : options;
 
-        return this.getBlobsInPageWithRestResponse(pageId,
+        this.getBlobsInPageWithRestResponse(pageId,
             containerName,
             options.getPrefix(),
             options.getMaxResultsPerPage(),
             options.getDetails().toList(),
             null,
             null,
+            CancellationToken.NONE,
             new Callback<ContainersListBlobFlatSegmentResponse>() {
                 @Override
                 public void onResponse(ContainersListBlobFlatSegmentResponse response) {
@@ -128,23 +131,33 @@ final class StorageBlobServiceImpl {
                                                                          Integer maxResults,
                                                                          List<ListBlobsIncludeItem> include,
                                                                          Integer timeout,
-                                                                         String requestId) {
-        return this.getBlobsInPageWithRestResponseIntern(pageId, containerName,
+                                                                         String requestId,
+                                                                         CancellationToken cancellationToken) {
+        CallAndOptionalResult<ContainersListBlobFlatSegmentResponse> callAndOptionalResult =
+            this.getBlobsInPageWithRestResponseIntern(pageId, containerName,
             prefix,
             maxResults,
             include,
             timeout,
             requestId,
-            null).getResult();
+            null);
+
+        final Call call = callAndOptionalResult.getCall();
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        return callAndOptionalResult.getResult();
     }
 
-    ServiceCall getBlobsInPageWithRestResponse(String pageId,
+    void getBlobsInPageWithRestResponse(String pageId,
                                                String containerName,
                                                String prefix,
                                                Integer maxResults,
                                                List<ListBlobsIncludeItem> include,
                                                Integer timeout,
                                                String requestId,
+                                               CancellationToken cancellationToken,
                                                Callback<ContainersListBlobFlatSegmentResponse> callback) {
         CallAndOptionalResult<ContainersListBlobFlatSegmentResponse> callAndOptionalResult =
             this.getBlobsInPageWithRestResponseIntern(pageId,
@@ -156,7 +169,10 @@ final class StorageBlobServiceImpl {
                 requestId,
                 callback);
 
-        return new ServiceCall(callAndOptionalResult.getCall());
+        final Call call = callAndOptionalResult.getCall();
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
     }
 
     /**
@@ -175,7 +191,8 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null);
+            null,
+            CancellationToken.NONE);
 
         return blobGetPropertiesResponse.getDeserializedHeaders();
     }
@@ -187,10 +204,10 @@ final class StorageBlobServiceImpl {
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
      */
-    ServiceCall getBlobProperties(String containerName,
+    void getBlobProperties(String containerName,
                                   String blobName,
                                   Callback<BlobGetPropertiesHeaders> callback) {
-        return getBlobPropertiesWithRestResponse(containerName,
+        getBlobPropertiesWithRestResponse(containerName,
             blobName,
             null,
             null,
@@ -198,6 +215,7 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
+            CancellationToken.NONE,
             new Callback<BlobGetPropertiesResponse>() {
                 @Override
                 public void onResponse(BlobGetPropertiesResponse response) {
@@ -232,8 +250,9 @@ final class StorageBlobServiceImpl {
                                                                 String version,
                                                                 String leaseId,
                                                                 String requestId,
-                                                                CpkInfo cpkInfo) {
-        return getBlobPropertiesWithRestResponseIntern(containerName,
+                                                                CpkInfo cpkInfo,
+                                                                CancellationToken cancellationToken) {
+        CallAndOptionalResult<BlobGetPropertiesResponse> callAndOptionalResult = getBlobPropertiesWithRestResponseIntern(containerName,
             blobName,
             snapshot,
             timeout,
@@ -241,7 +260,14 @@ final class StorageBlobServiceImpl {
             leaseId,
             requestId,
             cpkInfo,
-            null).getResult();
+            null);
+
+        final Call call = callAndOptionalResult.getCall();
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        return callAndOptionalResult.getResult();
     }
 
     /**
@@ -258,7 +284,7 @@ final class StorageBlobServiceImpl {
      * @param cpkInfo       Additional parameters for the operation.
      * @param callback      Callback that receives the response.
      */
-    ServiceCall getBlobPropertiesWithRestResponse(String containerName,
+    void getBlobPropertiesWithRestResponse(String containerName,
                                                   String blobName,
                                                   String snapshot,
                                                   Integer timeout,
@@ -266,6 +292,7 @@ final class StorageBlobServiceImpl {
                                                   String leaseId,
                                                   String requestId,
                                                   CpkInfo cpkInfo,
+                                                  CancellationToken cancellationToken,
                                                   Callback<BlobGetPropertiesResponse> callback) {
         CallAndOptionalResult<BlobGetPropertiesResponse> callAndOptionalResult =
             this.getBlobPropertiesWithRestResponseIntern(containerName,
@@ -278,7 +305,10 @@ final class StorageBlobServiceImpl {
                 cpkInfo,
                 callback);
 
-        return new ServiceCall(callAndOptionalResult.getCall());
+        final Call call = callAndOptionalResult.getCall();
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
     }
 
     /**
@@ -304,7 +334,8 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null).getValue();
+            null,
+            CancellationToken.NONE).getValue();
     }
 
     /**
@@ -314,10 +345,10 @@ final class StorageBlobServiceImpl {
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
      */
-    ServiceCall download(String containerName,
+    void download(String containerName,
                          String blobName,
                          Callback<ResponseBody> callback) {
-        return downloadWithRestResponse(containerName,
+        downloadWithRestResponse(containerName,
             blobName,
             null,
             null,
@@ -332,6 +363,7 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
+            CancellationToken.NONE,
             new Callback<BlobDownloadResponse>() {
                 @Override
                 public void onResponse(BlobDownloadResponse response) {
@@ -387,8 +419,9 @@ final class StorageBlobServiceImpl {
                                                   String ifNoneMatch,
                                                   String version,
                                                   String requestId,
-                                                  CpkInfo cpkInfo) {
-        return downloadWithRestResponseIntern(containerName,
+                                                  CpkInfo cpkInfo,
+                                                  CancellationToken cancellationToken) {
+        CallAndOptionalResult<BlobDownloadResponse> callAndOptionalResult = downloadWithRestResponseIntern(containerName,
             blobName,
             snapshot,
             timeout,
@@ -403,7 +436,14 @@ final class StorageBlobServiceImpl {
             version,
             requestId,
             cpkInfo,
-            null).getResult();
+            null);
+
+        final Call call = callAndOptionalResult.getCall();
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        return callAndOptionalResult.getResult();
     }
 
     /**
@@ -434,7 +474,7 @@ final class StorageBlobServiceImpl {
      * @param cpkInfo              Additional parameters for the operation.
      * @param callback             Callback that receives the response.
      */
-    ServiceCall downloadWithRestResponse(String containerName,
+    void downloadWithRestResponse(String containerName,
                                          String blobName,
                                          String snapshot,
                                          Integer timeout,
@@ -449,6 +489,7 @@ final class StorageBlobServiceImpl {
                                          String version,
                                          String requestId,
                                          CpkInfo cpkInfo,
+                                         CancellationToken cancellationToken,
                                          Callback<BlobDownloadResponse> callback) {
         CallAndOptionalResult<BlobDownloadResponse> callAndOptionalResult = this.downloadWithRestResponseIntern(containerName,
             blobName,
@@ -467,7 +508,10 @@ final class StorageBlobServiceImpl {
             cpkInfo,
             callback);
 
-        return new ServiceCall(callAndOptionalResult.getCall());
+        final Call call = callAndOptionalResult.getCall();
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
     }
 
     Void stageBlock(String containerName,
@@ -484,16 +528,17 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null).getValue();
+            null,
+            CancellationToken.NONE).getValue();
     }
 
-    ServiceCall stageBlock(String containerName,
+    void stageBlock(String containerName,
                            String blobName,
                            String base64BlockId,
                            byte[] blockContent,
                            byte[] contentMd5,
                            Callback<Void> callback) {
-        return this.stageBlockWithRestResponse(containerName,
+        this.stageBlockWithRestResponse(containerName,
             blobName,
             base64BlockId,
             blockContent,
@@ -503,6 +548,7 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
+            CancellationToken.NONE,
             new Callback<BlockBlobsStageBlockResponse>() {
                 @Override
                 public void onResponse(BlockBlobsStageBlockResponse response) {
@@ -525,8 +571,9 @@ final class StorageBlobServiceImpl {
                                                             Integer timeout,
                                                             String leaseId,
                                                             String requestId,
-                                                            CpkInfo cpkInfo) {
-        return this.stageBlockWithRestResponseIntern(containerName,
+                                                            CpkInfo cpkInfo,
+                                                            CancellationToken cancellationToken) {
+        CallAndOptionalResult<BlockBlobsStageBlockResponse> callAndOptionalResult = this.stageBlockWithRestResponseIntern(containerName,
             blobName,
             base64BlockId,
             blockContent,
@@ -536,10 +583,17 @@ final class StorageBlobServiceImpl {
             leaseId,
             requestId,
             cpkInfo,
-            null).getResult();
+            null);
+
+        final Call call = callAndOptionalResult.getCall();
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        return callAndOptionalResult.getResult();
     }
 
-    ServiceCall stageBlockWithRestResponse(String containerName,
+    void stageBlockWithRestResponse(String containerName,
                                            String blobName,
                                            String base64BlockId,
                                            byte[] blockContent,
@@ -549,6 +603,7 @@ final class StorageBlobServiceImpl {
                                            String leaseId,
                                            String requestId,
                                            CpkInfo cpkInfo,
+                                           CancellationToken cancellationToken,
                                            Callback<BlockBlobsStageBlockResponse> callback) {
         CallAndOptionalResult<BlockBlobsStageBlockResponse> callAndOptionalResult =
             this.stageBlockWithRestResponseIntern(containerName,
@@ -563,7 +618,10 @@ final class StorageBlobServiceImpl {
                 cpkInfo,
                 callback);
 
-        return new ServiceCall(callAndOptionalResult.getCall());
+        final Call call = callAndOptionalResult.getCall();
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
     }
 
     BlockBlobItem commitBlockList(String containerName,
@@ -587,12 +645,13 @@ final class StorageBlobServiceImpl {
             requestConditions,
             null,
             null,
-            null);
+            null,
+            CancellationToken.NONE);
 
         return response.getBlockBlobItem();
     }
 
-    ServiceCall commitBlockList(String containerName,
+    void commitBlockList(String containerName,
                                 String blobName,
                                 List<String> base64BlockIds,
                                 boolean overwrite,
@@ -603,7 +662,7 @@ final class StorageBlobServiceImpl {
             requestConditions = new BlobRequestConditions().setIfNoneMatch("*");
         }
 
-        return this.commitBlockListWithRestResponse(containerName,
+        this.commitBlockListWithRestResponse(containerName,
             blobName,
             base64BlockIds,
             null,
@@ -615,6 +674,7 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
+            CancellationToken.NONE,
             new Callback<BlockBlobsCommitBlockListResponse>() {
                 @Override
                 public void onResponse(BlockBlobsCommitBlockListResponse response) {
@@ -639,8 +699,9 @@ final class StorageBlobServiceImpl {
                                                                       BlobRequestConditions requestConditions,
                                                                       String requestId,
                                                                       CpkInfo cpkInfo,
-                                                                      AccessTier tier) {
-        return this.commitBlockListWithRestResponseIntern(containerName,
+                                                                      AccessTier tier,
+                                                                      CancellationToken cancellationToken) {
+        CallAndOptionalResult<BlockBlobsCommitBlockListResponse> callAndOptionalResult = this.commitBlockListWithRestResponseIntern(containerName,
             blobName,
             base64BlockIds,
             transactionalContentMD5,
@@ -652,10 +713,17 @@ final class StorageBlobServiceImpl {
             requestId,
             cpkInfo,
             tier,
-            null).getResult();
+            null);
+
+        final Call call = callAndOptionalResult.getCall();
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        return callAndOptionalResult.getResult();
     }
 
-    ServiceCall commitBlockListWithRestResponse(String containerName,
+    void commitBlockListWithRestResponse(String containerName,
                                                 String blobName,
                                                 List<String> base64BlockIds,
                                                 byte[] transactionalContentMD5,
@@ -667,6 +735,7 @@ final class StorageBlobServiceImpl {
                                                 String requestId,
                                                 CpkInfo cpkInfo,
                                                 AccessTier tier,
+                                                CancellationToken cancellationToken,
                                                 Callback<BlockBlobsCommitBlockListResponse> callback) {
         CallAndOptionalResult<BlockBlobsCommitBlockListResponse> callAndOptionalResult =
             this.commitBlockListWithRestResponseIntern(containerName,
@@ -683,7 +752,10 @@ final class StorageBlobServiceImpl {
                 tier,
                 callback);
 
-        return new ServiceCall(callAndOptionalResult.getCall());
+        final Call call = callAndOptionalResult.getCall();
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
     }
 
     /**
@@ -705,7 +777,8 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null).getValue();
+            null,
+            CancellationToken.NONE).getValue();
     }
 
     /**
@@ -716,10 +789,10 @@ final class StorageBlobServiceImpl {
      * @param callback      Callback that receives the response.
      * @return A handle to the service call.
      */
-    ServiceCall delete(String containerName,
+    void delete(String containerName,
                        String blobName,
                        Callback<Void> callback) {
-        return deleteWithResponse(containerName,
+        deleteWithResponse(containerName,
             blobName,
             null,
             null,
@@ -731,6 +804,7 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
+            CancellationToken.NONE,
             new Callback<BlobDeleteResponse>() {
                 @Override
                 public void onResponse(BlobDeleteResponse response) {
@@ -794,8 +868,9 @@ final class StorageBlobServiceImpl {
                                           OffsetDateTime ifUnmodifiedSince,
                                           String ifMatch,
                                           String ifNoneMatch,
-                                          String requestId) {
-        return deleteWithRestResponseIntern(containerName,
+                                          String requestId,
+                                          CancellationToken cancellationToken) {
+        CallAndOptionalResult<BlobDeleteResponse> callAndOptionalResult = deleteWithRestResponseIntern(containerName,
             blobName,
             snapshot,
             timeout,
@@ -807,7 +882,14 @@ final class StorageBlobServiceImpl {
             ifMatch,
             ifNoneMatch,
             requestId,
-            null).getResult();
+            null);
+
+        final Call call = callAndOptionalResult.getCall();
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        return callAndOptionalResult.getResult();
     }
 
     /**
@@ -850,7 +932,7 @@ final class StorageBlobServiceImpl {
      * @param callback          Callback that receives the response.
      * @return A handle to the service call.
      */
-    ServiceCall deleteWithResponse(String containerName,
+    void deleteWithResponse(String containerName,
                                    String blobName,
                                    String snapshot,
                                    Integer timeout,
@@ -862,6 +944,7 @@ final class StorageBlobServiceImpl {
                                    String ifMatch,
                                    String ifNoneMatch,
                                    String requestId,
+                                   CancellationToken cancellationToken,
                                    Callback<BlobDeleteResponse> callback) {
         CallAndOptionalResult<BlobDeleteResponse> callAndOptionalResult = deleteWithRestResponseIntern(containerName,
             blobName,
@@ -877,7 +960,10 @@ final class StorageBlobServiceImpl {
             requestId,
             callback);
 
-        return new ServiceCall(callAndOptionalResult.getCall());
+        final Call call = callAndOptionalResult.getCall();
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
     }
 
     private CallAndOptionalResult<ContainersListBlobFlatSegmentResponse> getBlobsInPageWithRestResponseIntern(String pageId,

@@ -14,10 +14,10 @@ import androidx.work.Constraints;
 import androidx.work.NetworkType;
 
 import com.azure.android.core.http.Callback;
-import com.azure.android.core.http.ServiceCall;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
+import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.CoreUtil;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
@@ -256,13 +256,12 @@ public class StorageBlobClient {
      * @param containerName The container name.
      * @param options       The page options.
      * @param callback      Callback that receives the retrieved blob list.
-     * @return The service call object, representing the request scheduled for execution.
      */
-    public ServiceCall getBlobsInPage(String pageId,
+    public void getBlobsInPage(String pageId,
                                       String containerName,
                                       ListBlobsOptions options,
                                       Callback<List<BlobItem>> callback) {
-        return this.storageBlobServiceClient.getBlobsInPage(pageId,
+        this.storageBlobServiceClient.getBlobsInPage(pageId,
             containerName,
             options,
             callback);
@@ -271,15 +270,16 @@ public class StorageBlobClient {
     /**
      * Gets a list of blobs identified by a page id in a given container.
      *
-     * @param pageId        Identifies the portion of the list to be returned.
-     * @param containerName The container name.
-     * @param prefix        Filters the results to return only blobs whose name begins with the specified prefix.
-     * @param maxResults    Specifies the maximum number of blobs to return.
-     * @param include       Include this parameter to specify one or more datasets to include in the response.
-     * @param timeout       The timeout parameter is expressed in seconds. For more information, see
-     *                      &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
-     *                      the analytics logs when storage analytics logging is enabled.
+     * @param pageId            Identifies the portion of the list to be returned.
+     * @param containerName     The container name.
+     * @param prefix            Filters the results to return only blobs whose name begins with the specified prefix.
+     * @param maxResults        Specifies the maximum number of blobs to return.
+     * @param include           Include this parameter to specify one or more datasets to include in the response.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
+     *                          the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
      * @return A response object containing a list of blobs.
      */
     public ContainersListBlobFlatSegmentResponse getBlobsInPageWithRestResponse(String pageId,
@@ -288,39 +288,8 @@ public class StorageBlobClient {
                                                                                 Integer maxResults,
                                                                                 List<ListBlobsIncludeItem> include,
                                                                                 Integer timeout,
-                                                                                String requestId) {
-        return this.storageBlobServiceClient.getBlobsInPageWithRestResponse(pageId,
-            containerName,
-            prefix,
-            maxResults,
-            include,
-            timeout,
-            requestId);
-    }
-
-    /**
-     * Gets a list of blobs identified by a page id in a given container.
-     *
-     * @param pageId        Identifies the portion of the list to be returned.
-     * @param containerName The container name.
-     * @param prefix        Filters the results to return only blobs whose name begins with the specified prefix.
-     * @param maxResults    Specifies the maximum number of blobs to return.
-     * @param include       Include this parameter to specify one or more datasets to include in the response.
-     * @param timeout       The timeout parameter is expressed in seconds. For more information, see
-     *                      &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
-     *                      the analytics logs when storage analytics logging is enabled.
-     * @param callback      Callback that receives the response.
-     * @return The service call object, representing the request scheduled for execution.
-     */
-    public ServiceCall getBlobsInPageWithRestResponse(String pageId,
-                                                      String containerName,
-                                                      String prefix,
-                                                      Integer maxResults,
-                                                      List<ListBlobsIncludeItem> include,
-                                                      Integer timeout,
-                                                      String requestId,
-                                                      Callback<ContainersListBlobFlatSegmentResponse> callback) {
+                                                                                String requestId,
+                                                                                CancellationToken cancellationToken) {
         return this.storageBlobServiceClient.getBlobsInPageWithRestResponse(pageId,
             containerName,
             prefix,
@@ -328,6 +297,41 @@ public class StorageBlobClient {
             include,
             timeout,
             requestId,
+            cancellationToken);
+    }
+
+    /**
+     * Gets a list of blobs identified by a page id in a given container.
+     *
+     * @param pageId            Identifies the portion of the list to be returned.
+     * @param containerName     The container name.
+     * @param prefix            Filters the results to return only blobs whose name begins with the specified prefix.
+     * @param maxResults        Specifies the maximum number of blobs to return.
+     * @param include           Include this parameter to specify one or more datasets to include in the response.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
+     *                          the analytics logs when storage analytics logging is enabled.
+     * @param callback          Callback that receives the response.
+     * @param cancellationToken The token to request cancellation.
+     */
+    public void getBlobsInPageWithRestResponse(String pageId,
+                                                      String containerName,
+                                                      String prefix,
+                                                      Integer maxResults,
+                                                      List<ListBlobsIncludeItem> include,
+                                                      Integer timeout,
+                                                      String requestId,
+                                                      CancellationToken cancellationToken,
+                                                      Callback<ContainersListBlobFlatSegmentResponse> callback) {
+        this.storageBlobServiceClient.getBlobsInPageWithRestResponse(pageId,
+            containerName,
+            prefix,
+            maxResults,
+            include,
+            timeout,
+            requestId,
+            cancellationToken,
             callback);
     }
 
@@ -349,12 +353,11 @@ public class StorageBlobClient {
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
-     * @return The service call object, representing the request scheduled for execution.
      */
-    public ServiceCall getBlobProperties(String containerName,
+    public void getBlobProperties(String containerName,
                                          String blobName,
                                          Callback<BlobGetPropertiesHeaders> callback) {
-        return storageBlobServiceClient.getBlobProperties(containerName,
+        storageBlobServiceClient.getBlobProperties(containerName,
             blobName,
             callback);
     }
@@ -376,6 +379,7 @@ public class StorageBlobClient {
      * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
      *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo               Additional parameters for the operation.
+     * @param cancellationToken     The token to request cancellation.
      * @return The response information returned from the server when downloading a blob.
      */
     public BlobGetPropertiesResponse getBlobPropertiesWithRestResponse(String containerName,
@@ -385,7 +389,8 @@ public class StorageBlobClient {
                                                                        String version,
                                                                        BlobRequestConditions blobRequestConditions,
                                                                        String requestId,
-                                                                       CpkInfo cpkInfo) {
+                                                                       CpkInfo cpkInfo,
+                                                                       CancellationToken cancellationToken) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
         return storageBlobServiceClient.getBlobPropertiesWithRestResponse(containerName,
@@ -395,7 +400,8 @@ public class StorageBlobClient {
             version,
             blobRequestConditions.getLeaseId(),
             requestId,
-            cpkInfo);
+            cpkInfo,
+            cancellationToken);
     }
 
     /**
@@ -415,10 +421,10 @@ public class StorageBlobClient {
      * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
      *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo               Additional parameters for the operation.
-     * @param callback             Callback that receives the response.
-     * @return The service call object, representing the request scheduled for execution.
+     * @param cancellationToken     The token to request cancellation.
+     * @param callback              Callback that receives the response.
      */
-    public ServiceCall getBlobPropertiesWithRestResponse(String containerName,
+    public void getBlobPropertiesWithRestResponse(String containerName,
                                                          String blobName,
                                                          String snapshot,
                                                          Integer timeout,
@@ -426,10 +432,11 @@ public class StorageBlobClient {
                                                          BlobRequestConditions blobRequestConditions,
                                                          String requestId,
                                                          CpkInfo cpkInfo,
+                                                         CancellationToken cancellationToken,
                                                          Callback<BlobGetPropertiesResponse> callback) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-        return storageBlobServiceClient.getBlobPropertiesWithRestResponse(containerName,
+        storageBlobServiceClient.getBlobPropertiesWithRestResponse(containerName,
             blobName,
             snapshot,
             timeout,
@@ -437,6 +444,7 @@ public class StorageBlobClient {
             blobRequestConditions.getLeaseId(),
             requestId,
             cpkInfo,
+            cancellationToken,
             callback);
     }
 
@@ -473,12 +481,11 @@ public class StorageBlobClient {
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
-     * @return The service call object, representing the request scheduled for execution.
      */
-    public ServiceCall rawDownload(String containerName,
+    public void rawDownload(String containerName,
                                    String blobName,
                                    Callback<ResponseBody> callback) {
-        return storageBlobServiceClient.download(containerName,
+        storageBlobServiceClient.download(containerName,
             blobName,
             callback);
     }
@@ -512,6 +519,7 @@ public class StorageBlobClient {
      * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
      *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo               Additional parameters for the operation.
+     * @param cancellationToken     The token to request cancellation.
      * @return The response information returned from the server when downloading a blob.
      */
     public BlobDownloadResponse rawDownloadWithRestResponse(String containerName,
@@ -524,7 +532,8 @@ public class StorageBlobClient {
                                                             Boolean getRangeContentCrc64,
                                                             String version,
                                                             String requestId,
-                                                            CpkInfo cpkInfo) {
+                                                            CpkInfo cpkInfo,
+                                                            CancellationToken cancellationToken) {
         range = range == null ? new BlobRange(0) : range;
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
@@ -542,7 +551,8 @@ public class StorageBlobClient {
             blobRequestConditions.getIfNoneMatch(),
             version,
             requestId,
-            cpkInfo);
+            cpkInfo,
+            cancellationToken);
     }
 
     /**
@@ -573,10 +583,10 @@ public class StorageBlobClient {
      * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
      *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo               Additional parameters for the operation.
+     * @param cancellationToken     The token to request cancellation.
      * @param callback              Callback that receives the response.
-     * @return The service call object, representing the request scheduled for execution.
      */
-    public ServiceCall rawDownloadWithRestResponse(String containerName,
+    public void rawDownloadWithRestResponse(String containerName,
                                                    String blobName,
                                                    String snapshot,
                                                    Integer timeout,
@@ -587,11 +597,12 @@ public class StorageBlobClient {
                                                    String version,
                                                    String requestId,
                                                    CpkInfo cpkInfo,
+                                                   CancellationToken cancellationToken,
                                                    Callback<BlobDownloadResponse> callback) {
         range = range == null ? new BlobRange(0) : range;
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-        return storageBlobServiceClient.downloadWithRestResponse(containerName,
+        storageBlobServiceClient.downloadWithRestResponse(containerName,
             blobName,
             snapshot,
             timeout,
@@ -606,6 +617,7 @@ public class StorageBlobClient {
             version,
             requestId,
             cpkInfo,
+            cancellationToken,
             callback);
     }
 
@@ -643,15 +655,14 @@ public class StorageBlobClient {
      * @param blockContent  The block content in bytes.
      * @param contentMd5    The transactional MD5 for the body, to be validated by the service.
      * @param callback      Callback that receives the response.
-     * @return The service call object, representing the request scheduled for execution.
      */
-    public ServiceCall stageBlock(String containerName,
+    public void stageBlock(String containerName,
                                   String blobName,
                                   String base64BlockId,
                                   byte[] blockContent,
                                   byte[] contentMd5,
                                   Callback<Void> callback) {
-        return this.storageBlobServiceClient.stageBlock(containerName,
+        this.storageBlobServiceClient.stageBlock(containerName,
             blobName,
             base64BlockId,
             blockContent,
@@ -662,20 +673,21 @@ public class StorageBlobClient {
     /**
      * Creates a new block to be committed as part of a blob.
      *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @param base64BlockId A valid Base64 string value that identifies the block. Prior to encoding, the string must
-     *                      be less than or equal to 64 bytes in size. For a given blob, the length of the value specified
-     *                      for the base64BlockId parameter must be the same size for each block.
-     * @param blockContent  The block content in bytes.
-     * @param contentMd5    The transactional MD5 for the block content, to be validated by the service.
-     * @param contentCrc64  Specify the transactional crc64 for the block content, to be validated by the service.
-     * @param timeout       The timeout parameter is expressed in seconds. For more information,
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param base64BlockId     A valid Base64 string value that identifies the block. Prior to encoding, the string must
+     *                          be less than or equal to 64 bytes in size. For a given blob, the length of the value specified
+     *                          for the base64BlockId parameter must be the same size for each block.
+     * @param blockContent      The block content in bytes.
+     * @param contentMd5        The transactional MD5 for the block content, to be validated by the service.
+     * @param contentCrc64      Specify the transactional crc64 for the block content, to be validated by the service.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information,
      *     see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param leaseId       If specified, the staging only succeeds if the resource's lease is active and matches this ID.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded.
-     *                      in the analytics logs when storage analytics logging is enabled.
-     * @param cpkInfo       Additional parameters for the operation.
+     * @param leaseId           If specified, the staging only succeeds if the resource's lease is active and matches this ID.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded.
+     *                          in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo           Additional parameters for the operation.
+     * @param cancellationToken The token to request cancellation.
      * @return The response object.
      */
     public BlockBlobsStageBlockResponse stageBlockWithRestResponse(String containerName,
@@ -687,50 +699,8 @@ public class StorageBlobClient {
                                                                    Integer timeout,
                                                                    String leaseId,
                                                                    String requestId,
-                                                                   CpkInfo cpkInfo) {
-        return this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
-            blobName,
-            base64BlockId,
-            blockContent,
-            contentMd5,
-            contentCrc64,
-            timeout,
-            leaseId,
-            requestId,
-            cpkInfo);
-    }
-
-    /**
-     * Creates a new block to be committed as part of a blob.
-     *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @param base64BlockId A valid Base64 string value that identifies the block. Prior to encoding, the string must
-     *                      be less than or equal to 64 bytes in size. For a given blob, the length of the value specified
-     *                      for the base64BlockId parameter must be the same size for each block.
-     * @param blockContent  The block content in bytes.
-     * @param contentMd5    The transactional MD5 for the block content, to be validated by the service.
-     * @param contentCrc64  Specify the transactional crc64 for the block content, to be validated by the service.
-     * @param timeout       The timeout parameter is expressed in seconds. For more information,
-     *                      see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param leaseId       If specified, the staging only succeeds if the resource's lease is active and matches this ID.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded.
-     *                      in the analytics logs when storage analytics logging is enabled.
-     * @param cpkInfo       Additional parameters for the operation.
-     * @param callback      Callback that receives the response.
-     * @return The service call object, representing the request scheduled for execution.
-     */
-    public ServiceCall stageBlockWithRestResponse(String containerName,
-                                                  String blobName,
-                                                  String base64BlockId,
-                                                  byte[] blockContent,
-                                                  byte[] contentMd5,
-                                                  byte[] contentCrc64,
-                                                  Integer timeout,
-                                                  String leaseId,
-                                                  String requestId,
-                                                  CpkInfo cpkInfo,
-                                                  Callback<BlockBlobsStageBlockResponse> callback) {
+                                                                   CpkInfo cpkInfo,
+                                                                   CancellationToken cancellationToken) {
         return this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
             blobName,
             base64BlockId,
@@ -741,6 +711,52 @@ public class StorageBlobClient {
             leaseId,
             requestId,
             cpkInfo,
+            cancellationToken);
+    }
+
+    /**
+     * Creates a new block to be committed as part of a blob.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param base64BlockId     A valid Base64 string value that identifies the block. Prior to encoding, the string must
+     *                          be less than or equal to 64 bytes in size. For a given blob, the length of the value specified
+     *                          for the base64BlockId parameter must be the same size for each block.
+     * @param blockContent      The block content in bytes.
+     * @param contentMd5        The transactional MD5 for the block content, to be validated by the service.
+     * @param contentCrc64      Specify the transactional crc64 for the block content, to be validated by the service.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information,
+     *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param leaseId           If specified, the staging only succeeds if the resource's lease is active and matches this ID.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded.
+     *                          in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo           Additional parameters for the operation.
+     * @param cancellationToken The token to request cancellation.
+     * @param callback          Callback that receives the response.
+     */
+    public void stageBlockWithRestResponse(String containerName,
+                                                  String blobName,
+                                                  String base64BlockId,
+                                                  byte[] blockContent,
+                                                  byte[] contentMd5,
+                                                  byte[] contentCrc64,
+                                                  Integer timeout,
+                                                  String leaseId,
+                                                  String requestId,
+                                                  CpkInfo cpkInfo,
+                                                  CancellationToken cancellationToken,
+                                                  Callback<BlockBlobsStageBlockResponse> callback) {
+        this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
+            blobName,
+            base64BlockId,
+            blockContent,
+            contentMd5,
+            contentCrc64,
+            timeout,
+            leaseId,
+            requestId,
+            cpkInfo,
+            cancellationToken,
             callback);
     }
 
@@ -781,14 +797,13 @@ public class StorageBlobClient {
      * @param base64BlockIds The block IDs.
      * @param overwrite      Indicate whether to overwrite the block list if already exists.
      * @param callback       Callback that receives the response.
-     * @return The service call object, representing the request scheduled for execution.
      */
-    public ServiceCall commitBlockList(String containerName,
+    public void commitBlockList(String containerName,
                                        String blobName,
                                        List<String> base64BlockIds,
                                        boolean overwrite,
                                        Callback<BlockBlobItem> callback) {
-        return this.storageBlobServiceClient.commitBlockList(containerName,
+        this.storageBlobServiceClient.commitBlockList(containerName,
             blobName,
             base64BlockIds,
             overwrite,
@@ -818,6 +833,7 @@ public class StorageBlobClient {
      *                          in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo           Additional parameters for the operation.
      * @param tier              Indicates the tier to be set on the blob.
+     * @param cancellationToken The token to request cancellation.
      * @return The response object.
      */
     public BlockBlobsCommitBlockListResponse commitBlockListWithRestResponse(String containerName,
@@ -831,7 +847,8 @@ public class StorageBlobClient {
                                                                              BlobRequestConditions requestConditions,
                                                                              String requestId,
                                                                              CpkInfo cpkInfo,
-                                                                             AccessTier tier) {
+                                                                             AccessTier tier,
+                                                                             CancellationToken cancellationToken) {
         return this.storageBlobServiceClient.commitBlockListWithRestResponse(containerName,
             blobName,
             base64BlockIds,
@@ -843,7 +860,8 @@ public class StorageBlobClient {
             requestConditions,
             requestId,
             cpkInfo,
-            tier);
+            tier,
+            cancellationToken);
     }
 
     /**
@@ -868,10 +886,10 @@ public class StorageBlobClient {
      *                          in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo           Additional parameters for the operation.
      * @param tier              Indicates the tier to be set on the blob.
+     * @param cancellationToken The token to request cancellation.
      * @param callback          Callback that receives the response.
-     * @return The service call object, representing the request scheduled for execution.
      */
-    public ServiceCall commitBlockListWithRestResponse(String containerName,
+    public void commitBlockListWithRestResponse(String containerName,
                                                        String blobName,
                                                        List<String> base64BlockIds,
                                                        byte[] contentMD5,
@@ -883,8 +901,9 @@ public class StorageBlobClient {
                                                        String requestId,
                                                        CpkInfo cpkInfo,
                                                        AccessTier tier,
+                                                       CancellationToken cancellationToken,
                                                        Callback<BlockBlobsCommitBlockListResponse> callback) {
-        return this.storageBlobServiceClient.commitBlockListWithRestResponse(containerName,
+        this.storageBlobServiceClient.commitBlockListWithRestResponse(containerName,
             blobName,
             base64BlockIds,
             contentMD5,
@@ -895,7 +914,9 @@ public class StorageBlobClient {
             requestConditions,
             requestId,
             cpkInfo,
-            tier, callback);
+            tier,
+            cancellationToken,
+            callback);
     }
 
     /**
@@ -916,12 +937,11 @@ public class StorageBlobClient {
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
-     * @return A handle to the service call.
      */
-    ServiceCall delete(String containerName,
+    void delete(String containerName,
                        String blobName,
                        Callback<Void> callback) {
-        return storageBlobServiceClient.delete(containerName,
+        storageBlobServiceClient.delete(containerName,
             blobName,
             callback);
     }
@@ -963,6 +983,7 @@ public class StorageBlobClient {
      * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
      * @return A response object containing the details of the delete operation.
      */
     BlobDeleteResponse deleteWithResponse(String containerName,
@@ -976,7 +997,8 @@ public class StorageBlobClient {
                                           OffsetDateTime ifUnmodifiedSince,
                                           String ifMatch,
                                           String ifNoneMatch,
-                                          String requestId) {
+                                          String requestId,
+                                          CancellationToken cancellationToken) {
         return storageBlobServiceClient.deleteWithResponse(containerName,
             blobName,
             snapshot,
@@ -988,7 +1010,8 @@ public class StorageBlobClient {
             ifUnmodifiedSince,
             ifMatch,
             ifNoneMatch,
-            requestId);
+            requestId,
+            cancellationToken);
     }
 
     /**
@@ -1028,10 +1051,10 @@ public class StorageBlobClient {
      * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
      * @param callback          Callback that receives the response.
-     * @return A handle to the service call.
      */
-    ServiceCall deleteWithResponse(String containerName,
+    void deleteWithResponse(String containerName,
                                    String blobName,
                                    String snapshot,
                                    Integer timeout,
@@ -1043,8 +1066,9 @@ public class StorageBlobClient {
                                    String ifMatch,
                                    String ifNoneMatch,
                                    String requestId,
+                                   CancellationToken cancellationToken,
                                    Callback<BlobDeleteResponse> callback) {
-        return storageBlobServiceClient.deleteWithResponse(containerName,
+        storageBlobServiceClient.deleteWithResponse(containerName,
             blobName,
             snapshot,
             timeout,
@@ -1056,6 +1080,7 @@ public class StorageBlobClient {
             ifMatch,
             ifNoneMatch,
             requestId,
+            cancellationToken,
             callback);
     }
 
