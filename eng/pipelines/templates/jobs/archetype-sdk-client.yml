@@ -79,7 +79,7 @@ jobs:
         displayName: Make Android SDK directory writable
 
       - script: |
-          ./gradlew sdk:${{parameters.ServiceDirectory}}:testDebugUnitTest
+          ./gradlew sdk:${{parameters.ServiceDirectory}}:jacocoTestReportDebug
         displayName: Build and test
 
       - ${{ each artifact in parameters.Artifacts }}:
@@ -87,6 +87,13 @@ jobs:
             cp sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/test-results/testDebugUnitTest/*.xml \
                $(Build.ArtifactStagingDirectory)/
           displayName: Stage test results for ${{artifact.name}}
+
+        - task: PublishCodeCoverageResults@1
+          inputs:
+            codeCoverageTool: 'JaCoCo'
+            summaryFileLocation: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/reports/jacoco/debug/jacoco.xml'
+            pathToSources: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/src/main/java/'
+          displayName: Publish code coverage for ${{artifact.name}}
 
       - task: PublishTestResults@2
         inputs:
