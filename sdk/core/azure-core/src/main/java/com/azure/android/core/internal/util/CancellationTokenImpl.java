@@ -116,7 +116,7 @@ public final class CancellationTokenImpl extends CancellationToken {
         // Step_1: Locate the node and mark it as logically deleted.
         //
         while (itr != null) {
-            if (this.onCancelNodes == OnCancelNode.FREEZED) {
+            if (this.onCancelNodes == OnCancelNode.FROZEN) {
                 // The token is cancelled, no use in progressing.
                 return;
             }
@@ -139,7 +139,7 @@ public final class CancellationTokenImpl extends CancellationToken {
             hadRace = false;
             OnCancelNode predecessor = null;
             OnCancelNode current = this.onCancelNodes; // re-fetch the volatile head for each retry.
-            if (current == OnCancelNode.FREEZED) {
+            if (current == OnCancelNode.FROZEN) {
                 // The token is cancelled, no use in sweeping.
                 return;
             }
@@ -188,7 +188,7 @@ public final class CancellationTokenImpl extends CancellationToken {
     private boolean tryAddOnCancelNode(OnCancelNode newNode) {
         //fetch the head pointing to the callback list.
         OnCancelNode headNode = this.onCancelNodes;
-        if (headNode == OnCancelNode.FREEZED) {
+        if (headNode == OnCancelNode.FROZEN) {
             return false;
         }
         // busy-loop to atomically insert the new node to the list.
@@ -206,7 +206,7 @@ public final class CancellationTokenImpl extends CancellationToken {
                 // able to insert the new node (hence the head update) so return.
                 return true;
             }
-        } while (headNode != OnCancelNode.FREEZED);
+        } while (headNode != OnCancelNode.FROZEN);
 
         // if the busy-loop detect that the list got frozen then it won't add
         // the callback to the list. This happens if the token is already cancelled.
@@ -223,7 +223,7 @@ public final class CancellationTokenImpl extends CancellationToken {
         // busy-loop for atomic freezing of the list.
         do {
             headNode = this.onCancelNodes;
-        } while (!ON_CANCEL_NODES_UPDATER.compareAndSet(this, headNode, OnCancelNode.FREEZED));
+        } while (!ON_CANCEL_NODES_UPDATER.compareAndSet(this, headNode, OnCancelNode.FROZEN));
 
         return headNode;
     }
@@ -266,7 +266,7 @@ public final class CancellationTokenImpl extends CancellationToken {
     private static final class OnCancelNode {
         // a node to indicate that the list is frozen hence no more
         // node can be added to the list.
-        static final OnCancelNode FREEZED = new OnCancelNode(null);
+        static final OnCancelNode FROZEN = new OnCancelNode(null);
         private final String id;
         // the reference to the OnCancel Callback.
         private final Runnable onCancel;
