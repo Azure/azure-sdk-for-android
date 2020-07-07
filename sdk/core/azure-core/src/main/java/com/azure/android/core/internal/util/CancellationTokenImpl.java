@@ -125,6 +125,7 @@ public final class CancellationTokenImpl extends CancellationToken {
                 itr.markDeleted();
                 break;
             }
+            itr = itr.next;
         }
         if (itr == null) {
             // A node with id was not found.
