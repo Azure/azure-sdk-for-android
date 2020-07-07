@@ -10,11 +10,10 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import android.util.Pair;
 
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.http.ServiceCall;
+import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobRange;
@@ -42,8 +41,9 @@ final class DownloadHandler extends Handler {
     private final Context appContext;
     private final int blocksDownloadConcurrency;
     private final long downloadId;
-    private final HashMap<String, Pair<BlockDownloadEntity, ServiceCall>> runningBlockDownloads;
+    private final HashMap<String, BlockDownloadEntity> runningBlockDownloads;
     private final TransferStopToken transferStopToken;
+    private final CancellationToken cancellationToken;
 
     private TransferHandlerListener transferHandlerListener;
     private TransferDatabase db;
@@ -70,6 +70,7 @@ final class DownloadHandler extends Handler {
         this.downloadId = downloadId;
         runningBlockDownloads = new HashMap<>(this.blocksDownloadConcurrency);
         transferStopToken = new TransferStopToken(DownloadHandlerMessage.createStopMessage(this));
+        this.cancellationToken = CancellationToken.create();
     }
 
     /**
@@ -205,8 +206,7 @@ final class DownloadHandler extends Handler {
         finalizeIfStopped();
 
         String blockId = DownloadHandlerMessage.getBlockIdFromMessage(message);
-        Pair<BlockDownloadEntity, ServiceCall> pair = runningBlockDownloads.remove(blockId);
-        BlockDownloadEntity downloadedBlock = pair.first;
+        BlockDownloadEntity downloadedBlock = runningBlockDownloads.remove(blockId);
         totalBytesDownloaded += downloadedBlock.blockSize;
         transferHandlerListener.onTransferProgress(blob.blobSize, totalBytesDownloaded);
         List<BlockDownloadEntity> blocks = blocksItr.getNext(1);
@@ -233,15 +233,13 @@ final class DownloadHandler extends Handler {
      */
     private void handleDownloadFailed(Message message) {
         String blockId = DownloadHandlerMessage.getBlockIdFromMessage(message);
-        Pair<BlockDownloadEntity, ServiceCall> failedPair = runningBlockDownloads.remove(blockId);
+        BlockDownloadEntity failedBlock = runningBlockDownloads.remove(blockId);
 
-        for (Pair<BlockDownloadEntity, ServiceCall> pair : runningBlockDownloads.values()) {
-            pair.second.cancel();
-        }
+        this.cancellationToken.cancel();
 
         closeContent();
 
-        Throwable downloadError = failedPair.first.getDownloadError();
+        Throwable downloadError = failedBlock.getDownloadError();
         blob.setDownloadError(downloadError);
 
         transferHandlerListener.onError(downloadError);
@@ -255,9 +253,7 @@ final class DownloadHandler extends Handler {
         if (transferStopToken.isStopped()) {
             Log.v(TAG, "finalizeIfStopped(): Stop request received, finalizing");
 
-            for (Pair<BlockDownloadEntity, ServiceCall> pair : runningBlockDownloads.values()) {
-                pair.second.cancel();
-            }
+            this.cancellationToken.cancel();
 
             closeContent();
 
@@ -290,7 +286,7 @@ final class DownloadHandler extends Handler {
 
             Log.v(TAG, "downloadBlob(): Downloading block: " + block.blockId + getThreadName());
 
-            ServiceCall call = blobClient.rawDownloadWithRestResponse(blob.containerName,
+            blobClient.rawDownloadWithRestResponse(blob.containerName,
                 blob.blobName,
                 null,
                 null,
@@ -301,6 +297,7 @@ final class DownloadHandler extends Handler {
                 null,
                 null,
                 null,
+                this.cancellationToken,
                 new com.azure.android.core.http.Callback<BlobDownloadResponse>() {
                     @Override
                     public void onResponse(BlobDownloadResponse response) {
@@ -334,7 +331,7 @@ final class DownloadHandler extends Handler {
                     }
                 });
 
-            runningBlockDownloads.put(block.blockId, Pair.create(block, call));
+            runningBlockDownloads.put(block.blockId, block);
         }
     }
 
