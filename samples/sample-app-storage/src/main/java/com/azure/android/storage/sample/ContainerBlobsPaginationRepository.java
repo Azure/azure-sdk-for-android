@@ -3,6 +3,7 @@ package com.azure.android.storage.sample;
 import androidx.work.NetworkType;
 
 import com.azure.android.core.http.Callback;
+import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
@@ -61,7 +62,7 @@ final class ContainerBlobsPaginationRepository
                 }
                 storageBlobClient.getBlobsInPageWithRestResponse(pageIdentifier, containerName, options.getPrefix(),
                         options.getMaxResultsPerPage(), options.getDetails().toList(),
-                        null, null, new Callback<ContainersListBlobFlatSegmentResponse>() {
+                        null, null, CancellationToken.NONE, new Callback<ContainersListBlobFlatSegmentResponse>() {
                             @Override
                             public void onResponse(ContainersListBlobFlatSegmentResponse response) {
                                 List<BlobItem> value = response.getValue().getSegment() == null
