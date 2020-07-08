@@ -133,6 +133,7 @@ final class StorageBlobServiceImpl {
                                                                          Integer timeout,
                                                                          String requestId,
                                                                          CancellationToken cancellationToken) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         CallAndOptionalResult<ContainersListBlobFlatSegmentResponse> callAndOptionalResult =
             this.getBlobsInPageWithRestResponseIntern(pageId, containerName,
             prefix,
@@ -159,6 +160,7 @@ final class StorageBlobServiceImpl {
                                                String requestId,
                                                CancellationToken cancellationToken,
                                                Callback<ContainersListBlobFlatSegmentResponse> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         CallAndOptionalResult<ContainersListBlobFlatSegmentResponse> callAndOptionalResult =
             this.getBlobsInPageWithRestResponseIntern(pageId,
                 containerName,
@@ -252,6 +254,7 @@ final class StorageBlobServiceImpl {
                                                                 String requestId,
                                                                 CpkInfo cpkInfo,
                                                                 CancellationToken cancellationToken) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         CallAndOptionalResult<BlobGetPropertiesResponse> callAndOptionalResult = getBlobPropertiesWithRestResponseIntern(containerName,
             blobName,
             snapshot,
@@ -294,6 +297,7 @@ final class StorageBlobServiceImpl {
                                                   CpkInfo cpkInfo,
                                                   CancellationToken cancellationToken,
                                                   Callback<BlobGetPropertiesResponse> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         CallAndOptionalResult<BlobGetPropertiesResponse> callAndOptionalResult =
             this.getBlobPropertiesWithRestResponseIntern(containerName,
                 blobName,
@@ -421,6 +425,7 @@ final class StorageBlobServiceImpl {
                                                   String requestId,
                                                   CpkInfo cpkInfo,
                                                   CancellationToken cancellationToken) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         CallAndOptionalResult<BlobDownloadResponse> callAndOptionalResult = downloadWithRestResponseIntern(containerName,
             blobName,
             snapshot,
@@ -491,6 +496,7 @@ final class StorageBlobServiceImpl {
                                          CpkInfo cpkInfo,
                                          CancellationToken cancellationToken,
                                          Callback<BlobDownloadResponse> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         CallAndOptionalResult<BlobDownloadResponse> callAndOptionalResult = this.downloadWithRestResponseIntern(containerName,
             blobName,
             snapshot,
@@ -573,6 +579,7 @@ final class StorageBlobServiceImpl {
                                                             String requestId,
                                                             CpkInfo cpkInfo,
                                                             CancellationToken cancellationToken) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         CallAndOptionalResult<BlockBlobsStageBlockResponse> callAndOptionalResult = this.stageBlockWithRestResponseIntern(containerName,
             blobName,
             base64BlockId,
@@ -605,6 +612,7 @@ final class StorageBlobServiceImpl {
                                            CpkInfo cpkInfo,
                                            CancellationToken cancellationToken,
                                            Callback<BlockBlobsStageBlockResponse> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         CallAndOptionalResult<BlockBlobsStageBlockResponse> callAndOptionalResult =
             this.stageBlockWithRestResponseIntern(containerName,
                 blobName,
@@ -701,6 +709,7 @@ final class StorageBlobServiceImpl {
                                                                       CpkInfo cpkInfo,
                                                                       AccessTier tier,
                                                                       CancellationToken cancellationToken) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         CallAndOptionalResult<BlockBlobsCommitBlockListResponse> callAndOptionalResult = this.commitBlockListWithRestResponseIntern(containerName,
             blobName,
             base64BlockIds,
@@ -737,6 +746,7 @@ final class StorageBlobServiceImpl {
                                                 AccessTier tier,
                                                 CancellationToken cancellationToken,
                                                 Callback<BlockBlobsCommitBlockListResponse> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         CallAndOptionalResult<BlockBlobsCommitBlockListResponse> callAndOptionalResult =
             this.commitBlockListWithRestResponseIntern(containerName,
                 blobName,
@@ -870,6 +880,7 @@ final class StorageBlobServiceImpl {
                                           String ifNoneMatch,
                                           String requestId,
                                           CancellationToken cancellationToken) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         CallAndOptionalResult<BlobDeleteResponse> callAndOptionalResult = deleteWithRestResponseIntern(containerName,
             blobName,
             snapshot,
@@ -946,6 +957,7 @@ final class StorageBlobServiceImpl {
                                    String requestId,
                                    CancellationToken cancellationToken,
                                    Callback<BlobDeleteResponse> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         CallAndOptionalResult<BlobDeleteResponse> callAndOptionalResult = deleteWithRestResponseIntern(containerName,
             blobName,
             snapshot,
