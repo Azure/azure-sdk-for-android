@@ -87,7 +87,7 @@ public class UploadFileActivity extends AppCompatActivity {
             .newBuilder("com.azure.android.storage.sample.upload")
             .setBlobServiceUrl(storageConfiguration.getBlobServiceUrl())
             .setCredentialInterceptor(authInterceptor)
-            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .setTransferRequiredNetworkType(NetworkType.CONNECTED)
             .build();
     }
 

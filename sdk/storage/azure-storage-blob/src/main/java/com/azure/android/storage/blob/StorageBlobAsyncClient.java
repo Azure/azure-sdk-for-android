@@ -768,7 +768,7 @@ public class StorageBlobAsyncClient {
          * @param requiresCharging {@code true} if the device must be charging for the transfer to run.
          * @return An updated {@link Builder} with the provided charging requirement set.
          */
-        public Builder setRequiresCharging(boolean requiresCharging) {
+        public Builder setTransferRequiresCharging(boolean requiresCharging) {
             this.transferConstraintsBuilder.setRequiresCharging(requiresCharging);
             return this;
         }
@@ -780,7 +780,7 @@ public class StorageBlobAsyncClient {
          * @return An updated {@link Builder} with the provided setting set.
          */
         @RequiresApi(23)
-        public Builder setRequiresDeviceIdle(boolean requiresDeviceIdle) {
+        public Builder setTransferRequiresDeviceIdle(boolean requiresDeviceIdle) {
             if (Build.VERSION.SDK_INT >= 23) {
                 this.transferConstraintsBuilder.setRequiresDeviceIdle(requiresDeviceIdle);
             }
@@ -795,7 +795,7 @@ public class StorageBlobAsyncClient {
          * @param networkType The type of network required for transfers to run.
          * @return An updated {@link Builder} with the provided network type set.
          */
-        public Builder setRequiredNetworkType(@NonNull NetworkType networkType) {
+        public Builder setTransferRequiredNetworkType(@NonNull NetworkType networkType) {
             Objects.requireNonNull(networkType, "'networkType' cannot be null.");
             if (networkType == NetworkType.NOT_REQUIRED) {
                 throw new IllegalArgumentException(
@@ -813,7 +813,7 @@ public class StorageBlobAsyncClient {
          *                                          transfers to run.
          * @return An updated {@link Builder} with the provided battery requirement set.
          */
-        public Builder setRequiresBatteryNotLow(boolean requiresBatteryNotLow) {
+        public Builder setTransferRequiresBatteryNotLow(boolean requiresBatteryNotLow) {
             this.transferConstraintsBuilder.setRequiresBatteryNotLow(requiresBatteryNotLow);
             return this;
         }
@@ -826,7 +826,7 @@ public class StorageBlobAsyncClient {
          *                              a critical threshold for the transfer to run.
          * @return An updated {@link Builder} with the provided storage requirement set.
          */
-        public Builder setRequiresStorageNotLow(boolean requiresStorageNotLow) {
+        public Builder setTransferRequiresStorageNotLow(boolean requiresStorageNotLow) {
             this.transferConstraintsBuilder.setRequiresStorageNotLow(requiresStorageNotLow);
             return this;
         }

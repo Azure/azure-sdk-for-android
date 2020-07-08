@@ -38,7 +38,7 @@ final class ContainerBlobsPaginationRepository
         //
         this.storageBlobAsyncClient = storageBlobAsyncClient.newBuilder("com.azure.android.storage.sample.download")
                 .setCredentialInterceptor(this.authInterceptor)
-                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setTransferRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
     }
 
