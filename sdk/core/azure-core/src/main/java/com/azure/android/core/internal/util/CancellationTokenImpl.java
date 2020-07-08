@@ -10,6 +10,17 @@
  * is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
  * or implied. See the License for the specific language governing permissions and limitations under
  * the License.
+ *
+ * -------------------------------------------------------------------------------------------------
+ * Note:
+ * The idea of tracking the callback is taken from Guava concurrent library,
+ * specifically from the following two files:
+ *
+ *  https://github.com/google/guava/blob/v29.0/guava/src/com/google/common/util/concurrent/Futures.java
+ *  https://github.com/google/guava/blob/v29.0/guava/src/com/google/common/util/concurrent/AbstractFuture.java
+ *
+ * The original idea is modified and refactored to adapt to the use case of CancellationToken.
+ *  -------------------------------------------------------------------------------------------------
  */
 /*
  * Portions Copyright (c) Microsoft Corporation
