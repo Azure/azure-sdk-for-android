@@ -1,17 +1,67 @@
 # Azure SDK for Android
 
-This repository contains official Android libraries for Azure services.
+This repository is for active development of the Azure SDK for Android. For consumers of the SDK we recommend visiting our versioned [developer docs](https://azure.github.io/azure-sdk-for-android).
+
+> Note: The Azure SDK for Android replaces a previous offering, known as Azure.Android. Source code and documentation for Azure.Android is available in the [Azure.Android](https://github.com/Azure/azure-sdk-for-android/tree/Azure.Android) branch.
 
 ## Getting started
 
-To get started with a specific library, see the **README.md** file located in the library's project folder. You can find service libraries in the `/sdk` directory.
+For your convenience, each service has a separate set of libraries that you can choose to use instead of one, large Azure package. To get started with a specific library, see the **README.md** file located in the library's project folder. You can find service libraries in the `/sdk` directory.
 
 ### Prerequisites
-The Azure SDK for Android targets Android API level 21. Your application's `minSdkVersion` must be set to 21 or higher to use this SDK.
+
+* The client libraries natively target Android API level 21. Your application's `minSdkVersion` must be set to 21 or higher to use these libraries.
+* The libraries are written in Java 8. Your application must be built with Android Gradle Plugin 3.0.0 or later, and must be configured to [enable Java 8 language desugaring](https://developer.android.com/studio/write/java8-support.html#supported_features) to use these libraries. Java 8 language features that require a target API level >21 are not used, nor are any Java 8+ APIs that would require the Java 8+ API desugaring provided by Android Gradle plugin 4.0.0.
+* You must have an [Azure subscription](https://azure.microsoft.com/free/) to use these libraries.
+
+### Libraries available
+
+Currently, the client libraries are in **preview**. These libraries follow the [Azure SDK Design Guidelines for Android](https://azure.github.io/azure-sdk/android_introduction.html) and share a number of core features such as HTTP retries, logging, transport protocols, authentication protocols, etc., so that once you learn how to use these features in one client library, you will know how to use them in other client libraries. You can learn about these shared features in [azure-core](sdk/core/azure-core/README.md).
+
+The following libraries are currently in **preview**:
+- [azure-storage-blob](sdk/storage/azure-storage-blob)
+
+> Note: The SDK is currently in **preview**. The API surface and feature sets are subject to change at any time before **GA**. We do not currently recommend them for production use.
+
+### Install the libraries
+
+At the present time, to install the Azure client libraries for Android you must download the latest [releases](https://github.com/Azure/azure-sdk-for-android/releases) and integrate them into your project manually:
+
+#### Manually integrate a client library into your project
+
+To manually integrate a client library into your project, first download the latest release of the library and any of its dependencies from the repository's [Releases](https://github.com/Azure/azure-sdk-for-android/releases) page. Each client library's **README.md** file will instruct you as to which libraries you will need to download.
+
+Place the libraries' .aar files in your application module's `libs` directory:
+```
+MyApplication
+├── app
+│   ├── ...
+│   ├── libs
+│   │   ├── azure-core-1.0.0-beta.1.aar
+│   │   └── azure-storage-blob-1.0.0-beta.1.aar
+│   └── ...
+└── ...
+```
+
+Next, modify your application module's `build.gradle` file, updating (or adding) the `fileTree` dependency targeting the `libs` directory to include .aar files:
+
+```gradle
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar", "*.aar"])
+    ...
+}
+```
+
+If you plan to use the [Microsoft Authentication Library (MSAL) for Android](http://aka.ms/aadv2) in your project, add it by following the library's [installation instructions](https://github.com/AzureAD/microsoft-authentication-library-for-android#using-msal).
 
 ## Need help?
+
 * File an issue via [Github Issues](https://github.com/Azure/azure-sdk-for-android/issues/new/choose).
 * Check [previous questions](https://stackoverflow.com/questions/tagged/azure-android-sdk) or ask new ones on StackOverflow using `azure-android-sdk` tag.
+
+### Reporting security issues and security bugs
+
+Security issues and bugs should be reported privately, via email, to the Microsoft Security Response Center (MSRC) <secure@microsoft.com>. You should receive a response within 24 hours. If for some reason you do not, please follow up via email to ensure we received your original message. Further information, including the MSRC PGP key, can be found in the [Security TechCenter](https://www.microsoft.com/msrc/faqs-report-an-issue).
 
 ## Contributing
 For details on contributing to this repository, see the [contributing guide](CONTRIBUTING.md).

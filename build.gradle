@@ -8,13 +8,18 @@ buildscript {
 
     ext {
         androidBuildToolsVersion = "29.0.3"
-        androidGradlePluginVersion = "3.6.3"
+        androidGradlePluginVersion = "4.0.0"
+        androidJunitJacocoGradlePluginVersion = "0.16.0"
+        jacocoVersion = "0.8.5"
     }
 
     dependencies {
         classpath "com.android.tools.build:gradle:$androidGradlePluginVersion"
+        classpath "com.vanniktech:gradle-android-junit-jacoco-plugin:$androidJunitJacocoGradlePluginVersion"
     }
 }
+
+apply plugin: "com.vanniktech.android.junit.jacoco"
 
 // Configure all client library projects with the standard Android build / publish template
 configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 3 }) {
@@ -65,6 +70,10 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
             }
         }
 
+    }
+
+    junitJacoco {
+        jacocoVersion = "$jacocoVersion"
     }
 
     task sourcesJar(type: Jar) {
