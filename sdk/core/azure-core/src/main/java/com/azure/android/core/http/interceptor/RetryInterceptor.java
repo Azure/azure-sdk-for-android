@@ -71,13 +71,13 @@ public class RetryInterceptor implements Interceptor {
     }
 
     /**
-     * Intercept any exception in the pipeline or the HTTP response error and retry if recoverable.
+     * Intercepts any exception in the pipeline or the HTTP response error and, if recoverable, retries sending the request.
 
-     * @param chain Provide access to the response.
+     * @param chain Provides access to the response.
      *
      * @return Response from the next interceptor in the pipeline.
-     * @throws IOException If the pipeline gets canceled or an IO error that cannot be
-     * retried any more, for example, max retry limit reached.
+     * @throws IOException If the pipeline gets canceled or an there is an IO error that
+     * indicates the request cannot be retried any more, for example, max retry limit reached.
      */
     @NonNull
     @Override
@@ -106,9 +106,9 @@ public class RetryInterceptor implements Interceptor {
             if (chain.call().isCanceled()) {
                 try {
                     if (exception != null) {
-                        // The later interceptors those executes as a result of above 'chain.proceed' may throw
+                        // The later interceptors that execute as a result of the above 'chain.proceed' may throw
                         // IOException("Cancelled") [e.g. okhttp3.internal.http.RetryAndFollowUpInterceptor]
-                        // if it identified that call is cancelled, we don't want to retry on such cases.
+                        // If it is identified that the call is cancelled, we don't want to retry on such cases.
                         if (exception == ExceptionUtils.CALL_CANCELLED_IO_EXCEPTION) {
                             throw ExceptionUtils.CALL_CANCELLED_IO_EXCEPTION;
                         } else {
