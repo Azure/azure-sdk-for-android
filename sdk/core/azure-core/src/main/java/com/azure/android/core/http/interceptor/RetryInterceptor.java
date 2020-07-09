@@ -40,7 +40,7 @@ public class RetryInterceptor implements Interceptor {
      * @param delay The fixed backoff delay applied before every retry.
      * @return The retry interceptor.
      */
-    public static RetryInterceptor fixedDelay(int maxRetries, Duration delay) {
+    public static RetryInterceptor withFixedDelay(int maxRetries, Duration delay) {
         return new RetryInterceptor(new FixedDelay(maxRetries, delay));
     }
 
@@ -54,7 +54,7 @@ public class RetryInterceptor implements Interceptor {
      *
      * @return The retry interceptor.
      */
-    public static RetryInterceptor exponentialBackoff() {
+    public static RetryInterceptor withExponentialBackoff() {
         return new RetryInterceptor(new ExponentialBackoff());
     }
 
@@ -66,7 +66,7 @@ public class RetryInterceptor implements Interceptor {
      * @param maxDelay The maximum backoff delay before a retry.
      * @return The retry interceptor.
      */
-    public static RetryInterceptor exponentialBackoff(int maxRetries, Duration baseDelay, Duration maxDelay) {
+    public static RetryInterceptor withExponentialBackoff(int maxRetries, Duration baseDelay, Duration maxDelay) {
         return new RetryInterceptor(new ExponentialBackoff(maxRetries, baseDelay, maxDelay));
     }
 
