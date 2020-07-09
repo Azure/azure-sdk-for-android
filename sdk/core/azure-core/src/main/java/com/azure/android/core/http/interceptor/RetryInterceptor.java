@@ -174,6 +174,8 @@ public class RetryInterceptor implements Interceptor {
         } else {
             final int code = response.code();
             if (code == 429) {
+                // Too Many Requests.
+                // https://docs.microsoft.com/en-us/rest/api/cosmos-db/common-cosmosdb-rest-response-headers
                 final String retryAfterHeader = response.header("x-ms-retry-after-ms");
                 if (retryAfterHeader != null) {
                     return Duration.of(Integer.parseInt(retryAfterHeader), ChronoUnit.MILLIS);
@@ -181,6 +183,8 @@ public class RetryInterceptor implements Interceptor {
             }
 
             if (code == 429 || code == 503) {
+                // Too Many Requests OR Service Unavailable
+                // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After
                 final String retryAfterHeader = response.header("Retry-After");
                 if (retryAfterHeader != null) {
                     OffsetDateTime retryWhen = null;
