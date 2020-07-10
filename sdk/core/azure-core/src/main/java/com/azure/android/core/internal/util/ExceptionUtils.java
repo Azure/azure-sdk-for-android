@@ -23,6 +23,11 @@ public class ExceptionUtils {
     }
 
     /**
+     * A singleton IOException representing cancellation error.
+     */
+    public static final IOException CALL_CANCELLED_IO_EXCEPTION = new IOException("Canceled.");
+
+    /**
      * Create an exception from the HTTP response.
      *
      * @param exceptionMapping  The HTTP status code to perform exception mapping on.
