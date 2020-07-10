@@ -133,22 +133,14 @@ final class StorageBlobServiceImpl {
                                                                          Integer timeout,
                                                                          String requestId,
                                                                          CancellationToken cancellationToken) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        CallAndOptionalResult<ContainersListBlobFlatSegmentResponse> callAndOptionalResult =
-            this.getBlobsInPageWithRestResponseIntern(pageId, containerName,
+        return this.getBlobsInPageWithRestResponseIntern(pageId, containerName,
             prefix,
             maxResults,
             include,
             timeout,
             requestId,
+            cancellationToken,
             null);
-
-        final Call call = callAndOptionalResult.getCall();
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
-
-        return callAndOptionalResult.getResult();
     }
 
     void getBlobsInPageWithRestResponse(String pageId,
@@ -160,21 +152,15 @@ final class StorageBlobServiceImpl {
                                         String requestId,
                                         CancellationToken cancellationToken,
                                         Callback<ContainersListBlobFlatSegmentResponse> callback) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        CallAndOptionalResult<ContainersListBlobFlatSegmentResponse> callAndOptionalResult =
-            this.getBlobsInPageWithRestResponseIntern(pageId,
-                containerName,
-                prefix,
-                maxResults,
-                include,
-                timeout,
-                requestId,
-                callback);
-
-        final Call call = callAndOptionalResult.getCall();
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
+        this.getBlobsInPageWithRestResponseIntern(pageId,
+            containerName,
+            prefix,
+            maxResults,
+            include,
+            timeout,
+            requestId,
+            cancellationToken,
+            callback);
     }
 
     /**
@@ -254,8 +240,7 @@ final class StorageBlobServiceImpl {
                                                                 String requestId,
                                                                 CpkInfo cpkInfo,
                                                                 CancellationToken cancellationToken) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        CallAndOptionalResult<BlobGetPropertiesResponse> callAndOptionalResult = getBlobPropertiesWithRestResponseIntern(containerName,
+        return getBlobPropertiesWithRestResponseIntern(containerName,
             blobName,
             snapshot,
             timeout,
@@ -263,14 +248,8 @@ final class StorageBlobServiceImpl {
             leaseId,
             requestId,
             cpkInfo,
+            cancellationToken,
             null);
-
-        final Call call = callAndOptionalResult.getCall();
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
-
-        return callAndOptionalResult.getResult();
     }
 
     /**
@@ -297,22 +276,16 @@ final class StorageBlobServiceImpl {
                                            CpkInfo cpkInfo,
                                            CancellationToken cancellationToken,
                                            Callback<BlobGetPropertiesResponse> callback) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        CallAndOptionalResult<BlobGetPropertiesResponse> callAndOptionalResult =
-            this.getBlobPropertiesWithRestResponseIntern(containerName,
-                blobName,
-                snapshot,
-                timeout,
-                version,
-                leaseId,
-                requestId,
-                cpkInfo,
-                callback);
-
-        final Call call = callAndOptionalResult.getCall();
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
+        this.getBlobPropertiesWithRestResponseIntern(containerName,
+            blobName,
+            snapshot,
+            timeout,
+            version,
+            leaseId,
+            requestId,
+            cpkInfo,
+            cancellationToken,
+            callback);
     }
 
     /**
@@ -425,8 +398,7 @@ final class StorageBlobServiceImpl {
                                                   String requestId,
                                                   CpkInfo cpkInfo,
                                                   CancellationToken cancellationToken) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        CallAndOptionalResult<BlobDownloadResponse> callAndOptionalResult = downloadWithRestResponseIntern(containerName,
+        return downloadWithRestResponseIntern(containerName,
             blobName,
             snapshot,
             timeout,
@@ -441,14 +413,8 @@ final class StorageBlobServiceImpl {
             version,
             requestId,
             cpkInfo,
+            cancellationToken,
             null);
-
-        final Call call = callAndOptionalResult.getCall();
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
-
-        return callAndOptionalResult.getResult();
     }
 
     /**
@@ -496,8 +462,7 @@ final class StorageBlobServiceImpl {
                                   CpkInfo cpkInfo,
                                   CancellationToken cancellationToken,
                                   Callback<BlobDownloadResponse> callback) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        CallAndOptionalResult<BlobDownloadResponse> callAndOptionalResult = this.downloadWithRestResponseIntern(containerName,
+        this.downloadWithRestResponseIntern(containerName,
             blobName,
             snapshot,
             timeout,
@@ -512,12 +477,8 @@ final class StorageBlobServiceImpl {
             version,
             requestId,
             cpkInfo,
+            cancellationToken,
             callback);
-
-        final Call call = callAndOptionalResult.getCall();
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
     }
 
     Void stageBlock(String containerName,
@@ -579,8 +540,7 @@ final class StorageBlobServiceImpl {
                                                             String requestId,
                                                             CpkInfo cpkInfo,
                                                             CancellationToken cancellationToken) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        CallAndOptionalResult<BlockBlobsStageBlockResponse> callAndOptionalResult = this.stageBlockWithRestResponseIntern(containerName,
+        return this.stageBlockWithRestResponseIntern(containerName,
             blobName,
             base64BlockId,
             blockContent,
@@ -590,14 +550,8 @@ final class StorageBlobServiceImpl {
             leaseId,
             requestId,
             cpkInfo,
+            cancellationToken,
             null);
-
-        final Call call = callAndOptionalResult.getCall();
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
-
-        return callAndOptionalResult.getResult();
     }
 
     void stageBlockWithRestResponse(String containerName,
@@ -612,24 +566,18 @@ final class StorageBlobServiceImpl {
                                     CpkInfo cpkInfo,
                                     CancellationToken cancellationToken,
                                     Callback<BlockBlobsStageBlockResponse> callback) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        CallAndOptionalResult<BlockBlobsStageBlockResponse> callAndOptionalResult =
-            this.stageBlockWithRestResponseIntern(containerName,
-                blobName,
-                base64BlockId,
-                blockContent,
-                transactionalContentMD5,
-                transactionalContentCrc64,
-                timeout,
-                leaseId,
-                requestId,
-                cpkInfo,
-                callback);
-
-        final Call call = callAndOptionalResult.getCall();
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
+        this.stageBlockWithRestResponseIntern(containerName,
+            blobName,
+            base64BlockId,
+            blockContent,
+            transactionalContentMD5,
+            transactionalContentCrc64,
+            timeout,
+            leaseId,
+            requestId,
+            cpkInfo,
+            cancellationToken,
+            callback);
     }
 
     BlockBlobItem commitBlockList(String containerName,
@@ -709,8 +657,7 @@ final class StorageBlobServiceImpl {
                                                                       CpkInfo cpkInfo,
                                                                       AccessTier tier,
                                                                       CancellationToken cancellationToken) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        CallAndOptionalResult<BlockBlobsCommitBlockListResponse> callAndOptionalResult = this.commitBlockListWithRestResponseIntern(containerName,
+        return this.commitBlockListWithRestResponseIntern(containerName,
             blobName,
             base64BlockIds,
             transactionalContentMD5,
@@ -722,14 +669,8 @@ final class StorageBlobServiceImpl {
             requestId,
             cpkInfo,
             tier,
+            cancellationToken,
             null);
-
-        final Call call = callAndOptionalResult.getCall();
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
-
-        return callAndOptionalResult.getResult();
     }
 
     void commitBlockListWithRestResponse(String containerName,
@@ -746,26 +687,20 @@ final class StorageBlobServiceImpl {
                                          AccessTier tier,
                                          CancellationToken cancellationToken,
                                          Callback<BlockBlobsCommitBlockListResponse> callback) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        CallAndOptionalResult<BlockBlobsCommitBlockListResponse> callAndOptionalResult =
-            this.commitBlockListWithRestResponseIntern(containerName,
-                blobName,
-                base64BlockIds,
-                transactionalContentMD5,
-                transactionalContentCrc64,
-                timeout,
-                blobHttpHeaders,
-                metadata,
-                requestConditions,
-                requestId,
-                cpkInfo,
-                tier,
-                callback);
-
-        final Call call = callAndOptionalResult.getCall();
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
+        this.commitBlockListWithRestResponseIntern(containerName,
+            blobName,
+            base64BlockIds,
+            transactionalContentMD5,
+            transactionalContentCrc64,
+            timeout,
+            blobHttpHeaders,
+            metadata,
+            requestConditions,
+            requestId,
+            cpkInfo,
+            tier,
+            cancellationToken,
+            callback);
     }
 
     /**
@@ -880,8 +815,7 @@ final class StorageBlobServiceImpl {
                                           String ifNoneMatch,
                                           String requestId,
                                           CancellationToken cancellationToken) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        CallAndOptionalResult<BlobDeleteResponse> callAndOptionalResult = deleteWithRestResponseIntern(containerName,
+        return deleteWithRestResponseIntern(containerName,
             blobName,
             snapshot,
             timeout,
@@ -893,14 +827,8 @@ final class StorageBlobServiceImpl {
             ifMatch,
             ifNoneMatch,
             requestId,
+            cancellationToken,
             null);
-
-        final Call call = callAndOptionalResult.getCall();
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
-
-        return callAndOptionalResult.getResult();
     }
 
     /**
@@ -957,8 +885,7 @@ final class StorageBlobServiceImpl {
                             String requestId,
                             CancellationToken cancellationToken,
                             Callback<BlobDeleteResponse> callback) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        CallAndOptionalResult<BlobDeleteResponse> callAndOptionalResult = deleteWithRestResponseIntern(containerName,
+        deleteWithRestResponseIntern(containerName,
             blobName,
             snapshot,
             timeout,
@@ -970,22 +897,20 @@ final class StorageBlobServiceImpl {
             ifMatch,
             ifNoneMatch,
             requestId,
+            cancellationToken,
             callback);
-
-        final Call call = callAndOptionalResult.getCall();
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
     }
 
-    private CallAndOptionalResult<ContainersListBlobFlatSegmentResponse> getBlobsInPageWithRestResponseIntern(String pageId,
-                                                                                                              String containerName,
-                                                                                                              String prefix,
-                                                                                                              Integer maxResults,
-                                                                                                              List<ListBlobsIncludeItem> include,
-                                                                                                              Integer timeout,
-                                                                                                              String requestId,
-                                                                                                              Callback<ContainersListBlobFlatSegmentResponse> callback) {
+    private ContainersListBlobFlatSegmentResponse getBlobsInPageWithRestResponseIntern(String pageId,
+                                                                                       String containerName,
+                                                                                       String prefix,
+                                                                                       Integer maxResults,
+                                                                                       List<ListBlobsIncludeItem> include,
+                                                                                       Integer timeout,
+                                                                                       String requestId,
+                                                                                       CancellationToken cancellationToken,
+                                                                                       Callback<ContainersListBlobFlatSegmentResponse> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         final String resType = "container";
         final String comp = "list";
 
@@ -999,6 +924,10 @@ final class StorageBlobServiceImpl {
             requestId,
             resType,
             comp);
+
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
 
         if (callback != null) {
             executeCall(call, new retrofit2.Callback<ResponseBody>() {
@@ -1033,7 +962,7 @@ final class StorageBlobServiceImpl {
                 }
             });
 
-            return new CallAndOptionalResult<>(call, null);
+            return null;
         } else {
             Response<ResponseBody> response = executeCall(call);
 
@@ -1051,7 +980,7 @@ final class StorageBlobServiceImpl {
                             typedContent,
                             typedHeader);
 
-                    return new CallAndOptionalResult<>(call, result);
+                    return result;
                 } else {
                     String strContent = readAsString(response.body());
 
@@ -1065,15 +994,17 @@ final class StorageBlobServiceImpl {
         }
     }
 
-    private CallAndOptionalResult<BlobGetPropertiesResponse> getBlobPropertiesWithRestResponseIntern(String containerName,
-                                                                                                     String blobName,
-                                                                                                     String snapshot,
-                                                                                                     Integer timeout,
-                                                                                                     String version,
-                                                                                                     String leaseId,
-                                                                                                     String requestId,
-                                                                                                     CpkInfo cpkInfo,
-                                                                                                     Callback<BlobGetPropertiesResponse> callback) {
+    private BlobGetPropertiesResponse getBlobPropertiesWithRestResponseIntern(String containerName,
+                                                                              String blobName,
+                                                                              String snapshot,
+                                                                              Integer timeout,
+                                                                              String version,
+                                                                              String leaseId,
+                                                                              String requestId,
+                                                                              CpkInfo cpkInfo,
+                                                                              CancellationToken cancellationToken,
+                                                                              Callback<BlobGetPropertiesResponse> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         String encryptionKey = null;
         String encryptionKeySha256 = null;
         EncryptionAlgorithmType encryptionAlgorithm = null;
@@ -1094,6 +1025,10 @@ final class StorageBlobServiceImpl {
             encryptionKey,
             encryptionKeySha256,
             encryptionAlgorithm);
+
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
 
         if (callback != null) {
             executeCall(call, new retrofit2.Callback<Void>() {
@@ -1125,7 +1060,7 @@ final class StorageBlobServiceImpl {
                 }
             });
 
-            return new CallAndOptionalResult<>(call, null);
+            return null;
         } else {
             Response<Void> response = executeCall(call);
 
@@ -1140,7 +1075,7 @@ final class StorageBlobServiceImpl {
                         null,
                         headers);
 
-                    return new CallAndOptionalResult<>(call, result);
+                    return result;
                 } else {
                     throw new BlobStorageException(null, response.raw());
                 }
@@ -1152,22 +1087,24 @@ final class StorageBlobServiceImpl {
         }
     }
 
-    private CallAndOptionalResult<BlobDownloadResponse> downloadWithRestResponseIntern(String containerName,
-                                                                                       String blobName,
-                                                                                       String snapshot,
-                                                                                       Integer timeout,
-                                                                                       String range,
-                                                                                       String leaseId,
-                                                                                       Boolean rangeGetContentMd5,
-                                                                                       Boolean rangeGetContentCrc64,
-                                                                                       OffsetDateTime ifModifiedSince,
-                                                                                       OffsetDateTime ifUnmodifiedSince,
-                                                                                       String ifMatch,
-                                                                                       String ifNoneMatch,
-                                                                                       String version,
-                                                                                       String requestId,
-                                                                                       CpkInfo cpkInfo,
-                                                                                       Callback<BlobDownloadResponse> callback) {
+    private BlobDownloadResponse downloadWithRestResponseIntern(String containerName,
+                                                                String blobName,
+                                                                String snapshot,
+                                                                Integer timeout,
+                                                                String range,
+                                                                String leaseId,
+                                                                Boolean rangeGetContentMd5,
+                                                                Boolean rangeGetContentCrc64,
+                                                                OffsetDateTime ifModifiedSince,
+                                                                OffsetDateTime ifUnmodifiedSince,
+                                                                String ifMatch,
+                                                                String ifNoneMatch,
+                                                                String version,
+                                                                String requestId,
+                                                                CpkInfo cpkInfo,
+                                                                CancellationToken cancellationToken,
+                                                                Callback<BlobDownloadResponse> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         String encryptionKey = null;
         String encryptionKeySha256 = null;
         EncryptionAlgorithmType encryptionAlgorithm = null;
@@ -1201,6 +1138,10 @@ final class StorageBlobServiceImpl {
             encryptionKeySha256,
             encryptionAlgorithm);
 
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
         if (callback != null) {
             executeCall(call, new retrofit2.Callback<ResponseBody>() {
                 @Override
@@ -1233,7 +1174,7 @@ final class StorageBlobServiceImpl {
                 }
             });
 
-            return new CallAndOptionalResult<>(call, null);
+            return null;
         } else {
             Response<ResponseBody> response = executeCall(call);
 
@@ -1247,7 +1188,7 @@ final class StorageBlobServiceImpl {
                         response.body(),
                         headers);
 
-                    return new CallAndOptionalResult<>(call, result);
+                    return result;
                 } else {
                     String strContent = readAsString(response.body());
 
@@ -1261,17 +1202,19 @@ final class StorageBlobServiceImpl {
         }
     }
 
-    private CallAndOptionalResult<BlockBlobsStageBlockResponse> stageBlockWithRestResponseIntern(String containerName,
-                                                                                                 String blobName,
-                                                                                                 String base64BlockId,
-                                                                                                 byte[] blockContent,
-                                                                                                 byte[] transactionalContentMD5,
-                                                                                                 byte[] transactionalContentCrc64,
-                                                                                                 Integer timeout,
-                                                                                                 String leaseId,
-                                                                                                 String requestId,
-                                                                                                 CpkInfo cpkInfo,
-                                                                                                 Callback<BlockBlobsStageBlockResponse> callback) {
+    private BlockBlobsStageBlockResponse stageBlockWithRestResponseIntern(String containerName,
+                                                                          String blobName,
+                                                                          String base64BlockId,
+                                                                          byte[] blockContent,
+                                                                          byte[] transactionalContentMD5,
+                                                                          byte[] transactionalContentCrc64,
+                                                                          Integer timeout,
+                                                                          String leaseId,
+                                                                          String requestId,
+                                                                          CpkInfo cpkInfo,
+                                                                          CancellationToken cancellationToken,
+                                                                          Callback<BlockBlobsStageBlockResponse> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         String encryptionKey = null;
         String encryptionKeySha256 = null;
         EncryptionAlgorithmType encryptionAlgorithm = null;
@@ -1304,6 +1247,10 @@ final class StorageBlobServiceImpl {
             encryptionKeySha256,
             encryptionAlgorithm);
 
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
         if (callback != null) {
             executeCall(call, new retrofit2.Callback<ResponseBody>() {
                 @Override
@@ -1334,7 +1281,7 @@ final class StorageBlobServiceImpl {
                     callback.onFailure(t);
                 }
             });
-            return new CallAndOptionalResult(call, null);
+            return null;
         } else {
             Response<ResponseBody> response = executeCall(call);
 
@@ -1348,7 +1295,7 @@ final class StorageBlobServiceImpl {
                         response.headers(),
                         null,
                         typedHeader);
-                    return new CallAndOptionalResult<>(call, result);
+                    return result;
                 } else {
                     String strContent = readAsString(response.body());
 
@@ -1362,19 +1309,21 @@ final class StorageBlobServiceImpl {
         }
     }
 
-    private CallAndOptionalResult<BlockBlobsCommitBlockListResponse> commitBlockListWithRestResponseIntern(String containerName,
-                                                                                                           String blobName,
-                                                                                                           List<String> base64BlockIds,
-                                                                                                           byte[] transactionalContentMD5,
-                                                                                                           byte[] transactionalContentCrc64,
-                                                                                                           Integer timeout,
-                                                                                                           BlobHttpHeaders blobHttpHeaders,
-                                                                                                           Map<String, String> metadata,
-                                                                                                           BlobRequestConditions requestConditions,
-                                                                                                           String requestId,
-                                                                                                           CpkInfo cpkInfo,
-                                                                                                           AccessTier tier,
-                                                                                                           Callback<BlockBlobsCommitBlockListResponse> callback) {
+    private BlockBlobsCommitBlockListResponse commitBlockListWithRestResponseIntern(String containerName,
+                                                                                    String blobName,
+                                                                                    List<String> base64BlockIds,
+                                                                                    byte[] transactionalContentMD5,
+                                                                                    byte[] transactionalContentCrc64,
+                                                                                    Integer timeout,
+                                                                                    BlobHttpHeaders blobHttpHeaders,
+                                                                                    Map<String, String> metadata,
+                                                                                    BlobRequestConditions requestConditions,
+                                                                                    String requestId,
+                                                                                    CpkInfo cpkInfo,
+                                                                                    AccessTier tier,
+                                                                                    CancellationToken cancellationToken,
+                                                                                    Callback<BlockBlobsCommitBlockListResponse> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         requestConditions = requestConditions == null ? new BlobRequestConditions() : requestConditions;
         String leaseId = requestConditions.getLeaseId();
         DateTimeRfc1123 ifModifiedSince = requestConditions.getIfModifiedSince() == null
@@ -1486,6 +1435,10 @@ final class StorageBlobServiceImpl {
             encryptionKeySha256,
             encryptionAlgorithm);
 
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
         if (callback != null) {
             executeCall(call, new retrofit2.Callback<ResponseBody>() {
                 @Override
@@ -1517,7 +1470,7 @@ final class StorageBlobServiceImpl {
                     callback.onFailure(t);
                 }
             });
-            return new CallAndOptionalResult<>(call, null);
+            return null;
         } else {
             Response<ResponseBody> response = executeCall(call);
 
@@ -1533,7 +1486,7 @@ final class StorageBlobServiceImpl {
                             null,
                             typedHeader);
 
-                    return new CallAndOptionalResult<>(call, result);
+                    return result;
                 } else {
                     String strContent = readAsString(response.body());
 
@@ -1547,19 +1500,21 @@ final class StorageBlobServiceImpl {
         }
     }
 
-    private CallAndOptionalResult<BlobDeleteResponse> deleteWithRestResponseIntern(String containerName,
-                                                                                   String blobName,
-                                                                                   String snapshot,
-                                                                                   Integer timeout,
-                                                                                   String version,
-                                                                                   String leaseId,
-                                                                                   DeleteSnapshotsOptionType deleteSnapshots,
-                                                                                   OffsetDateTime ifModifiedSince,
-                                                                                   OffsetDateTime ifUnmodifiedSince,
-                                                                                   String ifMatch,
-                                                                                   String ifNoneMatch,
-                                                                                   String requestId,
-                                                                                   Callback<BlobDeleteResponse> callback) {
+    private BlobDeleteResponse deleteWithRestResponseIntern(String containerName,
+                                                            String blobName,
+                                                            String snapshot,
+                                                            Integer timeout,
+                                                            String version,
+                                                            String leaseId,
+                                                            DeleteSnapshotsOptionType deleteSnapshots,
+                                                            OffsetDateTime ifModifiedSince,
+                                                            OffsetDateTime ifUnmodifiedSince,
+                                                            String ifMatch,
+                                                            String ifNoneMatch,
+                                                            String requestId,
+                                                            CancellationToken cancellationToken,
+                                                            Callback<BlobDeleteResponse> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         DateTimeRfc1123 ifModifiedSinceConverted = ifModifiedSince == null ? null :
             new DateTimeRfc1123(ifModifiedSince);
         DateTimeRfc1123 ifUnmodifiedSinceConverted = ifUnmodifiedSince == null ? null :
@@ -1577,6 +1532,10 @@ final class StorageBlobServiceImpl {
             ifNoneMatch,
             XMS_VERSION, // TODO: Replace with 'version'.
             requestId);
+
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
 
         if (callback != null) {
             executeCall(call, new retrofit2.Callback<ResponseBody>() {
@@ -1610,7 +1569,7 @@ final class StorageBlobServiceImpl {
                 }
             });
 
-            return new CallAndOptionalResult<>(call, null);
+            return null;
         } else {
             Response<ResponseBody> response = executeCall(call);
 
@@ -1625,7 +1584,7 @@ final class StorageBlobServiceImpl {
                         null,
                         headers);
 
-                    return new CallAndOptionalResult<>(call, result);
+                    return result;
                 } else {
                     String strContent = readAsString(response.body());
 
@@ -1679,24 +1638,6 @@ final class StorageBlobServiceImpl {
             return this.serializerAdapter.deserialize(headers, type);
         } catch (IOException ioe) {
             throw new RuntimeException(ioe);
-        }
-    }
-
-    private static class CallAndOptionalResult<T> {
-        private final Call call;
-        private final T result;
-
-        CallAndOptionalResult(Call call, T result) {
-            this.call = call;
-            this.result = result;
-        }
-
-        Call getCall() {
-            return this.call;
-        }
-
-        T getResult() {
-            return this.result;
         }
     }
 
