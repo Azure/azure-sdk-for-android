@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.work.NetworkType;
 
-import com.azure.android.storage.blob.StorageBlobClient;
+import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.sample.config.StorageConfiguration;
 import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservable;
 import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservableAuthInterceptor;
@@ -39,7 +39,7 @@ public class UploadFileActivity extends AppCompatActivity {
     // Singleton StorageBlobClient that will be created by Dagger. The singleton object is shared across various
     // activities in the application.
     @Inject
-    StorageBlobClient storageBlobClient;
+    StorageBlobAsyncClient storageBlobAsyncClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,7 @@ public class UploadFileActivity extends AppCompatActivity {
         this.storageConfiguration = StorageConfiguration.create(getApplicationContext());
 
         // Set up Login
-        final List<String> blobEndpointScopes = Collections.singletonList(storageBlobClient.getBlobServiceUrl() + ".default");
+        final List<String> blobEndpointScopes = Collections.singletonList(storageBlobAsyncClient.getBlobServiceUrl() + ".default");
         TokenRequestObservableAuthInterceptor authInterceptor =
             new TokenRequestObservableAuthInterceptor(blobEndpointScopes);
 
@@ -83,11 +83,11 @@ public class UploadFileActivity extends AppCompatActivity {
 
         // Create a new StorageBlobClient from the existing client with different base URL and credentials but sharing
         // the underlying OkHttp Client.
-        storageBlobClient = storageBlobClient
+        storageBlobAsyncClient = storageBlobAsyncClient
             .newBuilder("com.azure.android.storage.sample.upload")
             .setBlobServiceUrl(storageConfiguration.getBlobServiceUrl())
             .setCredentialInterceptor(authInterceptor)
-            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .setTransferRequiredNetworkType(NetworkType.CONNECTED)
             .build();
     }
 
@@ -117,7 +117,7 @@ public class UploadFileActivity extends AppCompatActivity {
         Log.d("Upload Content", "File size: " + fileSize);
 
         try {
-            storageBlobClient.upload(getApplicationContext(), containerName, blobName, fileUri)
+            storageBlobAsyncClient.upload(getApplicationContext(), containerName, blobName, fileUri)
                 .observe(this, new TransferObserver() {
                     @Override
                     public void onStart(long transferId) {

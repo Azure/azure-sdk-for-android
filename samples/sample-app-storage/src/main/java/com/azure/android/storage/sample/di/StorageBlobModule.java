@@ -1,6 +1,6 @@
 package com.azure.android.storage.sample.di;
 
-import com.azure.android.storage.blob.StorageBlobClient;
+import com.azure.android.storage.blob.StorageBlobAsyncClient;
 
 import javax.inject.Singleton;
 
@@ -17,8 +17,8 @@ public class StorageBlobModule {
 
     @Provides
     @Singleton
-    StorageBlobClient provideStorageBlobClient() {
-        return new StorageBlobClient.Builder("com.azure.android.storage.sample")
+    StorageBlobAsyncClient provideStorageBlobClient() {
+        return new StorageBlobAsyncClient.Builder("com.azure.android.storage.sample")
                 .setBlobServiceUrl(this.baseUrl)
                 .build();
     }
