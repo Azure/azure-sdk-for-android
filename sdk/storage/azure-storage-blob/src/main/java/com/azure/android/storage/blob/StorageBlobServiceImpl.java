@@ -6,6 +6,7 @@ package com.azure.android.storage.blob;
 import androidx.annotation.NonNull;
 
 import com.azure.android.core.http.Callback;
+import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.internal.util.CancellationTokenImpl;
 import com.azure.android.core.internal.util.serializer.SerializerAdapter;
@@ -35,6 +36,7 @@ import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentRespon
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.EncryptionAlgorithmType;
+import com.azure.android.storage.blob.implementation.models.GetBlobPropertiesOptions;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
@@ -73,6 +75,10 @@ final class StorageBlobServiceImpl {
     StorageBlobServiceImpl(ServiceClient serviceClient) {
         this.service = serviceClient.getRetrofit().create(StorageBlobService.class);
         this.serializerAdapter = serviceClient.getSerializerAdapter();
+    }
+
+    String getVersion() {
+        return XMS_VERSION;
     }
 
     List<BlobItem> getBlobsInPage(String pageId,
@@ -164,25 +170,22 @@ final class StorageBlobServiceImpl {
     }
 
     /**
-     * Reads the blob's metadata & properties.
+     * The Get Blob Properties operation reads a blob's metadata and properties. You can also call it to read a
+     * snapshot or version.
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
-     * @return The blob's metadata.
+     * @param options       The optional parameters.
+     * @return A response containing the blob metadata.
      */
-    BlobGetPropertiesHeaders getBlobProperties(String containerName,
-                                               String blobName) {
-        BlobGetPropertiesResponse blobGetPropertiesResponse = getBlobPropertiesWithRestResponse(containerName,
+    // Response<T>
+    BlobGetPropertiesResponse getBlobPropertiesWithRestResponse(String containerName,
+                                                                String blobName,
+                                                                GetBlobPropertiesOptions options) {
+        return getBlobPropertiesWithRestResponseIntern(containerName,
             blobName,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE);
-
-        return blobGetPropertiesResponse.getDeserializedHeaders();
+            options,
+            null);
     }
 
     /**
@@ -194,27 +197,11 @@ final class StorageBlobServiceImpl {
      */
     void getBlobProperties(String containerName,
                            String blobName,
-                           Callback<BlobGetPropertiesHeaders> callback) {
-        getBlobPropertiesWithRestResponse(containerName,
+                           CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
+        this.getBlobProperties(containerName,
             blobName,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
-            new Callback<BlobGetPropertiesResponse>() {
-                @Override
-                public void onResponse(BlobGetPropertiesResponse response) {
-                    callback.onResponse(response.getDeserializedHeaders());
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    callback.onFailure(t);
-                }
-            });
+            new GetBlobPropertiesOptions(),
+            callback);
     }
 
     /**
@@ -223,68 +210,16 @@ final class StorageBlobServiceImpl {
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
-     * @param snapshot      he snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout       The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version       Specifies the version of the operation to use for this request.
-     * @param leaseId       If specified, the operation only succeeds if the resource's lease is active and matches this ID.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
-     * @param cpkInfo       Additional parameters for the operation.
-     * @return A response containing the blob metadata.
-     */
-    BlobGetPropertiesResponse getBlobPropertiesWithRestResponse(String containerName,
-                                                                String blobName,
-                                                                String snapshot,
-                                                                Integer timeout,
-                                                                String version,
-                                                                String leaseId,
-                                                                String requestId,
-                                                                CpkInfo cpkInfo,
-                                                                CancellationToken cancellationToken) {
-        return getBlobPropertiesWithRestResponseIntern(containerName,
-            blobName,
-            snapshot,
-            timeout,
-            version,
-            leaseId,
-            requestId,
-            cpkInfo,
-            cancellationToken,
-            null);
-    }
-
-    /**
-     * The Get Blob Properties operation reads a blob's metadata and properties. You can also call it to read a
-     * snapshot or version.
-     *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @param snapshot      he snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout       The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version       Specifies the version of the operation to use for this request.
-     * @param leaseId       If specified, the operation only succeeds if the resource's lease is active and matches this ID.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
-     * @param cpkInfo       Additional parameters for the operation.
+     * @param options       The optional parameters.
      * @param callback      Callback that receives the response.
      */
-    void getBlobPropertiesWithRestResponse(String containerName,
-                                           String blobName,
-                                           String snapshot,
-                                           Integer timeout,
-                                           String version,
-                                           String leaseId,
-                                           String requestId,
-                                           CpkInfo cpkInfo,
-                                           CancellationToken cancellationToken,
-                                           Callback<BlobGetPropertiesResponse> callback) {
+    void getBlobProperties(String containerName,
+                           String blobName,
+                           GetBlobPropertiesOptions options,
+                           CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
         this.getBlobPropertiesWithRestResponseIntern(containerName,
             blobName,
-            snapshot,
-            timeout,
-            version,
-            leaseId,
-            requestId,
-            cpkInfo,
-            cancellationToken,
+            options,
             callback);
     }
 
@@ -996,37 +931,24 @@ final class StorageBlobServiceImpl {
 
     private BlobGetPropertiesResponse getBlobPropertiesWithRestResponseIntern(String containerName,
                                                                               String blobName,
-                                                                              String snapshot,
-                                                                              Integer timeout,
-                                                                              String version,
-                                                                              String leaseId,
-                                                                              String requestId,
-                                                                              CpkInfo cpkInfo,
-                                                                              CancellationToken cancellationToken,
-                                                                              Callback<BlobGetPropertiesResponse> callback) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        String encryptionKey = null;
-        String encryptionKeySha256 = null;
-        EncryptionAlgorithmType encryptionAlgorithm = null;
-
-        if (cpkInfo != null) {
-            encryptionKey = cpkInfo.getEncryptionKey();
-            encryptionKeySha256 = cpkInfo.getEncryptionKeySha256();
-            encryptionAlgorithm = cpkInfo.getEncryptionAlgorithm();
-        }
-
+                                                                              GetBlobPropertiesOptions options,
+                                                                              CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
         Call<Void> call = service.getBlobProperties(containerName,
             blobName,
-            snapshot,
-            timeout,
-            XMS_VERSION, // TODO: Replace with 'version'.
-            leaseId,
-            requestId,
-            encryptionKey,
-            encryptionKeySha256,
-            encryptionAlgorithm);
+            options.getSnapshot(),
+            options.getTimeout(),
+            this.getVersion(),
+            options.getLeaseId(),
+            options.getIfModifiedSince() != null ? new DateTimeRfc1123(options.getIfModifiedSince()).toString() : null,
+            options.getIfUnmodifiedSince() != null ? new DateTimeRfc1123(options.getIfUnmodifiedSince()).toString() : null,
+            options.getIfMatch(),
+            options.getIfNoneMatch(),
+            options.getRequestId(),
+            options.getCpkInfo() != null ? options.getCpkInfo().getEncryptionKey() : null,
+            options.getCpkInfo() != null ? options.getCpkInfo().getEncryptionKeySha256() : null,
+            options.getCpkInfo() != null ? options.getCpkInfo().getEncryptionAlgorithm() : null);
 
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+        ((CancellationTokenImpl) options.getCancellationToken()).registerOnCancel(() -> {
             call.cancel();
         });
 
@@ -1036,27 +958,24 @@ final class StorageBlobServiceImpl {
                 public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
                     if (response.isSuccessful()) {
                         if (response.code() == 200) {
-                            BlobGetPropertiesHeaders typedHeaders = deserializeHeaders(response.headers(),
-                                BlobGetPropertiesHeaders.class);
-
-                            callback.onResponse(new BlobGetPropertiesResponse(response.raw().request(),
-                                response.code(),
-                                response.headers(),
-                                null,
-                                typedHeaders));
+                            callback.onSuccess(null, // result is void
+                                deserializeHeaders(response.headers(), BlobGetPropertiesHeaders.class),
+                                response.raw());
                         } else {
-                            callback.onFailure(new BlobStorageException(null, response.raw()));
+                            callback.onFailure(new BlobStorageException(null, response.raw()),
+                                response.raw());
                         }
                     } else {
                         String strContent = readAsString(response.errorBody());
 
-                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()),
+                            response.raw());
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                    callback.onFailure(t);
+                    callback.onFailure(t, null);
                 }
             });
 
@@ -1066,14 +985,11 @@ final class StorageBlobServiceImpl {
 
             if (response.isSuccessful()) {
                 if (response.code() == 200) {
-                    BlobGetPropertiesHeaders headers = deserializeHeaders(response.headers(),
-                        BlobGetPropertiesHeaders.class);
-
                     BlobGetPropertiesResponse result = new BlobGetPropertiesResponse(response.raw().request(),
                         response.code(),
                         response.headers(),
                         null,
-                        headers);
+                        deserializeHeaders(response.headers(), BlobGetPropertiesHeaders.class));
 
                     return result;
                 } else {
@@ -1661,6 +1577,10 @@ final class StorageBlobServiceImpl {
                                      @Query("timeout") Integer timeout,
                                      @Header("x-ms-version") String version,
                                      @Header("x-ms-lease-id") String leaseId,
+                                     @Header("If-Modified-Since") String ifModifiedSince,
+                                     @Header("If-Unmodified-Since") String ifUnmodifiedSince,
+                                     @Header("If-Match") String ifMatch,
+                                     @Header("If-None-Match") String ifNoneMatch,
                                      @Header("x-ms-client-request-id") String requestId,
                                      @Header("x-ms-encryption-key") String encryptionKey,
                                      @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,

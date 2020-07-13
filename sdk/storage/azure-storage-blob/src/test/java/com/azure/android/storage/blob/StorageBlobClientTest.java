@@ -1,18 +1,19 @@
 package com.azure.android.storage.blob;
 
 import com.azure.android.core.http.Callback;
+import com.azure.android.core.http.CallbackSimple;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
-import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
-import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobItem;
+import com.azure.android.storage.blob.models.BlobProperties;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
+import com.azure.android.storage.blob.models.GetBlobPropertiesOptions;
 
 import org.junit.After;
 import org.junit.Test;
@@ -27,6 +28,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -240,10 +242,10 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then an object with the blob properties will be returned by the client.
-        BlobGetPropertiesHeaders blobGetPropertiesHeaders = storageBlobClient.getBlobProperties("container",
+        BlobProperties blobProperties = storageBlobClient.getBlobProperties("container",
             "blob");
 
-        assertEquals("application/text", blobGetPropertiesHeaders.getContentType());
+        assertEquals("application/text", blobProperties.getContentType());
     }
 
     @Test
@@ -261,19 +263,19 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.getBlobProperties("container",
             "blob",
-            new Callback<BlobGetPropertiesHeaders>() {
+            new CallbackSimple<BlobProperties>() {
                 @Override
-                public void onResponse(BlobGetPropertiesHeaders response) {
+                public void onSuccess(BlobProperties value, Response response) {
                     try {
                         // Then an object with the blob properties will be returned by the client to the callback.
-                        assertEquals("application/text", response.getContentType());
+                        assertEquals("application/text", value.getContentType());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t, Response response) {
                     try {
                         throw new RuntimeException(t);
                     } finally {
@@ -282,11 +284,12 @@ public class StorageBlobClientTest {
                 }
             });
 
-        awaitOnLatch(latch, "getBlobProperties");
+
+            awaitOnLatch(latch, "getBlobProperties");
     }
 
     @Test
-    public void getBlobPropertiesWithRestResponse() {
+    public void getBlobPropertiesWithOptions() {
         // Given a StorageBlobClient.
 
         // When requesting the properties of a blob using getBlobPropertiesAsHeaders().
@@ -298,22 +301,16 @@ public class StorageBlobClientTest {
 
         // Then the client will return an object that contains both the details of the REST response and
         // a an object with the blob properties.
-        BlobGetPropertiesResponse response =
+        com.azure.android.core.http.Response<BlobProperties> restResponse =
             storageBlobClient.getBlobPropertiesWithRestResponse("container",
                 "blob",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                CancellationToken.NONE);
+                new GetBlobPropertiesOptions().setCancellationToken(CancellationToken.NONE));
 
-        assertEquals("application/text", response.getDeserializedHeaders().getContentType());
+        assertEquals("application/text", restResponse.getValue().getContentType());
     }
 
     @Test
-    public void getBlobPropertiesWithRestResponse_withCallback() {
+    public void getBlobPropertiesWithOptions_withCallback() {
         // Given a StorageBlobClient.
 
         // When requesting the properties of a blob using getBlobPropertiesWithRestResponse() while providing a
@@ -326,29 +323,23 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.getBlobPropertiesWithRestResponse("container",
+        storageBlobAsyncClient.getBlobProperties("container",
             "blob",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
-            new Callback<BlobGetPropertiesResponse>() {
+            new GetBlobPropertiesOptions().setCancellationToken(CancellationToken.NONE),
+            new CallbackSimple<BlobProperties>() {
                 @Override
-                public void onResponse(BlobGetPropertiesResponse response) {
+                public void onSuccess(BlobProperties value, Response response) {
                     try {
                         // Then the client will return an object that contains both the details of the REST response and
                         // an object with the blob properties to the callback.
-                        assertEquals("application/text", response.getDeserializedHeaders().getContentType());
+                        assertEquals("application/text", value.getContentType());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t, Response response) {
                     try {
                         throw new RuntimeException(t);
                     } finally {

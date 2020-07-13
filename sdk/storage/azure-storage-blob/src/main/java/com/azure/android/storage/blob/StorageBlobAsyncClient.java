@@ -14,6 +14,8 @@ import androidx.work.Constraints;
 import androidx.work.NetworkType;
 
 import com.azure.android.core.http.Callback;
+import com.azure.android.core.http.CallbackSimple;
+import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
@@ -25,15 +27,16 @@ import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
+import com.azure.android.storage.blob.models.BlobProperties;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
-import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
+import com.azure.android.storage.blob.models.GetBlobPropertiesOptions;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.transfer.DownloadRequest;
@@ -295,10 +298,20 @@ public class StorageBlobAsyncClient {
      */
     public void getBlobProperties(String containerName,
                                   String blobName,
-                                  Callback<BlobGetPropertiesHeaders> callback) {
+                                  CallbackSimple<BlobProperties> callback) {
         storageBlobServiceClient.getBlobProperties(containerName,
             blobName,
-            callback);
+            new CallbackWithHeader<Void, BlobGetPropertiesHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobGetPropertiesHeaders header, okhttp3.Response response) {
+                    callback.onSuccess(ClientUtil.buildBlobProperties(header), response);
+                }
+
+                @Override
+                public void onFailure(Throwable t, okhttp3.Response response) {
+                    callback.onFailure(t, response);
+                }
+            });
     }
 
     /**
@@ -306,43 +319,27 @@ public class StorageBlobAsyncClient {
      *
      * @param containerName         The container name.
      * @param blobName              The blob name.
-     * @param snapshot              The snapshot parameter is an opaque DateTime value that, when present, specifies
-     *                              the blob snapshot to retrieve. For more information on working with blob snapshots,
-     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
-     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version               Specifies the version of the operation to use for this request.
-     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
-     *                              variety of requests to the conditions present. These conditions are entirely
-     *                              optional.
-     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                              recorded in the analytics logs when storage analytics logging is enabled.
-     * @param cpkInfo               Additional parameters for the operation.
-     * @param cancellationToken     The token to request cancellation.
+     * @param options               The optional parameter.
      * @param callback              Callback that receives the response.
      */
-    public void getBlobPropertiesWithRestResponse(String containerName,
-                                                  String blobName,
-                                                  String snapshot,
-                                                  Integer timeout,
-                                                  String version,
-                                                  BlobRequestConditions blobRequestConditions,
-                                                  String requestId,
-                                                  CpkInfo cpkInfo,
-                                                  CancellationToken cancellationToken,
-                                                  Callback<BlobGetPropertiesResponse> callback) {
-        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
-
-        storageBlobServiceClient.getBlobPropertiesWithRestResponse(containerName,
+    public void getBlobProperties(String containerName,
+                                  String blobName,
+                                  GetBlobPropertiesOptions options,
+                                  CallbackSimple<BlobProperties> callback) {
+        storageBlobServiceClient.getBlobProperties(containerName,
             blobName,
-            snapshot,
-            timeout,
-            version,
-            blobRequestConditions.getLeaseId(),
-            requestId,
-            cpkInfo,
-            cancellationToken,
-            callback);
+            ClientUtil.toImplOptions(options),
+            new CallbackWithHeader<Void, BlobGetPropertiesHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobGetPropertiesHeaders header, okhttp3.Response response) {
+                    callback.onSuccess(ClientUtil.buildBlobProperties(header), response);
+                }
+
+                @Override
+                public void onFailure(Throwable t, okhttp3.Response response) {
+                    callback.onFailure(t, response);
+                }
+            });
     }
 
     /**
