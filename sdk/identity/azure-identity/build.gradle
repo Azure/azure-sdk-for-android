@@ -26,4 +26,5 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion"
     implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    testImplementation "junit:junit:$jUnitVersion"
 }

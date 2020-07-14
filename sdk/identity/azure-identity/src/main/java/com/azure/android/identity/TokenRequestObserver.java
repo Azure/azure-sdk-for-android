@@ -2,8 +2,6 @@ package com.azure.android.identity;
 
 import androidx.lifecycle.Observer;
 
-import com.azure.android.core.credential.AccessToken;
-
 /**
  * An Observer of {@link TokenRequestObservable}.
  */

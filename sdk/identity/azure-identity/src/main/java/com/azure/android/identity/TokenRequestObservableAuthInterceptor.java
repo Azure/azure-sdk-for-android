@@ -1,7 +1,5 @@
 package com.azure.android.identity;
 
-import com.azure.android.core.credential.AccessToken;
-
 import org.threeten.bp.Duration;
 
 import java.io.IOException;
@@ -14,8 +12,8 @@ import okhttp3.Request;
 import okhttp3.Response;
 
 /**
- * An OkHttp interceptor that uses {@link TokenRequestObservable} to retrieve the access token and set it to
- * as a the value for the Authorization Bearer header.
+ * An OkHttp interceptor that uses {@link TokenRequestObservable} to retrieve an {@link AccessToken} and set as a the
+ * value of the 'Authorization Bearer' header.
  */
 public class TokenRequestObservableAuthInterceptor implements Interceptor {
     // The Observable to send and observe a token request.
@@ -28,7 +26,7 @@ public class TokenRequestObservableAuthInterceptor implements Interceptor {
     private final ReentrantLock sendRequestLock = new ReentrantLock();
 
     /**
-     * Creates TokenRequestObservableAuthInterceptor.
+     * Creates a {@link TokenRequestObservableAuthInterceptor}.
      *
      * @param scopes The scope for the requested token.
      */
@@ -37,8 +35,8 @@ public class TokenRequestObservableAuthInterceptor implements Interceptor {
     }
 
     /**
-     * @return The token request observable that the UI can observe for access token request coming from this
-     * interceptor.
+     * @return The {@link TokenRequestObservable} that the UI can observe for an {@link AccessToken} request coming
+     * from this interceptor.
      */
     public TokenRequestObservable getTokenRequestObservable() {
         return this.requestObservable;

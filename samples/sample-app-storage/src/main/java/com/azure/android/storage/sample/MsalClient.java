@@ -5,7 +5,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.credential.AccessToken;
+import com.azure.android.identity.AccessToken;
 import com.azure.android.identity.TokenResponseCallback;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAccount;

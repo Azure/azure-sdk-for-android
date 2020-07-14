@@ -10,21 +10,24 @@ import java.util.List;
 /**
  * An Observable to send the token request from a background thread to an Observer in the main UI thread.
  * <p>
- * A use case of this type is - sending a token request from ViewModel code running in a background thread to the main
- * UI thread, where the actual acquisition of token is interactive, e.g. involves Activity UI. This Observable
- * decouples ViewModel from the UI so that ViewModel will not hold a reference to the UI component, holding such
- * reference can lead to a memory leak. However, the Observer of this Observable can hold a UI reference, because the
- * Observer is removed when the UI that the Observer is associated with is in the DESTROYED state.
+ * A use case of this type is - sending a token request from {@link androidx.lifecycle.ViewModel} code running in a
+ * background thread to the main UI thread, where the actual acquisition of token is interactive, e.g. it involves
+ * {@link android.app.Activity} UI. This Observable decouples the {@link androidx.lifecycle.ViewModel} from the UI so
+ * that the former will not hold a reference to the UI component, holding such reference can lead to a memory leak.
+ * However, the Observer of this Observable can hold a UI reference, because the Observer is removed when the UI
+ * that the Observer is associated with is in the
+ * <a href="https://developer.android.com/reference/androidx/lifecycle/Lifecycle.State.html#DESTROYED">DESTROYED</a>
+ * state.
  */
 public final class TokenRequestObservable {
     /**
-     * The LiveData to notify the token request to a LifeCycle aware Observer registered through
-     * {@link TokenRequestObservable#observe(LifecycleOwner, TokenRequestObserver)}
+     * The {@link androidx.lifecycle.LiveData} to notify the token request to a LifeCycle aware Observer registered
+     * through {@link TokenRequestObservable#observe(LifecycleOwner, TokenRequestObserver)}.
      */
     private final MutableLiveData<TokenRequestHandle> innerObservable;
 
     /**
-     * Creates a TokenRequestObservable to send the token request and observe for it.
+     * Creates a {@link TokenRequestObservable} to send the token request and observe for it.
      */
     public TokenRequestObservable() {
         this.innerObservable = new MutableLiveData<>();
@@ -38,9 +41,9 @@ public final class TokenRequestObservable {
      * will be executed in the main UI thread.
      *
      * @param scopes The scopes required for the token.
-     * @return The Handle that the caller can use to synchronously receive an access token produced by the main UI
-     * thread.
-     * @throws if this method is called from the main UI thread.
+     * @return The {@link TokenRequestHandle handle} that the caller can use to synchronously receive an access token
+     * produced by the main UI thread.
+     * @throws IllegalStateException if this method is called from the main UI thread.
      */
     public TokenRequestHandle sendRequest(List<String> scopes) {
         if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
@@ -51,22 +54,24 @@ public final class TokenRequestObservable {
         }
 
         TokenRequestHandle requestMessage = new TokenRequestHandle(scopes);
+
         this.innerObservable.postValue(requestMessage);
 
         return requestMessage;
     }
 
     /**
-     * Register an Observer that listen for token request Event and associate the Observer with the lifecycle of the
-     * given owner.
+     * Register an Observer that listens for a token request Event and associates the Observer with the lifecycle of
+     * the given owner.
      * <p>
-     * An event will be delivered to the Observer only if the owner (e.g. Activity, View) is in active state i.e.
-     * when it is in either STARTED or RESUMED states.
+     * An event will be delivered to the Observer only if the owner (e.g. {@link android.app.Activity},
+     * {@link android.view.View}, etc.) is in active state, i.e. when it is in either STARTED or RESUMED states.
      * <p>
-     * When the owner reaches DESTROYED state right before calling owner::onDestroy(), the observer will be removed
-     * and ready for GC collection. https://developer.android.com/reference/androidx/lifecycle/Lifecycle.State
-     * .html#DESTROYED https://developer.android.com/topic/libraries/architecture/livedata#work_livedata This
-     * guarantees that any reference to UI components (e.g. Activity) that the Observer is holding will be released.
+     * When the owner reaches the
+     * <a href="https://developer.android.com/reference/androidx/lifecycle/Lifecycle.State.html#DESTROYED">DESTROYED</a>
+     * state right before calling {@code owner::onDestroy()}, the observer will be
+     * removed and ready for GC collection. This guarantees that any reference to UI components (e.g.
+     * {@link android.app.Activity}) that the Observer is holding will be released.
      *
      * @param owner The owner whose lifecycle the Observer needs to be aware of.
      * @param observer The token request Observer.
