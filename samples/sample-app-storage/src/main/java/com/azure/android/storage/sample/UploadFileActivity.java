@@ -10,19 +10,18 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LifecycleOwner;
 
+import com.azure.android.identity.TokenRequestObservable;
+import com.azure.android.identity.TokenRequestObservableAuthInterceptor;
+import com.azure.android.identity.TokenRequestObserver;
+import com.azure.android.identity.TokenResponseCallback;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.sample.config.StorageConfiguration;
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservable;
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservableAuthInterceptor;
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObserver;
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenResponseCallback;
 import com.microsoft.identity.client.IMultipleAccountPublicClientApplication;
 import com.microsoft.identity.client.PublicClientApplication;
 import com.microsoft.identity.client.exception.MsalException;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

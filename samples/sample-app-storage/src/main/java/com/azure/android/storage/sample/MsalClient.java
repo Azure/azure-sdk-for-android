@@ -6,7 +6,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.azure.android.core.credential.AccessToken;
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenResponseCallback;
+import com.azure.android.identity.TokenResponseCallback;
 import com.microsoft.identity.client.AuthenticationCallback;
 import com.microsoft.identity.client.IAccount;
 import com.microsoft.identity.client.IAuthenticationResult;
@@ -28,12 +28,13 @@ import java.util.List;
 class MsalClient {
     private static final String TAG = MsalClient.class.getSimpleName();
 
-    private MsalClient() {}
+    private MsalClient() {
+    }
 
     public static void signIn(@NonNull final IMultipleAccountPublicClientApplication aadApp,
-                       @NonNull final Activity activity,
-                       @NonNull final String[] scopes,
-                       @NonNull final TokenResponseCallback callback) {
+                              @NonNull final Activity activity,
+                              @NonNull final String[] scopes,
+                              @NonNull final TokenResponseCallback callback) {
         aadApp.getAccounts(new IPublicClientApplication.LoadAccountsCallback() {
             @Override
             public void onTaskCompleted(List<IAccount> result) {
@@ -106,8 +107,6 @@ class MsalClient {
     }
 
     private static OffsetDateTime toOffsetDateTime(Date utcDte) {
-        return DateTimeUtils
-                .toInstant(utcDte)
-                .atOffset(ZoneOffset.UTC);
+        return DateTimeUtils.toInstant(utcDte).atOffset(ZoneOffset.UTC);
     }
 }

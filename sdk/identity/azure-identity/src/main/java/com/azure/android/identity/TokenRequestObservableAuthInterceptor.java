@@ -1,4 +1,4 @@
-package com.azure.android.storage.sample.core.util.tokenrequest;
+package com.azure.android.identity;
 
 import com.azure.android.core.credential.AccessToken;
 
