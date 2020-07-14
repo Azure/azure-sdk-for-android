@@ -13,7 +13,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.http.CallbackSimple;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlockBlobItem;
@@ -303,7 +302,7 @@ final class UploadHandler extends Handler {
                 blockContent,
                 null,
                 new StageBlockOptions().setCancellationToken(this.cancellationToken),
-                new CallbackSimple<StageBlockResult>() {
+                new com.azure.android.core.http.Callback<StageBlockResult>() {
                     @Override
                     public void onSuccess(StageBlockResult value, Response response) {
                         Log.v(TAG, "stageBlocks(): Block uploaded:" + block.blockId + threadName());
@@ -341,7 +340,7 @@ final class UploadHandler extends Handler {
         this.blobClient.commitBlockList(blob.containerName,
             blob.blobName,
             blockIds,
-            new CallbackSimple<BlockBlobItem>() {
+            new com.azure.android.core.http.Callback<BlockBlobItem>() {
                 @Override
                 public void onSuccess(BlockBlobItem value, Response response) {
                     Log.v(TAG, "commitBlocks(): Blocks committed." + threadName());

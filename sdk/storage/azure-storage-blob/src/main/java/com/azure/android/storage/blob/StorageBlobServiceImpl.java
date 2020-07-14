@@ -5,7 +5,6 @@ package com.azure.android.storage.blob;
 
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.internal.util.CancellationTokenImpl;
@@ -34,13 +33,10 @@ import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 import com.azure.android.storage.blob.models.BlockLookupList;
 import com.azure.android.storage.blob.models.ContainerListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
-import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.EncryptionAlgorithmType;
 import com.azure.android.storage.blob.implementation.models.GetBlobPropertiesOptions;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
-
-import org.threeten.bp.OffsetDateTime;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -588,121 +584,6 @@ final class StorageBlobServiceImpl {
                 }
             } else {
                 String strContent = readAsString(response.errorBody());
-                throw new BlobStorageException(strContent, response.raw());
-            }
-        }
-    }
-
-    private BlobDownloadResponse downloadWithRestResponseIntern(String containerName,
-                                                                String blobName,
-                                                                String snapshot,
-                                                                Integer timeout,
-                                                                String range,
-                                                                String leaseId,
-                                                                Boolean rangeGetContentMd5,
-                                                                Boolean rangeGetContentCrc64,
-                                                                OffsetDateTime ifModifiedSince,
-                                                                OffsetDateTime ifUnmodifiedSince,
-                                                                String ifMatch,
-                                                                String ifNoneMatch,
-                                                                String version,
-                                                                String requestId,
-                                                                CpkInfo cpkInfo,
-                                                                CancellationToken cancellationToken,
-                                                                Callback<BlobDownloadResponse> callback) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        String encryptionKey = null;
-        String encryptionKeySha256 = null;
-        EncryptionAlgorithmType encryptionAlgorithm = null;
-
-        if (cpkInfo != null) {
-            encryptionKey = cpkInfo.getEncryptionKey();
-            encryptionKeySha256 = cpkInfo.getEncryptionKeySha256();
-            encryptionAlgorithm = cpkInfo.getEncryptionAlgorithm();
-        }
-
-        DateTimeRfc1123 ifModifiedSinceConverted = ifModifiedSince == null ? null :
-            new DateTimeRfc1123(ifModifiedSince);
-        DateTimeRfc1123 ifUnmodifiedSinceConverted = ifUnmodifiedSince == null ? null :
-            new DateTimeRfc1123(ifUnmodifiedSince);
-
-        Call<ResponseBody> call = service.download(containerName,
-            blobName,
-            snapshot,
-            timeout,
-            range,
-            leaseId,
-            rangeGetContentMd5,
-            rangeGetContentCrc64,
-            ifModifiedSinceConverted,
-            ifUnmodifiedSinceConverted,
-            ifMatch,
-            ifNoneMatch,
-            XMS_VERSION, // TODO: Replace with 'version'.
-            requestId,
-            encryptionKey,
-            encryptionKeySha256,
-            encryptionAlgorithm);
-
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
-
-        if (callback != null) {
-            executeCall(call, new retrofit2.Callback<ResponseBody>() {
-                @Override
-                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                    if (response.isSuccessful()) {
-                        if (response.code() == 200 || response.code() == 206) {
-                            BlobDownloadHeaders typedHeaders = deserializeHeaders(response.headers(),
-                                BlobDownloadHeaders.class);
-
-                            callback.onResponse(new BlobDownloadResponse(response.raw().request(),
-                                response.code(),
-                                response.headers(),
-                                response.body(),
-                                typedHeaders));
-                        } else {
-                            String strContent = readAsString(response.body());
-
-                            callback.onFailure(new BlobStorageException(strContent, response.raw()));
-                        }
-                    } else {
-                        String strContent = readAsString(response.errorBody());
-
-                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    callback.onFailure(t);
-                }
-            });
-
-            return null;
-        } else {
-            Response<ResponseBody> response = executeCall(call);
-
-            if (response.isSuccessful()) {
-                if (response.code() == 200 || response.code() == 206) {
-                    BlobDownloadHeaders headers = deserializeHeaders(response.headers(), BlobDownloadHeaders.class);
-
-                    BlobDownloadResponse result = new BlobDownloadResponse(response.raw().request(),
-                        response.code(),
-                        response.headers(),
-                        response.body(),
-                        headers);
-
-                    return result;
-                } else {
-                    String strContent = readAsString(response.body());
-
-                    throw new BlobStorageException(strContent, response.raw());
-                }
-            } else {
-                String strContent = readAsString(response.errorBody());
-
                 throw new BlobStorageException(strContent, response.raw());
             }
         }

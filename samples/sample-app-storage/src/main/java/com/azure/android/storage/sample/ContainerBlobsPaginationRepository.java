@@ -2,7 +2,7 @@ package com.azure.android.storage.sample;
 
 import androidx.work.NetworkType;
 
-import com.azure.android.core.http.CallbackSimple;
+import com.azure.android.core.http.Callback;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlobItem;
@@ -63,7 +63,7 @@ final class ContainerBlobsPaginationRepository
                 }
                 options.setCancellationToken(CancellationToken.NONE);
 
-                storageBlobAsyncClient.getBlobsInPage(pageIdentifier, containerName, options, new CallbackSimple<BlobsPage>() {
+                storageBlobAsyncClient.getBlobsInPage(pageIdentifier, containerName, options, new Callback<BlobsPage>() {
                         @Override
                         public void onSuccess(BlobsPage value, Response response) {
                             callback.onSuccess(value.getItems(), value.getPageId(), value.getNextPageId());

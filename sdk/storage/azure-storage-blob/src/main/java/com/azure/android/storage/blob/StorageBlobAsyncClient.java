@@ -13,7 +13,7 @@ import androidx.lifecycle.LiveData;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 
-import com.azure.android.core.http.CallbackSimple;
+import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
@@ -246,7 +246,7 @@ public class StorageBlobAsyncClient {
     public void getBlobsInPage(String pageId,
                                String containerName,
                                ListBlobsOptions options,
-                               CallbackSimple<BlobsPage> callback) {
+                               Callback<BlobsPage> callback) {
         this.storageBlobServiceClient.listBlobFlatSegment(containerName,
             ClientUtil.toImplOptions(pageId, options),
             new CallbackWithHeader<ListBlobsFlatSegmentResponse, ContainerListBlobFlatSegmentHeaders>() {
@@ -273,7 +273,7 @@ public class StorageBlobAsyncClient {
      */
     public void getBlobsInPage(String pageId,
                                String containerName,
-                               CallbackSimple<BlobsPage> callback) {
+                               Callback<BlobsPage> callback) {
         this.storageBlobServiceClient.listBlobFlatSegment(containerName,
             ClientUtil.toImplOptions(pageId, new ListBlobsOptions()),
             new CallbackWithHeader<ListBlobsFlatSegmentResponse, ContainerListBlobFlatSegmentHeaders>() {
@@ -301,7 +301,7 @@ public class StorageBlobAsyncClient {
      */
     public void getBlobProperties(String containerName,
                                   String blobName,
-                                  CallbackSimple<BlobProperties> callback) {
+                                  Callback<BlobProperties> callback) {
         storageBlobServiceClient.getBlobProperties(containerName,
             blobName,
             new CallbackWithHeader<Void, BlobGetPropertiesHeaders>() {
@@ -328,7 +328,7 @@ public class StorageBlobAsyncClient {
     public void getBlobProperties(String containerName,
                                   String blobName,
                                   GetBlobPropertiesOptions options,
-                                  CallbackSimple<BlobProperties> callback) {
+                                  Callback<BlobProperties> callback) {
         storageBlobServiceClient.getBlobProperties(containerName,
             blobName,
             ClientUtil.toImplOptions(options),
@@ -361,7 +361,7 @@ public class StorageBlobAsyncClient {
      */
     public void rawDownload(String containerName,
                             String blobName,
-                            CallbackSimple<ResponseBody> callback) {
+                            Callback<ResponseBody> callback) {
         com.azure.android.storage.blob.implementation.models.BlobDownloadOptions implOptions = ClientUtil.toImplOptions(new BlobDownloadOptions());
         implOptions.setRange(new BlobRange(0).toString());
 
@@ -399,7 +399,7 @@ public class StorageBlobAsyncClient {
     public void rawDownload(String containerName,
                             String blobName,
                             BlobDownloadOptions options,
-                            CallbackSimple<ResponseBody> callback) {
+                            Callback<ResponseBody> callback) {
         String range = options.getRange() == null ? new BlobRange(0).toString() : options.getRange().toString();
         com.azure.android.storage.blob.implementation.models.BlobDownloadOptions implOptions = ClientUtil.toImplOptions(options);
         implOptions.setRange(range);
@@ -438,7 +438,7 @@ public class StorageBlobAsyncClient {
                            String base64BlockId,
                            byte[] blockContent,
                            byte[] contentMd5,
-                           CallbackSimple<StageBlockResult> callback) {
+                           Callback<StageBlockResult> callback) {
         this.storageBlobServiceClient.stageBlock(containerName,
             blobName,
             base64BlockId,
@@ -482,7 +482,7 @@ public class StorageBlobAsyncClient {
                            byte[] blockContent,
                            byte[] contentMd5,
                            StageBlockOptions options,
-                           CallbackSimple<StageBlockResult> callback) {
+                           Callback<StageBlockResult> callback) {
         this.storageBlobServiceClient.stageBlock(containerName,
             blobName,
             base64BlockId,
@@ -510,7 +510,7 @@ public class StorageBlobAsyncClient {
     /**
      * The Commit Block List operation writes a blob by specifying the list of block IDs that make up the blob.
      * For a block to be written as part of a blob, the block must have been successfully written to the server in a prior
-     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[], CallbackSimple)} operation. You can
+     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[], Callback)} operation. You can
      * call commit Block List to update a blob by uploading only those blocks that have changed, then committing the new
      * and existing blocks together. You can do this by specifying whether to commit a block from the committed block
      * list or from the uncommitted block list, or to commit the most recently uploaded version of the block,
@@ -524,7 +524,7 @@ public class StorageBlobAsyncClient {
     public void commitBlockList(String containerName,
                                 String blobName,
                                 List<String> base64BlockIds,
-                                CallbackSimple<BlockBlobItem> callback) {
+                                Callback<BlockBlobItem> callback) {
         this.storageBlobServiceClient.commitBlockList(containerName,
             blobName,
             new BlockLookupList().setCommitted(base64BlockIds),
@@ -545,7 +545,7 @@ public class StorageBlobAsyncClient {
     /**
      * The Commit Block List operation writes a blob by specifying the list of block IDs that make up the blob.
      * For a block to be written as part of a blob, the block must have been successfully written to the server in a prior
-     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[], StageBlockOptions, CallbackSimple)} operation.
+     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[], StageBlockOptions, Callback)} operation.
      * You can call commit Block List to update a blob by uploading only those blocks that have changed, then committing
      * the new and existing blocks together. You can do this by specifying whether to commit a block from the committed block
      * list or from the uncommitted block list, or to commit the most recently uploaded version of the block, whichever list it may belong to.
@@ -560,7 +560,7 @@ public class StorageBlobAsyncClient {
                                 String blobName,
                                 List<String> base64BlockIds,
                                 CommitBlockListOptions options,
-                                CallbackSimple<BlockBlobItem> callback) {
+                                Callback<BlockBlobItem> callback) {
         this.storageBlobServiceClient.commitBlockList(containerName,
             blobName,
             new BlockLookupList().setCommitted(base64BlockIds),
@@ -587,7 +587,7 @@ public class StorageBlobAsyncClient {
      */
     void delete(String containerName,
                 String blobName,
-                CallbackSimple<Void> callback) {
+                Callback<Void> callback) {
         storageBlobServiceClient.delete(containerName,
             blobName,
             new com.azure.android.storage.blob.implementation.models.BlobDeleteOptions(),
@@ -630,7 +630,7 @@ public class StorageBlobAsyncClient {
     public void delete(String containerName,
                 String blobName,
                 BlobDeleteOptions options,
-                CallbackSimple<Void> callback) {
+                Callback<Void> callback) {
         storageBlobServiceClient.delete(containerName,
             blobName,
             ClientUtil.toImplOptions(options),

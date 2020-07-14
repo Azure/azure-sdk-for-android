@@ -20,7 +20,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.impl.WorkManagerImpl;
 
-import com.azure.android.core.http.CallbackSimple;
+import com.azure.android.core.http.Callback;
 import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlobProperties;
 
@@ -178,7 +178,7 @@ public final class TransferClient {
                     return;
                 }
                 blobClient.getBlobProperties(downloadRequest.getContainerName(), downloadRequest.getBlobName(),
-                    new CallbackSimple<BlobProperties>() {
+                    new Callback<BlobProperties>() {
                         @Override
                         public void onSuccess(BlobProperties result, okhttp3.Response response) {
                             final long blobSize = result.getBlobSize();

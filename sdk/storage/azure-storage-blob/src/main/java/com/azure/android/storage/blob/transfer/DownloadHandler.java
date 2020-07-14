@@ -13,7 +13,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.http.CallbackSimple;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlobDownloadOptions;
@@ -297,7 +296,7 @@ final class DownloadHandler extends Handler {
             blobClient.rawDownload(blob.containerName,
                 blob.blobName,
                 options,
-                new CallbackSimple<ResponseBody>() {
+                new com.azure.android.core.http.Callback<ResponseBody>() {
                     @Override
                     public void onSuccess(ResponseBody value, Response response) {
                         try {

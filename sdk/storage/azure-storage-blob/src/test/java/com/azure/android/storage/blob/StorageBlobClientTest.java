@@ -1,6 +1,6 @@
 package com.azure.android.storage.blob;
 
-import com.azure.android.core.http.CallbackSimple;
+import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
@@ -114,7 +114,7 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.getBlobsInPage(null,
             "testContainer",
-            new CallbackSimple<BlobsPage>() {
+            new Callback<BlobsPage>() {
                 @Override
                 public void onSuccess(BlobsPage page, Response response) {
                     try {
@@ -187,7 +187,7 @@ public class StorageBlobClientTest {
         storageBlobAsyncClient.getBlobsInPage(null,
             "testContainer",
             new ListBlobsOptions().setCancellationToken(CancellationToken.NONE),
-            new CallbackSimple<BlobsPage>() {
+            new Callback<BlobsPage>() {
                 @Override
                 public void onSuccess(BlobsPage page, Response response) {
                     try {
@@ -247,7 +247,7 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.getBlobProperties("container",
             "blob",
-            new CallbackSimple<BlobProperties>() {
+            new Callback<BlobProperties>() {
                 @Override
                 public void onSuccess(BlobProperties value, Response response) {
                     try {
@@ -310,7 +310,7 @@ public class StorageBlobClientTest {
         storageBlobAsyncClient.getBlobProperties("container",
             "blob",
             new GetBlobPropertiesOptions().setCancellationToken(CancellationToken.NONE),
-            new CallbackSimple<BlobProperties>() {
+            new Callback<BlobProperties>() {
                 @Override
                 public void onSuccess(BlobProperties value, Response response) {
                     try {
@@ -368,7 +368,7 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.rawDownload("testContainer",
             "testBlob",
-            new CallbackSimple<ResponseBody>() {
+            new Callback<ResponseBody>() {
                 @Override
                 public void onSuccess(ResponseBody value, Response response) {
                     try {
@@ -431,7 +431,7 @@ public class StorageBlobClientTest {
         storageBlobAsyncClient.rawDownload("testContainer",
             "testBlob",
             new BlobDownloadOptions().setCancellationToken(CancellationToken.NONE),
-            new CallbackSimple<ResponseBody>() {
+            new Callback<ResponseBody>() {
                 @Override
                 public void onSuccess(ResponseBody value, Response response) {
                     try {
@@ -494,7 +494,7 @@ public class StorageBlobClientTest {
             null,
             new byte[0],
             null,
-            new CallbackSimple<StageBlockResult>() {
+            new Callback<StageBlockResult>() {
                 @Override
                 public void onSuccess(StageBlockResult value, Response response) {
                     try {
@@ -558,7 +558,7 @@ public class StorageBlobClientTest {
             new byte[0],
             null,
             new StageBlockOptions(),
-            new CallbackSimple<StageBlockResult>() {
+            new Callback<StageBlockResult>() {
                 @Override
                 public void onSuccess(StageBlockResult value, Response response) {
                     try {
@@ -622,7 +622,7 @@ public class StorageBlobClientTest {
         storageBlobAsyncClient.commitBlockList("testContainer",
             "testBlob",
             null,
-            new CallbackSimple<BlockBlobItem>() {
+            new Callback<BlockBlobItem>() {
                 @Override
                 public void onSuccess(BlockBlobItem value, Response response) {
                     try {
@@ -689,7 +689,7 @@ public class StorageBlobClientTest {
         storageBlobAsyncClient.commitBlockList("testContainer",
             "testBlob",
             null,
-            new CommitBlockListOptions().setCancellationToken(CancellationToken.NONE), new CallbackSimple<BlockBlobItem>() {
+            new CommitBlockListOptions().setCancellationToken(CancellationToken.NONE), new Callback<BlockBlobItem>() {
                 @Override
                 public void onSuccess(BlockBlobItem value, Response response) {
                     try {
@@ -744,7 +744,7 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.delete("container",
             "blob",
-            new CallbackSimple<Void>() {
+            new Callback<Void>() {
                 @Override
                 public void onSuccess(Void value, Response response) {
                     try {
@@ -803,7 +803,7 @@ public class StorageBlobClientTest {
         storageBlobAsyncClient.delete("container",
             "blob",
             new BlobDeleteOptions().setCancellationToken(CancellationToken.NONE),
-            new CallbackSimple<Void>() {
+            new Callback<Void>() {
                 @Override
                 public void onSuccess(Void value, Response response) {
                     try {
