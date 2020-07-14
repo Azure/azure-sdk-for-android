@@ -5,7 +5,7 @@ import com.azure.android.core.http.CallbackSimple;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.storage.blob.models.BlobDeleteResponse;
+import com.azure.android.storage.blob.models.BlobDeleteOptions;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobProperties;
@@ -763,10 +763,8 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response without body and status code 202 will be returned by the server.
-        Void response = storageBlobClient.delete("container",
+        storageBlobClient.delete("container",
             "blob");
-
-        assertNull(response);
     }
 
     @Test
@@ -783,9 +781,9 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.delete("container",
             "blob",
-            new Callback<Void>() {
+            new CallbackSimple<Void>() {
                 @Override
-                public void onResponse(Void response) {
+                public void onSuccess(Void value, Response response) {
                     try {
                         // Then a response without body and status code 202 will be returned by the server to the callback.
                         assertNull(response);
@@ -795,7 +793,7 @@ public class StorageBlobClientTest {
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t, Response response) {
                     try {
                         throw new RuntimeException(t);
                     } finally {
@@ -818,26 +816,16 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response without body and status code 202 will be returned by the server.
-        BlobDeleteResponse response =
-            storageBlobClient.deleteWithResponse("container",
+        com.azure.android.core.http.Response<Void> response =
+            storageBlobClient.deleteWithRestResponse("container",
                 "blob",
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                CancellationToken.NONE);
+                new BlobDeleteOptions().setCancellationToken(CancellationToken.NONE));
 
         assertEquals(202, response.getStatusCode());
     }
 
     @Test
-    public void deleteWithRestResponse_withCallback() {
+    public void deleteWithOptions_withCallback() {
         // Given a StorageBlobClient.
 
         // When deleting a blob using delete () while providing a callback.
@@ -849,32 +837,22 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.deleteWithResponse("container",
+        storageBlobAsyncClient.delete("container",
             "blob",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
-            new Callback<BlobDeleteResponse>() {
+            new BlobDeleteOptions().setCancellationToken(CancellationToken.NONE),
+            new CallbackSimple<Void>() {
                 @Override
-                public void onResponse(BlobDeleteResponse response) {
+                public void onSuccess(Void value, Response response) {
                     try {
                         // Then a response without body and status code 202 will be returned by the server to the callback.
-                        assertEquals(202, response.getStatusCode());
+                        assertEquals(202, response.code());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t, Response response) {
                     try {
                         throw new RuntimeException(t);
                     } finally {

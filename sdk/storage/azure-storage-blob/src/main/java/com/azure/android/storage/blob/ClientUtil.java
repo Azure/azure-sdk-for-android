@@ -108,4 +108,30 @@ final class ClientUtil {
         return implOptions;
 
     }
+
+    static com.azure.android.storage.blob.implementation.models.BlobDeleteOptions toImplOptions(
+        com.azure.android.storage.blob.models.BlobDeleteOptions options) {
+
+        com.azure.android.storage.blob.implementation.models.BlobDeleteOptions implOptions
+            = new com.azure.android.storage.blob.implementation.models.BlobDeleteOptions();
+
+        implOptions.setCancellationToken(options.getCancellationToken());
+        implOptions.setSnapshot(options.getSnapshot());
+        implOptions.setTimeout(options.getTimeout());
+        implOptions.setVersion(options.getVersion());
+        implOptions.setDeleteSnapshots(options.getDeleteSnapshots());
+
+        final BlobRequestConditions blobRequestConditions = options.getBlobRequestConditions();
+        if (blobRequestConditions != null) {
+            implOptions.setLeaseId(blobRequestConditions.getLeaseId());
+            implOptions.setIfMatch(blobRequestConditions.getIfMatch());
+            implOptions.setIfNoneMatch(blobRequestConditions.getIfNoneMatch());
+            implOptions.setIfModifiedSince(blobRequestConditions.getIfModifiedSince());
+            implOptions.setIfUnmodifiedSince(blobRequestConditions.getIfUnmodifiedSince());
+        }
+
+        implOptions.setRequestId(options.getRequestId());
+
+        return implOptions;
+    }
 }

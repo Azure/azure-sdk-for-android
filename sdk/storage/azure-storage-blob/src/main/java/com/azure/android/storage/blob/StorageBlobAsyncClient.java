@@ -21,7 +21,8 @@ import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.CoreUtil;
-import com.azure.android.storage.blob.models.BlobDeleteResponse;
+import com.azure.android.storage.blob.models.BlobDeleteHeaders;
+import com.azure.android.storage.blob.models.BlobDeleteOptions;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
@@ -35,7 +36,6 @@ import com.azure.android.storage.blob.models.BlockLookupList;
 import com.azure.android.storage.blob.models.CommitBlockListOptions;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
-import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.GetBlobPropertiesOptions;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
@@ -47,11 +47,8 @@ import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.blob.transfer.TransferInfo;
 import com.azure.android.storage.blob.transfer.UploadRequest;
 
-import org.threeten.bp.OffsetDateTime;
-
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.Interceptor;
@@ -599,10 +596,21 @@ public class StorageBlobAsyncClient {
      */
     void delete(String containerName,
                 String blobName,
-                Callback<Void> callback) {
+                CallbackSimple<Void> callback) {
         storageBlobServiceClient.delete(containerName,
             blobName,
-            callback);
+            new com.azure.android.storage.blob.implementation.models.BlobDeleteOptions(),
+            new CallbackWithHeader<Void, BlobDeleteHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobDeleteHeaders header, Response response) {
+                    callback.onSuccess(result, response);
+                }
+
+                @Override
+                public void onFailure(Throwable t, Response response) {
+                    callback.onFailure(t, response);
+                }
+            });
     }
 
     /**
@@ -626,53 +634,26 @@ public class StorageBlobAsyncClient {
      *
      * @param containerName     The container name.
      * @param blobName          The blob name.
-     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the
-     *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and
-     *                          matches this ID.
-     * @param deleteSnapshots   Required if the blob has associated snapshots. Specify one of the following two
-     *                          options: include: Delete the base blob and all of its snapshots. only: Delete only the blob's snapshots and not the blob itself. Possible values include: 'include', 'only'.
-     * @param ifModifiedSince   Specify this header value to operate only on a blob if it has been modified since the
-     *                          specified date/time.
-     * @param ifUnmodifiedSince Specify this header value to operate only on a blob if it has not been modified since
-     *                          the specified date/time.
-     * @param ifMatch           Specify an ETag value to operate only on blobs with a matching value.
-     * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
-     * @param cancellationToken The token to request cancellation.
-     * @param callback          Callback that receives the response.
+     * @param options           The optional parameter.
      */
-    void deleteWithResponse(String containerName,
-                            String blobName,
-                            String snapshot,
-                            Integer timeout,
-                            String version,
-                            String leaseId,
-                            DeleteSnapshotsOptionType deleteSnapshots,
-                            OffsetDateTime ifModifiedSince,
-                            OffsetDateTime ifUnmodifiedSince,
-                            String ifMatch,
-                            String ifNoneMatch,
-                            String requestId,
-                            CancellationToken cancellationToken,
-                            Callback<BlobDeleteResponse> callback) {
-        storageBlobServiceClient.deleteWithResponse(containerName,
+    public void delete(String containerName,
+                String blobName,
+                BlobDeleteOptions options,
+                CallbackSimple<Void> callback) {
+        storageBlobServiceClient.delete(containerName,
             blobName,
-            snapshot,
-            timeout,
-            version,
-            leaseId,
-            deleteSnapshots,
-            ifModifiedSince,
-            ifUnmodifiedSince,
-            ifMatch,
-            ifNoneMatch,
-            requestId,
-            cancellationToken,
-            callback);
+            ClientUtil.toImplOptions(options),
+            new CallbackWithHeader<Void, BlobDeleteHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobDeleteHeaders header, Response response) {
+                    callback.onSuccess(result, response);
+                }
+
+                @Override
+                public void onFailure(Throwable t, Response response) {
+                    callback.onFailure(t, response);
+                }
+            });
     }
 
     /**
