@@ -6,10 +6,16 @@ package com.azure.android.storage.blob;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.ArchiveStatus;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
+import com.azure.android.storage.blob.models.BlobListDetails;
 import com.azure.android.storage.blob.models.BlobProperties;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
+import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
+import com.azure.android.storage.blob.models.ListBlobsOptions;
+
+import java.util.ArrayList;
+import java.util.List;
 
 // Internal Util-Class used by convenience layer API impl.
 final class ClientUtil {
@@ -131,6 +137,42 @@ final class ClientUtil {
         }
 
         implOptions.setRequestId(options.getRequestId());
+
+        return implOptions;
+    }
+
+    static com.azure.android.storage.blob.implementation.models.ListBlobFlatSegmentOptions toImplOptions(String pageId, ListBlobsOptions options) {
+        com.azure.android.storage.blob.implementation.models.ListBlobFlatSegmentOptions implOptions
+            = new com.azure.android.storage.blob.implementation.models.ListBlobFlatSegmentOptions();
+        implOptions.setCancellationToken(options.getCancellationToken());
+        implOptions.setMarker(pageId);
+        implOptions.setMaxResults(options.getMaxResultsPerPage());
+        implOptions.setPrefix(options.getPrefix());
+        implOptions.setTimeout(options.getTimeout());
+        implOptions.setRequestId(options.getRequestId());
+        List<ListBlobsIncludeItem> includeItems = new ArrayList<>();
+        BlobListDetails blobListDetails = options.getDetails();
+        if (blobListDetails != null) {
+            if (blobListDetails.getRetrieveCopy()) {
+                includeItems.add(ListBlobsIncludeItem.COPY);
+            }
+            if (blobListDetails.getRetrieveDeletedBlobs()) {
+                includeItems.add(ListBlobsIncludeItem.DELETED);
+            }
+            if (blobListDetails.getRetrieveMetadata()) {
+                includeItems.add(ListBlobsIncludeItem.METADATA);
+            }
+            if (blobListDetails.getRetrieveSnapshots()) {
+                includeItems.add(ListBlobsIncludeItem.SNAPSHOTS);
+            }
+            if (blobListDetails.getRetrieveUncommittedBlobs()) {
+                includeItems.add(ListBlobsIncludeItem.UNCOMMITTEDBLOBS);
+            }
+        }
+
+        if (includeItems.size() > 0) {
+            implOptions.setInclude(includeItems);
+        }
 
         return implOptions;
     }

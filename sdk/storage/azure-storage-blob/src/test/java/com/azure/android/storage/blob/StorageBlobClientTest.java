@@ -9,10 +9,11 @@ import com.azure.android.storage.blob.models.BlobDeleteOptions;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobProperties;
+import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.CommitBlockListOptions;
-import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.GetBlobPropertiesOptions;
+import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.models.StageBlockOptions;
 import com.azure.android.storage.blob.models.StageBlockResult;
 
@@ -23,7 +24,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -88,14 +88,13 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        List<BlobItem> blobItems = storageBlobClient.getBlobsInPage(null,
-            "testContainer",
-            null);
+        BlobsPage page = storageBlobClient.getBlobsInPage(null,
+            "testContainer");
 
         // Then a list containing the details of the blobs will be returned by the service and converted to BlobItem
         // objects by the client.
-        assertNotEquals(0, blobItems.size());
-        assertEquals("test.jpg", blobItems.get(0).getName());
+        assertNotEquals(0, page.getItems().size());
+        assertEquals("test.jpg", page.getItems().get(0).getName());
     }
 
     @Test
@@ -115,22 +114,21 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.getBlobsInPage(null,
             "testContainer",
-            null,
-            new Callback<List<BlobItem>>() {
+            new CallbackSimple<BlobsPage>() {
                 @Override
-                public void onResponse(List<BlobItem> response) {
+                public void onSuccess(BlobsPage page, Response response) {
                     try {
                         // Then a list containing the details of the blobs will be returned to the callback by the service
                         // and converted to BlobItem objects by the client.
-                        assertNotEquals(0, response.size());
-                        assertEquals("test.jpg", response.get(0).getName());
+                        assertNotEquals(0, page.getItems().size());
+                        assertEquals("test.jpg", page.getItems().get(0).getName());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t, Response response) {
                     try {
                         throw new RuntimeException(t);
                     } finally {
@@ -155,21 +153,15 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ContainersListBlobFlatSegmentResponse response =
+        com.azure.android.core.http.Response<BlobsPage> response =
             storageBlobClient.getBlobsInPageWithRestResponse(null,
                 "testContainer",
-                null,
-                null,
-                null,
-                null,
-                null,
-                CancellationToken.NONE);
+                new ListBlobsOptions().setCancellationToken(CancellationToken.NONE));
 
         // Then the client will return an object that contains both the details of the REST response and a list
         // with the details of the blobs.
-        List<BlobItem> blobItems = response.getValue().getSegment() == null
-            ? new ArrayList<>(0)
-            : response.getValue().getSegment().getBlobItems();
+        BlobsPage page = response.getValue();
+        List<BlobItem> blobItems = page.getItems();
 
         assertEquals(200, response.getStatusCode());
         assertNotEquals(0, blobItems.size());
@@ -177,7 +169,7 @@ public class StorageBlobClientTest {
     }
 
     @Test
-    public void getBlobsInPageWithRestResponse_withCallback() {
+    public void getBlobsInPageWithOptions_withCallback() {
         // Given a StorageBlobClient.
 
         // When requesting a list of the blobs in a container using getBlobsInPageWithRestResponse() while providing a
@@ -192,34 +184,25 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.getBlobsInPageWithRestResponse(null,
+        storageBlobAsyncClient.getBlobsInPage(null,
             "testContainer",
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
-            new Callback<ContainersListBlobFlatSegmentResponse>() {
+            new ListBlobsOptions().setCancellationToken(CancellationToken.NONE),
+            new CallbackSimple<BlobsPage>() {
                 @Override
-                public void onResponse(ContainersListBlobFlatSegmentResponse response) {
+                public void onSuccess(BlobsPage page, Response response) {
                     try {
                         // Then the client will return an object that contains both the details of the REST response and
                         // a list with the details of the blobs to the callback.
-                        List<BlobItem> blobItems = response.getValue().getSegment() == null
-                            ? new ArrayList<>(0)
-                            : response.getValue().getSegment().getBlobItems();
-
-                        assertEquals(200, response.getStatusCode());
-                        assertNotEquals(0, blobItems.size());
-                        assertEquals("test.jpg", blobItems.get(0).getName());
+                        assertEquals(200, response.code());
+                        assertNotEquals(0, page.getItems().size());
+                        assertEquals("test.jpg", page.getItems().get(0).getName());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t, Response response) {
                     try {
                         throw new RuntimeException(t);
                     } finally {

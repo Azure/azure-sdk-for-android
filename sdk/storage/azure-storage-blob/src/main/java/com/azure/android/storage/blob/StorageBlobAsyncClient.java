@@ -21,22 +21,27 @@ import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.CoreUtil;
+import com.azure.android.storage.blob.implementation.models.ListBlobFlatSegmentOptions;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDeleteOptions;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
+import com.azure.android.storage.blob.models.BlobListDetails;
 import com.azure.android.storage.blob.models.BlobProperties;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
 import com.azure.android.storage.blob.models.BlockLookupList;
 import com.azure.android.storage.blob.models.CommitBlockListOptions;
+import com.azure.android.storage.blob.models.ContainerListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.GetBlobPropertiesOptions;
+import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.models.StageBlockOptions;
@@ -48,6 +53,7 @@ import com.azure.android.storage.blob.transfer.TransferInfo;
 import com.azure.android.storage.blob.transfer.UploadRequest;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -247,11 +253,23 @@ public class StorageBlobAsyncClient {
     public void getBlobsInPage(String pageId,
                                String containerName,
                                ListBlobsOptions options,
-                               Callback<List<BlobItem>> callback) {
-        this.storageBlobServiceClient.getBlobsInPage(pageId,
-            containerName,
-            options,
-            callback);
+                               CallbackSimple<BlobsPage> callback) {
+        this.storageBlobServiceClient.listBlobFlatSegment(containerName,
+            ClientUtil.toImplOptions(pageId, options),
+            new CallbackWithHeader<ListBlobsFlatSegmentResponse, ContainerListBlobFlatSegmentHeaders>() {
+                @Override
+                public void onSuccess(ListBlobsFlatSegmentResponse result, ContainerListBlobFlatSegmentHeaders header, Response response) {
+                    List<BlobItem> list = result.getSegment() == null
+                        ? new ArrayList<>(0)
+                        : result.getSegment().getBlobItems();
+                    callback.onSuccess(new BlobsPage(list, pageId, result.getNextMarker()), response);
+                }
+
+                @Override
+                public void onFailure(Throwable t, Response response) {
+                    callback.onFailure(t, response);
+                }
+            });
     }
 
     /**
@@ -259,34 +277,26 @@ public class StorageBlobAsyncClient {
      *
      * @param pageId            Identifies the portion of the list to be returned.
      * @param containerName     The container name.
-     * @param prefix            Filters the results to return only blobs whose name begins with the specified prefix.
-     * @param maxResults        Specifies the maximum number of blobs to return.
-     * @param include           Include this parameter to specify one or more datasets to include in the response.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
-     *                          the analytics logs when storage analytics logging is enabled.
-     * @param callback          Callback that receives the response.
-     * @param cancellationToken The token to request cancellation.
      */
-    public void getBlobsInPageWithRestResponse(String pageId,
-                                               String containerName,
-                                               String prefix,
-                                               Integer maxResults,
-                                               List<ListBlobsIncludeItem> include,
-                                               Integer timeout,
-                                               String requestId,
-                                               CancellationToken cancellationToken,
-                                               Callback<ContainersListBlobFlatSegmentResponse> callback) {
-        this.storageBlobServiceClient.getBlobsInPageWithRestResponse(pageId,
-            containerName,
-            prefix,
-            maxResults,
-            include,
-            timeout,
-            requestId,
-            cancellationToken,
-            callback);
+    public void getBlobsInPage(String pageId,
+                               String containerName,
+                               CallbackSimple<BlobsPage> callback) {
+        this.storageBlobServiceClient.listBlobFlatSegment(containerName,
+            ClientUtil.toImplOptions(pageId, new ListBlobsOptions()),
+            new CallbackWithHeader<ListBlobsFlatSegmentResponse, ContainerListBlobFlatSegmentHeaders>() {
+                @Override
+                public void onSuccess(ListBlobsFlatSegmentResponse result, ContainerListBlobFlatSegmentHeaders header, Response response) {
+                    List<BlobItem> list = result.getSegment() == null
+                        ? new ArrayList<>(0)
+                        : result.getSegment().getBlobItems();
+                    callback.onSuccess(new BlobsPage(list, pageId, result.getNextMarker()), response);
+                }
+
+                @Override
+                public void onFailure(Throwable t, Response response) {
+                    callback.onFailure(t, response);
+                }
+            });
     }
 
     /**

@@ -19,6 +19,7 @@ import com.azure.android.storage.blob.models.BlobProperties;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
+import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
@@ -27,12 +28,12 @@ import com.azure.android.storage.blob.models.CommitBlockListOptions;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.GetBlobPropertiesOptions;
-import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.models.StageBlockOptions;
 import com.azure.android.storage.blob.models.StageBlockResult;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -77,15 +78,18 @@ public class StorageBlobClient {
      *
      * @param pageId        Identifies the portion of the list to be returned.
      * @param containerName The container name.
-     * @param options       The page options.
      * @return A list of blobs.
      */
-    public List<BlobItem> getBlobsInPage(String pageId,
-                                         String containerName,
-                                         ListBlobsOptions options) {
-        return this.storageBlobServiceClient.getBlobsInPage(pageId,
-            containerName,
-            options);
+    public BlobsPage getBlobsInPage(String pageId,
+                                         String containerName) {
+
+        ContainersListBlobFlatSegmentResponse containersListBlobFlatSegmentResponse
+            = this.storageBlobServiceClient.listBlobFlatSegmentWithRestResponse(containerName,
+            ClientUtil.toImplOptions(pageId, new ListBlobsOptions()));
+        List<BlobItem> list = containersListBlobFlatSegmentResponse.getValue().getSegment() == null
+            ? new ArrayList<>(0)
+            : containersListBlobFlatSegmentResponse.getValue().getSegment().getBlobItems();
+        return new BlobsPage(list, pageId, containersListBlobFlatSegmentResponse.getValue().getNextMarker());
     }
 
     /**
@@ -93,32 +97,26 @@ public class StorageBlobClient {
      *
      * @param pageId            Identifies the portion of the list to be returned.
      * @param containerName     The container name.
-     * @param prefix            Filters the results to return only blobs whose name begins with the specified prefix.
-     * @param maxResults        Specifies the maximum number of blobs to return.
-     * @param include           Include this parameter to specify one or more datasets to include in the response.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
-     *                          the analytics logs when storage analytics logging is enabled.
-     * @param cancellationToken The token to request cancellation.
+     * @param options           The optional parameter.
      * @return A response object containing a list of blobs.
      */
-    public ContainersListBlobFlatSegmentResponse getBlobsInPageWithRestResponse(String pageId,
-                                                                                String containerName,
-                                                                                String prefix,
-                                                                                Integer maxResults,
-                                                                                List<ListBlobsIncludeItem> include,
-                                                                                Integer timeout,
-                                                                                String requestId,
-                                                                                CancellationToken cancellationToken) {
-        return this.storageBlobServiceClient.getBlobsInPageWithRestResponse(pageId,
-            containerName,
-            prefix,
-            maxResults,
-            include,
-            timeout,
-            requestId,
-            cancellationToken);
+    public Response<BlobsPage> getBlobsInPageWithRestResponse(String pageId,
+                                                                  String containerName,
+                                                                  ListBlobsOptions options) {
+        ContainersListBlobFlatSegmentResponse containersListBlobFlatSegmentResponse
+            = this.storageBlobServiceClient.listBlobFlatSegmentWithRestResponse(containerName,
+            ClientUtil.toImplOptions(pageId, options));
+
+        List<BlobItem> list = containersListBlobFlatSegmentResponse.getValue().getSegment() == null
+            ? new ArrayList<>(0)
+            : containersListBlobFlatSegmentResponse.getValue().getSegment().getBlobItems();
+
+        BlobsPage blobsPage = new BlobsPage(list, pageId, containersListBlobFlatSegmentResponse.getValue().getNextMarker());
+
+        return new Response<>(null,
+            containersListBlobFlatSegmentResponse.getStatusCode(),
+            containersListBlobFlatSegmentResponse.getHeaders(),
+            blobsPage);
     }
 
     /**

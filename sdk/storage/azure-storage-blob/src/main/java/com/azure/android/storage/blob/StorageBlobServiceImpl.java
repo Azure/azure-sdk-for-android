@@ -16,6 +16,7 @@ import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.DateTimeRfc1123;
 import com.azure.android.storage.blob.implementation.models.BlobDeleteOptions;
 import com.azure.android.storage.blob.implementation.models.CommitBlockListOptions;
+import com.azure.android.storage.blob.implementation.models.ListBlobFlatSegmentOptions;
 import com.azure.android.storage.blob.implementation.models.StageBlockOptions;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
@@ -23,7 +24,6 @@ import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
-import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
@@ -38,15 +38,11 @@ import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.EncryptionAlgorithmType;
 import com.azure.android.storage.blob.implementation.models.GetBlobPropertiesOptions;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
-import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
-import com.azure.android.storage.blob.models.ListBlobsOptions;
 
 import org.threeten.bp.OffsetDateTime;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import okhttp3.Headers;
@@ -81,91 +77,25 @@ final class StorageBlobServiceImpl {
         return XMS_VERSION;
     }
 
-    List<BlobItem> getBlobsInPage(String pageId,
-                                  String containerName,
-                                  ListBlobsOptions options) {
-        options = options == null ? new ListBlobsOptions() : options;
-
-        ContainersListBlobFlatSegmentResponse response = this.getBlobsInPageWithRestResponse(pageId,
-            containerName,
-            options.getPrefix(),
-            options.getMaxResultsPerPage(),
-            options.getDetails().toList(),
-            null,
-            null,
-            CancellationToken.NONE);
-
-        return response.getValue().getSegment() == null
-            ? new ArrayList<>(0)
-            : response.getValue().getSegment().getBlobItems();
-    }
-
-    void getBlobsInPage(String pageId,
-                        String containerName,
-                        ListBlobsOptions options,
-                        Callback<List<BlobItem>> callback) {
-        options = options == null ? new ListBlobsOptions() : options;
-
-        this.getBlobsInPageWithRestResponse(pageId,
-            containerName,
-            options.getPrefix(),
-            options.getMaxResultsPerPage(),
-            options.getDetails().toList(),
-            null,
-            null,
-            CancellationToken.NONE,
-            new Callback<ContainersListBlobFlatSegmentResponse>() {
-                @Override
-                public void onResponse(ContainersListBlobFlatSegmentResponse response) {
-                    List<BlobItem> value = response.getValue().getSegment() == null
-                        ? new ArrayList<>(0)
-                        : response.getValue().getSegment().getBlobItems();
-
-                    callback.onResponse(value);
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    callback.onFailure(t);
-                }
-            });
-    }
-
-    ContainersListBlobFlatSegmentResponse getBlobsInPageWithRestResponse(String pageId,
-                                                                         String containerName,
-                                                                         String prefix,
-                                                                         Integer maxResults,
-                                                                         List<ListBlobsIncludeItem> include,
-                                                                         Integer timeout,
-                                                                         String requestId,
-                                                                         CancellationToken cancellationToken) {
-        return this.getBlobsInPageWithRestResponseIntern(pageId, containerName,
-            prefix,
-            maxResults,
-            include,
-            timeout,
-            requestId,
-            cancellationToken,
+    ContainersListBlobFlatSegmentResponse listBlobFlatSegmentWithRestResponse(String containerName,
+                                                                              ListBlobFlatSegmentOptions options) {
+        return this.listBlobFlatSegmentWithRestResponseIntern(containerName,
+            options,
             null);
     }
 
-    void getBlobsInPageWithRestResponse(String pageId,
-                                        String containerName,
-                                        String prefix,
-                                        Integer maxResults,
-                                        List<ListBlobsIncludeItem> include,
-                                        Integer timeout,
-                                        String requestId,
-                                        CancellationToken cancellationToken,
-                                        Callback<ContainersListBlobFlatSegmentResponse> callback) {
-        this.getBlobsInPageWithRestResponseIntern(pageId,
-            containerName,
-            prefix,
-            maxResults,
-            include,
-            timeout,
-            requestId,
-            cancellationToken,
+    void listBlobFlatSegment(String containerName,
+                             CallbackWithHeader<ListBlobsFlatSegmentResponse, ContainerListBlobFlatSegmentHeaders> callback) {
+        this.listBlobFlatSegmentWithRestResponseIntern(containerName,
+            new ListBlobFlatSegmentOptions(),
+            callback);
+    }
+
+    void listBlobFlatSegment(String containerName,
+                             ListBlobFlatSegmentOptions options,
+                             CallbackWithHeader<ListBlobsFlatSegmentResponse, ContainerListBlobFlatSegmentHeaders> callback) {
+        this.listBlobFlatSegmentWithRestResponseIntern(containerName,
+            options,
             callback);
     }
 
@@ -581,31 +511,24 @@ final class StorageBlobServiceImpl {
             callback);
     }
 
-    private ContainersListBlobFlatSegmentResponse getBlobsInPageWithRestResponseIntern(String pageId,
-                                                                                       String containerName,
-                                                                                       String prefix,
-                                                                                       Integer maxResults,
-                                                                                       List<ListBlobsIncludeItem> include,
-                                                                                       Integer timeout,
-                                                                                       String requestId,
-                                                                                       CancellationToken cancellationToken,
-                                                                                       Callback<ContainersListBlobFlatSegmentResponse> callback) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+    private ContainersListBlobFlatSegmentResponse listBlobFlatSegmentWithRestResponseIntern(String containerName,
+                                                                                            ListBlobFlatSegmentOptions options,
+                                                                                            CallbackWithHeader<ListBlobsFlatSegmentResponse, ContainerListBlobFlatSegmentHeaders> callback) {
         final String resType = "container";
         final String comp = "list";
 
         Call<ResponseBody> call = service.listBlobFlatSegment(containerName,
-            prefix,
-            pageId,
-            maxResults,
-            this.serializerAdapter.serializeList(include, SerializerAdapter.CollectionFormat.CSV),
-            timeout,
-            XMS_VERSION,
-            requestId,
+            options.getPrefix(),
+            options.getMarker(),
+            options.getMaxResults(),
+            this.serializerAdapter.serializeList(options.getInclude(), SerializerAdapter.CollectionFormat.CSV),
+            options.getTimeout(),
+            this.getVersion(),
+            options.getRequestId(),
             resType,
             comp);
 
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+        ((CancellationTokenImpl) options.getCancellationToken()).registerOnCancel(() -> {
             call.cancel();
         });
 
@@ -615,30 +538,22 @@ final class StorageBlobServiceImpl {
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
                         if (response.code() == 200) {
-                            ListBlobsFlatSegmentResponse typedContent = deserializeContent(response.body(),
-                                ListBlobsFlatSegmentResponse.class);
-                            ContainerListBlobFlatSegmentHeaders typedHeader = deserializeHeaders(response.headers(),
-                                ContainerListBlobFlatSegmentHeaders.class);
-                            callback.onResponse(new ContainersListBlobFlatSegmentResponse(response.raw().request(),
-                                response.code(),
-                                response.headers(),
-                                typedContent,
-                                typedHeader));
+                            callback.onSuccess(deserializeContent(response.body(), ListBlobsFlatSegmentResponse.class),
+                                deserializeHeaders(response.headers(), ContainerListBlobFlatSegmentHeaders.class),
+                                response.raw());
                         } else {
                             String strContent = readAsString(response.body());
-
-                            callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
                         }
                     } else {
                         String strContent = readAsString(response.errorBody());
-
-                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
                     }
                 }
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    callback.onFailure(t);
+                    callback.onFailure(t, null);
                 }
             });
 
@@ -648,27 +563,20 @@ final class StorageBlobServiceImpl {
 
             if (response.isSuccessful()) {
                 if (response.code() == 200) {
-                    ListBlobsFlatSegmentResponse typedContent = deserializeContent(response.body(),
-                        ListBlobsFlatSegmentResponse.class);
-                    ContainerListBlobFlatSegmentHeaders typedHeader = deserializeHeaders(response.headers(),
-                        ContainerListBlobFlatSegmentHeaders.class);
-
                     ContainersListBlobFlatSegmentResponse result =
                         new ContainersListBlobFlatSegmentResponse(response.raw().request(),
                             response.code(),
                             response.headers(),
-                            typedContent,
-                            typedHeader);
+                            deserializeContent(response.body(), ListBlobsFlatSegmentResponse.class),
+                            deserializeHeaders(response.headers(), ContainerListBlobFlatSegmentHeaders.class));
 
                     return result;
                 } else {
                     String strContent = readAsString(response.body());
-
                     throw new BlobStorageException(strContent, response.raw());
                 }
             } else {
                 String strContent = readAsString(response.errorBody());
-
                 throw new BlobStorageException(strContent, response.raw());
             }
         }

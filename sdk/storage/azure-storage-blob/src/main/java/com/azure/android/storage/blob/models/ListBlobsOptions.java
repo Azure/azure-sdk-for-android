@@ -3,6 +3,8 @@
 
 package com.azure.android.storage.blob.models;
 
+import com.azure.android.core.util.CancellationToken;
+
 /**
  * Defines options available to configure the behavior of a call to listBlobsFlatSegment.
  */
@@ -12,6 +14,12 @@ public final class ListBlobsOptions {
     private String prefix;
 
     private Integer maxResultsPerPage;
+
+    private Integer timeout;
+
+    private String requestId;
+
+    private CancellationToken cancellationToken;
 
     /**
      * Constructs an unpopulated {@link ListBlobsOptions}.
@@ -84,5 +92,42 @@ public final class ListBlobsOptions {
         return this;
     }
 
+    public Integer getTimeout() {
+        return timeout;
+    }
+
+    public ListBlobsOptions setTimeout(Integer timeout) {
+        this.timeout = timeout;
+        return this;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public ListBlobsOptions setRequestId(String requestId) {
+        this.requestId = requestId;
+        return this;
+    }
+
+    /**
+     * Get the CancellationToken value.
+     *
+     * @return The CancellationToken value.
+     */
+    public CancellationToken getCancellationToken() {
+        return this.cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+    }
+
+    /**
+     * Set the CancellationToken value.
+     *
+     * @param cancellationToken the cancellationToken value.
+     * @return The updated GetBlobPropertiesOptions object.
+     */
+    public ListBlobsOptions setCancellationToken(CancellationToken cancellationToken) {
+        this.cancellationToken = cancellationToken;
+        return this;
+    }
 
 }
