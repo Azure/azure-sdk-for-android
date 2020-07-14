@@ -176,4 +176,33 @@ final class ClientUtil {
 
         return implOptions;
     }
+
+    static com.azure.android.storage.blob.implementation.models.BlobDownloadOptions toImplOptions(
+        com.azure.android.storage.blob.models.BlobDownloadOptions options) {
+
+        com.azure.android.storage.blob.implementation.models.BlobDownloadOptions implOptions
+            = new com.azure.android.storage.blob.implementation.models.BlobDownloadOptions();
+        implOptions.setCancellationToken(options.getCancellationToken());
+        implOptions.setSnapshot(options.getSnapshot());
+        implOptions.setTimeout(options.getTimeout());
+        implOptions.setRange(options.getRange() != null ? options.getRange().toString() : null);
+        implOptions.setRangeGetContentMd5(options.getRangeGetContentMd5());
+        implOptions.setRangeGetContentCrc64(options.getRangeGetContentCrc64());
+
+        final BlobRequestConditions blobRequestConditions = options.getBlobRequestConditions();
+        if (blobRequestConditions != null) {
+            implOptions.setLeaseId(blobRequestConditions.getLeaseId());
+            implOptions.setIfMatch(blobRequestConditions.getIfMatch());
+            implOptions.setIfNoneMatch(blobRequestConditions.getIfNoneMatch());
+            implOptions.setIfModifiedSince(blobRequestConditions.getIfModifiedSince());
+            implOptions.setIfUnmodifiedSince(blobRequestConditions.getIfUnmodifiedSince());
+        }
+
+        implOptions.setVersion(options.getVersion());
+        implOptions.setRequestId(options.getRequestId());
+        implOptions.setCpkInfo(options.getCpkInfo());
+
+        return implOptions;
+
+    }
 }

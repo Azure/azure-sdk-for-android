@@ -13,24 +13,20 @@ import androidx.lifecycle.LiveData;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 
-import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.CallbackSimple;
 import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
-import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.CoreUtil;
-import com.azure.android.storage.blob.implementation.models.ListBlobFlatSegmentOptions;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDeleteOptions;
-import com.azure.android.storage.blob.models.BlobDownloadResponse;
+import com.azure.android.storage.blob.models.BlobDownloadHeaders;
+import com.azure.android.storage.blob.models.BlobDownloadOptions;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
-import com.azure.android.storage.blob.models.BlobListDetails;
 import com.azure.android.storage.blob.models.BlobProperties;
 import com.azure.android.storage.blob.models.BlobRange;
-import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
@@ -38,11 +34,8 @@ import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
 import com.azure.android.storage.blob.models.BlockLookupList;
 import com.azure.android.storage.blob.models.CommitBlockListOptions;
 import com.azure.android.storage.blob.models.ContainerListBlobFlatSegmentHeaders;
-import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
-import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.GetBlobPropertiesOptions;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
-import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.models.StageBlockOptions;
 import com.azure.android.storage.blob.models.StageBlockResult;
@@ -368,10 +361,24 @@ public class StorageBlobAsyncClient {
      */
     public void rawDownload(String containerName,
                             String blobName,
-                            Callback<ResponseBody> callback) {
+                            CallbackSimple<ResponseBody> callback) {
+        com.azure.android.storage.blob.implementation.models.BlobDownloadOptions implOptions = ClientUtil.toImplOptions(new BlobDownloadOptions());
+        implOptions.setRange(new BlobRange(0).toString());
+
         storageBlobServiceClient.download(containerName,
             blobName,
-            callback);
+            implOptions,
+            new CallbackWithHeader<ResponseBody, BlobDownloadHeaders>() {
+                @Override
+                public void onSuccess(ResponseBody result, BlobDownloadHeaders header, Response response) {
+                    callback.onSuccess(result, response);
+                }
+
+                @Override
+                public void onFailure(Throwable t, Response response) {
+                    callback.onFailure(t, response);
+                }
+            });
     }
 
     /**
@@ -386,58 +393,32 @@ public class StorageBlobAsyncClient {
      *
      * @param containerName         The container name.
      * @param blobName              The blob name.
-     * @param snapshot              The snapshot parameter is an opaque DateTime value that, when present, specifies
-     *                              the blob snapshot to retrieve. For more information on working with blob snapshots,
-     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
-     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param range                 Return only the bytes of the blob in the specified range.
-     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
-     *                              variety of requests to the conditions present. These conditions are entirely optional.
-     * @param getRangeContentMd5    When set to true and specified together with the Range, the service returns the
-     *                              MD5 hash for the range, as long as the range is less than or equal to 4 MB in size.
-     * @param getRangeContentCrc64  When set to true and specified together with the Range, the service returns the
-     *                              CRC64 hash for the range, as long as the range is less than or equal to 4 MB in size.
-     * @param version               Specifies the version of the operation to use for this request.
-     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                              recorded in the analytics logs when storage analytics logging is enabled.
-     * @param cpkInfo               Additional parameters for the operation.
-     * @param cancellationToken     The token to request cancellation.
+     * @param options               The optional parameter
      * @param callback              Callback that receives the response.
      */
-    public void rawDownloadWithRestResponse(String containerName,
-                                            String blobName,
-                                            String snapshot,
-                                            Integer timeout,
-                                            BlobRange range,
-                                            BlobRequestConditions blobRequestConditions,
-                                            Boolean getRangeContentMd5,
-                                            Boolean getRangeContentCrc64,
-                                            String version,
-                                            String requestId,
-                                            CpkInfo cpkInfo,
-                                            CancellationToken cancellationToken,
-                                            Callback<BlobDownloadResponse> callback) {
-        range = range == null ? new BlobRange(0) : range;
-        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
+    public void rawDownload(String containerName,
+                            String blobName,
+                            BlobDownloadOptions options,
+                            CallbackSimple<ResponseBody> callback) {
+        String range = options.getRange() == null ? new BlobRange(0).toString() : options.getRange().toString();
+        com.azure.android.storage.blob.implementation.models.BlobDownloadOptions implOptions = ClientUtil.toImplOptions(options);
+        implOptions.setRange(range);
 
-        storageBlobServiceClient.downloadWithRestResponse(containerName,
+
+        storageBlobServiceClient.download(containerName,
             blobName,
-            snapshot,
-            timeout,
-            range.toHeaderValue(),
-            blobRequestConditions.getLeaseId(),
-            getRangeContentMd5,
-            getRangeContentCrc64,
-            blobRequestConditions.getIfModifiedSince(),
-            blobRequestConditions.getIfUnmodifiedSince(),
-            blobRequestConditions.getIfMatch(),
-            blobRequestConditions.getIfNoneMatch(),
-            version,
-            requestId,
-            cpkInfo,
-            cancellationToken,
-            callback);
+            implOptions,
+            new CallbackWithHeader<ResponseBody, BlobDownloadHeaders>() {
+                @Override
+                public void onSuccess(ResponseBody result, BlobDownloadHeaders header, Response response) {
+                    callback.onSuccess(result, response);
+                }
+
+                @Override
+                public void onFailure(Throwable t, Response response) {
+                    callback.onFailure(t, response);
+                }
+            });
     }
 
     /**

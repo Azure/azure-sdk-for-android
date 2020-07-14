@@ -1,11 +1,11 @@
 package com.azure.android.storage.blob;
 
-import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.CallbackSimple;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.models.BlobDeleteOptions;
+import com.azure.android.storage.blob.models.BlobDownloadOptions;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobProperties;
@@ -368,21 +368,21 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.rawDownload("testContainer",
             "testBlob",
-            new Callback<ResponseBody>() {
+            new CallbackSimple<ResponseBody>() {
                 @Override
-                public void onResponse(ResponseBody response) {
+                public void onSuccess(ResponseBody value, Response response) {
                     try {
                         // Then an object with the blob's contents will be returned by the client.
-                        assertEquals("testBody", response.string());
+                        assertEquals("testBody", value.string());
                     } catch (IOException e) {
-                        onFailure(e);
+                        onFailure(e, response);
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t, Response response) {
                     try {
                         throw new RuntimeException(t);
                     } finally {
@@ -390,7 +390,6 @@ public class StorageBlobClientTest {
                     }
                 }
             });
-
         awaitOnLatch(latch, "download");
     }
 
@@ -409,23 +408,14 @@ public class StorageBlobClientTest {
         // details from the REST response.
         BlobDownloadResponse response = storageBlobClient.rawDownloadWithRestResponse("testContainer",
             "testBlob",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE);
+            new BlobDownloadOptions().setCancellationToken( CancellationToken.NONE));
 
         assertEquals(200, response.getStatusCode());
         assertEquals("testBody", response.getValue().string());
     }
 
     @Test
-    public void downloadWithRestResponse_withCallback() {
+    public void downloadWithOptions_withCallback() {
         // Given a StorageBlobClient.
 
         // When requesting to download the contents of a blob using downloadWithRestResponse() while providing a
@@ -438,35 +428,26 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.rawDownloadWithRestResponse("testContainer",
+        storageBlobAsyncClient.rawDownload("testContainer",
             "testBlob",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
-            new Callback<BlobDownloadResponse>() {
+            new BlobDownloadOptions().setCancellationToken(CancellationToken.NONE),
+            new CallbackSimple<ResponseBody>() {
                 @Override
-                public void onResponse(BlobDownloadResponse response) {
+                public void onSuccess(ResponseBody value, Response response) {
                     try {
                         // Then an object with the blob's contents will be returned by the client to the callback,
                         // including its properties and details from the REST response.
-                        assertEquals(200, response.getStatusCode());
-                        assertEquals("testBody", response.getValue().string());
+                        assertEquals(200, response.code());
+                        assertEquals("testBody", value.string());
                     } catch (IOException e) {
-                        onFailure(e);
+                        onFailure(e, response);
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t, Response response) {
                     try {
                         throw new RuntimeException(t);
                     } finally {
@@ -474,7 +455,6 @@ public class StorageBlobClientTest {
                     }
                 }
             });
-
         awaitOnLatch(latch, "downloadWithRestResponse");
     }
 
