@@ -13,15 +13,19 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.azure.android.core.http.CallbackSimple;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
-import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
+import com.azure.android.storage.blob.models.StageBlockOptions;
+import com.azure.android.storage.blob.models.StageBlockResult;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+
+import okhttp3.Response;
 
 /**
  * Package private.
@@ -293,20 +297,15 @@ final class UploadHandler extends Handler {
                 return;
             }
 
-            this.blobClient.stageBlockWithRestResponse(this.blob.containerName,
+            this.blobClient.stageBlock(this.blob.containerName,
                 this.blob.blobName,
                 block.blockId,
                 blockContent,
                 null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                this.cancellationToken,
-                new com.azure.android.core.http.Callback<BlockBlobsStageBlockResponse>() {
+                new StageBlockOptions().setCancellationToken(this.cancellationToken),
+                new CallbackSimple<StageBlockResult>() {
                     @Override
-                    public void onResponse(BlockBlobsStageBlockResponse response) {
+                    public void onSuccess(StageBlockResult value, Response response) {
                         Log.v(TAG, "stageBlocks(): Block uploaded:" + block.blockId + threadName());
                         db.uploadDao().updateBlockState(block.key, BlockTransferState.COMPLETED);
                         Message nextMessage = UploadHandlerMessage
@@ -315,7 +314,7 @@ final class UploadHandler extends Handler {
                     }
 
                     @Override
-                    public void onFailure(Throwable t) {
+                    public void onFailure(Throwable t, Response response) {
                         Log.e(TAG,  "stageBlocks(): Block upload failed:" + block.blockId + threadName(), t);
                         db.uploadDao().updateBlockState(block.key, BlockTransferState.FAILED);
                         block.setStagingError(t);
@@ -324,6 +323,7 @@ final class UploadHandler extends Handler {
                         nextMessage.sendToTarget();
                     }
                 });
+
             this.runningBlockUploads.put(block.blockId, block);
         }
     }

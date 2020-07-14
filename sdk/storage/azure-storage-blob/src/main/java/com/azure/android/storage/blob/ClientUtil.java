@@ -60,4 +60,19 @@ final class ClientUtil {
         implOptions.setVersion(options.getVersion());
         return implOptions;
     }
+
+    static com.azure.android.storage.blob.implementation.models.StageBlockOptions toImplOptions(
+        com.azure.android.storage.blob.models.StageBlockOptions options) {
+
+        com.azure.android.storage.blob.implementation.models.StageBlockOptions implOptions
+            = new com.azure.android.storage.blob.implementation.models.StageBlockOptions();
+
+        implOptions.setCancellationToken(options.getCancellationToken());
+        implOptions.setCpkInfo(options.getCpkInfo());
+        implOptions.setLeaseId(options.getLeaseId());
+        implOptions.setRequestId(options.getRequestId());
+        implOptions.setTimeout(options.getTimeout());
+        implOptions.setTransactionalContentCrc64(options.getTransactionalContentCrc64());
+        return implOptions;
+    }
 }

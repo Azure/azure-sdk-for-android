@@ -11,9 +11,10 @@ import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobProperties;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
-import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.GetBlobPropertiesOptions;
+import com.azure.android.storage.blob.models.StageBlockOptions;
+import com.azure.android.storage.blob.models.StageBlockResult;
 
 import org.junit.After;
 import org.junit.Test;
@@ -504,14 +505,13 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        // Then a response without body and status code 201 will be returned by the server.
-        Void response = storageBlobClient.stageBlock("testContainer",
+        StageBlockResult stageBlockResult = storageBlobClient.stageBlock("testContainer",
             "testBlob",
             null,
             new byte[0],
             null);
 
-        assertNull(response);
+        assertNull(stageBlockResult);
     }
 
     @Test
@@ -531,19 +531,18 @@ public class StorageBlobClientTest {
             null,
             new byte[0],
             null,
-            new Callback<Void>() {
+            new CallbackSimple<StageBlockResult>() {
                 @Override
-                public void onResponse(Void response) {
+                public void onSuccess(StageBlockResult value, Response response) {
                     try {
-                        // Then a response without body and status code 201 will be returned by the server to the callback.
-                        assertNull(response);
+                        assertNull(value);
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t, Response response) {
                     try {
                         throw new RuntimeException(t);
                     } finally {
@@ -552,11 +551,12 @@ public class StorageBlobClientTest {
                 }
             });
 
+
         awaitOnLatch(latch, "stageBlock");
     }
 
     @Test
-    public void stageBlockWithRestResponse() {
+    public void stageBlockWithOptions() {
         // Given a StorageBlobClient.
 
         // When sending a block's contents for staging using stageBlockWithRestResponse().
@@ -566,23 +566,19 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response without body and status code 201 will be returned by the server.
-        BlockBlobsStageBlockResponse response = storageBlobClient.stageBlockWithRestResponse("testContainer",
+        com.azure.android.core.http.Response<StageBlockResult> response
+            = storageBlobClient.stageBlockWithRestResponse("testContainer",
             "testBlob",
             null,
             new byte[0],
             null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE);
+            new StageBlockOptions().setCancellationToken(CancellationToken.NONE));
 
         assertEquals(201, response.getStatusCode());
     }
 
     @Test
-    public void stageBlockWithRestResponse_withCallback() {
+    public void stageBlockWithOptions_withCallback() {
         // Given a StorageBlobClient.
 
         // When sending a block's contents for staging using stageBlockWithRestResponse() while providing a callback.
@@ -593,30 +589,25 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.stageBlockWithRestResponse("testContainer",
+        storageBlobAsyncClient.stageBlock("testContainer",
             "testBlob",
             null,
             new byte[0],
             null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
-            new Callback<BlockBlobsStageBlockResponse>() {
+            new StageBlockOptions(),
+            new CallbackSimple<StageBlockResult>() {
                 @Override
-                public void onResponse(BlockBlobsStageBlockResponse response) {
+                public void onSuccess(StageBlockResult value, Response response) {
                     try {
                         // Then a response without body and status code 201 will be returned by the server to the callback.
-                        assertEquals(201, response.getStatusCode());
+                        assertEquals(201, response.code());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t, Response response) {
                     try {
                         throw new RuntimeException(t);
                     } finally {

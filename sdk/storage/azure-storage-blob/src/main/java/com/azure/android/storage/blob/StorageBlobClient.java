@@ -29,6 +29,8 @@ import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.GetBlobPropertiesOptions;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
+import com.azure.android.storage.blob.models.StageBlockOptions;
+import com.azure.android.storage.blob.models.StageBlockResult;
 
 import org.threeten.bp.OffsetDateTime;
 
@@ -256,16 +258,24 @@ public class StorageBlobClient {
      * @param blockContent  The block content in bytes.
      * @param contentMd5    The transactional MD5 for the body, to be validated by the service.
      */
-    public Void stageBlock(String containerName,
+    public StageBlockResult stageBlock(String containerName,
                            String blobName,
                            String base64BlockId,
                            byte[] blockContent,
                            byte[] contentMd5) {
-        return this.storageBlobServiceClient.stageBlock(containerName,
+        BlockBlobsStageBlockResponse blockBlobsStageBlockResponse = this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
             blobName,
             base64BlockId,
+            blockContent.length,
             blockContent,
-            contentMd5);
+            ClientUtil.toImplOptions(new StageBlockOptions()).setTransactionalContentMD5(contentMd5));
+
+        return new StageBlockResult(
+            blockBlobsStageBlockResponse.getDeserializedHeaders().getContentMD5(),
+            blockBlobsStageBlockResponse.getDeserializedHeaders().getDateProperty(),
+            blockBlobsStageBlockResponse.getDeserializedHeaders().getXMsContentCrc64(),
+            blockBlobsStageBlockResponse.getDeserializedHeaders().isServerEncrypted(),
+            blockBlobsStageBlockResponse.getDeserializedHeaders().getEncryptionKeySha256());
     }
 
     /**
@@ -278,38 +288,31 @@ public class StorageBlobClient {
      *                          for the base64BlockId parameter must be the same size for each block.
      * @param blockContent      The block content in bytes.
      * @param contentMd5        The transactional MD5 for the block content, to be validated by the service.
-     * @param contentCrc64      Specify the transactional crc64 for the block content, to be validated by the service.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information,
-     *     see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param leaseId           If specified, the staging only succeeds if the resource's lease is active and matches this ID.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded.
-     *                          in the analytics logs when storage analytics logging is enabled.
-     * @param cpkInfo           Additional parameters for the operation.
-     * @param cancellationToken The token to request cancellation.
+     * @param options           The optional parameter.
      * @return The response object.
      */
-    public BlockBlobsStageBlockResponse stageBlockWithRestResponse(String containerName,
-                                                                   String blobName,
-                                                                   String base64BlockId,
-                                                                   byte[] blockContent,
-                                                                   byte[] contentMd5,
-                                                                   byte[] contentCrc64,
-                                                                   Integer timeout,
-                                                                   String leaseId,
-                                                                   String requestId,
-                                                                   CpkInfo cpkInfo,
-                                                                   CancellationToken cancellationToken) {
-        return this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
+    public Response<StageBlockResult> stageBlockWithRestResponse(String containerName,
+                                                                 String blobName,
+                                                                 String base64BlockId,
+                                                                 byte[] blockContent,
+                                                                 byte[] contentMd5,
+                                                                 StageBlockOptions options) {
+        BlockBlobsStageBlockResponse blockBlobsStageBlockResponse = this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
             blobName,
             base64BlockId,
+            blockContent.length,
             blockContent,
-            contentMd5,
-            contentCrc64,
-            timeout,
-            leaseId,
-            requestId,
-            cpkInfo,
-            cancellationToken);
+            ClientUtil.toImplOptions(options).setTransactionalContentMD5(contentMd5));
+
+        return new Response<>(null,
+            blockBlobsStageBlockResponse.getStatusCode(),
+            blockBlobsStageBlockResponse.getHeaders(),
+            new StageBlockResult(
+                blockBlobsStageBlockResponse.getDeserializedHeaders().getContentMD5(),
+                blockBlobsStageBlockResponse.getDeserializedHeaders().getDateProperty(),
+                blockBlobsStageBlockResponse.getDeserializedHeaders().getXMsContentCrc64(),
+                blockBlobsStageBlockResponse.getDeserializedHeaders().isServerEncrypted(),
+                blockBlobsStageBlockResponse.getDeserializedHeaders().getEncryptionKeySha256()));
     }
 
     /**

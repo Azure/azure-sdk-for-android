@@ -14,6 +14,7 @@ import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.Base64Util;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.DateTimeRfc1123;
+import com.azure.android.storage.blob.implementation.models.StageBlockOptions;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
@@ -416,102 +417,49 @@ final class StorageBlobServiceImpl {
             callback);
     }
 
-    Void stageBlock(String containerName,
-                    String blobName,
-                    String base64BlockId,
-                    byte[] blockContent,
-                    byte[] contentMd5) {
-        return this.stageBlockWithRestResponse(containerName,
+    BlockBlobsStageBlockResponse stageBlockWithRestResponse(String containerName,
+                                                            String blobName,
+                                                            String base64BlockId,
+                                                            int contentLength,
+                                                            byte[] blockContent,
+                                                            StageBlockOptions options) {
+        return this.stageBlockWithRestResponseIntern(containerName,
             blobName,
             base64BlockId,
+            contentLength,
             blockContent,
-            contentMd5,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE).getValue();
+            options,
+            null);
     }
 
     void stageBlock(String containerName,
                     String blobName,
                     String base64BlockId,
+                    int contentLength,
                     byte[] blockContent,
-                    byte[] contentMd5,
-                    Callback<Void> callback) {
-        this.stageBlockWithRestResponse(containerName,
+                    CallbackWithHeader<Void, BlockBlobStageBlockHeaders> callback) {
+        this.stageBlock(containerName,
             blobName,
             base64BlockId,
+            contentLength,
             blockContent,
-            contentMd5,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
-            new Callback<BlockBlobsStageBlockResponse>() {
-                @Override
-                public void onResponse(BlockBlobsStageBlockResponse response) {
-                    callback.onResponse(response.getValue());
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    callback.onFailure(t);
-                }
-            });
+            new StageBlockOptions().setCancellationToken(CancellationToken.NONE),
+            callback);
     }
 
-    BlockBlobsStageBlockResponse stageBlockWithRestResponse(String containerName,
-                                                            String blobName,
-                                                            String base64BlockId,
-                                                            byte[] blockContent,
-                                                            byte[] transactionalContentMD5,
-                                                            byte[] transactionalContentCrc64,
-                                                            Integer timeout,
-                                                            String leaseId,
-                                                            String requestId,
-                                                            CpkInfo cpkInfo,
-                                                            CancellationToken cancellationToken) {
-        return this.stageBlockWithRestResponseIntern(containerName,
-            blobName,
-            base64BlockId,
-            blockContent,
-            transactionalContentMD5,
-            transactionalContentCrc64,
-            timeout,
-            leaseId,
-            requestId,
-            cpkInfo,
-            cancellationToken,
-            null);
-    }
-
-    void stageBlockWithRestResponse(String containerName,
-                                    String blobName,
-                                    String base64BlockId,
-                                    byte[] blockContent,
-                                    byte[] transactionalContentMD5,
-                                    byte[] transactionalContentCrc64,
-                                    Integer timeout,
-                                    String leaseId,
-                                    String requestId,
-                                    CpkInfo cpkInfo,
-                                    CancellationToken cancellationToken,
-                                    Callback<BlockBlobsStageBlockResponse> callback) {
+    void stageBlock(String containerName,
+                    String blobName,
+                    String base64BlockId,
+                    int contentLength,
+                    byte[] blockContent,
+                    StageBlockOptions options,
+                    CallbackWithHeader<Void, BlockBlobStageBlockHeaders> callback) {
         this.stageBlockWithRestResponseIntern(containerName,
             blobName,
             base64BlockId,
+            contentLength,
             blockContent,
-            transactionalContentMD5,
-            transactionalContentCrc64,
-            timeout,
-            leaseId,
-            requestId,
-            cpkInfo,
-            cancellationToken,
+            options,
             callback);
     }
 
@@ -1121,49 +1069,32 @@ final class StorageBlobServiceImpl {
     private BlockBlobsStageBlockResponse stageBlockWithRestResponseIntern(String containerName,
                                                                           String blobName,
                                                                           String base64BlockId,
+                                                                          int contentLength,
                                                                           byte[] blockContent,
-                                                                          byte[] transactionalContentMD5,
-                                                                          byte[] transactionalContentCrc64,
-                                                                          Integer timeout,
-                                                                          String leaseId,
-                                                                          String requestId,
-                                                                          CpkInfo cpkInfo,
-                                                                          CancellationToken cancellationToken,
-                                                                          Callback<BlockBlobsStageBlockResponse> callback) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        String encryptionKey = null;
-        String encryptionKeySha256 = null;
-        EncryptionAlgorithmType encryptionAlgorithm = null;
-        if (cpkInfo != null) {
-            encryptionKey = cpkInfo.getEncryptionKey();
-            encryptionKeySha256 = cpkInfo.getEncryptionKeySha256();
-            encryptionAlgorithm = cpkInfo.getEncryptionAlgorithm();
-        }
-        //
+                                                                          StageBlockOptions options,
+                                                                          CallbackWithHeader<Void, BlockBlobStageBlockHeaders> callback) {
         final String comp = "block";
-        String transactionalContentMD5Converted = Base64Util.encodeToString(transactionalContentMD5);
-        String transactionalContentCrc64Converted = Base64Util.encodeToString(transactionalContentCrc64);
         //
-        int contentLength = blockContent.length;
+        // int contentLength = blockContent.length;
         RequestBody body = RequestBody.create(MediaType.get("application/octet-stream"), blockContent);
 
         Call<ResponseBody> call = service.stageBlock(containerName,
             blobName,
             base64BlockId,
             contentLength,
-            transactionalContentMD5Converted,
-            transactionalContentCrc64Converted,
             body,
-            timeout,
-            leaseId,
-            XMS_VERSION,
-            requestId,
+            Base64Util.encodeToString(options.getTransactionalContentMD5()),
+            Base64Util.encodeToString(options.getTransactionalContentCrc64()),
+            options.getTimeout(),
+            options.getLeaseId(),
+            this.getVersion(),
+            options.getRequestId(),
             comp,
-            encryptionKey,
-            encryptionKeySha256,
-            encryptionAlgorithm);
+            options.getCpkInfo() != null ? options.getCpkInfo().getEncryptionKey() : null,
+            options.getCpkInfo() != null ? options.getCpkInfo().getEncryptionKeySha256() : null,
+            options.getCpkInfo() != null ? options.getCpkInfo().getEncryptionAlgorithm() : null);
 
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+        ((CancellationTokenImpl) options.getCancellationToken()).registerOnCancel(() -> {
             call.cancel();
         });
 
@@ -1173,28 +1104,23 @@ final class StorageBlobServiceImpl {
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
                         if (response.code() == 201) {
-                            BlockBlobStageBlockHeaders typedHeader = deserializeHeaders(response.headers(),
-                                BlockBlobStageBlockHeaders.class);
-                            callback.onResponse(new BlockBlobsStageBlockResponse(response.raw().request(),
-                                response.code(),
-                                response.headers(),
-                                null,
-                                typedHeader));
+                            callback.onSuccess(null, deserializeHeaders(response.headers(),
+                                BlockBlobStageBlockHeaders.class), response.raw());
                         } else {
                             String strContent = readAsString(response.body());
 
-                            callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
                         }
                     } else {
                         String strContent = readAsString(response.errorBody());
 
-                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
                     }
                 }
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    callback.onFailure(t);
+                    callback.onFailure(t, null);
                 }
             });
             return null;
@@ -1203,15 +1129,11 @@ final class StorageBlobServiceImpl {
 
             if (response.isSuccessful()) {
                 if (response.code() == 201) {
-                    BlockBlobStageBlockHeaders typedHeader = deserializeHeaders(response.headers(),
-                        BlockBlobStageBlockHeaders.class);
-
-                    BlockBlobsStageBlockResponse result = new BlockBlobsStageBlockResponse(response.raw().request(),
+                    return new BlockBlobsStageBlockResponse(response.raw().request(),
                         response.code(),
                         response.headers(),
                         null,
-                        typedHeader);
-                    return result;
+                        deserializeHeaders(response.headers(), BlockBlobStageBlockHeaders.class));
                 } else {
                     String strContent = readAsString(response.body());
 
@@ -1611,9 +1533,9 @@ final class StorageBlobServiceImpl {
                                       @Path("blob") String blob,
                                       @Query("blockid") String blockId,
                                       @Header("Content-Length") long contentLength,
+                                      @Body RequestBody blockContent,
                                       @Header("Content-MD5") String transactionalContentMD5,
                                       @Header("x-ms-content-crc64") String transactionalContentCrc64,
-                                      @Body RequestBody blockContent,
                                       @Query("timeout") Integer timeout,
                                       @Header("x-ms-lease-id") String leaseId,
                                       @Header("x-ms-version") String version,

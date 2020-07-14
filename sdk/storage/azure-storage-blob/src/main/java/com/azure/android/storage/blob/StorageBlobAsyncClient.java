@@ -31,6 +31,7 @@ import com.azure.android.storage.blob.models.BlobProperties;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlockBlobItem;
+import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
@@ -39,6 +40,8 @@ import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.GetBlobPropertiesOptions;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
+import com.azure.android.storage.blob.models.StageBlockOptions;
+import com.azure.android.storage.blob.models.StageBlockResult;
 import com.azure.android.storage.blob.transfer.DownloadRequest;
 import com.azure.android.storage.blob.transfer.StorageBlobClientMap;
 import com.azure.android.storage.blob.transfer.TransferClient;
@@ -53,6 +56,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.Interceptor;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 /**
@@ -447,13 +451,29 @@ public class StorageBlobAsyncClient {
                            String base64BlockId,
                            byte[] blockContent,
                            byte[] contentMd5,
-                           Callback<Void> callback) {
+                           CallbackSimple<StageBlockResult> callback) {
         this.storageBlobServiceClient.stageBlock(containerName,
             blobName,
             base64BlockId,
+            blockContent.length,
             blockContent,
-            contentMd5,
-            callback);
+            new com.azure.android.storage.blob.implementation.models.StageBlockOptions().setTransactionalContentMD5(contentMd5),
+            new CallbackWithHeader<Void, BlockBlobStageBlockHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlockBlobStageBlockHeaders header, Response response) {
+                    callback.onSuccess(new StageBlockResult(
+                        header.getContentMD5(),
+                        header.getDateProperty(),
+                        header.getXMsContentCrc64(),
+                        header.isServerEncrypted(),
+                        header.getEncryptionKeySha256()), response);
+                }
+
+                @Override
+                public void onFailure(Throwable t, Response response) {
+                    callback.onFailure(t, response);
+                }
+            });
     }
 
     /**
@@ -466,40 +486,38 @@ public class StorageBlobAsyncClient {
      *                          for the base64BlockId parameter must be the same size for each block.
      * @param blockContent      The block content in bytes.
      * @param contentMd5        The transactional MD5 for the block content, to be validated by the service.
-     * @param contentCrc64      Specify the transactional crc64 for the block content, to be validated by the service.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information,
-     *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param leaseId           If specified, the staging only succeeds if the resource's lease is active and matches this ID.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded.
-     *                          in the analytics logs when storage analytics logging is enabled.
-     * @param cpkInfo           Additional parameters for the operation.
-     * @param cancellationToken The token to request cancellation.
+     * @param options           The optional parameters.
      * @param callback          Callback that receives the response.
      */
-    public void stageBlockWithRestResponse(String containerName,
-                                           String blobName,
-                                           String base64BlockId,
-                                           byte[] blockContent,
-                                           byte[] contentMd5,
-                                           byte[] contentCrc64,
-                                           Integer timeout,
-                                           String leaseId,
-                                           String requestId,
-                                           CpkInfo cpkInfo,
-                                           CancellationToken cancellationToken,
-                                           Callback<BlockBlobsStageBlockResponse> callback) {
-        this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
+    public void stageBlock(String containerName,
+                           String blobName,
+                           String base64BlockId,
+                           byte[] blockContent,
+                           byte[] contentMd5,
+                           StageBlockOptions options,
+                           CallbackSimple<StageBlockResult> callback) {
+        this.storageBlobServiceClient.stageBlock(containerName,
             blobName,
             base64BlockId,
+            blockContent.length,
             blockContent,
-            contentMd5,
-            contentCrc64,
-            timeout,
-            leaseId,
-            requestId,
-            cpkInfo,
-            cancellationToken,
-            callback);
+            ClientUtil.toImplOptions(options).setTransactionalContentMD5(contentMd5),
+            new CallbackWithHeader<Void, BlockBlobStageBlockHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlockBlobStageBlockHeaders header, Response response) {
+                    callback.onSuccess(new StageBlockResult(
+                        header.getContentMD5(),
+                        header.getDateProperty(),
+                        header.getXMsContentCrc64(),
+                        header.isServerEncrypted(),
+                        header.getEncryptionKeySha256()), response);
+                }
+
+                @Override
+                public void onFailure(Throwable t, Response response) {
+                    callback.onFailure(t, response);
+                }
+            });
     }
 
     /**
