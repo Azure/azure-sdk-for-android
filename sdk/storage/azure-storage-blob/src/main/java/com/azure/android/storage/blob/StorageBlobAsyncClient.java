@@ -21,19 +21,18 @@ import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.CoreUtil;
-import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
-import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobProperties;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
-import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
-import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
+import com.azure.android.storage.blob.models.BlockLookupList;
+import com.azure.android.storage.blob.models.CommitBlockListOptions;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
@@ -523,7 +522,7 @@ public class StorageBlobAsyncClient {
     /**
      * The Commit Block List operation writes a blob by specifying the list of block IDs that make up the blob.
      * For a block to be written as part of a blob, the block must have been successfully written to the server in a prior
-     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[], Callback)} operation. You can
+     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[], CallbackSimple)} operation. You can
      * call commit Block List to update a blob by uploading only those blocks that have changed, then committing the new
      * and existing blocks together. You can do this by specifying whether to commit a block from the committed block
      * list or from the uncommitted block list, or to commit the most recently uploaded version of the block,
@@ -532,74 +531,63 @@ public class StorageBlobAsyncClient {
      * @param containerName  The container name.
      * @param blobName       The blob name.
      * @param base64BlockIds The block IDs.
-     * @param overwrite      Indicate whether to overwrite the block list if already exists.
      * @param callback       Callback that receives the response.
      */
     public void commitBlockList(String containerName,
                                 String blobName,
                                 List<String> base64BlockIds,
-                                boolean overwrite,
-                                Callback<BlockBlobItem> callback) {
+                                CallbackSimple<BlockBlobItem> callback) {
         this.storageBlobServiceClient.commitBlockList(containerName,
             blobName,
-            base64BlockIds,
-            overwrite,
-            callback);
+            new BlockLookupList().setCommitted(base64BlockIds),
+            new com.azure.android.storage.blob.implementation.models.CommitBlockListOptions(),
+            new CallbackWithHeader<Void, BlockBlobCommitBlockListHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlockBlobCommitBlockListHeaders header, Response response) {
+                    callback.onSuccess(ClientUtil.buildBlockBlobItem(header), response);
+                }
+
+                @Override
+                public void onFailure(Throwable t, Response response) {
+                    callback.onFailure(t, response);
+                }
+            });
     }
 
     /**
      * The Commit Block List operation writes a blob by specifying the list of block IDs that make up the blob.
      * For a block to be written as part of a blob, the block must have been successfully written to the server in a prior
-     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[], Callback)} operation. You can call
-     * commit Block List to update a blob by uploading only those blocks that have changed, then committing the new and existing
-     * blocks together. You can do this by specifying whether to commit a block from the committed block list or from
-     * the uncommitted block list, or to commit the most recently uploaded version of the block, whichever list it may belong to.
+     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[], StageBlockOptions, CallbackSimple)} operation.
+     * You can call commit Block List to update a blob by uploading only those blocks that have changed, then committing
+     * the new and existing blocks together. You can do this by specifying whether to commit a block from the committed block
+     * list or from the uncommitted block list, or to commit the most recently uploaded version of the block, whichever list it may belong to.
      *
      * @param containerName     The container name.
      * @param blobName          The blob name.
      * @param base64BlockIds    The block IDs.
-     * @param contentMD5        Specify the transactional md5 for the body, to be validated by the service.
-     * @param contentCrc64      Specify the transactional crc64 for the body, to be validated by the service.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information,
-     *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param blobHttpHeaders   Additional Http headers for this operation.
-     * @param metadata          Specifies a user-defined name-value pair associated with the blob.
-     * @param requestConditions {@link BlobRequestConditions}.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded
-     *                          in the analytics logs when storage analytics logging is enabled.
-     * @param cpkInfo           Additional parameters for the operation.
-     * @param tier              Indicates the tier to be set on the blob.
-     * @param cancellationToken The token to request cancellation.
+     * @param options           The optional parameter.
      * @param callback          Callback that receives the response.
      */
-    public void commitBlockListWithRestResponse(String containerName,
-                                                String blobName,
-                                                List<String> base64BlockIds,
-                                                byte[] contentMD5,
-                                                byte[] contentCrc64,
-                                                Integer timeout,
-                                                BlobHttpHeaders blobHttpHeaders,
-                                                Map<String, String> metadata,
-                                                BlobRequestConditions requestConditions,
-                                                String requestId,
-                                                CpkInfo cpkInfo,
-                                                AccessTier tier,
-                                                CancellationToken cancellationToken,
-                                                Callback<BlockBlobsCommitBlockListResponse> callback) {
-        this.storageBlobServiceClient.commitBlockListWithRestResponse(containerName,
+    public void commitBlockList(String containerName,
+                                String blobName,
+                                List<String> base64BlockIds,
+                                CommitBlockListOptions options,
+                                CallbackSimple<BlockBlobItem> callback) {
+        this.storageBlobServiceClient.commitBlockList(containerName,
             blobName,
-            base64BlockIds,
-            contentMD5,
-            contentCrc64,
-            timeout,
-            blobHttpHeaders,
-            metadata,
-            requestConditions,
-            requestId,
-            cpkInfo,
-            tier,
-            cancellationToken,
-            callback);
+            new BlockLookupList().setCommitted(base64BlockIds),
+            ClientUtil.toImplOptions(options),
+            new CallbackWithHeader<Void, BlockBlobCommitBlockListHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlockBlobCommitBlockListHeaders header, Response response) {
+                    callback.onSuccess(ClientUtil.buildBlockBlobItem(header), response);
+                }
+
+                @Override
+                public void onFailure(Throwable t, Response response) {
+                    callback.onFailure(t, response);
+                }
+            });
     }
 
     /**

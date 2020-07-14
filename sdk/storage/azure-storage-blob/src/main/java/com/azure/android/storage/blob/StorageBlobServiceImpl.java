@@ -14,6 +14,7 @@ import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.Base64Util;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.DateTimeRfc1123;
+import com.azure.android.storage.blob.implementation.models.CommitBlockListOptions;
 import com.azure.android.storage.blob.implementation.models.StageBlockOptions;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
@@ -21,13 +22,10 @@ import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
-import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
-import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
-import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
@@ -463,126 +461,41 @@ final class StorageBlobServiceImpl {
             callback);
     }
 
-    BlockBlobItem commitBlockList(String containerName,
-                                  String blobName,
-                                  List<String> base64BlockIds,
-                                  boolean overwrite) {
-        BlobRequestConditions requestConditions = null;
-
-        if (!overwrite) {
-            requestConditions = new BlobRequestConditions().setIfNoneMatch("*");
-        }
-
-        BlockBlobsCommitBlockListResponse response = this.commitBlockListWithRestResponse(containerName,
+    BlockBlobsCommitBlockListResponse commitBlockListWithRestResponse(String containerName,
+                                                                      String blobName,
+                                                                      BlockLookupList blockLookupList,
+                                                                      CommitBlockListOptions options) {
+        return this.commitBlockListWithRestResponseIntern2(containerName,
             blobName,
-            base64BlockIds,
-            null,
-            null,
-            null,
-            null,
-            null,
-            requestConditions,
-            null,
-            null,
-            null,
-            CancellationToken.NONE);
-
-        return response.getBlockBlobItem();
+            blockLookupList,
+            options,
+            null);
     }
 
     void commitBlockList(String containerName,
                          String blobName,
-                         List<String> base64BlockIds,
-                         boolean overwrite,
-                         Callback<BlockBlobItem> callBack) {
-        BlobRequestConditions requestConditions = null;
-
-        if (!overwrite) {
-            requestConditions = new BlobRequestConditions().setIfNoneMatch("*");
-        }
-
-        this.commitBlockListWithRestResponse(containerName,
+                         BlockLookupList blockLookupList,
+                         CallbackWithHeader<Void, BlockBlobCommitBlockListHeaders> callback) {
+//        BlobRequestConditions requestConditions = null;
+//        if (!overwrite) {
+//            requestConditions = new BlobRequestConditions().setIfNoneMatch("*");
+//        }
+        this.commitBlockListWithRestResponseIntern2(containerName,
             blobName,
-            base64BlockIds,
-            null,
-            null,
-            null,
-            null,
-            null,
-            requestConditions,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
-            new Callback<BlockBlobsCommitBlockListResponse>() {
-                @Override
-                public void onResponse(BlockBlobsCommitBlockListResponse response) {
-                    callBack.onResponse(response.getBlockBlobItem());
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    callBack.onFailure(t);
-                }
-            });
+            blockLookupList,
+            new CommitBlockListOptions().setCancellationToken(CancellationToken.NONE),
+            callback);
     }
 
-    BlockBlobsCommitBlockListResponse commitBlockListWithRestResponse(String containerName,
-                                                                      String blobName,
-                                                                      List<String> base64BlockIds,
-                                                                      byte[] transactionalContentMD5,
-                                                                      byte[] transactionalContentCrc64,
-                                                                      Integer timeout,
-                                                                      BlobHttpHeaders blobHttpHeaders,
-                                                                      Map<String, String> metadata,
-                                                                      BlobRequestConditions requestConditions,
-                                                                      String requestId,
-                                                                      CpkInfo cpkInfo,
-                                                                      AccessTier tier,
-                                                                      CancellationToken cancellationToken) {
-        return this.commitBlockListWithRestResponseIntern(containerName,
+    void commitBlockList(String containerName,
+                         String blobName,
+                         BlockLookupList blockLookupList,
+                         CommitBlockListOptions options,
+                         CallbackWithHeader<Void, BlockBlobCommitBlockListHeaders> callback) {
+        this.commitBlockListWithRestResponseIntern2(containerName,
             blobName,
-            base64BlockIds,
-            transactionalContentMD5,
-            transactionalContentCrc64,
-            timeout,
-            blobHttpHeaders,
-            metadata,
-            requestConditions,
-            requestId,
-            cpkInfo,
-            tier,
-            cancellationToken,
-            null);
-    }
-
-    void commitBlockListWithRestResponse(String containerName,
-                                         String blobName,
-                                         List<String> base64BlockIds,
-                                         byte[] transactionalContentMD5,
-                                         byte[] transactionalContentCrc64,
-                                         Integer timeout,
-                                         BlobHttpHeaders blobHttpHeaders,
-                                         Map<String, String> metadata,
-                                         BlobRequestConditions requestConditions,
-                                         String requestId,
-                                         CpkInfo cpkInfo,
-                                         AccessTier tier,
-                                         CancellationToken cancellationToken,
-                                         Callback<BlockBlobsCommitBlockListResponse> callback) {
-        this.commitBlockListWithRestResponseIntern(containerName,
-            blobName,
-            base64BlockIds,
-            transactionalContentMD5,
-            transactionalContentCrc64,
-            timeout,
-            blobHttpHeaders,
-            metadata,
-            requestConditions,
-            requestId,
-            cpkInfo,
-            tier,
-            cancellationToken,
+            blockLookupList,
+            options,
             callback);
     }
 
@@ -1147,121 +1060,92 @@ final class StorageBlobServiceImpl {
         }
     }
 
-    private BlockBlobsCommitBlockListResponse commitBlockListWithRestResponseIntern(String containerName,
-                                                                                    String blobName,
-                                                                                    List<String> base64BlockIds,
-                                                                                    byte[] transactionalContentMD5,
-                                                                                    byte[] transactionalContentCrc64,
-                                                                                    Integer timeout,
-                                                                                    BlobHttpHeaders blobHttpHeaders,
-                                                                                    Map<String, String> metadata,
-                                                                                    BlobRequestConditions requestConditions,
-                                                                                    String requestId,
-                                                                                    CpkInfo cpkInfo,
-                                                                                    AccessTier tier,
-                                                                                    CancellationToken cancellationToken,
-                                                                                    Callback<BlockBlobsCommitBlockListResponse> callback) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        requestConditions = requestConditions == null ? new BlobRequestConditions() : requestConditions;
-        String leaseId = requestConditions.getLeaseId();
-        DateTimeRfc1123 ifModifiedSince = requestConditions.getIfModifiedSince() == null
-            ? null :
-            new DateTimeRfc1123(requestConditions.getIfModifiedSince());
-        DateTimeRfc1123 ifUnmodifiedSince = requestConditions.getIfUnmodifiedSince() == null
-            ? null :
-            new DateTimeRfc1123(requestConditions.getIfUnmodifiedSince());
-        String ifMatch = requestConditions.getIfMatch();
-        String ifNoneMatch = requestConditions.getIfNoneMatch();
-        String cacheControl = null;
+    private BlockBlobsCommitBlockListResponse commitBlockListWithRestResponseIntern2(String containerName,
+                                                                                     String blobName,
+                                                                                     BlockLookupList blockLookupList,
+                                                                                     CommitBlockListOptions options,
+                                                                                     CallbackWithHeader<Void, BlockBlobCommitBlockListHeaders> callback) {
+        final String comp = "blocklist";
 
-        if (blobHttpHeaders != null) {
-            cacheControl = blobHttpHeaders.getCacheControl();
+        String cacheControl = null;
+        if (options.getBlobHttpHeaders() != null) {
+            cacheControl = options.getBlobHttpHeaders().getCacheControl();
         }
 
         String contentType = null;
-
-        if (blobHttpHeaders != null) {
-            contentType = blobHttpHeaders.getContentType();
+        if (options.getBlobHttpHeaders() != null) {
+            contentType = options.getBlobHttpHeaders().getContentType();
         }
 
         String contentEncoding = null;
-
-        if (blobHttpHeaders != null) {
-            contentEncoding = blobHttpHeaders.getContentEncoding();
+        if (options.getBlobHttpHeaders() != null) {
+            contentEncoding = options.getBlobHttpHeaders().getContentEncoding();
         }
 
         String contentLanguage = null;
-
-        if (blobHttpHeaders != null) {
-            contentLanguage = blobHttpHeaders.getContentLanguage();
+        if (options.getBlobHttpHeaders() != null) {
+            contentLanguage = options.getBlobHttpHeaders().getContentLanguage();
         }
 
         byte[] contentMd5 = null;
-
-        if (blobHttpHeaders != null) {
-            contentMd5 = blobHttpHeaders.getContentMd5();
+        if (options.getBlobHttpHeaders() != null) {
+            contentMd5 = options.getBlobHttpHeaders().getContentMd5();
         }
 
         String contentDisposition = null;
-
-        if (blobHttpHeaders != null) {
-            contentDisposition = blobHttpHeaders.getContentDisposition();
+        if (options.getBlobHttpHeaders() != null) {
+            contentDisposition = options.getBlobHttpHeaders().getContentDisposition();
         }
 
         String encryptionKey = null;
-
-        if (cpkInfo != null) {
-            encryptionKey = cpkInfo.getEncryptionKey();
+        if (options.getCpkInfo() != null) {
+            encryptionKey = options.getCpkInfo().getEncryptionKey();
         }
 
         String encryptionKeySha256 = null;
-
-        if (cpkInfo != null) {
-            encryptionKeySha256 = cpkInfo.getEncryptionKeySha256();
+        if (options.getCpkInfo() != null) {
+            encryptionKeySha256 = options.getCpkInfo().getEncryptionKeySha256();
         }
 
         EncryptionAlgorithmType encryptionAlgorithm = null;
-
-        if (cpkInfo != null) {
-            encryptionAlgorithm = cpkInfo.getEncryptionAlgorithm();
+        if (options.getCpkInfo() != null) {
+            encryptionAlgorithm = options.getCpkInfo().getEncryptionAlgorithm();
         }
 
-        final String comp = "blocklist";
-        String transactionalContentMD5Converted = Base64Util.encodeToString(transactionalContentMD5);
-        String transactionalContentCrc64Converted = Base64Util.encodeToString(transactionalContentCrc64);
-        String contentMd5Converted = Base64Util.encodeToString(contentMd5);
-
-        BlockLookupList blockLookupList = new BlockLookupList().setLatest(base64BlockIds);
         final RequestBody blocks;
-
         try {
             blocks = RequestBody.create(MediaType.get("application/xml; charset=utf-8"),
                 serializerAdapter.serialize(blockLookupList, SerializerFormat.XML));
         } catch (IOException ioe) {
             if (callback != null) {
-                callback.onFailure(ioe);
-
+                callback.onFailure(ioe, null);
                 return null;
             } else {
                 throw new RuntimeException(ioe);
             }
         }
 
+        String transactionalContentMD5Converted = Base64Util.encodeToString(options.getTransactionalContentMD5());
+        String transactionalContentCrc64Converted = Base64Util.encodeToString(options.getTransactionalContentCrc64());
+        DateTimeRfc1123 ifModifiedSinceConverted = options.getIfModifiedSince() == null ? null : new DateTimeRfc1123(options.getIfModifiedSince());
+        DateTimeRfc1123 ifUnmodifiedSinceConverted = options.getIfUnmodifiedSince() == null ? null : new DateTimeRfc1123(options.getIfUnmodifiedSince());
+        String contentMd5Converted = Base64Util.encodeToString(contentMd5);
+
         Call<ResponseBody> call = service.commitBlockList(containerName,
             blobName,
-            timeout,
+            options.getTimeout(),
             transactionalContentMD5Converted,
             transactionalContentCrc64Converted,
-            metadata,
-            leaseId,
-            tier,
-            ifModifiedSince,
-            ifUnmodifiedSince,
-            ifMatch,
-            ifNoneMatch,
+            options.getMetadata(),
+            options.getLeaseId(),
+            options.getTier(),
+            ifModifiedSinceConverted,
+            ifUnmodifiedSinceConverted,
+            options.getIfMatch(),
+            options.getIfNoneMatch(),
             blocks,
-            XMS_VERSION,
-            requestId,
+            this.getVersion(),
+            options.getRequestId(),
             comp,
             cacheControl,
             contentType,
@@ -1273,7 +1157,8 @@ final class StorageBlobServiceImpl {
             encryptionKeySha256,
             encryptionAlgorithm);
 
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+
+        ((CancellationTokenImpl) options.getCancellationToken()).registerOnCancel(() -> {
             call.cancel();
         });
 
@@ -1283,56 +1168,39 @@ final class StorageBlobServiceImpl {
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
                         if (response.code() == 201) {
-                            BlockBlobCommitBlockListHeaders typedHeader =
-                                deserializeHeaders(response.headers(), BlockBlobCommitBlockListHeaders.class);
+                            callback.onSuccess(null, deserializeHeaders(response.headers(), BlockBlobCommitBlockListHeaders.class), response.raw());
 
-                            callback.onResponse(new BlockBlobsCommitBlockListResponse(response.raw().request(),
-                                response.code(),
-                                response.headers(),
-                                null,
-                                typedHeader));
                         } else {
                             String strContent = readAsString(response.body());
-
-                            callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
                         }
                     } else {
                         String strContent = readAsString(response.errorBody());
-
-                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
                     }
                 }
 
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
-                    callback.onFailure(t);
+                    callback.onFailure(t, null);
                 }
             });
             return null;
         } else {
             Response<ResponseBody> response = executeCall(call);
-
             if (response.isSuccessful()) {
                 if (response.code() == 201) {
-                    BlockBlobCommitBlockListHeaders typedHeader =
-                        deserializeHeaders(response.headers(), BlockBlobCommitBlockListHeaders.class);
-
-                    BlockBlobsCommitBlockListResponse result =
-                        new BlockBlobsCommitBlockListResponse(response.raw().request(),
-                            response.code(),
-                            response.headers(),
-                            null,
-                            typedHeader);
-
-                    return result;
+                    return new BlockBlobsCommitBlockListResponse(response.raw().request(),
+                        response.code(),
+                        response.headers(),
+                        null,
+                        deserializeHeaders(response.headers(), BlockBlobCommitBlockListHeaders.class));
                 } else {
                     String strContent = readAsString(response.body());
-
                     throw new BlobStorageException(strContent, response.raw());
                 }
             } else {
                 String strContent = readAsString(response.errorBody());
-
                 throw new BlobStorageException(strContent, response.raw());
             }
         }

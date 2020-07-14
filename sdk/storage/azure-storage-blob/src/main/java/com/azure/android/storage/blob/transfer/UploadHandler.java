@@ -16,7 +16,7 @@ import androidx.annotation.NonNull;
 import com.azure.android.core.http.CallbackSimple;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.StorageBlobAsyncClient;
-import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
+import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.StageBlockOptions;
 import com.azure.android.storage.blob.models.StageBlockResult;
 
@@ -338,22 +338,12 @@ final class UploadHandler extends Handler {
 
         List<String> blockIds = this.db.uploadDao().getBlockIds(this.uploadId);
 
-        this.blobClient.commitBlockListWithRestResponse(blob.containerName,
+        this.blobClient.commitBlockList(blob.containerName,
             blob.blobName,
             blockIds,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            this.cancellationToken,
-            new com.azure.android.core.http.Callback<BlockBlobsCommitBlockListResponse>() {
+            new CallbackSimple<BlockBlobItem>() {
                 @Override
-                public void onResponse(BlockBlobsCommitBlockListResponse response) {
+                public void onSuccess(BlockBlobItem value, Response response) {
                     Log.v(TAG, "commitBlocks(): Blocks committed." + threadName());
                     db.uploadDao().updateBlobState(uploadId, BlobTransferState.COMPLETED);
                     Message nextMessage = UploadHandlerMessage
@@ -362,7 +352,7 @@ final class UploadHandler extends Handler {
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t, Response response) {
                     Log.e(TAG,  "commitBlocks(): Blocks commit failed." + threadName(), t);
                     db.uploadDao().updateBlobState(uploadId, BlobTransferState.FAILED);
                     blob.setCommitError(t);

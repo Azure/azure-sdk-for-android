@@ -8,6 +8,8 @@ import com.azure.android.storage.blob.models.ArchiveStatus;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobProperties;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
+import com.azure.android.storage.blob.models.BlockBlobItem;
 
 // Internal Util-Class used by convenience layer API impl.
 final class ClientUtil {
@@ -15,7 +17,6 @@ final class ClientUtil {
     }
 
     static BlobProperties buildBlobProperties(BlobGetPropertiesHeaders headers) {
-        // blobSize determination - contentLength only returns blobSize if the download is not chunked.
         BlobProperties properties = new BlobProperties(headers.getCreationTime(), headers.getLastModified(),
             headers.getETag(),
             headers.getContentLength() == null ? 0 : headers.getContentLength(),
@@ -36,6 +37,11 @@ final class ClientUtil {
             headers.getEncryptionScope(), headers.getAccessTierChangeTime(),
             headers.getMetadata(), headers.getBlobCommittedBlockCount());
         return properties;
+    }
+
+    static BlockBlobItem buildBlockBlobItem(BlockBlobCommitBlockListHeaders headers) {
+        return new BlockBlobItem(headers.getETag(), headers.getLastModified(), headers.getContentMD5(),
+            headers.isServerEncrypted(), headers.getEncryptionKeySha256());
     }
 
     static com.azure.android.storage.blob.implementation.models.GetBlobPropertiesOptions toImplOptions(
@@ -74,5 +80,32 @@ final class ClientUtil {
         implOptions.setTimeout(options.getTimeout());
         implOptions.setTransactionalContentCrc64(options.getTransactionalContentCrc64());
         return implOptions;
+    }
+
+    static com.azure.android.storage.blob.implementation.models.CommitBlockListOptions toImplOptions(
+        com.azure.android.storage.blob.models.CommitBlockListOptions options) {
+
+        com.azure.android.storage.blob.implementation.models.CommitBlockListOptions implOptions
+            = new com.azure.android.storage.blob.implementation.models.CommitBlockListOptions();
+
+        implOptions.setCancellationToken(options.getCancellationToken());
+        implOptions.setTransactionalContentMD5(options.getTransactionalContentMD5());
+        implOptions.setTransactionalContentCrc64(options.getTransactionalContentCrc64());
+        implOptions.setTimeout(options.getTimeout());
+        implOptions.setBlobHttpHeaders(options.getBlobHttpHeaders());
+        implOptions.setMetadata(options.getMetadata());
+        implOptions.setRequestId(options.getRequestId());
+        implOptions.setCpkInfo(options.getCpkInfo());
+        final BlobRequestConditions blobRequestConditions = options.getBlobRequestConditions();
+        if (blobRequestConditions != null) {
+            implOptions.setLeaseId(blobRequestConditions.getLeaseId());
+            implOptions.setIfMatch(blobRequestConditions.getIfMatch());
+            implOptions.setIfNoneMatch(blobRequestConditions.getIfNoneMatch());
+            implOptions.setIfModifiedSince(blobRequestConditions.getIfModifiedSince());
+            implOptions.setIfUnmodifiedSince(blobRequestConditions.getIfUnmodifiedSince());
+        }
+        implOptions.setTier(options.getTier());
+        return implOptions;
+
     }
 }

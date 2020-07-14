@@ -9,7 +9,6 @@ import com.azure.android.core.http.ResponseBase;
  * Contains all response data for the commitBlockList operation.
  */
 public final class BlockBlobsCommitBlockListResponse extends ResponseBase<BlockBlobCommitBlockListHeaders, Void> {
-    private final BlockBlobItem item;
 
     /**
      * Creates an instance of BlockBlobsCommitBlockListResponse.
@@ -26,13 +25,6 @@ public final class BlockBlobsCommitBlockListResponse extends ResponseBase<BlockB
                                              Void value,
                                              BlockBlobCommitBlockListHeaders headers) {
         super(request, statusCode, rawHeaders, value, headers);
-
-        this.item = new BlockBlobItem(headers.getETag(), headers.getLastModified(), headers.getContentMD5(),
-                headers.isServerEncrypted(), headers.getEncryptionKeySha256());
-    }
-
-    public BlockBlobItem getBlockBlobItem() {
-        return this.item;
     }
 }
 

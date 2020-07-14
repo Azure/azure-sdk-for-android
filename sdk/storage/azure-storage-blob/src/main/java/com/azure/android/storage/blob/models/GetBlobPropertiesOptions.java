@@ -6,7 +6,6 @@ public class GetBlobPropertiesOptions {
     private String snapshot;
     private Integer timeout;
     private String version;
-    private String leaseId;
     private String requestId;
     private CpkInfo cpkInfo;
     private BlobRequestConditions blobRequestConditions;

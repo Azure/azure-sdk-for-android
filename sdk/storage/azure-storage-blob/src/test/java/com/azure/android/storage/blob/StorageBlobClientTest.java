@@ -10,7 +10,7 @@ import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobProperties;
 import com.azure.android.storage.blob.models.BlockBlobItem;
-import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
+import com.azure.android.storage.blob.models.CommitBlockListOptions;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.GetBlobPropertiesOptions;
 import com.azure.android.storage.blob.models.StageBlockOptions;
@@ -635,8 +635,7 @@ public class StorageBlobClientTest {
         // Then a response with the blob's details and status code 201 will be returned by the server.
         BlockBlobItem response = storageBlobClient.commitBlockList("testContainer",
             "testBlob",
-            null,
-            true);
+            null);
 
         assertEquals(false, response.isServerEncrypted());
         assertEquals("testEtag", response.getETag());
@@ -660,21 +659,21 @@ public class StorageBlobClientTest {
         storageBlobAsyncClient.commitBlockList("testContainer",
             "testBlob",
             null,
-            true, new Callback<BlockBlobItem>() {
+            new CallbackSimple<BlockBlobItem>() {
                 @Override
-                public void onResponse(BlockBlobItem response) {
+                public void onSuccess(BlockBlobItem value, Response response) {
                     try {
                         // Then a response with the blob's details and status code 201 will be returned by the server to
                         // the callback.
-                        assertEquals(false, response.isServerEncrypted());
-                        assertEquals("testEtag", response.getETag());
+                        assertEquals(false, value.isServerEncrypted());
+                        assertEquals("testEtag", value.getETag());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t, Response response) {
                     try {
                         throw new RuntimeException(t);
                     } finally {
@@ -682,7 +681,6 @@ public class StorageBlobClientTest {
                     }
                 }
             });
-
         awaitOnLatch(latch, "commitBlockList");
     }
 
@@ -699,27 +697,18 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        // Then a response with the blob's details and status code 201 will be returned by the server.
-        BlockBlobsCommitBlockListResponse response = storageBlobClient.commitBlockListWithRestResponse("testContainer",
+        com.azure.android.core.http.Response<BlockBlobItem> response
+            = storageBlobClient.commitBlockListWithRestResponse("testContainer",
             "testBlob",
             null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE);
+            new CommitBlockListOptions().setCancellationToken(CancellationToken.NONE));
 
-        assertEquals(false, response.getBlockBlobItem().isServerEncrypted());
-        assertEquals("testEtag", response.getBlockBlobItem().getETag());
+        assertEquals(false, response.getValue().isServerEncrypted());
+        assertEquals("testEtag", response.getValue().getETag());
     }
 
     @Test
-    public void commitBlockListWithRestResponse_withCallback() {
+    public void commitBlockListWithOptions_withCallback() {
         // Given a StorageBlobClient.
 
         // When committing a list of blocks for upload using commitBlockListWithRestResponse() while providing a
@@ -734,33 +723,24 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.commitBlockListWithRestResponse("testContainer",
+        storageBlobAsyncClient.commitBlockList("testContainer",
             "testBlob",
             null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE, new Callback<BlockBlobsCommitBlockListResponse>() {
+            new CommitBlockListOptions().setCancellationToken(CancellationToken.NONE), new CallbackSimple<BlockBlobItem>() {
                 @Override
-                public void onResponse(BlockBlobsCommitBlockListResponse response) {
+                public void onSuccess(BlockBlobItem value, Response response) {
                     try {
                         // Then a response with the blob's details and status code 201 will be returned by the server to
                         // the callback.
-                        assertEquals(false, response.getBlockBlobItem().isServerEncrypted());
-                        assertEquals("testEtag", response.getBlockBlobItem().getETag());
+                        assertEquals(false, value.isServerEncrypted());
+                        assertEquals("testEtag", value.getETag());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable t, Response response) {
                     try {
                         throw new RuntimeException(t);
                     } finally {
