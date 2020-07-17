@@ -24,6 +24,6 @@ dependencies {
     testImplementation "androidx.arch.core:core-testing:$archCoreTestVersion"
     testImplementation "com.squareup.okhttp3:mockwebserver:$okHttpVersion"
     testImplementation "junit:junit:$jUnitVersion"
-    testImplementation "org.robolectric:robolectric:$robolectricVersion"
+    testImplementation "org.mockito:mockito-core:$mockitoVersion"
     testImplementation "org.threeten:threetenbp:$threeTenBpVersion"
 }

@@ -1,7 +1,9 @@
 package com.azure.android.core.credential;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleRegistry;
 
 import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.http.interceptor.EnqueueMockResponse;
@@ -9,9 +11,6 @@ import com.azure.android.core.http.interceptor.EnqueueMockResponse;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
 import org.threeten.bp.OffsetDateTime;
 
 import java.io.IOException;
@@ -25,9 +24,11 @@ import okhttp3.mockwebserver.MockWebServer;
 
 import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClientWithInterceptor;
 import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequest;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-@RunWith(RobolectricTestRunner.class)
 public class TokenRequestObservableAuthInterceptorTest {
     private final MockWebServer mockWebServer = new MockWebServer();
     private final List<String> scopes = new ArrayList<>(Arrays.asList("testScope1", "testScope2"));
@@ -47,11 +48,15 @@ public class TokenRequestObservableAuthInterceptorTest {
     }
 
     @Test
-    public void authorizationHeader_isPopulated_onRequest() {
+    public void authorizationHeader_isPopulated_onRequest() throws IOException, InterruptedException {
         // Given a client with a TokenRequestObservableAuthInterceptor.
-        AppCompatActivity activity = Robolectric.buildActivity(AppCompatActivity.class).create().start().get();
+        LifecycleOwner lifecycleOwner = mock(LifecycleOwner.class);
+        LifecycleRegistry lifecycle = new LifecycleRegistry(lifecycleOwner);
 
-        tokenRequestObservableAuthInterceptor.getTokenRequestObservable().observe(activity, new TokenRequestObserver() {
+        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
+        when(lifecycleOwner.getLifecycle()).thenReturn(lifecycle);
+
+        tokenRequestObservableAuthInterceptor.getTokenRequestObservable().observe(lifecycleOwner, new TokenRequestObserver() {
             private AccessToken accessToken = new AccessToken("testToken", OffsetDateTime.now());
 
             @Override
@@ -61,24 +66,10 @@ public class TokenRequestObservableAuthInterceptorTest {
         });
 
         // When executing a request.
+        Request request = getSimpleRequest(mockWebServer);
+        okHttpClient.newCall(request).execute();
 
         // Then the 'Authorization' header should be populated with an AccessToken.
-
-        // NOTE: We need to make the request in a different thread than the one Robolectric created the activity on.
-        // This way the Observable doesn't think we are running in the UI thread.
-        new Thread() {
-            @Override
-            public void run() {
-                super.run();
-                Request request = getSimpleRequest(mockWebServer);
-
-                try {
-                    okHttpClient.newCall(request).execute();
-                    assertEquals("Bearer testToken", mockWebServer.takeRequest().getHeader(HttpHeader.AUTHORIZATION));
-                } catch (IOException | InterruptedException e) {
-                    fail(e.getMessage());
-                }
-            }
-        }.start();
+        assertEquals("Bearer testToken", mockWebServer.takeRequest().getHeader(HttpHeader.AUTHORIZATION));
     }
 }
