@@ -1,4 +1,4 @@
-package com.azure.android.identity;
+package com.azure.android.core.credential;
 
 import org.threeten.bp.Duration;
 

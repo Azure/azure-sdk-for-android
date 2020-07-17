@@ -10,10 +10,10 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LifecycleOwner;
 
-import com.azure.android.identity.TokenRequestObservable;
-import com.azure.android.identity.TokenRequestObservableAuthInterceptor;
-import com.azure.android.identity.TokenRequestObserver;
-import com.azure.android.identity.TokenResponseCallback;
+import com.azure.android.core.credential.TokenRequestObservable;
+import com.azure.android.core.credential.TokenRequestObservableAuthInterceptor;
+import com.azure.android.core.credential.TokenRequestObserver;
+import com.azure.android.core.credential.TokenResponseCallback;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.sample.config.StorageConfiguration;

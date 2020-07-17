@@ -10,7 +10,7 @@ import okhttp3.mockwebserver.MockWebServer;
 public class EnqueueMockResponse implements TestRule {
     private final MockWebServer mockWebServer;
 
-    EnqueueMockResponse(MockWebServer mockWebServer) {
+    public EnqueueMockResponse(MockWebServer mockWebServer) {
         this.mockWebServer = mockWebServer;
     }
 

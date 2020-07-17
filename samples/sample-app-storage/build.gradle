@@ -34,7 +34,6 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     // TODO: Replace with binary dependencies from Maven
     implementation project(":sdk:core:azure-core")
-    implementation project(":sdk:identity:azure-identity")
     implementation project(":sdk:storage:azure-storage-blob")
     implementation "androidx.appcompat:appcompat:1.1.0"
     implementation "androidx.concurrent:concurrent-futures:1.0.0"

@@ -13,18 +13,18 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.mockwebserver.MockWebServer;
 
-final class TestUtils {
+public final class TestUtils {
     private TestUtils() {
         // Empty constructor to prevent instantiation of this class.
     }
 
-    static OkHttpClient buildOkHttpClientWithInterceptor(Interceptor interceptor) {
+    public static OkHttpClient buildOkHttpClientWithInterceptor(Interceptor interceptor) {
         return new OkHttpClient().newBuilder()
             .addInterceptor(interceptor)
             .build();
     }
 
-    static OkHttpClient buildOkHttpClientWithInterceptors(List<Interceptor> interceptors) {
+    public static OkHttpClient buildOkHttpClientWithInterceptors(List<Interceptor> interceptors) {
         OkHttpClient.Builder clientBuilder = new OkHttpClient().newBuilder();
 
         for (Interceptor interceptor : interceptors) {
@@ -34,13 +34,13 @@ final class TestUtils {
         return clientBuilder.build();
     }
 
-    static Request getSimpleRequest(MockWebServer mockWebServer) {
+    public static Request getSimpleRequest(MockWebServer mockWebServer) {
         return new Request.Builder()
             .url(mockWebServer.url("/"))
             .build();
     }
 
-    static Request getSimpleRequestWithHeader(MockWebServer mockWebServer,
+    public static Request getSimpleRequestWithHeader(MockWebServer mockWebServer,
                                               String name,
                                               String value) {
         return new Request.Builder()
@@ -49,7 +49,7 @@ final class TestUtils {
             .build();
     }
 
-    static Request getSimpleRequestWithHeaders(MockWebServer mockWebServer,
+    public static Request getSimpleRequestWithHeaders(MockWebServer mockWebServer,
                                                Map<String, String> headers) {
         Request.Builder builder = new Request.Builder()
             .url(mockWebServer.url("/"));
@@ -61,7 +61,7 @@ final class TestUtils {
         return builder.build();
     }
 
-    static Request getSimpleRequestWithQueryParam(MockWebServer mockWebServer,
+    public static Request getSimpleRequestWithQueryParam(MockWebServer mockWebServer,
                                                   String name,
                                                   String value) {
         String path = "/?" + name + "=" + value;
@@ -71,7 +71,7 @@ final class TestUtils {
             .build();
     }
 
-    static Request getSimpleRequestWithQueryParams(MockWebServer mockWebServer,
+    public static Request getSimpleRequestWithQueryParams(MockWebServer mockWebServer,
                                                    Map<String, String> queryParams) {
         StringBuilder pathStringBuilder = new StringBuilder("/?");
 
@@ -89,7 +89,7 @@ final class TestUtils {
             .build();
     }
 
-    static String getStackTraceString(Throwable throwable) {
+    public static String getStackTraceString(Throwable throwable) {
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
         throwable.printStackTrace(printWriter);

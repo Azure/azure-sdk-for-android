@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.identity;
+package com.azure.android.core.credential;
 
 import org.threeten.bp.OffsetDateTime;
 

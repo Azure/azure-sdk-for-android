@@ -13,12 +13,15 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "androidx.annotation:annotation:$annotationsVersion"
+    implementation "androidx.lifecycle:lifecycle-extensions:$lifecycleVersion"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
     implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "javax.xml.stream:stax-api:$staxApiVersion" // https://stackoverflow.com/a/47371517/1473510
+    testImplementation "androidx.appcompat:appcompat:$appCompatVersion"
+    testImplementation "androidx.arch.core:core-testing:$archCoreTestVersion"
     testImplementation "com.squareup.okhttp3:mockwebserver:$okHttpVersion"
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.threeten:threetenbp:$threeTenBpVersion"

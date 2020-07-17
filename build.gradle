@@ -139,6 +139,8 @@ allprojects {
 
     ext {
         annotationsVersion = "1.1.0"
+        appCompatVersion = "1.1.0"
+        archCoreTestVersion = "2.1.0"
         concurrentFuturesVersion = "1.0.0"
         jUnitVersion = "4.12"
         jacksonVersion = "2.9.9"

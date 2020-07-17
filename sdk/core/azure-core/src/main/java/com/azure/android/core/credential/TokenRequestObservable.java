@@ -1,4 +1,4 @@
-package com.azure.android.identity;
+package com.azure.android.core.credential;
 
 import android.os.Looper;
 
@@ -46,7 +46,10 @@ public final class TokenRequestObservable {
      * @throws IllegalStateException if this method is called from the main UI thread.
      */
     public TokenRequestHandle sendRequest(List<String> scopes) {
-        if (Looper.getMainLooper().getThread() == Thread.currentThread()) {
+        Looper looper = Looper.getMainLooper();
+
+        // Looper can be null when running unit tests.
+        if (looper != null && looper.getThread() == Thread.currentThread()) {
             // The TokenRequestObservable is designed for sending a request from a background thread to the main UI
             // thread. This block validates sendRequest() is not called from the main UI thread as such a call will
             // result in a dead lock once the caller waits on the returned Handle.

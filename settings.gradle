@@ -1,4 +1,3 @@
 include ":sdk:core:azure-core"
-include ":sdk:identity:azure-identity"
 include ":sdk:storage:azure-storage-blob"
 include ":samples:sample-app-storage"

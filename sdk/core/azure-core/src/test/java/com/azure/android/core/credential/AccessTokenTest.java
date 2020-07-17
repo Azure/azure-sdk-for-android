@@ -1,6 +1,4 @@
-package com.azure.android;
-
-import com.azure.android.identity.AccessToken;
+package com.azure.android.core.credential;
 
 import org.junit.Test;
 import org.threeten.bp.OffsetDateTime;

@@ -1,4 +1,6 @@
-package com.azure.android.identity;
+package com.azure.android.core.credential;
+
+import androidx.annotation.NonNull;
 
 import org.threeten.bp.Duration;
 
@@ -42,8 +44,9 @@ public class TokenRequestObservableAuthInterceptor implements Interceptor {
         return this.requestObservable;
     }
 
+    @NonNull
     @Override
-    public Response intercept(Chain chain) throws IOException {
+    public Response intercept(@NonNull Chain chain) throws IOException {
         if (this.accessToken == null || this.accessToken.isExpired()) {
             this.sendRequestLock.lock();
 

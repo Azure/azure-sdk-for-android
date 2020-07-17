@@ -1,4 +1,4 @@
-package com.azure.android.identity;
+package com.azure.android.core.credential;
 
 /**
  * The callback that {@link TokenRequestObserver} uses to notify the result of token retrieval.

@@ -18,13 +18,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.azure.android.core.credential.TokenRequestObservable;
+import com.azure.android.core.credential.TokenRequestObserver;
+import com.azure.android.core.credential.TokenResponseCallback;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.sample.core.util.paging.PageLoadState;
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservable;
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObserver;
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenResponseCallback;
 import com.microsoft.identity.client.IMultipleAccountPublicClientApplication;
 import com.microsoft.identity.client.PublicClientApplication;
 import com.microsoft.identity.client.exception.MsalException;
