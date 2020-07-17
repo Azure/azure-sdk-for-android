@@ -17,6 +17,7 @@ android {
 
     sourceSets {
         androidTest.assets.srcDirs += files("$projectDir/schema".toString())
+        test.java.srcDirs += files("${project(':sdk:core:azure-core').projectDir}/src/test/java/com/azure/android/core/common")
     }
 }
 
@@ -33,5 +34,7 @@ dependencies {
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "javax.xml.stream:stax-api:$staxApiVersion" // https://stackoverflow.com/a/47371517/1473510
+    testImplementation "com.squareup.okhttp3:mockwebserver:$okHttpVersion"
+    testImplementation "junit:junit:$jUnitVersion"
     annotationProcessor "androidx.room:room-compiler:$roomVersion"
 }

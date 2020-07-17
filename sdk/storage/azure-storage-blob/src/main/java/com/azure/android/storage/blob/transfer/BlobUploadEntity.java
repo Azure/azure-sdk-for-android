@@ -3,13 +3,15 @@
 
 package com.azure.android.storage.blob.transfer;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
+import androidx.work.Constraints;
 
-import java.io.File;
 import java.util.Objects;
 
 /**
@@ -32,17 +34,22 @@ final class BlobUploadEntity {
     @ColumnInfo(name = "key")
     public Long key;
     /**
-     * The absolute path to the file to be uploaded as blob.
+     * The URI to the content to be uploaded as a blob.
      */
-    @ColumnInfo(name = "file_path")
-    public String filePath;
+    @ColumnInfo(name = "content_uri")
+    public String contentUri;
     /**
-     * The file size in bytes.
+     * The content size in bytes (i.e. the total size of the blob once uploaded).
      */
-    @ColumnInfo(name = "file_size")
-    public int fileSize;
+    @ColumnInfo(name = "content_size")
+    public long contentSize;
     /**
-     * Identifies the {@link com.azure.android.storage.blob.StorageBlobClient}
+     * Indicate whether android.content.ContentResolver should be used to resolve the contentUri.
+     */
+    @ColumnInfo(name = "use_content_resolver")
+    public boolean useContentResolver;
+    /**
+     * Identifies the {@link com.azure.android.storage.blob.StorageBlobAsyncClient}
      * to be used for the file upload.
      * @see StorageBlobClientMap
      */
@@ -71,6 +78,12 @@ final class BlobUploadEntity {
     @TypeConverters(ColumnConverter.class)
     public TransferInterruptState interruptState;
     /**
+     * The constraints to be satisfied to run the upload operation.
+     */
+    @Embedded
+    @NonNull
+    public ConstraintsColumn constraintsColumn = ConstraintsColumn.NONE;
+    /**
      * holds the exception indicating the reason for commit (the last
      * stage of upload) failure.
      *
@@ -91,25 +104,31 @@ final class BlobUploadEntity {
      * @param storageBlobClientId identifies the blob storage client to be used
      * @param containerName the container name
      * @param blobName the blob name
-     * @param file the local file
+     * @param content describes the content to be read while uploading
+     * @param constraints The constraints to be satisfied to run the upload operation.
      */
     @Ignore
     BlobUploadEntity(String storageBlobClientId,
                      String containerName,
                      String blobName,
-                     File file) {
+                     ReadableContent content,
+                     Constraints constraints) throws Throwable {
         Objects.requireNonNull(storageBlobClientId);
         Objects.requireNonNull(containerName);
         Objects.requireNonNull(blobName);
-        Objects.requireNonNull(file);
+        Objects.requireNonNull(content);
+        Objects.requireNonNull(constraints);
 
-        this.filePath = file.getAbsolutePath();
-        this.fileSize = (int) file.length();
+        this.contentUri = content.getUri().toString();
+        this.contentSize = content.getLength();
+        this.useContentResolver = content.isUsingContentResolver();
+
         this.storageBlobClientId = storageBlobClientId;
         this.containerName = containerName;
         this.blobName = blobName;
         this.state = BlobTransferState.WAIT_TO_BEGIN;
         this.interruptState = TransferInterruptState.NONE;
+        this.constraintsColumn = ConstraintsColumn.fromConstraints(constraints);
     }
 
     /**
@@ -134,8 +153,9 @@ final class BlobUploadEntity {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append(" key:" + this.key);
-        builder.append(" filePath:" + this.filePath);
-        builder.append(" fileSize:" + this.fileSize);
+        builder.append(" contentUri:" + this.contentUri);
+        builder.append(" contentSize:" + this.contentSize);
+        builder.append(" useContentResolver:" + this.useContentResolver);
         builder.append(" containerName:" + this.containerName);
         builder.append(" blobName:" + this.blobName);
         builder.append(" state:" + this.state);

@@ -15,7 +15,7 @@ import okhttp3.Response;
 import static com.azure.android.core.util.CoreUtil.isNullOrEmpty;
 
 /**
- *  Interceptor that append SAS token to the request Uri.
+ *  Pipeline interceptor that append SAS token to the request URI.
  */
 public class SasTokenCredentialInterceptor implements Interceptor {
     private final SasTokenCredential credential;
@@ -24,20 +24,31 @@ public class SasTokenCredentialInterceptor implements Interceptor {
         this.credential = credential;
     }
 
+    /**
+     * Intercept the current request in the pipeline and apply the SAS token.
+     *
+     * @param chain Provide access to the request to apply the SAS token.
+     *
+     * @return Response From the next interceptor in the pipeline.
+     * @throws IOException If an IO error occurs while processing the request and response.
+     */
     @Override
     public Response intercept(Chain chain) throws IOException {
         HttpUrl requestURL = chain.request().url();
 
-        String encodedQuery = requestURL.encodedQuery();
-        if (!isNullOrEmpty(encodedQuery)) {
-            encodedQuery += "&";
-        }
-
         String sasToken = this.credential.getSasToken();
-        // SAS token is already encoded so its safe to append it to the encoded query from source request.
-        encodedQuery += sasToken.startsWith("?")
+        sasToken = sasToken.startsWith("?")
             ? sasToken.substring(1)
             : sasToken;
+
+        // SAS token is already encoded so its safe to append it to the encoded query from source request.
+        String encodedQuery = requestURL.encodedQuery();
+
+        if (isNullOrEmpty(encodedQuery)) {
+            encodedQuery = sasToken;
+        } else {
+            encodedQuery += "&" + sasToken;
+        }
 
         HttpUrl newURL = requestURL
             .newBuilder()

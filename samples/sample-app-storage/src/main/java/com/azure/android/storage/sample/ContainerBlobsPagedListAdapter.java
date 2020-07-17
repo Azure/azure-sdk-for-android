@@ -7,19 +7,19 @@ import androidx.paging.PagedListAdapter;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlobItem;
-import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.sample.core.util.paging.PageLoadState;
 
 public class ContainerBlobsPagedListAdapter
         extends PagedListAdapter<BlobItem, RecyclerView.ViewHolder> {
     private final Runnable retryRunnable;
     private PageLoadState pageLoadState;
-    private TransferClient transferClient;
+    private StorageBlobAsyncClient storageBlobAsyncClient;
 
-    protected ContainerBlobsPagedListAdapter(TransferClient transferClient, Runnable retryRunnable) {
+    protected ContainerBlobsPagedListAdapter(StorageBlobAsyncClient storageBlobAsyncClient, Runnable retryRunnable) {
         super(new BlobItemComparer());
-        this.transferClient = transferClient;
+        this.storageBlobAsyncClient = storageBlobAsyncClient;
         this.retryRunnable = retryRunnable;
     }
 
@@ -28,7 +28,7 @@ public class ContainerBlobsPagedListAdapter
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case R.layout.blob_item:
-                return BlobItemViewHolder.create(parent, transferClient);
+                return BlobItemViewHolder.create(parent, storageBlobAsyncClient);
             case R.layout.load_state_item:
                 return LoadingStateItemViewHolder.create(parent, this.retryRunnable);
             default:

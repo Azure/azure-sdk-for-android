@@ -1,27 +1,28 @@
 package com.azure.android.storage.sample;
 
 import android.app.Activity;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.OpenableColumns;
 import android.util.Log;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.work.NetworkType;
 
 import com.azure.android.core.credential.TokenRequestObservable;
 import com.azure.android.core.credential.TokenRequestObservableAuthInterceptor;
 import com.azure.android.core.credential.TokenRequestObserver;
 import com.azure.android.core.credential.TokenResponseCallback;
-import com.azure.android.storage.blob.StorageBlobClient;
-import com.azure.android.storage.blob.transfer.TransferClient;
+import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.sample.config.StorageConfiguration;
 import com.microsoft.identity.client.IMultipleAccountPublicClientApplication;
 import com.microsoft.identity.client.PublicClientApplication;
 import com.microsoft.identity.client.exception.MsalException;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,7 +39,7 @@ public class UploadFileActivity extends AppCompatActivity {
     // Singleton StorageBlobClient that will be created by Dagger. The singleton object is shared across various
     // activities in the application.
     @Inject
-    StorageBlobClient storageBlobClient;
+    StorageBlobAsyncClient storageBlobAsyncClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +54,7 @@ public class UploadFileActivity extends AppCompatActivity {
         this.storageConfiguration = StorageConfiguration.create(getApplicationContext());
 
         // Set up Login
-        final List<String> blobEndpointScopes = Collections.singletonList(storageBlobClient.getBlobServiceUrl() + ".default");
+        final List<String> blobEndpointScopes = Collections.singletonList(storageBlobAsyncClient.getBlobServiceUrl() + ".default");
         TokenRequestObservableAuthInterceptor authInterceptor =
             new TokenRequestObservableAuthInterceptor(blobEndpointScopes);
 
@@ -82,10 +83,11 @@ public class UploadFileActivity extends AppCompatActivity {
 
         // Create a new StorageBlobClient from the existing client with different base URL and credentials but sharing
         // the underlying OkHttp Client.
-        storageBlobClient = storageBlobClient
-            .newBuilder()
+        storageBlobAsyncClient = storageBlobAsyncClient
+            .newBuilder("com.azure.android.storage.sample.upload")
             .setBlobServiceUrl(storageConfiguration.getBlobServiceUrl())
             .setCredentialInterceptor(authInterceptor)
+            .setTransferRequiredNetworkType(NetworkType.CONNECTED)
             .build();
     }
 
@@ -94,27 +96,28 @@ public class UploadFileActivity extends AppCompatActivity {
         super.onResume();
 
         Uri fileUri = getIntent().getParcelableExtra(FILE_URI_EXTRA);
-        //String contentType = this.getContentResolver().getType(fileUri);
-        String filePath = PathUtil.getPath(this, fileUri);
-        File fileToUpload = new File(filePath);
-        int fileSize = (int) fileToUpload.length();
+        // Use content resolver to get file size and name.
+        // https://developer.android.com/training/secure-file-sharing/retrieve-info
+        Cursor cursor =
+            getContentResolver().query(fileUri, null, null, null, null);
+        int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+        int nameIndex = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
 
-        this.progressBar.setMax(fileSize);
+        cursor.moveToFirst();
+        final long fileSize = cursor.getLong(sizeIndex);
+        final String blobName = cursor.getString(nameIndex);
 
         final String containerName = storageConfiguration.getContainerName();
-        final String blobName = fileToUpload.getName();
 
-        Log.d("Upload file", "File path: " + filePath);
-        Log.d("Upload file", "Blob name: " + blobName);
-        Log.d("Upload file", "File size: " + fileSize);
+        this.progressBar.setMax((int) fileSize);
+
+
+        Log.d("Upload Content", "Content Uri: " + fileUri);
+        Log.d("Upload Content", "Blob name: " + blobName);
+        Log.d("Upload Content", "File size: " + fileSize);
 
         try {
-            TransferClient transferClient = new TransferClient.Builder(getApplicationContext())
-                .addStorageBlobClient(Constants.STORAGE_BLOB_CLIENT_ID, storageBlobClient)
-                .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
-                .build();
-
-            transferClient.upload(Constants.STORAGE_BLOB_CLIENT_ID, containerName, blobName, fileToUpload)
+            storageBlobAsyncClient.upload(getApplicationContext(), containerName, blobName, fileUri)
                 .observe(this, new TransferObserver() {
                     @Override
                     public void onStart(long transferId) {
@@ -138,7 +141,7 @@ public class UploadFileActivity extends AppCompatActivity {
                     public void onComplete(long transferId) {
                         Log.i(TAG, "onCompleted()");
 
-                        progressBar.setProgress(fileSize);
+                        progressBar.setProgress((int) fileSize);
 
                         Toast.makeText(getApplicationContext(), "Upload complete", Toast.LENGTH_SHORT).show();
                     }

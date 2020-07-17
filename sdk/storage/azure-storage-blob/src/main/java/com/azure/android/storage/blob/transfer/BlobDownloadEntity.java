@@ -3,13 +3,15 @@
 
 package com.azure.android.storage.blob.transfer;
 
+import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
+import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 import androidx.room.TypeConverters;
+import androidx.work.Constraints;
 
-import java.io.File;
 import java.util.Objects;
 
 /**
@@ -51,13 +53,19 @@ final class BlobDownloadEntity {
     public long blobSize;
 
     /**
-     * The absolute path to the file to be uploaded as blob.
+     * The URI to the content where the downloaded blob will be stored.
      */
-    @ColumnInfo(name = "file_path")
-    public String filePath;
+    @ColumnInfo(name = "content_uri")
+    public String contentUri;
 
     /**
-     * Identifies the {@link com.azure.android.storage.blob.StorageBlobClient}
+     * Indicate whether android.content.ContentResolver should be used to resolve the contentUri.
+     */
+    @ColumnInfo(name = "use_content_resolver")
+    public boolean useContentResolver;
+
+    /**
+     * Identifies the {@link com.azure.android.storage.blob.StorageBlobAsyncClient}
      * to be used for the file download.
      * @see StorageBlobClientMap
      */
@@ -77,7 +85,12 @@ final class BlobDownloadEntity {
     @ColumnInfo(name = "transfer_interrupt_state")
     @TypeConverters(ColumnConverter.class)
     public TransferInterruptState interruptState;
-
+    /**
+     * The constraints to be satisfied to run the download operation.
+     */
+    @Embedded
+    @NonNull
+    public ConstraintsColumn constraintsColumn = ConstraintsColumn.NONE;
     /**
      * Holds the exception indicating the reason for download failure.
      *
@@ -98,24 +111,32 @@ final class BlobDownloadEntity {
      * @param storageBlobClientId identifies the blob storage client to be used
      * @param containerName The container name.
      * @param blobName The blob name.
-     * @param file The local file.
+     * @param blobSize The blob size.
+     * @param content Describes the content where the downloaded blob will be stored.
+     * @param constraints The constraints to be satisfied to run the download operation.
      */
     @Ignore
     BlobDownloadEntity(String storageBlobClientId,
                        String containerName,
                        String blobName,
-                       File file) {
+                       long blobSize,
+                       WritableContent content,
+                       Constraints constraints) {
         Objects.requireNonNull(storageBlobClientId);
         Objects.requireNonNull(containerName);
         Objects.requireNonNull(blobName);
-        Objects.requireNonNull(file);
+        Objects.requireNonNull(content);
+        Objects.requireNonNull(constraints);
 
         this.storageBlobClientId = storageBlobClientId;
         this.containerName = containerName;
         this.blobName = blobName;
-        filePath = file.getAbsolutePath();
+        this.blobSize = blobSize;
+        this.contentUri = content.getUri().toString();
+        this.useContentResolver = content.isUsingContentResolver();
         state = BlobTransferState.WAIT_TO_BEGIN;
         interruptState = TransferInterruptState.NONE;
+        constraintsColumn = ConstraintsColumn.fromConstraints(constraints);
     }
 
     /**
@@ -143,7 +164,9 @@ final class BlobDownloadEntity {
         builder.append(" key:").append(key)
             .append(" containerName:").append(containerName)
             .append(" blobName:").append(blobName)
-            .append(" filePath:").append(filePath)
+            .append(" blobSize:" + this.blobSize)
+            .append(" contentUri:" + this.contentUri)
+            .append(" useContentResolver:" + this.useContentResolver)
             .append(" state:").append(state)
             .append(" interruptState:").append(interruptState);
 

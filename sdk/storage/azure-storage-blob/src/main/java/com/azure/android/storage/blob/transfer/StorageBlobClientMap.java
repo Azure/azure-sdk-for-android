@@ -3,52 +3,95 @@
 
 package com.azure.android.storage.blob.transfer;
 
+import android.os.Build;
+
 import androidx.annotation.NonNull;
 
-import com.azure.android.storage.blob.StorageBlobClient;
+import com.azure.android.storage.blob.StorageBlobAsyncClient;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Package private.
- *
- * A map containing the {@link StorageBlobClient} to be used for low-level storage
+ * A map containing the {@link StorageBlobAsyncClient} to be used for low-level storage
  * service calls.
  */
-final class StorageBlobClientMap {
+public final class StorageBlobClientMap {
     /**
      * Map with key as user defined unique identifier and value as associated
      * blob storage client.
      */
-    private Map<String, StorageBlobClient> map = new ConcurrentHashMap<>();
-
+    private Map<String, StorageBlobAsyncClient> map = new ConcurrentHashMap<>();
+    // The singleton instance of StorageBlobClientMap.
+    private static StorageBlobClientMap INSTANCE = null;
+    // An object to synchronize the creation of the singleton StorageBlobClientMap.
+    private static final Object INIT_LOCK = new Object();
+    // An object to synchronize the operation of adding an entry to the map.
+    private static final Object ADD_LOCK = new Object();
     /**
-     * Copies all entries from the given map to this map.
+     * Retrieves the singleton instance of {@link StorageBlobClientMap}.
      *
-     * @param storageBlobClientMap the blob storage client mapping to be stored in this map
+     * @return The singleton instance of {@link StorageBlobClientMap}.
      */
-    void putAll(@NonNull Map<String, StorageBlobClient> storageBlobClientMap) {
-        this.map.putAll(storageBlobClientMap);
+    public static @NonNull StorageBlobClientMap getInstance() {
+        synchronized (INIT_LOCK) {
+            if (INSTANCE == null) {
+                INSTANCE = new StorageBlobClientMap();
+            }
+            return INSTANCE;
+        }
+    }
+
+    private StorageBlobClientMap() {
     }
 
     /**
-     * Get the {@link StorageBlobClient} for a specified id.
+     * Add a {@link StorageBlobAsyncClient} to this map.
      *
-     * @param storageBlobClientId the unique id of the {@link StorageBlobClient} to retrieve
+     * @param storageBlobClientId The unique ID of the {@link StorageBlobAsyncClient}.
+     * @param storageBlobAsyncClient The blob storage client.
+     * @throws IllegalArgumentException If a {@link StorageBlobAsyncClient} with the same ID already exists in the map.
+     */
+    public void add(@NonNull String storageBlobClientId, @NonNull StorageBlobAsyncClient storageBlobAsyncClient) {
+        if (Build.VERSION.SDK_INT >= 24) {
+            this.map.compute(storageBlobClientId, (id, existingClient) -> {
+                if (existingClient != null) {
+                    throw new IllegalArgumentException(
+                        "A StorageBlobClient with id '" + storageBlobClientId + "' already exists.");
+                } else {
+                    return storageBlobAsyncClient;
+                }
+            });
+        } else {
+            synchronized (ADD_LOCK) {
+                if (this.contains(storageBlobClientId)) {
+                    throw new IllegalArgumentException(
+                        "A StorageBlobClient with id '" + storageBlobClientId + "' already exists.");
+                } else {
+                    this.map.put(storageBlobClientId, storageBlobAsyncClient);
+                }
+            }
+        }
+    }
+
+
+    /**
+     * Get the {@link StorageBlobAsyncClient} for a specified id.
+     *
+     * @param storageBlobClientId the unique id of the {@link StorageBlobAsyncClient} to retrieve
      * @return the blob storage client if exists, null otherwise
      */
-    StorageBlobClient get(String storageBlobClientId) {
+    public StorageBlobAsyncClient get(String storageBlobClientId) {
         return this.map.get(storageBlobClientId);
     }
 
     /**
-     * Check if the map contains a {@link StorageBlobClient} for the specified id.
+     * Check if the map contains a {@link StorageBlobAsyncClient} for the specified id.
      *
      * @param storageBlobClientId the unique id of the blob storage client
      * @return {@code true} if this map contains a blob storage client for the specified id
      */
-    boolean contains(@NonNull String storageBlobClientId) {
+    public boolean contains(@NonNull String storageBlobClientId) {
         return this.map.containsKey(storageBlobClientId);
     }
 
@@ -57,7 +100,7 @@ final class StorageBlobClientMap {
      *
      * @return {@code true} if this map contains no entries
      */
-    boolean isEmpty() {
+    public boolean isEmpty() {
         return this.map.isEmpty();
     }
 }

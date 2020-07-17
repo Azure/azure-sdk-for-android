@@ -22,14 +22,14 @@ public interface LocaleInformationProvider {
     }
 
     /**
-     * Default system language.
+     * Gets the default system language.
      *
      * @return The default system language.
      */
     String getDefaultSystemLanguage();
 
     /**
-     * System region.
+     * Gets the system region.
      *
      * @return The system region.
      */

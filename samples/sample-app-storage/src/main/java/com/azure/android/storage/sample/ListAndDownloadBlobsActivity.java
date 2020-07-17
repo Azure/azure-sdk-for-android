@@ -21,9 +21,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.azure.android.core.credential.TokenRequestObservable;
 import com.azure.android.core.credential.TokenRequestObserver;
 import com.azure.android.core.credential.TokenResponseCallback;
-import com.azure.android.storage.blob.StorageBlobClient;
+import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlobItem;
-import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.sample.core.util.paging.PageLoadState;
 import com.microsoft.identity.client.IMultipleAccountPublicClientApplication;
 import com.microsoft.identity.client.PublicClientApplication;
@@ -38,7 +37,7 @@ public class ListAndDownloadBlobsActivity extends AppCompatActivity {
     // Singleton StorageBlobClient that will be created by Dagger. The singleton object is shared across various
     // activities in the application.
     @Inject
-    StorageBlobClient storageBlobClient;
+    StorageBlobAsyncClient storageBlobAsyncClient;
 
     private static final String TAG = ListAndDownloadBlobsActivity.class.getSimpleName();
     private ContainerBlobsPaginationViewModel viewModel;
@@ -58,7 +57,7 @@ public class ListAndDownloadBlobsActivity extends AppCompatActivity {
         this.recyclerView = findViewById(R.id.blob_list);
         this.searchText = findViewById(R.id.input_container_name);
 
-        this.viewModel = ViewModelProviders.of(this, new ContainerBlobsViewModelFactory(this.storageBlobClient))
+        this.viewModel = ViewModelProviders.of(this, new ContainerBlobsViewModelFactory(this.storageBlobAsyncClient))
             .get(ContainerBlobsPaginationViewModel.class);
 
         // Set up Login
@@ -86,15 +85,11 @@ public class ListAndDownloadBlobsActivity extends AppCompatActivity {
             });
 
         ContainerBlobsPaginationRepository repository = (ContainerBlobsPaginationRepository) this.viewModel.getRepository();
-
-        TransferClient transferClient = new TransferClient.Builder(getApplicationContext())
-            .addStorageBlobClient(Constants.STORAGE_BLOB_CLIENT_ID, repository.getStorageBlobClient())
-            .setRequiredNetworkType(androidx.work.NetworkType.CONNECTED)
-            .build();
+        StorageBlobAsyncClient storageBlobAsyncClient = repository.getStorageBlobClient();
 
         // Set up PagedList Adapter
         ContainerBlobsPagedListAdapter adapter =
-            new ContainerBlobsPagedListAdapter(transferClient, () -> this.viewModel.retry());
+            new ContainerBlobsPagedListAdapter(storageBlobAsyncClient, () -> this.viewModel.retry());
         this.recyclerView.setAdapter(adapter);
         this.viewModel.getPagedListObservable().observe(this, getPagedListObserver(adapter, this.recyclerView));
         this.viewModel.getLoadStateObservable().observe(this, getPageLoadStateObserver(adapter));
@@ -174,15 +169,15 @@ public class ListAndDownloadBlobsActivity extends AppCompatActivity {
     // Use a custom factory for ContainerBlobsPaginationViewModel, since the default Factory based ViewModelProviders
     // does not allow passing parameters to the ContainerBlobsPaginationViewModel constructor.
     public class ContainerBlobsViewModelFactory implements ViewModelProvider.Factory {
-        private final StorageBlobClient storageBlobClient;
+        private final StorageBlobAsyncClient storageBlobAsyncClient;
 
-        public ContainerBlobsViewModelFactory(StorageBlobClient storageBlobClient) {
-            this.storageBlobClient = storageBlobClient;
+        public ContainerBlobsViewModelFactory(StorageBlobAsyncClient storageBlobAsyncClient) {
+            this.storageBlobAsyncClient = storageBlobAsyncClient;
         }
 
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
-            return (T) new ContainerBlobsPaginationViewModel(this.storageBlobClient);
+            return (T) new ContainerBlobsPaginationViewModel(this.storageBlobAsyncClient);
         }
     }
 }

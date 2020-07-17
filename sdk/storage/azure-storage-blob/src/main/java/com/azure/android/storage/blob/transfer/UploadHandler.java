@@ -4,18 +4,19 @@
 package com.azure.android.storage.blob.transfer;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
-import android.util.Pair;
 
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.http.ServiceCall;
-import com.azure.android.storage.blob.StorageBlobClient;
-import com.azure.android.storage.blob.models.BlockBlobItem;
+import com.azure.android.core.util.CancellationToken;
+import com.azure.android.storage.blob.StorageBlobAsyncClient;
+import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
+import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -42,15 +43,18 @@ final class UploadHandler extends Handler {
     private final Context appContext;
     private final int blocksUploadConcurrency;
     private final long uploadId;
-    private final HashMap<String, Pair<BlockUploadEntity, ServiceCall>> runningBlockUploads;
+    private final HashMap<String, BlockUploadEntity> runningBlockUploads;
     private final TransferStopToken transferStopToken;
+    private final CancellationToken cancellationToken;
 
     private TransferHandlerListener transferHandlerListener;
     private TransferDatabase db;
     private BlobUploadEntity blob;
     private long totalBytesUploaded;
     private BlockUploadRecordsEnumerator blocksItr;
-    private StorageBlobClient blobClient;
+    //  The content in the device representing the data to be read and uploaded.
+    private ReadableContent content;
+    private StorageBlobAsyncClient blobClient;
 
     /**
      * Create and initializes {@link UploadHandler}.
@@ -68,6 +72,7 @@ final class UploadHandler extends Handler {
         this.uploadId = uploadId;
         this.runningBlockUploads = new HashMap<>(this.blocksUploadConcurrency);
         this.transferStopToken = new TransferStopToken(UploadHandlerMessage.createStopMessage(this));
+        this.cancellationToken = CancellationToken.create();
     }
 
     /**
@@ -142,14 +147,14 @@ final class UploadHandler extends Handler {
      * with the number of async operations equal to the configured blocksUploadConcurrency.
      */
     private void handleInit() {
-        this.db = TransferDatabase.get(this.appContext);
+        this.db = TransferDatabase.getInstance(this.appContext);
         this.blob = this.db.uploadDao().getBlob(uploadId);
         if (this.blob.interruptState == TransferInterruptState.PURGE) {
             this.transferHandlerListener.onError(new RuntimeException("Upload Operation with id '"
                 + this.uploadId + "' is already CANCELLED and cannot be RESTARTED or RESUMED."));
             this.getLooper().quit();
         } else if (this.blob.state == BlobTransferState.COMPLETED) {
-            this.transferHandlerListener.onTransferProgress(blob.fileSize, blob.fileSize);
+            this.transferHandlerListener.onTransferProgress(blob.contentSize, blob.contentSize);
             this.transferHandlerListener.onComplete();
             this.getLooper().quit();
         } else {
@@ -159,8 +164,11 @@ final class UploadHandler extends Handler {
                     .onError(new UnresolvedStorageBlobClientIdException(this.blob.storageBlobClientId));
                 this.getLooper().quit();
             } else {
+                this.content = new ReadableContent(appContext,
+                    Uri.parse(this.blob.contentUri),
+                    this.blob.useContentResolver);
                 this.totalBytesUploaded = this.db.uploadDao().getUploadedBytesCount(this.uploadId);
-                this.transferHandlerListener.onTransferProgress(blob.fileSize, totalBytesUploaded);
+                this.transferHandlerListener.onTransferProgress(blob.contentSize, totalBytesUploaded);
                 List<BlockTransferState> skip = new ArrayList();
                 skip.add(BlockTransferState.COMPLETED);
                 this.blocksItr = new BlockUploadRecordsEnumerator(this.db, this.uploadId, skip);
@@ -187,10 +195,9 @@ final class UploadHandler extends Handler {
     private void handleStagingCompleted(Message message) {
         this.finalizeIfStopped();
         String blockId = UploadHandlerMessage.getBlockIdFromMessage(message);
-        Pair<BlockUploadEntity, ServiceCall> p = this.runningBlockUploads.remove(blockId);
-        BlockUploadEntity blockStaged = p.first;
+        BlockUploadEntity blockStaged = this.runningBlockUploads.remove(blockId);
         this.totalBytesUploaded += blockStaged.blockSize;
-        this.transferHandlerListener.onTransferProgress(this.blob.fileSize, this.totalBytesUploaded);
+        this.transferHandlerListener.onTransferProgress(this.blob.contentSize, this.totalBytesUploaded);
         List<BlockUploadEntity> blocks = blocksItr.getNext(1);
         if (blocks.isEmpty()) {
             if (runningBlockUploads.isEmpty()) {
@@ -211,11 +218,8 @@ final class UploadHandler extends Handler {
      */
     private void handleStagingFailed(Message message) {
         String blockId = UploadHandlerMessage.getBlockIdFromMessage(message);
-        Pair<BlockUploadEntity, ServiceCall> failedPair = this.runningBlockUploads.remove(blockId);
-        for (Pair<BlockUploadEntity, ServiceCall> p : this.runningBlockUploads.values()) {
-            p.second.cancel();
-        }
-        this.transferHandlerListener.onError(failedPair.first.getStagingError());
+        BlockUploadEntity failedBlock = this.runningBlockUploads.remove(blockId);
+        this.transferHandlerListener.onError(failedBlock.getStagingError());
         this.getLooper().quit();
     }
 
@@ -226,7 +230,7 @@ final class UploadHandler extends Handler {
      * and terminates the handler.
      */
     private void handleCommitCompleted() {
-        this.transferHandlerListener.onTransferProgress(this.blob.fileSize, this.blob.fileSize);
+        this.transferHandlerListener.onTransferProgress(this.blob.contentSize, this.blob.contentSize);
         this.transferHandlerListener.onComplete();
         this.getLooper().quit();
     }
@@ -248,9 +252,7 @@ final class UploadHandler extends Handler {
     private void finalizeIfStopped() {
         if (this.transferStopToken.isStopped()) {
             Log.v(TAG, "finalizeIfStopped(): Stop request received, finalizing");
-            for (Pair<BlockUploadEntity, ServiceCall> p : this.runningBlockUploads.values()) {
-                p.second.cancel();
-            }
+            this.cancellationToken.cancel();
             TransferInterruptState interruptState = this.db.uploadDao().getTransferInterruptState(this.uploadId);
             Log.v(TAG, "finalizeIfStopped: Stop request reason (NONE == Stop requested by SYSTEM): " + interruptState);
             switch (interruptState) {
@@ -276,14 +278,35 @@ final class UploadHandler extends Handler {
     private void stageBlocks(List<BlockUploadEntity> blocks) {
         for (BlockUploadEntity block : blocks) {
             this.finalizeIfStopped();
+
             Log.v(TAG, "stageBlocks(): Uploading block:" + block.blockId + threadName());
-            ServiceCall call = this.blobClient.stageBlock(this.blob.containerName,
+            byte [] blockContent;
+            try {
+                blockContent = content.readBlock(block.blockOffset, block.blockSize);
+            } catch (Throwable t) {
+                Log.e(TAG,  "stageBlocks(): failure in reading content. Block id: " + block.blockId + ". Thread name: " + threadName(), t);
+                db.uploadDao().updateBlockState(block.key, BlockTransferState.FAILED);
+                block.setStagingError(t);
+                Message nextMessage = UploadHandlerMessage
+                    .createStagingFailedMessage(UploadHandler.this, block.blockId);
+                nextMessage.sendToTarget();
+                return;
+            }
+
+            this.blobClient.stageBlockWithRestResponse(this.blob.containerName,
                 this.blob.blobName,
                 block.blockId,
-                block.getBlockContent(),
-                null, new com.azure.android.core.http.Callback<Void>() {
+                blockContent,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                this.cancellationToken,
+                new com.azure.android.core.http.Callback<BlockBlobsStageBlockResponse>() {
                     @Override
-                    public void onResponse(Void response) {
+                    public void onResponse(BlockBlobsStageBlockResponse response) {
                         Log.v(TAG, "stageBlocks(): Block uploaded:" + block.blockId + threadName());
                         db.uploadDao().updateBlockState(block.key, BlockTransferState.COMPLETED);
                         Message nextMessage = UploadHandlerMessage
@@ -301,7 +324,7 @@ final class UploadHandler extends Handler {
                         nextMessage.sendToTarget();
                     }
                 });
-            this.runningBlockUploads.put(block.blockId, Pair.create(block, call));
+            this.runningBlockUploads.put(block.blockId, block);
         }
     }
 
@@ -310,14 +333,27 @@ final class UploadHandler extends Handler {
      */
     private void commitBlocks() {
         this.finalizeIfStopped();
+
         Log.v(TAG, "commitBlocks(): All blocks uploaded, committing them." + threadName());
+
         List<String> blockIds = this.db.uploadDao().getBlockIds(this.uploadId);
-        this.blobClient.commitBlockList(blob.containerName,
+
+        this.blobClient.commitBlockListWithRestResponse(blob.containerName,
             blob.blobName,
             blockIds,
-            true, new com.azure.android.core.http.Callback<BlockBlobItem>() {
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            this.cancellationToken,
+            new com.azure.android.core.http.Callback<BlockBlobsCommitBlockListResponse>() {
                 @Override
-                public void onResponse(BlockBlobItem response) {
+                public void onResponse(BlockBlobsCommitBlockListResponse response) {
                     Log.v(TAG, "commitBlocks(): Blocks committed." + threadName());
                     db.uploadDao().updateBlobState(uploadId, BlobTransferState.COMPLETED);
                     Message nextMessage = UploadHandlerMessage

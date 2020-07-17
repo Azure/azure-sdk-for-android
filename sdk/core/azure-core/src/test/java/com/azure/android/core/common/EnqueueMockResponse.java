@@ -1,4 +1,4 @@
-package com.azure.android.core.http.interceptor;
+package com.azure.android.core.common;
 
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
