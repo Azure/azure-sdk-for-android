@@ -1,9 +1,6 @@
 package com.azure.android.core.credential;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LifecycleRegistry;
 
 import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.http.interceptor.EnqueueMockResponse;
@@ -26,8 +23,6 @@ import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClien
 import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class TokenRequestObservableAuthInterceptorTest {
     private final MockWebServer mockWebServer = new MockWebServer();
@@ -50,13 +45,7 @@ public class TokenRequestObservableAuthInterceptorTest {
     @Test
     public void authorizationHeader_isPopulated_onRequest() throws IOException, InterruptedException {
         // Given a client with a TokenRequestObservableAuthInterceptor.
-        LifecycleOwner lifecycleOwner = mock(LifecycleOwner.class);
-        LifecycleRegistry lifecycle = new LifecycleRegistry(lifecycleOwner);
-
-        lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
-        when(lifecycleOwner.getLifecycle()).thenReturn(lifecycle);
-
-        tokenRequestObservableAuthInterceptor.getTokenRequestObservable().observe(lifecycleOwner, new TokenRequestObserver() {
+        tokenRequestObservableAuthInterceptor.getTokenRequestObservable().observeForever(new TokenRequestObserver() {
             private AccessToken accessToken = new AccessToken("testToken", OffsetDateTime.now());
 
             @Override
