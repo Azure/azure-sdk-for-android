@@ -3,7 +3,7 @@ package com.azure.android.core.credential;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
 import com.azure.android.core.http.HttpHeader;
-import com.azure.android.core.http.interceptor.EnqueueMockResponse;
+import com.azure.android.core.common.EnqueueMockResponse;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -19,8 +19,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.mockwebserver.MockWebServer;
 
-import static com.azure.android.core.http.interceptor.TestUtils.buildOkHttpClientWithInterceptor;
-import static com.azure.android.core.http.interceptor.TestUtils.getSimpleRequest;
+import static com.azure.android.core.common.TestUtils.buildOkHttpClientWithInterceptor;
+import static com.azure.android.core.common.TestUtils.getSimpleRequest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
