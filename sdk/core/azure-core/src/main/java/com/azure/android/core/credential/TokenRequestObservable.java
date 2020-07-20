@@ -84,25 +84,4 @@ public final class TokenRequestObservable {
         // TokenRequestObserver parameters, doing so can result in memory leaks.
         this.innerObservable.observe(owner, observer);
     }
-
-    /**
-     * Register an Observer that listens for a token request Event and is always active.
-     * <p>
-     * The Observer will receive all events and will never be automatically removed. You should manually call
-     * {@link #removeObserver(TokenRequestObserver)} to stop observing.
-     *
-     * @param observer The token request Observer.
-     */
-    public void observeForever(TokenRequestObserver observer) {
-        this.innerObservable.observeForever(observer);
-    }
-
-    /**
-     * Removes the given Observer from the observers list.
-     *
-     * @param observer The token request Observer to receive events.
-     */
-    public void removeObserver(TokenRequestObserver observer) {
-        this.innerObservable.removeObserver(observer);
-    }
 }

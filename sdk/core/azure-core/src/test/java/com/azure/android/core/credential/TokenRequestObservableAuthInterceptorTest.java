@@ -1,6 +1,10 @@
 package com.azure.android.core.credential;
 
+import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleRegistry;
 
 import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.common.EnqueueMockResponse;
@@ -45,14 +49,15 @@ public class TokenRequestObservableAuthInterceptorTest {
     @Test
     public void authorizationHeader_isPopulated_onRequest() throws IOException, InterruptedException {
         // Given a client with a TokenRequestObservableAuthInterceptor.
-        tokenRequestObservableAuthInterceptor.getTokenRequestObservable().observeForever(new TokenRequestObserver() {
-            private AccessToken accessToken = new AccessToken("testToken", OffsetDateTime.now());
+        tokenRequestObservableAuthInterceptor.getTokenRequestObservable().observe(new TestLifecycleOwner(),
+            new TokenRequestObserver() {
+                private AccessToken accessToken = new AccessToken("testToken", OffsetDateTime.now());
 
-            @Override
-            public void onTokenRequest(String[] scopes, TokenResponseCallback callback) {
-                callback.onToken(accessToken);
-            }
-        });
+                @Override
+                public void onTokenRequest(String[] scopes, TokenResponseCallback callback) {
+                    callback.onToken(accessToken);
+                }
+            });
 
         // When executing a request.
         Request request = getSimpleRequest(mockWebServer);
@@ -60,5 +65,17 @@ public class TokenRequestObservableAuthInterceptorTest {
 
         // Then the 'Authorization' header should be populated with an AccessToken.
         assertEquals("Bearer testToken", mockWebServer.takeRequest().getHeader(HttpHeader.AUTHORIZATION));
+    }
+
+    public static class TestLifecycleOwner implements LifecycleOwner {
+        public TestLifecycleOwner() { }
+
+        @NonNull
+        public Lifecycle getLifecycle () {
+            LifecycleRegistry lifecycle = new LifecycleRegistry(this);
+            lifecycle.handleLifecycleEvent(Lifecycle.Event.ON_RESUME);
+
+            return lifecycle;
+        }
     }
 }
