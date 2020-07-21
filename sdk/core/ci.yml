@@ -22,6 +22,8 @@ trigger:
     include:
       - sdk/core/
       - eng/
+      - build.gradle
+      - gradle.properties
 
 pr:
   branches:
@@ -34,6 +36,8 @@ pr:
     include:
       - sdk/core/
       - eng/
+      - build.gradle
+      - gradle.properties
       
 stages:
   - template: ../../eng/pipelines/templates/stages/archetype-sdk-client.yml
