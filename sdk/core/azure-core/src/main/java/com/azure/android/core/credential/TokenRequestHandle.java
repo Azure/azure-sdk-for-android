@@ -54,7 +54,7 @@ class TokenRequestHandle {
      *
      * @param scopes The requested token scope.
      */
-    public TokenRequestHandle(List<String> scopes) {
+    TokenRequestHandle(List<String> scopes) {
         this.scopes = new ArrayList<>(scopes);
     }
 
@@ -77,20 +77,16 @@ class TokenRequestHandle {
     }
 
     /**
-     * PACKAGE PRIVATE METHOD.
-     *
      * @return The scopes required for the token.
      */
-    public List<String> getScopes() {
+    List<String> getScopes() {
         return this.scopes;
     }
 
     /**
-     * PACKAGE PRIVATE METHOD.
-     *
      * @return true if event is consumed, false otherwise.
      */
-    public boolean isConsumed() {
+    boolean isConsumed() {
         if (this.isConsumed) {
             return true;
         } else {
@@ -101,14 +97,12 @@ class TokenRequestHandle {
     }
 
     /**
-     * PACKAGE PRIVATE METHOD.
-     *
      * Sets the {@link AccessToken} retrieved and unblocks the background thread waiting in
      * {@link TokenRequestHandle#waitForToken(Duration)}.
      *
      * @param token The {@link AccessToken}.
      */
-    public void setToken(AccessToken token) {
+    void setToken(AccessToken token) {
         if (this.token != null) {
             throw new IllegalStateException("AccessToken has already been set.");
         }
@@ -118,14 +112,12 @@ class TokenRequestHandle {
     }
 
     /**
-     * PACKAGE PRIVATE METHOD.
-     *
      * Sets the error during {@link AccessToken} retrieval and unblocks the background thread waiting in
      * {@link TokenRequestHandle#waitForToken(Duration)}.
      *
      * @param error The error.
      */
-    public void setError(Throwable error) {
+    void setError(Throwable error) {
         if (this.error != null) {
             throw new IllegalStateException("Error has already been set.");
         }
