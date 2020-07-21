@@ -6,7 +6,7 @@ package com.azure.android.template;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class DummYTest {
+public class DummyTest {
 
     @Test
     public void constructor() {
