@@ -13,7 +13,7 @@ public final class Dummy {
     /**
      * Creates a new {@link Dummy} object.
      */
-    public Dummy) {
+    public Dummy() {
     }
 
     public static void doNothing() {
