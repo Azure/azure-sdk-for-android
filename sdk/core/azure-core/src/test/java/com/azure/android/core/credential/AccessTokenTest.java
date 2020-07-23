@@ -18,7 +18,7 @@ public class AccessTokenTest {
         accessToken = new AccessToken(token, time);
 
         assertEquals(token, accessToken.getToken());
-        assertEquals(time.minusMinutes(2), accessToken.getExpiresAt());
+        assertEquals(time, accessToken.getExpiresAt());
     }
 
     @Test
@@ -31,7 +31,7 @@ public class AccessTokenTest {
 
     @Test
     public void token_isNotExpired() {
-        time = OffsetDateTime.now();
+        time = OffsetDateTime.now().minusMinutes(2);
         accessToken = new AccessToken(token, time);
 
         assertTrue(accessToken.isExpired());
