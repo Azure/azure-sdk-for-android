@@ -24,6 +24,7 @@ trigger:
       - eng/
       - build.gradle
       - gradle.properties
+      - settings.gradle
 
 pr:
   branches:
@@ -38,6 +39,7 @@ pr:
       - eng/
       - build.gradle
       - gradle.properties
+      - settings.gradle
       
 stages:
   - template: ../../eng/pipelines/templates/stages/archetype-sdk-client.yml
