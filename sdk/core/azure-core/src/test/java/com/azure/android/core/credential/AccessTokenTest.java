@@ -9,7 +9,7 @@ import static org.junit.Assert.assertTrue;
 
 public class AccessTokenTest {
     private String token = "testToken";
-    private OffsetDateTime time; // Expiration is set to 2 minutes before the given time.
+    private OffsetDateTime time;
     private AccessToken accessToken;
 
     @Test
