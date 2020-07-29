@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.paging.PagedList;
 
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservable;
+import com.azure.android.core.credential.TokenRequestObservable;
 
 import static androidx.lifecycle.Transformations.map;
 import static androidx.lifecycle.Transformations.switchMap;

@@ -1,5 +1,7 @@
 package com.azure.android.storage.blob.credentials;
 
+import com.azure.android.storage.blob.credential.SasTokenCredential;
+
 import org.junit.Test;
 
 import java.util.HashMap;

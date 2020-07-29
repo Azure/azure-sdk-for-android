@@ -13,12 +13,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.work.NetworkType;
 
+import com.azure.android.core.credential.TokenRequestObservable;
+import com.azure.android.core.credential.TokenRequestObservableAuthInterceptor;
+import com.azure.android.core.credential.TokenRequestObserver;
+import com.azure.android.core.credential.TokenResponseCallback;
 import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.sample.config.StorageConfiguration;
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservable;
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservableAuthInterceptor;
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObserver;
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenResponseCallback;
 import com.microsoft.identity.client.IMultipleAccountPublicClientApplication;
 import com.microsoft.identity.client.PublicClientApplication;
 import com.microsoft.identity.client.exception.MsalException;

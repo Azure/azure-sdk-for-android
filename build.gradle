@@ -148,9 +148,12 @@ allprojects {
 
     ext {
         annotationsVersion = "1.1.0"
+        appCompatVersion = "1.1.0"
+        archCoreTestVersion = "2.1.0"
         concurrentFuturesVersion = "1.0.0"
         jUnitVersion = "4.12"
         jacksonVersion = "2.9.9"
+        lifecycleVersion = "2.2.0"
         okHttpVersion = "3.13.1"
         retrofitVersion = "2.6.2"
         roomVersion = "2.2.5"

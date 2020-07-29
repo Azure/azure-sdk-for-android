@@ -2,6 +2,8 @@ package com.azure.android.storage.sample;
 
 import androidx.work.NetworkType;
 
+import com.azure.android.core.credential.TokenRequestObservable;
+import com.azure.android.core.credential.TokenRequestObservableAuthInterceptor;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.StorageBlobAsyncClient;
@@ -13,8 +15,6 @@ import com.azure.android.storage.sample.core.util.paging.PageItemsFetcher;
 import com.azure.android.storage.sample.core.util.paging.PaginationDescription;
 import com.azure.android.storage.sample.core.util.paging.PaginationDescriptionRepository;
 import com.azure.android.storage.sample.core.util.paging.PaginationOptions;
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservable;
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservableAuthInterceptor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
