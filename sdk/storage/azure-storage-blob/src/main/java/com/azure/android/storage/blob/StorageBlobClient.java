@@ -130,7 +130,7 @@ public class StorageBlobClient {
      */
     public BlobGetPropertiesHeaders getBlobProperties(String containerName,
                                                       String blobName) {
-        return storageBlobServiceClient.getBlobProperties(containerName,  blobName);
+        return storageBlobServiceClient.getBlobProperties(containerName, blobName);
     }
 
     /**
@@ -184,7 +184,8 @@ public class StorageBlobClient {
      * or {@link StorageBlobAsyncClient#download(Context, String, String, Uri)} method instead - that method will
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
-     *`
+     * `
+     *
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @return The response containing the blob's bytes.
@@ -295,7 +296,7 @@ public class StorageBlobClient {
      * @param contentMd5        The transactional MD5 for the block content, to be validated by the service.
      * @param contentCrc64      Specify the transactional crc64 for the block content, to be validated by the service.
      * @param timeout           The timeout parameter is expressed in seconds. For more information,
-     *     see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param leaseId           If specified, the staging only succeeds if the resource's lease is active and matches this ID.
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded.
      *                          in the analytics logs when storage analytics logging is enabled.
@@ -503,32 +504,14 @@ public class StorageBlobClient {
      * <p>
      * Undelete restores the content and metadata of a soft-deleted blob and/or any associated soft-deleted snapshots.
      *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @param callback      Callback that receives the response.
-     * @return A handle to the service call.
-     */
-    ServiceCall undelete(String containerName,
-                         String blobName,
-                         Callback<Void> callback) {
-        return storageBlobServiceClient.undelete(containerName,
-            blobName,
-            callback);
-    }
-
-    /**
-     * Undelete a blob that was previously soft-deleted.
-     * <p>
-     * Undelete restores the content and metadata of a soft-deleted blob and/or any associated soft-deleted snapshots.
-     *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @param url           The URL to the deleted blob.
-     * @param timeout       The timeout parameter is expressed in seconds. For more information, see
-     *                      &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                      recorded in the analytics logs when storage analytics logging is enabled.
-     * @param comp          The name of the desired operation to perform. In this case, it should be 'undelete'.
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param url               The URL to the deleted blob.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
      * @return A response object containing the details of the delete operation.
      */
     BlobUndeleteResponse undeleteWithResponse(String containerName,
@@ -537,48 +520,14 @@ public class StorageBlobClient {
                                               Integer timeout,
                                               String version,
                                               String requestId,
-                                              String comp) {
+                                              CancellationToken cancellationToken) {
         return storageBlobServiceClient.undeleteWithResponse(containerName,
             blobName,
             url,
             timeout,
             version,
             requestId,
-            comp);
-    }
-
-    /**
-     * Undelete a blob that was previously soft-deleted.
-     * <p>
-     * Undelete restores the content and metadata of a soft-deleted blob and/or any associated soft-deleted snapshots.
-     *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @param url           The URL to the deleted blob.
-     * @param timeout       The timeout parameter is expressed in seconds. For more information, see
-     *                      &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                      recorded in the analytics logs when storage analytics logging is enabled.
-     * @param comp          The name of the desired operation to perform. In this case, it should be 'undelete'.
-     * @param callback      Callback that receives the response.
-     * @return A handle to the service call.
-     */
-    ServiceCall undeleteWithResponse(String containerName,
-                                     String blobName,
-                                     String url,
-                                     Integer timeout,
-                                     String version,
-                                     String requestId,
-                                     String comp,
-                                     Callback<BlobUndeleteResponse> callback) {
-        return storageBlobServiceClient.undeleteWithResponse(containerName,
-            blobName,
-            url,
-            timeout,
-            version,
-            requestId,
-            comp,
-            callback);
+            cancellationToken);
     }
 
     /**
