@@ -1,9 +1,10 @@
 package com.azure.android.storage.blob;
 
 import com.azure.android.core.http.Callback;
-import com.azure.android.core.http.ServiceCall;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
+import com.azure.android.core.util.CancellationToken;
+import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
@@ -23,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -33,14 +35,18 @@ import okhttp3.mockwebserver.MockWebServer;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 public class StorageBlobClientTest {
     private static final MockWebServer mockWebServer = new MockWebServer();
     private static final String BASE_URL = mockWebServer.url("/").toString();
-    private static StorageBlobClient storageBlobClient = new StorageBlobClient.Builder("client.test.1",
+    private static StorageBlobAsyncClient storageBlobAsyncClient = new StorageBlobAsyncClient.Builder("client.test.1",
         new ServiceClient.Builder()
+            .setBaseUrl(BASE_URL)
+            .setSerializationFormat(SerializerFormat.XML))
+        .build();
+
+    private static StorageBlobClient storageBlobClient = new StorageBlobClient.Builder(new ServiceClient.Builder()
             .setBaseUrl(BASE_URL)
             .setSerializationFormat(SerializerFormat.XML))
         .build();
@@ -56,15 +62,15 @@ public class StorageBlobClientTest {
         // Given a StorageBlobClient.
 
         // When creating another client based on the first one.
-        StorageBlobClient otherStorageBlobClient = storageBlobClient.newBuilder("client.test.2").build();
+        StorageBlobAsyncClient otherStorageBlobAsyncClient = storageBlobAsyncClient.newBuilder("client.test.2").build();
 
         // Then the new client will contain the same properties as the original.
-        assertEquals(storageBlobClient.getBlobServiceUrl(), otherStorageBlobClient.getBlobServiceUrl());
+        assertEquals(storageBlobAsyncClient.getBlobServiceUrl(), otherStorageBlobAsyncClient.getBlobServiceUrl());
     }
 
     @Test
     public void getBlobServiceUrl() {
-        assertEquals(storageBlobClient.getBlobServiceUrl(), BASE_URL);
+        assertEquals(storageBlobAsyncClient.getBlobServiceUrl(), BASE_URL);
     }
 
     @Test
@@ -103,27 +109,35 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.getBlobsInPage(null,
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.getBlobsInPage(null,
             "testContainer",
             null,
             new Callback<List<BlobItem>>() {
                 @Override
                 public void onResponse(List<BlobItem> response) {
-                    // Then a list containing the details of the blobs will be returned to the callback by the service
-                    // and converted to BlobItem objects by the client.
-                    assertNotEquals(0, response.size());
-                    assertEquals("test.jpg", response.get(0).getName());
+                    try {
+                        // Then a list containing the details of the blobs will be returned to the callback by the service
+                        // and converted to BlobItem objects by the client.
+                        assertNotEquals(0, response.size());
+                        assertEquals("test.jpg", response.get(0).getName());
+                    } finally {
+                        latch.countDown();
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    throw new RuntimeException(t);
+                    try {
+                        throw new RuntimeException(t);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
             });
 
-        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        awaitOnLatch(latch, "getBlobsInPage");
     }
 
     @Test
@@ -146,7 +160,8 @@ public class StorageBlobClientTest {
                 null,
                 null,
                 null,
-                null);
+                null,
+                CancellationToken.NONE);
 
         // Then the client will return an object that contains both the details of the REST response and a list
         // with the details of the blobs.
@@ -173,36 +188,45 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.getBlobsInPageWithRestResponse(null,
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.getBlobsInPageWithRestResponse(null,
             "testContainer",
             null,
             null,
             null,
             null,
             null,
+            CancellationToken.NONE,
             new Callback<ContainersListBlobFlatSegmentResponse>() {
                 @Override
                 public void onResponse(ContainersListBlobFlatSegmentResponse response) {
-                    // Then the client will return an object that contains both the details of the REST response and
-                    // a list with the details of the blobs to the callback.
-                    List<BlobItem> blobItems = response.getValue().getSegment() == null
-                        ? new ArrayList<>(0)
-                        : response.getValue().getSegment().getBlobItems();
+                    try {
+                        // Then the client will return an object that contains both the details of the REST response and
+                        // a list with the details of the blobs to the callback.
+                        List<BlobItem> blobItems = response.getValue().getSegment() == null
+                            ? new ArrayList<>(0)
+                            : response.getValue().getSegment().getBlobItems();
 
-                    assertEquals(200, response.getStatusCode());
-                    assertNotEquals(0, blobItems.size());
-                    assertEquals("test.jpg", blobItems.get(0).getName());
+                        assertEquals(200, response.getStatusCode());
+                        assertNotEquals(0, blobItems.size());
+                        assertEquals("test.jpg", blobItems.get(0).getName());
+                    } finally {
+                        latch.countDown();
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    throw new RuntimeException(t);
+                    try {
+                        throw new RuntimeException(t);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
             });
 
-        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        awaitOnLatch(latch, "getBlobsInPageWithRestResponse");
     }
 
     @Test
@@ -210,11 +234,11 @@ public class StorageBlobClientTest {
         // Given a StorageBlobClient.
 
         // When requesting the properties of a blob using getBlobProperties().
-        MockResponse response = new MockResponse()
+        MockResponse mockResponse = new MockResponse()
             .setResponseCode(200)
             .setHeader("Content-Type", "application/text");
 
-        mockWebServer.enqueue(response);
+        mockWebServer.enqueue(mockResponse);
 
         // Then an object with the blob properties will be returned by the client.
         BlobGetPropertiesHeaders blobGetPropertiesHeaders = storageBlobClient.getBlobProperties("container",
@@ -228,46 +252,54 @@ public class StorageBlobClientTest {
         // Given a StorageBlobClient.
 
         // When requesting the properties of a blob using getBlobProperties() while providing a callback.
-        MockResponse response = new MockResponse()
+        MockResponse mockResponse = new MockResponse()
             .setResponseCode(200)
             .setHeader("Content-Type", "application/text");
 
-        mockWebServer.enqueue(response);
+        mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.getBlobProperties("container",
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.getBlobProperties("container",
             "blob",
             new Callback<BlobGetPropertiesHeaders>() {
                 @Override
                 public void onResponse(BlobGetPropertiesHeaders response) {
-                    // Then an object with the blob properties will be returned by the client to the callback.
-                    assertEquals("application/text", response.getContentType());
+                    try {
+                        // Then an object with the blob properties will be returned by the client to the callback.
+                        assertEquals("application/text", response.getContentType());
+                    } finally {
+                        latch.countDown();
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    throw new RuntimeException(t);
+                    try {
+                        throw new RuntimeException(t);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
             });
 
-        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        awaitOnLatch(latch, "getBlobProperties");
     }
 
     @Test
     public void getBlobPropertiesWithRestResponse() {
         // Given a StorageBlobClient.
 
-        // When requesting the properties of a blob using getBlobPropertiesAsHeaders() while providing a callback
-        MockResponse response = new MockResponse()
+        // When requesting the properties of a blob using getBlobPropertiesAsHeaders().
+        MockResponse mockResponse = new MockResponse()
             .setResponseCode(200)
             .setHeader("Content-Type", "application/text");
 
-        mockWebServer.enqueue(response);
+        mockWebServer.enqueue(mockResponse);
 
         // Then the client will return an object that contains both the details of the REST response and
         // a an object with the blob properties.
-        BlobGetPropertiesResponse blobGetPropertiesResponse =
+        BlobGetPropertiesResponse response =
             storageBlobClient.getBlobPropertiesWithRestResponse("container",
                 "blob",
                 null,
@@ -275,9 +307,10 @@ public class StorageBlobClientTest {
                 null,
                 null,
                 null,
-                null);
+                null,
+                CancellationToken.NONE);
 
-        assertEquals("application/text", blobGetPropertiesResponse.getDeserializedHeaders().getContentType());
+        assertEquals("application/text", response.getDeserializedHeaders().getContentType());
     }
 
     @Test
@@ -286,13 +319,15 @@ public class StorageBlobClientTest {
 
         // When requesting the properties of a blob using getBlobPropertiesWithRestResponse() while providing a
         // callback.
-        MockResponse response = new MockResponse()
+        MockResponse mockResponse = new MockResponse()
             .setResponseCode(200)
             .setHeader("Content-Type", "application/text");
 
-        mockWebServer.enqueue(response);
+        mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.getBlobPropertiesWithRestResponse("container",
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.getBlobPropertiesWithRestResponse("container",
             "blob",
             null,
             null,
@@ -300,23 +335,30 @@ public class StorageBlobClientTest {
             null,
             null,
             null,
+            CancellationToken.NONE,
             new Callback<BlobGetPropertiesResponse>() {
                 @Override
                 public void onResponse(BlobGetPropertiesResponse response) {
-                    // Then the client will return an object that contains both the details of the REST response and
-                    // an object with the blob properties to the callback.
-                    assertEquals("application/text", response.getDeserializedHeaders().getContentType());
+                    try {
+                        // Then the client will return an object that contains both the details of the REST response and
+                        // an object with the blob properties to the callback.
+                        assertEquals("application/text", response.getDeserializedHeaders().getContentType());
+                    } finally {
+                        latch.countDown();
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    throw new RuntimeException(t);
+                    try {
+                        throw new RuntimeException(t);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
             });
 
-        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        awaitOnLatch(latch, "getBlobPropertiesWithRestResponse");
     }
 
     @Test
@@ -331,8 +373,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then an object with the blob's contents will be returned by the client.
-        ResponseBody response = storageBlobClient.rawDownload(
-            "testContainer",
+        ResponseBody response = storageBlobClient.rawDownload("testContainer",
             "testBlob");
 
         assertEquals("testBody", response.string());
@@ -349,7 +390,9 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.rawDownload("testContainer",
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.rawDownload("testContainer",
             "testBlob",
             new Callback<ResponseBody>() {
                 @Override
@@ -359,18 +402,22 @@ public class StorageBlobClientTest {
                         assertEquals("testBody", response.string());
                     } catch (IOException e) {
                         onFailure(e);
+                    } finally {
+                        latch.countDown();
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    throw new RuntimeException(t);
+                    try {
+                        throw new RuntimeException(t);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
             });
 
-        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        awaitOnLatch(latch, "download");
     }
 
     @Test
@@ -396,7 +443,8 @@ public class StorageBlobClientTest {
             null,
             null,
             null,
-            null);
+            null,
+            CancellationToken.NONE);
 
         assertEquals(200, response.getStatusCode());
         assertEquals("testBody", response.getValue().string());
@@ -414,7 +462,9 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.rawDownloadWithRestResponse("testContainer",
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.rawDownloadWithRestResponse("testContainer",
             "testBlob",
             null,
             null,
@@ -425,6 +475,7 @@ public class StorageBlobClientTest {
             null,
             null,
             null,
+            CancellationToken.NONE,
             new Callback<BlobDownloadResponse>() {
                 @Override
                 public void onResponse(BlobDownloadResponse response) {
@@ -435,18 +486,22 @@ public class StorageBlobClientTest {
                         assertEquals("testBody", response.getValue().string());
                     } catch (IOException e) {
                         onFailure(e);
+                    } finally {
+                        latch.countDown();
                     }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    throw new RuntimeException(t);
+                    try {
+                        throw new RuntimeException(t);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
             });
 
-        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        awaitOnLatch(latch, "downloadWithRestResponse");
     }
 
     @Test
@@ -473,13 +528,15 @@ public class StorageBlobClientTest {
     public void stageBlock_withCallback() {
         // Given a StorageBlobClient.
 
-        // When sending a block's contents for staging.
+        // When sending a block's contents for staging while providing a callback.
         MockResponse mockResponse = new MockResponse()
             .setResponseCode(201);
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.stageBlock("testContainer",
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.stageBlock("testContainer",
             "testBlob",
             null,
             new byte[0],
@@ -487,19 +544,25 @@ public class StorageBlobClientTest {
             new Callback<Void>() {
                 @Override
                 public void onResponse(Void response) {
-                    // Then a response without body and status code 201 will be returned by the server to the callback.
-                    assertNull(response);
+                    try {
+                        // Then a response without body and status code 201 will be returned by the server to the callback.
+                        assertNull(response);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    throw new RuntimeException(t);
+                    try {
+                        throw new RuntimeException(t);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
             });
 
-        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        awaitOnLatch(latch, "stageBlock");
     }
 
     @Test
@@ -522,7 +585,8 @@ public class StorageBlobClientTest {
             null,
             null,
             null,
-            null);
+            null,
+            CancellationToken.NONE);
 
         assertEquals(201, response.getStatusCode());
     }
@@ -537,7 +601,9 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.stageBlockWithRestResponse("testContainer",
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.stageBlockWithRestResponse("testContainer",
             "testBlob",
             null,
             new byte[0],
@@ -547,22 +613,29 @@ public class StorageBlobClientTest {
             null,
             null,
             null,
+            CancellationToken.NONE,
             new Callback<BlockBlobsStageBlockResponse>() {
                 @Override
                 public void onResponse(BlockBlobsStageBlockResponse response) {
-                    // Then a response without body and status code 201 will be returned by the server to the callback.
-                    assertEquals(201, response.getStatusCode());
+                    try {
+                        // Then a response without body and status code 201 will be returned by the server to the callback.
+                        assertEquals(201, response.getStatusCode());
+                    } finally {
+                        latch.countDown();
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    throw new RuntimeException(t);
+                    try {
+                        throw new RuntimeException(t);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
             });
 
-        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        awaitOnLatch(latch, "stageBlockWithRestResponse");
     }
 
     @Test
@@ -601,27 +674,35 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.commitBlockList("testContainer",
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.commitBlockList("testContainer",
             "testBlob",
             null,
             true, new Callback<BlockBlobItem>() {
                 @Override
                 public void onResponse(BlockBlobItem response) {
-                    // Then a response with the blob's details and status code 201 will be returned by the server to
-                    // the callback.
-                    assertEquals(false, response.isServerEncrypted());
-                    assertEquals("testEtag", response.getETag());
+                    try {
+                        // Then a response with the blob's details and status code 201 will be returned by the server to
+                        // the callback.
+                        assertEquals(false, response.isServerEncrypted());
+                        assertEquals("testEtag", response.getETag());
+                    } finally {
+                        latch.countDown();
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    throw new RuntimeException(t);
+                    try {
+                        throw new RuntimeException(t);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
             });
 
-        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        awaitOnLatch(latch, "commitBlockList");
     }
 
     @Test
@@ -649,7 +730,8 @@ public class StorageBlobClientTest {
             null,
             null,
             null,
-            null);
+            null,
+            CancellationToken.NONE);
 
         assertEquals(false, response.getBlockBlobItem().isServerEncrypted());
         assertEquals("testEtag", response.getBlockBlobItem().getETag());
@@ -669,7 +751,9 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.commitBlockListWithRestResponse("testContainer",
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.commitBlockListWithRestResponse("testContainer",
             "testBlob",
             null,
             null,
@@ -680,24 +764,165 @@ public class StorageBlobClientTest {
             null,
             null,
             null,
-            null, new Callback<BlockBlobsCommitBlockListResponse>() {
+            null,
+            CancellationToken.NONE, new Callback<BlockBlobsCommitBlockListResponse>() {
                 @Override
                 public void onResponse(BlockBlobsCommitBlockListResponse response) {
-                    // Then a response with the blob's details and status code 201 will be returned by the server to
-                    // the callback.
-                    assertEquals(false, response.getBlockBlobItem().isServerEncrypted());
-                    assertEquals("testEtag", response.getBlockBlobItem().getETag());
+                    try {
+                        // Then a response with the blob's details and status code 201 will be returned by the server to
+                        // the callback.
+                        assertEquals(false, response.getBlockBlobItem().isServerEncrypted());
+                        assertEquals("testEtag", response.getBlockBlobItem().getETag());
+                    } finally {
+                        latch.countDown();
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    throw new RuntimeException(t);
+                    try {
+                        throw new RuntimeException(t);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
             });
 
-        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        awaitOnLatch(latch, "commitBlockListWithRestResponse");
+    }
+
+    @Test
+    public void delete() {
+        // Given a StorageBlobClient.
+
+        // When deleting a blob using delete().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 202 will be returned by the server.
+        Void response = storageBlobClient.delete("container",
+            "blob");
+
+        assertNull(response);
+    }
+
+    @Test
+    public void delete_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When deleting a blob using delete() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.delete("container",
+            "blob",
+            new Callback<Void>() {
+                @Override
+                public void onResponse(Void response) {
+                    try {
+                        // Then a response without body and status code 202 will be returned by the server to the callback.
+                        assertNull(response);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    try {
+                        throw new RuntimeException(t);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "delete");
+    }
+
+    @Test
+    public void deleteWithRestResponse() {
+        // Given a StorageBlobClient.
+
+        // When deleting a blob using deleteWithResponse().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 202 will be returned by the server.
+        BlobDeleteResponse response =
+            storageBlobClient.deleteWithResponse("container",
+                "blob",
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                CancellationToken.NONE);
+
+        assertEquals(202, response.getStatusCode());
+    }
+
+    @Test
+    public void deleteWithRestResponse_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When deleting a blob using delete () while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202)
+            .setHeader("Content-Type", "application/text");
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.deleteWithResponse("container",
+            "blob",
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE,
+            new Callback<BlobDeleteResponse>() {
+                @Override
+                public void onResponse(BlobDeleteResponse response) {
+                    try {
+                        // Then a response without body and status code 202 will be returned by the server to the callback.
+                        assertEquals(202, response.getStatusCode());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    try {
+                        throw new RuntimeException(t);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "deleteWithResponse");
     }
 
     @Test
@@ -817,5 +1042,13 @@ public class StorageBlobClientTest {
         }
 
         return contentBuilder.toString();
+    }
+
+    private static void awaitOnLatch(CountDownLatch latch, String method) {
+        try {
+            latch.await(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            assertFalse(method + " didn't produce any result.", true);
+        }
     }
 }

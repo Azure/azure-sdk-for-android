@@ -49,7 +49,7 @@ final class BlobUploadEntity {
     @ColumnInfo(name = "use_content_resolver")
     public boolean useContentResolver;
     /**
-     * Identifies the {@link com.azure.android.storage.blob.StorageBlobClient}
+     * Identifies the {@link com.azure.android.storage.blob.StorageBlobAsyncClient}
      * to be used for the file upload.
      * @see StorageBlobClientMap
      */

@@ -65,7 +65,7 @@ final class BlobDownloadEntity {
     public boolean useContentResolver;
 
     /**
-     * Identifies the {@link com.azure.android.storage.blob.StorageBlobClient}
+     * Identifies the {@link com.azure.android.storage.blob.StorageBlobAsyncClient}
      * to be used for the file download.
      * @see StorageBlobClientMap
      */

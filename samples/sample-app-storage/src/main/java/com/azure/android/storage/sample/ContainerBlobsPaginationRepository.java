@@ -3,7 +3,8 @@ package com.azure.android.storage.sample;
 import androidx.work.NetworkType;
 
 import com.azure.android.core.http.Callback;
-import com.azure.android.storage.blob.StorageBlobClient;
+import com.azure.android.core.util.CancellationToken;
+import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
@@ -25,24 +26,24 @@ import java.util.List;
 final class ContainerBlobsPaginationRepository
         implements PaginationDescriptionRepository<BlobItem, String> {
 
-    private final StorageBlobClient storageBlobClient;
+    private final StorageBlobAsyncClient storageBlobAsyncClient;
     private final TokenRequestObservableAuthInterceptor authInterceptor;
     private final PaginationOptions paginationOptions;
 
-    ContainerBlobsPaginationRepository(StorageBlobClient storageBlobClient, PaginationOptions paginationOptions) {
+    ContainerBlobsPaginationRepository(StorageBlobAsyncClient storageBlobAsyncClient, PaginationOptions paginationOptions) {
         this.paginationOptions = paginationOptions;
-        final String storageBlobUrl = storageBlobClient.getBlobServiceUrl();
+        final String storageBlobUrl = storageBlobAsyncClient.getBlobServiceUrl();
         final List<String> blobEndpointScopes = Arrays.asList(storageBlobUrl + ".default");
         this.authInterceptor = new TokenRequestObservableAuthInterceptor(blobEndpointScopes);
         //
-        this.storageBlobClient = storageBlobClient.newBuilder("com.azure.android.storage.sample.download")
+        this.storageBlobAsyncClient = storageBlobAsyncClient.newBuilder("com.azure.android.storage.sample.download")
                 .setCredentialInterceptor(this.authInterceptor)
-                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .setTransferRequiredNetworkType(NetworkType.CONNECTED)
                 .build();
     }
 
-    public StorageBlobClient getStorageBlobClient() {
-        return storageBlobClient;
+    public StorageBlobAsyncClient getStorageBlobClient() {
+        return storageBlobAsyncClient;
     }
 
     @Override
@@ -59,9 +60,9 @@ final class ContainerBlobsPaginationRepository
                 if (pageSize != null && pageSize > 0) {
                     options.setMaxResultsPerPage(pageSize);
                 }
-                storageBlobClient.getBlobsInPageWithRestResponse(pageIdentifier, containerName, options.getPrefix(),
+                storageBlobAsyncClient.getBlobsInPageWithRestResponse(pageIdentifier, containerName, options.getPrefix(),
                         options.getMaxResultsPerPage(), options.getDetails().toList(),
-                        null, null, new Callback<ContainersListBlobFlatSegmentResponse>() {
+                        null, null, CancellationToken.NONE, new Callback<ContainersListBlobFlatSegmentResponse>() {
                             @Override
                             public void onResponse(ContainersListBlobFlatSegmentResponse response) {
                                 List<BlobItem> value = response.getValue().getSegment() == null

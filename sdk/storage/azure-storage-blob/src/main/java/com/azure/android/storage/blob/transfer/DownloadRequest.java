@@ -26,7 +26,7 @@ public final class DownloadRequest {
     /**
      * Create DownloadRequest.
      *
-     * @param storageClientId Identifies the {@link com.azure.android.storage.blob.StorageBlobClient} for the download.
+     * @param storageClientId Identifies the {@link com.azure.android.storage.blob.StorageBlobAsyncClient} for the download.
      * @param containerName   The name of the container holding the blob to download.
      * @param blobName        The name of the blob to download.
      * @param writableContent The object describing the content in the device to store the downloaded blob.
@@ -47,7 +47,7 @@ public final class DownloadRequest {
     /**
      * Get the unique identifier of the blob storage client to be used for the download.
      *
-     * @return The unique identifier of the {@link com.azure.android.storage.blob.StorageBlobClient}.
+     * @return The unique identifier of the {@link com.azure.android.storage.blob.StorageBlobAsyncClient}.
      */
     String getStorageClientId() {
         return this.storageClientId;

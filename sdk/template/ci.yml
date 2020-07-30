@@ -20,11 +20,7 @@ trigger:
       - release/*
   paths:
     include:
-      - sdk/core/
-      - eng/
-      - build.gradle
-      - gradle.properties
-      - settings.gradle
+      - sdk/template/
 
 pr:
   branches:
@@ -35,16 +31,12 @@ pr:
       - release/*
   paths:
     include:
-      - sdk/core/
-      - eng/
-      - build.gradle
-      - gradle.properties
-      - settings.gradle
+      - sdk/template/
       
 stages:
   - template: ../../eng/pipelines/templates/stages/archetype-sdk-client.yml
     parameters:
-      ServiceDirectory: core
+      ServiceDirectory: template
       Artifacts:
-        - name: azure-core
-          safeName: azurecore
+        - name: azure-sdk-template
+          safeName: azuresdktemplate

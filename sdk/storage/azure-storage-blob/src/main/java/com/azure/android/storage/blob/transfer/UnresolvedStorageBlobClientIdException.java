@@ -5,7 +5,7 @@ package com.azure.android.storage.blob.transfer;
 
 /**
  * The exception type to indicate that a transfer cannot be executed due to
- * a failure in resolving {@link com.azure.android.storage.blob.StorageBlobClient}
+ * a failure in resolving {@link com.azure.android.storage.blob.StorageBlobAsyncClient}
  * for the transfer.
  *
  * @see StorageBlobClientMap
