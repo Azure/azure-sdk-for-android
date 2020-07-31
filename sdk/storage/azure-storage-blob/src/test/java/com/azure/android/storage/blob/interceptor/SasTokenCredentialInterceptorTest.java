@@ -1,7 +1,7 @@
 package com.azure.android.storage.blob.interceptor;
 
 import com.azure.android.core.common.EnqueueMockResponse;
-import com.azure.android.storage.blob.credentials.SasTokenCredential;
+import com.azure.android.storage.blob.credential.SasTokenCredential;
 
 import org.junit.Rule;
 import org.junit.Test;

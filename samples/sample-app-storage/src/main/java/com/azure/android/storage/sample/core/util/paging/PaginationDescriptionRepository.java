@@ -1,6 +1,6 @@
 package com.azure.android.storage.sample.core.util.paging;
 
-import com.azure.android.storage.sample.core.util.tokenrequest.TokenRequestObservable;
+import com.azure.android.core.credential.TokenRequestObservable;
 
 /**
  * A repository that provide {@link PaginationDescription}.

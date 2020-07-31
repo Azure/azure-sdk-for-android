@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.storage.blob.credentials;
+package com.azure.android.storage.blob.credential;
 
 import java.util.Map;
 

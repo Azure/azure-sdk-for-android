@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.storage.sample.core.credential;
+package com.azure.android.core.credential;
 
 import org.threeten.bp.OffsetDateTime;
 
@@ -14,30 +14,30 @@ public class AccessToken {
 
     /**
      * Creates an access token instance.
-     * @param token the token string.
-     * @param expiresAt the expiration time.
+     * @param token The token string.
+     * @param expiresAt The expiration time.
      */
     public AccessToken(String token, OffsetDateTime expiresAt) {
         this.token = token;
-        this.expiresAt = expiresAt.minusMinutes(2); // 2 minutes before token expires
+        this.expiresAt = expiresAt;
     }
 
     /**
-     * @return the token string.
+     * @return The token string.
      */
     public String getToken() {
         return token;
     }
 
     /**
-     * @return the time when the token expires, in UTC.
+     * @return The time when the token expires, in UTC.
      */
     public OffsetDateTime getExpiresAt() {
         return expiresAt;
     }
 
     /**
-     * @return if the token has expired.
+     * @return If the token has expired.
      */
     public boolean isExpired() {
         return OffsetDateTime.now().isAfter(expiresAt);
