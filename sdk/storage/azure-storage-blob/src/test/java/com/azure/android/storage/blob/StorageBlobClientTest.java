@@ -810,7 +810,7 @@ public class StorageBlobClientTest {
 
     @Test
     public void delete_withCallback() {
-        // Given a StorageBlobClient.
+        // Given a StorageBlobAsyncClient.
 
         // When deleting a blob using delete() while providing a callback.
         MockResponse mockResponse = new MockResponse()
@@ -877,7 +877,7 @@ public class StorageBlobClientTest {
 
     @Test
     public void deleteWithRestResponse_withCallback() {
-        // Given a StorageBlobClient.
+        // Given a StorageBlobAsyncClient.
 
         // When deleting a blob using delete () while providing a callback.
         MockResponse mockResponse = new MockResponse()
@@ -944,7 +944,7 @@ public class StorageBlobClientTest {
 
     @Test
     public void undelete_withCallback() {
-        // Given a StorageBlobClient.
+        // Given a StorageBlobAsyncClient.
 
         // When undeleting a blob using undelete() while providing a callback.
         MockResponse mockResponse = new MockResponse()
@@ -952,51 +952,60 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.undelete("container",
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.undelete("container",
             "blob",
             new Callback<Void>() {
                 @Override
                 public void onResponse(Void response) {
-                    // Then a response without body and status code 200 will be returned by the server to the callback.
-                    assertNull(response);
+                    try {
+                        // Then a response without body and status code 200 will be returned by the server to the callback.
+                        assertNull(response);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    throw new RuntimeException(t);
+                    try {
+                        throw new RuntimeException(t);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
             });
 
-        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        awaitOnLatch(latch, "undelete");
     }
 
     @Test
-    public void deleteWithRestResponse() {
+    public void undeleteWithRestResponse() {
         // Given a StorageBlobClient.
 
-        // When undeleting a blob using deleteWithResponse().
+        // When undeleting a blob using undeleteWithResponse().
         MockResponse mockResponse = new MockResponse()
             .setResponseCode(200);
 
         mockWebServer.enqueue(mockResponse);
 
         // Then a response without body and status code 200 will be returned by the server.
-        BlobUndeleteResponse response = storageBlobClient.undeleteWithResponse("container",
-            "blob",
-            null,
-            null,
-            null,
-            null,
-            null);
+        BlobUndeleteResponse response =
+            storageBlobClient.undeleteWithResponse("container",
+                "blob",
+                null,
+                null,
+                null,
+                null,
+                CancellationToken.NONE);
 
         assertEquals(200, response.getStatusCode());
     }
 
     @Test
     public void undeleteWithRestResponse_withCallback() {
-        // Given a StorageBlobClient.
+        // Given a StorageBlobAsyncClient.
 
         // When undeleting a blob using undelete() while providing a callback.
         MockResponse mockResponse = new MockResponse()
@@ -1005,29 +1014,37 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ServiceCall serviceCall = storageBlobClient.undeleteWithResponse("container",
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.undeleteWithResponse("container",
             "blob",
             null,
             null,
             null,
             null,
-            null,
+            CancellationToken.NONE,
             new Callback<BlobUndeleteResponse>() {
                 @Override
                 public void onResponse(BlobUndeleteResponse response) {
-                    // Then a response without body and status code 200 will be returned by the server to the callback.
-                    assertEquals(200, response.getStatusCode());
+                    try{
+                        // Then a response without body and status code 200 will be returned by the server to the callback.
+                        assertEquals(200, response.getStatusCode());
+                    } finally {
+                        latch.countDown();
+                    }
                 }
 
                 @Override
                 public void onFailure(Throwable t) {
-                    throw new RuntimeException(t);
+                    try {
+                        throw new RuntimeException(t);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
             });
 
-        // Also, a non-null ServiceCall object in a not canceled state will be returned by the client.
-        assertNotNull(serviceCall);
-        assertFalse(serviceCall.isCanceled());
+        awaitOnLatch(latch, "undeleteWithResponse");
     }
 
     private static String readFileToString(String filePath) {
