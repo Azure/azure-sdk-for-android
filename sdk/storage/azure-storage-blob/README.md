@@ -12,7 +12,7 @@ Blob storage is ideal for:
 * Storing data for analysis by an on-premises or Azure-hosted service
 
 [Source code](https://github.com/Azure/azure-sdk-for-android/tree/master/sdk/storage/azure-storage-blob)
-| [API reference documentation](...)
+| [API reference documentation](not-valid-link)
 | [Product documentation](https://docs.microsoft.com/azure/storage/)
 | [Samples](https://github.com/Azure/azure-sdk-for-android/tree/master/samples/sample-app-storage)
 

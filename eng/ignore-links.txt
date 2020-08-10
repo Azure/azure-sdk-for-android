@@ -1,2 +1,2 @@
 #PlaceHolder for template links
-azure-sdk-template/not-valid-link
+not-valid-link
