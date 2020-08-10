@@ -1,0 +1,2 @@
+#PlaceHolder for template links
+https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/template/azure-sdk-template/not-valid-link
