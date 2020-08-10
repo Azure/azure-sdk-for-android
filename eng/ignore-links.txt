@@ -1,3 +1,2 @@
 #PlaceHolder for template links
 not-valid-link
-https://azure.github.io/azure-sdk-for-android
