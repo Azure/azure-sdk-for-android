@@ -1,10 +1,10 @@
 # README.md template
 
-Use the guidelines in each section of this template to ensure consistency and readability of your README. The README resides in your package's GitHub repository at the root of its directory within the repo. It's also used as the package distribution page (NuGet, PyPi, npm, etc.) and as a Quickstart on docs.microsoft.com. See [README-EXAMPLE.md](https://github.com/Azure/azure-sdk/blob/master/docs/policies/README-EXAMPLE.md) for an example following this template.
+Use the guidelines in each section of this template to ensure consistency and readability of your README. The README resides in your package's GitHub repository at the root of its directory within the repo. It's also used as the package distribution page (NuGet, PyPi, npm, etc.) and as a Quickstart on docs.microsoft.com. 
 
 **Title**: The H1 of your README should be in the format: `# [Product Name] client library for [Language]`
 
-* All headings, including the H1, should use **sentence-style capitalization**. Refer to the [Microsoft Style Guide][style-guide-msft] for more information.
+* All headings, including the H1, should use **sentence-style capitalization**. Refer to the [Microsoft Style Guide][style-guide-msft] and [Microsoft Cloud Style Guide][style-guide-cloud] for more information.
 * Example: `# Azure Batch client library for Python`
 
 **Introduction**: The introduction appears directly under the title (H1) of your README.
@@ -93,5 +93,6 @@ If the package or a related package supports it, include tips for logging or ena
 
 <!-- LINKS -->
 [style-guide-msft]: https://docs.microsoft.com/style-guide/capitalization
+[style-guide-cloud]: https://styleguides.azurewebsites.net/StyleGuide/Read?id=2696&topicid=25357
 
 ![Impressions](https://azure-sdk-impressions.azurewebsites.net/api/impressions/azure-sdk-for-java%2Fsdk%2Ftemplate%2Fazure-sdk-template%2FREADME.png)

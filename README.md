@@ -1,6 +1,6 @@
 # Azure SDK for Android
 
-This repository is for active development of the Azure SDK for Android. For consumers of the SDK we recommend visiting our versioned [developer docs](https://github.com/Azure/azure-sdk-for-android).
+This repository is for active development of the Azure SDK for Android. For consumers of the SDK we recommend visiting our versioned [developer docs](https://azure.github.io/azure-sdk-for-android).
 
 > Note: The Azure SDK for Android replaces a previous offering, known as Azure.Android. Source code and documentation for Azure.Android is available in the [Azure.Android](https://github.com/Azure/azure-sdk-for-android/tree/Azure.Android) branch.
 
