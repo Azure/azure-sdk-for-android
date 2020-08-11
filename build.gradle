@@ -7,8 +7,8 @@ buildscript {
     }
 
     ext {
-        androidBuildToolsVersion = "29.0.3"
-        androidGradlePluginVersion = "4.0.0"
+        androidBuildToolsVersion = "30.0.1"
+        androidGradlePluginVersion = "4.0.1"
         androidJunitJacocoGradlePluginVersion = "0.16.0"
         jacocoVersion = "0.8.5"
     }
@@ -29,12 +29,12 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
     group = "com.azure.android"
 
     android {
-        compileSdkVersion 29
+        compileSdkVersion 30
         buildToolsVersion "$androidBuildToolsVersion"
 
         defaultConfig {
             minSdkVersion 21
-            targetSdkVersion 29
+            targetSdkVersion 30
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         }
 
