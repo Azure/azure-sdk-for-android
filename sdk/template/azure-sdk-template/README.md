@@ -54,7 +54,7 @@ Each example in the *Examples* section starts with an H3 that describes the exam
 
 ### Create the thing
 
-Use the [create_thing](not-valid-link) method to create a Thing reference; this method does not make a network call. To persist the Thing in the service, call [Thing.save](not-valid-link).
+Use the [create_thing]<!--Put the relevant link here. --> method to create a Thing reference; this method does not make a network call. To persist the Thing in the service, call [Thing.save]<!--Put the relevant link here. -->.
 
 ```Python
 thing = client.create_thing(id, name)
@@ -63,7 +63,7 @@ thing.save()
 
 ### Get the thing
 
-The [get_thing](not-valid-link) method retrieves a Thing from the service. The `id` parameter is the unique ID of the Thing, not its "name" property.
+The [get_thing]<!--Put the relevant link here. --> method retrieves a Thing from the service. The `id` parameter is the unique ID of the Thing, not its "name" property.
 
 ```Python
 thing = client.get_thing(id)
@@ -71,7 +71,7 @@ thing = client.get_thing(id)
 
 ### List the things
 
-Use [list_things](not-valid-link) to get one or more Thing objects from the service. If there are no Things available, a `404` exception is thrown (see [Troubleshooting](#troubleshooting) for details on handling exceptions).
+Use [list_things]<!--Put the relevant link here. --> to get one or more Thing objects from the service. If there are no Things available, a `404` exception is thrown (see [Troubleshooting](#troubleshooting) for details on handling exceptions).
 
 ```Python
 things = client.list_things()
