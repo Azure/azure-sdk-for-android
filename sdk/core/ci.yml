@@ -14,7 +14,7 @@ resources:
 trigger:
   branches:
     include:
-      - dev
+      - master
       - feature/*
       - hotfix/*
       - release/*
@@ -29,7 +29,7 @@ trigger:
 pr:
   branches:
     include:
-      - dev
+      - master
       - feature/*
       - hotfix/*
       - release/*

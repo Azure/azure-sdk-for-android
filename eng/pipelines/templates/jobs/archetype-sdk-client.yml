@@ -36,6 +36,11 @@ jobs:
       vmImage: '$(OSVmImage)'
 
     steps:
+
+      - template: ../../../common/pipelines/templates/steps/verify-links.yml
+        parameters:
+          Directory: sdk/${{ parameters.ServiceDirectory }}
+
       - script: |
           ./gradlew sdk:${{parameters.ServiceDirectory}}:lintDebug
         displayName: Lint sources
