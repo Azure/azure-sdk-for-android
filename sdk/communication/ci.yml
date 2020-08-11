@@ -38,3 +38,5 @@ stages:
     parameters:
       ServiceDirectory: communication
       Artifacts:
+        - name: azure-communication-common
+          safeName: azurecommunicationcommon
