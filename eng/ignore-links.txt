@@ -1,2 +1,1 @@
-#PlaceHolder for template links
-not-valid-link
+# Placeholder file for links that need exceptions from link checking
