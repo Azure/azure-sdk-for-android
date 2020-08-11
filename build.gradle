@@ -148,19 +148,19 @@ allprojects {
 
     ext {
         annotationsVersion = "1.1.0"
-        appCompatVersion = "1.1.0"
+        appCompatVersion = "1.2.0"
         archCoreTestVersion = "2.1.0"
         concurrentFuturesVersion = "1.0.0"
-        jUnitVersion = "4.12"
-        jacksonVersion = "2.9.9"
+        jUnitVersion = "4.13"
+        jacksonVersion = "2.11.2"
         lifecycleVersion = "2.2.0"
-        okHttpVersion = "3.13.1"
-        retrofitVersion = "2.6.2"
+        okHttpVersion = "3.14.9"
+        retrofitVersion = "2.9.0"
         roomVersion = "2.2.5"
         staxApiVersion = "1.0-2"
-        threeTenAbpVersion = "1.2.1"
-        threeTenBpVersion = "1.4.0"
-        workVersion = "2.3.4"
+        threeTenAbpVersion = "1.2.4"
+        threeTenBpVersion = "1.4.4"
+        workVersion = "2.4.0"
     }
 }
 
