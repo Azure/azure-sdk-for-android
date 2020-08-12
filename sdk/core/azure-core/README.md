@@ -20,7 +20,7 @@ as an example of how to use the shared azure-core components in your client libr
   [enable Java 8 language desugaring](https://developer.android.com/studio/write/java8-support.html#supported_features)
   to use this library. Java 8 language features that require a target API level >21 are not used, nor are any Java 8+
   APIs that would require the Java 8+ API desugaring provided by Android Gradle plugin 4.0.0.
-* You must have an [Azure subscription](https://azure.microsoft.com/free/) to use this library.
+* You must have an [Azure subscription](https://azure.microsoft.com/en-us/free/) to use this library.
 
 ### Install the library
 At the present time, to install the Azure core client library for Android you must download the latest

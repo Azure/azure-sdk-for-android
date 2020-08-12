@@ -2,7 +2,6 @@ parameters:
   Directory: 'not-specified'
   IgnoreLinksFile: "$(Build.SourcesDirectory)/eng/ignore-links.txt"
   
-
 steps:
   - task: PowerShell@2
     displayName: Link verification check
