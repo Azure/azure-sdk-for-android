@@ -18,8 +18,6 @@ param (
 )
 
 $ProgressPreference = "SilentlyContinue"; # Disable invoke-webrequest progress dialog
-# flag to all relative links.
-[bool] $resolveRelativeLinks = $linkGuidance,
 # list of locale keywords
 [array] $locales = @("/en-us/")
 
@@ -69,7 +67,7 @@ function ResolveUri ([System.Uri]$referralUri, [string]$link)
   }
 
   $linkUri = [System.Uri]$link;
-  if($resolveRelativeLinks){
+  if($linkGuidance){
     if (!$linkUri.IsAbsoluteUri) {
     # For rooted paths resolve from the baseUrl
       if ($link.StartsWith("/")) {
