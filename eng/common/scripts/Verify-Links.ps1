@@ -178,7 +178,7 @@ function CheckLink ([System.Uri]$linkUri)
 }
 
 function IsGithubLink([string]$link) {
-  if ($link.StartsWith("github.com") {
+  if ($link -match $GithubRegex) {
     return $true
   }
 }
