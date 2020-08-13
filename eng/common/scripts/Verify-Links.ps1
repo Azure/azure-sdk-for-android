@@ -183,7 +183,8 @@ function ReplaceGithubLink([string]$originLink) {
   $prefix = $originLink -replace $GithubRegex, '$1'
   $originLink = $originLink -replace $GithubRegex, '$2'
   $groups = $originLink -split '/'
-  $currentNames = $prOwner -replace $GithubRegex, '$2' -split '/' 
+  $currentNamesLine = $prOwner -replace $GithubRegex, '$2'
+  $currentNames = $currentNamesLine -split '/'
   $replaceOne = $currentNames[0]
   $groups[0] = $replaceOne
   Write-Host "Check what we have in group 0 $groups[0]"
