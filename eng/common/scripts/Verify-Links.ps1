@@ -15,8 +15,6 @@ param (
   [array] $errorStatusCodes = @(400, 401, 404, 11001, 11004),
   # flag to allow resolving relative paths or not
   [bool] $resolveRelativeLinks = $true,
-  # target URL to check if the link is with current repository.
-  [string] $targetUrl = "",
   # development repo owner from pr
   [string] $prOwner = "",
   # development repo branch from pr
@@ -185,7 +183,10 @@ function ReplaceGithubLink([string]$originLink) {
   $prefix = $originLink -replace $GithubRegex, '$1'
   $originLink = $originLink -replace $GithubRegex, '$2'
   $groups = $originLink -split '/'
-  $groups[0] = $prOwner
+  $currentNames = $prOwner -split '/' 
+  $replaceOne = $currentNames[0]
+  $groups[0] = $replaceOne
+  Write-Host "Check what we have in group 0 $groups[0]"
   if ($groups.Count -gt 3) {
     $groups[3] = $prBranch
   }
