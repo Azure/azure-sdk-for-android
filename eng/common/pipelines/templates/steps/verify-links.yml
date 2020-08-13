@@ -15,6 +15,6 @@ steps:
         -rootUrl "file://$(Build.SourcesDirectory)/${{ parameters.Directory }}" 
         -recursive:$false 
         -ignoreLinksFile ${{ parameters.IgnoreLinksFile }}
-        -targetUrl $(Build.Repository.Uri)
+        -targetUrl $(System.TeamFoundationCollectionUri)
         -prOwner $(System.PullRequest.SourceRepositoryURI)
         -prBranch $(System.PullRequest.SourceBranch)
