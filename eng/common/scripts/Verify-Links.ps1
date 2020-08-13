@@ -22,7 +22,7 @@ param (
 )
 
 $ProgressPreference = "SilentlyContinue"; # Disable invoke-webrequest progress dialog
-$GithubRegex = ".*github.com/(.*)"
+$GithubRegex = "(.*github.com/)(.*)"
 
 function NormalizeUrl([string]$url){
   if (Test-Path $url) {
@@ -129,11 +129,7 @@ function CheckLink ([System.Uri]$linkUri)
     }
   }
   else {
-    if (IsGithubLink $linkUri) {
-      $linkUri = ReplaceGithubLink $linkUri
-    }
     try {
-
       $headRequestSucceeded = $true
       try {
         # Attempt HEAD request first
@@ -160,8 +156,13 @@ function CheckLink ([System.Uri]$linkUri)
       }
 
       if ($statusCode -in $errorStatusCodes) {
-        LogWarning "[$statusCode] broken link $linkUri"
-        $script:badLinks += $linkUri 
+        if (IsGithubLink $linkUri) {
+          $linkUri = ReplaceGithubLink $linkUri
+        }
+        else {
+          LogWarning "[$statusCode] broken link $linkUri"
+          $script:badLinks += $linkUri 
+        }
       }
       else {
         if ($null -ne $statusCode) {
@@ -184,13 +185,16 @@ function IsGithubLink([string]$link) {
 }
 
 function ReplaceGithubLink([string]$originLink) {
-  $originLink = $originLink -replace $GithubRegex, '$1'
+  $prefix = $originLink -replace $GithubRegex, '$1'
+  $originLink = $originLink -replace $GithubRegex, '$2'
   $groups = $originLink -split '/'
   $groups[0] = $prOwner
-  if (groups.length -gt 3) {
+  if ($groups.Count -gt 3) {
     $groups[3] = $prBranch
   }
-  return $groups -join '/'
+  $result = $groups -join '/'
+  Write-Host "This is the replaced one $result"
+  return $prefix + $result
 }
 
 function GetLinks([System.Uri]$pageUri)
