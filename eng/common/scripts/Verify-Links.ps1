@@ -14,10 +14,15 @@ param (
   # list of http status codes count as broken links. Defaults to 400, 401, 404, SocketError.HostNotFound = 11001, SocketError.NoData = 11004
   [array] $errorStatusCodes = @(400, 401, 404, 11001, 11004),
   # flag to allow resolving relative paths or not
-  [bool] $resolveRelativeLinks = $true
+  [bool] $resolveRelativeLinks = $true,
+  # development repo owner from pr
+  [string] $prOwner = "",
+  # development repo branch from pr
+  [string] $prBranch = ""
 )
 
 $ProgressPreference = "SilentlyContinue"; # Disable invoke-webrequest progress dialog
+$GithubRegex = ".*github.com/(.*)"
 
 function NormalizeUrl([string]$url){
   if (Test-Path $url) {
@@ -124,7 +129,11 @@ function CheckLink ([System.Uri]$linkUri)
     }
   }
   else {
+    if (IsGithubLink $linkUri) {
+      $linkUri = ReplaceGithubLink $linkUri
+    }
     try {
+
       $headRequestSucceeded = $true
       try {
         # Attempt HEAD request first
@@ -168,6 +177,22 @@ function CheckLink ([System.Uri]$linkUri)
   $checkedLinks[$linkUri] = $true;
 }
 
+function IsGithubLink([string]$link) {
+  if ($link.StartsWith("github.com") {
+    return $true
+  }
+}
+
+function ReplaceGithubLink([string]$originLink) {
+  $originLink = $originLink -replace $GithubRegex, '$1'
+  $groups = $originLink -split '/'
+  $groups[0] = $prOwner
+  if (groups.length -gt 3) {
+    $groups[3] = $prBranch
+  }
+  return $groups -join '/'
+}
+
 function GetLinks([System.Uri]$pageUri)
 {
   if ($pageUri.Scheme.StartsWith("http")) {
@@ -206,7 +231,8 @@ function GetLinks([System.Uri]$pageUri)
 
   return $links;
 }
-
+Write-Host "This is pr owner $prOwner"
+Write-Host "This is pr owner $prBranch"
 if ($urls) {
   if ($urls.Count -eq 0) {
     Write-Host "Usage $($MyInvocation.MyCommand.Name) <urls>";
