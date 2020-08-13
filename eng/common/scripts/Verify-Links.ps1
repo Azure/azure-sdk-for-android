@@ -15,6 +15,8 @@ param (
   [array] $errorStatusCodes = @(400, 401, 404, 11001, 11004),
   # flag to allow resolving relative paths or not
   [bool] $resolveRelativeLinks = $true,
+  # target URL to check if the link is with current repository.
+  [string] $targetUrl = "",
   # development repo owner from pr
   [string] $prOwner = "",
   # development repo branch from pr
@@ -156,13 +158,8 @@ function CheckLink ([System.Uri]$linkUri)
       }
 
       if ($statusCode -in $errorStatusCodes) {
-        if (IsGithubLink $linkUri) {
-          $linkUri = ReplaceGithubLink $linkUri
-        }
-        else {
           LogWarning "[$statusCode] broken link $linkUri"
           $script:badLinks += $linkUri 
-        }
       }
       else {
         if ($null -ne $statusCode) {
@@ -178,8 +175,8 @@ function CheckLink ([System.Uri]$linkUri)
   $checkedLinks[$linkUri] = $true;
 }
 
-function IsGithubLink([string]$link) {
-  if ($link -match $GithubRegex) {
+function IsGithubLinkInCurrentRepo([string]$link) {
+  if ($link -match $GithubRegex -and ($link -match $targetUrl)) {
     return $true
   }
 }
@@ -275,6 +272,10 @@ while ($pageUrisToCheck.Count -ne 0)
   Write-Host "Found $($linkUris.Count) links on page $pageUri";
   
   foreach ($linkUri in $linkUris) {
+    if (IsGithubLinkInCurrentRepo $linkUri) {
+      $linkUri = ReplaceGithubLink $linkUri
+    }
+
     CheckLink $linkUri
     if ($recursive) {
       if ($linkUri.ToString().StartsWith($baseUrl) -and !$checkedPages.ContainsKey($linkUri)) {
