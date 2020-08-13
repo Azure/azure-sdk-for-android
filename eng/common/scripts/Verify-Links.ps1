@@ -232,6 +232,7 @@ function GetLinks([System.Uri]$pageUri)
 
   return $links;
 }
+Write-Host "This is pr owner $targeUrl"
 Write-Host "This is pr owner $prOwner"
 Write-Host "This is pr owner $prBranch"
 if ($urls) {
