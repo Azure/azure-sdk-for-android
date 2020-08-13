@@ -1,3 +1,4 @@
+https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/core/azure-core/Test.md
 # Azure core client library for Android
 
 This is the core library for the Azure SDK for Android, containing the HTTP pipeline, as well as a shared set of
