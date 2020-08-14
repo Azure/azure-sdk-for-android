@@ -14,7 +14,7 @@ parameters:
   ScriptDirectory: eng/common/scripts
   GHReviewersVariable: '' 
   GHTeamReviewersVariable: ''
-  PRLabel: 'bug'
+  PRLabel: ''
 
 steps:
 
@@ -81,3 +81,17 @@ steps:
       -GitHubUsers "$(${{ parameters.GHReviewersVariable }})"
       -GitHubTeams "$(${{ parameters.GHTeamReviewersVariable }})"
       -PRNumber "$(Submitted.PullRequest.Number)"
+
+- task: PowerShell@2
+  displayName: Add a label to PR
+  condition: and(succeeded(), eq(variables['HasChanges'], 'true'))
+  inputs:
+    pwsh: true
+    workingDirectory: ${{ parameters.WorkingDirectory }}
+    filePath: ${{ parameters.ScriptDirectory }}/add-pullrequest-labels.ps1
+    arguments: >
+      -RepoOwner "${{ parameters.RepoOwner }}"
+      -RepoName "${{ parameters.RepoName }}"
+      -AuthToken "$(azuresdk-github-pat)"
+      -PRNumber "$(Submitted.PullRequest.Number)"
+      -PRLabel ""

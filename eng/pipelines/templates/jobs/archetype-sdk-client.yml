@@ -27,7 +27,6 @@ jobs:
         artifact: packages
         displayName: Publish packages
 
-      - template: ../../../common/pipelines/template/steps/create-pull-request.yml
   - job: 'Analyze'
 
     variables:
@@ -55,6 +54,9 @@ jobs:
           pmdRunAnalysis: true
         displayName: Build and analyze
 
+      - template: ../../../common/pipelines/templates/steps/create-pull-request.yml
+        parameters:
+          PRLabel: ["bug"]
       - ${{ each artifact in parameters.Artifacts }}:
         - script: |
             mkdir -p $(Build.ArtifactStagingDirectory)/lint
