@@ -174,7 +174,7 @@ function CheckLink ([System.Uri]$linkUri)
 $GithubRegex = "($sourceRepoUrl/blob/)(\w+)(/.*)"
 $ReplacementPattern = "`${1}$sourceCommit`$3"
 function ReplaceGithubLink([string]$originLink) {
-  return $originLink -replace $GithubRegex, "$ReplacementPattern"
+  return $originLink -replace $GithubRegex, $ReplacementPattern
 }
 
 function GetLinks([System.Uri]$pageUri)
