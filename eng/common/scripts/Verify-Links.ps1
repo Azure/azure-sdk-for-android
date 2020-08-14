@@ -18,8 +18,8 @@ param (
 )
 
 $ProgressPreference = "SilentlyContinue"; # Disable invoke-webrequest progress dialog
-# list of locale keywords
-$locales = "/en-us/"
+# Regex of the locale keywords.
+$locale = "/en-us/"
 
 function NormalizeUrl([string]$url){
   if (Test-Path $url) {
@@ -67,7 +67,10 @@ function ResolveUri ([System.Uri]$referralUri, [string]$link)
   }
 
   $linkUri = [System.Uri]$link;
-  if(-Not $checkLinkGuidance) {
+  # Relative link check is gated by flag $checkLinkGuidance. 
+  # Allows to use relative link by default for backward compatibility.
+  # TODO: Need to disallow relative links in accordance with new sdk guidance.
+  if(!$checkLinkGuidance) {
     if (!$linkUri.IsAbsoluteUri) {
     # For rooted paths resolve from the baseUrl
       if ($link.StartsWith("/")) {
@@ -116,20 +119,19 @@ function ParseLinks([string]$baseUri, [string]$htmlContent)
 
 function CheckLink ([System.Uri]$linkUri)
 {
-  if ($checkedLinks.ContainsKey($linkUri)) { return }
-  $badLinkEnabled = $false;
+  if ($checkedLinks.ContainsKey($linkUri)) { return $checkedLinks[$linkUri]}
 
+  $linkValid = $true
   Write-Verbose "Checking link $linkUri..."  
 
   if ($linkUri.IsFile) {
     if (!(Test-Path $linkUri.LocalPath)) {
       LogWarning "Link to file does not exist $($linkUri.LocalPath)"
       $script:badLinks += $linkUri
-      $badLinkEnabled = $true
+      $linkValid = $false
     }
   }
   else {
-
     try {
       $headRequestSucceeded = $true
       try {
@@ -159,7 +161,7 @@ function CheckLink ([System.Uri]$linkUri)
       if ($statusCode -in $errorStatusCodes) {
         LogWarning "[$statusCode] broken link $linkUri"
         $script:badLinks += $linkUri 
-        $badLinkEnabled = $true
+        $linkValid = $false
       }
       else {
         if ($null -ne $statusCode) {
@@ -174,14 +176,15 @@ function CheckLink ([System.Uri]$linkUri)
   }
   
   # Check if link uri includes locale info.
-  if ($checkLinkGuidance -and $linkUri -match $locale) {
+  if ($checkLinkGuidance -and ($linkUri -match $locale)) {
     LogWarning "DO NOT include locale $locale information in links: $linkUri."
-    if (-Not $badLinkEnabled) {
+    if ($linkValid) {
       $script:badLinks += $linkUri
+      $linkValid = $false
     }
   }
-
-  $checkedLinks[$linkUri] = $true;
+  $checkedLinks[$linkUri] = $linkValid
+  return $linkValid
 }
 
 function GetLinks([System.Uri]$pageUri)
