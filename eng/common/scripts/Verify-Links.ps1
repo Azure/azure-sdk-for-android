@@ -14,7 +14,11 @@ param (
   # list of http status codes count as broken links. Defaults to 400, 401, 404, SocketError.HostNotFound = 11001, SocketError.NoData = 11004
   [array] $errorStatusCodes = @(400, 401, 404, 11001, 11004),
   # flag to allow resolving relative paths or not
-  [bool] $resolveRelativeLinks = $true
+  [bool] $resolveRelativeLinks = $true,
+  # development repo owner from pr
+  [string] $branchReplaceRegex = "",
+  # development repo branch from pr
+  [string] $branchReplacementName = ""
 )
 
 $ProgressPreference = "SilentlyContinue"; # Disable invoke-webrequest progress dialog
@@ -167,6 +171,13 @@ function CheckLink ([System.Uri]$linkUri)
   }
   $checkedLinks[$linkUri] = $true;
 }
+$ReplacementPattern = "`${1}$branchReplacementName`$3"
+function ReplaceGithubLink([string]$originLink) {
+  if ($branchReplacementName -eq "") {
+    return $originLink
+  }
+  return $originLink -replace $branchReplaceRegex, $ReplacementPattern
+}
 
 function GetLinks([System.Uri]$pageUri)
 {
@@ -245,6 +256,8 @@ while ($pageUrisToCheck.Count -ne 0)
   Write-Host "Found $($linkUris.Count) links on page $pageUri";
   
   foreach ($linkUri in $linkUris) {
+    $linkUri = ReplaceGithubLink $linkUri
+
     CheckLink $linkUri
     if ($recursive) {
       if ($linkUri.ToString().StartsWith($baseUrl) -and !$checkedPages.ContainsKey($linkUri)) {

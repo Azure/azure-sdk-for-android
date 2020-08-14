@@ -3,17 +3,18 @@
 
 parameters:
   BaseBranchName: $(Build.SourceBranch)
-  PRBranchName: not-specified
-  PROwner: azure-sdk
+  PRBranchName: create_tag_label
+  PROwner: sima-zhu
   CommitMsg: not-specified
   RepoOwner: Azure
-  RepoName: not-specified
+  RepoName: azure-sdk-tools
   PushArgs:
   WorkingDirectory: $(System.DefaultWorkingDirectory)
-  PRTitle: not-specified
+  PRTitle: "I am test."
   ScriptDirectory: eng/common/scripts
   GHReviewersVariable: '' 
   GHTeamReviewersVariable: ''
+  PRLabel: 'bug'
 
 steps:
 
