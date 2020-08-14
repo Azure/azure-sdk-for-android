@@ -22,7 +22,7 @@ param (
 )
 
 $ProgressPreference = "SilentlyContinue"; # Disable invoke-webrequest progress dialog
-$GithubRegex = "($sourceRepoUrl/blob/)(.*)(/.*)"
+$GithubRegex = "($sourceRepoUrl/blob/)(\w+)(/.*)"
 
 
 function NormalizeUrl([string]$url){
