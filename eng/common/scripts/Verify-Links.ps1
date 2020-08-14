@@ -16,9 +16,9 @@ param (
   # flag to allow resolving relative paths or not
   [bool] $resolveRelativeLinks = $true,
   # development repo owner from pr
-  [string] $sourceCommit = "",
+  [string] $branchReplaceRegex = "",
   # development repo branch from pr
-  [string] $sourceRepoUrl = ""
+  [string] $branchReplacementName = ""
 )
 
 $ProgressPreference = "SilentlyContinue"; # Disable invoke-webrequest progress dialog
@@ -155,8 +155,8 @@ function CheckLink ([System.Uri]$linkUri)
       }
 
       if ($statusCode -in $errorStatusCodes) {
-          LogWarning "[$statusCode] broken link $linkUri"
-          $script:badLinks += $linkUri 
+        LogWarning "[$statusCode] broken link $linkUri"
+        $script:badLinks += $linkUri 
       }
       else {
         if ($null -ne $statusCode) {
@@ -171,10 +171,12 @@ function CheckLink ([System.Uri]$linkUri)
   }
   $checkedLinks[$linkUri] = $true;
 }
-$GithubRegex = "($sourceRepoUrl/blob/)(\w+)(/.*)"
 $ReplacementPattern = "`${1}$sourceCommit`$3"
 function ReplaceGithubLink([string]$originLink) {
-  return $originLink -replace $GithubRegex, $ReplacementPattern
+  if ($sourceCommit -eq "") {
+    return $originLink
+  }
+  return $originLink -replace $branchReplaceRegex, $ReplacementPattern
 }
 
 function GetLinks([System.Uri]$pageUri)
