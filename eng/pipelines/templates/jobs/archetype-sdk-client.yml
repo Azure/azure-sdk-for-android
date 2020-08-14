@@ -27,6 +27,7 @@ jobs:
         artifact: packages
         displayName: Publish packages
 
+      - template: ../../../common/pipelines/template/steps/create-pull-request.yml
   - job: 'Analyze'
 
     variables:
@@ -36,7 +37,6 @@ jobs:
       vmImage: '$(OSVmImage)'
 
     steps:
-      - template: ../../../common/pipelines/template/steps/create-pull-request.yml
 
       - template: ../../../common/pipelines/templates/steps/verify-links.yml
         parameters:
