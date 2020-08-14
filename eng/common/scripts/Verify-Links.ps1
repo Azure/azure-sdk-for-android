@@ -254,9 +254,7 @@ while ($pageUrisToCheck.Count -ne 0)
   Write-Host "Found $($linkUris.Count) links on page $pageUri";
   
   foreach ($linkUri in $linkUris) {
-    if (IsGithubLinkInCurrentRepo $linkUri) {
-      $linkUri = ReplaceGithubLink $linkUri
-    }
+    $linkUri = ReplaceGithubLink $linkUri
 
     CheckLink $linkUri
     if ($recursive) {
