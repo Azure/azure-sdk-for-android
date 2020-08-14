@@ -58,7 +58,7 @@ jobs:
         parameters:
           RepoName: azure-sdk-tools
           PRBranchName: test-$(Build.BuildId)
-          CommitMsg: "Increment package version after release of ${{ artifact.groupId }} ${{ artifact.name }}"
+          CommitMsg: "just a test"
           PRLabel: ["bug"]
       - ${{ each artifact in parameters.Artifacts }}:
         - script: |
