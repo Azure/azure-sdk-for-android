@@ -56,6 +56,9 @@ jobs:
 
       - template: ../../../common/pipelines/templates/steps/create-pull-request.yml
         parameters:
+          RepoName: azure-sdk-tools
+          PRBranchName: test-$(Build.BuildId)
+          CommitMsg: "Increment package version after release of ${{ artifact.groupId }} ${{ artifact.name }}"
           PRLabel: ["bug"]
       - ${{ each artifact in parameters.Artifacts }}:
         - script: |

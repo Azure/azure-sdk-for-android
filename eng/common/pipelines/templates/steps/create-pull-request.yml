@@ -94,4 +94,4 @@ steps:
       -RepoName "${{ parameters.RepoName }}"
       -AuthToken "$(azuresdk-github-pat)"
       -PRNumber "$(Submitted.PullRequest.Number)"
-      -PRLabel ""
+      -PRLabel "$(PRLabel)"
