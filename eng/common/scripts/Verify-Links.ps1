@@ -16,13 +16,13 @@ param (
   # flag to allow resolving relative paths or not
   [bool] $resolveRelativeLinks = $true,
   # development repo owner from pr
-  [string] $prOwner = "",
+  [string] $sourceCommit = "",
   # development repo branch from pr
-  [string] $prBranch = ""
+  [string] $sourceRepoUrl = ""
 )
 
 $ProgressPreference = "SilentlyContinue"; # Disable invoke-webrequest progress dialog
-$GithubRegex = "(.*github.com/)(.*)"
+$GithubRegex = "$sourceRepoUrl(.*)(/.*)"
 
 function NormalizeUrl([string]$url){
   if (Test-Path $url) {
@@ -173,27 +173,8 @@ function CheckLink ([System.Uri]$linkUri)
   $checkedLinks[$linkUri] = $true;
 }
 
-function IsGithubLinkInCurrentRepo([string]$link) {
-  if ($link -match $GithubRegex -and ($link -match $targetUrl)) {
-    return $true
-  }
-}
-
 function ReplaceGithubLink([string]$originLink) {
-  $prefix = $originLink -replace $GithubRegex, '$1'
-  $originLink = $originLink -replace $GithubRegex, '$2'
-  $groups = $originLink -split '/'
-  $currentNamesLine = $prOwner -replace $GithubRegex, '$2'
-  $currentNames = $currentNamesLine -split '/'
-  $replaceOne = $currentNames[0]
-  $groups[0] = $replaceOne
-  Write-Host "Check what we have in group 0 $groups[0]"
-  if ($groups.Count -gt 3) {
-    $groups[3] = $prBranch
-  }
-  $result = $groups -join '/'
-  Write-Host "This is the replaced one $result"
-  return $prefix + $result
+  return $originLink -replace $GithubRegex, '$1$sourceCommit$3'
 }
 
 function GetLinks([System.Uri]$pageUri)
@@ -234,9 +215,7 @@ function GetLinks([System.Uri]$pageUri)
 
   return $links;
 }
-Write-Host "This is pr owner $targeUrl"
-Write-Host "This is pr owner $prOwner"
-Write-Host "This is pr owner $prBranch"
+
 if ($urls) {
   if ($urls.Count -eq 0) {
     Write-Host "Usage $($MyInvocation.MyCommand.Name) <urls>";
