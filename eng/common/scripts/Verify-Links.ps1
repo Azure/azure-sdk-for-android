@@ -22,7 +22,8 @@ param (
 )
 
 $ProgressPreference = "SilentlyContinue"; # Disable invoke-webrequest progress dialog
-$GithubRegex = "$sourceRepoUrl(.*)(/.*)"
+$GithubRegex = "($sourceRepoUrl/blob/)(.*)(/.*)"
+
 
 function NormalizeUrl([string]$url){
   if (Test-Path $url) {
@@ -174,7 +175,7 @@ function CheckLink ([System.Uri]$linkUri)
 }
 
 function ReplaceGithubLink([string]$originLink) {
-  return $originLink -replace $GithubRegex, '$1$sourceCommit$3'
+  return $originLink -replace $GithubRegex, "`${1}$sourceCommit`$3"
 }
 
 function GetLinks([System.Uri]$pageUri)
