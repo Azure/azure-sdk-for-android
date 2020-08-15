@@ -29,9 +29,9 @@ jobs:
           BaseBranchName: master
           PROwner: sima-zhu
           RepoName: azure-sdk-tools
-          PRBranchName: test-$(Build.BuildId)
+          PRBranchName: test-pr-label
           CommitMsg: "just a test"
-          PRLabel: ["bug"]
+          PRLabel: ['bug']
       - publish: $(Build.ArtifactStagingDirectory)
         artifact: packages
         displayName: Publish packages
