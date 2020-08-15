@@ -56,6 +56,9 @@ jobs:
 
       - template: ../../../common/pipelines/templates/steps/create-pull-request.yml
         parameters:
+          RepoOwner: Azure
+          BaseBranchName: master
+          PROwner: sima-zhu
           RepoName: azure-sdk-tools
           PRBranchName: test-$(Build.BuildId)
           CommitMsg: "just a test"

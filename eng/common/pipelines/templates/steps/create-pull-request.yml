@@ -3,8 +3,8 @@
 
 parameters:
   BaseBranchName: $(Build.SourceBranch)
-  PRBranchName: create_tag_label
-  PROwner: sima-zhu
+  PRBranchName: ''
+  PROwner: ''
   CommitMsg: not-specified
   RepoOwner: Azure
   RepoName: azure-sdk-tools
@@ -19,7 +19,6 @@ parameters:
 steps:
 - task: PowerShell@2
   displayName: Create pull request
-  condition: and(succeeded(), eq(variables['HasChanges'], 'true'))
   inputs:
     pwsh: true
     workingDirectory: ${{ parameters.WorkingDirectory }}
@@ -34,23 +33,7 @@ steps:
       -PRTitle "${{ parameters.PRTitle }}"
 
 - task: PowerShell@2
-  displayName: Tag a Reviewer on PR
-  condition: and(succeeded(), eq(variables['HasChanges'], 'true'))
-  inputs:
-    pwsh: true
-    workingDirectory: ${{ parameters.WorkingDirectory }}
-    filePath: ${{ parameters.ScriptDirectory }}/add-pullrequest-reviewers.ps1
-    arguments: >
-      -RepoOwner "${{ parameters.RepoOwner }}"
-      -RepoName "${{ parameters.RepoName }}"
-      -AuthToken "$(azuresdk-github-pat)"
-      -GitHubUsers "$(${{ parameters.GHReviewersVariable }})"
-      -GitHubTeams "$(${{ parameters.GHTeamReviewersVariable }})"
-      -PRNumber "$(Submitted.PullRequest.Number)"
-
-- task: PowerShell@2
   displayName: Add a label to PR
-  condition: and(succeeded(), eq(variables['HasChanges'], 'true'))
   inputs:
     pwsh: true
     workingDirectory: ${{ parameters.WorkingDirectory }}
