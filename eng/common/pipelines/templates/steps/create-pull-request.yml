@@ -34,6 +34,7 @@ steps:
 
 - task: PowerShell@2
   displayName: Add a label to PR
+  condition: and(succeeded(), eq(variables['HasChanges'], 'true'))
   inputs:
     pwsh: true
     workingDirectory: ${{ parameters.WorkingDirectory }}

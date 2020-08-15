@@ -23,6 +23,15 @@ jobs:
             $artifactsToStage | Copy-Item -Destination $stagingLocation
           displayName: Stage ${{artifact.name}} for upload
 
+      - template: ../../../common/pipelines/templates/steps/create-pull-request.yml
+        parameters:
+          RepoOwner: Azure
+          BaseBranchName: master
+          PROwner: sima-zhu
+          RepoName: azure-sdk-tools
+          PRBranchName: test-$(Build.BuildId)
+          CommitMsg: "just a test"
+          PRLabel: ["bug"]
       - publish: $(Build.ArtifactStagingDirectory)
         artifact: packages
         displayName: Publish packages
@@ -54,15 +63,6 @@ jobs:
           pmdRunAnalysis: true
         displayName: Build and analyze
 
-      - template: ../../../common/pipelines/templates/steps/create-pull-request.yml
-        parameters:
-          RepoOwner: Azure
-          BaseBranchName: master
-          PROwner: sima-zhu
-          RepoName: azure-sdk-tools
-          PRBranchName: test-$(Build.BuildId)
-          CommitMsg: "just a test"
-          PRLabel: ["bug"]
       - ${{ each artifact in parameters.Artifacts }}:
         - script: |
             mkdir -p $(Build.ArtifactStagingDirectory)/lint
