@@ -1,21 +1,29 @@
-pr:
-  branches:
-    include:
-      - master
 parameters:
   Directory: 'not-specified'
   IgnoreLinksFile: "$(Build.SourcesDirectory)/eng/ignore-links.txt"
+  replacement: ''
+
 steps:
-  - task: PowerShell@2
-    displayName: Link verification check
-    inputs:
-      pwsh: true
-      workingDirectory: $(Build.SourcesDirectory)/${{ parameters.Directory }}
-      filePath: eng/common/scripts/Verify-Links.ps1 
-      arguments: >
-        -urls $(dir -r -i *.md) 
-        -rootUrl "file://$(Build.SourcesDirectory)/${{ parameters.Directory }}" 
-        -recursive $false 
-        -ignoreLinksFile ${{ parameters.IgnoreLinksFile }}
-        -branchReplaceRegex "(https://github.com/.*/blob/)master(/.*)"
-        -branchReplacementName "$(system.pullRequest.sourceCommitId)"
+- pwsh: |
+    try {
+      ${{parameter.replacment}} = $(system.pullRequest.sourceCommitId)
+    } catch {
+      echo "It is not a pr triggered build."
+    }
+
+  displayName: Check for PR
+  workingDirectory: ${{ parameters.WorkingDirectory }}
+  ignoreLASTEXITCODE: true
+- task: PowerShell@2
+  displayName: Link verification check
+  inputs:
+    pwsh: true
+    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.Directory }}
+    filePath: eng/common/scripts/Verify-Links.ps1 
+    arguments: >
+      -urls $(dir -r -i *.md) 
+      -rootUrl "file://$(Build.SourcesDirectory)/${{ parameters.Directory }}" 
+      -recursive $false 
+      -ignoreLinksFile ${{ parameters.IgnoreLinksFile }}
+      -branchReplaceRegex "(https://github.com/.*/blob/)master(/.*)"
+      -branchReplacementName "${{ parameters.replacement }}"
