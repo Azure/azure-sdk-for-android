@@ -1,12 +1,13 @@
+variables:
+  replacement: ''
 parameters:
   Directory: 'not-specified'
   IgnoreLinksFile: "$(Build.SourcesDirectory)/eng/ignore-links.txt"
-  replacement: ''
-
+  
 steps:
 - pwsh: |
     try {
-      $(parameter.replacment) = $(system.pullRequest.sourceCommitId)
+      $(variables.replacment) = $(system.pullRequest.sourceCommitId)
     } catch {
       echo "It is not a pr triggered build."
     }
