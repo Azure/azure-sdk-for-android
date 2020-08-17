@@ -6,7 +6,7 @@ parameters:
 steps:
 - pwsh: |
     try {
-      ${{parameter.replacment}} = $(system.pullRequest.sourceCommitId)
+      $(parameter.replacment) = $(system.pullRequest.sourceCommitId)
     } catch {
       echo "It is not a pr triggered build."
     }
