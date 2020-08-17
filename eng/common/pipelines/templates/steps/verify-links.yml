@@ -25,4 +25,4 @@ steps:
       -recursive $false 
       -ignoreLinksFile ${{ parameters.IgnoreLinksFile }}
       -branchReplaceRegex "(https://github.com/.*/blob/)master(/.*)"
-      -branchReplacementName $(variables['replacedBranch'])
+      -branchReplacementName $(replacedBranch)
