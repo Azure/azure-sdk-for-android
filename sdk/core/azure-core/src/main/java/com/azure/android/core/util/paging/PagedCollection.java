@@ -60,10 +60,7 @@ public class PagedCollection<T, P extends Page<T>> implements Iterable<T> {
                         items = page.getItems();
                         currentItem = 0;
                         itNextPageId = nextPageId;
-
-                        if (items != null) {
-                            hasNext = true;
-                        }
+                        hasNext = items != null;
                     }
 
                     @Override
