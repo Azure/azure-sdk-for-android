@@ -1,5 +1,3 @@
-variables:
-  replacement: ''
 parameters:
   Directory: 'not-specified'
   IgnoreLinksFile: "$(Build.SourcesDirectory)/eng/ignore-links.txt"
@@ -7,7 +5,7 @@ parameters:
 steps:
 - pwsh: |
     try {
-      $(variables.replacment) = $(system.pullRequest.sourceCommitId)
+      echo "##vso[task.setvariable variable=replacedBranch]$(system.pullRequest.sourceCommitId)"
     } catch {
       echo "It is not a pr triggered build."
     }
@@ -27,4 +25,4 @@ steps:
       -recursive $false 
       -ignoreLinksFile ${{ parameters.IgnoreLinksFile }}
       -branchReplaceRegex "(https://github.com/.*/blob/)master(/.*)"
-      -branchReplacementName "${{ variables.replacement }}"
+      -branchReplacementName $(variables['HasChanges'])
