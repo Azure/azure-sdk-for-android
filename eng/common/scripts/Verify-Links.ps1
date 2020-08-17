@@ -173,11 +173,9 @@ function CheckLink ([System.Uri]$linkUri)
 }
 
 function ReplaceGithubLink([string]$originLink) {
-  Write-Verbose "what is in the branch input? $branchReplacementName"
   if (-not $branchReplacementName) {
     try {
       $branchReplacementName = $(system.pullRequest.sourceCommitId)
-      Write-Verbose "what is in the sourceCommit? $(system.pullRequest.sourceCommitId)"
       if (-not $branchReplacementName) {
         return $originLink
       }
