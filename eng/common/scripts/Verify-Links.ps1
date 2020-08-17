@@ -237,7 +237,7 @@ if ($PSVersionTable.PSVersion.Major -lt 6)
 {
   LogWarning "Some web requests will not work in versions of PS earlier then 6. You are running version $($PSVersionTable.PSVersion)."
 }
-
+Write-Host "this is recursive value $recursive"
 $badLinks = @();
 $ignoreLinks = @();
 if (Test-Path $ignoreLinksFile)
