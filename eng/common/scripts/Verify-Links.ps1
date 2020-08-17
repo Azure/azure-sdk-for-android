@@ -174,20 +174,11 @@ function CheckLink ([System.Uri]$linkUri)
 
 function ReplaceGithubLink([string]$originLink) {
   if (-not $branchReplacementName) {
-    try {
-      $branchReplacementName = $(system.pullRequest.sourceCommitId)
-      if (-not $branchReplacementName) {
-        return $originLink
-      }
-      $ReplacementPattern = "`${1}$branchReplacementName`$2"
-      return $originLink -replace $branchReplaceRegex, $ReplacementPattern 
-    } 
-    catch {
-      Write-Verbose "It is not triggered by pull request. Skip the replace link steps."
-      return $originLink
-    }
+    return $originLink
+
   }
-  return $originLink -replace $branchReplaceRegex, "`${1}$branchReplacementName`$2" 
+  $ReplacementPattern = "`${1}$branchReplacementName`$2"
+  return $originLink -replace $branchReplaceRegex, $ReplacementPattern 
 }
 
 function GetLinks([System.Uri]$pageUri)
