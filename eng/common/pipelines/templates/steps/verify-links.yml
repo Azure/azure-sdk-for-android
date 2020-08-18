@@ -3,16 +3,6 @@ parameters:
   IgnoreLinksFile: "$(Build.SourcesDirectory)/eng/ignore-links.txt"
   
 steps:
-- pwsh: |
-    try {
-      echo "##vso[$(system.pullRequest.sourceCommitId)]"
-    } catch {
-      echo "It is not a pr triggered build."
-    }
-  displayName: Check for PR
-  workingDirectory: ${{ parameters.WorkingDirectory }}
-  ignoreLASTEXITCODE: true
-
 - task: PowerShell@2
   displayName: Link verification check
   inputs:
