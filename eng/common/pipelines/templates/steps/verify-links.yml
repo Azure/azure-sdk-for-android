@@ -25,4 +25,4 @@ steps:
       -recursive: $false 
       -ignoreLinksFile ${{ parameters.IgnoreLinksFile }}
       -branchReplaceRegex "(https://github.com/.*/blob/)master(/.*)"
-      -branchReplacementName $(variables['system.pullRequest.sourceCommitId'])
+      -branchReplacementName $env:SYSTEM_PULLREQUEST_SOURCECOMMITID
