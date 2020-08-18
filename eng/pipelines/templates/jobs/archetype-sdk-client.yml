@@ -38,8 +38,6 @@ jobs:
     steps:
 
       - template: ../../../common/pipelines/templates/steps/verify-links.yml
-        parameters:
-          Directory: sdk/${{ parameters.ServiceDirectory }}
 
       - script: |
           ./gradlew sdk:${{parameters.ServiceDirectory}}:lintDebug
