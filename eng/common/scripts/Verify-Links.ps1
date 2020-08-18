@@ -219,7 +219,7 @@ function GetLinks([System.Uri]$pageUri)
 
   return $links;
 }
-
+Write-Host "This is commit $branchReplacementName."
 if ($urls) {
   if ($urls.Count -eq 0) {
     Write-Host "Usage $($MyInvocation.MyCommand.Name) <urls>";
