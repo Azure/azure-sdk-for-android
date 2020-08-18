@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.io.IOException;
 
 import okhttp3.Request;
+import okio.Timeout;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -30,6 +31,12 @@ public class ServiceCallTest {
         @SuppressWarnings("NullableProblems")
         @Override
         public Response<Void> execute() throws IOException {
+            return null;
+        }
+
+        @SuppressWarnings("NullableProblems")
+        @Override
+        public Timeout timeout() {
             return null;
         }
 

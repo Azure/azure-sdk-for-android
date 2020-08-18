@@ -7,8 +7,8 @@ buildscript {
     }
 
     ext {
-        androidBuildToolsVersion = "29.0.3"
-        androidGradlePluginVersion = "4.0.0"
+        androidBuildToolsVersion = "30.0.1"
+        androidGradlePluginVersion = "4.0.1"
         androidJunitJacocoGradlePluginVersion = "0.16.0"
         jacocoVersion = "0.8.5"
     }
@@ -29,12 +29,12 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
     group = "com.azure.android"
 
     android {
-        compileSdkVersion 29
+        compileSdkVersion 30
         buildToolsVersion "$androidBuildToolsVersion"
 
         defaultConfig {
             minSdkVersion 21
-            targetSdkVersion 29
+            targetSdkVersion 30
             testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         }
 
@@ -50,6 +50,18 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
             textOutput 'stdout'
             explainIssues false
             abortOnError true
+        }
+
+        packagingOptions {
+            exclude 'META-INF/DEPENDENCIES'
+            exclude 'META-INF/LICENSE'
+            exclude 'META-INF/license'
+            exclude 'META-INF/NOTICE'
+            exclude 'META-INF/notice'
+            exclude 'META-INF/ASL2.0'
+            exclude("META-INF/*.md")
+            exclude("META-INF/*.txt")
+            exclude("META-INF/*.kotlin_module")
         }
 
         buildTypes {
@@ -148,19 +160,19 @@ allprojects {
 
     ext {
         annotationsVersion = "1.1.0"
-        appCompatVersion = "1.1.0"
+        appCompatVersion = "1.2.0"
         archCoreTestVersion = "2.1.0"
         concurrentFuturesVersion = "1.0.0"
-        jUnitVersion = "4.12"
-        jacksonVersion = "2.9.9"
+        jUnitVersion = "4.13"
+        jacksonVersion = "2.11.2"
         lifecycleVersion = "2.2.0"
-        okHttpVersion = "3.13.1"
-        retrofitVersion = "2.6.2"
+        okHttpVersion = "3.14.9"
+        retrofitVersion = "2.9.0"
         roomVersion = "2.2.5"
         staxApiVersion = "1.0-2"
-        threeTenAbpVersion = "1.2.1"
-        threeTenBpVersion = "1.4.0"
-        workVersion = "2.3.4"
+        threeTenAbpVersion = "1.2.4"
+        threeTenBpVersion = "1.4.4"
+        workVersion = "2.4.0"
     }
 }
 
