@@ -38,7 +38,7 @@ foreach  ($url in $urls) {
         continue
     }
     try {
-        markdownlint $url --ignore node_modules
+        npx markdownlint $url --ignore node_modules
     }
     catch {
         LogWarning $_.Exception.ToString()
