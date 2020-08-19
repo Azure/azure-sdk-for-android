@@ -21,12 +21,12 @@ function LogWarning
 }
 # Install the markdown lint package. The command is limited to linux. 
 # TODO: Fix command if it applies to other operating system.
-# try {
-#   sudo npm install -g markdownlint-cli
-# } 
-# catch {
-#   Write-Error "Something goes wrong with npm server."
-# }
+try {
+  sudo npm install -g markdownlint-cli
+} 
+catch {
+  Write-Error "Something goes wrong with npm server."
+}
 
 if ($urls) {
   if ($urls.Count -eq 0) {
