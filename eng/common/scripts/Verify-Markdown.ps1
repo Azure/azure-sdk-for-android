@@ -28,7 +28,7 @@ if ($urls) {
 }
 
 $ignoreLinks = @();
-if (Test-Path $ignoreLinksFile)
+if (Test-Path $ignoreMarkdownFile)
 {
   $ignoreLinks = [Array](Get-Content $ignoreLinksFile | ForEach-Object { ($_ -replace "#.*", "").Trim() } | Where-Object { $_ -ne "" })
 }
