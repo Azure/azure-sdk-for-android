@@ -41,7 +41,7 @@ if (Test-Path $ignoreMarkdownFile)
 {
   $ignoreLinks = [Array](Get-Content $ignoreMarkdownFile | ForEach-Object { ($_ -replace "#.*", "").Trim() } | Where-Object { $_ -ne "" })
 }
-
+Write-Host "2.Scaning markdown file ($ignoreLinks)"
 foreach  ($url in $urls) {
   
   if ($ignoreLinks.Contains($url)) {
