@@ -3,7 +3,7 @@ param (
   # url list to verify links. Can either be a http address or a local file request. Local file paths support md and html files.
   [string[]] $urls,
   # file that contains a set of links to ignore when verifying
-  [string] $ignoreMarkdownFile = "$PSScriptRoot/ignore-links.txt",
+  [string] $ignoreMarkdownFile = "$PSScriptRoot/ignore-markdowns.txt",
   # switch that will enable devops specific logging for warnings
   [switch] $devOpsLogging = $false
 )
