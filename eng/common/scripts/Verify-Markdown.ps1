@@ -29,10 +29,10 @@ catch {
 }
 
 if ($urls) {
-    if ($urls.Count -eq 0) {
-        Write-Host "Usage $($MyInvocation.MyCommand.Name) <urls>";
-        exit 1;
-    }  
+  if ($urls.Count -eq 0) {
+    Write-Host "Usage $($MyInvocation.MyCommand.Name) <urls>";
+    exit 1;
+  }  
 }
 
 $ignoreLinks = @();
@@ -42,14 +42,15 @@ if (Test-Path $ignoreMarkdownFile)
 }
 
 foreach  ($url in $urls) {
+  Write-Host "1.Scaning markdown file $(url)"
   if ($ignoreLinks.Contains($url)) {
-      continue
+    continue
   }
   try {
-    Write-Verbose "Scaning markdown file $url"
+    Write-Verbose "Scaning markdown file $(url)"
     markdownlint $url
   }
   catch {
-      LogWarning $_.Exception.ToString()
+    LogWarning $_.Exception.ToString()
   }
 }
