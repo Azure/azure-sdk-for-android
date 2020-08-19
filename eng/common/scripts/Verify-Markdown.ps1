@@ -19,6 +19,13 @@ function LogWarning
     Write-Warning "$args"
   }
 }
+# Install the markdown lint package
+try {
+  npm install -g markdownlint-cli
+} 
+catch {
+  Write-Error "Something wrong goes with npm server."
+}
 
 if ($urls) {
     if ($urls.Count -eq 0) {
