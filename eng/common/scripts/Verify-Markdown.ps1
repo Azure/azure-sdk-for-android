@@ -43,9 +43,9 @@ if (Test-Path $ignoreMarkdownFile)
 }
 Write-Host "2.Scaning markdown file ($ignoreLinks)"
 foreach  ($url in $urls) {
-  
-  if ($ignoreLinks.Contains($url)) {
-    continue
+  if ($null -ne $ignoreLinks -and $ignoreLinks.Contains($url)) {
+    Write-Verbose "Ignoring invalid link $linkUri because it is in the ignore file."
+    return $null
   }
   try {
     Write-Verbose "Scaning markdown file ($url)"
