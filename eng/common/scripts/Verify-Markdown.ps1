@@ -19,12 +19,13 @@ function LogWarning
     Write-Warning "$args"
   }
 }
-# Install the markdown lint package
+# Install the markdown lint package. The command is limited to linux. 
+# TODO: Fix command if it applies to other operating system.
 try {
-  npm install -g markdownlint-cli
+  sudo npm install -g markdownlint-cli
 } 
 catch {
-  Write-Error "Something wrong goes with npm server."
+  Write-Error "Something goes wrong with npm server."
 }
 
 if ($urls) {
@@ -45,7 +46,7 @@ foreach  ($url in $urls) {
         continue
     }
     try {
-      markdownlint $url --ignore node_modules
+      markdownlint $url
     }
     catch {
         LogWarning $_.Exception.ToString()
