@@ -42,13 +42,14 @@ if (Test-Path $ignoreMarkdownFile)
 }
 
 foreach  ($url in $urls) {
-    if ($ignoreLinks.Contains($url)) {
-        continue
-    }
-    try {
-      markdownlint $url
-    }
-    catch {
-        LogWarning $_.Exception.ToString()
-    }
+  if ($ignoreLinks.Contains($url)) {
+      continue
+  }
+  Write-Verbose "Scaning markdown file $url"
+  try {
+    markdownlint $url
+  }
+  catch {
+      LogWarning $_.Exception.ToString()
+  }
 }
