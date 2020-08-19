@@ -45,8 +45,8 @@ foreach  ($url in $urls) {
   if ($ignoreLinks.Contains($url)) {
       continue
   }
-  Write-Verbose "Scaning markdown file $url"
   try {
+    Write-Verbose "Scaning markdown file $url"
     markdownlint $url
   }
   catch {
