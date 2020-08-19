@@ -1,0 +1,21 @@
+parameters:
+  Directory: 'not-specified'
+  IgnoreMarkdownFile: "$(Build.SourcesDirectory)/eng/ignore-markdowns.txt"
+  MarkdownFiles: $(dir -r -i *.md) 
+
+steps:
+- script: |
+    call npm install -g markdownlint-cli
+  displayName: Install MarkdownLint CLI
+ 
+- task: PowerShell@2
+  displayName: Lint Markdown files
+  inputs:
+    pwsh: true
+    workingDirectory: $(Build.SourcesDirectory)/${{ parameters.Directory }}
+    filePath: eng/common/scripts/Verify-Markdown.ps1 
+    arguments: >
+      -urls ${{ parameters.MarkdownFiles }}
+      -rootUrl "file://$(Build.SourcesDirectory)/${{ parameters.Directory }}" 
+      -recursive: $false 
+      -ignoreMarkdownFile ${{ parameters.IgnoreMarkdownFile }}
