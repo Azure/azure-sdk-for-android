@@ -1,1 +1,1 @@
-/eng/common/TestResources/New-TestResources.ps1.md
+./eng/common/TestResources/New-TestResources.ps1.md

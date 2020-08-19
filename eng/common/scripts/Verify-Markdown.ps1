@@ -39,18 +39,18 @@ $ignoreLinks = @();
 Write-Host "1.Scaning markdown file ($ignoreMarkdownFile)"
 if (Test-Path $ignoreMarkdownFile)
 {
-  $ignoreLinks = [Array](Get-Content $ignoreMarkdownFile | ForEach-Object { ($_ -replace "#.*", "").Trim() } | Where-Object { $_ -ne "" })
+  $ignoreLinks = [Array](Get-Content $ignoreMarkdownFile | ForEach-Object { (Resolve-Path $_.Trim()).toString() } | Where-Object { $_ -ne "" })
 }
 Write-Host "2.Scaning markdown file ($ignoreLinks)"
 foreach  ($url in $urls) {
-  # $linkUri = [System.Uri]$url;
-  # if ($null -ne $ignoreLinks -and $ignoreLinks.Contains($linkUri.)) {
-  #   Write-Verbose "Ignoring invalid link $linkUri because it is in the ignore file."
-  #   return $null
-  # }
+  if ($null -ne $ignoreLinks -and $ignoreLinks.Contains($url)) {
+    Write-Verbose "Ignoring invalid link $linkUri because it is in the ignore file."
+    continue
+  }
+
   try {
     Write-Verbose "Scaning markdown file ($url)"
-    markdownlint $url -i $ignoreLinks
+    markdownlint $url
   }
   catch {
     LogWarning $_.Exception.ToString()
