@@ -36,10 +36,13 @@ jobs:
       vmImage: '$(OSVmImage)'
 
     steps:
+      - template: ../../../common/pipelines/templates/steps/verify-markdown.yml
+        parameters:
+          Directory: ''
 
       - template: ../../../common/pipelines/templates/steps/verify-links.yml
         parameters:
-          Directory: sdk/${{ parameters.ServiceDirectory }}
+          Directory: ''
 
       - script: |
           ./gradlew sdk:${{parameters.ServiceDirectory}}:lintDebug
