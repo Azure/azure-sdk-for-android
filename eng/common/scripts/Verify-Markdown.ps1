@@ -38,7 +38,7 @@ if ($urls) {
 $ignoreLinks = @();
 if (Test-Path $ignoreMarkdownFile)
 {
-  $ignoreLinks = [Array](Get-Content $ignoreLinksFile | ForEach-Object { ($_ -replace "#.*", "").Trim() } | Where-Object { $_ -ne "" })
+  $ignoreLinks = [Array](Get-Content $ignoreMarkdownFile | ForEach-Object { ($_ -replace "#.*", "").Trim() } | Where-Object { $_ -ne "" })
 }
 
 foreach  ($url in $urls) {
