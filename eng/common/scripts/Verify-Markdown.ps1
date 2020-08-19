@@ -21,12 +21,12 @@ function LogWarning
 }
 # Install the markdown lint package. The command is limited to linux. 
 # TODO: Fix command if it applies to other operating system.
-try {
-  sudo npm install -g markdownlint-cli
-} 
-catch {
-  Write-Error "Something goes wrong with npm server."
-}
+# try {
+#   sudo npm install -g markdownlint-cli
+# } 
+# catch {
+#   Write-Error "Something goes wrong with npm server."
+# }
 
 if ($urls) {
   if ($urls.Count -eq 0) {
@@ -43,13 +43,14 @@ if (Test-Path $ignoreMarkdownFile)
 }
 Write-Host "2.Scaning markdown file ($ignoreLinks)"
 foreach  ($url in $urls) {
-  if ($null -ne $ignoreLinks -and $ignoreLinks.Contains($url)) {
-    Write-Verbose "Ignoring invalid link $linkUri because it is in the ignore file."
-    return $null
-  }
+  # $linkUri = [System.Uri]$url;
+  # if ($null -ne $ignoreLinks -and $ignoreLinks.Contains($linkUri.)) {
+  #   Write-Verbose "Ignoring invalid link $linkUri because it is in the ignore file."
+  #   return $null
+  # }
   try {
     Write-Verbose "Scaning markdown file ($url)"
-    markdownlint $url
+    markdownlint $url -i $ignoreLinks
   }
   catch {
     LogWarning $_.Exception.ToString()
