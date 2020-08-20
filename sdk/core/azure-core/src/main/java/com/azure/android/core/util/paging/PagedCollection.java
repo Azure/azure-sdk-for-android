@@ -34,8 +34,22 @@ public class PagedCollection<T, P extends Page<T>> implements Iterable<T> {
 
             @Override
             public boolean hasNext() {
-                if (items == null) {
-                    updateItems();
+                // If there are no items or the iterator is on the last item, get a page from the service.
+                if (items == null || currentItem == items.size() - 1) {
+                    pageRetriever.getPage(itNextPageId, DEFAULT_PAGE_SIZE, new PagingCallback<T, P>() {
+                        @Override
+                        public void onSuccess(P page, String currentPageId, String nextPageId) {
+                            items = page.getItems();
+                            currentItem = 0;
+                            itNextPageId = nextPageId;
+                            hasNext = items != null;
+                        }
+
+                        @Override
+                        public void onFailure(Throwable throwable) {
+                            throw new RuntimeException(throwable);
+                        }
+                    });
                 }
 
                 return hasNext;
@@ -43,31 +57,7 @@ public class PagedCollection<T, P extends Page<T>> implements Iterable<T> {
 
             @Override
             public T next() {
-                T item = items.get(currentItem++);
-
-                // If on the last item, get the next page from the service.
-                if (currentItem == items.size() - 1) {
-                    updateItems();
-                }
-
-                return item;
-            }
-
-            private void updateItems() {
-                pageRetriever.getPage(itNextPageId, DEFAULT_PAGE_SIZE, new PagingCallback<T, P>() {
-                    @Override
-                    public void onSuccess(P page, String currentPageId, String nextPageId) {
-                        items = page.getItems();
-                        currentItem = 0;
-                        itNextPageId = nextPageId;
-                        hasNext = items != null;
-                    }
-
-                    @Override
-                    public void onFailure(Throwable throwable) {
-                        throw new RuntimeException(throwable);
-                    }
-                });
+                return items.get(currentItem++);
             }
         };
     }
