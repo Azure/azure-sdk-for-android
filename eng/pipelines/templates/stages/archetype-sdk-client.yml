@@ -1,5 +1,6 @@
 parameters:
   Artifacts: []
+  ArtifactName: packages
   ServiceDirectory: not-specified
   
 stages:
@@ -9,6 +10,7 @@ stages:
       parameters:
         ServiceDirectory: ${{parameters.ServiceDirectory}}
         Artifacts: ${{parameters.Artifacts}}
+        ArtifactName: ${{parameters.ArtifactName}}
 
   # The Prerelease and Release stages are conditioned on whether we are building a pull request and the branch.
   - ${{if and(ne(variables['Build.Reason'], 'PullRequest'), eq(variables['System.TeamProject'], 'internal'))}}:
@@ -16,5 +18,5 @@ stages:
       parameters:
         DependsOn: Build
         Artifacts: ${{parameters.Artifacts}}
-        ArtifactName: packages
+        ArtifactName: ${{parameters.ArtifactName}}
         VerifyVersions: 'false'

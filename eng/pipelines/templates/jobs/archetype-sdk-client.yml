@@ -30,7 +30,7 @@ jobs:
 
       - publish: $(Build.ArtifactStagingDirectory)
         displayName: 'Publish Artifacts ${{parameters.ArtifactName}}'
-        artifact: '${{parameters.ArtifactName}}'
+        artifact: ${{parameters.ArtifactName}}
 
   - job: 'Analyze'
 
