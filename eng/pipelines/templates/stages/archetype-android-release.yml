@@ -56,11 +56,11 @@ stages:
               vmImage: ubuntu-18.04
 
             steps:
+              - task: UsePythonVersion@0
+                displayName: 'Use Python 3.6'
+                inputs:
+                  versionSpec: '3.6'
               # TODO: Fix release version verification and changelog verification.
-              # - task: UsePythonVersion@0
-              #   displayName: 'Use Python 3.6'
-              #   inputs:
-              #     versionSpec: '3.6'
 
               # - script: |
               #     python --version
