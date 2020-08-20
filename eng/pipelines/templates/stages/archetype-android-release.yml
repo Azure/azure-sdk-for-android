@@ -40,13 +40,13 @@ stages:
                   displayName: 'Store signed packages in ${{parameters.ArtifactName}}-signed artifact'
                   timeoutInMinutes: 5
 
-  # - ${{if and(eq(variables['Build.Reason'], 'Manual'), eq(variables['System.TeamProject'], 'internal'))}}:
-  #   - ${{ each artifact in parameters.Artifacts }}:
-  #     - stage: Release_${{artifact.safeName}}
-  #       displayName: 'Release: ${{artifact.name}}'
-  #       dependsOn: Signing
-  #       condition: and(succeeded(), ne(variables['SetDevVersion'], 'true'), ne(variables['Skip.Release'], 'true'), ne(variables['Build.Repository.Name'], 'Azure/azure-sdk-for-android-pr'))
-  #       jobs:
+  - ${{if and(eq(variables['Build.Reason'], 'Manual'), eq(variables['System.TeamProject'], 'internal'))}}:
+    - ${{ each artifact in parameters.Artifacts }}:
+      - stage: Release_${{artifact.safeName}}
+        displayName: 'Release: ${{artifact.name}}'
+        dependsOn: Signing
+        condition: and(succeeded(), ne(variables['SetDevVersion'], 'true'), ne(variables['Skip.Release'], 'true'), ne(variables['Build.Repository.Name'], 'Azure/azure-sdk-for-android-pr'))
+        jobs:
           # TODO: Add release version verification that will work for Android.
           # - job: VerifyReleaseVersion
           #   displayName: "Verify release version"
@@ -101,25 +101,25 @@ stages:
           #               ReleaseSha: $(Build.SourceVersion)
           #               RepoId: Azure/azure-sdk-for-java
 
-          # - ${{if ne(artifact.options.skipPublishPackage, 'true')}}:
-          #   - deployment: PublishPackage
-          #     displayName: "Publish to Maven Central"
-          #     condition: and(succeeded(), ne(variables['Skip.PublishPackage'], 'true'))
-          #     environment: maven
-          #     dependsOn: TagRepository
-          #     variables:
-          #       - template: ../variables/globals.yml
-          #     pool:
-          #       vmImage: vs2017-win2016
-          #     strategy:
-          #       runOnce:
-          #         deploy:
-          #           steps:
-          #             - checkout: self
-          #               path: azure-sdk-for-android
-          #             - checkout: azure-sdk-build-tools
-          #               path: azure-sdk-build-tools
-          #             - template: tools/gpg/gpg.yml@azure-sdk-build-tools
+          - ${{if ne(artifact.options.skipPublishPackage, 'true')}}:
+            - deployment: PublishPackage
+              displayName: "Publish to Maven Central"
+              condition: and(succeeded(), ne(variables['Skip.PublishPackage'], 'true'))
+              environment: maven
+              dependsOn: TagRepository
+              variables:
+                - template: ../variables/globals.yml
+              pool:
+                vmImage: vs2017-win2016
+              strategy:
+                runOnce:
+                  deploy:
+                    steps:
+                      - checkout: self
+                        path: azure-sdk-for-android
+                      - checkout: azure-sdk-build-tools
+                        path: azure-sdk-build-tools
+                      - template: tools/gpg/gpg.yml@azure-sdk-build-tools
                       # TODO: Disable Maven Central publishing whilst debugging.
                       # - template: /eng/pipelines/templates/steps/java-publishing.yml
                       #   parameters:
@@ -132,16 +132,15 @@ stages:
                       # After publishing to Maven, publish to the azure-sdk-for-java feed. The reason for
                       # this is that the azure-sdk-for-java feed will have the package available immediately
                       # whereas Maven can take several hours for the package to become available.
-                      # TODO: Figure out what we need to do here.
-                      # - template: /eng/pipelines/templates/steps/java-publishing.yml
-                      #   parameters:
-                      #     ArtifactID: ${{artifact.name}}
-                      #     GroupID: ${{artifact.groupId}}
-                      #     ArtifactDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed
-                      #     RepositoryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-android-scratch/maven/v1 # TODO: Hardcoded whilst tweaking this template.
-                      #     Target: JavaDevFeed
-                      #     BuildToolsPath: $(Pipeline.Workspace)/azure-sdk-build-tools
-                      #     JavaRepoRoot: $(Pipeline.Workspace)/azure-sdk-for-java
+                      - template: /eng/pipelines/templates/steps/java-publishing.yml
+                        parameters:
+                          ArtifactID: ${{artifact.name}}
+                          GroupID: ${{artifact.groupId}}
+                          ArtifactDirectory: $(Pipeline.Workspace)/${{parameters.ArtifactName}}-signed
+                          RepositoryUrl: https://pkgs.dev.azure.com/azure-sdk/public/_packaging/azure-sdk-for-android-scratch/maven/v1 # TODO: Hardcoded whilst tweaking this template.
+                          Target: AndroidDevFeed
+                          BuildToolsPath: $(Pipeline.Workspace)/azure-sdk-build-tools
+                          AndroidRepoRoot: $(Pipeline.Workspace)/azure-sdk-for-android
 
           # TODO: Implement docs.ms.com doc publishing.
           # - ${{if ne(artifact.options.skipPublishDocs, 'true')}}:
