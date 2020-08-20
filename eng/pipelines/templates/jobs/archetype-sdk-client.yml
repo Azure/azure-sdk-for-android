@@ -29,8 +29,8 @@ jobs:
               -InformationAction Continue
 
       - publish: $(Build.ArtifactStagingDirectory)
-        displayName: 'Publish Artifacts $(ArtifactName)'
-        artifact: '$(ArtifactName)'
+        displayName: 'Publish Artifacts ${{parameters.ArtifactName}}'
+        artifact: '${{parameters.ArtifactName}}'
 
   - job: 'Analyze'
 
