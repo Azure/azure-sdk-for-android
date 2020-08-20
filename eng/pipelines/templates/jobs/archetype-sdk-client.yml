@@ -17,15 +17,20 @@ jobs:
         displayName: Build and publish
 
       - ${{ each artifact in parameters.Artifacts }}:
-        - pwsh: |
-            $artifactsToStage = Get-ChildItem sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/repo/**/${{artifact.name}}* -Recurse | Where-Object -FilterScript { $_.Name -match "(jar|pom|aar|module)$" }
-            $stagingLocation = New-Item -Type Directory -Path $(Build.ArtifactStagingDirectory) -Name ${{artifact.name}}
-            $artifactsToStage | Copy-Item -Destination $stagingLocation
-          displayName: Stage ${{artifact.name}} for upload
+        - task: PowerShell@2
+          displayName: 'Copy artifacts to staging'
+          inputs:
+            pwsh: true
+            workingDirectory: $(Agent.BuildDirectory)
+            filePath: eng/scripts/Stage-MavenPackageArtifacts.ps1
+            arguments: >
+              -SourceDirectory ${{parameters.ServiceDirectory}}/${{artifact.name}}/build/repo
+              -TargetDirectory $(Build.ArtifactStagingDirectory)
+              -InformationAction Continue
 
       - publish: $(Build.ArtifactStagingDirectory)
-        artifact: packages
-        displayName: Publish packages
+        displayName: 'Publish Artifacts $(ArtifactName)'
+        artifact: '$(ArtifactName)'
 
   - job: 'Analyze'
 
