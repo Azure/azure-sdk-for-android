@@ -24,7 +24,7 @@ jobs:
             workingDirectory: $(Agent.BuildDirectory)
             filePath: eng/scripts/Stage-MavenPackageArtifacts.ps1
             arguments: >
-              -SourceDirectory ${{parameters.ServiceDirectory}}/${{artifact.name}}/build/repo
+              -SourceDirectory $(System.DefaultWorkingDirectory)/sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/repo
               -TargetDirectory $(Build.ArtifactStagingDirectory)
               -InformationAction Continue
 
