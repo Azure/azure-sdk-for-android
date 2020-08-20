@@ -15,7 +15,7 @@ jobs:
       - template: /eng/common/pipelines/templates/steps/daily-dev-build-variable.yml
 
       - script: |
-          ./gradlew sdk:${{parameters.ServiceDirectory}}:publish -Pversion=1.0.0-foo.1
+          ./gradlew sdk:${{parameters.ServiceDirectory}}:publish -Dversion=1.0.0-foo.1
         displayName: Build and publish
 
       - ${{ each artifact in parameters.Artifacts }}:
