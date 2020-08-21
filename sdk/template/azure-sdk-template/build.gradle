@@ -1,6 +1,6 @@
 ext.publishName = "Microsoft Azure Android Template Library"
 description = "This package is a template placeholder for the Azure SDK for Android clients."
-version = "1.0.0-beta.1"
+//version = "1.0.0-beta.1"
 ext.versionCode = 1
 
 android {
