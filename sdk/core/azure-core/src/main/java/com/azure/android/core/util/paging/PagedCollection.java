@@ -2,25 +2,72 @@ package com.azure.android.core.util.paging;
 
 import androidx.annotation.NonNull;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public class PagedCollection<T, P extends Page<T>> implements Iterable<T> {
-    private static final int DEFAULT_PAGE_SIZE = 25; // Is this a good size?
+    private static final int DEFAULT_PAGE_SIZE = 25; // Is this a good default size?
 
-    PageRetriever<T, P> pageRetriever;
+    private PageRetriever<T, P> pageRetriever;
+    private Integer pageSize;
+    private List<T> items;
+    private LinkedHashMap<String, P> pages;
+    private String nextPageId;
 
     public PagedCollection(PageRetriever<T, P> pageRetriever) {
+        this.pageSize = DEFAULT_PAGE_SIZE;
         this.pageRetriever = pageRetriever;
+        items = new ArrayList<>();
+        pages = new LinkedHashMap<>();
     }
 
-    public void nextPage(String pageId, int pageSize, PagingCallback<T, P> callback) {
-        pageRetriever.getPage(pageId, pageSize, callback);
+    public PagedCollection(PageRetriever<T, P> pageRetriever, Integer pageSize) {
+        this(pageRetriever);
+
+        if (pageSize == null || pageSize <= 0) {
+            throw new IllegalArgumentException("Page size must not be null and must be greater than zero.");
+        }
+
+        this.pageSize = pageSize;
     }
 
-    // Not sure sync method should be removed.
-    public P nextPage(String pageId, int pageSize) {
-        return pageRetriever.getPage(pageId, pageSize);
+    public List<T> getItems() {
+        return items;
+    }
+
+    public Collection<P> getPages() {
+        return pages.values();
+    }
+
+    // A null page Id gets the first page from the service. It will get cached with key: null.
+    public void getPage(String pageId, PagingCallback<T, P> callback) {
+        P page = pages.get(pageId);
+
+        if (page == null) {
+            pageRetriever.getPage(pageId, pageSize, new PagingCallback<T, P>() {
+                @Override
+                public void onSuccess(P page, String currentPageId, String nextPageId) {
+                    pages.put(pageId, page);
+                    items.addAll(page.getItems());
+
+                    PagedCollection.this.nextPageId = nextPageId; // If null, this is the last page.
+
+                    callback.onSuccess(page, currentPageId, nextPageId);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    callback.onFailure(throwable);
+                }
+            });
+        } else {
+            callback.onSuccess(page, page.getPageId(), page.getNextPageId());
+            nextPageId = page.getNextPageId();
+        }
     }
 
     @NonNull
@@ -28,7 +75,6 @@ public class PagedCollection<T, P extends Page<T>> implements Iterable<T> {
     public Iterator<T> iterator() {
         return new Iterator<T>() {
             private Iterator<T> itemsIterator;
-            private String itNextPageId;
 
             @Override
             public boolean hasNext() {
@@ -39,7 +85,7 @@ public class PagedCollection<T, P extends Page<T>> implements Iterable<T> {
                 if (itemsIterator.hasNext()) {
                     return true;
                 } else {
-                    if (itNextPageId == null) {
+                    if (nextPageId == null) {
                         return false;
                     } else {
                         loadItems();
@@ -55,12 +101,11 @@ public class PagedCollection<T, P extends Page<T>> implements Iterable<T> {
             }
 
             private void loadItems() {
-                pageRetriever.getPage(itNextPageId, DEFAULT_PAGE_SIZE, new PagingCallback<T, P>() {
+                getPage(nextPageId, new PagingCallback<T, P>() {
                     @Override
                     public void onSuccess(P page, String currentPageId, String nextPageId) {
                         itemsIterator =
                             page.getItems() == null ? Collections.emptyIterator() : page.getItems().iterator();
-                        itNextPageId = nextPageId; // If null, this is the last page.
                     }
 
                     @Override
