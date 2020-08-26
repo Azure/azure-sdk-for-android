@@ -19,6 +19,17 @@ public class AzureClientOptions {
     /**
      * Options for configuring a {@link ServiceClient}.
      *
+     * @param apiVersion The API version of the service to invoke.
+     * @param logger     The {@link ClientLogger} to be used by the {@link ServiceClient}.
+     */
+    public AzureClientOptions(@NonNull String apiVersion,
+                              @Nullable ClientLogger logger) {
+        this(apiVersion, logger, new TelemetryOptions(false, null), new TransportOptions(0, null));
+    }
+
+    /**
+     * Options for configuring a {@link ServiceClient}.
+     *
      * @param apiVersion       The API version of the service to invoke.
      * @param logger           The {@link ClientLogger} to be used by the {@link ServiceClient}.
      * @param telemetryOptions Options for configuring telemetry sent by the {@link ServiceClient}.
@@ -26,12 +37,12 @@ public class AzureClientOptions {
      */
     public AzureClientOptions(@NonNull String apiVersion,
                               @Nullable ClientLogger logger,
-                              TelemetryOptions telemetryOptions,
-                              TransportOptions transportOptions) {
+                              @NonNull TelemetryOptions telemetryOptions,
+                              @NonNull TransportOptions transportOptions) {
         this.apiVersion = apiVersion;
-        this.logger = logger;
-        this.telemetryOptions = telemetryOptions == null ? new TelemetryOptions(false, null) : telemetryOptions;
-        this.transportOptions = transportOptions == null ? new TransportOptions(0, null) : transportOptions;
+        this.logger = logger == null ? ClientLogger.getDefault(AzureClientOptions.class) : logger;
+        this.telemetryOptions = telemetryOptions;
+        this.transportOptions = transportOptions;
     }
 
     /**
