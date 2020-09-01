@@ -1,16 +1,22 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.core.http.options;
 
 import androidx.annotation.Nullable;
 
 import com.azure.android.core.http.ServiceClient;
 
+/**
+ * Options for configuring telemetry sent by a {@link ServiceClient}.
+ */
 public class TelemetryOptions {
     boolean telemetryDisabled;
     @Nullable
     String applicationId;
 
     /**
-     * Options for configuring telemetry sent by a {@link ServiceClient}.
+     * Creates an instance of {@link TelemetryOptions}.
      *
      * @param telemetryDisabled Whether platform information will be omitted from the user agent string sent by the
      *                          {@link ServiceClient}.

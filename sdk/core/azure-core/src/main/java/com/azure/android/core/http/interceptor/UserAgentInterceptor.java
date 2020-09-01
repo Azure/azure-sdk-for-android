@@ -6,8 +6,10 @@ package com.azure.android.core.http.interceptor;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.azure.android.core.http.HttpHeader;
+import com.azure.android.core.http.options.TelemetryOptions;
 import com.azure.android.core.provider.ApplicationInformationProvider;
 import com.azure.android.core.provider.LocaleInformationProvider;
 import com.azure.android.core.provider.PlatformInformationProvider;
@@ -29,11 +31,15 @@ import static com.azure.android.core.util.CoreUtil.isNullOrEmpty;
 public class UserAgentInterceptor implements Interceptor {
     private static final String DEFAULT_USER_AGENT = "azsdk-android";
 
+    // From the design guidelines, the basic user agent header format is:
+    // azsdk-android-<sdk_name>/<sdk_version>
+    private static final String USER_AGENT_FORMAT = DEFAULT_USER_AGENT + "-%s/%s";
+
     // From the design guidelines, the default user agent header format is:
     // azsdk-android-<sdk_name>/<sdk_version> (<platform_info>; application_info>; <user_locale_info>
-    private static final String USER_AGENT_FORMAT = DEFAULT_USER_AGENT + "-%s/%s (%s; %s; %s)";
+    private static final String USER_AGENT_FORMAT_WITH_TELEMETRY = "%s (%s; %s; %s)";
 
-    // From the design guidelines, the application ID user agent header format is:
+    // From the design guidelines, the full user agent header format is:
     // [<application_id>] azsdk-android-<client_lib>/<sdk_version> (<platform_info>; <application_info>;
     // <user_locale_info>
     private static final String USER_AGENT_FORMAT_WITH_APPLICATION_ID = "[%s] %s";
@@ -50,19 +56,19 @@ public class UserAgentInterceptor implements Interceptor {
     // <user_language>_<user_region>
     private static final String LOCALE_INFO_FORMAT = "%s_%s";
 
-    private final String userAgent;
+    private String userAgent;
 
     /**
      * Creates a {@link UserAgentInterceptor} with the {@code sdkName} and {@code sdkVersion} in the User-Agent
      * header value.
      *
-     * @param context       The application's context.
-     * @param sdkName       Name of the client library.
-     * @param sdkVersion    Version of the client library.
+     * @param context    The application's context.
+     * @param sdkName    Name of the client library.
+     * @param sdkVersion Version of the client library.
      */
-    public UserAgentInterceptor(Context context,
-                                String sdkName,
-                                String sdkVersion) {
+    public UserAgentInterceptor(@NonNull Context context,
+                                @Nullable String sdkName,
+                                @Nullable String sdkVersion) {
         this(null,
             sdkName,
             sdkVersion,
@@ -75,16 +81,16 @@ public class UserAgentInterceptor implements Interceptor {
      * Creates a {@link UserAgentInterceptor} with the {@code sdkName} and {@code sdkVersion} in the User-Agent
      * header value.
      *
-     * @param context       The application's context.
-     * @param applicationId User specified application ID.
-     * @param sdkName       Name of the client library.
-     * @param sdkVersion    Version of the client library.
+     * @param context          The application's context.
+     * @param telemetryOptions Telemetry options for calls made by the pipeline.
+     * @param sdkName          Name of the client library.
+     * @param sdkVersion       Version of the client library.
      */
-    public UserAgentInterceptor(Context context,
-                                String applicationId,
-                                String sdkName,
-                                String sdkVersion) {
-        this(applicationId,
+    public UserAgentInterceptor(@NonNull Context context,
+                                @Nullable TelemetryOptions telemetryOptions,
+                                @Nullable String sdkName,
+                                @Nullable String sdkVersion) {
+        this(telemetryOptions,
             sdkName,
             sdkVersion,
             PlatformInformationProvider.getDefault(),
@@ -96,46 +102,52 @@ public class UserAgentInterceptor implements Interceptor {
      * Creates a {@link UserAgentInterceptor} with the {@code sdkName} and {@code sdkVersion} in the User-Agent
      * header value.
      *
-     * @param applicationId                  User specified application ID.
+     * @param telemetryOptions               Telemetry options for calls made by the pipeline.
      * @param sdkName                        Name of the client library.
      * @param sdkVersion                     Version of the client library.
      * @param platformInformationProvider    Provider that contains platform information.
      * @param applicationInformationProvider Provider that contains application information.
      * @param localeInformationProvider      Provider that contains system locale information.
      */
-    public UserAgentInterceptor(String applicationId,
-                                String sdkName,
-                                String sdkVersion,
-                                PlatformInformationProvider platformInformationProvider,
-                                ApplicationInformationProvider applicationInformationProvider,
-                                LocaleInformationProvider localeInformationProvider) {
+    public UserAgentInterceptor(@Nullable TelemetryOptions telemetryOptions,
+                                @Nullable String sdkName,
+                                @Nullable String sdkVersion,
+                                @Nullable PlatformInformationProvider platformInformationProvider,
+                                @Nullable ApplicationInformationProvider applicationInformationProvider,
+                                @Nullable LocaleInformationProvider localeInformationProvider) {
         sdkName = sdkName == null ? "" : sdkName;
         sdkVersion = sdkVersion == null ? "" : sdkVersion;
 
-        String userAgentBase = String.format(
+        userAgent = String.format(
             USER_AGENT_FORMAT,
             sdkName,
-            sdkVersion,
-            getPlatformInfo(platformInformationProvider),
-            getApplicationInfo(applicationInformationProvider),
-            getLocaleInfo(localeInformationProvider));
+            sdkVersion);
 
-        if (isNullOrEmpty(applicationId)) {
-            userAgent = userAgentBase;
-        } else {
-            // Based on the design guidelines, applicationId must not contain a space.
-            applicationId = applicationId.replaceAll("[\\n\\t ]", "");
-
-            // Based on the design guidelines, applicationId must not be more than 24 characters in length.
-            if (applicationId.length() > 24) {
-                applicationId = applicationId.substring(0, 24);
+        if (telemetryOptions != null) {
+            if (!telemetryOptions.isTelemetryDisabled()) {
+                userAgent = String.format(
+                    USER_AGENT_FORMAT_WITH_TELEMETRY,
+                    userAgent,
+                    getPlatformInfo(platformInformationProvider),
+                    getApplicationInfo(applicationInformationProvider),
+                    getLocaleInfo(localeInformationProvider));
             }
 
-            // Don't use the applicationId if it's empty after applying the validations above
-            if (applicationId.isEmpty()) {
-                userAgent = userAgentBase;
-            } else {
-                userAgent = String.format(USER_AGENT_FORMAT_WITH_APPLICATION_ID, applicationId, userAgentBase);
+            String applicationId = telemetryOptions.getApplicationId();
+
+            if (!isNullOrEmpty(applicationId)) {
+                // Based on the design guidelines, applicationId must not contain a space.
+                applicationId = applicationId.replaceAll("[\\n\\t ]", "");
+
+                // Based on the design guidelines, applicationId must not be more than 24 characters in length.
+                if (applicationId.length() > 24) {
+                    applicationId = applicationId.substring(0, 24);
+                }
+
+                // Don't use the applicationId if it's empty after applying the validations above.
+                if (!applicationId.isEmpty()) {
+                    userAgent = String.format(USER_AGENT_FORMAT_WITH_APPLICATION_ID, applicationId, userAgent);
+                }
             }
         }
     }
@@ -148,7 +160,6 @@ public class UserAgentInterceptor implements Interceptor {
      * User-Agent header is updated by prepending the value in this interceptor.
      *
      * @param chain Provide access to the request to apply the "User-Agent" header.
-     *
      * @return Response from the next interceptor in the pipeline.
      * @throws IOException If an IO error occurs while processing the request and response.
      */

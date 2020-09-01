@@ -1,11 +1,16 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.core.http.options;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.util.logging.ClientLogger;
 
+/**
+ * Options for configuring a {@link ServiceClient}.
+ */
 public class AzureClientOptions {
     @NonNull
     private String apiVersion;
@@ -17,7 +22,7 @@ public class AzureClientOptions {
     private TransportOptions transportOptions;
 
     /**
-     * Options for configuring a {@link ServiceClient}.
+     * Creates an instance of {@link AzureClientOptions} without {@link TelemetryOptions} and {@link TransportOptions}.
      *
      * @param apiVersion The API version of the service to invoke.
      * @param logger     The {@link ClientLogger} to be used by the {@link ServiceClient}.
@@ -28,7 +33,7 @@ public class AzureClientOptions {
     }
 
     /**
-     * Options for configuring a {@link ServiceClient}.
+     * Creates an instance of {@link AzureClientOptions}.
      *
      * @param apiVersion       The API version of the service to invoke.
      * @param logger           The {@link ClientLogger} to be used by the {@link ServiceClient}.

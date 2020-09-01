@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.core.http.options;
 
 import androidx.annotation.Nullable;
@@ -5,13 +8,16 @@ import androidx.annotation.Nullable;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.RetryStrategy;
 
+/**
+ * Options for configuring calls made by a {@link ServiceClient}.
+ */
 public class TransportOptions {
     double timeoutInSeconds;
     @Nullable
     RetryStrategy retryStrategy;
 
     /**
-     * Options for configuring calls made by a {@link ServiceClient}.
+     * Creates an instance of {@link TransportOptions}.
      *
      * @param timeoutInSeconds Default timeout on any network call. 0 (zero) means no timeout.
      * @param retryStrategy    The {@link RetryStrategy} to be used for calls made by the {@link ServiceClient}.
