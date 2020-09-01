@@ -9,7 +9,7 @@ import com.azure.android.core.util.logging.ClientLogger;
 public class AzureClientOptions {
     @NonNull
     private String apiVersion;
-    @Nullable
+    @NonNull
     private ClientLogger logger;
     @NonNull
     private TelemetryOptions telemetryOptions;
@@ -23,7 +23,7 @@ public class AzureClientOptions {
      * @param logger     The {@link ClientLogger} to be used by the {@link ServiceClient}.
      */
     public AzureClientOptions(@NonNull String apiVersion,
-                              @Nullable ClientLogger logger) {
+                              @NonNull ClientLogger logger) {
         this(apiVersion, logger, new TelemetryOptions(false, null), new TransportOptions(0, null));
     }
 
@@ -36,11 +36,11 @@ public class AzureClientOptions {
      * @param transportOptions Options for configuring calls sent by the {@link ServiceClient}.
      */
     public AzureClientOptions(@NonNull String apiVersion,
-                              @Nullable ClientLogger logger,
+                              @NonNull ClientLogger logger,
                               @NonNull TelemetryOptions telemetryOptions,
                               @NonNull TransportOptions transportOptions) {
         this.apiVersion = apiVersion;
-        this.logger = logger == null ? ClientLogger.getDefault(AzureClientOptions.class) : logger;
+        this.logger = logger;
         this.telemetryOptions = telemetryOptions;
         this.transportOptions = transportOptions;
     }
@@ -60,7 +60,7 @@ public class AzureClientOptions {
      *
      * @return The {@link ClientLogger}.
      */
-    @Nullable
+    @NonNull
     public ClientLogger getLogger() {
         return logger;
     }
