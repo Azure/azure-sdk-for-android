@@ -269,6 +269,21 @@ public class ServiceClient {
         }
 
         /**
+         * Sets the call timeout for the API Client created through the configured Retrofit.
+         * <p>
+         * The configured Retrofit is accessed using {@link ServiceClient#getRetrofit()}.
+         *
+         * @param timeout The call timeout.
+         * @param unit    The timeout unit.
+         * @return Builder with connection timeout applied.
+         */
+        public Builder setCallTimeout(long timeout, @NonNull TimeUnit unit) {
+            this.httpClientBuilder.callTimeout(timeout, unit);
+
+            return this;
+        }
+
+        /**
          * Sets the pool providing connections for APIs invoked on any API Client created through the configured
          * Retrofit.
          * <p>

@@ -28,12 +28,17 @@
 
 package com.azure.android.core.internal.util;
 
+import android.os.Handler;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import com.azure.android.core.util.CancellationToken;
 
+import org.threeten.bp.Duration;
+
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
@@ -49,6 +54,17 @@ public final class CancellationTokenImpl extends CancellationToken {
         = AtomicReferenceFieldUpdater.newUpdater(CancellationTokenImpl.class,  OnCancelNode.class, "onCancelNodes");
     // Ensures side-effect of app calling cancel() happens only once.
     private final AtomicBoolean isCancelled = new AtomicBoolean(false);
+    private final AtomicBoolean isStarted = new AtomicBoolean(false);
+    private UUID runId;
+
+    public CancellationTokenImpl() {
+        this.runId = UUID.randomUUID();
+    }
+
+    public CancellationTokenImpl(@NonNull Duration timeout) {
+        this();
+        this.timeout = timeout;
+    }
 
     @Override
     public void cancel() {
@@ -58,6 +74,38 @@ public final class CancellationTokenImpl extends CancellationToken {
         if (this.isCancelled.compareAndSet(false, true)) {
             this.invokeCallbacks();
         }
+    }
+
+    @Override
+    public void start() {
+        if (timeout.equals(Duration.ZERO) || isStarted.get()) {
+            return;
+        }
+
+        UUID expectedRunId = runId;
+        Handler handler = new Handler();
+        Runnable runnable = () -> {
+            // Invalidate the timer if reset() has been called.
+            if (expectedRunId != runId) {
+                return;
+            }
+
+            CancellationTokenImpl.this.cancel();
+        };
+
+        handler.postDelayed(runnable, timeout.toMillis());
+        isStarted.set(true);
+    }
+
+    @Override
+    public void reset() {
+        if (timeout == Duration.ZERO) {
+            return;
+        }
+
+        isStarted.set(false);
+        isCancelled.set(false);
+        runId = UUID.randomUUID();
     }
 
     /**

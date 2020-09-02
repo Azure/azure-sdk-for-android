@@ -3,27 +3,31 @@
 
 package com.azure.android.core.http.options;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.RetryStrategy;
 
+import org.threeten.bp.Duration;
+
 /**
  * Options for configuring calls made by a {@link ServiceClient}.
  */
 public class TransportOptions {
-    double timeoutInSeconds;
+    @NonNull
+    Duration timeout;
     @Nullable
     RetryStrategy retryStrategy;
 
     /**
      * Creates an instance of {@link TransportOptions}.
      *
-     * @param timeoutInSeconds Default timeout on any network call. 0 (zero) means no timeout.
-     * @param retryStrategy    The {@link RetryStrategy} to be used for calls made by the {@link ServiceClient}.
+     * @param timeout       Default timeout on any network call. 0 (zero) means there is no timeout.
+     * @param retryStrategy The {@link RetryStrategy} to be used for calls made by the {@link ServiceClient}.
      */
-    public TransportOptions(double timeoutInSeconds, @Nullable RetryStrategy retryStrategy) {
-        this.timeoutInSeconds = timeoutInSeconds;
+    public TransportOptions(@Nullable Duration timeout, @Nullable RetryStrategy retryStrategy) {
+        this.timeout = timeout == null ? Duration.ZERO : timeout;
         this.retryStrategy = retryStrategy;
     }
 
@@ -32,8 +36,9 @@ public class TransportOptions {
      *
      * @return the default timeout in seconds. 0 (zero) means there is no timeout.
      */
-    public double getTimeoutInSeconds() {
-        return timeoutInSeconds;
+    @NonNull
+    public Duration getTimeout() {
+        return timeout;
     }
 
     /**

@@ -12,7 +12,7 @@ import okhttp3.Response;
 /**
  * The retry strategy with fixed backoff delay.
  */
-public class FixedDelay implements RetryStrategy {
+public final class FixedDelay implements RetryStrategy {
     private final int maxRetries;
     private final Duration delay;
 

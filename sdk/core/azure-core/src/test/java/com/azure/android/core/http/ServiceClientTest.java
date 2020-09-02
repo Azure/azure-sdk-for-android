@@ -69,6 +69,7 @@ public class ServiceClientTest {
             .setSerializationFormat(SerializerFormat.JSON)
             .setBaseUrl(BASE_URL)
             .setConnectionTimeout(100, TimeUnit.SECONDS)
+            .setCallTimeout(150, TimeUnit.SECONDS)
             .setCredentialsInterceptor((Interceptor) chain -> chain.proceed(chain.request()))
             .setDispatcher(new Dispatcher())
             .setReadTimeout(50, TimeUnit.SECONDS)

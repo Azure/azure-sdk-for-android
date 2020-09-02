@@ -29,7 +29,7 @@ public class AzureClientOptions {
      */
     public AzureClientOptions(@NonNull String apiVersion,
                               @NonNull ClientLogger logger) {
-        this(apiVersion, logger, new TelemetryOptions(false, null), new TransportOptions(0, null));
+        this(apiVersion, logger, new TelemetryOptions(false, null), new TransportOptions(null, null));
     }
 
     /**
