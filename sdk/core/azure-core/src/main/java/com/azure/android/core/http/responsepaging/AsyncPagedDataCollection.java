@@ -53,7 +53,7 @@ public class AsyncPagedDataCollection<T, P extends Page<T>> {
         final Iterator<Map.Entry<Response, P>> iterator = pages.values().iterator();
         while(iterator.hasNext()){
             final P existingPage = iterator.next().getValue();
-            if (existingPage.getNextPageId().equals(page.getPageId())){
+            if (page.getPageId().equals(existingPage.getNextPageId())){
                 page.setPreviousPageId(existingPage.getPageId());
                 break;
             }
