@@ -1,4 +1,4 @@
-package com.azure.core.http;
+package com.azure.android.core.http;
 
 /**
  * Callback to receive a service operation result.
