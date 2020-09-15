@@ -1,18 +1,23 @@
 package com.azure.android.storage.blob;
 
 import com.azure.android.core.http.Callback;
+import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
+import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
+import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobItem;
+import com.azure.android.storage.blob.models.BlobsPage;
+import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
+import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
-import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 
 import org.junit.After;
 import org.junit.Test;
@@ -21,12 +26,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
@@ -83,14 +88,15 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        List<BlobItem> blobItems = storageBlobClient.getBlobsInPage(null,
+        BlobsPage blobsPage = storageBlobClient.getBlobsInPage(null,
             "testContainer",
             null);
 
         // Then a list containing the details of the blobs will be returned by the service and converted to BlobItem
         // objects by the client.
-        assertNotEquals(0, blobItems.size());
-        assertEquals("test.jpg", blobItems.get(0).getName());
+        assertNotEquals(0, blobsPage.getItems()
+            .size());
+        assertEquals("test.jpg", blobsPage.getItems().get(0).getName());
     }
 
     @Test
@@ -111,23 +117,24 @@ public class StorageBlobClientTest {
         storageBlobAsyncClient.getBlobsInPage(null,
             "testContainer",
             null,
-            new Callback<List<BlobItem>>() {
+
+            new Callback<BlobsPage>() {
                 @Override
-                public void onResponse(List<BlobItem> response) {
+                public void onSuccess(BlobsPage result, Response response) {
                     try {
                         // Then a list containing the details of the blobs will be returned to the callback by the service
                         // and converted to BlobItem objects by the client.
-                        assertNotEquals(0, response.size());
-                        assertEquals("test.jpg", response.get(0).getName());
+                        assertNotEquals(0, result.getItems().size());
+                        assertEquals("test.jpg", result.getItems().get(0).getName());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable throwable, Response response) {
                     try {
-                        throw new RuntimeException(t);
+                        throw new RuntimeException(throwable);
                     } finally {
                         latch.countDown();
                     }
@@ -150,7 +157,7 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        ContainersListBlobFlatSegmentResponse response =
+        com.azure.android.core.http.Response<BlobsPage> response =
             storageBlobClient.getBlobsInPageWithRestResponse(null,
                 "testContainer",
                 null,
@@ -162,9 +169,8 @@ public class StorageBlobClientTest {
 
         // Then the client will return an object that contains both the details of the REST response and a list
         // with the details of the blobs.
-        List<BlobItem> blobItems = response.getValue().getSegment() == null
-            ? new ArrayList<>(0)
-            : response.getValue().getSegment().getBlobItems();
+        BlobsPage blobsPage = response.getValue();
+        List<BlobItem> blobItems = blobsPage.getItems();
 
         assertEquals(200, response.getStatusCode());
         assertNotEquals(0, blobItems.size());
@@ -187,7 +193,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.getBlobsInPageWithRestResponse(null,
+        storageBlobAsyncClient.getBlobsInPage(null,
             "testContainer",
             null,
             null,
@@ -195,17 +201,15 @@ public class StorageBlobClientTest {
             null,
             null,
             CancellationToken.NONE,
-            new Callback<ContainersListBlobFlatSegmentResponse>() {
+            new Callback<BlobsPage>() {
                 @Override
-                public void onResponse(ContainersListBlobFlatSegmentResponse response) {
+                public void onSuccess(BlobsPage result, Response response) {
                     try {
                         // Then the client will return an object that contains both the details of the REST response and
                         // a list with the details of the blobs to the callback.
-                        List<BlobItem> blobItems = response.getValue().getSegment() == null
-                            ? new ArrayList<>(0)
-                            : response.getValue().getSegment().getBlobItems();
+                        List<BlobItem> blobItems = result.getItems();
 
-                        assertEquals(200, response.getStatusCode());
+                        assertEquals(200, response.code());
                         assertNotEquals(0, blobItems.size());
                         assertEquals("test.jpg", blobItems.get(0).getName());
                     } finally {
@@ -214,9 +218,9 @@ public class StorageBlobClientTest {
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable throwable, Response response) {
                     try {
-                        throw new RuntimeException(t);
+                        throw new RuntimeException(throwable);
                     } finally {
                         latch.countDown();
                     }
@@ -259,21 +263,21 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.getBlobProperties("container",
             "blob",
-            new Callback<BlobGetPropertiesHeaders>() {
+            new CallbackWithHeader<Void, BlobGetPropertiesHeaders>() {
                 @Override
-                public void onResponse(BlobGetPropertiesHeaders response) {
+                public void onSuccess(Void result, BlobGetPropertiesHeaders header, Response response) {
                     try {
                         // Then an object with the blob properties will be returned by the client to the callback.
-                        assertEquals("application/text", response.getContentType());
+                        assertEquals("application/text", header.getContentType());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable throwable, Response response) {
                     try {
-                        throw new RuntimeException(t);
+                        throw new RuntimeException(throwable);
                     } finally {
                         latch.countDown();
                     }
@@ -324,7 +328,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.getBlobPropertiesWithRestResponse("container",
+        storageBlobAsyncClient.getBlobProperties("container",
             "blob",
             null,
             null,
@@ -333,22 +337,23 @@ public class StorageBlobClientTest {
             null,
             null,
             CancellationToken.NONE,
-            new Callback<BlobGetPropertiesResponse>() {
+            new CallbackWithHeader<Void, BlobGetPropertiesHeaders>() {
+
                 @Override
-                public void onResponse(BlobGetPropertiesResponse response) {
+                public void onSuccess(Void result, BlobGetPropertiesHeaders header, Response response) {
                     try {
                         // Then the client will return an object that contains both the details of the REST response and
                         // an object with the blob properties to the callback.
-                        assertEquals("application/text", response.getDeserializedHeaders().getContentType());
+                        assertEquals("application/text", header.getContentType());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable error, Response response) {
                     try {
-                        throw new RuntimeException(t);
+                        throw new RuntimeException(error);
                     } finally {
                         latch.countDown();
                     }
@@ -391,23 +396,24 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.rawDownload("testContainer",
             "testBlob",
-            new Callback<ResponseBody>() {
+
+            new CallbackWithHeader<ResponseBody, BlobDownloadHeaders>() {
                 @Override
-                public void onResponse(ResponseBody response) {
+                public void onSuccess(ResponseBody result, BlobDownloadHeaders header, Response response) {
                     try {
                         // Then an object with the blob's contents will be returned by the client.
-                        assertEquals("testBody", response.string());
+                        assertEquals("testBody", result.string());
                     } catch (IOException e) {
-                        onFailure(e);
+                        onFailure(e, response);
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable throwable, Response response) {
                     try {
-                        throw new RuntimeException(t);
+                        throw new RuntimeException(throwable);
                     } finally {
                         latch.countDown();
                     }
@@ -461,7 +467,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.rawDownloadWithRestResponse("testContainer",
+        storageBlobAsyncClient.rawDownload("testContainer",
             "testBlob",
             null,
             null,
@@ -473,25 +479,25 @@ public class StorageBlobClientTest {
             null,
             null,
             CancellationToken.NONE,
-            new Callback<BlobDownloadResponse>() {
+            new CallbackWithHeader<ResponseBody, BlobDownloadHeaders>() {
                 @Override
-                public void onResponse(BlobDownloadResponse response) {
+                public void onSuccess(ResponseBody result, BlobDownloadHeaders header, Response response) {
                     try {
                         // Then an object with the blob's contents will be returned by the client to the callback,
                         // including its properties and details from the REST response.
-                        assertEquals(200, response.getStatusCode());
-                        assertEquals("testBody", response.getValue().string());
+                        assertEquals(200, response.code());
+                        assertEquals("testBody", result.string());
                     } catch (IOException e) {
-                        onFailure(e);
+                        onFailure(e, response);
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable throwable, Response response) {
                     try {
-                        throw new RuntimeException(t);
+                        throw new RuntimeException(throwable);
                     } finally {
                         latch.countDown();
                     }
@@ -538,9 +544,9 @@ public class StorageBlobClientTest {
             null,
             new byte[0],
             null,
-            new Callback<Void>() {
+            new CallbackWithHeader<Void, BlockBlobStageBlockHeaders>() {
                 @Override
-                public void onResponse(Void response) {
+                public void onSuccess(Void result, BlockBlobStageBlockHeaders header, Response response) {
                     try {
                         // Then a response without body and status code 201 will be returned by the server to the callback.
                         assertNull(response);
@@ -550,9 +556,9 @@ public class StorageBlobClientTest {
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable throwable, Response response) {
                     try {
-                        throw new RuntimeException(t);
+                        throw new RuntimeException(throwable);
                     } finally {
                         latch.countDown();
                     }
@@ -600,7 +606,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.stageBlockWithRestResponse("testContainer",
+        storageBlobAsyncClient.stageBlock("testContainer",
             "testBlob",
             null,
             new byte[0],
@@ -611,21 +617,21 @@ public class StorageBlobClientTest {
             null,
             null,
             CancellationToken.NONE,
-            new Callback<BlockBlobsStageBlockResponse>() {
+            new CallbackWithHeader<Void, BlockBlobStageBlockHeaders>() {
                 @Override
-                public void onResponse(BlockBlobsStageBlockResponse response) {
+                public void onSuccess(Void result, BlockBlobStageBlockHeaders header, Response response) {
                     try {
                         // Then a response without body and status code 201 will be returned by the server to the callback.
-                        assertEquals(201, response.getStatusCode());
+                        assertEquals(201, response.code());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable throwable, Response response) {
                     try {
-                        throw new RuntimeException(t);
+                        throw new RuntimeException(throwable);
                     } finally {
                         latch.countDown();
                     }
@@ -676,23 +682,25 @@ public class StorageBlobClientTest {
         storageBlobAsyncClient.commitBlockList("testContainer",
             "testBlob",
             null,
-            true, new Callback<BlockBlobItem>() {
+            true,
+
+            new CallbackWithHeader<BlockBlobItem, BlockBlobCommitBlockListHeaders>() {
                 @Override
-                public void onResponse(BlockBlobItem response) {
+                public void onSuccess(BlockBlobItem result, BlockBlobCommitBlockListHeaders header, Response response) {
                     try {
                         // Then a response with the blob's details and status code 201 will be returned by the server to
                         // the callback.
-                        assertEquals(false, response.isServerEncrypted());
-                        assertEquals("testEtag", response.getETag());
+                        assertEquals(false, result.isServerEncrypted());
+                        assertEquals("testEtag", result.getETag());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable throwable, Response response) {
                     try {
-                        throw new RuntimeException(t);
+                        throw new RuntimeException(throwable);
                     } finally {
                         latch.countDown();
                     }
@@ -750,7 +758,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.commitBlockListWithRestResponse("testContainer",
+        storageBlobAsyncClient.commitBlockList("testContainer",
             "testBlob",
             null,
             null,
@@ -762,23 +770,25 @@ public class StorageBlobClientTest {
             null,
             null,
             null,
-            CancellationToken.NONE, new Callback<BlockBlobsCommitBlockListResponse>() {
+            CancellationToken.NONE,
+
+            new CallbackWithHeader<BlockBlobItem, BlockBlobCommitBlockListHeaders>() {
                 @Override
-                public void onResponse(BlockBlobsCommitBlockListResponse response) {
+                public void onSuccess(BlockBlobItem result, BlockBlobCommitBlockListHeaders header, Response response) {
                     try {
                         // Then a response with the blob's details and status code 201 will be returned by the server to
                         // the callback.
-                        assertEquals(false, response.getBlockBlobItem().isServerEncrypted());
-                        assertEquals("testEtag", response.getBlockBlobItem().getETag());
+                        assertEquals(false, result.isServerEncrypted());
+                        assertEquals("testEtag", result.getETag());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable throwable, Response response) {
                     try {
-                        throw new RuntimeException(t);
+                        throw new RuntimeException(throwable);
                     } finally {
                         latch.countDown();
                     }
@@ -819,9 +829,9 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.delete("container",
             "blob",
-            new Callback<Void>() {
+            new CallbackWithHeader<Void, BlobDeleteHeaders>() {
                 @Override
-                public void onResponse(Void response) {
+                public void onSuccess(Void result, BlobDeleteHeaders header, Response response) {
                     try {
                         // Then a response without body and status code 202 will be returned by the server to the callback.
                         assertNull(response);
@@ -831,9 +841,9 @@ public class StorageBlobClientTest {
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable throwable, Response response) {
                     try {
-                        throw new RuntimeException(t);
+                        throw new RuntimeException(throwable);
                     } finally {
                         latch.countDown();
                     }
@@ -855,7 +865,7 @@ public class StorageBlobClientTest {
 
         // Then a response without body and status code 202 will be returned by the server.
         BlobDeleteResponse response =
-            storageBlobClient.deleteWithResponse("container",
+            storageBlobClient.deleteWithRestResponse("container",
                 "blob",
                 null,
                 null,
@@ -885,7 +895,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.deleteWithResponse("container",
+        storageBlobAsyncClient.delete("container",
             "blob",
             null,
             null,
@@ -898,21 +908,21 @@ public class StorageBlobClientTest {
             null,
             null,
             CancellationToken.NONE,
-            new Callback<BlobDeleteResponse>() {
+            new CallbackWithHeader<Void, BlobDeleteHeaders>() {
                 @Override
-                public void onResponse(BlobDeleteResponse response) {
+                public void onSuccess(Void result, BlobDeleteHeaders header, Response response) {
                     try {
                         // Then a response without body and status code 202 will be returned by the server to the callback.
-                        assertEquals(202, response.getStatusCode());
+                        assertEquals(202, response.code());
                     } finally {
                         latch.countDown();
                     }
                 }
 
                 @Override
-                public void onFailure(Throwable t) {
+                public void onFailure(Throwable throwable, Response response) {
                     try {
-                        throw new RuntimeException(t);
+                        throw new RuntimeException(throwable);
                     } finally {
                         latch.countDown();
                     }

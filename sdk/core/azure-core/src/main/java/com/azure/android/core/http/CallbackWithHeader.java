@@ -7,15 +7,17 @@ package com.azure.android.core.http;
  * Callback to receive a service operation result.
  *
  * @param <T> The type of the result.
+ * @param <T> The type of the header.
  */
-public interface Callback<T> {
+public interface CallbackWithHeader<T, H> {
     /**
      * The method to call on a successful result.
      *
      * @param result   The result.
+     * @param header   The custom header value.
      * @param response The response.
      */
-    void onSuccess(T result, okhttp3.Response response);
+    void onSuccess(T result, H header, okhttp3.Response response);
 
     /**
      * The method to call on failure.

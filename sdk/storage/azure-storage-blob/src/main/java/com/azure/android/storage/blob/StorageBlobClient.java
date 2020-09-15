@@ -6,6 +6,7 @@ package com.azure.android.storage.blob;
 import android.content.Context;
 import android.net.Uri;
 
+import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.util.CancellationToken;
@@ -18,18 +19,21 @@ import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
+import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
+import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 
 import org.threeten.bp.OffsetDateTime;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -78,12 +82,20 @@ public class StorageBlobClient {
      * @param options       The page options.
      * @return A list of blobs.
      */
-    public List<BlobItem> getBlobsInPage(String pageId,
-                                         String containerName,
-                                         ListBlobsOptions options) {
-        return this.storageBlobServiceClient.getBlobsInPage(pageId,
-            containerName,
-            options);
+    public BlobsPage getBlobsInPage(String pageId,
+                                    String containerName,
+                                    ListBlobsOptions options) {
+        ListBlobsFlatSegmentResponse result = this.storageBlobServiceClient.listBlobFlatSegment(pageId,
+            containerName, options);
+
+        final List<BlobItem> list;
+        if (result.getSegment() != null
+            && result.getSegment().getBlobItems() != null) {
+            list = result.getSegment().getBlobItems();
+        } else {
+            list = new ArrayList<>(0);
+        }
+        return new BlobsPage(list, pageId, result.getNextMarker());
     }
 
     /**
@@ -101,15 +113,16 @@ public class StorageBlobClient {
      * @param cancellationToken The token to request cancellation.
      * @return A response object containing a list of blobs.
      */
-    public ContainersListBlobFlatSegmentResponse getBlobsInPageWithRestResponse(String pageId,
-                                                                                String containerName,
-                                                                                String prefix,
-                                                                                Integer maxResults,
-                                                                                List<ListBlobsIncludeItem> include,
-                                                                                Integer timeout,
-                                                                                String requestId,
-                                                                                CancellationToken cancellationToken) {
-        return this.storageBlobServiceClient.getBlobsInPageWithRestResponse(pageId,
+    public Response<BlobsPage> getBlobsInPageWithRestResponse(String pageId,
+                                                              String containerName,
+                                                              String prefix,
+                                                              Integer maxResults,
+                                                              List<ListBlobsIncludeItem> include,
+                                                              Integer timeout,
+                                                              String requestId,
+                                                              CancellationToken cancellationToken) {
+        ContainersListBlobFlatSegmentResponse result
+            = this.storageBlobServiceClient.listBlobFlatSegmentWithRestResponse(pageId,
             containerName,
             prefix,
             maxResults,
@@ -117,6 +130,19 @@ public class StorageBlobClient {
             timeout,
             requestId,
             cancellationToken);
+        final List<BlobItem> list;
+        if (result.getValue().getSegment() != null
+            && result.getValue().getSegment().getBlobItems() != null) {
+            list = result.getValue().getSegment().getBlobItems();
+        } else {
+            list = new ArrayList<>(0);
+        }
+        BlobsPage blobsPage = new BlobsPage(list, pageId, result.getValue().getNextMarker());
+
+        return new Response<>(null,
+            result.getStatusCode(),
+            result.getHeaders(),
+            blobsPage);
     }
 
     /**
@@ -454,20 +480,20 @@ public class StorageBlobClient {
      * @param cancellationToken The token to request cancellation.
      * @return A response object containing the details of the delete operation.
      */
-    BlobDeleteResponse deleteWithResponse(String containerName,
-                                          String blobName,
-                                          String snapshot,
-                                          Integer timeout,
-                                          String version,
-                                          String leaseId,
-                                          DeleteSnapshotsOptionType deleteSnapshots,
-                                          OffsetDateTime ifModifiedSince,
-                                          OffsetDateTime ifUnmodifiedSince,
-                                          String ifMatch,
-                                          String ifNoneMatch,
-                                          String requestId,
-                                          CancellationToken cancellationToken) {
-        return storageBlobServiceClient.deleteWithResponse(containerName,
+    BlobDeleteResponse deleteWithRestResponse(String containerName,
+                                              String blobName,
+                                              String snapshot,
+                                              Integer timeout,
+                                              String version,
+                                              String leaseId,
+                                              DeleteSnapshotsOptionType deleteSnapshots,
+                                              OffsetDateTime ifModifiedSince,
+                                              OffsetDateTime ifUnmodifiedSince,
+                                              String ifMatch,
+                                              String ifNoneMatch,
+                                              String requestId,
+                                              CancellationToken cancellationToken) {
+        return storageBlobServiceClient.deleteWithRestResponse(containerName,
             blobName,
             snapshot,
             timeout,
