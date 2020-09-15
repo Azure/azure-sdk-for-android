@@ -54,7 +54,7 @@ public class PagedDataCollection<T, P extends Page<T>> {
         final Iterator<P> iterator = pages.values().iterator();
         while(iterator.hasNext()){
             final P existingPage = iterator.next();
-            if (existingPage.getNextPageId().equals(pageId)){
+            if (pageId.equals(existingPage.getNextPageId())) {
                 page.setPreviousPageId(existingPage.getPageId());
                 break;
             }

@@ -58,7 +58,7 @@ public class PagedDataResponseCollection<T, P extends Page<T>> {
         final Iterator<Response<P>> iterator = pages.values().iterator();
         while(iterator.hasNext()){
             final P existingPage = iterator.next().getValue();
-            if (existingPage.getNextPageId().equals(pageId)){
+            if (pageId.equals(existingPage.getNextPageId())){
                 page.getValue().setPreviousPageId(existingPage.getPageId());
                 break;
             }
