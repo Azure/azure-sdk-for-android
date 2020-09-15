@@ -4,12 +4,10 @@
  */
 package com.azure.android.core.http.responsepaging;
 
+import com.azure.android.core.http.Response;
 import com.azure.android.core.util.paging.Page;
 
-import java.util.Map;
 import java.util.Objects;
-
-import okhttp3.Response;
 
 /**
  * Represents a synchronized paged data provider with fixed page size that returns both page and response
@@ -38,12 +36,12 @@ public abstract class PagedDataResponseRetriever<T, P extends Page<T>> {
      * Get first page in the collection
      * @return a Map.Entry that contains both Response and the page
      */
-    public abstract Map.Entry<Response, P> getFirstPage();
+    public abstract Response<P> getFirstPage();
 
     /**
      * Get a page by its id
      * @param pageId id of the page
-     * @return a Map.Entry that contains both Response and the page
+     * @return a Response of paged data
      */
-    public abstract Map.Entry<Response, P> getPage(String pageId);
+    public abstract Response<P> getPage(String pageId);
 }
