@@ -38,7 +38,8 @@ public class PagedDataResponseCollection<T, P extends Page<T>> {
             return pages.get(firstPageId);
         }
         Response<P> firstPageResponse = pagedDataRetriever.getFirstPage();
-        pages.put(firstPageResponse.getValue().getPageId(), firstPageResponse);
+        firstPageId = firstPageResponse.getValue().getPageId();
+        pages.put(firstPageId, firstPageResponse);
         return  firstPageResponse;
     }
 

@@ -34,6 +34,7 @@ public class PagedDataCollection<T, P extends Page<T>> {
             return pages.get(firstPageId);
         }
         P firstPage = pagedDataRetriever.getFirstPage();
+        firstPageId = firstPage.getPageId();
         pages.put(firstPage.getPageId(), firstPage);
         return  firstPage;
     }
