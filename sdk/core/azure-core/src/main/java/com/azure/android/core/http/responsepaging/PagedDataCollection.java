@@ -2,9 +2,9 @@
  * Copyright (c) Microsoft Corporation. All rights reserved.
  * Licensed under the MIT License.
  */
-package com.azure.core.http.responsepaging;
+package com.azure.android.core.http.responsepaging;
 
-import com.azure.core.util.paging.Page;
+import com.azure.android.core.util.paging.Page;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
