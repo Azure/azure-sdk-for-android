@@ -72,7 +72,7 @@ final class StorageBlobServiceImpl {
 
     StorageBlobServiceImpl(ServiceClient serviceClient) {
         this.service = serviceClient.getRetrofit().create(StorageBlobService.class);
-        this.serializerAdapter = serviceClient.getSerializerAdapter();
+        this.serializerAdapter = SerializerAdapter.createDefault();
     }
 
     List<BlobItem> getBlobsInPage(String pageId,

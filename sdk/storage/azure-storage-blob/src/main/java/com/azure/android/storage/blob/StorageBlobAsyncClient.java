@@ -16,7 +16,6 @@ import androidx.work.NetworkType;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
-import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.CoreUtil;
 import com.azure.android.storage.blob.models.AccessTier;
@@ -698,8 +697,7 @@ public class StorageBlobAsyncClient {
         public Builder(String storageBlobClientId) {
             this(storageBlobClientId, new ServiceClient.Builder());
             this.serviceClientBuilder
-                .addInterceptor(new AddDateInterceptor())
-                .setSerializationFormat(SerializerFormat.XML);
+                .addInterceptor(new AddDateInterceptor());
         }
 
         /**
