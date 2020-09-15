@@ -13,15 +13,19 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.StorageBlobAsyncClient;
-import com.azure.android.storage.blob.models.BlobDownloadResponse;
+import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobRange;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 /**
  * Package private.
@@ -286,7 +290,7 @@ final class DownloadHandler extends Handler {
 
             Log.v(TAG, "downloadBlob(): Downloading block: " + block.blockId + getThreadName());
 
-            blobClient.rawDownloadWithRestResponse(blob.containerName,
+            blobClient.rawDownload(blob.containerName,
                 blob.blobName,
                 null,
                 null,
@@ -298,14 +302,14 @@ final class DownloadHandler extends Handler {
                 null,
                 null,
                 this.cancellationToken,
-                new com.azure.android.core.http.Callback<BlobDownloadResponse>() {
+                new CallbackWithHeader<ResponseBody, BlobDownloadHeaders>() {
                     @Override
-                    public void onResponse(BlobDownloadResponse response) {
+                    public void onSuccess(ResponseBody result, BlobDownloadHeaders header, Response response) {
                         try {
-                            byte[] blockContent = response.getValue().bytes();
+                            byte[] blockContent = result.bytes();
                             content.writeBlock(block.blockOffset, blockContent);
                         } catch (Throwable t) {
-                            onFailure(t);
+                            onFailure(t, response);
                             return;
                         }
 
@@ -319,11 +323,11 @@ final class DownloadHandler extends Handler {
                     }
 
                     @Override
-                    public void onFailure(Throwable t) {
-                        Log.e(TAG, "downloadFailed(): Block download failed: " + block.blockId, t);
+                    public void onFailure(Throwable throwable, Response response) {
+                        Log.e(TAG, "downloadFailed(): Block download failed: " + block.blockId, throwable);
 
                         db.downloadDao().updateBlockState(blob.key, BlockTransferState.FAILED);
-                        block.setDownloadError(t);
+                        block.setDownloadError(throwable);
 
                         Message nextMessage =
                             DownloadHandlerMessage.createBlockDownloadFailedMessage(DownloadHandler.this, block.blockId);
