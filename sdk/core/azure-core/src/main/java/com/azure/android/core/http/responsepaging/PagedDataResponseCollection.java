@@ -4,13 +4,12 @@
  */
 package com.azure.android.core.http.responsepaging;
 
+import com.azure.android.core.http.Response;
 import com.azure.android.core.util.paging.Page;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
-
-import okhttp3.Response;
 
 /**
  * Represents a collection of pages where page and the response for retrieving it can be returned synchronously
@@ -19,7 +18,7 @@ import okhttp3.Response;
  */
 public class PagedDataResponseCollection<T, P extends Page<T>> {
     private final PagedDataResponseRetriever<T, P> pagedDataRetriever;
-    private LinkedHashMap<String, Map.Entry<Response, P>> pages = new LinkedHashMap<String, Map.Entry<Response, P>>();
+    private LinkedHashMap<String, Response<P>> pages = new LinkedHashMap<String, Response<P>>();
     private String firstPageId;
 
     /**
@@ -34,11 +33,11 @@ public class PagedDataResponseCollection<T, P extends Page<T>> {
      * Retrieves the first page in the collection synchronously
      * @return page data along with the response for retrieving the first page
      */
-    public Map.Entry<Response, P> getFirstPage() {
+    public Response<P> getFirstPage() {
         if (firstPageId != null) {
             return pages.get(firstPageId);
         }
-        Map.Entry<Response, P> firstPageResponse = pagedDataRetriever.getFirstPage();
+        Response<P> firstPageResponse = pagedDataRetriever.getFirstPage();
         pages.put(firstPageResponse.getValue().getPageId(), firstPageResponse);
         return  firstPageResponse;
     }
@@ -48,15 +47,15 @@ public class PagedDataResponseCollection<T, P extends Page<T>> {
      * @param pageId id of the page
      * @return page and the response for retrieving it
      */
-    public Map.Entry<Response, P> getPage(String pageId) {
-        Map.Entry<Response, P> page = pages.get(pageId);
+    public Response<P> getPage(String pageId) {
+        Response<P> page = pages.get(pageId);
         if (page != null) {
             return page;
         }
 
         page = pagedDataRetriever.getPage(pageId);
         // setting previous page id should simplify implementation for androidx.arch.DataSource
-        final Iterator<Map.Entry<Response, P>> iterator = pages.values().iterator();
+        final Iterator<Response<P>> iterator = pages.values().iterator();
         while(iterator.hasNext()){
             final P existingPage = iterator.next().getValue();
             if (existingPage.getNextPageId().equals(pageId)){
