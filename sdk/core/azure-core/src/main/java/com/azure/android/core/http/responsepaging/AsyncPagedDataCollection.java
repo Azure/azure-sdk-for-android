@@ -4,7 +4,7 @@
  */
 package com.azure.android.core.http.responsepaging;
 
-import com.azure.android.core.http.SimpleCallback;
+import com.azure.android.core.http.Callback;
 import com.azure.android.core.util.paging.Page;
 
 import java.util.Iterator;
@@ -64,9 +64,9 @@ public class AsyncPagedDataCollection<T, P extends Page<T>> {
      * Gets first page in the collection along with the response retrieving the first page
      * @param callback a callback interface for handling the first page and its response
      */
-    public void getFirstPage(SimpleCallback<P> callback) {
+    public void getFirstPage(Callback<P> callback) {
         if (firstPageId == null){
-            pagedDataRetriever.getFirstPage(new SimpleCallback<P>() {
+            pagedDataRetriever.getFirstPage(new Callback<P>() {
 
                 @Override
                 public void onSuccess(P value, Response response) {
@@ -97,10 +97,10 @@ public class AsyncPagedDataCollection<T, P extends Page<T>> {
      * @param pageId id of the page
      * @param callback callback interface for handling the page along with its response
      */
-    public void getPage(String pageId, SimpleCallback<P> callback) {
+    public void getPage(String pageId, Callback<P> callback) {
         Map.Entry<Response, P> pageEntry = pages.get(pageId);
         if (pageEntry == null){
-            pagedDataRetriever.getPage(pageId, new SimpleCallback<P>() {
+            pagedDataRetriever.getPage(pageId, new Callback<P>() {
                 @Override
                 public void onSuccess(P value, Response response) {
                     if (value == null) {

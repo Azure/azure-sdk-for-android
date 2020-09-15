@@ -1,6 +1,6 @@
 package com.azure.android.core.http.responsepaging;
 
-import com.azure.android.core.http.SimpleCallback;
+import com.azure.android.core.http.Callback;
 import com.azure.android.core.util.paging.Page;
 
 import org.junit.Before;
@@ -39,13 +39,13 @@ public class AsyncPagedDataCollectionTest {
         }
 
         @Override
-        public void getFirstPage(SimpleCallback<Page<Item>> callback) {
+        public void getFirstPage(Callback<Page<Item>> callback) {
             getFirstPageCallCount++;
             callback.onSuccess(pages.get("1"), null);
         }
 
         @Override
-        public void getPage(String pageId, SimpleCallback<Page<Item>> callback) {
+        public void getPage(String pageId, Callback<Page<Item>> callback) {
             getPageCallCount++;
             if (pages.containsKey(pageId)) {
                 callback.onSuccess(pages.get(pageId), null);
@@ -59,7 +59,7 @@ public class AsyncPagedDataCollectionTest {
     private ThreePageProvider provider;
     private AsyncPagedDataCollection<Item, Page<Item>> collection;
 
-    private static class PageCallback implements SimpleCallback<Page<Item>> {
+    private static class PageCallback implements Callback<Page<Item>> {
         public Page<Item> lastPage;
         public Throwable lastError;
         @Override
