@@ -21,7 +21,7 @@ public interface Callback<T> {
      * The method to call on failure.
      *
      * @param throwable A throwable with the failure details.
-     * @param response  The response, if available for the failure.
+     * @param response  The response for the failure, if available.
      */
     void onFailure(Throwable throwable, okhttp3.Response response);
 }
