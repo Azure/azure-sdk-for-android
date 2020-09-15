@@ -21,11 +21,14 @@ import androidx.work.WorkManager;
 import androidx.work.impl.WorkManagerImpl;
 
 import com.azure.android.core.http.Callback;
+import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 
 import java.util.List;
 import java.util.concurrent.Executors;
+
+import okhttp3.Response;
 
 /**
  * A type that exposes blob transfer APIs.
@@ -178,10 +181,10 @@ public final class TransferClient {
                     return;
                 }
                 blobClient.getBlobProperties(downloadRequest.getContainerName(), downloadRequest.getBlobName(),
-                    new Callback<BlobGetPropertiesHeaders>() {
+                    new CallbackWithHeader<Void, BlobGetPropertiesHeaders>() {
                         @Override
-                        public void onResponse(BlobGetPropertiesHeaders response) {
-                            final long blobSize = response.getContentLength();
+                        public void onSuccess(Void result, BlobGetPropertiesHeaders header, Response response) {
+                            final long blobSize = header.getContentLength();
                             BlobDownloadEntity blob = new BlobDownloadEntity(downloadRequest.getStorageClientId(),
                                 downloadRequest.getContainerName(),
                                 downloadRequest.getBlobName(),
@@ -215,7 +218,7 @@ public final class TransferClient {
                         }
 
                         @Override
-                        public void onFailure(Throwable throwable) {
+                        public void onFailure(Throwable throwable, Response response) {
                             transferOpResultLiveData
                                 .postValue(TransferOperationResult.error(TransferOperationResult.Operation.UPLOAD_DOWNLOAD, throwable));
                         }

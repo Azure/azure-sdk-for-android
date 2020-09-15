@@ -9,7 +9,7 @@ import com.azure.android.core.http.ResponseBase;
  * Contains all response data for the listBlobFlatSegment operation.
  */
 public final class ContainersListBlobFlatSegmentResponse
-        extends ResponseBase<ContainerListBlobFlatSegmentHeaders, ListBlobsFlatSegmentResponse> {
+        extends ResponseBase<ListBlobFlatSegmentHeaders, ListBlobsFlatSegmentResponse> {
 
     /**
      * Creates an instance of ContainersListBlobFlatSegmentResponse.
@@ -24,7 +24,7 @@ public final class ContainersListBlobFlatSegmentResponse
                                                  int statusCode,
                                                  okhttp3.Headers rawHeaders,
                                                  ListBlobsFlatSegmentResponse value,
-                                                 ContainerListBlobFlatSegmentHeaders headers) {
+                                                 ListBlobFlatSegmentHeaders headers) {
         super(request, statusCode, rawHeaders, value, headers);
     }
 
