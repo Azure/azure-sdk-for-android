@@ -5,6 +5,8 @@ package com.azure.android.core.provider;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import com.azure.android.core.internal.provider.AndroidLocaleInformationProvider;
 
 /**
@@ -17,7 +19,7 @@ public interface LocaleInformationProvider {
      * @param context Android {@link Context} object to extract data from.
      * @return A default {@link LocaleInformationProvider}.
      */
-    static LocaleInformationProvider getDefault(Context context) {
+    static LocaleInformationProvider getDefault(@NonNull Context context) {
         return new AndroidLocaleInformationProvider(context);
     }
 
