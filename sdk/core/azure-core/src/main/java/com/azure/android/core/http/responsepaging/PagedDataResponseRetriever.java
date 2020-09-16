@@ -10,7 +10,7 @@ import com.azure.android.core.util.paging.Page;
 import java.util.Objects;
 
 /**
- * Represents a synchronized paged data provider with fixed page size that returns both page and response
+ * Represents a synchronous paged data provider with fixed page size that returns both page and response
  * @param <T> type of the items in the page
  * @param <P> type of the page
  */

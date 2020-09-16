@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 
 /**
- * Represents a collection of paged data with fixed page size where pages can be retrieved synchrounously
+ * Represents a collection of paged data with fixed page size where pages can be retrieved synchronously
  * @param <T> type of the items contained in the page
  * @param <P> page that contains the items
  */
