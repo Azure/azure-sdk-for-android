@@ -5,6 +5,8 @@ package com.azure.android.core.provider;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 import com.azure.android.core.internal.provider.AndroidApplicationInformationProvider;
 
 /**
@@ -17,7 +19,7 @@ public interface ApplicationInformationProvider {
      * @param context Android {@link Context} object to extract data from.
      * @return A default {@link ApplicationInformationProvider}.
      */
-    static ApplicationInformationProvider getDefault(Context context) {
+    static ApplicationInformationProvider getDefault(@NonNull Context context) {
         return new AndroidApplicationInformationProvider(context);
     }
 

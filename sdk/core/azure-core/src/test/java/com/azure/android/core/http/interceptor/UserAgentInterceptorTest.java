@@ -5,6 +5,7 @@ package com.azure.android.core.http.interceptor;
 
 import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.common.EnqueueMockResponse;
+import com.azure.android.core.http.options.TelemetryOptions;
 import com.azure.android.core.provider.ApplicationInformationProvider;
 import com.azure.android.core.provider.LocaleInformationProvider;
 import com.azure.android.core.provider.PlatformInformationProvider;
@@ -68,7 +69,7 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be contain the result of prepending the generated user agent string to
         // the existing value.
-        assertEquals("azsdk-android-/ ( - ; : -> ; _) " + userAgent,
+        assertEquals("azsdk-android-/ " + userAgent,
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
@@ -89,7 +90,7 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while not
         // including the applicationId as a prefix.
-        assertEquals("azsdk-android-/ ( - ; : -> ; _)",
+        assertEquals("azsdk-android-/",
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
@@ -97,7 +98,8 @@ public class UserAgentInterceptorTest {
     public void userAgentHeader_hasCorrectFormatWithApplicationId_onRequest() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with a user-provided applicationId.
         String userApplicationId = "UserApplicationId";
-        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(userApplicationId,
+        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(
+            new TelemetryOptions(true, userApplicationId),
             null,
             null,
             null,
@@ -111,7 +113,7 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including the applicationId as a prefix.
-        assertEquals("[" + userApplicationId + "] azsdk-android-/ ( - ; : -> ; _)",
+        assertEquals("[" + userApplicationId + "] azsdk-android-/",
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
@@ -120,7 +122,8 @@ public class UserAgentInterceptorTest {
         // Given a client with a UserAgentInterceptor with a user-provided applicationId containing spaces.
         String userApplicationId = "User Application Id";
         String trimmedUserApplicationId = "UserApplicationId";
-        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(userApplicationId,
+        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(
+            new TelemetryOptions(true, userApplicationId),
             null,
             null,
             null,
@@ -134,7 +137,7 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including a trimmed applicationId as a prefix.
-        assertEquals("[" + trimmedUserApplicationId + "] azsdk-android-/ ( - ; : -> ; _)",
+        assertEquals("[" + trimmedUserApplicationId + "] azsdk-android-/",
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
@@ -143,7 +146,8 @@ public class UserAgentInterceptorTest {
         // Given a client with a UserAgentInterceptor with a user-provided applicationId longer than 24 characters.
         String userApplicationId = "UserApplicationIdThatIsVeryLong";
         String truncatedUserApplicationId = "UserApplicationIdThatIsV";
-        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(userApplicationId,
+        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(
+            new TelemetryOptions(true, userApplicationId),
             null,
             null,
             null,
@@ -157,17 +161,43 @@ public class UserAgentInterceptorTest {
 
         // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
         // including a truncated applicationId as a prefix.
-        assertEquals("[" + truncatedUserApplicationId + "] azsdk-android-/ ( - ; : -> ; _)",
+        assertEquals("[" + truncatedUserApplicationId + "] azsdk-android-/",
             mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
     }
 
     @Test
-    public void userAgentHeader_includesBasicInfo_onRequest() throws InterruptedException, IOException {
+    public void userAgentHeader_includesBasicInfoWithoutTelemetry_onRequest() throws InterruptedException, IOException {
         // Given a client with a UserAgentInterceptor with a user-provided applicationId, sdkName and sdkVersion.
         String userApplicationId = "UserApplicationId";
         String sdkName = "SDK Name";
         String sdkVersion = "SDK Version";
-        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(userApplicationId,
+        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(
+            new TelemetryOptions(true, userApplicationId),
+            sdkName,
+            sdkVersion,
+            null,
+            null,
+            null);
+        OkHttpClient okHttpClient = buildOkHttpClientWithInterceptor(userAgentInterceptor);
+
+        // When executing a request.
+        Request request = getSimpleRequest(mockWebServer);
+        okHttpClient.newCall(request).execute();
+
+        // Then the 'User-Agent' header should be populated following the format specified by the guidelines while
+        // including the given applicationId as a prefix.
+        assertEquals("[" + userApplicationId + "] azsdk-android-" + sdkName + "/" + sdkVersion,
+            mockWebServer.takeRequest().getHeader(HttpHeader.USER_AGENT));
+    }
+
+    @Test
+    public void userAgentHeader_includesBasicInfoWithTelemetry_onRequest() throws InterruptedException, IOException {
+        // Given a client with a UserAgentInterceptor with a user-provided applicationId, sdkName and sdkVersion.
+        String userApplicationId = "UserApplicationId";
+        String sdkName = "SDK Name";
+        String sdkVersion = "SDK Version";
+        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(
+            new TelemetryOptions(false, userApplicationId),
             sdkName,
             sdkVersion,
             null,
@@ -190,7 +220,7 @@ public class UserAgentInterceptorTest {
         // Given a client with a UserAgentInterceptor with an PlatformInformationProvider.
         String deviceName = "Test Device";
         int osVersion = 123;
-        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(null,
+        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(new TelemetryOptions(false, null),
             null,
             null,
             new TestPlatformInformationProvider(deviceName, osVersion),
@@ -214,7 +244,7 @@ public class UserAgentInterceptorTest {
         String applicationId = "Application ID";
         String applicationVersion = "1.0";
         int targetSdkVersion = 21;
-        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(null,
+        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(new TelemetryOptions(false, null),
             null,
             null,
             null,
@@ -237,7 +267,7 @@ public class UserAgentInterceptorTest {
         // Given a client with a UserAgentInterceptor with an LocaleInformationProvider.
         String defaultSystemLanguage = "en";
         String systemRegion = "US";
-        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(null,
+        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(new TelemetryOptions(false, null),
             null,
             null,
             null,
@@ -268,7 +298,8 @@ public class UserAgentInterceptorTest {
         int targetSdkVersion = 21;
         String defaultSystemLanguage = "en";
         String systemRegion = "US";
-        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(userApplicationId,
+        UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(
+            new TelemetryOptions(false, userApplicationId),
             sdkName,
             sdkVersion,
             new TestPlatformInformationProvider(deviceName, osVersion),
