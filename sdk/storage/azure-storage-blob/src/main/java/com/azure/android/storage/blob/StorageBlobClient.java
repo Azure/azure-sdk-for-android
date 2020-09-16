@@ -9,7 +9,6 @@ import android.net.Uri;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
-import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
@@ -522,8 +521,7 @@ public class StorageBlobClient {
         public Builder() {
             this(new ServiceClient.Builder());
             this.serviceClientBuilder
-                .addInterceptor(new AddDateInterceptor())
-                .setSerializationFormat(SerializerFormat.XML);
+                .addInterceptor(new AddDateInterceptor());
         }
 
         /**

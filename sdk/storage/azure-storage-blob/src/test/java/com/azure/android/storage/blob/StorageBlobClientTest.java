@@ -46,13 +46,11 @@ public class StorageBlobClientTest {
     private static final String BASE_URL = mockWebServer.url("/").toString();
     private static StorageBlobAsyncClient storageBlobAsyncClient = new StorageBlobAsyncClient.Builder("client.test.1",
         new ServiceClient.Builder()
-            .setBaseUrl(BASE_URL)
-            .setSerializationFormat(SerializerFormat.XML))
+            .setBaseUrl(BASE_URL))
         .build();
 
     private static StorageBlobClient storageBlobClient = new StorageBlobClient.Builder(new ServiceClient.Builder()
-            .setBaseUrl(BASE_URL)
-            .setSerializationFormat(SerializerFormat.XML))
+            .setBaseUrl(BASE_URL))
         .build();
 
     @After
