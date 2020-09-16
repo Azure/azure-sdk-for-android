@@ -59,7 +59,6 @@ public class AsyncPagedDataCollection<T, P extends Page<T>> {
         Objects.requireNonNull(callback);
         if (firstPageId == null){
             asyncPagedDataRetriever.getFirstPage(new Callback<P>() {
-
                 @Override
                 public void onSuccess(P value, Response response) {
                     if (value == null) {
