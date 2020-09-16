@@ -48,7 +48,7 @@ public class PagedDataResponseCollection<T, P extends Page<T>> {
     }
 
     /**
-     * Retrueve a page synchronously with its id along with the response for retrieving it
+     * Retrieve a page synchronously along with the response for retrieving it using page id
      * @param pageId id of the page
      * @return page and the response for retrieving it
      */
