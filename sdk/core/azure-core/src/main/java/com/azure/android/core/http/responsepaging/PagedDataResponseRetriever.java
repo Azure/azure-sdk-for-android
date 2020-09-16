@@ -36,14 +36,14 @@ public abstract class PagedDataResponseRetriever<T, P extends Page<T>> {
 
     /**
      * Get first page in the collection
-     * @return a Map.Entry that contains both Response and the page
+     * @return a response with page data
      */
     public abstract Response<P> getFirstPage();
 
     /**
      * Get a page by its id
      * @param pageId id of the page
-     * @return a Response of paged data
+     * @return a response with page data
      */
     public abstract Response<P> getPage(String pageId);
 }
