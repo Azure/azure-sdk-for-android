@@ -4,8 +4,11 @@
  */
 package com.azure.android.core.util.paging;
 
+import androidx.annotation.NonNull;
+
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Objects;
 
 /**
  * Represents a collection of paged data with fixed page size where pages can be retrieved synchronously
@@ -21,7 +24,8 @@ public class PagedDataCollection<T, P extends Page<T>> {
      * Constructor requires a synchronous paged data provider
      * @param pagedDataRetriever paged data provider with fixed page size
      */
-    public PagedDataCollection(PagedDataRetriever<T, P> pagedDataRetriever) {
+    public PagedDataCollection(@NonNull PagedDataRetriever<T, P> pagedDataRetriever) {
+        Objects.requireNonNull(pagedDataRetriever);
         this.pagedDataRetriever = pagedDataRetriever;
     }
 
@@ -44,7 +48,7 @@ public class PagedDataCollection<T, P extends Page<T>> {
      * @param pageId id of the page
      * @return page of data with the requested id
      */
-    public P getPage(String pageId) {
+    public P getPage(@NonNull String pageId) {
         P page = pages.get(pageId);
         if (page != null) {
             return page;

@@ -4,12 +4,15 @@
  */
 package com.azure.android.core.http.responsepaging;
 
+import androidx.annotation.NonNull;
+
 import com.azure.android.core.http.Response;
 import com.azure.android.core.util.paging.Page;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a collection of pages where page and the response for retrieving it can be returned synchronously
@@ -25,7 +28,8 @@ public class PagedDataResponseCollection<T, P extends Page<T>> {
      * Constructor requires a page provider that returns page data and response synchronously
      * @param pagedDataRetriever synchronous paged data provider
      */
-    public PagedDataResponseCollection(PagedDataResponseRetriever<T, P> pagedDataRetriever) {
+    public PagedDataResponseCollection(@NonNull PagedDataResponseRetriever<T, P> pagedDataRetriever) {
+        Objects.requireNonNull(pagedDataRetriever);
         this.pagedDataRetriever = pagedDataRetriever;
     }
 
@@ -52,7 +56,8 @@ public class PagedDataResponseCollection<T, P extends Page<T>> {
      * @param pageId id of the page
      * @return page and the response for retrieving it
      */
-    public Response<P> getPage(String pageId) {
+    public Response<P> getPage(@NonNull String pageId) {
+        Objects.requireNonNull(pageId);
         Response<P> pageResponse = pages.get(pageId);
         if (pageResponse != null) {
             return pageResponse;

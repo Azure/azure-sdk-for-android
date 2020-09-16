@@ -4,6 +4,8 @@
  */
 package com.azure.android.core.util.paging;
 
+import androidx.annotation.NonNull;
+
 import java.util.Objects;
 
 /**
@@ -14,7 +16,7 @@ import java.util.Objects;
 public abstract class PagedDataRetriever<T, P extends Page<T>> {
     private final int pageSize;
 
-    protected PagedDataRetriever(int pageSize) {
+    protected PagedDataRetriever(@NonNull int pageSize) {
         Objects.requireNonNull(pageSize);
         if (pageSize <= 0)
             throw new IllegalArgumentException("pageSize must be a positive integer");

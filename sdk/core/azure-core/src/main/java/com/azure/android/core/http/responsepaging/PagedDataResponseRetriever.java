@@ -4,6 +4,8 @@
  */
 package com.azure.android.core.http.responsepaging;
 
+import androidx.annotation.NonNull;
+
 import com.azure.android.core.http.Response;
 import com.azure.android.core.util.paging.Page;
 
@@ -17,7 +19,7 @@ import java.util.Objects;
 public abstract class PagedDataResponseRetriever<T, P extends Page<T>> {
     private final int pageSize;
 
-    protected PagedDataResponseRetriever(int pageSize) {
+    protected PagedDataResponseRetriever(@NonNull int pageSize) {
         Objects.requireNonNull(pageSize);
         if (pageSize <= 0)
             throw new IllegalArgumentException("pageSize must be a positive integer");

@@ -4,6 +4,8 @@
  */
 package com.azure.android.core.util.paging;
 
+import androidx.annotation.NonNull;
+
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +25,7 @@ public class Page<T> {
      * @param pageId id of the page
      * @param items items in the page
      */
-    public Page(String pageId, List<T> items) {
+    public Page(@NonNull String pageId, @NonNull List<T> items) {
         Objects.requireNonNull(pageId);
         Objects.requireNonNull(items);
         this.pageId = pageId;
@@ -59,7 +61,7 @@ public class Page<T> {
      * @param nextPageId id of the page next to this page
      * @return current page
      */
-    public Page<T> setNextPageId(String nextPageId) {
+    public Page<T> setNextPageId(@NonNull String nextPageId) {
         this.nextPageId = nextPageId;
         return this;
     }
@@ -77,7 +79,7 @@ public class Page<T> {
      * @param previousPageId id of the page before this page
      * @return current page
      */
-    public Page<T> setPreviousPageId(String previousPageId) {
+    public Page<T> setPreviousPageId(@NonNull String previousPageId) {
         this.previousPageId = previousPageId;
         return this;
     }

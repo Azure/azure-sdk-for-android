@@ -4,11 +4,14 @@
  */
 package com.azure.android.core.http.responsepaging;
 
+import androidx.annotation.NonNull;
+
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.util.paging.Page;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Objects;
 
 import okhttp3.Response;
 
@@ -18,16 +21,17 @@ import okhttp3.Response;
  * @param <P> Page of items
  */
 public class AsyncPagedDataCollection<T, P extends Page<T>> {
-    private final AsyncPagedDataRetriever<T, P> pagedDataRetriever;
+    private final AsyncPagedDataRetriever<T, P> asyncPagedDataRetriever;
     private LinkedHashMap<String, PageAndResponse<P>> pages = new LinkedHashMap<String, PageAndResponse<P>>();
     private String firstPageId;
 
     /**
      * Construction requires an asynchronous paged data provider
-     * @param pagedDataRetriever an asynchronous page data provider
+     * @param asyncPagedDataRetriever an asynchronous page data provider
      */
-    public AsyncPagedDataCollection(AsyncPagedDataRetriever<T, P> pagedDataRetriever) {
-        this.pagedDataRetriever = pagedDataRetriever;
+    public AsyncPagedDataCollection(@NonNull AsyncPagedDataRetriever<T, P> asyncPagedDataRetriever) {
+        Objects.requireNonNull(asyncPagedDataRetriever);
+        this.asyncPagedDataRetriever = asyncPagedDataRetriever;
     }
 
     private void cacheResponse(P page, Response response) {
@@ -51,9 +55,10 @@ public class AsyncPagedDataCollection<T, P extends Page<T>> {
      * Gets first page in the collection along with the response retrieving the first page
      * @param callback a callback interface for handling the first page and its response
      */
-    public void getFirstPage(Callback<P> callback) {
+    public void getFirstPage(@NonNull Callback<P> callback) {
+        Objects.requireNonNull(callback);
         if (firstPageId == null){
-            pagedDataRetriever.getFirstPage(new Callback<P>() {
+            asyncPagedDataRetriever.getFirstPage(new Callback<P>() {
 
                 @Override
                 public void onSuccess(P value, Response response) {
@@ -84,10 +89,12 @@ public class AsyncPagedDataCollection<T, P extends Page<T>> {
      * @param pageId id of the page
      * @param callback callback interface for handling the page along with its response
      */
-    public void getPage(String pageId, Callback<P> callback) {
+    public void getPage(@NonNull String pageId, @NonNull Callback<P> callback) {
+        Objects.requireNonNull(pageId);
+        Objects.requireNonNull(callback);
         PageAndResponse<P> pageEntry = pages.get(pageId);
         if (pageEntry == null){
-            pagedDataRetriever.getPage(pageId, new Callback<P>() {
+            asyncPagedDataRetriever.getPage(pageId, new Callback<P>() {
                 @Override
                 public void onSuccess(P value, Response response) {
                     if (value == null) {
