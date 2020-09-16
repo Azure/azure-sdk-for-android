@@ -22,7 +22,7 @@ public class PagedDataResponseCollection<T, P extends Page<T>> {
     private String firstPageId;
 
     /**
-     *  Constructor requires a page provider that returns page data and response synchronously
+     * Constructor requires a page provider that returns page data and response synchronously
      * @param pagedDataRetriever synchronous paged data provider
      */
     public PagedDataResponseCollection(PagedDataResponseRetriever<T, P> pagedDataRetriever) {
@@ -38,8 +38,12 @@ public class PagedDataResponseCollection<T, P extends Page<T>> {
             return pages.get(firstPageId);
         }
         Response<P> firstPageResponse = pagedDataRetriever.getFirstPage();
-        firstPageId = firstPageResponse.getValue().getPageId();
-        pages.put(firstPageId, firstPageResponse);
+        if (firstPageResponse != null
+            && firstPageResponse.getValue() != null
+            && firstPageResponse.getValue().getPageId() != null) {
+            firstPageId = firstPageResponse.getValue().getPageId();
+            pages.put(firstPageId, firstPageResponse);
+        }
         return  firstPageResponse;
     }
 
@@ -49,22 +53,26 @@ public class PagedDataResponseCollection<T, P extends Page<T>> {
      * @return page and the response for retrieving it
      */
     public Response<P> getPage(String pageId) {
-        Response<P> page = pages.get(pageId);
-        if (page != null) {
-            return page;
+        Response<P> pageResponse = pages.get(pageId);
+        if (pageResponse != null) {
+            return pageResponse;
         }
 
-        page = pagedDataRetriever.getPage(pageId);
-        // setting previous page id should simplify implementation for androidx.arch.DataSource
-        final Iterator<Response<P>> iterator = pages.values().iterator();
-        while(iterator.hasNext()){
-            final P existingPage = iterator.next().getValue();
-            if (pageId.equals(existingPage.getNextPageId())){
-                page.getValue().setPreviousPageId(existingPage.getPageId());
-                break;
+        pageResponse = pagedDataRetriever.getPage(pageId);
+        if (pageResponse != null
+            && pageResponse.getValue() != null
+            && pageResponse.getValue().getPageId() != null) {
+            // setting previous page id should simplify implementation for androidx.arch.DataSource
+            final Iterator<Response<P>> iterator = pages.values().iterator();
+            while (iterator.hasNext()) {
+                final P existingPage = iterator.next().getValue();
+                if (pageId.equals(existingPage.getNextPageId())) {
+                    pageResponse.getValue().setPreviousPageId(existingPage.getPageId());
+                    break;
+                }
             }
+            pages.put(pageResponse.getValue().getPageId(), pageResponse);
         }
-        pages.put(page.getValue().getPageId(), page);
-        return page;
+        return pageResponse;
     }
 }

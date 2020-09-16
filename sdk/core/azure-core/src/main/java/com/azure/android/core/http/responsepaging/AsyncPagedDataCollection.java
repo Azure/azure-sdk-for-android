@@ -9,7 +9,6 @@ import com.azure.android.core.util.paging.Page;
 
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.Map;
 
 import okhttp3.Response;
 
@@ -20,7 +19,7 @@ import okhttp3.Response;
  */
 public class AsyncPagedDataCollection<T, P extends Page<T>> {
     private final AsyncPagedDataRetriever<T, P> pagedDataRetriever;
-    private LinkedHashMap<String, Map.Entry<Response, P>> pages = new LinkedHashMap<String, Map.Entry<Response, P>>();
+    private LinkedHashMap<String, PageAndResponse<P>> pages = new LinkedHashMap<String, PageAndResponse<P>>();
     private String firstPageId;
 
     /**
@@ -31,28 +30,16 @@ public class AsyncPagedDataCollection<T, P extends Page<T>> {
         this.pagedDataRetriever = pagedDataRetriever;
     }
 
-    private void cacheResponse(P page, Response response ){
-        pages.put(page.getPageId(), new Map.Entry<Response, P>() {
+    private void cacheResponse(P page, Response response) {
+        if (page.getPageId() == null) {
+            return;
+        }
+        pages.put(page.getPageId(), new PageAndResponse<P>(page, response));
 
-            @Override
-            public Response getKey() {
-                return response;
-            }
-
-            @Override
-            public P getValue() {
-                return page;
-            }
-
-            @Override
-            public P setValue(P newValue) {
-                return page;
-            }
-        });
         // setting previous page id should simplify implementation for androidx.arch.DataSource
-        final Iterator<Map.Entry<Response, P>> iterator = pages.values().iterator();
+        final Iterator<PageAndResponse<P>> iterator = pages.values().iterator();
         while(iterator.hasNext()){
-            final P existingPage = iterator.next().getValue();
+            final P existingPage = iterator.next().page;
             if (page.getPageId().equals(existingPage.getNextPageId())){
                 page.setPreviousPageId(existingPage.getPageId());
                 break;
@@ -87,8 +74,8 @@ public class AsyncPagedDataCollection<T, P extends Page<T>> {
             });
         }
         else {
-            Map.Entry<Response, P> firstPageResponse = pages.get(firstPageId);
-            callback.onSuccess(firstPageResponse.getValue(), firstPageResponse.getKey());
+            PageAndResponse<P> firstPageResponse = pages.get(firstPageId);
+            callback.onSuccess(firstPageResponse.page, firstPageResponse.response);
         }
     }
 
@@ -98,7 +85,7 @@ public class AsyncPagedDataCollection<T, P extends Page<T>> {
      * @param callback callback interface for handling the page along with its response
      */
     public void getPage(String pageId, Callback<P> callback) {
-        Map.Entry<Response, P> pageEntry = pages.get(pageId);
+        PageAndResponse<P> pageEntry = pages.get(pageId);
         if (pageEntry == null){
             pagedDataRetriever.getPage(pageId, new Callback<P>() {
                 @Override
@@ -118,7 +105,17 @@ public class AsyncPagedDataCollection<T, P extends Page<T>> {
             });
         }
         else {
-            callback.onSuccess(pageEntry.getValue(), pageEntry.getKey());
+            callback.onSuccess(pageEntry.page, pageEntry.response);
+        }
+    }
+
+    private static class PageAndResponse<P> {
+        public final P page;
+        public final Response response;
+
+        public PageAndResponse(P page, Response response) {
+            this.page = page;
+            this.response = response;
         }
     }
 }
