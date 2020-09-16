@@ -70,6 +70,7 @@ function GetAdjustedReadmeContent($pkgInfo, $lang){
     }
 
     $fileContent = $pkgInfo.ReadmeContent
+	$foundTitle = ""
 
     # only replace the version if the formatted header can be found
     $titleRegex = "(\#\s+(?<filetitle>Azure .+? (?:client|plugin|shared) library for (?:JavaScript|Java|Python|\.NET|C)))"
