@@ -47,3 +47,4 @@ stages:
       Artifacts:
         - name: azure-core
           safeName: azurecore
+          groupId: com.azure.android
