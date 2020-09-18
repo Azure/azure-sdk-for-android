@@ -39,3 +39,4 @@ stages:
       Artifacts:
         - name: azure-sdk-template
           safeName: azuresdktemplate
+          groupId: com.azure.android

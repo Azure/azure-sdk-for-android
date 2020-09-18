@@ -39,3 +39,4 @@ stages:
       Artifacts:
         - name: azure-storage-blob
           safeName: azurestorageblob
+          groupId: com.azure.android
