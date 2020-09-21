@@ -8,7 +8,7 @@ automatically when you install other SDK libraries. If you are a client library 
 as an example of how to use the shared azure-core components in your client library.
 
 [Source code](https://github.com/Azure/azure-sdk-for-android/tree/master/sdk/core/azure-core)
-| [API reference documentation](https://azure.github.io/azure-sdk-for-android/core/azure-core/index.html)
+| [API reference documentation](https://azure.github.io/azure-sdk-for-android/sdk/core/azure-core/azure-core/index.html)
 
 ## Getting started
 
@@ -22,24 +22,45 @@ as an example of how to use the shared azure-core components in your client libr
   APIs that would require the Java 8+ API desugaring provided by Android Gradle plugin 4.0.0.
 * You must have an [Azure subscription](https://azure.microsoft.com/free/) to use this library.
 
+### Versions available
+The current version of this library is **1.0.0-beta.1**.
+
+> Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before **GA**. We do not currently recommend them for production use.
+
 ### Install the library
-At the present time, to install the Azure core client library for Android you must download the latest
-[release](https://github.com/Azure/azure-sdk-for-android/releases) and integrate it into your project manually:
+To install the Azure client libraries for Android, add them as dependencies within your
+[Gradle](#add-a-dependency-with-gradle) or
+[Maven](#add-a-dependency-with-maven) build scripts.
 
-#### Manually integrate the library into your project
+#### Add a dependency with Gradle
+To import the library into your project using the [Gradle](https://gradle.org/) build system, follow the instructions in [Add build dependencies](https://developer.android.com/studio/build/dependencies):
 
-To manually integrate this library into your project, first download the latest releases of the following libraries from
-the repository's [Releases](https://github.com/Azure/azure-sdk-for-android/releases) page:
+Add an `implementation` configuration to the `dependencies` block of your app's `build.gradle` or `build.gradle.kts` file, specifying the library's name and the version you wish to use:
 
-* `azure-core`
+```gradle
+// build.gradle
+dependencies {
+    ...
+    implementation "com.azure.android:azure-core:1.0.0-beta.1"
+}
 
-Place the libraries' .aar files in your application module's `libs` directory, and modify your application module's
-`build.gradle` file, updating (or adding) the `fileTree` dependency targeting the `libs` directory to include .aar
-files.
+// build.gradle.kts
+dependencies {
+    ...
+    implementation("com.azure.android:azure-core:1.0.0-beta.1")
+}
+```
 
-If you plan to use the [Microsoft Authentication Library (MSAL) for Android](http://aka.ms/aadv2) in your project, add
-it by following the library's
-[installation instructions](https://github.com/AzureAD/microsoft-authentication-library-for-android#using-msal).
+#### Add a dependency with Maven
+To import the library into your project using the [Maven](https://maven.apache.org/) build system, add it to the `dependencies` section of your app's `pom.xml` file, specifying its artifact ID and the version you wish to use:
+
+```xml
+<dependency>
+  <groupId>com.azure.android</groupId>
+  <artifactId>azure-core</artifactId>
+  <version>1.0.0-beta.1</version>
+</dependency>
+```
 
 ## Key concepts
 
@@ -52,7 +73,7 @@ The main shared concepts of azure-core (and thus, Azure SDK libraries using azur
 
 ## Examples
 
-TODO
+See [sample-app-storage](https://github.com/Azure/azure-sdk-for-android/tree/master/samples/sample-app-storage) for an example of using this library.
 
 ## Troubleshooting
 
