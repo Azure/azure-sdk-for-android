@@ -11,19 +11,26 @@ buildscript {
         androidGradlePluginVersion = "4.0.1"
         androidJunitJacocoGradlePluginVersion = "0.16.0"
         jacocoVersion = "0.8.5"
+        kotlinGradlePluginVersion = "1.4.20"
+        dokkaGradlePluginVersion = "1.4.20"
     }
 
     dependencies {
         classpath "com.android.tools.build:gradle:$androidGradlePluginVersion"
         classpath "com.vanniktech:gradle-android-junit-jacoco-plugin:$androidJunitJacocoGradlePluginVersion"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinGradlePluginVersion"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokkaGradlePluginVersion"
     }
 }
 
+apply plugin: "org.jetbrains.dokka"
 apply plugin: "com.vanniktech.android.junit.jacoco"
 
 // Configure all client library projects with the standard Android build / publish template
 configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 3 }) {
     apply plugin: "com.android.library"
+    apply plugin: "kotlin-android"
+    apply plugin: "org.jetbrains.dokka"
     apply plugin: "maven-publish"
 
     group = "com.azure.android"
@@ -83,7 +90,69 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
                 unitTests.returnDefaultValues = true
             }
         }
+    }
 
+    dependencies {
+        dokkaHtmlPlugin("org.jetbrains.dokka:kotlin-as-java-plugin:$dokkaGradlePluginVersion")
+    }
+
+    dokkaHtml {
+        dokkaSourceSets {
+            configureEach {
+                platform.set(org.jetbrains.dokka.Platform.jvm)
+                displayName.set("Java")
+            }
+            named("main") {
+                includeNonPublic.set(false)
+                skipDeprecated.set(false)
+                reportUndocumented.set(true)
+                skipEmptyPackages.set(true)
+                jdkVersion.set(8)
+                noStdlibLink.set(false)
+                noJdkLink.set(false)
+                noAndroidSdkLink.set(false)
+                includes.setFrom(files("module.md"))
+                perPackageOption {
+                    matchingRegex.set(".+\\.internal(\\..+)?")
+                    suppress.set(true)
+                }
+                perPackageOption {
+                    matchingRegex.set(".+\\.implementation(\\..+)?")
+                    suppress.set(true)
+                }
+                sourceLink {
+                    localDirectory.set(file("src/main/java"))
+                    remoteUrl.set(new URL("https://github.com/Azure/azure-sdk-for-android/tree/master" + it.project.path.replace(":", "/") + "/src/main/java"))
+                    remoteLineSuffix.set("#L")
+                }
+                externalDocumentationLink {
+                    url.set(new URL("https://square.github.io/okhttp/3.x/okhttp/"))
+                    packageListUrl.set(new URL("https://square.github.io/okhttp/3.x/okhttp/package-list"))
+                }
+                externalDocumentationLink {
+                    url.set(new URL("https://developer.android.com/reference/"))
+                    packageListUrl.set(new URL("https://developer.android.com/reference/package-list"))
+                }
+                externalDocumentationLink {
+                    url.set(new URL("https://developer.android.com/reference/"))
+                    packageListUrl.set(new URL("https://developer.android.com/reference/androidx/package-list"))
+                }
+                externalDocumentationLink {
+                    url.set(new URL("https://javadoc.io/doc/com.jakewharton.threetenabp/threetenabp/$threeTenAbpVersion/"))
+                    packageListUrl.set(new URL("https://javadoc.io/doc/com.jakewharton.threetenabp/threetenabp/$threeTenAbpVersion/package-list"))
+                }
+                externalDocumentationLink {
+                    url.set(new URL("https://javadoc.io/doc/org.threeten/threetenbp/$threeTenBpVersion/"))
+                    packageListUrl.set(new URL("https://javadoc.io/doc/org.threeten/threetenbp/1.3.6/package-list"))
+                }
+                externalDocumentationLink {
+                    url.set(new URL("https://azure.github.io/azure-sdk-for-android/sdk/core/azure-core/azure-core/"))
+                    packageListUrl.set(new URL("https://azure.github.io/azure-sdk-for-android/sdk/core/azure-core/azure-core/package-list"))
+                }
+            }
+        }
+
+        pluginsMapConfiguration.set(["org.jetbrains.dokka.base.DokkaBase" : """{ "customAssets" : ["${file("$rootDir/eng/docs/assets/docs_logo.svg")}"] }"""])
     }
 
     junitJacoco {
@@ -151,7 +220,6 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
             }
         }
     }
-
 }
 
 allprojects {
@@ -187,7 +255,7 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
 
     project.gradle.startParameter.taskNames.each { task ->
         task = task.split(':').last()
-        if (!task.startsWith("-") && !setupTasks.contains(task) && tasks.findByPath(task) == null) {
+        if (!task.startsWith("-") && !task.startsWith("dokka") && !setupTasks.contains(task) && tasks.findByPath(task) == null) {
             tasks.create(task) {
                 subprojects.each { dependsOn("$it.name:$task") }
             }
