@@ -8,12 +8,13 @@ automatically when you install other SDK libraries. If you are a client library 
 as an example of how to use the shared azure-core components in your client library.
 
 [Source code](https://github.com/Azure/azure-sdk-for-android/tree/master/sdk/core/azure-core)
-| [API reference documentation](https://azure.github.io/azure-sdk-for-android/sdk/core/azure-core/azure-core/index.html)
+<!-- | API reference documentation
+(https://github.com/Azure/azure-sdk-for-android/tree/master/sdk/core/azure-core/index.html) -->
 
 ## Getting started
 
 ### Prerequisites
-* The client library natively target Android API level 21. Your application's `minSdkVersion` must be set to 21 or
+* The client libraries natively target Android API level 21. Your application's `minSdkVersion` must be set to 21 or
   higher to use this library.
 * The library is written in Java 8. Your application must be built with Android Gradle Plugin 3.0.0 or later, and must
   be configured to
