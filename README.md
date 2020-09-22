@@ -19,7 +19,7 @@ For your convenience, each service has a separate set of libraries that you can 
 Currently, the client libraries are in **beta**. These libraries follow the [Azure SDK Design Guidelines for Android](https://azure.github.io/azure-sdk/android_introduction.html) and share a number of core features such as HTTP retries, logging, transport protocols, authentication protocols, etc., so that once you learn how to use these features in one client library, you will know how to use them in other client libraries. You can learn about these shared features in [azure-core](https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/core/azure-core/README.md).
 
 The following libraries are currently in **beta**:
-- [azure-communication-common]<!--(https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/communication/azure-communication-common)-->: 1.0.0-beta.1
+- [azure-communication-common](https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/communication/azure-communication-common): 1.0.0-beta.1
 - [azure-core](https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/core/azure-core): 1.0.0-beta.1
 
 > Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before **GA**. We do not currently recommend them for production use.
