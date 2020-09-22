@@ -8,8 +8,7 @@ automatically when you install other SDK libraries. If you are a client library 
 as an example of how to use the shared azure-core components in your client library.
 
 [Source code](https://github.com/Azure/azure-sdk-for-android/tree/master/sdk/core/azure-core)
-<!-- | API reference documentation
-(https://github.com/Azure/azure-sdk-for-android/tree/master/sdk/core/azure-core/index.html) -->
+| [API reference documentation](https://azure.github.io/azure-sdk-for-android/sdk/core/azure-core/azure-core/index.html)
 
 ## Getting started
 

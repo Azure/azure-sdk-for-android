@@ -2,9 +2,9 @@
 
 This package contains common code for Azure Communication Service libraries.
 
-[Source code]<!--(https://github.com/Azure/azure-sdk-for-android/tree/master/sdk/communication/azure-communication-common)-->
-| [API reference documentation]<!--(https://azure.github.io/azure-sdk-for-android/sdk/communication/azure-communication-common/azure-communication-common/index.html)-->
-| [Product documentation]<!--(https://review.docs.microsoft.com/azure/project-spool/overview?branch=pr-en-us-104477)-->
+[Source code](https://github.com/Azure/azure-sdk-for-android/tree/master/sdk/communication/azure-communication-common)
+| [API reference documentation](https://azure.github.io/azure-sdk-for-android/sdk/communication/azure-communication-common/azure-communication-common/index.html)
+| [Product documentation](https://docs.microsoft.com/azure/communication-services/overview)
 
 ## Getting started
 
@@ -17,7 +17,7 @@ This package contains common code for Azure Communication Service libraries.
   to use this library. Java 8 language features that require a target API level >21 are not used, nor are any Java 8+
   APIs that would require the Java 8+ API desugaring provided by Android Gradle plugin 4.0.0.
 * You must have an [Azure subscription](https://azure.microsoft.com/free/) and a
-  [Communication Services resource]<!--(https://review.docs.microsoft.com/azure/project-spool/quickstarts/create-communication-resource?branch=pr-en-us-104477)--> to use this library.
+  [Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource) to use this library.
 
 ### Versions available
 The current version of this library is **1.0.0-beta.1**.
@@ -136,7 +136,7 @@ If you run into issues while using this library, please feel free to
 [file an issue](https://github.com/Azure/azure-sdk-for-android/issues/new).
 
 ## Next steps
-* Read more about Communication [user access tokens]<!--(https://review.docs.microsoft.com/azure/project-spool/concepts/authentication?branch=pr-en-us-104477)-->.
+* Read more about Communication [user access tokens](https://docs.microsoft.com/azure/communication-services/concepts/authentication).
 
 ## Contributing
 This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License
