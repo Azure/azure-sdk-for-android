@@ -40,3 +40,4 @@ stages:
       Artifacts:
         - name: azure-communication-common
           safeName: azurecommunicationcommon
+          groupId: com.azure.android
