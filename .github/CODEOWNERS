@@ -9,6 +9,7 @@
 /sdk/                                               @mayurid @jonathangiles @bsiegel
 
 # Service teams
+/sdk/communication                                  @RezaJooyandeh @JianpingChen
 /sdk/core/                                          @bsiegel @vcolin7 @anuchandy
 /sdk/storage/                                       @bsiegel @vcolin7 @anuchandy
 
