@@ -33,6 +33,17 @@ public class Page<T> {
     }
 
     /**
+     * Constructor with page id, items, and next page id
+     * @param pageId id of the page
+     * @param items items in the page
+     * @param nextPageId id of next page
+     */
+    public Page(@NonNull String pageId, @NonNull List<T> items, String nextPageId) {
+        this(pageId, items);
+        nextPageId = nextPageId;
+    }
+
+    /**
      * Get the page id
      * @return id of the page
      */
