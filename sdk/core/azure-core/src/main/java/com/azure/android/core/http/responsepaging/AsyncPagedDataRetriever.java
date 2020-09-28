@@ -4,12 +4,8 @@
  */
 package com.azure.android.core.http.responsepaging;
 
-import androidx.annotation.NonNull;
-
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.util.paging.Page;
-
-import java.util.Objects;
 
 /**
  * Represents an asynchronous paged data provider with fixed page size
@@ -17,26 +13,6 @@ import java.util.Objects;
  * @param <P> page that contains the items
  */
 public abstract class AsyncPagedDataRetriever<T, P extends Page<T>> {
-    private final int pageSize;
-
-    /**
-     * Constructor requires the fixed page size
-     * @param pageSize size of the pages
-     */
-    public AsyncPagedDataRetriever(@NonNull int pageSize){
-        Objects.requireNonNull(pageSize);
-        if (pageSize <= 0)
-            throw new IllegalArgumentException("pageSize must be a positive integer");
-        this.pageSize = pageSize;
-    }
-
-    /**
-     * Gets the size of the page
-     * @return size of the page
-     */
-    public int getPageSize(){
-        return this.pageSize;
-    }
 
     /**
      * Retrieve the first page in the collection

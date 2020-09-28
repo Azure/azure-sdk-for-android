@@ -14,22 +14,6 @@ import java.util.Objects;
  * @param <P> page of items
  */
 public abstract class PagedDataRetriever<T, P extends Page<T>> {
-    private final int pageSize;
-
-    protected PagedDataRetriever(@NonNull int pageSize) {
-        Objects.requireNonNull(pageSize);
-        if (pageSize <= 0)
-            throw new IllegalArgumentException("pageSize must be a positive integer");
-        this.pageSize = pageSize;
-    }
-
-    /**
-     * Size of the fixed size page
-     * @return size of page
-     */
-    public int getPageSize() {
-        return pageSize;
-    }
 
     /**
      * Retrieve first page of the collection. Throws RuntimeException on failure

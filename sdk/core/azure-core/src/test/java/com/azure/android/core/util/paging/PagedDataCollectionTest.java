@@ -31,7 +31,6 @@ public class PagedDataCollectionTest {
         public int getPageCallCount = 0;
 
         public ThreePageProvider() {
-            super(3);
             pages.put("1", new Page<Item>("1", Arrays.asList(new Item(1), new Item(2), new Item(3))).setNextPageId("2"));
             pages.put("2", new Page<Item>("2", Arrays.asList(new Item(4), new Item(5), new Item(6))).setNextPageId("3"));
             pages.put("3", new Page<Item>("3", Arrays.asList(new Item(7))));
