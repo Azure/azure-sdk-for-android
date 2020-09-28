@@ -4,8 +4,6 @@
  */
 package com.azure.android.core.http.responsepaging;
 
-import androidx.annotation.NonNull;
-
 import com.azure.android.core.http.Response;
 import com.azure.android.core.util.paging.Page;
 
