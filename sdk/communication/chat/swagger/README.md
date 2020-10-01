@@ -1,4 +1,4 @@
-# Azure Communciation Service - Chat SDK for Android
+# Azure Communication Service - Chat SDK for Android
 
 > see https://aka.ms/autorest
 
