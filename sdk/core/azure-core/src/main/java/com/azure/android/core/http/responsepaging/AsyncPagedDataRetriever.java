@@ -21,9 +21,9 @@ public abstract class AsyncPagedDataRetriever<T, P extends Page<T>> {
     public abstract void getFirstPage(Callback<P> callback);
 
     /**
-     * Retrieve a page with its id
+     * Retrieve a page with the given id
      * @param pageId id of the page
-     * @param callback callback function to handle the page data along with the response for retrieving it
+     * @param callback callback function to handle the page data along with the response it comes with
      */
     public abstract void getPage(String pageId, Callback<P> callback);
 }
