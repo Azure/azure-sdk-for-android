@@ -16,9 +16,9 @@ import java.util.Objects;
 import okhttp3.Response;
 
 /**
- * Represents a collection of pages where page data and response for retrieving it can be returned asynchronously
+ * Represents a collection of pages where page data and the response it comes with it can be obtained asynchronously
  * @param <T> type of the items in the page
- * @param <P> Page of items
+ * @param <P> type of the page
  */
 public class AsyncPagedDataCollection<T, P extends Page<T>> {
     private final AsyncPagedDataRetriever<T, P> asyncPagedDataRetriever;
