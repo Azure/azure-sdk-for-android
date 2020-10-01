@@ -16,7 +16,7 @@ public abstract class AsyncPagedDataRetriever<T, P extends Page<T>> {
 
     /**
      * Retrieve the first page in the collection
-     * @param callback callback function to handle the page data along with the response for retrieving it
+     * @param callback callback function to handle the page data along with the response it comes with
      */
     public abstract void getFirstPage(Callback<P> callback);
 
