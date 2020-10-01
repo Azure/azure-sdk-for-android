@@ -26,8 +26,8 @@ public class AsyncPagedDataCollection<T, P extends Page<T>> {
     private String firstPageId;
 
     /**
-     * Construction requires an asynchronous paged data provider
-     * @param asyncPagedDataRetriever an asynchronous page data provider
+     * Constructor requires an asynchronous paged data provider
+     * @param asyncPagedDataRetriever an asynchronous paged data provider
      */
     public AsyncPagedDataCollection(@NonNull AsyncPagedDataRetriever<T, P> asyncPagedDataRetriever) {
         Objects.requireNonNull(asyncPagedDataRetriever);
