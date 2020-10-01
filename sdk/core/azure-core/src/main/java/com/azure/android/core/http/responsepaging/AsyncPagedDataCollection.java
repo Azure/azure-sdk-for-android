@@ -84,9 +84,9 @@ public class AsyncPagedDataCollection<T, P extends Page<T>> {
     }
 
     /**
-     * Retrieve a page by its id
+     * Retrieve a page with the given id
      * @param pageId id of the page
-     * @param callback callback interface for handling the page along with its response
+     * @param callback callback interface for handling the page along with the response it comes with
      */
     public void getPage(@NonNull String pageId, @NonNull Callback<P> callback) {
         Objects.requireNonNull(pageId);
