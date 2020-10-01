@@ -39,7 +39,9 @@ public class PagedDataCollection<T, P extends Page<T>> {
         }
         P firstPage = pagedDataRetriever.getFirstPage();
         firstPageId = firstPage.getPageId();
-        pages.put(firstPage.getPageId(), firstPage);
+        if (firstPage.getPageId() != null) {
+            pages.put(firstPage.getPageId(), firstPage);
+        }
         return  firstPage;
     }
 
@@ -64,7 +66,9 @@ public class PagedDataCollection<T, P extends Page<T>> {
                 break;
             }
         }
-        pages.put(page.getPageId(), page);
+        if (page.getPageId() != null) {
+            pages.put(page.getPageId(), page);
+        }
         return page;
     }
 }

@@ -40,7 +40,7 @@ public class Page<T> {
      */
     public Page(@NonNull String pageId, @NonNull List<T> items, String nextPageId) {
         this(pageId, items);
-        nextPageId = nextPageId;
+        this.nextPageId = nextPageId;
     }
 
     /**
@@ -68,7 +68,7 @@ public class Page<T> {
     }
 
     /**
-     * Set next page id
+     * Set the next page id
      * @param nextPageId id of the page next to this page
      * @return current page
      */
@@ -78,15 +78,15 @@ public class Page<T> {
     }
 
     /**
-     * Get id of the page next to this page
+     * Get the next page id
      * @return id of the next page
      */
     public String getNextPageId() {
-        return nextPageId;
+        return this.nextPageId;
     }
 
     /**
-     * Set previous page id
+     * Set the previous page id
      * @param previousPageId id of the page before this page
      * @return current page
      */
@@ -96,7 +96,7 @@ public class Page<T> {
     }
 
     /**
-     * Get id of the page before current page
+     * Get the previous page id
      * @return id of the page before this page
      */
     public String getPreviousPageId() {

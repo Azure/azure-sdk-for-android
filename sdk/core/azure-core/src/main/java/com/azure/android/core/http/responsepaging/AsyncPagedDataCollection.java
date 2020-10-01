@@ -52,8 +52,8 @@ public class AsyncPagedDataCollection<T, P extends Page<T>> {
     }
 
     /**
-     * Gets first page in the collection along with the response retrieving the first page
-     * @param callback a callback interface for handling the first page and its response
+     * Retrieve the first page of the collection along with the response it comes with
+     * @param callback callback interface for handling the first page and the response it comes with
      */
     public void getFirstPage(@NonNull Callback<P> callback) {
         Objects.requireNonNull(callback);
