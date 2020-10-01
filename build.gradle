@@ -118,7 +118,7 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
                     artifact javadocJar
 
                     pom {
-                        name = project.publishName
+                        name = "Microsoft Azure Android Client Library common code For Communication Service"
                         description = project.description
                         url = 'https://github.com/Azure/azure-sdk-for-android'
                         licenses {
