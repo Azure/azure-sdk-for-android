@@ -9,22 +9,22 @@ import androidx.annotation.NonNull;
 import java.util.Objects;
 
 /**
- * Represents a synchronous paged data provider with fixed page size
- * @param <T> items in the page
- * @param <P> page of items
+ * Represents a synchronous paged data provider with a fixed page size
+ * @param <T> type of the items contained in the page
+ * @param <P> type of the page
  */
 public abstract class PagedDataRetriever<T, P extends Page<T>> {
 
     /**
-     * Retrieve first page of the collection. Throws RuntimeException on failure
+     * Retrieve the first page of the collection
      * @return the first page of the collection
      */
     public abstract P getFirstPage();
 
     /**
-     * Retrieve page with the given id. Throws RuntimeException on failure
+     * Retrieve a page with the given id
      * @param pageId id of the page to retrieve
-     * @return page of items
+     * @return a page that matches the given id
      */
     public abstract P getPage(String pageId);
 }

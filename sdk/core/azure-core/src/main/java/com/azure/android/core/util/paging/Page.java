@@ -36,7 +36,7 @@ public class Page<T> {
      * Constructor with page id, items, and next page id
      * @param pageId id of the page
      * @param items items in the page
-     * @param nextPageId id of next page
+     * @param nextPageId id of the next page
      */
     public Page(@NonNull String pageId, @NonNull List<T> items, String nextPageId) {
         this(pageId, items);
@@ -69,8 +69,8 @@ public class Page<T> {
 
     /**
      * Set the next page id
-     * @param nextPageId id of the page next to this page
-     * @return current page
+     * @param nextPageId id of the page after this page
+     * @return this page
      */
     public Page<T> setNextPageId(@NonNull String nextPageId) {
         this.nextPageId = nextPageId;
@@ -79,7 +79,7 @@ public class Page<T> {
 
     /**
      * Get the next page id
-     * @return id of the next page
+     * @return id of the page after this page
      */
     public String getNextPageId() {
         return this.nextPageId;
@@ -88,7 +88,7 @@ public class Page<T> {
     /**
      * Set the previous page id
      * @param previousPageId id of the page before this page
-     * @return current page
+     * @return this page
      */
     public Page<T> setPreviousPageId(@NonNull String previousPageId) {
         this.previousPageId = previousPageId;

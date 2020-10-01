@@ -34,8 +34,8 @@ public class PagedDataResponseCollection<T, P extends Page<T>> {
     }
 
     /**
-     * Retrieves the first page in the collection synchronously
-     * @return page data along with the response for retrieving the first page
+     * Retrieve the first page of the collection synchronously
+     * @return a response with page data for the first page of the collection
      */
     public Response<P> getFirstPage() {
         if (firstPageId != null) {
@@ -48,13 +48,13 @@ public class PagedDataResponseCollection<T, P extends Page<T>> {
             firstPageId = firstPageResponse.getValue().getPageId();
             pages.put(firstPageId, firstPageResponse);
         }
-        return  firstPageResponse;
+        return firstPageResponse;
     }
 
     /**
-     * Retrieve a page synchronously along with the response for retrieving it using page id
-     * @param pageId id of the page
-     * @return page and the response for retrieving it
+     * Retrieve a page with the given id synchronously along with the response it comes with
+     * @param pageId id of the page to retrieve
+     * @return a response with page data for the given page id
      */
     public Response<P> getPage(@NonNull String pageId) {
         Objects.requireNonNull(pageId);
@@ -76,7 +76,7 @@ public class PagedDataResponseCollection<T, P extends Page<T>> {
                     break;
                 }
             }
-            pages.put(pageResponse.getValue().getPageId(), pageResponse);
+            pages.put(pageId, pageResponse);
         }
         return pageResponse;
     }

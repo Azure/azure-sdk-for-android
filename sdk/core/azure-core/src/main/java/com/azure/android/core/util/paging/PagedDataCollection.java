@@ -11,9 +11,9 @@ import java.util.LinkedHashMap;
 import java.util.Objects;
 
 /**
- * Represents a collection of paged data with fixed page size where pages can be retrieved synchronously
+ * Represents a collection of paged data with a fixed page size where pages can be retrieved synchronously
  * @param <T> type of the items contained in the page
- * @param <P> page that contains the items
+ * @param <P> type of the page
  */
 public class PagedDataCollection<T, P extends Page<T>> {
     private final PagedDataRetriever<T, P> pagedDataRetriever;
@@ -21,8 +21,8 @@ public class PagedDataCollection<T, P extends Page<T>> {
     private String firstPageId;
 
     /**
-     * Constructor requires a synchronous paged data provider
-     * @param pagedDataRetriever paged data provider with fixed page size
+     * Constructor that requires a synchronous paged data provider
+     * @param pagedDataRetriever paged data provider with a fixed page size
      */
     public PagedDataCollection(@NonNull PagedDataRetriever<T, P> pagedDataRetriever) {
         Objects.requireNonNull(pagedDataRetriever);
@@ -30,27 +30,28 @@ public class PagedDataCollection<T, P extends Page<T>> {
     }
 
     /**
-     * Retrieve the first page in the collection
-     * @return First page of the collection
+     * Retrieve the first page of the collection
+     * @return the first page of the collection
      */
     public P getFirstPage() {
         if (firstPageId != null) {
             return pages.get(firstPageId);
         }
         P firstPage = pagedDataRetriever.getFirstPage();
-        firstPageId = firstPage.getPageId();
+        this.firstPageId = firstPage.getPageId();
         if (firstPage.getPageId() != null) {
             pages.put(firstPage.getPageId(), firstPage);
         }
-        return  firstPage;
+        return firstPage;
     }
 
     /**
-     * Retrieve a page with its id
-     * @param pageId id of the page
-     * @return page of data with the requested id
+     * Retrieve a page with the given id
+     * @param pageId id of the page to retrieve
+     * @return a page that matches the given id
      */
     public P getPage(@NonNull String pageId) {
+        Objects.requireNonNull(pageId);
         P page = pages.get(pageId);
         if (page != null) {
             return page;
