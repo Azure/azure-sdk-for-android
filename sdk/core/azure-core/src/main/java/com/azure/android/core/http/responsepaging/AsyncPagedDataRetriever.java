@@ -8,7 +8,7 @@ import com.azure.android.core.http.Callback;
 import com.azure.android.core.util.paging.Page;
 
 /**
- * Represents an asynchronous paged data provider with fixed page size
+ * Represents an asynchronous paged data provider with a fixed page size
  * @param <T> type of the items contained in the page
  * @param <P> page that contains the items
  */
