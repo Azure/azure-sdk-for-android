@@ -62,7 +62,7 @@ public class AsyncPagedDataCollection<T, P extends Page<T>> {
                 @Override
                 public void onSuccess(P value, Response response) {
                     if (value == null) {
-                        callback.onSuccess(value, response);
+                        callback.onSuccess(null, response);
                         return;
                     }
 
