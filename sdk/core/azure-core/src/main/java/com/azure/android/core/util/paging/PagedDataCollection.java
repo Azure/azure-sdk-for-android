@@ -51,6 +51,7 @@ public class PagedDataCollection<T, P extends Page<T>> {
      * @return a page that matches the given id
      */
     public P getPage(@NonNull String pageId) {
+        Objects.requireNonNull(pageId);
         P page = pages.get(pageId);
         if (page != null) {
             return page;
