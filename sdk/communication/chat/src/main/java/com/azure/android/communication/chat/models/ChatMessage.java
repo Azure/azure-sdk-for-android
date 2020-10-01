@@ -67,8 +67,8 @@ public final class ChatMessage {
     /*
      * The id of the chat message sender.
      */
-    @JsonProperty(value = "from", access = JsonProperty.Access.WRITE_ONLY)
-    private String from;
+    @JsonProperty(value = "senderId", access = JsonProperty.Access.WRITE_ONLY)
+    private String senderId;
 
     /*
      * The timestamp when the chat message was deleted. The timestamp is in
@@ -211,12 +211,12 @@ public final class ChatMessage {
     }
 
     /**
-     * Get the from property: The id of the chat message sender.
+     * Get the senderId property: The id of the chat message sender.
      * 
-     * @return the from value.
+     * @return the senderId value.
      */
-    public String getFrom() {
-        return this.from;
+    public String getSenderId() {
+        return this.senderId;
     }
 
     /**

@@ -7,6 +7,7 @@ package com.azure.android.communication.chat.models;
 import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.threeten.bp.OffsetDateTime;
 
 /**
  * The ChatThreadMember model.
@@ -27,17 +28,11 @@ public final class ChatThreadMember {
     private String displayName;
 
     /*
-     * Time from which the chat history is shared with the member in EPOCH time
-     * (milliseconds).
-     * 
-     * Possible values:
-     * - `0` which means share everything
-     * - `-1` which means share nothing
-     * - `1594691284031` which is epoch time equivalent to 7/14/2020 1:48:04 AM
-     * +00:00
+     * Time from which the chat history is shared with the member. The
+     * timestamp is in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
      */
     @JsonProperty(value = "shareHistoryTime")
-    private String shareHistoryTime;
+    private OffsetDateTime shareHistoryTime;
 
     /**
      * Get the id property: The id of the chat thread member in the format
@@ -83,34 +78,24 @@ public final class ChatThreadMember {
 
     /**
      * Get the shareHistoryTime property: Time from which the chat history is
-     * shared with the member in EPOCH time (milliseconds).
-     * 
-     * Possible values:
-     * - `0` which means share everything
-     * - `-1` which means share nothing
-     * - `1594691284031` which is epoch time equivalent to 7/14/2020 1:48:04 AM
-     * +00:00.
+     * shared with the member. The timestamp is in ISO8601 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
      * 
      * @return the shareHistoryTime value.
      */
-    public String getShareHistoryTime() {
+    public OffsetDateTime getShareHistoryTime() {
         return this.shareHistoryTime;
     }
 
     /**
      * Set the shareHistoryTime property: Time from which the chat history is
-     * shared with the member in EPOCH time (milliseconds).
-     * 
-     * Possible values:
-     * - `0` which means share everything
-     * - `-1` which means share nothing
-     * - `1594691284031` which is epoch time equivalent to 7/14/2020 1:48:04 AM
-     * +00:00.
+     * shared with the member. The timestamp is in ISO8601 format:
+     * `yyyy-MM-ddTHH:mm:ssZ`.
      * 
      * @param shareHistoryTime the shareHistoryTime value to set.
      * @return the ChatThreadMember object itself.
      */
-    public ChatThreadMember setShareHistoryTime(String shareHistoryTime) {
+    public ChatThreadMember setShareHistoryTime(OffsetDateTime shareHistoryTime) {
         this.shareHistoryTime = shareHistoryTime;
         return this;
     }

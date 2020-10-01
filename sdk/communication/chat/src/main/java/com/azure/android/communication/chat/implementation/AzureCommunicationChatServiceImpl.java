@@ -4,30 +4,37 @@
 
 package com.azure.android.communication.chat.implementation;
 
-import com.azure.android.communication.chat.models.AddChatThreadMembersRequest;
+import com.azure.android.communication.chat.models.AddChatThreadMembersOptions;
 import com.azure.android.communication.chat.models.ChatMessage;
+import com.azure.android.communication.chat.models.ChatMessagesCollection;
 import com.azure.android.communication.chat.models.ChatThread;
+import com.azure.android.communication.chat.models.ChatThreadInfo;
 import com.azure.android.communication.chat.models.ChatThreadMember;
-import com.azure.android.communication.chat.models.CreateChatThreadRequest;
-import com.azure.android.communication.chat.models.CreateChatThreadResult;
-import com.azure.android.communication.chat.models.ListChatMessagesResult;
-import com.azure.android.communication.chat.models.ListChatThreadsResult;
+import com.azure.android.communication.chat.models.ChatThreadMembersCollection;
+import com.azure.android.communication.chat.models.ChatThreadsInfoCollection;
+import com.azure.android.communication.chat.models.CreateChatThreadOptions;
+import com.azure.android.communication.chat.models.ErrorException;
+import com.azure.android.communication.chat.models.MultiStatusResponse;
 import com.azure.android.communication.chat.models.ReadReceipt;
-import com.azure.android.communication.chat.models.SendChatMessageRequest;
+import com.azure.android.communication.chat.models.ReadReceiptsCollection;
+import com.azure.android.communication.chat.models.SendChatMessageOptions;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.SendReadReceiptRequest;
-import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
-import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
+import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
+import com.azure.android.communication.chat.models.UpdateChatThreadOptions;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.exception.HttpResponseException;
+import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataRetriever;
+import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
 import com.azure.android.core.http.responsepaging.PagedDataResponseRetriever;
 import com.azure.android.core.internal.util.serializer.SerializerAdapter;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
+import com.azure.android.core.util.paging.Page;
+import com.azure.android.core.util.paging.PagedDataCollection;
 import com.azure.android.core.util.paging.PagedDataRetriever;
-import java.util.List;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.threeten.bp.OffsetDateTime;
@@ -125,7 +132,7 @@ public final class AzureCommunicationChatServiceImpl {
         Call<ResponseBody> sendChatMessage(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion, @Body RequestBody body);
 
         @GET("/chat/threads/{chatThreadId}/messages")
-        Call<ResponseBody> listChatMessages(@Path("chatThreadId") String chatThreadId, @Query("pageSize") Integer pageSize, @Query("startTime") OffsetDateTime startTime, @Query("syncState") String syncState, @Query("api-version") String apiVersion);
+        Call<ResponseBody> listChatMessages(@Path("chatThreadId") String chatThreadId, @Query("maxPageSize") Integer maxPageSize, @Query("startTime") OffsetDateTime startTime, @Query("api-version") String apiVersion);
 
         @GET("/chat/threads/{chatThreadId}/messages/{chatMessageId}")
         Call<ResponseBody> getChatMessage(@Path("chatThreadId") String chatThreadId, @Path("chatMessageId") String chatMessageId, @Query("api-version") String apiVersion);
@@ -152,7 +159,7 @@ public final class AzureCommunicationChatServiceImpl {
         Call<ResponseBody> createChatThread(@Query("api-version") String apiVersion, @Body RequestBody body);
 
         @GET("/chat/threads")
-        Call<ResponseBody> listChatThreads(@Query("pageSize") Integer pageSize, @Query("syncState") String syncState, @Query("api-version") String apiVersion);
+        Call<ResponseBody> listChatThreads(@Query("maxPageSize") Integer maxPageSize, @Query("startTime") OffsetDateTime startTime, @Query("api-version") String apiVersion);
 
         @PATCH("/chat/threads/{chatThreadId}")
         Call<ResponseBody> updateChatThread(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion, @Body RequestBody body);
@@ -162,6 +169,18 @@ public final class AzureCommunicationChatServiceImpl {
 
         @DELETE("/chat/threads/{chatThreadId}")
         Call<ResponseBody> deleteChatThread(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion);
+
+        @GET("{nextLink}")
+        Call<ResponseBody> listChatReadReceiptsNext(@Path(value = "nextLink", encoded = true) String nextLink);
+
+        @GET("{nextLink}")
+        Call<ResponseBody> listChatMessagesNext(@Path(value = "nextLink", encoded = true) String nextLink);
+
+        @GET("{nextLink}")
+        Call<ResponseBody> listChatThreadMembersNext(@Path(value = "nextLink", encoded = true) String nextLink);
+
+        @GET("{nextLink}")
+        Call<ResponseBody> listChatThreadsNext(@Path(value = "nextLink", encoded = true) String nextLink);
     }
 
     /**
@@ -170,27 +189,27 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatThreadId Thread id to get the read receipts for.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatReadReceipts(String chatThreadId, final Callback<List<ReadReceipt>> callback) {
+    public void listChatReadReceipts(String chatThreadId, final Callback<Page<ReadReceipt>> callback) {
         Call<ResponseBody> call = service.listChatReadReceipts(chatThreadId, this.getApiVersion());
         retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     if (response.code() == 200) {
-                        final List<ReadReceipt> decodedResult;
+                        final ReadReceiptsCollection decodedResult;
                         try {
-                            decodedResult = deserializeContent(response.headers(), response.body(), createParameterizedType(java.util.List.class, ReadReceipt.class));
+                            decodedResult = deserializeContent(response.headers(), response.body(), ReadReceiptsCollection.class);
                         } catch(Exception ex) {
                             callback.onFailure(ex, response.raw());
                             return;
                         }
-                        callback.onSuccess(decodedResult, response.raw());
+                        callback.onSuccess(new Page<ReadReceipt>(response.raw().request().url().toString(), decodedResult.getValue(), decodedResult.getNextLink()), response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -206,31 +225,137 @@ public final class AzureCommunicationChatServiceImpl {
         call.enqueue(retrofitCallback);
     }
 
+    private static final class ReadReceiptPageAsyncRetriever extends AsyncPagedDataRetriever<ReadReceipt, Page<ReadReceipt>> {
+        private final String chatThreadId;
+
+        private final AzureCommunicationChatServiceImpl serviceClient;
+
+        public ReadReceiptPageAsyncRetriever(String chatThreadId, AzureCommunicationChatServiceImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.serviceClient = serviceClient;
+        }
+
+        public void getFirstPage(Callback<Page<ReadReceipt>> callback) {
+            serviceClient.listChatReadReceipts(chatThreadId, callback);
+        }
+
+        public void getPage(String pageId, Callback<Page<ReadReceipt>> callback) {
+            serviceClient.listChatReadReceiptsNext(pageId, callback);
+        }
+    }
+
+    private static final class ReadReceiptPageResponseRetriever extends PagedDataResponseRetriever<ReadReceipt, Page<ReadReceipt>> {
+        private final String chatThreadId;
+
+        private final AzureCommunicationChatServiceImpl serviceClient;
+
+        public ReadReceiptPageResponseRetriever(String chatThreadId, AzureCommunicationChatServiceImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.serviceClient = serviceClient;
+        }
+
+        public Response<Page<ReadReceipt>> getFirstPage() {
+             return serviceClient.listChatReadReceiptsWithRestResponse(chatThreadId);
+        }
+
+        public Response<Page<ReadReceipt>> getPage(String pageId) {
+            return serviceClient.listChatReadReceiptsNextWithRestResponse(pageId);
+        }
+    }
+
+    private static final class ReadReceiptPageRetriever extends PagedDataRetriever<ReadReceipt, Page<ReadReceipt>> {
+        private final String chatThreadId;
+
+        private final AzureCommunicationChatServiceImpl serviceClient;
+
+        public ReadReceiptPageRetriever(String chatThreadId, AzureCommunicationChatServiceImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.serviceClient = serviceClient;
+        }
+
+        public Page<ReadReceipt> getFirstPage() {
+             return serviceClient.listChatReadReceiptsWithRestResponse(chatThreadId).getValue();
+        }
+
+        public Page<ReadReceipt> getPage(String pageId) {
+            return serviceClient.listChatReadReceiptsNextWithRestResponse(pageId).getValue();
+        }
+    }
+
     /**
      * Gets read receipts for a thread.
      * 
      * @param chatThreadId Thread id to get the read receipts for.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return read receipts for a thread.
      */
-    public Response<List<ReadReceipt>> listChatReadReceiptsWithRestResponse(String chatThreadId) {
+    public Response<Page<ReadReceipt>> listChatReadReceiptsWithRestResponse(String chatThreadId) {
         final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.listChatReadReceipts(chatThreadId, this.getApiVersion()));
         if (response.isSuccessful()) {
             if (response.code() == 200) {
+                final ReadReceiptsCollection decodedResult;
+                try {
+                    decodedResult = this.deserializeContent(response.headers(), response.body(), ReadReceiptsCollection.class);
+                } catch(Exception ex) {
+                    final String strContent = this.readAsString(response.body());
+                    throw new ErrorException(strContent, response.raw());
+                }
                 return new Response<>(response.raw().request(),
                                         response.code(),
                                         response.headers(),
-                                        this.deserializeContent(response.headers(), response.body(), this.createParameterizedType(java.util.List.class, ReadReceipt.class)));
+                                        new Page<ReadReceipt>(response.raw().request().url().toString(), decodedResult.getValue(), decodedResult.getNextLink()));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
             throw new HttpResponseException(strContent, response.raw());
         }
+    }
+
+    /**
+     * Gets read receipts for a thread.
+     * 
+     * @param chatThreadId Thread id to get the read receipts for.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return read receipts for a thread.
+     */
+    public PagedDataResponseCollection<ReadReceipt, Page<ReadReceipt>> listChatReadReceiptsWithPageResponse(String chatThreadId) {
+        ReadReceiptPageResponseRetriever retriever = new ReadReceiptPageResponseRetriever(chatThreadId, this);
+        return new PagedDataResponseCollection<ReadReceipt, Page<ReadReceipt>>(retriever);
+    }
+
+    /**
+     * Gets read receipts for a thread.
+     * 
+     * @param chatThreadId Thread id to get the read receipts for.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return read receipts for a thread.
+     */
+    public PagedDataCollection<ReadReceipt, Page<ReadReceipt>> listChatReadReceiptsWithPage(String chatThreadId) {
+        ReadReceiptPageRetriever retriever = new ReadReceiptPageRetriever(chatThreadId, this);
+        return new PagedDataCollection<ReadReceipt, Page<ReadReceipt>>(retriever);
+    }
+
+    /**
+     * Gets read receipts for a thread.
+     * 
+     * @param chatThreadId Thread id to get the read receipts for.
+     * @param collectionCallback the Callback that receives the response collection.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void listChatReadReceiptsPagesAsync(String chatThreadId, final Callback<AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>>> collectionCallback) {
+        ReadReceiptPageAsyncRetriever retriever = new ReadReceiptPageAsyncRetriever(chatThreadId, this);
+        collectionCallback.onSuccess(new AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>>(retriever), null);
     }
 
     /**
@@ -240,7 +365,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @param body Request payload for sending a read receipt.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void sendChatReadReceipt(String chatThreadId, SendReadReceiptRequest body, final Callback<Void> callback) {
@@ -267,7 +392,7 @@ public final class AzureCommunicationChatServiceImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -289,7 +414,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatThreadId Thread id to send the read receipt event to.
      * @param body Request payload for sending a read receipt.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -309,7 +434,7 @@ public final class AzureCommunicationChatServiceImpl {
                                         this.deserializeContent(response.headers(), response.body(), Void.class));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
@@ -324,10 +449,10 @@ public final class AzureCommunicationChatServiceImpl {
      * @param body Details of the message to send.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void sendChatMessage(String chatThreadId, SendChatMessageRequest body, final Callback<SendChatMessageResult> callback) {
+    public void sendChatMessage(String chatThreadId, SendChatMessageOptions body, final Callback<SendChatMessageResult> callback) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), serializerAdapter.serialize(body, resolveSerializerFormat("application/json")));
@@ -351,7 +476,7 @@ public final class AzureCommunicationChatServiceImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -373,11 +498,11 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatThreadId The thread id to send the message to.
      * @param body Details of the message to send.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the send message operation.
      */
-    public Response<SendChatMessageResult> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageRequest body) {
+    public Response<SendChatMessageResult> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageOptions body) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.serializerAdapter.serialize(body, this.resolveSerializerFormat("application/json")));
@@ -393,7 +518,7 @@ public final class AzureCommunicationChatServiceImpl {
                                         this.deserializeContent(response.headers(), response.body(), SendChatMessageResult.class));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
@@ -405,32 +530,31 @@ public final class AzureCommunicationChatServiceImpl {
      * Gets a list of messages from a thread.
      * 
      * @param chatThreadId The thread id of the message.
-     * @param pageSize The number of messages being requested.
+     * @param maxPageSize The maximum number of messages to be returned per page.
      * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     * @param syncState The continuation token that previous request obtained. This is used for paging.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatMessages(String chatThreadId, Integer pageSize, OffsetDateTime startTime, String syncState, final Callback<ListChatMessagesResult> callback) {
-        Call<ResponseBody> call = service.listChatMessages(chatThreadId, pageSize, startTime, syncState, this.getApiVersion());
+    public void listChatMessages(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, final Callback<Page<ChatMessage>> callback) {
+        Call<ResponseBody> call = service.listChatMessages(chatThreadId, maxPageSize, startTime, this.getApiVersion());
         retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     if (response.code() == 200) {
-                        final ListChatMessagesResult decodedResult;
+                        final ChatMessagesCollection decodedResult;
                         try {
-                            decodedResult = deserializeContent(response.headers(), response.body(), ListChatMessagesResult.class);
+                            decodedResult = deserializeContent(response.headers(), response.body(), ChatMessagesCollection.class);
                         } catch(Exception ex) {
                             callback.onFailure(ex, response.raw());
                             return;
                         }
-                        callback.onSuccess(decodedResult, response.raw());
+                        callback.onSuccess(new Page<ChatMessage>(response.raw().request().url().toString(), decodedResult.getValue(), decodedResult.getNextLink()), response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -446,45 +570,125 @@ public final class AzureCommunicationChatServiceImpl {
         call.enqueue(retrofitCallback);
     }
 
-    /**
-     * Gets a list of messages from a thread.
-     * 
-     * @param chatThreadId The thread id of the message.
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void listChatMessages(String chatThreadId, final Callback<ListChatMessagesResult> callback) {
-        final Integer pageSize = null;
-        final OffsetDateTime startTime = null;
-        final String syncState = null;
-        listChatMessages(chatThreadId, pageSize, startTime, syncState, callback);
+    private static final class ChatMessagePageAsyncRetriever extends AsyncPagedDataRetriever<ChatMessage, Page<ChatMessage>> {
+        private final String chatThreadId;
+
+        private final Integer maxPageSize;
+
+        private final OffsetDateTime startTime;
+
+        private final AzureCommunicationChatServiceImpl serviceClient;
+
+        public ChatMessagePageAsyncRetriever(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, AzureCommunicationChatServiceImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.maxPageSize = maxPageSize;
+            this.startTime = startTime;
+            this.serviceClient = serviceClient;
+        }
+
+        public void getFirstPage(Callback<Page<ChatMessage>> callback) {
+            serviceClient.listChatMessages(chatThreadId, maxPageSize, startTime, callback);
+        }
+
+        public void getPage(String pageId, Callback<Page<ChatMessage>> callback) {
+            serviceClient.listChatMessagesNext(pageId, callback);
+        }
+    }
+
+    private static final class ChatMessagePageResponseRetriever extends PagedDataResponseRetriever<ChatMessage, Page<ChatMessage>> {
+        private final String chatThreadId;
+
+        private final Integer maxPageSize;
+
+        private final OffsetDateTime startTime;
+
+        private final AzureCommunicationChatServiceImpl serviceClient;
+
+        public ChatMessagePageResponseRetriever(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, AzureCommunicationChatServiceImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.maxPageSize = maxPageSize;
+            this.startTime = startTime;
+            this.serviceClient = serviceClient;
+        }
+
+        public Response<Page<ChatMessage>> getFirstPage() {
+             return serviceClient.listChatMessagesWithRestResponse(chatThreadId, maxPageSize, startTime);
+        }
+
+        public Response<Page<ChatMessage>> getPage(String pageId) {
+            return serviceClient.listChatMessagesNextWithRestResponse(pageId);
+        }
+    }
+
+    private static final class ChatMessagePageRetriever extends PagedDataRetriever<ChatMessage, Page<ChatMessage>> {
+        private final String chatThreadId;
+
+        private final Integer maxPageSize;
+
+        private final OffsetDateTime startTime;
+
+        private final AzureCommunicationChatServiceImpl serviceClient;
+
+        public ChatMessagePageRetriever(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, AzureCommunicationChatServiceImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.maxPageSize = maxPageSize;
+            this.startTime = startTime;
+            this.serviceClient = serviceClient;
+        }
+
+        public Page<ChatMessage> getFirstPage() {
+             return serviceClient.listChatMessagesWithRestResponse(chatThreadId, maxPageSize, startTime).getValue();
+        }
+
+        public Page<ChatMessage> getPage(String pageId) {
+            return serviceClient.listChatMessagesNextWithRestResponse(pageId).getValue();
+        }
     }
 
     /**
      * Gets a list of messages from a thread.
      * 
      * @param chatThreadId The thread id of the message.
-     * @param pageSize The number of messages being requested.
-     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     * @param syncState The continuation token that previous request obtained. This is used for paging.
+     * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void listChatMessages(String chatThreadId, final Callback<Page<ChatMessage>> callback) {
+        final Integer maxPageSize = null;
+        final OffsetDateTime startTime = null;
+        listChatMessages(chatThreadId, maxPageSize, startTime, callback);
+    }
+
+    /**
+     * Gets a list of messages from a thread.
+     * 
+     * @param chatThreadId The thread id of the message.
+     * @param maxPageSize The maximum number of messages to be returned per page.
+     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a list of messages from a thread.
      */
-    public Response<ListChatMessagesResult> listChatMessagesWithRestResponse(String chatThreadId, Integer pageSize, OffsetDateTime startTime, String syncState) {
-        final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.listChatMessages(chatThreadId, pageSize, startTime, syncState, this.getApiVersion()));
+    public Response<Page<ChatMessage>> listChatMessagesWithRestResponse(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime) {
+        final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.listChatMessages(chatThreadId, maxPageSize, startTime, this.getApiVersion()));
         if (response.isSuccessful()) {
             if (response.code() == 200) {
+                final ChatMessagesCollection decodedResult;
+                try {
+                    decodedResult = this.deserializeContent(response.headers(), response.body(), ChatMessagesCollection.class);
+                } catch(Exception ex) {
+                    final String strContent = this.readAsString(response.body());
+                    throw new ErrorException(strContent, response.raw());
+                }
                 return new Response<>(response.raw().request(),
                                         response.code(),
                                         response.headers(),
-                                        this.deserializeContent(response.headers(), response.body(), ListChatMessagesResult.class));
+                                        new Page<ChatMessage>(response.raw().request().url().toString(), decodedResult.getValue(), decodedResult.getNextLink()));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
@@ -496,16 +700,63 @@ public final class AzureCommunicationChatServiceImpl {
      * Gets a list of messages from a thread.
      * 
      * @param chatThreadId The thread id of the message.
+     * @param maxPageSize The maximum number of messages to be returned per page.
+     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a list of messages from a thread.
      */
-    public ListChatMessagesResult listChatMessages(String chatThreadId) {
-        final Integer pageSize = null;
+    public PagedDataResponseCollection<ChatMessage, Page<ChatMessage>> listChatMessagesWithPageResponse(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime) {
+        ChatMessagePageResponseRetriever retriever = new ChatMessagePageResponseRetriever(chatThreadId, maxPageSize, startTime, this);
+        return new PagedDataResponseCollection<ChatMessage, Page<ChatMessage>>(retriever);
+    }
+
+    /**
+     * Gets a list of messages from a thread.
+     * 
+     * @param chatThreadId The thread id of the message.
+     * @param maxPageSize The maximum number of messages to be returned per page.
+     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a list of messages from a thread.
+     */
+    public PagedDataCollection<ChatMessage, Page<ChatMessage>> listChatMessagesWithPage(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime) {
+        ChatMessagePageRetriever retriever = new ChatMessagePageRetriever(chatThreadId, maxPageSize, startTime, this);
+        return new PagedDataCollection<ChatMessage, Page<ChatMessage>>(retriever);
+    }
+
+    /**
+     * Gets a list of messages from a thread.
+     * 
+     * @param chatThreadId The thread id of the message.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a list of messages from a thread.
+     */
+    public Page<ChatMessage> listChatMessages(String chatThreadId) {
+        final Integer maxPageSize = null;
         final OffsetDateTime startTime = null;
-        final String syncState = null;
-        return listChatMessagesWithRestResponse(chatThreadId, pageSize, startTime, syncState).getValue();
+        return listChatMessagesWithRestResponse(chatThreadId, maxPageSize, startTime).getValue();
+    }
+
+    /**
+     * Gets a list of messages from a thread.
+     * 
+     * @param chatThreadId The thread id of the message.
+     * @param collectionCallback the Callback that receives the response collection.
+     * @param maxPageSize The maximum number of messages to be returned per page.
+     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void listChatMessagesPagesAsync(String chatThreadId, final Callback<AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>> collectionCallback, Integer maxPageSize, OffsetDateTime startTime) {
+        ChatMessagePageAsyncRetriever retriever = new ChatMessagePageAsyncRetriever(chatThreadId, maxPageSize, startTime, this);
+        collectionCallback.onSuccess(new AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>(retriever), null);
     }
 
     /**
@@ -515,7 +766,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatMessageId The message id.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void getChatMessage(String chatThreadId, String chatMessageId, final Callback<ChatMessage> callback) {
@@ -535,7 +786,7 @@ public final class AzureCommunicationChatServiceImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -557,7 +808,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a message by id.
      */
@@ -571,7 +822,7 @@ public final class AzureCommunicationChatServiceImpl {
                                         this.deserializeContent(response.headers(), response.body(), ChatMessage.class));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
@@ -587,10 +838,10 @@ public final class AzureCommunicationChatServiceImpl {
      * @param body Details of the request to update the message.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void updateChatMessage(String chatThreadId, String chatMessageId, UpdateChatMessageRequest body, final Callback<Void> callback) {
+    public void updateChatMessage(String chatThreadId, String chatMessageId, UpdateChatMessageOptions body, final Callback<Void> callback) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), serializerAdapter.serialize(body, resolveSerializerFormat("application/json")));
@@ -614,7 +865,7 @@ public final class AzureCommunicationChatServiceImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -637,11 +888,11 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatMessageId The message id.
      * @param body Details of the request to update the message.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> updateChatMessageWithRestResponse(String chatThreadId, String chatMessageId, UpdateChatMessageRequest body) {
+    public Response<Void> updateChatMessageWithRestResponse(String chatThreadId, String chatMessageId, UpdateChatMessageOptions body) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.serializerAdapter.serialize(body, this.resolveSerializerFormat("application/json")));
@@ -657,7 +908,7 @@ public final class AzureCommunicationChatServiceImpl {
                                         this.deserializeContent(response.headers(), response.body(), Void.class));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
@@ -672,7 +923,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatMessageId The message id.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void deleteChatMessage(String chatThreadId, String chatMessageId, final Callback<Void> callback) {
@@ -681,7 +932,7 @@ public final class AzureCommunicationChatServiceImpl {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    if (response.code() == 200) {
+                    if (response.code() == 204) {
                         final Void decodedResult;
                         try {
                             decodedResult = deserializeContent(response.headers(), response.body(), Void.class);
@@ -692,7 +943,7 @@ public final class AzureCommunicationChatServiceImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -714,21 +965,21 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
     public Response<Void> deleteChatMessageWithRestResponse(String chatThreadId, String chatMessageId) {
         final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.deleteChatMessage(chatThreadId, chatMessageId, this.getApiVersion()));
         if (response.isSuccessful()) {
-            if (response.code() == 200) {
+            if (response.code() == 204) {
                 return new Response<>(response.raw().request(),
                                         response.code(),
                                         response.headers(),
                                         this.deserializeContent(response.headers(), response.body(), Void.class));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
@@ -742,7 +993,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatThreadId Id of the thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void sendTypingNotification(String chatThreadId, final Callback<Void> callback) {
@@ -762,7 +1013,7 @@ public final class AzureCommunicationChatServiceImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -783,7 +1034,7 @@ public final class AzureCommunicationChatServiceImpl {
      * 
      * @param chatThreadId Id of the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -797,7 +1048,7 @@ public final class AzureCommunicationChatServiceImpl {
                                         this.deserializeContent(response.headers(), response.body(), Void.class));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
@@ -811,27 +1062,27 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatThreadId Thread id to get members for.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatThreadMembers(String chatThreadId, final Callback<List<ChatThreadMember>> callback) {
+    public void listChatThreadMembers(String chatThreadId, final Callback<Page<ChatThreadMember>> callback) {
         Call<ResponseBody> call = service.listChatThreadMembers(chatThreadId, this.getApiVersion());
         retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     if (response.code() == 200) {
-                        final List<ChatThreadMember> decodedResult;
+                        final ChatThreadMembersCollection decodedResult;
                         try {
-                            decodedResult = deserializeContent(response.headers(), response.body(), createParameterizedType(java.util.List.class, ChatThreadMember.class));
+                            decodedResult = deserializeContent(response.headers(), response.body(), ChatThreadMembersCollection.class);
                         } catch(Exception ex) {
                             callback.onFailure(ex, response.raw());
                             return;
                         }
-                        callback.onSuccess(decodedResult, response.raw());
+                        callback.onSuccess(new Page<ChatThreadMember>(response.raw().request().url().toString(), decodedResult.getValue(), decodedResult.getNextLink()), response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -847,31 +1098,137 @@ public final class AzureCommunicationChatServiceImpl {
         call.enqueue(retrofitCallback);
     }
 
+    private static final class ChatThreadMemberPageAsyncRetriever extends AsyncPagedDataRetriever<ChatThreadMember, Page<ChatThreadMember>> {
+        private final String chatThreadId;
+
+        private final AzureCommunicationChatServiceImpl serviceClient;
+
+        public ChatThreadMemberPageAsyncRetriever(String chatThreadId, AzureCommunicationChatServiceImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.serviceClient = serviceClient;
+        }
+
+        public void getFirstPage(Callback<Page<ChatThreadMember>> callback) {
+            serviceClient.listChatThreadMembers(chatThreadId, callback);
+        }
+
+        public void getPage(String pageId, Callback<Page<ChatThreadMember>> callback) {
+            serviceClient.listChatThreadMembersNext(pageId, callback);
+        }
+    }
+
+    private static final class ChatThreadMemberPageResponseRetriever extends PagedDataResponseRetriever<ChatThreadMember, Page<ChatThreadMember>> {
+        private final String chatThreadId;
+
+        private final AzureCommunicationChatServiceImpl serviceClient;
+
+        public ChatThreadMemberPageResponseRetriever(String chatThreadId, AzureCommunicationChatServiceImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.serviceClient = serviceClient;
+        }
+
+        public Response<Page<ChatThreadMember>> getFirstPage() {
+             return serviceClient.listChatThreadMembersWithRestResponse(chatThreadId);
+        }
+
+        public Response<Page<ChatThreadMember>> getPage(String pageId) {
+            return serviceClient.listChatThreadMembersNextWithRestResponse(pageId);
+        }
+    }
+
+    private static final class ChatThreadMemberPageRetriever extends PagedDataRetriever<ChatThreadMember, Page<ChatThreadMember>> {
+        private final String chatThreadId;
+
+        private final AzureCommunicationChatServiceImpl serviceClient;
+
+        public ChatThreadMemberPageRetriever(String chatThreadId, AzureCommunicationChatServiceImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.serviceClient = serviceClient;
+        }
+
+        public Page<ChatThreadMember> getFirstPage() {
+             return serviceClient.listChatThreadMembersWithRestResponse(chatThreadId).getValue();
+        }
+
+        public Page<ChatThreadMember> getPage(String pageId) {
+            return serviceClient.listChatThreadMembersNextWithRestResponse(pageId).getValue();
+        }
+    }
+
     /**
      * Gets the members of a thread.
      * 
      * @param chatThreadId Thread id to get members for.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the members of a thread.
      */
-    public Response<List<ChatThreadMember>> listChatThreadMembersWithRestResponse(String chatThreadId) {
+    public Response<Page<ChatThreadMember>> listChatThreadMembersWithRestResponse(String chatThreadId) {
         final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.listChatThreadMembers(chatThreadId, this.getApiVersion()));
         if (response.isSuccessful()) {
             if (response.code() == 200) {
+                final ChatThreadMembersCollection decodedResult;
+                try {
+                    decodedResult = this.deserializeContent(response.headers(), response.body(), ChatThreadMembersCollection.class);
+                } catch(Exception ex) {
+                    final String strContent = this.readAsString(response.body());
+                    throw new ErrorException(strContent, response.raw());
+                }
                 return new Response<>(response.raw().request(),
                                         response.code(),
                                         response.headers(),
-                                        this.deserializeContent(response.headers(), response.body(), this.createParameterizedType(java.util.List.class, ChatThreadMember.class)));
+                                        new Page<ChatThreadMember>(response.raw().request().url().toString(), decodedResult.getValue(), decodedResult.getNextLink()));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
             throw new HttpResponseException(strContent, response.raw());
         }
+    }
+
+    /**
+     * Gets the members of a thread.
+     * 
+     * @param chatThreadId Thread id to get members for.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the members of a thread.
+     */
+    public PagedDataResponseCollection<ChatThreadMember, Page<ChatThreadMember>> listChatThreadMembersWithPageResponse(String chatThreadId) {
+        ChatThreadMemberPageResponseRetriever retriever = new ChatThreadMemberPageResponseRetriever(chatThreadId, this);
+        return new PagedDataResponseCollection<ChatThreadMember, Page<ChatThreadMember>>(retriever);
+    }
+
+    /**
+     * Gets the members of a thread.
+     * 
+     * @param chatThreadId Thread id to get members for.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the members of a thread.
+     */
+    public PagedDataCollection<ChatThreadMember, Page<ChatThreadMember>> listChatThreadMembersWithPage(String chatThreadId) {
+        ChatThreadMemberPageRetriever retriever = new ChatThreadMemberPageRetriever(chatThreadId, this);
+        return new PagedDataCollection<ChatThreadMember, Page<ChatThreadMember>>(retriever);
+    }
+
+    /**
+     * Gets the members of a thread.
+     * 
+     * @param chatThreadId Thread id to get members for.
+     * @param collectionCallback the Callback that receives the response collection.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void listChatThreadMembersPagesAsync(String chatThreadId, final Callback<AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>>> collectionCallback) {
+        ChatThreadMemberPageAsyncRetriever retriever = new ChatThreadMemberPageAsyncRetriever(chatThreadId, this);
+        collectionCallback.onSuccess(new AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>>(retriever), null);
     }
 
     /**
@@ -881,10 +1238,10 @@ public final class AzureCommunicationChatServiceImpl {
      * @param body Thread members to be added to the thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void addChatThreadMembers(String chatThreadId, AddChatThreadMembersRequest body, final Callback<Void> callback) {
+    public void addChatThreadMembers(String chatThreadId, AddChatThreadMembersOptions body, final Callback<Void> callback) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), serializerAdapter.serialize(body, resolveSerializerFormat("application/json")));
@@ -897,7 +1254,7 @@ public final class AzureCommunicationChatServiceImpl {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    if (response.code() == 201) {
+                    if (response.code() == 207) {
                         final Void decodedResult;
                         try {
                             decodedResult = deserializeContent(response.headers(), response.body(), Void.class);
@@ -908,7 +1265,7 @@ public final class AzureCommunicationChatServiceImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -930,11 +1287,11 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatThreadId Id of the thread to add members to.
      * @param body Thread members to be added to the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> addChatThreadMembersWithRestResponse(String chatThreadId, AddChatThreadMembersRequest body) {
+    public Response<Void> addChatThreadMembersWithRestResponse(String chatThreadId, AddChatThreadMembersOptions body) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.serializerAdapter.serialize(body, this.resolveSerializerFormat("application/json")));
@@ -943,14 +1300,14 @@ public final class AzureCommunicationChatServiceImpl {
         }
         final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.addChatThreadMembers(chatThreadId, this.getApiVersion(), okHttp3RequestBody));
         if (response.isSuccessful()) {
-            if (response.code() == 201) {
+            if (response.code() == 207) {
                 return new Response<>(response.raw().request(),
                                         response.code(),
                                         response.headers(),
                                         this.deserializeContent(response.headers(), response.body(), Void.class));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
@@ -965,7 +1322,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatMemberId Id of the thread member to remove from the thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void removeChatThreadMember(String chatThreadId, String chatMemberId, final Callback<Void> callback) {
@@ -974,7 +1331,7 @@ public final class AzureCommunicationChatServiceImpl {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    if (response.code() == 200) {
+                    if (response.code() == 204) {
                         final Void decodedResult;
                         try {
                             decodedResult = deserializeContent(response.headers(), response.body(), Void.class);
@@ -985,7 +1342,7 @@ public final class AzureCommunicationChatServiceImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -1007,21 +1364,21 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatThreadId Thread id to remove the member from.
      * @param chatMemberId Id of the thread member to remove from the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
     public Response<Void> removeChatThreadMemberWithRestResponse(String chatThreadId, String chatMemberId) {
         final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.removeChatThreadMember(chatThreadId, chatMemberId, this.getApiVersion()));
         if (response.isSuccessful()) {
-            if (response.code() == 200) {
+            if (response.code() == 204) {
                 return new Response<>(response.raw().request(),
                                         response.code(),
                                         response.headers(),
                                         this.deserializeContent(response.headers(), response.body(), Void.class));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
@@ -1035,10 +1392,10 @@ public final class AzureCommunicationChatServiceImpl {
      * @param body Request payload for creating a chat thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void createChatThread(CreateChatThreadRequest body, final Callback<CreateChatThreadResult> callback) {
+    public void createChatThread(CreateChatThreadOptions body, final Callback<MultiStatusResponse> callback) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), serializerAdapter.serialize(body, resolveSerializerFormat("application/json")));
@@ -1051,10 +1408,10 @@ public final class AzureCommunicationChatServiceImpl {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    if (response.code() == 201) {
-                        final CreateChatThreadResult decodedResult;
+                    if (response.code() == 207) {
+                        final MultiStatusResponse decodedResult;
                         try {
-                            decodedResult = deserializeContent(response.headers(), response.body(), CreateChatThreadResult.class);
+                            decodedResult = deserializeContent(response.headers(), response.body(), MultiStatusResponse.class);
                         } catch(Exception ex) {
                             callback.onFailure(ex, response.raw());
                             return;
@@ -1062,7 +1419,7 @@ public final class AzureCommunicationChatServiceImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -1083,11 +1440,11 @@ public final class AzureCommunicationChatServiceImpl {
      * 
      * @param body Request payload for creating a chat thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return result for the create chat thread operation.
+     * @return the response.
      */
-    public Response<CreateChatThreadResult> createChatThreadWithRestResponse(CreateChatThreadRequest body) {
+    public Response<MultiStatusResponse> createChatThreadWithRestResponse(CreateChatThreadOptions body) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.serializerAdapter.serialize(body, this.resolveSerializerFormat("application/json")));
@@ -1096,14 +1453,14 @@ public final class AzureCommunicationChatServiceImpl {
         }
         final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.createChatThread(this.getApiVersion(), okHttp3RequestBody));
         if (response.isSuccessful()) {
-            if (response.code() == 201) {
+            if (response.code() == 207) {
                 return new Response<>(response.raw().request(),
                                         response.code(),
                                         response.headers(),
-                                        this.deserializeContent(response.headers(), response.body(), CreateChatThreadResult.class));
+                                        this.deserializeContent(response.headers(), response.body(), MultiStatusResponse.class));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
@@ -1114,31 +1471,31 @@ public final class AzureCommunicationChatServiceImpl {
     /**
      * Gets the list of chat threads of a user.
      * 
-     * @param pageSize The number of threads being requested.
-     * @param syncState The continuation token that previous request obtained. This is used for paging.
+     * @param maxPageSize The maximum number of chat threads returned per page.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatThreads(Integer pageSize, String syncState, final Callback<ListChatThreadsResult> callback) {
-        Call<ResponseBody> call = service.listChatThreads(pageSize, syncState, this.getApiVersion());
+    public void listChatThreads(Integer maxPageSize, OffsetDateTime startTime, final Callback<Page<ChatThreadInfo>> callback) {
+        Call<ResponseBody> call = service.listChatThreads(maxPageSize, startTime, this.getApiVersion());
         retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     if (response.code() == 200) {
-                        final ListChatThreadsResult decodedResult;
+                        final ChatThreadsInfoCollection decodedResult;
                         try {
-                            decodedResult = deserializeContent(response.headers(), response.body(), ListChatThreadsResult.class);
+                            decodedResult = deserializeContent(response.headers(), response.body(), ChatThreadsInfoCollection.class);
                         } catch(Exception ex) {
                             callback.onFailure(ex, response.raw());
                             return;
                         }
-                        callback.onSuccess(decodedResult, response.raw());
+                        callback.onSuccess(new Page<ChatThreadInfo>(response.raw().request().url().toString(), decodedResult.getValue(), decodedResult.getNextLink()), response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -1154,41 +1511,114 @@ public final class AzureCommunicationChatServiceImpl {
         call.enqueue(retrofitCallback);
     }
 
-    /**
-     * Gets the list of chat threads of a user.
-     * 
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void listChatThreads(final Callback<ListChatThreadsResult> callback) {
-        final Integer pageSize = null;
-        final String syncState = null;
-        listChatThreads(pageSize, syncState, callback);
+    private static final class ChatThreadInfoPageAsyncRetriever extends AsyncPagedDataRetriever<ChatThreadInfo, Page<ChatThreadInfo>> {
+        private final Integer maxPageSize;
+
+        private final OffsetDateTime startTime;
+
+        private final AzureCommunicationChatServiceImpl serviceClient;
+
+        public ChatThreadInfoPageAsyncRetriever(Integer maxPageSize, OffsetDateTime startTime, AzureCommunicationChatServiceImpl serviceClient) {
+            this.maxPageSize = maxPageSize;
+            this.startTime = startTime;
+            this.serviceClient = serviceClient;
+        }
+
+        public void getFirstPage(Callback<Page<ChatThreadInfo>> callback) {
+            serviceClient.listChatThreads(maxPageSize, startTime, callback);
+        }
+
+        public void getPage(String pageId, Callback<Page<ChatThreadInfo>> callback) {
+            serviceClient.listChatThreadsNext(pageId, callback);
+        }
+    }
+
+    private static final class ChatThreadInfoPageResponseRetriever extends PagedDataResponseRetriever<ChatThreadInfo, Page<ChatThreadInfo>> {
+        private final Integer maxPageSize;
+
+        private final OffsetDateTime startTime;
+
+        private final AzureCommunicationChatServiceImpl serviceClient;
+
+        public ChatThreadInfoPageResponseRetriever(Integer maxPageSize, OffsetDateTime startTime, AzureCommunicationChatServiceImpl serviceClient) {
+            this.maxPageSize = maxPageSize;
+            this.startTime = startTime;
+            this.serviceClient = serviceClient;
+        }
+
+        public Response<Page<ChatThreadInfo>> getFirstPage() {
+             return serviceClient.listChatThreadsWithRestResponse(maxPageSize, startTime);
+        }
+
+        public Response<Page<ChatThreadInfo>> getPage(String pageId) {
+            return serviceClient.listChatThreadsNextWithRestResponse(pageId);
+        }
+    }
+
+    private static final class ChatThreadInfoPageRetriever extends PagedDataRetriever<ChatThreadInfo, Page<ChatThreadInfo>> {
+        private final Integer maxPageSize;
+
+        private final OffsetDateTime startTime;
+
+        private final AzureCommunicationChatServiceImpl serviceClient;
+
+        public ChatThreadInfoPageRetriever(Integer maxPageSize, OffsetDateTime startTime, AzureCommunicationChatServiceImpl serviceClient) {
+            this.maxPageSize = maxPageSize;
+            this.startTime = startTime;
+            this.serviceClient = serviceClient;
+        }
+
+        public Page<ChatThreadInfo> getFirstPage() {
+             return serviceClient.listChatThreadsWithRestResponse(maxPageSize, startTime).getValue();
+        }
+
+        public Page<ChatThreadInfo> getPage(String pageId) {
+            return serviceClient.listChatThreadsNextWithRestResponse(pageId).getValue();
+        }
     }
 
     /**
      * Gets the list of chat threads of a user.
      * 
-     * @param pageSize The number of threads being requested.
-     * @param syncState The continuation token that previous request obtained. This is used for paging.
+     * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void listChatThreads(final Callback<Page<ChatThreadInfo>> callback) {
+        final Integer maxPageSize = null;
+        final OffsetDateTime startTime = null;
+        listChatThreads(maxPageSize, startTime, callback);
+    }
+
+    /**
+     * Gets the list of chat threads of a user.
+     * 
+     * @param maxPageSize The maximum number of chat threads returned per page.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the list of chat threads of a user.
      */
-    public Response<ListChatThreadsResult> listChatThreadsWithRestResponse(Integer pageSize, String syncState) {
-        final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.listChatThreads(pageSize, syncState, this.getApiVersion()));
+    public Response<Page<ChatThreadInfo>> listChatThreadsWithRestResponse(Integer maxPageSize, OffsetDateTime startTime) {
+        final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.listChatThreads(maxPageSize, startTime, this.getApiVersion()));
         if (response.isSuccessful()) {
             if (response.code() == 200) {
+                final ChatThreadsInfoCollection decodedResult;
+                try {
+                    decodedResult = this.deserializeContent(response.headers(), response.body(), ChatThreadsInfoCollection.class);
+                } catch(Exception ex) {
+                    final String strContent = this.readAsString(response.body());
+                    throw new ErrorException(strContent, response.raw());
+                }
                 return new Response<>(response.raw().request(),
                                         response.code(),
                                         response.headers(),
-                                        this.deserializeContent(response.headers(), response.body(), ListChatThreadsResult.class));
+                                        new Page<ChatThreadInfo>(response.raw().request().url().toString(), decodedResult.getValue(), decodedResult.getNextLink()));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
@@ -1199,14 +1629,59 @@ public final class AzureCommunicationChatServiceImpl {
     /**
      * Gets the list of chat threads of a user.
      * 
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @param maxPageSize The maximum number of chat threads returned per page.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the list of chat threads of a user.
      */
-    public ListChatThreadsResult listChatThreads() {
-        final Integer pageSize = null;
-        final String syncState = null;
-        return listChatThreadsWithRestResponse(pageSize, syncState).getValue();
+    public PagedDataResponseCollection<ChatThreadInfo, Page<ChatThreadInfo>> listChatThreadsWithPageResponse(Integer maxPageSize, OffsetDateTime startTime) {
+        ChatThreadInfoPageResponseRetriever retriever = new ChatThreadInfoPageResponseRetriever(maxPageSize, startTime, this);
+        return new PagedDataResponseCollection<ChatThreadInfo, Page<ChatThreadInfo>>(retriever);
+    }
+
+    /**
+     * Gets the list of chat threads of a user.
+     * 
+     * @param maxPageSize The maximum number of chat threads returned per page.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the list of chat threads of a user.
+     */
+    public PagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>> listChatThreadsWithPage(Integer maxPageSize, OffsetDateTime startTime) {
+        ChatThreadInfoPageRetriever retriever = new ChatThreadInfoPageRetriever(maxPageSize, startTime, this);
+        return new PagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>(retriever);
+    }
+
+    /**
+     * Gets the list of chat threads of a user.
+     * 
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the list of chat threads of a user.
+     */
+    public Page<ChatThreadInfo> listChatThreads() {
+        final Integer maxPageSize = null;
+        final OffsetDateTime startTime = null;
+        return listChatThreadsWithRestResponse(maxPageSize, startTime).getValue();
+    }
+
+    /**
+     * Gets the list of chat threads of a user.
+     * 
+     * @param collectionCallback the Callback that receives the response collection.
+     * @param maxPageSize The maximum number of chat threads returned per page.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void listChatThreadsPagesAsync(final Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>> collectionCallback, Integer maxPageSize, OffsetDateTime startTime) {
+        ChatThreadInfoPageAsyncRetriever retriever = new ChatThreadInfoPageAsyncRetriever(maxPageSize, startTime, this);
+        collectionCallback.onSuccess(new AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>(retriever), null);
     }
 
     /**
@@ -1216,10 +1691,10 @@ public final class AzureCommunicationChatServiceImpl {
      * @param body Request payload for updating a chat thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void updateChatThread(String chatThreadId, UpdateChatThreadRequest body, final Callback<Void> callback) {
+    public void updateChatThread(String chatThreadId, UpdateChatThreadOptions body, final Callback<Void> callback) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), serializerAdapter.serialize(body, resolveSerializerFormat("application/json")));
@@ -1243,7 +1718,7 @@ public final class AzureCommunicationChatServiceImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -1265,11 +1740,11 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatThreadId The id of the thread to update.
      * @param body Request payload for updating a chat thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> updateChatThreadWithRestResponse(String chatThreadId, UpdateChatThreadRequest body) {
+    public Response<Void> updateChatThreadWithRestResponse(String chatThreadId, UpdateChatThreadOptions body) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.serializerAdapter.serialize(body, this.resolveSerializerFormat("application/json")));
@@ -1285,7 +1760,7 @@ public final class AzureCommunicationChatServiceImpl {
                                         this.deserializeContent(response.headers(), response.body(), Void.class));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
@@ -1299,7 +1774,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatThreadId Thread id to get.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void getChatThread(String chatThreadId, final Callback<ChatThread> callback) {
@@ -1319,7 +1794,7 @@ public final class AzureCommunicationChatServiceImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -1340,7 +1815,7 @@ public final class AzureCommunicationChatServiceImpl {
      * 
      * @param chatThreadId Thread id to get.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a chat thread.
      */
@@ -1354,7 +1829,7 @@ public final class AzureCommunicationChatServiceImpl {
                                         this.deserializeContent(response.headers(), response.body(), ChatThread.class));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
@@ -1368,7 +1843,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @param chatThreadId Thread id to delete.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void deleteChatThread(String chatThreadId, final Callback<Void> callback) {
@@ -1388,7 +1863,7 @@ public final class AzureCommunicationChatServiceImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
-                        callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = readAsString(response.errorBody());
@@ -1409,7 +1884,7 @@ public final class AzureCommunicationChatServiceImpl {
      * 
      * @param chatThreadId Thread id to delete.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws HttpResponseException thrown if the request is rejected by server.
+     * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
@@ -1423,7 +1898,311 @@ public final class AzureCommunicationChatServiceImpl {
                                         this.deserializeContent(response.headers(), response.body(), Void.class));
             } else {
                 final String strContent = this.readAsString(response.body());
-                throw new HttpResponseException(strContent, response.raw());
+                throw new ErrorException(strContent, response.raw());
+            }
+        } else {
+            final String strContent = this.readAsString(response.errorBody());
+            throw new HttpResponseException(strContent, response.raw());
+        }
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The nextLink parameter.
+     * @param callback the Callback that receives the response.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void listChatReadReceiptsNext(String nextLink, final Callback<Page<ReadReceipt>> callback) {
+        Call<ResponseBody> call = service.listChatReadReceiptsNext(nextLink);
+        retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    if (response.code() == 200) {
+                        final ReadReceiptsCollection decodedResult;
+                        try {
+                            decodedResult = deserializeContent(response.headers(), response.body(), ReadReceiptsCollection.class);
+                        } catch(Exception ex) {
+                            callback.onFailure(ex, response.raw());
+                            return;
+                        }
+                        callback.onSuccess(new Page<ReadReceipt>(nextLink, decodedResult.getValue(), decodedResult.getNextLink()), response.raw());
+                    } else {
+                        final String strContent = readAsString(response.body());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
+                    }
+                } else {
+                    final String strContent = readAsString(response.errorBody());
+                    callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                callback.onFailure(t, null);
+            }
+        };
+        call.enqueue(retrofitCallback);
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The nextLink parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    public Response<Page<ReadReceipt>> listChatReadReceiptsNextWithRestResponse(String nextLink) {
+        final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.listChatReadReceiptsNext(nextLink));
+        if (response.isSuccessful()) {
+            if (response.code() == 200) {
+                final ReadReceiptsCollection decodedResult;
+                try {
+                    decodedResult = this.deserializeContent(response.headers(), response.body(), ReadReceiptsCollection.class);
+                } catch(Exception ex) {
+                    final String strContent = this.readAsString(response.body());
+                    throw new ErrorException(strContent, response.raw());
+                }
+                return new Response<>(response.raw().request(),
+                                        response.code(),
+                                        response.headers(),
+                                        new Page<ReadReceipt>(nextLink, decodedResult.getValue(), decodedResult.getNextLink()));
+            } else {
+                final String strContent = this.readAsString(response.body());
+                throw new ErrorException(strContent, response.raw());
+            }
+        } else {
+            final String strContent = this.readAsString(response.errorBody());
+            throw new HttpResponseException(strContent, response.raw());
+        }
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The nextLink parameter.
+     * @param callback the Callback that receives the response.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void listChatMessagesNext(String nextLink, final Callback<Page<ChatMessage>> callback) {
+        Call<ResponseBody> call = service.listChatMessagesNext(nextLink);
+        retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    if (response.code() == 200) {
+                        final ChatMessagesCollection decodedResult;
+                        try {
+                            decodedResult = deserializeContent(response.headers(), response.body(), ChatMessagesCollection.class);
+                        } catch(Exception ex) {
+                            callback.onFailure(ex, response.raw());
+                            return;
+                        }
+                        callback.onSuccess(new Page<ChatMessage>(nextLink, decodedResult.getValue(), decodedResult.getNextLink()), response.raw());
+                    } else {
+                        final String strContent = readAsString(response.body());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
+                    }
+                } else {
+                    final String strContent = readAsString(response.errorBody());
+                    callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                callback.onFailure(t, null);
+            }
+        };
+        call.enqueue(retrofitCallback);
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The nextLink parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return collection of chat messages for a particular chat thread.
+     */
+    public Response<Page<ChatMessage>> listChatMessagesNextWithRestResponse(String nextLink) {
+        final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.listChatMessagesNext(nextLink));
+        if (response.isSuccessful()) {
+            if (response.code() == 200) {
+                final ChatMessagesCollection decodedResult;
+                try {
+                    decodedResult = this.deserializeContent(response.headers(), response.body(), ChatMessagesCollection.class);
+                } catch(Exception ex) {
+                    final String strContent = this.readAsString(response.body());
+                    throw new ErrorException(strContent, response.raw());
+                }
+                return new Response<>(response.raw().request(),
+                                        response.code(),
+                                        response.headers(),
+                                        new Page<ChatMessage>(nextLink, decodedResult.getValue(), decodedResult.getNextLink()));
+            } else {
+                final String strContent = this.readAsString(response.body());
+                throw new ErrorException(strContent, response.raw());
+            }
+        } else {
+            final String strContent = this.readAsString(response.errorBody());
+            throw new HttpResponseException(strContent, response.raw());
+        }
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The nextLink parameter.
+     * @param callback the Callback that receives the response.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void listChatThreadMembersNext(String nextLink, final Callback<Page<ChatThreadMember>> callback) {
+        Call<ResponseBody> call = service.listChatThreadMembersNext(nextLink);
+        retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    if (response.code() == 200) {
+                        final ChatThreadMembersCollection decodedResult;
+                        try {
+                            decodedResult = deserializeContent(response.headers(), response.body(), ChatThreadMembersCollection.class);
+                        } catch(Exception ex) {
+                            callback.onFailure(ex, response.raw());
+                            return;
+                        }
+                        callback.onSuccess(new Page<ChatThreadMember>(nextLink, decodedResult.getValue(), decodedResult.getNextLink()), response.raw());
+                    } else {
+                        final String strContent = readAsString(response.body());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
+                    }
+                } else {
+                    final String strContent = readAsString(response.errorBody());
+                    callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                callback.onFailure(t, null);
+            }
+        };
+        call.enqueue(retrofitCallback);
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The nextLink parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return collection of thread members belong to a particular thread.
+     */
+    public Response<Page<ChatThreadMember>> listChatThreadMembersNextWithRestResponse(String nextLink) {
+        final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.listChatThreadMembersNext(nextLink));
+        if (response.isSuccessful()) {
+            if (response.code() == 200) {
+                final ChatThreadMembersCollection decodedResult;
+                try {
+                    decodedResult = this.deserializeContent(response.headers(), response.body(), ChatThreadMembersCollection.class);
+                } catch(Exception ex) {
+                    final String strContent = this.readAsString(response.body());
+                    throw new ErrorException(strContent, response.raw());
+                }
+                return new Response<>(response.raw().request(),
+                                        response.code(),
+                                        response.headers(),
+                                        new Page<ChatThreadMember>(nextLink, decodedResult.getValue(), decodedResult.getNextLink()));
+            } else {
+                final String strContent = this.readAsString(response.body());
+                throw new ErrorException(strContent, response.raw());
+            }
+        } else {
+            final String strContent = this.readAsString(response.errorBody());
+            throw new HttpResponseException(strContent, response.raw());
+        }
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The nextLink parameter.
+     * @param callback the Callback that receives the response.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void listChatThreadsNext(String nextLink, final Callback<Page<ChatThreadInfo>> callback) {
+        Call<ResponseBody> call = service.listChatThreadsNext(nextLink);
+        retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    if (response.code() == 200) {
+                        final ChatThreadsInfoCollection decodedResult;
+                        try {
+                            decodedResult = deserializeContent(response.headers(), response.body(), ChatThreadsInfoCollection.class);
+                        } catch(Exception ex) {
+                            callback.onFailure(ex, response.raw());
+                            return;
+                        }
+                        callback.onSuccess(new Page<ChatThreadInfo>(nextLink, decodedResult.getValue(), decodedResult.getNextLink()), response.raw());
+                    } else {
+                        final String strContent = readAsString(response.body());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
+                    }
+                } else {
+                    final String strContent = readAsString(response.errorBody());
+                    callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                callback.onFailure(t, null);
+            }
+        };
+        call.enqueue(retrofitCallback);
+    }
+
+    /**
+     * Get the next page of items.
+     * 
+     * @param nextLink The nextLink parameter.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return collection of chat threads.
+     */
+    public Response<Page<ChatThreadInfo>> listChatThreadsNextWithRestResponse(String nextLink) {
+        final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.listChatThreadsNext(nextLink));
+        if (response.isSuccessful()) {
+            if (response.code() == 200) {
+                final ChatThreadsInfoCollection decodedResult;
+                try {
+                    decodedResult = this.deserializeContent(response.headers(), response.body(), ChatThreadsInfoCollection.class);
+                } catch(Exception ex) {
+                    final String strContent = this.readAsString(response.body());
+                    throw new ErrorException(strContent, response.raw());
+                }
+                return new Response<>(response.raw().request(),
+                                        response.code(),
+                                        response.headers(),
+                                        new Page<ChatThreadInfo>(nextLink, decodedResult.getValue(), decodedResult.getNextLink()));
+            } else {
+                final String strContent = this.readAsString(response.body());
+                throw new ErrorException(strContent, response.raw());
             }
         } else {
             final String strContent = this.readAsString(response.errorBody());
