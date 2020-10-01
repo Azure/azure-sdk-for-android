@@ -10,7 +10,7 @@ import com.azure.android.core.util.paging.Page;
 /**
  * Represents an asynchronous paged data provider with a fixed page size
  * @param <T> type of the items contained in the page
- * @param <P> page that contains the items
+ * @param <P> type of the page
  */
 public abstract class AsyncPagedDataRetriever<T, P extends Page<T>> {
 
