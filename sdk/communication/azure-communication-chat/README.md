@@ -124,7 +124,7 @@ Use the `create` method to create a thread.
 ```java
 //  The list of ChatThreadMember to be added to the thread.
 List<ChatThreadMember> members = new ArrayList<>();
-// The CommunicationUser.identifier you created before, required.
+// The communication user id you created before, required.
 final String id = "<user_id>";
 // The display name for the thread member.
 final String displayName = "initial member";
@@ -134,7 +134,7 @@ members.add(new ChatThreadMember()
 
 // The topic for the thread.
 final String topic = "General";
-// The model to pass to create method.
+// The model to pass to the create method.
 CreateChatThreadRequest thread = new CreateChatThreadRequest()
     .setTopic(topic)
     .setMembers(members);
@@ -164,6 +164,7 @@ client.createChatThread(thread, new Callback<MultiStatusResponse>() {
 ### Get a thread
 
 Use the `getChatThread` method to retrieve a thread.
+
 ```java
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
@@ -187,14 +188,14 @@ Use the `listChatThreads` method to retrieve a list of threads.
 ```java
 // The maximum number of messages to be returned per page, optional.
 final int maxPageSize = 10;
-// The thread start time to consider in the query, optional
+// The thread start time to consider in the query, optional.
 final OffsetDateTime startTime = OffsetDateTime.parse("2020-09-08T00:00:00Z");
 client.listChatThreadsPages(maxPageSize, startTime,
     new Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>>() {
     @Override
     public void onSuccess(AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>> pageCollection,
                           Response response) {
-     // pageCollection enables enumerating list of threads.                       
+     // pageCollection enables enumerating a list of threads.
      pageCollection.getFirstPage(new Callback<Page<ChatThreadInfo>>() {
             @Override
             public void onSuccess(Page<ChatThreadInfo> firstPage, Response response) {
@@ -268,7 +269,6 @@ client.updateChatThread(threadId, thread, new Callback<Void>() {
 
 Use `deleteChatThread` method to delete a thread.
 
-
 ```java
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
@@ -293,10 +293,10 @@ Use the `send` method to send a message to a thread.
 ```java
 // The chat message content, required.
 final String content = "Test message 1";
-//  The display name of the sender, if null i.e. not specified, an empty name will be set.
+// The display name of the sender, if null (i.e. not specified), an empty name will be set.
 final String senderDisplayName = "An important person";
 // The message priority level, such as 'normal' or 'high', 
-// if null i.e. not specified, 'normal' will be set.
+// if null (i.e. not specified), 'normal' will be set.
 final ChatMessagePriority priority = ChatMessagePriority.HIGH;
 SendChatMessageRequest message = new SendChatMessageRequest()
     .setPriority(priority)
@@ -351,10 +351,11 @@ client.getChatMessage(threadId,
 ### List messages
 
 Use the `listChatMessages` method to retrieve messages in a thread.
+
 ```java
 // The maximum number of messages to be returned per page, optional.
 final int maxPageSize = 10;
-// The thread start time to consider in the query, optional
+// The thread start time to consider in the query, optional.
 final OffsetDateTime startTime = OffsetDateTime.parse("2020-09-08T00:00:00Z");
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
@@ -418,7 +419,7 @@ Use the `update` method to update a message in a thread.
 ```java
 // The message content to be updated.
 final String content = "updated message";
-// The message priority level, such as 'normal' or 'high', if null i.e. not specified, 
+// The message priority level, such as 'normal' or 'high', if null (i.e. not specified), 
 // 'normal' will be set.
 final ChatMessagePriority priority = ChatMessagePriority.HIGH;
 //  The model to pass to update method.
@@ -688,7 +689,7 @@ void retrieveNextReceiptsPages(String nextPageId,
 
 ## General
 
-The client raises via Callback.onFailure.
+When an error occurs, the client calls the callback's `onFailure` method. You can use the provided `Throwable` to act upon the failure.
 
 ```java
 client.createChatThread(thread, new Callback<MultiStatusResponse>() {
@@ -703,7 +704,7 @@ client.createChatThread(thread, new Callback<MultiStatusResponse>() {
 More sample code should go here, along with links out to the appropriate example tests.
 
 # Contributing
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
+This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
 
 When you submit a pull request, a CLA-bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.
 
