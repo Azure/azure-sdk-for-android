@@ -6,14 +6,10 @@ Read more about Azure Communication Services [here](https://docs.microsoft.com/a
 
 ## Prerequisites
 
-* An Azure Communication Resource, learn how to create one from [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource)
-  higher to use this library.
-* The library is written in Java 8. Your application must be built with Android Gradle Plugin 3.0.0 or later, and must
-  be configured to
-  [enable Java 8 language desugaring](https://developer.android.com/studio/write/java8-support.html#supported_features)
-  to use this library. Java 8 language features that require a target API level >21 are not used, nor are any Java 8+
-  APIs that would require the Java 8+ API desugaring provided by Android Gradle plugin 4.0.0.
 * You must have an [Azure subscription](https://azure.microsoft.com/free/) to use this library.
+* An Azure Communication Resource, learn how to create one from [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
+* The client libraries natively target Android API level 21. Your application's minSdkVersion must be set to 21 or higher to use this library.
+* The library is written in Java 8. Your application must be built with Android Gradle Plugin 3.0.0 or later, and must be configured to [enable Java 8 language desugaring](https://developer.android.com/studio/write/java8-support.html#supported_features) to use this library. Java 8 language features that require a target API level > 21 are not used, nor are any Java 8+ APIs that would require the Java 8+ API desugaring provided by Android Gradle plugin 4.0.0.
 
 ### Versions available
 The current version of this library is **1.0.0-beta.1**.
@@ -55,13 +51,9 @@ To import the library into your project using the [Maven](https://maven.apache.o
 </dependency>
 ```
 
-## User and User Access Tokens
-
-User access tokens enable you to build client applications that directly authenticate to Azure Communication Services. Refer [here](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens) to learn how to create a user and issue a User Access Token.
-
-The id for the user created above will be necessary later to add said user as a member of a new chat thread. The initiator of the create request must be in the list of members of the chat thread.
-
 ## Create the AzureCommunicationChatClient
+
+Use the `AzureCommunicationChatServiceAsyncClient.Builder` to configure and create `AzureCommunicationChatClient`.
 
 ```java
 import com.azure.android.communication.chat.AzureCommunicationChatServiceAsyncClient;
@@ -81,7 +73,17 @@ AzureCommunicationChatServiceAsyncClient client
 
 # Key concepts
 
-A chat conversation is represented by a chat thread. Each user in the thread is called a thread member. Thread members can chat with one another privately in a 1:1 chat or huddle up in a 1:N group chat. Users also get near real-time updates for when others are typing and when they have read the messages.
+## Users and User Access Tokens
+
+User access tokens enable you to build client applications that directly authenticate to Azure Communication Services. Refer [here](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens) to learn how to create a user and issue a User Access Token.
+
+The id for the user created above will be necessary later to add said user as a member of a new chat thread. The initiator of the create request must be in the list of members of the chat thread.
+
+## Chat Thread
+
+A chat conversation is represented by a chat thread. Each user in the thread is called a thread member. Thread members can chat with one another privately in a 1:1 chat or huddle up in a 1:N group chat. Users also get near real-time updates for when others are typing and when they have read the messages. To learn more, read about chat concepts [here](https://docs.microsoft.com/en-us/azure/communication-services/concepts/chat/concepts).
+
+# Chat operations
 
 Once you initialize an `AzureCommunicationChatClient` class, you can perform the following chat operations:
 
@@ -115,9 +117,9 @@ Once you initialize an `AzureCommunicationChatClient` class, you can perform the
 
 # Examples
 
-## Thread Operations
+### Thread Operations
 
-### Create a thread
+#### Create a thread
 
 Use the `create` method to create a thread.
 
@@ -161,7 +163,7 @@ client.createChatThread(thread, new Callback<MultiStatusResponse>() {
 });
 ```
 
-### Get a thread
+#### Get a thread
 
 Use the `getChatThread` method to retrieve a thread.
 
@@ -181,7 +183,7 @@ client.getChatThread(threadId, new Callback<ChatThread>() {
 });
 ```
 
-### List threads
+#### List threads
 
 Use the `listChatThreads` method to retrieve a list of threads.
 
@@ -193,8 +195,9 @@ final OffsetDateTime startTime = OffsetDateTime.parse("2020-09-08T00:00:00Z");
 client.listChatThreadsPages(maxPageSize, startTime,
     new Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>>() {
     @Override
-    public void onSuccess(AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>> pageCollection,
-                          Response response) {
+    public void onSuccess(AsyncPagedDataCollection<ChatThreadInfo,
+        Page<ChatThreadInfo>> pageCollection,
+        Response response) {
      // pageCollection enables enumerating a list of threads.
      pageCollection.getFirstPage(new Callback<Page<ChatThreadInfo>>() {
             @Override
@@ -219,7 +222,7 @@ client.listChatThreadsPages(maxPageSize, startTime,
 });
 
 void retrieveNextThreadPages(String nextPageId,
-                       AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>> pageCollection) {
+    AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>> pageCollection) {
     pageCollection.getPage(nextPageId, new Callback<Page<ChatThreadInfo>>() {
         @Override
         public void onSuccess(Page<ChatThreadInfo> nextPage, Response response) {
@@ -239,7 +242,7 @@ void retrieveNextThreadPages(String nextPageId,
 }
 ```
 
-### Update a thread
+#### Update a thread
 
 Use the `update` method to update a thread's properties.
 
@@ -265,7 +268,7 @@ client.updateChatThread(threadId, thread, new Callback<Void>() {
 });
 ```
 
-### Delete a thread
+#### Delete a thread
 
 Use `deleteChatThread` method to delete a thread.
 
@@ -285,9 +288,9 @@ client.deleteChatThread(threadId, new Callback<Void>() {
 });
 ```
 
-## Message Operations
+### Message Operations
 
-### Send a message
+#### Send a message
 
 Use the `send` method to send a message to a thread.
 ```java
@@ -295,8 +298,8 @@ Use the `send` method to send a message to a thread.
 final String content = "Test message 1";
 // The display name of the sender, if null (i.e. not specified), an empty name will be set.
 final String senderDisplayName = "An important person";
-// The message priority level, such as 'normal' or 'high', 
-// if null (i.e. not specified), 'normal' will be set.
+// The message priority level, such as 'NORMAL' or 'HIIGH', 
+// if null (i.e. not specified), 'NORMAL' will be set.
 final ChatMessagePriority priority = ChatMessagePriority.HIGH;
 SendChatMessageRequest message = new SendChatMessageRequest()
     .setPriority(priority)
@@ -321,7 +324,7 @@ client.sendChatMessage(threadId, message, new Callback<SendChatMessageResult>() 
 });
 ```
 
-### Get a message
+#### Get a message
 
 Use the `getChatMessage` method to retrieve a message in a thread.
 
@@ -348,7 +351,7 @@ client.getChatMessage(threadId,
 });
 ```
 
-### List messages
+#### List messages
 
 Use the `listChatMessages` method to retrieve messages in a thread.
 
@@ -366,7 +369,7 @@ client.listChatMessagesPages(threadId,
     new Callback<AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>>() {
         @Override
         public void onSuccess(AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>> pageCollection,
-                            Response response) {
+            Response response) {
             // pageCollection enables enumerating list of messages.
             pageCollection.getFirstPage(new Callback<Page<ChatMessage>>() {
                 @Override
@@ -391,7 +394,7 @@ client.listChatMessagesPages(threadId,
 });
 
 void retrieveNextMessagePages(String nextPageId,
-                              AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>> pageCollection) {
+    AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>> pageCollection) {
     pageCollection.getPage(nextPageId, new Callback<Page<ChatMessage>>() {
         @Override
         public void onSuccess(Page<ChatMessage> nextPage, Response response) {
@@ -412,15 +415,15 @@ void retrieveNextMessagePages(String nextPageId,
 
 ```
 
-### Update a message
+#### Update a message
 
 Use the `update` method to update a message in a thread.
 
 ```java
 // The message content to be updated.
 final String content = "updated message";
-// The message priority level, such as 'normal' or 'high', if null (i.e. not specified), 
-// 'normal' will be set.
+// The message priority level, such as 'NORMAL' or 'HIGH', if null (i.e. not specified), 
+// 'NORMAL' will be set.
 final ChatMessagePriority priority = ChatMessagePriority.HIGH;
 //  The model to pass to update method.
 UpdateChatMessageRequest message = new UpdateChatMessageRequest()
@@ -446,7 +449,7 @@ client.updateChatMessage(threadId,
 });
 ```
 
-### Delete a message
+#### Delete a message
 
 Use the `deleteChatMessage` method to delete a message in a thread.
 
@@ -468,9 +471,9 @@ client.deleteChatMessage(threadId, messageId, new Callback<Void>() {
 });
 ```
 
-## Thread Member Operations
+### Thread Member Operations
 
-### Get thread members
+#### Get thread members
 
 Use the `listChatThreadMembers` method to retrieve the members participating in a thread.
 
@@ -480,8 +483,7 @@ final String threadId = "<thread_id>";
 client.listChatThreadMembersPages(threadId,
     new Callback<AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>>>() {
     @Override
-    public void onSuccess(AsyncPagedDataCollection<ChatThreadMember,
-        Page<ChatThreadMember>> firstPage,
+    public void onSuccess(AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>> firstPage,
         Response response) {
          // pageCollection enables enumerating list of chat members.
          pageCollection.getFirstPage(new Callback<Page<ChatThreadMember>>() {
@@ -507,7 +509,7 @@ client.listChatThreadMembersPages(threadId,
 });
 
 void retrieveNextMembersPages(String nextPageId,
-                              AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>> pageCollection) {
+    AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>> pageCollection) {
     pageCollection.getPage(nextPageId, new Callback<Page<ChatThreadMember>>() {
         @Override
         public void onSuccess(Page<ChatThreadMember> nextPage, Response response) {
@@ -527,7 +529,7 @@ void retrieveNextMembersPages(String nextPageId,
 }
 ```
 
-### Add thread members
+#### Add thread members
 
 Use the `add` method to add members to a thread.
 
@@ -558,7 +560,7 @@ client.addChatThreadMembers(threadId, threadMembers, new Callback<Void>() {
 });
 ```
 
-### Remove a thread member
+#### Remove a thread member
 
 Use the `removeChatThreadMember` method to remove a member from a thread.
 
@@ -580,9 +582,9 @@ client.removeChatThreadMember(threadId, memberId, new Callback<Void>() {
 });
 ```
 
-## Events Operations
+### Events Operations
 
-### Send a typing notification
+#### Send a typing notification
 
 Use the `sendTypingNotification` method to post a typing notification event to a thread, on behalf of a user.
 
@@ -602,7 +604,7 @@ client.sendTypingNotification(threadId, new Callback<Void>() {
 });
 ```
 
-### Send read receipt
+#### Send read receipt
 
 Use the `send` method to post a read receipt event to a thread, on behalf of a user.
 
@@ -628,7 +630,7 @@ client.sendChatReadReceipt(threadId, readReceipt, new Callback<Void>() {
 });
 ```
 
-### Get read receipts
+#### Get read receipts
 
 Use the `listChatReadReceipts` method to retrieve read receipts for a thread.
 
@@ -638,8 +640,7 @@ final String threadId = "<thread_id>";
 client.listChatReadReceiptsPages(threadId,
     new Callback<AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>>>() {
     @Override
-    public void onSuccess(AsyncPagedDataCollection<ReadReceipt,
-        Page<ReadReceipt>> result,
+    public void onSuccess(AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>> result,
         Response response) {
          // pageCollection enables enumerating list of chat members.
          pageCollection.getFirstPage(new Callback<Page<ReadReceipt>>() {
@@ -665,7 +666,7 @@ client.listChatReadReceiptsPages(threadId,
 });
 
 void retrieveNextReceiptsPages(String nextPageId,
-                              AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>> pageCollection) {
+    AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>> pageCollection) {
     pageCollection.getPage(nextPageId, new Callback<Page<ReadReceipt>>() {
         @Override
         public void onSuccess(Page<ReadReceipt> nextPage, Response response) {
@@ -710,4 +711,4 @@ When you submit a pull request, a CLA-bot will automatically determine whether y
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-![Impressions](TODO: Find impressions URL)
+![Impressions](https://azure-sdk-impressions.azurewebsites.net/api/impressions/azure-sdk-for-android%2Fsdk%2Fcommunication%2Fazure-communication-chat%2FREADME.png)
