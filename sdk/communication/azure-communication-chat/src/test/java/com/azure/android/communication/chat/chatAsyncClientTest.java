@@ -19,6 +19,7 @@ import okhttp3.mockwebserver.MockWebServer;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static junit.framework.TestCase.fail;
 
 public class chatAsyncClientTest {
 
@@ -41,19 +42,19 @@ public class chatAsyncClientTest {
 
         chatServiceAsyncClient.listChatThreadsPages(new Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>>() {
             @Override
-            public void onSuccess(AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>> result, Response response) {
-                AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>> asyncPagedDataCollection = result;
+            public void onSuccess(AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>> asyncPagedDataCollection, Response response) {
                 asyncPagedDataCollection.getFirstPage(new Callback<Page<ChatThreadInfo>>() {
                     @Override
                     public void onSuccess(Page<ChatThreadInfo> result, Response response) {
                         assertEquals(5, result.getItems().size());
                         mockThreadsResponse(3);
+
                         asyncPagedDataCollection.getPage(result.getNextPageId(), new Callback<Page<ChatThreadInfo>>() {
                             @Override
                             public void onSuccess(Page<ChatThreadInfo> result, Response response) {
                                 assertEquals(3, result.getItems().size());
 
-                                 asyncPagedDataCollection.getPage(result.getPreviousPageId(), new Callback<Page<ChatThreadInfo>>() {
+                                asyncPagedDataCollection.getPage(result.getPreviousPageId(), new Callback<Page<ChatThreadInfo>>() {
                                     @Override
                                     public void onSuccess(Page<ChatThreadInfo> result, Response response) {
                                         assertEquals(5, result.getItems().size());
@@ -61,28 +62,28 @@ public class chatAsyncClientTest {
 
                                     @Override
                                     public void onFailure(Throwable throwable, Response response) {
-                                        assertTrue(false);
+                                        fail();
                                     }
                                 });
                             }
 
                             @Override
                             public void onFailure(Throwable throwable, Response response) {
-                                assertTrue(false);
+                                fail();
                             }
                         });
                     }
 
                     @Override
                     public void onFailure(Throwable throwable, Response response) {
-                        assertTrue(false);
+                        fail();
                     }
                 });
             }
 
             @Override
             public void onFailure(Throwable throwable, Response response) {
-                assertTrue(false);
+                fail();
             }
         }, 5, OffsetDateTime.now());
 
@@ -94,8 +95,7 @@ public class chatAsyncClientTest {
 
         chatServiceAsyncClient.listChatMessagesPages("threadId", new Callback<AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>>() {
             @Override
-            public void onSuccess(AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>> result, Response response) {
-                AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>> asyncPagedDataCollection = result;
+            public void onSuccess(AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>> asyncPagedDataCollection, Response response) {
                 asyncPagedDataCollection.getFirstPage(new Callback<Page<ChatMessage>>() {
                     @Override
                     public void onSuccess(Page<ChatMessage> result, Response response) {
@@ -114,28 +114,28 @@ public class chatAsyncClientTest {
 
                                     @Override
                                     public void onFailure(Throwable throwable, Response response) {
-                                        assertTrue(false);
+                                        fail();
                                     }
                                 });
                             }
 
                             @Override
                             public void onFailure(Throwable throwable, Response response) {
-                                assertTrue(false);
+                                fail();
                             }
                         });
                     }
 
                     @Override
                     public void onFailure(Throwable throwable, Response response) {
-                        assertTrue(false);
+                        fail();
                     }
                 });
             }
 
             @Override
             public void onFailure(Throwable throwable, Response response) {
-                assertTrue(false);
+                fail();
             }
         }, 5, OffsetDateTime.now());
 
