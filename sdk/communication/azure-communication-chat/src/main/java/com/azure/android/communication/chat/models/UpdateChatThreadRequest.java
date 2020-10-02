@@ -9,10 +9,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * The UpdateChatThreadOptions model.
+ * The UpdateChatThreadRequest model.
  */
 @Fluent
-public final class UpdateChatThreadOptions {
+public final class UpdateChatThreadRequest {
     /*
      * Chat thread topic.
      */
@@ -32,9 +32,9 @@ public final class UpdateChatThreadOptions {
      * Set the topic property: Chat thread topic.
      * 
      * @param topic the topic value to set.
-     * @return the UpdateChatThreadOptions object itself.
+     * @return the UpdateChatThreadRequest object itself.
      */
-    public UpdateChatThreadOptions setTopic(String topic) {
+    public UpdateChatThreadRequest setTopic(String topic) {
         this.topic = topic;
         return this;
     }

@@ -4,7 +4,7 @@
 
 package com.azure.android.communication.chat.implementation;
 
-import com.azure.android.communication.chat.models.AddChatThreadMembersOptions;
+import com.azure.android.communication.chat.models.AddChatThreadMembersRequest;
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessagesCollection;
 import com.azure.android.communication.chat.models.ChatThread;
@@ -12,16 +12,16 @@ import com.azure.android.communication.chat.models.ChatThreadInfo;
 import com.azure.android.communication.chat.models.ChatThreadMember;
 import com.azure.android.communication.chat.models.ChatThreadMembersCollection;
 import com.azure.android.communication.chat.models.ChatThreadsInfoCollection;
-import com.azure.android.communication.chat.models.CreateChatThreadOptions;
+import com.azure.android.communication.chat.models.CreateChatThreadRequest;
 import com.azure.android.communication.chat.models.ErrorException;
 import com.azure.android.communication.chat.models.MultiStatusResponse;
 import com.azure.android.communication.chat.models.ReadReceipt;
 import com.azure.android.communication.chat.models.ReadReceiptsCollection;
-import com.azure.android.communication.chat.models.SendChatMessageOptions;
+import com.azure.android.communication.chat.models.SendChatMessageRequest;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.SendReadReceiptRequest;
-import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
-import com.azure.android.communication.chat.models.UpdateChatThreadOptions;
+import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
+import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
@@ -452,7 +452,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void sendChatMessage(String chatThreadId, SendChatMessageOptions body, final Callback<SendChatMessageResult> callback) {
+    public void sendChatMessage(String chatThreadId, SendChatMessageRequest body, final Callback<SendChatMessageResult> callback) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), serializerAdapter.serialize(body, resolveSerializerFormat("application/json")));
@@ -502,7 +502,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the send message operation.
      */
-    public Response<SendChatMessageResult> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageOptions body) {
+    public Response<SendChatMessageResult> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageRequest body) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.serializerAdapter.serialize(body, this.resolveSerializerFormat("application/json")));
@@ -841,7 +841,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void updateChatMessage(String chatThreadId, String chatMessageId, UpdateChatMessageOptions body, final Callback<Void> callback) {
+    public void updateChatMessage(String chatThreadId, String chatMessageId, UpdateChatMessageRequest body, final Callback<Void> callback) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), serializerAdapter.serialize(body, resolveSerializerFormat("application/json")));
@@ -892,7 +892,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> updateChatMessageWithRestResponse(String chatThreadId, String chatMessageId, UpdateChatMessageOptions body) {
+    public Response<Void> updateChatMessageWithRestResponse(String chatThreadId, String chatMessageId, UpdateChatMessageRequest body) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.serializerAdapter.serialize(body, this.resolveSerializerFormat("application/json")));
@@ -1241,7 +1241,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void addChatThreadMembers(String chatThreadId, AddChatThreadMembersOptions body, final Callback<Void> callback) {
+    public void addChatThreadMembers(String chatThreadId, AddChatThreadMembersRequest body, final Callback<Void> callback) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), serializerAdapter.serialize(body, resolveSerializerFormat("application/json")));
@@ -1291,7 +1291,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> addChatThreadMembersWithRestResponse(String chatThreadId, AddChatThreadMembersOptions body) {
+    public Response<Void> addChatThreadMembersWithRestResponse(String chatThreadId, AddChatThreadMembersRequest body) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.serializerAdapter.serialize(body, this.resolveSerializerFormat("application/json")));
@@ -1395,7 +1395,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void createChatThread(CreateChatThreadOptions body, final Callback<MultiStatusResponse> callback) {
+    public void createChatThread(CreateChatThreadRequest body, final Callback<MultiStatusResponse> callback) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), serializerAdapter.serialize(body, resolveSerializerFormat("application/json")));
@@ -1444,7 +1444,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<MultiStatusResponse> createChatThreadWithRestResponse(CreateChatThreadOptions body) {
+    public Response<MultiStatusResponse> createChatThreadWithRestResponse(CreateChatThreadRequest body) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.serializerAdapter.serialize(body, this.resolveSerializerFormat("application/json")));
@@ -1694,7 +1694,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void updateChatThread(String chatThreadId, UpdateChatThreadOptions body, final Callback<Void> callback) {
+    public void updateChatThread(String chatThreadId, UpdateChatThreadRequest body, final Callback<Void> callback) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), serializerAdapter.serialize(body, resolveSerializerFormat("application/json")));
@@ -1744,7 +1744,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> updateChatThreadWithRestResponse(String chatThreadId, UpdateChatThreadOptions body) {
+    public Response<Void> updateChatThreadWithRestResponse(String chatThreadId, UpdateChatThreadRequest body) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.serializerAdapter.serialize(body, this.resolveSerializerFormat("application/json")));

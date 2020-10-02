@@ -9,10 +9,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * The UpdateChatMessageOptions model.
+ * The UpdateChatMessageRequest model.
  */
 @Fluent
-public final class UpdateChatMessageOptions {
+public final class UpdateChatMessageRequest {
     /*
      * Chat message content.
      */
@@ -38,9 +38,9 @@ public final class UpdateChatMessageOptions {
      * Set the content property: Chat message content.
      * 
      * @param content the content value to set.
-     * @return the UpdateChatMessageOptions object itself.
+     * @return the UpdateChatMessageRequest object itself.
      */
-    public UpdateChatMessageOptions setContent(String content) {
+    public UpdateChatMessageRequest setContent(String content) {
         this.content = content;
         return this;
     }
@@ -58,9 +58,9 @@ public final class UpdateChatMessageOptions {
      * Set the priority property: The chat message priority.
      * 
      * @param priority the priority value to set.
-     * @return the UpdateChatMessageOptions object itself.
+     * @return the UpdateChatMessageRequest object itself.
      */
-    public UpdateChatMessageOptions setPriority(ChatMessagePriority priority) {
+    public UpdateChatMessageRequest setPriority(ChatMessagePriority priority) {
         this.priority = priority;
         return this;
     }

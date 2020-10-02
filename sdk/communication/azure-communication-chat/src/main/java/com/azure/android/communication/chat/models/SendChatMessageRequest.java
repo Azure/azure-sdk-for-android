@@ -9,10 +9,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * The SendChatMessageOptions model.
+ * The SendChatMessageRequest model.
  */
 @Fluent
-public final class SendChatMessageOptions {
+public final class SendChatMessageRequest {
     /*
      * The chat message priority.
      */
@@ -45,9 +45,9 @@ public final class SendChatMessageOptions {
      * Set the priority property: The chat message priority.
      * 
      * @param priority the priority value to set.
-     * @return the SendChatMessageOptions object itself.
+     * @return the SendChatMessageRequest object itself.
      */
-    public SendChatMessageOptions setPriority(ChatMessagePriority priority) {
+    public SendChatMessageRequest setPriority(ChatMessagePriority priority) {
         this.priority = priority;
         return this;
     }
@@ -65,9 +65,9 @@ public final class SendChatMessageOptions {
      * Set the content property: Chat message content.
      * 
      * @param content the content value to set.
-     * @return the SendChatMessageOptions object itself.
+     * @return the SendChatMessageRequest object itself.
      */
-    public SendChatMessageOptions setContent(String content) {
+    public SendChatMessageRequest setContent(String content) {
         this.content = content;
         return this;
     }
@@ -89,9 +89,9 @@ public final class SendChatMessageOptions {
      * notifications.
      * 
      * @param senderDisplayName the senderDisplayName value to set.
-     * @return the SendChatMessageOptions object itself.
+     * @return the SendChatMessageRequest object itself.
      */
-    public SendChatMessageOptions setSenderDisplayName(String senderDisplayName) {
+    public SendChatMessageRequest setSenderDisplayName(String senderDisplayName) {
         this.senderDisplayName = senderDisplayName;
         return this;
     }

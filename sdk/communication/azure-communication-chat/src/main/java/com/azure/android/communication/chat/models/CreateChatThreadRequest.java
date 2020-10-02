@@ -10,10 +10,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /**
- * The CreateChatThreadOptions model.
+ * The CreateChatThreadRequest model.
  */
 @Fluent
-public final class CreateChatThreadOptions {
+public final class CreateChatThreadRequest {
     /*
      * The chat thread topic.
      */
@@ -39,9 +39,9 @@ public final class CreateChatThreadOptions {
      * Set the topic property: The chat thread topic.
      * 
      * @param topic the topic value to set.
-     * @return the CreateChatThreadOptions object itself.
+     * @return the CreateChatThreadRequest object itself.
      */
-    public CreateChatThreadOptions setTopic(String topic) {
+    public CreateChatThreadRequest setTopic(String topic) {
         this.topic = topic;
         return this;
     }
@@ -59,9 +59,9 @@ public final class CreateChatThreadOptions {
      * Set the members property: Members to be added to the chat thread.
      * 
      * @param members the members value to set.
-     * @return the CreateChatThreadOptions object itself.
+     * @return the CreateChatThreadRequest object itself.
      */
-    public CreateChatThreadOptions setMembers(List<ChatThreadMember> members) {
+    public CreateChatThreadRequest setMembers(List<ChatThreadMember> members) {
         this.members = members;
         return this;
     }
