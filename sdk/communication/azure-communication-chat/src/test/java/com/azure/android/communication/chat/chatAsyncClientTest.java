@@ -40,7 +40,7 @@ public class chatAsyncClientTest {
     public void listThreadPages() {
         mockThreadsResponse(5);
 
-        chatServiceAsyncClient.listChatThreadsPages(new Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>>() {
+        chatServiceAsyncClient.listChatThreadsPages(5, OffsetDateTime.now(),new Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>>() {
             @Override
             public void onSuccess(AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>> asyncPagedDataCollection, Response response) {
                 asyncPagedDataCollection.getFirstPage(new Callback<Page<ChatThreadInfo>>() {
@@ -85,7 +85,7 @@ public class chatAsyncClientTest {
             public void onFailure(Throwable throwable, Response response) {
                 fail();
             }
-        }, 5, OffsetDateTime.now());
+        });
 
     }
 
@@ -93,7 +93,7 @@ public class chatAsyncClientTest {
     public void listThreadMessagePages() {
         mockMessagesResponse(5);
 
-        chatServiceAsyncClient.listChatMessagesPages("threadId", new Callback<AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>>() {
+        chatServiceAsyncClient.listChatMessagesPages("threadId", 5, OffsetDateTime.now(), new Callback<AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>>() {
             @Override
             public void onSuccess(AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>> asyncPagedDataCollection, Response response) {
                 asyncPagedDataCollection.getFirstPage(new Callback<Page<ChatMessage>>() {
@@ -137,7 +137,7 @@ public class chatAsyncClientTest {
             public void onFailure(Throwable throwable, Response response) {
                 fail();
             }
-        }, 5, OffsetDateTime.now());
+        });
 
     }
 
