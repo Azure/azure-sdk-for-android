@@ -9,10 +9,10 @@ Read more about Azure Communication Services [here](https://docs.microsoft.com/a
 * You must have an [Azure subscription](https://azure.microsoft.com/free/) to use this library.
 * An Azure Communication Resource, learn how to create one from [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
 * The client libraries natively target Android API level 21. Your application's minSdkVersion must be set to 21 or higher to use this library.
-* The library is written in Java 8. Your application must be built with Android Gradle Plugin 3.0.0 or later, and must be configured to [enable Java 8 language desugaring](https://developer.android.com/studio/write/java8-support.html#supported_features) to use this library. Java 8 language features that require a target API level > 21 are not used, nor are any Java 8+ APIs that would require the Java 8+ API desugaring provided by Android Gradle plugin 4.0.0.
+* The library is written in Java 8. Your application must be built with Android Gradle plugin 3.0.0 or later, and must be configured to [enable Java 8 language desugaring](https://developer.android.com/studio/write/java8-support.html#supported_features) to use this library. Java 8 language features that require a target API level > 21 are not used, nor are any Java 8+ APIs that would require the Java 8+ API desugaring provided by Android Gradle plugin 4.0.0.
 
 ### Versions available
-The current version of this library is **1.0.0-beta.1**.
+The current version of this library is **1.0.0-beta.2**.
 
 > Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before **GA**. We do not currently recommend them for production use.
 
@@ -647,7 +647,7 @@ client.listChatReadReceiptsPages(threadId,
             @Override
             public void onSuccess(Page<ReadReceipt> firstPage, Response response) {
                 for (ReadReceipt receipt : firstPage.getItems()) {
-                    //TODO: Take further action
+                    // TODO: Take further action.
                 }
                 retrieveNextReceiptsPages(firstPage.getPageId(), pageCollection);
             }
@@ -671,7 +671,7 @@ void retrieveNextReceiptsPages(String nextPageId,
         @Override
         public void onSuccess(Page<ReadReceipt> nextPage, Response response) {
             for (ReadReceipt receipt : nextPage.getItems()) {
-                //TODO: Take further action
+                // TODO: Take further action.
             }
             if (nextPage.getPageId() != null) {
                 retrieveNextReceiptsPages(nextPage.getPageId(), pageCollection);
@@ -695,14 +695,14 @@ When an error occurs, the client calls the callback's `onFailure` method. You ca
 ```java
 client.createChatThread(thread, new Callback<MultiStatusResponse>() {
     public void onFailure(Throwable throwable, okhttp3.Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 ```
 
 # Next steps
 
-More sample code should go here, along with links out to the appropriate example tests.
+More sample code should go here, along with links out to the appropriate code samples.
 
 # Contributing
 This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
