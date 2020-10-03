@@ -19,7 +19,7 @@ The current version of this library is **1.0.0-beta.2**.
 ### Install the library
 To install the Azure client libraries for Android, add them as dependencies within your
 [Gradle](#add-a-dependency-with-gradle) or
-[Maven](#add-a-dependency-with-maven) build scripts.
+[Maven](#add-a-dependency-with-maven) build files.
 
 #### Add a dependency with Gradle
 To import the library into your project using the [Gradle](https://gradle.org/) build system, follow the instructions in [Add build dependencies](https://developer.android.com/studio/build/dependencies):
@@ -53,7 +53,7 @@ To import the library into your project using the [Maven](https://maven.apache.o
 
 ## Create the AzureCommunicationChatClient
 
-Use the `AzureCommunicationChatServiceAsyncClient.Builder` to configure and create `AzureCommunicationChatClient`.
+Use the `AzureCommunicationChatServiceAsyncClient.Builder` to configure and create an instance of `AzureCommunicationChatClient`.
 
 ```java
 import com.azure.android.communication.chat.AzureCommunicationChatServiceAsyncClient;
@@ -62,8 +62,7 @@ import com.azure.android.core.http.HttpHeader;
 final String endpoint = "https://<resource>.communication.azure.com";
 final String userAccessToken = "<user_access_token>";
 
-AzureCommunicationChatServiceAsyncClient client
-    = new AzureCommunicationChatServiceAsyncClient.Builder()
+AzureCommunicationChatServiceAsyncClient client = new AzureCommunicationChatServiceAsyncClient.Builder()
     .endpoint(endpoint)
     .credentialInterceptor(chain -> chain.proceed(chain.request()
         .newBuilder()
@@ -112,7 +111,7 @@ Once you initialize an `AzureCommunicationChatClient` class, you can perform the
 ## Events Operations
 
 - [Send a typing notification](#send-a-typing-notification)
-- [Send read receipt](#send-read-receipt)
+- [Send a read receipt](#send-read-receipt)
 - [Get read receipts](#get-read-receipts)
 
 # Examples
@@ -126,7 +125,7 @@ Use the `create` method to create a thread.
 ```java
 //  The list of ChatThreadMember to be added to the thread.
 List<ChatThreadMember> members = new ArrayList<>();
-// The communication user id you created before, required.
+// The communication user ID you created before, required.
 final String id = "<user_id>";
 // The display name for the thread member.
 final String displayName = "initial member";
@@ -147,7 +146,7 @@ client.createChatThread(thread, new Callback<MultiStatusResponse>() {
         // It has a 'multipleStatus' property which represents a list of IndividualStatusResponse.
         String threadId;
         List<IndividualStatusResponse> statusList = result.getMultipleStatus();
-        for (IndividualStatusResponse  status : statusList) {
+        for (IndividualStatusResponse status : statusList) {
             if (status.getId().endsWith("@thread.v2")
                 && status.getType().contentEquals("Thread")) {
                 threadId = status.getId();
@@ -158,7 +157,7 @@ client.createChatThread(thread, new Callback<MultiStatusResponse>() {
     }
 
     public void onFailure(Throwable throwable, okhttp3.Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 ```
@@ -173,12 +172,12 @@ final String threadId = "<thread_id>";
 client.getChatThread(threadId, new Callback<ChatThread>() {
     @Override
     public void onSuccess(ChatThread thread, Response response) {
-        //TODO: Take further action
+        // TODO: Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 ```
@@ -198,26 +197,26 @@ client.listChatThreadsPages(maxPageSize, startTime,
     public void onSuccess(AsyncPagedDataCollection<ChatThreadInfo,
         Page<ChatThreadInfo>> pageCollection,
         Response response) {
-     // pageCollection enables enumerating a list of threads.
-     pageCollection.getFirstPage(new Callback<Page<ChatThreadInfo>>() {
+    // pageCollection enables enumerating a list of threads.
+    pageCollection.getFirstPage(new Callback<Page<ChatThreadInfo>>() {
             @Override
             public void onSuccess(Page<ChatThreadInfo> firstPage, Response response) {
                 for (ChatThreadInfo thread : firstPage.getItems()) {
-                    //TODO: Take further action
+                    // TODO: Take further action.
                 }
                 retrieveNextThreadPages(firstPage.getPageId(), pageCollection);
             }
 
             @Override
             public void onFailure(Throwable throwable, Response response) {
-                // TODO: Display error message.
+                // TODO: Handle error.
             }
         });
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 
@@ -227,7 +226,7 @@ void retrieveNextThreadPages(String nextPageId,
         @Override
         public void onSuccess(Page<ChatThreadInfo> nextPage, Response response) {
             for (ChatThreadInfo thread : nextPage.getItems()) {
-                //TODO: Take further action
+                // TODO: Take further action.
             }
             if (nextPage.getPageId() != null) {
                 retrieveNextThreadPages(nextPage.getPageId(), pageCollection);
@@ -236,7 +235,7 @@ void retrieveNextThreadPages(String nextPageId,
 
         @Override
         public void onFailure(Throwable throwable, Response response) {
-            // TODO: Display error message.
+            // TODO: Handle error.
         }
     });
 }
@@ -249,7 +248,7 @@ Use the `update` method to update a thread's properties.
 ```java
 // The new topic for the thread.
 final String topic = "updated topic";
-// The model to pass to update method.
+// The model to pass to the update method.
 UpdateChatThreadRequest thread = new UpdateChatThreadRequest()
     .setTopic(topic);
 
@@ -258,19 +257,19 @@ final String threadId = "<thread_id>";
 client.updateChatThread(threadId, thread, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        //TODO: Take further action
+        // TODO: Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 ```
 
 #### Delete a thread
 
-Use `deleteChatThread` method to delete a thread.
+Use the `deleteChatThread` method to delete a thread.
 
 ```java
 // The unique ID of the thread.
@@ -278,12 +277,12 @@ final String threadId = "<thread_id>";
 client.deleteChatThread(threadId, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        //TODO: Take further action
+        // TODO: Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 ```
@@ -298,7 +297,7 @@ Use the `send` method to send a message to a thread.
 final String content = "Test message 1";
 // The display name of the sender, if null (i.e. not specified), an empty name will be set.
 final String senderDisplayName = "An important person";
-// The message priority level, such as 'NORMAL' or 'HIIGH', 
+// The message priority level, such as 'NORMAL' or 'HIGH', 
 // if null (i.e. not specified), 'NORMAL' will be set.
 final ChatMessagePriority priority = ChatMessagePriority.HIGH;
 SendChatMessageRequest message = new SendChatMessageRequest()
@@ -314,12 +313,12 @@ client.sendChatMessage(threadId, message, new Callback<SendChatMessageResult>() 
         // SendChatMessageResult is the response returned from sending a message, it contains an id, 
         // which is the unique ID of the message.
         final String chatMessageId = result.getId();
-        //TODO: Take further action
+        // TODO: Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 ```
@@ -334,19 +333,17 @@ final String threadId = "<thread_id>";
 // The unique ID of the message.
 final String chatMessageId = "<message_id>";
 
-client.getChatMessage(threadId,
-    chatMessageId,
-    new Callback<ChatMessage>() {
+client.getChatMessage(threadId, chatMessageId, new Callback<ChatMessage>() {
     @Override
     public void onSuccess(ChatMessage result, Response response) {
         // `ChatMessage` is the response returned from getting a message.
         final String content = result.getContent();
-        //TODO: Take further action
+        // TODO: Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 ```
@@ -375,21 +372,21 @@ client.listChatMessagesPages(threadId,
                 @Override
                 public void onSuccess(Page<ChatMessage> firstPage, Response response) {
                     for (ChatMessage message : firstPage.getItems()) {
-                        //TODO: Take further action
+                        // TODO: Take further action.
                     }
                     retrieveNextMessagePages(firstPage.getPageId(), pageCollection);
                 }
 
                 @Override
                 public void onFailure(Throwable throwable, Response response) {
-                    // TODO: Display error message.
+                    // TODO: Handle error.
                 }
             });
         }
 
         @Override
         public void onFailure(Throwable throwable, Response response) {
-            // TODO: Display error message.
+            // TODO: Handle error.
         }
 });
 
@@ -399,7 +396,7 @@ void retrieveNextMessagePages(String nextPageId,
         @Override
         public void onSuccess(Page<ChatMessage> nextPage, Response response) {
             for (ChatMessage thread : nextPage.getItems()) {
-                //TODO: Take further action
+                // TODO: Take further action.
             }
             if (nextPage.getPageId() != null) {
                 retrieveNextMessagePages(nextPage.getPageId(), pageCollection);
@@ -408,11 +405,10 @@ void retrieveNextMessagePages(String nextPageId,
 
         @Override
         public void onFailure(Throwable throwable, Response response) {
-            // TODO: Display error message.
+            // TODO: Handle error.
         }
     });
 }
-
 ```
 
 #### Update a message
@@ -425,7 +421,7 @@ final String content = "updated message";
 // The message priority level, such as 'NORMAL' or 'HIGH', if null (i.e. not specified), 
 // 'NORMAL' will be set.
 final ChatMessagePriority priority = ChatMessagePriority.HIGH;
-//  The model to pass to update method.
+//  The model to pass to the update method.
 UpdateChatMessageRequest message = new UpdateChatMessageRequest()
     .setContent(content)
     .setPriority(priority);
@@ -433,18 +429,16 @@ UpdateChatMessageRequest message = new UpdateChatMessageRequest()
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
 // The unique ID of the message.
-final String messageId = "message_id";
-client.updateChatMessage(threadId,
-    messageId,
-    message, new Callback<Void>() {
+final String messageId = "<message_id>";
+client.updateChatMessage(threadId, messageId, message, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        //TODO: Take further action
+        // TODO: Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 ```
@@ -457,16 +451,16 @@ Use the `deleteChatMessage` method to delete a message in a thread.
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
 // The unique ID of the message.
-final String messageId = "message_id";
+final String messageId = "<message_id>";
 client.deleteChatMessage(threadId, messageId, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        //TODO: Take further action
+        // TODO: Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 ```
@@ -490,21 +484,21 @@ client.listChatThreadMembersPages(threadId,
             @Override
             public void onSuccess(Page<ChatThreadMember> firstPage, Response response) {
                 for (ChatThreadMember member : firstPage.getItems()) {
-                    //TODO: Take further action
+                    // TODO: Take further action.
                 }
                 retrieveNextMembersPages(firstPage.getPageId(), pageCollection);
             }
 
             @Override
             public void onFailure(Throwable throwable, Response response) {
-                // TODO: Display error message.
+                // TODO: Handle error.
             }
          }
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 
@@ -514,7 +508,7 @@ void retrieveNextMembersPages(String nextPageId,
         @Override
         public void onSuccess(Page<ChatThreadMember> nextPage, Response response) {
             for (ChatThreadMember member : nextPage.getItems()) {
-                //TODO: Take further action
+                // TODO: Take further action.
             }
             if (nextPage.getPageId() != null) {
                 retrieveNextMembersPages(nextPage.getPageId(), pageCollection);
@@ -523,7 +517,7 @@ void retrieveNextMembersPages(String nextPageId,
 
         @Override
         public void onFailure(Throwable throwable, Response response) {
-            // TODO: Display error message.
+            // TODO: Handle error.
         }
     });
 }
@@ -541,7 +535,7 @@ final String id = "<user_id>";
 // The display name for the thread member.
 final String displayName = "a new member";
 members.add(new ChatThreadMember().setId(id).setDisplayName(displayName));
-// The model to pass to add method.
+// The model to pass to the add method.
 AddChatThreadMembersRequest threadMembers = new AddChatThreadMembersRequest()
     .setMembers(members);
 
@@ -550,12 +544,12 @@ final String threadId = "<thread_id>";
 client.addChatThreadMembers(threadId, threadMembers, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        //TODO: Take further action
+        // TODO: Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 ```
@@ -572,12 +566,12 @@ final String memberId = "<member_id>";
 client.removeChatThreadMember(threadId, memberId, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        //TODO: Take further action
+        // TODO: Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 ```
@@ -594,12 +588,12 @@ final String threadId = "<thread_id>";
 client.sendTypingNotification(threadId, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        //TODO: Take further action
+        // TODO: Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 ```
@@ -611,7 +605,7 @@ Use the `send` method to post a read receipt event to a thread, on behalf of a u
 ```java
 // The unique ID of the member.
 final String messageId = "<message_id>";
-// The model to be passed to send method.
+// The model to be passed to the send method.
 SendReadReceiptRequest readReceipt = new SendReadReceiptRequest()
     .setChatMessageId(messageId);
 
@@ -620,12 +614,12 @@ final String threadId = "<thread_id>";
 client.sendChatReadReceipt(threadId, readReceipt, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        //TODO: Take further action
+        // TODO: Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 ```
@@ -654,14 +648,14 @@ client.listChatReadReceiptsPages(threadId,
 
             @Override
             public void onFailure(Throwable throwable, Response response) {
-                // TODO: Display error message.
+                // TODO: Handle error.
             }
          }
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Display error message.
+        // TODO: Handle error.
     }
 });
 
@@ -680,7 +674,7 @@ void retrieveNextReceiptsPages(String nextPageId,
 
         @Override
         public void onFailure(Throwable throwable, Response response) {
-            // TODO: Display error message.
+            // TODO: Handle error.
         }
     });
 }
