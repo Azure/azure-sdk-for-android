@@ -86,7 +86,6 @@ public class chatAsyncClientTest {
                 fail();
             }
         });
-
     }
 
     @Test
