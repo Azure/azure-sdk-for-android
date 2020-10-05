@@ -1,0 +1,13 @@
+# Release History
+
+## 1.0.0-beta.3 (Unreleased)
+
+## 1.0.0-beta.2 (2020-10-05)
+
+### New Features
+
+- Added pagination support.
+
+## 1.0.0-beta.1 (2020-09-17)
+
+- Initial release. Please see the README for information.
