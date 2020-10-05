@@ -197,8 +197,8 @@ client.listChatThreadsPages(maxPageSize, startTime,
     public void onSuccess(AsyncPagedDataCollection<ChatThreadInfo,
         Page<ChatThreadInfo>> pageCollection,
         Response response) {
-    // pageCollection enables enumerating a list of threads.
-    pageCollection.getFirstPage(new Callback<Page<ChatThreadInfo>>() {
+        // pageCollection enables enumerating a list of threads.
+        pageCollection.getFirstPage(new Callback<Page<ChatThreadInfo>>() {
             @Override
             public void onSuccess(Page<ChatThreadInfo> firstPage, Response response) {
                 for (ChatThreadInfo thread : firstPage.getItems()) {
@@ -479,8 +479,8 @@ client.listChatThreadMembersPages(threadId,
     @Override
     public void onSuccess(AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>> firstPage,
         Response response) {
-         // pageCollection enables enumerating list of chat members.
-         pageCollection.getFirstPage(new Callback<Page<ChatThreadMember>>() {
+        // pageCollection enables enumerating list of chat members.
+        pageCollection.getFirstPage(new Callback<Page<ChatThreadMember>>() {
             @Override
             public void onSuccess(Page<ChatThreadMember> firstPage, Response response) {
                 for (ChatThreadMember member : firstPage.getItems()) {
@@ -636,8 +636,8 @@ client.listChatReadReceiptsPages(threadId,
     @Override
     public void onSuccess(AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>> result,
         Response response) {
-         // pageCollection enables enumerating list of chat members.
-         pageCollection.getFirstPage(new Callback<Page<ReadReceipt>>() {
+        // pageCollection enables enumerating list of chat members.
+        pageCollection.getFirstPage(new Callback<Page<ReadReceipt>>() {
             @Override
             public void onSuccess(Page<ReadReceipt> firstPage, Response response) {
                 for (ReadReceipt receipt : firstPage.getItems()) {
