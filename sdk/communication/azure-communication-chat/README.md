@@ -80,7 +80,7 @@ The id for the user created above will be necessary later to add said user as a 
 
 ## Chat Thread
 
-A chat conversation is represented by a chat thread. Each user in the thread is called a thread member. Thread members can chat with one another privately in a 1:1 chat or huddle up in a 1:N group chat.
+A chat conversation is represented by a chat thread. Each user in the thread is called a thread member. Thread members can chat with one another privately in a 1:1 chat or huddle up in a 1:N group chat. 
 
 # Chat operations
 
