@@ -119,10 +119,10 @@ public class chatClientTest {
         final Response<Page<ChatMessage>> firstPage = chatServiceClient.listChatMessagesWithRestResponse("threadId", 5, OffsetDateTime.now());
         assertEquals(5, firstPage.getValue().getItems().size());
 
-        mockMessagesResponse(3);
+        mockMessagesResponse(4);
 
         final Response<Page<ChatMessage>> nextPage = chatServiceClient.listChatMessagesNextWithRestResponse(firstPage.getValue().getNextPageId());
-        assertEquals(3, nextPage.getValue().getItems().size());
+        assertEquals(4, nextPage.getValue().getItems().size());
     }
 
     private void mockThreadsResponse(int n) {
