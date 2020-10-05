@@ -30,13 +30,13 @@ Add an `implementation` configuration to the `dependencies` block of your app's 
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-communication-chat:1.0.0-beta.1"
+    implementation "com.azure.android:azure-communication-chat:1.0.0-beta.2"
 }
 
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-communication-chat:1.0.0-beta.1")
+    implementation("com.azure.android:azure-communication-chat:1.0.0-beta.2")
 }
 ```
 
@@ -47,7 +47,7 @@ To import the library into your project using the [Maven](https://maven.apache.o
 <dependency>
   <groupId>com.azure.android</groupId>
   <artifactId>azure-communication-chat</artifactId>
-  <version>1.0.0-beta.1</version>
+  <version>1.0.0-beta.2</version>
 </dependency>
 ```
 
@@ -80,7 +80,7 @@ The id for the user created above will be necessary later to add said user as a 
 
 ## Chat Thread
 
-A chat conversation is represented by a chat thread. Each user in the thread is called a thread member. Thread members can chat with one another privately in a 1:1 chat or huddle up in a 1:N group chat. Users also get near real-time updates for when others are typing and when they have read the messages. To learn more, read about chat concepts [here](https://docs.microsoft.com/azure/communication-services/concepts/chat/concepts).
+A chat conversation is represented by a chat thread. Each user in the thread is called a thread member. Thread members can chat with one another privately in a 1:1 chat or huddle up in a 1:N group chat. 
 
 # Chat operations
 
