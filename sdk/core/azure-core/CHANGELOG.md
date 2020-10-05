@@ -6,7 +6,7 @@
 
 ### New Features
 
-- Added pagination support.
+- Added `PagedDataCollection`, `PagedDataResponseCollection`, `AsyncPagedDataCollection` and associated types to support pagination APIs.
 
 ## 1.0.0-beta.1 (2020-09-17)
 
