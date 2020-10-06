@@ -22,6 +22,8 @@ import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlobSetHttpHeadersHeaders;
+import com.azure.android.storage.blob.models.BlobSetHttpHeadersResponse;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
@@ -284,6 +286,115 @@ final class StorageBlobServiceImpl {
             leaseId,
             requestId,
             cpkInfo,
+            cancellationToken,
+            callback);
+    }
+
+    BlobSetHttpHeadersHeaders setBlobHttpHeaders(String containerName,
+                                               String blobName,
+                                                 BlobHttpHeaders headers) {
+        BlobSetHttpHeadersResponse blobSetHttpHeadersResponse = setBlobHttpHeadersWithRestResponse(containerName,
+            blobName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            headers,
+            null,
+            CancellationToken.NONE);
+
+        return blobSetHttpHeadersResponse.getDeserializedHeaders();
+    }
+
+    void setBlobHttpHeaders(String containerName,
+                           String blobName,
+                           BlobHttpHeaders headers,
+                           Callback<BlobSetHttpHeadersHeaders> callback) {
+        setBlobHttpHeadersWithRestResponse(containerName,
+            blobName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            headers,
+            null,
+            CancellationToken.NONE,
+            new Callback<BlobSetHttpHeadersResponse>() {
+                @Override
+                public void onResponse(BlobSetHttpHeadersResponse response) {
+                    callback.onResponse(response.getDeserializedHeaders());
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    callback.onFailure(t);
+                }
+            });
+    }
+
+    BlobSetHttpHeadersResponse setBlobHttpHeadersWithRestResponse(String containerName,
+                                                                String blobName,
+                                                                Integer timeout,
+                                                                String version,
+                                                                String leaseId,
+                                                                  DateTimeRfc1123 ifModifiedSince,
+                                                                  DateTimeRfc1123 ifUnmodifiedSince,
+                                                                  String ifMatch,
+                                                                  String ifNoneMatch,
+                                                                  String ifTags,
+                                                                  BlobHttpHeaders headers,
+                                                                String requestId,
+                                                                CancellationToken cancellationToken) {
+        return setHttpHeadersWithRestResponseIntern(containerName,
+            blobName,
+            timeout,
+            leaseId,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
+            ifTags,
+            headers,
+            requestId,
+            version,
+            cancellationToken,
+            null);
+    }
+
+    void setBlobHttpHeadersWithRestResponse(String containerName,
+                                           String blobName,
+                                           Integer timeout,
+                                           String version,
+                                           String leaseId,
+                                            DateTimeRfc1123 ifModifiedSince,
+                                            DateTimeRfc1123 ifUnmodifiedSince,
+                                            String ifMatch,
+                                            String ifNoneMatch,
+                                            String ifTags,
+                                            BlobHttpHeaders headers,
+                                           String requestId,
+                                           CancellationToken cancellationToken,
+                                           Callback<BlobSetHttpHeadersResponse> callback) {
+        this.setHttpHeadersWithRestResponseIntern(containerName,
+            blobName,
+            timeout,
+            leaseId,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
+            ifTags,
+            headers,
+            requestId,
+            version,
             cancellationToken,
             callback);
     }
@@ -1087,6 +1198,105 @@ final class StorageBlobServiceImpl {
         }
     }
 
+    private BlobSetHttpHeadersResponse setHttpHeadersWithRestResponseIntern(String containerName,
+                                                                            String blobName,
+                                                                            Integer timeout,
+                                                                            String leaseId,
+                                                                            DateTimeRfc1123 ifModifiedSince,
+                                                                            DateTimeRfc1123 ifUnmodifiedSince,
+                                                                            String ifMatch,
+                                                                            String ifNoneMatch,
+                                                                            String ifTags,
+                                                                            BlobHttpHeaders headers,
+                                                                            String version,
+                                                                            String requestId,
+                                                                            CancellationToken cancellationToken,
+                                                                            Callback<BlobSetHttpHeadersResponse> callback) {
+
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+
+        final String comp = "properties";
+
+        Call<ResponseBody> call = service.setBlobHttpHeaders(containerName,
+            blobName,
+            timeout,
+            leaseId,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
+            ifTags,
+            XMS_VERSION, // TODO: Replace with 'version'.
+            requestId,
+            comp,
+            headers.getCacheControl(),
+            headers.getContentType(),
+            new String(headers.getContentMd5()),
+            headers.getContentEncoding(),
+            headers.getContentLanguage(),
+            headers.getContentDisposition());
+
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        if (callback != null) {
+            executeCall(call, new retrofit2.Callback<ResponseBody>() {
+                @Override
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        if (response.code() == 200) {
+                            BlobSetHttpHeadersHeaders typedHeaders = deserializeHeaders(response.headers(),
+                                BlobSetHttpHeadersHeaders.class);
+
+                            callback.onResponse(new BlobSetHttpHeadersResponse(response.raw().request(),
+                                response.code(),
+                                response.headers(),
+                                null,
+                                typedHeaders));
+                        } else {
+                            callback.onFailure(new BlobStorageException(null, response.raw()));
+                        }
+                    } else {
+                        String strContent = readAsString(response.errorBody());
+
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    callback.onFailure(t);
+                }
+            });
+
+            return null;
+        } else {
+            Response<ResponseBody> response = executeCall(call);
+
+            if (response.isSuccessful()) {
+                if (response.code() == 200) {
+                    BlobSetHttpHeadersHeaders headers = deserializeHeaders(response.headers(),
+                        BlobSetHttpHeadersHeaders.class);
+
+                    BlobSetHttpHeadersResponse result = new BlobSetHttpHeadersResponse(response.raw().request(),
+                        response.code(),
+                        response.headers(),
+                        null,
+                        headers);
+
+                    return result;
+                } else {
+                    throw new BlobStorageException(null, response.raw());
+                }
+            } else {
+                String strContent = readAsString(response.errorBody());
+
+                throw new BlobStorageException(strContent, response.raw());
+            }
+        }
+    }
+
     private BlobDownloadResponse downloadWithRestResponseIntern(String containerName,
                                                                 String blobName,
                                                                 String snapshot,
@@ -1666,6 +1876,27 @@ final class StorageBlobServiceImpl {
                                      @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
                                      @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
 
+        @PUT("{containerName}/{blob}")
+        //@ExpectedResponses({200})
+        //@UnexpectedResponseExceptionType(BlobStorageException.class)
+        Call<ResponseBody> setBlobHttpHeaders(@Path("containerName") String containerName,
+                                              @Path("blob") String blob,
+                                              @Query("timeout") Integer timeout,
+                                              @Header("x-ms-lease-id") String leaseId,
+                                              @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
+                                              @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
+                                              @Header("If-Match") String ifMatch,
+                                              @Header("If-None-Match") String ifNoneMatch,
+                                              @Header("x-ms-if-tags") String ifTags,
+                                              @Header("x-ms-version") String version,
+                                              @Header("x-ms-client-request-id") String requestId,
+                                              @Query("comp") String comp,
+                                              @Header("x-ms-blob-cache-control") String cacheControl,
+                                              @Header("x-ms-blob-content-type") String contentType,
+                                              @Header("x-ms-blob-content-md5") String contentMd5,
+                                              @Header("x-ms-blob-content-encoding") String contentEncoding,
+                                              @Header("x-ms-blob-content-language") String contentLanguage,
+                                              @Header("x-ms-blob-content-disposition") String contentDisposition);
 
         @GET("{containerName}/{blob}")
         Call<ResponseBody> download(@Path("containerName") String containerName,
