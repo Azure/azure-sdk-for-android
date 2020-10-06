@@ -55,10 +55,8 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
         packagingOptions {
             exclude 'META-INF/DEPENDENCIES'
             exclude 'META-INF/LICENSE'
-            exclude 'META-INF/LICENSE.md'
             exclude 'META-INF/license'
             exclude 'META-INF/NOTICE'
-            exclude 'META-INF/NOTICE.md'
             exclude 'META-INF/notice'
             exclude 'META-INF/ASL2.0'
             exclude("META-INF/*.md")
