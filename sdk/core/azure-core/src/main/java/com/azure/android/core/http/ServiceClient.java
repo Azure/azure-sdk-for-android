@@ -5,22 +5,13 @@ package com.azure.android.core.http;
 
 import androidx.annotation.NonNull;
 
-import com.azure.android.core.internal.util.serializer.SerializerAdapter;
-import com.azure.android.core.internal.util.serializer.SerializerFormat;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
 import okhttp3.Interceptor;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import okio.AsyncTimeout;
-import retrofit2.Converter;
 import retrofit2.Retrofit;
 
 /**
@@ -67,16 +58,6 @@ public class ServiceClient {
     }
 
     /**
-     * The request or response content serializer adapter that will be used by any API Client created using a
-     * configured Retrofit, which can be accessed using {@link ServiceClient#getRetrofit()}.
-     *
-     * @return The serializer adapter.
-     */
-    public SerializerAdapter getSerializerAdapter() {
-        return this.builder.serializerAdapter;
-    }
-
-    /**
      * @return A new builder with configurations copied from this {@link ServiceClient}.
      */
     public ServiceClient.Builder newBuilder() {
@@ -103,16 +84,11 @@ public class ServiceClient {
      * A builder to configure and build a {@link ServiceClient}.
      */
     public static final class Builder {
-        private static MediaType XML_MEDIA_TYPE = MediaType.parse("application/xml; charset=UTF-8");
-        private static MediaType JSON_MEDIA_TYPE = MediaType.parse("application/json; charset=UTF-8");
-
         private ConnectionPool connectionPool;
         private Dispatcher dispatcher;
         private Interceptor credentialsInterceptor;
         private OkHttpClient.Builder httpClientBuilder;
         private Retrofit.Builder retrofitBuilder;
-        private SerializerFormat serializerFormat;
-        private SerializerAdapter serializerAdapter;
         private String baseUrl;
 
         /**
@@ -148,8 +124,6 @@ public class ServiceClient {
             this.httpClientBuilder.networkInterceptors().clear();
 
             this.baseUrl = serviceClient.getBaseUrl();
-            this.serializerAdapter = serviceClient.builder.serializerAdapter;
-            this.serializerFormat = serviceClient.builder.serializerFormat;
 
             for (Interceptor interceptor : serviceClient.httpClient.interceptors()) {
                 if (interceptor != serviceClient.builder.credentialsInterceptor) {
@@ -174,21 +148,6 @@ public class ServiceClient {
          */
         public Builder setBaseUrl(@NonNull String baseUrl) {
             this.baseUrl = baseUrl;
-
-            return this;
-        }
-
-        /**
-         * Set the request or response content serialization format for any API Client created through the configured
-         * Retrofit.
-         * <p>
-         * The configured Retrofit is accessed using {@link ServiceClient#getRetrofit()}.
-         *
-         * @param format The serialization format.
-         * @return Builder with serialization format applied.
-         */
-        public Builder setSerializationFormat(@NonNull SerializerFormat format) {
-            this.serializerFormat = format;
 
             return this;
         }
@@ -322,16 +281,6 @@ public class ServiceClient {
             }
 
             OkHttpClient httpClient = this.httpClientBuilder.build();
-            if (this.serializerFormat == null) {
-                throw new IllegalArgumentException("Serialization format must be set.");
-            }
-
-            if (this.serializerAdapter == null) {
-                this.serializerAdapter = SerializerAdapter.createDefault();
-            }
-
-            Converter.Factory converterFactory
-                = wrapSerializerInRetrofitConverter(this.serializerAdapter, this.serializerFormat);
 
             return new ServiceClient(
                 httpClient,
@@ -340,40 +289,8 @@ public class ServiceClient {
                     .client(httpClient)
                     // Use same executor instance for OkHttp and Retrofit callback.
                     .callbackExecutor(httpClient.dispatcher().executorService())
-                    .addConverterFactory(converterFactory)
                     .build(),
                 this);
-        }
-
-        /**
-         * Given an azure-core {@link SerializerAdapter}, wrap it in a Retrofit {@link Converter} so that it can be
-         * plugged into the Retrofit serialization-deserialization pipeline.
-         *
-         * @param serializer       azure-core {@link SerializerAdapter}.
-         * @param serializerFormat The serializer format.
-         * @return A Retrofit {@link Converter}.
-         */
-        private static Converter.Factory wrapSerializerInRetrofitConverter(SerializerAdapter serializer,
-                                                                           final SerializerFormat serializerFormat) {
-            return new Converter.Factory() {
-                @Override
-                public Converter<?, RequestBody> requestBodyConverter(Type type,
-                                                                      Annotation[] parameterAnnotations,
-                                                                      Annotation[] methodAnnotations,
-                                                                      Retrofit retrofit) {
-                    return value -> RequestBody.create(
-                        serializerFormat == SerializerFormat.XML ? XML_MEDIA_TYPE : JSON_MEDIA_TYPE,
-                        serializer.serialize(value, serializerFormat));
-                }
-
-                @Override
-                public Converter<ResponseBody, ?> responseBodyConverter(Type type,
-                                                                        Annotation[] annotations,
-                                                                        Retrofit retrofit) {
-                    return (Converter<ResponseBody, Object>) body ->
-                        serializer.deserialize(body.string(), type, serializerFormat);
-                }
-            };
         }
     }
 }

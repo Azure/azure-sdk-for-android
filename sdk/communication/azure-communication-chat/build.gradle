@@ -1,0 +1,29 @@
+ext.publishName = "Microsoft Azure Android Client Library for Communication Chat Service"
+description = "This package contains the Android client library common code for Microsoft Azure Communication Chat Service."
+version = "1.0.0-beta.2"
+ext.versionCode = 1
+
+android {
+    defaultConfig {
+        versionCode project.versionCode
+        versionName project.version
+    }
+}
+
+dependencies {
+    api "com.azure.android:azure-core:1.0.0-beta.2"
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
+    implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
+    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    testImplementation "junit:junit:$jUnitVersion"
+    testImplementation "com.squareup.okhttp3:mockwebserver:$okHttpVersion"
+    testImplementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
+    testImplementation "org.threeten:threetenbp:$threeTenBpVersion"
+    androidTestImplementation "androidx.test.ext:junit:1.1.2"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.3.0"
+
+}

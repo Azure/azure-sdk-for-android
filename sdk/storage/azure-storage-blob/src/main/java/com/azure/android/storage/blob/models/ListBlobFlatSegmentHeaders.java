@@ -13,7 +13,7 @@ import org.threeten.bp.OffsetDateTime;
  * Defines headers for ListBlobFlatSegment operation.
  */
 @JacksonXmlRootElement(localName = "Container-ListBlobFlatSegment-Headers")
-public final class ContainerListBlobFlatSegmentHeaders {
+public final class ListBlobFlatSegmentHeaders {
     /*
      * The media type of the body of the response. For List Blobs this is
      * 'application/xml'
@@ -73,7 +73,7 @@ public final class ContainerListBlobFlatSegmentHeaders {
      * @param contentType the contentType value to set.
      * @return the ContainerListBlobFlatSegmentHeaders object itself.
      */
-    public ContainerListBlobFlatSegmentHeaders setContentType(String contentType) {
+    public ListBlobFlatSegmentHeaders setContentType(String contentType) {
         this.contentType = contentType;
         return this;
     }
@@ -97,7 +97,7 @@ public final class ContainerListBlobFlatSegmentHeaders {
      * @param clientRequestId the clientRequestId value to set.
      * @return the ContainerListBlobFlatSegmentHeaders object itself.
      */
-    public ContainerListBlobFlatSegmentHeaders setClientRequestId(String clientRequestId) {
+    public ListBlobFlatSegmentHeaders setClientRequestId(String clientRequestId) {
         this.clientRequestId = clientRequestId;
         return this;
     }
@@ -119,7 +119,7 @@ public final class ContainerListBlobFlatSegmentHeaders {
      * @param requestId the requestId value to set.
      * @return the ContainerListBlobFlatSegmentHeaders object itself.
      */
-    public ContainerListBlobFlatSegmentHeaders setRequestId(String requestId) {
+    public ListBlobFlatSegmentHeaders setRequestId(String requestId) {
         this.requestId = requestId;
         return this;
     }
@@ -143,7 +143,7 @@ public final class ContainerListBlobFlatSegmentHeaders {
      * @param version the version value to set.
      * @return the ContainerListBlobFlatSegmentHeaders object itself.
      */
-    public ContainerListBlobFlatSegmentHeaders setVersion(String version) {
+    public ListBlobFlatSegmentHeaders setVersion(String version) {
         this.version = version;
         return this;
     }
@@ -168,7 +168,7 @@ public final class ContainerListBlobFlatSegmentHeaders {
      * @param dateProperty the dateProperty value to set.
      * @return the ContainerListBlobFlatSegmentHeaders object itself.
      */
-    public ContainerListBlobFlatSegmentHeaders setDateProperty(OffsetDateTime dateProperty) {
+    public ListBlobFlatSegmentHeaders setDateProperty(OffsetDateTime dateProperty) {
         if (dateProperty == null) {
             this.dateProperty = null;
         } else {
@@ -192,7 +192,7 @@ public final class ContainerListBlobFlatSegmentHeaders {
      * @param errorCode the errorCode value to set.
      * @return the ContainerListBlobFlatSegmentHeaders object itself.
      */
-    public ContainerListBlobFlatSegmentHeaders setErrorCode(String errorCode) {
+    public ListBlobFlatSegmentHeaders setErrorCode(String errorCode) {
         this.errorCode = errorCode;
         return this;
     }

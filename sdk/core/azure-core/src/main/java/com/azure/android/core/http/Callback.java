@@ -12,14 +12,16 @@ public interface Callback<T> {
     /**
      * The method to call on a successful result.
      *
+     * @param result   The result.
      * @param response The response.
      */
-    void onResponse(T response);
+    void onSuccess(T result, okhttp3.Response response);
 
     /**
      * The method to call on failure.
      *
-     * @param t A throwable with the failure details.
+     * @param throwable A throwable with the failure details.
+     * @param response  The response for the failure, if available.
      */
-    void onFailure(Throwable t);
+    void onFailure(Throwable throwable, okhttp3.Response response);
 }

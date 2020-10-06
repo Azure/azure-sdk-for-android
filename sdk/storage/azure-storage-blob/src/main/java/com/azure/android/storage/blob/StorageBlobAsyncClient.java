@@ -14,26 +14,27 @@ import androidx.work.Constraints;
 import androidx.work.NetworkType;
 
 import com.azure.android.core.http.Callback;
+import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
-import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.CoreUtil;
 import com.azure.android.storage.blob.models.AccessTier;
-import com.azure.android.storage.blob.models.BlobDeleteResponse;
-import com.azure.android.storage.blob.models.BlobDownloadResponse;
+import com.azure.android.storage.blob.models.BlobDeleteHeaders;
+import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
-import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
+import com.azure.android.storage.blob.models.BlobsPage;
+import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
-import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
-import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
-import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
+import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
+import com.azure.android.storage.blob.models.ListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
+import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.transfer.DownloadRequest;
@@ -45,11 +46,13 @@ import com.azure.android.storage.blob.transfer.UploadRequest;
 import org.threeten.bp.OffsetDateTime;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import okhttp3.Interceptor;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 /**
@@ -244,11 +247,24 @@ public class StorageBlobAsyncClient {
     public void getBlobsInPage(String pageId,
                                String containerName,
                                ListBlobsOptions options,
-                               Callback<List<BlobItem>> callback) {
-        this.storageBlobServiceClient.getBlobsInPage(pageId,
+                               Callback<BlobsPage> callback) {
+        this.storageBlobServiceClient.listBlobFlatSegment(pageId,
             containerName,
             options,
-            callback);
+            new CallbackWithHeader<ListBlobsFlatSegmentResponse, ListBlobFlatSegmentHeaders>() {
+                @Override
+                public void onSuccess(ListBlobsFlatSegmentResponse result, ListBlobFlatSegmentHeaders header, Response response) {
+                    List<BlobItem> list = result.getSegment() == null
+                        ? new ArrayList<>(0)
+                        : result.getSegment().getBlobItems();
+                    callback.onSuccess(new BlobsPage(list, pageId, result.getNextMarker()), response);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    callback.onFailure(throwable, response);
+                }
+            });
     }
 
     /**
@@ -266,16 +282,16 @@ public class StorageBlobAsyncClient {
      * @param callback          Callback that receives the response.
      * @param cancellationToken The token to request cancellation.
      */
-    public void getBlobsInPageWithRestResponse(String pageId,
-                                               String containerName,
-                                               String prefix,
-                                               Integer maxResults,
-                                               List<ListBlobsIncludeItem> include,
-                                               Integer timeout,
-                                               String requestId,
-                                               CancellationToken cancellationToken,
-                                               Callback<ContainersListBlobFlatSegmentResponse> callback) {
-        this.storageBlobServiceClient.getBlobsInPageWithRestResponse(pageId,
+    public void getBlobsInPage(String pageId,
+                               String containerName,
+                               String prefix,
+                               Integer maxResults,
+                               List<ListBlobsIncludeItem> include,
+                               Integer timeout,
+                               String requestId,
+                               CancellationToken cancellationToken,
+                               Callback<BlobsPage> callback) {
+        this.storageBlobServiceClient.listBlobFlatSegment(pageId,
             containerName,
             prefix,
             maxResults,
@@ -283,7 +299,20 @@ public class StorageBlobAsyncClient {
             timeout,
             requestId,
             cancellationToken,
-            callback);
+            new CallbackWithHeader<ListBlobsFlatSegmentResponse, ListBlobFlatSegmentHeaders>() {
+                @Override
+                public void onSuccess(ListBlobsFlatSegmentResponse result, ListBlobFlatSegmentHeaders header, Response response) {
+                    List<BlobItem> list = result.getSegment() == null
+                        ? new ArrayList<>(0)
+                        : result.getSegment().getBlobItems();
+                    callback.onSuccess(new BlobsPage(list, pageId, result.getNextMarker()), response);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    callback.onFailure(throwable, response);
+                }
+            });
     }
 
     /**
@@ -295,7 +324,7 @@ public class StorageBlobAsyncClient {
      */
     public void getBlobProperties(String containerName,
                                   String blobName,
-                                  Callback<BlobGetPropertiesHeaders> callback) {
+                                  CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
         storageBlobServiceClient.getBlobProperties(containerName,
             blobName,
             callback);
@@ -321,19 +350,19 @@ public class StorageBlobAsyncClient {
      * @param cancellationToken     The token to request cancellation.
      * @param callback              Callback that receives the response.
      */
-    public void getBlobPropertiesWithRestResponse(String containerName,
-                                                  String blobName,
-                                                  String snapshot,
-                                                  Integer timeout,
-                                                  String version,
-                                                  BlobRequestConditions blobRequestConditions,
-                                                  String requestId,
-                                                  CpkInfo cpkInfo,
-                                                  CancellationToken cancellationToken,
-                                                  Callback<BlobGetPropertiesResponse> callback) {
+    public void getBlobProperties(String containerName,
+                                  String blobName,
+                                  String snapshot,
+                                  Integer timeout,
+                                  String version,
+                                  BlobRequestConditions blobRequestConditions,
+                                  String requestId,
+                                  CpkInfo cpkInfo,
+                                  CancellationToken cancellationToken,
+                                  CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-        storageBlobServiceClient.getBlobPropertiesWithRestResponse(containerName,
+        storageBlobServiceClient.getBlobProperties(containerName,
             blobName,
             snapshot,
             timeout,
@@ -361,7 +390,7 @@ public class StorageBlobAsyncClient {
      */
     public void rawDownload(String containerName,
                             String blobName,
-                            Callback<ResponseBody> callback) {
+                            CallbackWithHeader<ResponseBody, BlobDownloadHeaders> callback) {
         storageBlobServiceClient.download(containerName,
             blobName,
             callback);
@@ -398,23 +427,23 @@ public class StorageBlobAsyncClient {
      * @param cancellationToken     The token to request cancellation.
      * @param callback              Callback that receives the response.
      */
-    public void rawDownloadWithRestResponse(String containerName,
-                                            String blobName,
-                                            String snapshot,
-                                            Integer timeout,
-                                            BlobRange range,
-                                            BlobRequestConditions blobRequestConditions,
-                                            Boolean getRangeContentMd5,
-                                            Boolean getRangeContentCrc64,
-                                            String version,
-                                            String requestId,
-                                            CpkInfo cpkInfo,
-                                            CancellationToken cancellationToken,
-                                            Callback<BlobDownloadResponse> callback) {
+    public void rawDownload(String containerName,
+                            String blobName,
+                            String snapshot,
+                            Integer timeout,
+                            BlobRange range,
+                            BlobRequestConditions blobRequestConditions,
+                            Boolean getRangeContentMd5,
+                            Boolean getRangeContentCrc64,
+                            String version,
+                            String requestId,
+                            CpkInfo cpkInfo,
+                            CancellationToken cancellationToken,
+                            CallbackWithHeader<ResponseBody, BlobDownloadHeaders> callback) {
         range = range == null ? new BlobRange(0) : range;
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-        storageBlobServiceClient.downloadWithRestResponse(containerName,
+        storageBlobServiceClient.rawDownload(containerName,
             blobName,
             snapshot,
             timeout,
@@ -450,7 +479,7 @@ public class StorageBlobAsyncClient {
                            String base64BlockId,
                            byte[] blockContent,
                            byte[] contentMd5,
-                           Callback<Void> callback) {
+                           CallbackWithHeader<Void, BlockBlobStageBlockHeaders> callback) {
         this.storageBlobServiceClient.stageBlock(containerName,
             blobName,
             base64BlockId,
@@ -479,19 +508,19 @@ public class StorageBlobAsyncClient {
      * @param cancellationToken The token to request cancellation.
      * @param callback          Callback that receives the response.
      */
-    public void stageBlockWithRestResponse(String containerName,
-                                           String blobName,
-                                           String base64BlockId,
-                                           byte[] blockContent,
-                                           byte[] contentMd5,
-                                           byte[] contentCrc64,
-                                           Integer timeout,
-                                           String leaseId,
-                                           String requestId,
-                                           CpkInfo cpkInfo,
-                                           CancellationToken cancellationToken,
-                                           Callback<BlockBlobsStageBlockResponse> callback) {
-        this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
+    public void stageBlock(String containerName,
+                           String blobName,
+                           String base64BlockId,
+                           byte[] blockContent,
+                           byte[] contentMd5,
+                           byte[] contentCrc64,
+                           Integer timeout,
+                           String leaseId,
+                           String requestId,
+                           CpkInfo cpkInfo,
+                           CancellationToken cancellationToken,
+                           CallbackWithHeader<Void, BlockBlobStageBlockHeaders> callback) {
+        this.storageBlobServiceClient.stageBlock(containerName,
             blobName,
             base64BlockId,
             blockContent,
@@ -508,7 +537,7 @@ public class StorageBlobAsyncClient {
     /**
      * The Commit Block List operation writes a blob by specifying the list of block IDs that make up the blob.
      * For a block to be written as part of a blob, the block must have been successfully written to the server in a prior
-     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[], Callback)} operation. You can
+     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[], CallbackWithHeader)}. You can
      * call commit Block List to update a blob by uploading only those blocks that have changed, then committing the new
      * and existing blocks together. You can do this by specifying whether to commit a block from the committed block
      * list or from the uncommitted block list, or to commit the most recently uploaded version of the block,
@@ -524,7 +553,7 @@ public class StorageBlobAsyncClient {
                                 String blobName,
                                 List<String> base64BlockIds,
                                 boolean overwrite,
-                                Callback<BlockBlobItem> callback) {
+                                CallbackWithHeader<BlockBlobItem, BlockBlobCommitBlockListHeaders> callback) {
         this.storageBlobServiceClient.commitBlockList(containerName,
             blobName,
             base64BlockIds,
@@ -535,7 +564,7 @@ public class StorageBlobAsyncClient {
     /**
      * The Commit Block List operation writes a blob by specifying the list of block IDs that make up the blob.
      * For a block to be written as part of a blob, the block must have been successfully written to the server in a prior
-     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[], Callback)} operation. You can call
+     * {@link StorageBlobAsyncClient#stageBlock(String, String, String, byte[], byte[], CallbackWithHeader)}  operation. You can call
      * commit Block List to update a blob by uploading only those blocks that have changed, then committing the new and existing
      * blocks together. You can do this by specifying whether to commit a block from the committed block list or from
      * the uncommitted block list, or to commit the most recently uploaded version of the block, whichever list it may belong to.
@@ -557,21 +586,21 @@ public class StorageBlobAsyncClient {
      * @param cancellationToken The token to request cancellation.
      * @param callback          Callback that receives the response.
      */
-    public void commitBlockListWithRestResponse(String containerName,
-                                                String blobName,
-                                                List<String> base64BlockIds,
-                                                byte[] contentMD5,
-                                                byte[] contentCrc64,
-                                                Integer timeout,
-                                                BlobHttpHeaders blobHttpHeaders,
-                                                Map<String, String> metadata,
-                                                BlobRequestConditions requestConditions,
-                                                String requestId,
-                                                CpkInfo cpkInfo,
-                                                AccessTier tier,
-                                                CancellationToken cancellationToken,
-                                                Callback<BlockBlobsCommitBlockListResponse> callback) {
-        this.storageBlobServiceClient.commitBlockListWithRestResponse(containerName,
+    public void commitBlockList(String containerName,
+                                String blobName,
+                                List<String> base64BlockIds,
+                                byte[] contentMD5,
+                                byte[] contentCrc64,
+                                Integer timeout,
+                                BlobHttpHeaders blobHttpHeaders,
+                                Map<String, String> metadata,
+                                BlobRequestConditions requestConditions,
+                                String requestId,
+                                CpkInfo cpkInfo,
+                                AccessTier tier,
+                                CancellationToken cancellationToken,
+                                CallbackWithHeader<BlockBlobItem, BlockBlobCommitBlockListHeaders> callback) {
+        this.storageBlobServiceClient.commitBlockList(containerName,
             blobName,
             base64BlockIds,
             contentMD5,
@@ -596,7 +625,7 @@ public class StorageBlobAsyncClient {
      */
     void delete(String containerName,
                 String blobName,
-                Callback<Void> callback) {
+                CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
         storageBlobServiceClient.delete(containerName,
             blobName,
             callback);
@@ -642,21 +671,21 @@ public class StorageBlobAsyncClient {
      * @param cancellationToken The token to request cancellation.
      * @param callback          Callback that receives the response.
      */
-    void deleteWithResponse(String containerName,
-                            String blobName,
-                            String snapshot,
-                            Integer timeout,
-                            String version,
-                            String leaseId,
-                            DeleteSnapshotsOptionType deleteSnapshots,
-                            OffsetDateTime ifModifiedSince,
-                            OffsetDateTime ifUnmodifiedSince,
-                            String ifMatch,
-                            String ifNoneMatch,
-                            String requestId,
-                            CancellationToken cancellationToken,
-                            Callback<BlobDeleteResponse> callback) {
-        storageBlobServiceClient.deleteWithResponse(containerName,
+    void delete(String containerName,
+                String blobName,
+                String snapshot,
+                Integer timeout,
+                String version,
+                String leaseId,
+                DeleteSnapshotsOptionType deleteSnapshots,
+                OffsetDateTime ifModifiedSince,
+                OffsetDateTime ifUnmodifiedSince,
+                String ifMatch,
+                String ifNoneMatch,
+                String requestId,
+                CancellationToken cancellationToken,
+                CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
+        storageBlobServiceClient.delete(containerName,
             blobName,
             snapshot,
             timeout,
@@ -698,8 +727,7 @@ public class StorageBlobAsyncClient {
         public Builder(String storageBlobClientId) {
             this(storageBlobClientId, new ServiceClient.Builder());
             this.serviceClientBuilder
-                .addInterceptor(new AddDateInterceptor())
-                .setSerializationFormat(SerializerFormat.XML);
+                .addInterceptor(new AddDateInterceptor());
         }
 
         /**
