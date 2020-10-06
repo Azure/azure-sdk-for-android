@@ -11,6 +11,7 @@ android {
 }
 
 dependencies {
+    api "com.azure.android:azure-core:1.0.0-beta.2"
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
@@ -18,7 +19,6 @@ dependencies {
     implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
-    implementation project(":sdk:core:azure-core")
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "com.squareup.okhttp3:mockwebserver:$okHttpVersion"
     testImplementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
