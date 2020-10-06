@@ -225,15 +225,7 @@ public class StorageBlobClient {
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param version               Specifies the version of the operation to use for this request.
-     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and
-     *                          matches this ID.
-     * @param ifModifiedSince   Specify this header value to operate only on a blob if it has been modified since the
-     *                          specified date/time.
-     * @param ifUnmodifiedSince Specify this header value to operate only on a blob if it has not been modified since
-     *                          the specified date/time.
-     * @param ifMatch           Specify an ETag value to operate only on blobs with a matching value.
-     * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
-     * @param ifTags            Specify a SQL statement to apply to the tags on the blob.
+     * @param requestConditions {@link BlobRequestConditions}
      * @param headers           {@link BlobHttpHeaders}
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
@@ -252,7 +244,7 @@ public class StorageBlobClient {
             blobName,
             timeout,
             version,
-            requestConditions
+            requestConditions,
             headers,
             requestId,
             cancellationToken);

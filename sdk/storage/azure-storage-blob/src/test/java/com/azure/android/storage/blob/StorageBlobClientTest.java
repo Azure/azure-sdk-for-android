@@ -439,11 +439,6 @@ public class StorageBlobClientTest {
                 null,
                 null,
                 null,
-                null,
-                null,
-                null,
-                null,
-                null,
                 new BlobHttpHeaders(),
                 null,
                 CancellationToken.NONE);
@@ -466,11 +461,6 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.setBlobHttpHeadersWithResponse("container",
             "blob",
-            null,
-            null,
-            null,
-            null,
-            null,
             null,
             null,
             null,
