@@ -386,10 +386,10 @@ public class StorageBlobAsyncClient {
      * @param headers {@link BlobHttpHeaders}
      * @param callback      Callback that receives the response.
      */
-    public void setHttpHeaders(String containerName,
-                               String blobName,
-                               BlobHttpHeaders headers,
-                               CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
+    public void setBlobHttpHeaders(String containerName,
+                                   String blobName,
+                                   BlobHttpHeaders headers,
+                                   CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
         storageBlobServiceClient.setBlobHttpHeaders(containerName, blobName, headers, callback);
     }
 
@@ -402,45 +402,27 @@ public class StorageBlobAsyncClient {
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param version               Specifies the version of the operation to use for this request.
-     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and
-     *                          matches this ID.
-     * @param ifModifiedSince   Specify this header value to operate only on a blob if it has been modified since the
-     *                          specified date/time.
-     * @param ifUnmodifiedSince Specify this header value to operate only on a blob if it has not been modified since
-     *                          the specified date/time.
-     * @param ifMatch           Specify an ETag value to operate only on blobs with a matching value.
-     * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
-     * @param ifTags            Specify a SQL statement to apply to the tags on the blob.
+     * @param requestConditions {@link BlobRequestConditions}
      * @param headers           {@link BlobHttpHeaders}
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
      * @param callback      Callback that receives the response.
      */
-    public void setHttpHeadersWithResponse(String containerName,
-                                                                 String blobName,
-                                                                 Integer timeout,
-                                                                 String version,
-                                                                 String leaseId,
-                                                                 DateTimeRfc1123 ifModifiedSince,
-                                                                 DateTimeRfc1123 ifUnmodifiedSince,
-                                                                 String ifMatch,
-                                                                 String ifNoneMatch,
-                                                                 String ifTags,
-                                                                 BlobHttpHeaders headers,
-                                                                 String requestId,
-                                                                 CancellationToken cancellationToken,
-                                                                 CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
+    public void setBlobHttpHeadersWithResponse(String containerName,
+                                               String blobName,
+                                               Integer timeout,
+                                               String version,
+                                               BlobRequestConditions requestConditions,
+                                               BlobHttpHeaders headers,
+                                               String requestId,
+                                               CancellationToken cancellationToken,
+                                               CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
         storageBlobServiceClient.setBlobHttpHeaders(containerName,
             blobName,
             timeout,
             version,
-            leaseId,
-            ifModifiedSince,
-            ifUnmodifiedSince,
-            ifMatch,
-            ifNoneMatch,
-            ifTags,
+            requestConditions,
             headers,
             requestId,
             cancellationToken,

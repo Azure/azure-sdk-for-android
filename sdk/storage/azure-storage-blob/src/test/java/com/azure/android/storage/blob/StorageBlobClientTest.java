@@ -3,7 +3,6 @@ package com.azure.android.storage.blob;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
-import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
@@ -379,7 +378,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a void response be returned by the client.
-        Void response = storageBlobClient.setHttpHeaders("container",
+        Void response = storageBlobClient.setBlobHttpHeaders("container",
             "blob", new BlobHttpHeaders());
 
         assertNull(response);
@@ -397,7 +396,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.setHttpHeaders("container",
+        storageBlobAsyncClient.setBlobHttpHeaders("container",
             "blob", new BlobHttpHeaders(),
             new CallbackWithHeader<Void, BlobSetHttpHeadersHeaders>() {
                 @Override
@@ -435,7 +434,7 @@ public class StorageBlobClientTest {
 
         // Then the client will return an object that contains the details of the REST response.
         BlobSetHttpHeadersResponse response =
-            storageBlobClient.setHttpHeadersWithResponse("container",
+            storageBlobClient.setBlobHttpHeadersWithResponse("container",
                 "blob",
                 null,
                 null,
@@ -465,7 +464,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.setHttpHeadersWithResponse("container",
+        storageBlobAsyncClient.setBlobHttpHeadersWithResponse("container",
             "blob",
             null,
             null,

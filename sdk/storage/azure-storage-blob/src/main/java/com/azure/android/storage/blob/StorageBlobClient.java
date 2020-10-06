@@ -210,9 +210,9 @@ public class StorageBlobClient {
      * @param blobName      The blob name.
      * @param headers {@link BlobHttpHeaders}
      */
-    public Void setHttpHeaders(String containerName,
-                                                    String blobName,
-                                                    BlobHttpHeaders headers) {
+    public Void setBlobHttpHeaders(String containerName,
+                                   String blobName,
+                                   BlobHttpHeaders headers) {
         return storageBlobServiceClient.setBlobHttpHeaders(containerName, blobName, headers);
     }
 
@@ -240,29 +240,19 @@ public class StorageBlobClient {
      * @param cancellationToken The token to request cancellation.
      * @return The response object.
      */
-    public BlobSetHttpHeadersResponse setHttpHeadersWithResponse(String containerName,
-                                                                 String blobName,
-                                                                 Integer timeout,
-                                                                 String version,
-                                                                 String leaseId,
-                                                                 DateTimeRfc1123 ifModifiedSince,
-                                                                 DateTimeRfc1123 ifUnmodifiedSince,
-                                                                 String ifMatch,
-                                                                 String ifNoneMatch,
-                                                                 String ifTags,
-                                                                 BlobHttpHeaders headers,
-                                                                 String requestId,
-                                                                 CancellationToken cancellationToken) {
+    public BlobSetHttpHeadersResponse setBlobHttpHeadersWithResponse(String containerName,
+                                                                     String blobName,
+                                                                     Integer timeout,
+                                                                     String version,
+                                                                     BlobRequestConditions requestConditions,
+                                                                     BlobHttpHeaders headers,
+                                                                     String requestId,
+                                                                     CancellationToken cancellationToken) {
         return storageBlobServiceClient.setBlobHttpHeadersWithRestResponse(containerName,
             blobName,
             timeout,
             version,
-            leaseId,
-            ifModifiedSince,
-            ifUnmodifiedSince,
-            ifMatch,
-            ifNoneMatch,
-            ifTags,
+            requestConditions
             headers,
             requestId,
             cancellationToken);

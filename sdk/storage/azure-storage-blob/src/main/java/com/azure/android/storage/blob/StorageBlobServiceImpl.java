@@ -272,11 +272,6 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null,
-            null,
-            null,
-            null,
-            null,
             headers,
             null,
             CancellationToken.NONE);
@@ -293,11 +288,6 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null,
-            null,
-            null,
-            null,
-            null,
             headers,
             null,
             CancellationToken.NONE,
@@ -308,24 +298,14 @@ final class StorageBlobServiceImpl {
                                                                 String blobName,
                                                                 Integer timeout,
                                                                 String version,
-                                                                String leaseId,
-                                                                  DateTimeRfc1123 ifModifiedSince,
-                                                                  DateTimeRfc1123 ifUnmodifiedSince,
-                                                                  String ifMatch,
-                                                                  String ifNoneMatch,
-                                                                  String ifTags,
+                                                                BlobRequestConditions requestConditions,
                                                                   BlobHttpHeaders headers,
                                                                 String requestId,
                                                                 CancellationToken cancellationToken) {
         return setHttpHeadersWithRestResponseIntern(containerName,
             blobName,
             timeout,
-            leaseId,
-            ifModifiedSince,
-            ifUnmodifiedSince,
-            ifMatch,
-            ifNoneMatch,
-            ifTags,
+            requestConditions,
             headers,
             requestId,
             version,
@@ -337,12 +317,7 @@ final class StorageBlobServiceImpl {
                                            String blobName,
                                            Integer timeout,
                                            String version,
-                                           String leaseId,
-                                            DateTimeRfc1123 ifModifiedSince,
-                                            DateTimeRfc1123 ifUnmodifiedSince,
-                                            String ifMatch,
-                                            String ifNoneMatch,
-                                            String ifTags,
+                                           BlobRequestConditions requestConditions,
                                             BlobHttpHeaders headers,
                                            String requestId,
                                            CancellationToken cancellationToken,
@@ -350,12 +325,7 @@ final class StorageBlobServiceImpl {
         this.setHttpHeadersWithRestResponseIntern(containerName,
             blobName,
             timeout,
-            leaseId,
-            ifModifiedSince,
-            ifUnmodifiedSince,
-            ifMatch,
-            ifNoneMatch,
-            ifTags,
+            requestConditions,
             headers,
             requestId,
             version,
@@ -1119,12 +1089,7 @@ final class StorageBlobServiceImpl {
     private BlobSetHttpHeadersResponse setHttpHeadersWithRestResponseIntern(String containerName,
                                                                             String blobName,
                                                                             Integer timeout,
-                                                                            String leaseId,
-                                                                            DateTimeRfc1123 ifModifiedSince,
-                                                                            DateTimeRfc1123 ifUnmodifiedSince,
-                                                                            String ifMatch,
-                                                                            String ifNoneMatch,
-                                                                            String ifTags,
+                                                                            BlobRequestConditions requestConditions,
                                                                             BlobHttpHeaders headers,
                                                                             String version,
                                                                             String requestId,
@@ -1135,6 +1100,17 @@ final class StorageBlobServiceImpl {
 
         final String comp = "properties";
 
+        requestConditions = requestConditions == null ? new BlobRequestConditions() : requestConditions;
+        String leaseId = requestConditions.getLeaseId();
+        DateTimeRfc1123 ifModifiedSince = requestConditions.getIfModifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfModifiedSince());
+        DateTimeRfc1123 ifUnmodifiedSince = requestConditions.getIfUnmodifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfUnmodifiedSince());
+        String ifMatch = requestConditions.getIfMatch();
+        String ifNoneMatch = requestConditions.getIfNoneMatch();
+
         Call<ResponseBody> call = service.setBlobHttpHeaders(containerName,
             blobName,
             timeout,
@@ -1143,7 +1119,7 @@ final class StorageBlobServiceImpl {
             ifUnmodifiedSince,
             ifMatch,
             ifNoneMatch,
-            ifTags,
+            null, // TODO: Add tags when later service version supported.
             XMS_VERSION, // TODO: Replace with 'version'.
             requestId,
             comp,
