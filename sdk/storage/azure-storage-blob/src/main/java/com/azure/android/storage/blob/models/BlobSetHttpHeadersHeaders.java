@@ -65,12 +65,6 @@ public final class BlobSetHttpHeadersHeaders {
     @JsonProperty(value = "Date")
     private DateTimeRfc1123 dateProperty;
 
-    /*
-     * The errorCode property.
-     */
-    @JsonProperty(value = "x-ms-error-code")
-    private String errorCode;
-
     /**
      * Get the eTag property: The ETag contains a value that you can use to
      * perform operations conditionally. If the request version is 2011-08-18
@@ -246,26 +240,6 @@ public final class BlobSetHttpHeadersHeaders {
         } else {
             this.dateProperty = new DateTimeRfc1123(dateProperty);
         }
-        return this;
-    }
-
-    /**
-     * Get the errorCode property: The errorCode property.
-     *
-     * @return the errorCode value.
-     */
-    public String getErrorCode() {
-        return this.errorCode;
-    }
-
-    /**
-     * Set the errorCode property: The errorCode property.
-     *
-     * @param errorCode the errorCode value to set.
-     * @return the BlobSetHttpHeadersHeaders object itself.
-     */
-    public BlobSetHttpHeadersHeaders setErrorCode(String errorCode) {
-        this.errorCode = errorCode;
         return this;
     }
 }

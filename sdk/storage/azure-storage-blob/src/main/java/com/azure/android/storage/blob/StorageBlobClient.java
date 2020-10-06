@@ -10,6 +10,7 @@ import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.util.CancellationToken;
+import com.azure.android.core.util.DateTimeRfc1123;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
@@ -19,6 +20,8 @@ import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
+import com.azure.android.storage.blob.models.BlobSetHttpHeadersHeaders;
+import com.azure.android.storage.blob.models.BlobSetHttpHeadersResponse;
 import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
@@ -196,6 +199,72 @@ public class StorageBlobClient {
             blobRequestConditions.getLeaseId(),
             requestId,
             cpkInfo,
+            cancellationToken);
+    }
+
+    /**
+     * Changes a blob's HTTP header properties. if only one HTTP header is updated, the others will all be erased. In
+     * order to preserve existing values, they must be passed alongside the header being changed.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param headers {@link BlobHttpHeaders}
+     */
+    public Void setHttpHeaders(String containerName,
+                                                    String blobName,
+                                                    BlobHttpHeaders headers) {
+        return storageBlobServiceClient.setBlobHttpHeaders(containerName, blobName, headers);
+    }
+
+    /**
+     * Changes a blob's HTTP header properties. if only one HTTP header is updated, the others will all be erased. In
+     * order to preserve existing values, they must be passed alongside the header being changed.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version               Specifies the version of the operation to use for this request.
+     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and
+     *                          matches this ID.
+     * @param ifModifiedSince   Specify this header value to operate only on a blob if it has been modified since the
+     *                          specified date/time.
+     * @param ifUnmodifiedSince Specify this header value to operate only on a blob if it has not been modified since
+     *                          the specified date/time.
+     * @param ifMatch           Specify an ETag value to operate only on blobs with a matching value.
+     * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
+     * @param ifTags            Specify a SQL statement to apply to the tags on the blob.
+     * @param headers           {@link BlobHttpHeaders}
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
+     * @return The response object.
+     */
+    public BlobSetHttpHeadersResponse setHttpHeadersWithResponse(String containerName,
+                                                                 String blobName,
+                                                                 Integer timeout,
+                                                                 String version,
+                                                                 String leaseId,
+                                                                 DateTimeRfc1123 ifModifiedSince,
+                                                                 DateTimeRfc1123 ifUnmodifiedSince,
+                                                                 String ifMatch,
+                                                                 String ifNoneMatch,
+                                                                 String ifTags,
+                                                                 BlobHttpHeaders headers,
+                                                                 String requestId,
+                                                                 CancellationToken cancellationToken) {
+        return storageBlobServiceClient.setBlobHttpHeadersWithRestResponse(containerName,
+            blobName,
+            timeout,
+            version,
+            leaseId,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
+            ifTags,
+            headers,
+            requestId,
             cancellationToken);
     }
 

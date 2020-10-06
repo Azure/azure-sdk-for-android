@@ -3,6 +3,8 @@
 
 package com.azure.android.storage.blob;
 
+import android.util.Base64;
+
 import androidx.annotation.NonNull;
 
 import com.azure.android.core.http.CallbackWithHeader;
@@ -262,7 +264,7 @@ final class StorageBlobServiceImpl {
             callback);
     }
 
-    BlobSetHttpHeadersHeaders setBlobHttpHeaders(String containerName,
+    Void setBlobHttpHeaders(String containerName,
                                                String blobName,
                                                  BlobHttpHeaders headers) {
         BlobSetHttpHeadersResponse blobSetHttpHeadersResponse = setBlobHttpHeadersWithRestResponse(containerName,
@@ -279,14 +281,14 @@ final class StorageBlobServiceImpl {
             null,
             CancellationToken.NONE);
 
-        return blobSetHttpHeadersResponse.getDeserializedHeaders();
+        return blobSetHttpHeadersResponse.getValue();
     }
 
     void setBlobHttpHeaders(String containerName,
                            String blobName,
                            BlobHttpHeaders headers,
-                           Callback<BlobSetHttpHeadersHeaders> callback) {
-        setBlobHttpHeadersWithRestResponse(containerName,
+                           CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
+        setBlobHttpHeaders(containerName,
             blobName,
             null,
             null,
@@ -299,17 +301,7 @@ final class StorageBlobServiceImpl {
             headers,
             null,
             CancellationToken.NONE,
-            new Callback<BlobSetHttpHeadersResponse>() {
-                @Override
-                public void onResponse(BlobSetHttpHeadersResponse response) {
-                    callback.onResponse(response.getDeserializedHeaders());
-                }
-
-                @Override
-                public void onFailure(Throwable t) {
-                    callback.onFailure(t);
-                }
-            });
+            callback);
     }
 
     BlobSetHttpHeadersResponse setBlobHttpHeadersWithRestResponse(String containerName,
@@ -341,7 +333,7 @@ final class StorageBlobServiceImpl {
             null);
     }
 
-    void setBlobHttpHeadersWithRestResponse(String containerName,
+    void setBlobHttpHeaders(String containerName,
                                            String blobName,
                                            Integer timeout,
                                            String version,
@@ -354,7 +346,7 @@ final class StorageBlobServiceImpl {
                                             BlobHttpHeaders headers,
                                            String requestId,
                                            CancellationToken cancellationToken,
-                                           Callback<BlobSetHttpHeadersResponse> callback) {
+                                           CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
         this.setHttpHeadersWithRestResponseIntern(containerName,
             blobName,
             timeout,
@@ -1137,7 +1129,7 @@ final class StorageBlobServiceImpl {
                                                                             String version,
                                                                             String requestId,
                                                                             CancellationToken cancellationToken,
-                                                                            Callback<BlobSetHttpHeadersResponse> callback) {
+                                                                            CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
 
         cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
 
@@ -1157,7 +1149,7 @@ final class StorageBlobServiceImpl {
             comp,
             headers.getCacheControl(),
             headers.getContentType(),
-            new String(headers.getContentMd5()),
+            headers.getContentMd5() == null ? null : Base64Util.encodeToString(headers.getContentMd5()),
             headers.getContentEncoding(),
             headers.getContentLanguage(),
             headers.getContentDisposition());
@@ -1175,24 +1167,24 @@ final class StorageBlobServiceImpl {
                             BlobSetHttpHeadersHeaders typedHeaders = deserializeHeaders(response.headers(),
                                 BlobSetHttpHeadersHeaders.class);
 
-                            callback.onResponse(new BlobSetHttpHeadersResponse(response.raw().request(),
-                                response.code(),
-                                response.headers(),
-                                null,
-                                typedHeaders));
+                            callback.onSuccess(null,
+                                typedHeaders,
+                                response.raw());
                         } else {
-                            callback.onFailure(new BlobStorageException(null, response.raw()));
+                            String strContent = readAsString(response.body());
+
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
                         }
                     } else {
                         String strContent = readAsString(response.errorBody());
 
-                        callback.onFailure(new BlobStorageException(strContent, response.raw()));
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
                     }
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    callback.onFailure(t);
+                    callback.onFailure(t, null);
                 }
             });
 
@@ -1202,14 +1194,14 @@ final class StorageBlobServiceImpl {
 
             if (response.isSuccessful()) {
                 if (response.code() == 200) {
-                    BlobSetHttpHeadersHeaders headers = deserializeHeaders(response.headers(),
+                    BlobSetHttpHeadersHeaders deserializedHeaders = deserializeHeaders(response.headers(),
                         BlobSetHttpHeadersHeaders.class);
 
                     BlobSetHttpHeadersResponse result = new BlobSetHttpHeadersResponse(response.raw().request(),
                         response.code(),
                         response.headers(),
                         null,
-                        headers);
+                        deserializedHeaders);
 
                     return result;
                 } else {
