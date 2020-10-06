@@ -1783,8 +1783,6 @@ final class StorageBlobServiceImpl {
                                      @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
 
         @PUT("{containerName}/{blob}")
-        //@ExpectedResponses({200})
-        //@UnexpectedResponseExceptionType(BlobStorageException.class)
         Call<ResponseBody> setBlobHttpHeaders(@Path("containerName") String containerName,
                                               @Path("blob") String blob,
                                               @Query("timeout") Integer timeout,

@@ -378,7 +378,7 @@ public class StorageBlobAsyncClient {
     }
 
     /**
-     * Changes a blob's HTTP header properties. if only one HTTP header is updated, the others will all be erased. In
+     * Changes a blob's HTTP header properties. If only one HTTP header is updated, the others will all be erased. In
      * order to preserve existing values, they must be passed alongside the header being changed.
      *
      * @param containerName The container name.
@@ -394,7 +394,7 @@ public class StorageBlobAsyncClient {
     }
 
     /**
-     * Changes a blob's HTTP header properties. if only one HTTP header is updated, the others will all be erased. In
+     * Changes a blob's HTTP header properties. If only one HTTP header is updated, the others will all be erased. In
      * order to preserve existing values, they must be passed alongside the header being changed.
      *
      * @param containerName The container name.
