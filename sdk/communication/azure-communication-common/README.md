@@ -9,6 +9,8 @@ This package contains common code for Azure Communication Service libraries.
 ## Getting started
 
 ### Prerequisites
+* You must have an [Azure subscription](https://azure.microsoft.com/free/) and a
+  [Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource) to use this library.
 * The client libraries natively target Android API level 21. Your application's `minSdkVersion` must be set to 21 or
   higher to use this library.
 * The library is written in Java 8. Your application must be built with Android Gradle Plugin 3.0.0 or later, and must
@@ -16,13 +18,11 @@ This package contains common code for Azure Communication Service libraries.
   [enable Java 8 language desugaring](https://developer.android.com/studio/write/java8-support.html#supported_features)
   to use this library. Java 8 language features that require a target API level >21 are not used, nor are any Java 8+
   APIs that would require the Java 8+ API desugaring provided by Android Gradle plugin 4.0.0.
-* You must have an [Azure subscription](https://azure.microsoft.com/free/) and a
-  [Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource) to use this library.
 
 ### Versions available
 The current version of this library is **1.0.0-beta.1**.
 
-> Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before **GA**. We do not currently recommend them for production use.
+> Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
 ### Install the library
 To install the Azure client libraries for Android, add them as dependencies within your

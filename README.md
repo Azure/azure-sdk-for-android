@@ -19,10 +19,15 @@ For your convenience, each service has a separate set of libraries that you can 
 Currently, the client libraries are in **beta**. These libraries follow the [Azure SDK Design Guidelines for Android](https://azure.github.io/azure-sdk/android_introduction.html) and share a number of core features such as HTTP retries, logging, transport protocols, authentication protocols, etc., so that once you learn how to use these features in one client library, you will know how to use them in other client libraries. You can learn about these shared features in [azure-core](https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/core/azure-core/README.md).
 
 The following libraries are currently in **beta**:
-- [azure-communication-common](https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/communication/azure-communication-common): 1.0.0-beta.1
+
+#### Core
 - [azure-core](https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/core/azure-core): 1.0.0-beta.2
 
-> Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before **GA**. We do not currently recommend them for production use.
+#### Azure Communication Services
+- [azure-communication-chat](https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/communication/azure-communication-chat): 1.0.0-beta.2
+- [azure-communication-common](https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/communication/azure-communication-common): 1.0.0-beta.1
+
+> Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
 ### Install the libraries
 To install the Azure client libraries for Android, add them as dependencies within your
@@ -38,13 +43,13 @@ For each library you wish to use, add an `implementation` configuration to the `
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-core:1.0.0-beta.2"
+    implementation "com.azure.android:azure-communication-chat:1.0.0-beta.2"
 }
 
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-core:1.0.0-beta.2")
+    implementation("com.azure.android:azure-communication-chat:1.0.0-beta.2")
 }
 ```
 
@@ -54,7 +59,7 @@ To import one or more client libraries into your project using the [Maven](https
 ```xml
 <dependency>
   <groupId>com.azure.android</groupId>
-  <artifactId>azure-core</artifactId>
+  <artifactId>azure-communication-chat</artifactId>
   <version>1.0.0-beta.2</version>
 </dependency>
 ```
