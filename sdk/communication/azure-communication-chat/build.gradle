@@ -21,6 +21,8 @@ dependencies {
     implementation project(":sdk:core:azure-core")
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "com.squareup.okhttp3:mockwebserver:$okHttpVersion"
+    testImplementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
+    testImplementation "org.threeten:threetenbp:$threeTenBpVersion"
     androidTestImplementation "androidx.test.ext:junit:1.1.2"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.3.0"
 
