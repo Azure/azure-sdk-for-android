@@ -377,7 +377,7 @@ public class StorageBlobAsyncClient {
     }
 
     /**
-     * Set's the blob's tier.
+     * Sets the blob's tier.
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
@@ -395,7 +395,7 @@ public class StorageBlobAsyncClient {
     }
 
     /**
-     * Set's the blob's tier.
+     * Sets the blob's tier.
      *
      * @param containerName         The container name.
      * @param blobName              The blob name.
