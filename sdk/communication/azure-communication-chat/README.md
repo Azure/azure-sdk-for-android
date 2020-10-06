@@ -1,20 +1,23 @@
 # Azure Communication Chat Service client library for Android
-This package contains the Android SDK for Azure Communication Services for Chat.
-Read more about Azure Communication Services [here](https://docs.microsoft.com/azure/communication-services/overview).
+
+This package contains the Chat client library for Azure Communication Services.
+
+[Source code](https://github.com/Azure/azure-sdk-for-android/tree/master/sdk/communication/azure-communication-chat)
+| [API reference documentation](https://azure.github.io/azure-sdk-for-android/sdk/communication/azure-communication-chat/azure-communication-chat/index.html)
+| [Product documentation](https://docs.microsoft.com/azure/communication-services/overview)
 
 # Getting started
 
 ## Prerequisites
 
-* You must have an [Azure subscription](https://azure.microsoft.com/free/) to use this library.
-* An Azure Communication Resource, learn how to create one from [Create an Azure Communication Resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource).
+* You must have an [Azure subscription](https://azure.microsoft.com/free/) and a [Communication Services resource](https://docs.microsoft.com/azure/communication-services/quickstarts/create-communication-resource) to use this library.
 * The client libraries natively target Android API level 21. Your application's minSdkVersion must be set to 21 or higher to use this library.
 * The library is written in Java 8. Your application must be built with Android Gradle plugin 3.0.0 or later, and must be configured to [enable Java 8 language desugaring](https://developer.android.com/studio/write/java8-support.html#supported_features) to use this library. Java 8 language features that require a target API level > 21 are not used, nor are any Java 8+ APIs that would require the Java 8+ API desugaring provided by Android Gradle plugin 4.0.0.
 
 ### Versions available
 The current version of this library is **1.0.0-beta.2**.
 
-> Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before **GA**. We do not currently recommend them for production use.
+> Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
 ### Install the library
 To install the Azure client libraries for Android, add them as dependencies within your
@@ -51,7 +54,7 @@ To import the library into your project using the [Maven](https://maven.apache.o
 </dependency>
 ```
 
-## Create the AzureCommunicationChatClient
+### Create the AzureCommunicationChatClient
 
 Use the `AzureCommunicationChatServiceAsyncClient.Builder` to configure and create an instance of `AzureCommunicationChatClient`.
 
@@ -70,23 +73,23 @@ AzureCommunicationChatServiceAsyncClient client = new AzureCommunicationChatServ
         .build());
 ```
 
-# Key concepts
+## Key concepts
 
-## Users and User Access Tokens
+### Users and User Access Tokens
 
 User access tokens enable you to build client applications that directly authenticate to Azure Communication Services. Refer [here](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens) to learn how to create a user and issue a User Access Token.
 
 The id for the user created above will be necessary later to add said user as a member of a new chat thread. The initiator of the create request must be in the list of members of the chat thread.
 
-## Chat Thread
+### Chat Thread
 
 A chat conversation is represented by a chat thread. Each user in the thread is called a thread member. Thread members can chat with one another privately in a 1:1 chat or huddle up in a 1:N group chat. 
 
-# Chat operations
+### Chat operations
 
 Once you initialize an `AzureCommunicationChatClient` class, you can perform the following chat operations:
 
-## Thread Operations
+#### Thread Operations
 
 - [Create a thread](#create-a-thread)
 - [Get a thread](#get-a-thread)
@@ -94,7 +97,7 @@ Once you initialize an `AzureCommunicationChatClient` class, you can perform the
 - [Update a thread](#update-a-thread)
 - [Delete a thread](#delete-a-thread)
 
-## Message Operations
+#### Message Operations
 
 - [Send a message](#send-a-message)
 - [Get a message](#get-a-message)
@@ -102,19 +105,19 @@ Once you initialize an `AzureCommunicationChatClient` class, you can perform the
 - [Update a message](#update-a-message)
 - [Delete a message](#delete-a-message)
 
-## Thread Member Operations
+#### Thread Member Operations
 
 - [Get thread members](#get-thread-members)
 - [Add thread members](#add-thread-members)
 - [Remove a thread member](#remove-a-thread-member)
 
-## Events Operations
+#### Events Operations
 
 - [Send a typing notification](#send-a-typing-notification)
 - [Send a read receipt](#send-read-receipt)
 - [Get read receipts](#get-read-receipts)
 
-# Examples
+## Examples
 
 ### Thread Operations
 
@@ -153,11 +156,11 @@ client.createChatThread(thread, new Callback<MultiStatusResponse>() {
                 break;
             }
         }
-        // TODO: Take further action.
+        // Take further action.
     }
 
     public void onFailure(Throwable throwable, okhttp3.Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 ```
@@ -172,12 +175,12 @@ final String threadId = "<thread_id>";
 client.getChatThread(threadId, new Callback<ChatThread>() {
     @Override
     public void onSuccess(ChatThread thread, Response response) {
-        // TODO: Take further action.
+        // Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 ```
@@ -202,21 +205,21 @@ client.listChatThreadsPages(maxPageSize, startTime,
             @Override
             public void onSuccess(Page<ChatThreadInfo> firstPage, Response response) {
                 for (ChatThreadInfo thread : firstPage.getItems()) {
-                    // TODO: Take further action.
+                    // Take further action.
                 }
                 retrieveNextThreadPages(firstPage.getPageId(), pageCollection);
             }
 
             @Override
             public void onFailure(Throwable throwable, Response response) {
-                // TODO: Handle error.
+                // Handle error.
             }
         });
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 
@@ -226,7 +229,7 @@ void retrieveNextThreadPages(String nextPageId,
         @Override
         public void onSuccess(Page<ChatThreadInfo> nextPage, Response response) {
             for (ChatThreadInfo thread : nextPage.getItems()) {
-                // TODO: Take further action.
+                // Take further action.
             }
             if (nextPage.getPageId() != null) {
                 retrieveNextThreadPages(nextPage.getPageId(), pageCollection);
@@ -235,7 +238,7 @@ void retrieveNextThreadPages(String nextPageId,
 
         @Override
         public void onFailure(Throwable throwable, Response response) {
-            // TODO: Handle error.
+            // Handle error.
         }
     });
 }
@@ -257,12 +260,12 @@ final String threadId = "<thread_id>";
 client.updateChatThread(threadId, thread, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        // TODO: Take further action.
+        // Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 ```
@@ -277,12 +280,12 @@ final String threadId = "<thread_id>";
 client.deleteChatThread(threadId, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        // TODO: Take further action.
+        // Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 ```
@@ -313,12 +316,12 @@ client.sendChatMessage(threadId, message, new Callback<SendChatMessageResult>() 
         // SendChatMessageResult is the response returned from sending a message, it contains an id, 
         // which is the unique ID of the message.
         final String chatMessageId = result.getId();
-        // TODO: Take further action.
+        // Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 ```
@@ -338,12 +341,12 @@ client.getChatMessage(threadId, chatMessageId, new Callback<ChatMessage>() {
     public void onSuccess(ChatMessage result, Response response) {
         // `ChatMessage` is the response returned from getting a message.
         final String content = result.getContent();
-        // TODO: Take further action.
+        // Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 ```
@@ -372,21 +375,21 @@ client.listChatMessagesPages(threadId,
                 @Override
                 public void onSuccess(Page<ChatMessage> firstPage, Response response) {
                     for (ChatMessage message : firstPage.getItems()) {
-                        // TODO: Take further action.
+                        // Take further action.
                     }
                     retrieveNextMessagePages(firstPage.getPageId(), pageCollection);
                 }
 
                 @Override
                 public void onFailure(Throwable throwable, Response response) {
-                    // TODO: Handle error.
+                    // Handle error.
                 }
             });
         }
 
         @Override
         public void onFailure(Throwable throwable, Response response) {
-            // TODO: Handle error.
+            // Handle error.
         }
 });
 
@@ -396,7 +399,7 @@ void retrieveNextMessagePages(String nextPageId,
         @Override
         public void onSuccess(Page<ChatMessage> nextPage, Response response) {
             for (ChatMessage thread : nextPage.getItems()) {
-                // TODO: Take further action.
+                // Take further action.
             }
             if (nextPage.getPageId() != null) {
                 retrieveNextMessagePages(nextPage.getPageId(), pageCollection);
@@ -405,7 +408,7 @@ void retrieveNextMessagePages(String nextPageId,
 
         @Override
         public void onFailure(Throwable throwable, Response response) {
-            // TODO: Handle error.
+            // Handle error.
         }
     });
 }
@@ -433,12 +436,12 @@ final String messageId = "<message_id>";
 client.updateChatMessage(threadId, messageId, message, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        // TODO: Take further action.
+        // Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 ```
@@ -455,12 +458,12 @@ final String messageId = "<message_id>";
 client.deleteChatMessage(threadId, messageId, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        // TODO: Take further action.
+        // Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 ```
@@ -484,21 +487,21 @@ client.listChatThreadMembersPages(threadId,
             @Override
             public void onSuccess(Page<ChatThreadMember> firstPage, Response response) {
                 for (ChatThreadMember member : firstPage.getItems()) {
-                    // TODO: Take further action.
+                    // Take further action.
                 }
                 retrieveNextMembersPages(firstPage.getPageId(), pageCollection);
             }
 
             @Override
             public void onFailure(Throwable throwable, Response response) {
-                // TODO: Handle error.
+                // Handle error.
             }
          }
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 
@@ -508,7 +511,7 @@ void retrieveNextMembersPages(String nextPageId,
         @Override
         public void onSuccess(Page<ChatThreadMember> nextPage, Response response) {
             for (ChatThreadMember member : nextPage.getItems()) {
-                // TODO: Take further action.
+                // Take further action.
             }
             if (nextPage.getPageId() != null) {
                 retrieveNextMembersPages(nextPage.getPageId(), pageCollection);
@@ -517,7 +520,7 @@ void retrieveNextMembersPages(String nextPageId,
 
         @Override
         public void onFailure(Throwable throwable, Response response) {
-            // TODO: Handle error.
+            // Handle error.
         }
     });
 }
@@ -544,12 +547,12 @@ final String threadId = "<thread_id>";
 client.addChatThreadMembers(threadId, threadMembers, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        // TODO: Take further action.
+        // Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 ```
@@ -566,12 +569,12 @@ final String memberId = "<member_id>";
 client.removeChatThreadMember(threadId, memberId, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        // TODO: Take further action.
+        // Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 ```
@@ -588,12 +591,12 @@ final String threadId = "<thread_id>";
 client.sendTypingNotification(threadId, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        // TODO: Take further action.
+        // Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 ```
@@ -614,12 +617,12 @@ final String threadId = "<thread_id>";
 client.sendChatReadReceipt(threadId, readReceipt, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
-        // TODO: Take further action.
+        // Take further action.
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 ```
@@ -641,21 +644,21 @@ client.listChatReadReceiptsPages(threadId,
             @Override
             public void onSuccess(Page<ReadReceipt> firstPage, Response response) {
                 for (ReadReceipt receipt : firstPage.getItems()) {
-                    // TODO: Take further action.
+                    // Take further action.
                 }
                 retrieveNextReceiptsPages(firstPage.getPageId(), pageCollection);
             }
 
             @Override
             public void onFailure(Throwable throwable, Response response) {
-                // TODO: Handle error.
+                // Handle error.
             }
          }
     }
 
     @Override
     public void onFailure(Throwable throwable, Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 
@@ -665,7 +668,7 @@ void retrieveNextReceiptsPages(String nextPageId,
         @Override
         public void onSuccess(Page<ReadReceipt> nextPage, Response response) {
             for (ReadReceipt receipt : nextPage.getItems()) {
-                // TODO: Take further action.
+                // Take further action.
             }
             if (nextPage.getPageId() != null) {
                 retrieveNextReceiptsPages(nextPage.getPageId(), pageCollection);
@@ -674,31 +677,29 @@ void retrieveNextReceiptsPages(String nextPageId,
 
         @Override
         public void onFailure(Throwable throwable, Response response) {
-            // TODO: Handle error.
+            // Handle error.
         }
     });
 }
 ```
 
-# Troubleshooting
-
-## General
+## Troubleshooting
 
 When an error occurs, the client calls the callback's `onFailure` method. You can use the provided `Throwable` to act upon the failure.
 
 ```java
 client.createChatThread(thread, new Callback<MultiStatusResponse>() {
     public void onFailure(Throwable throwable, okhttp3.Response response) {
-        // TODO: Handle error.
+        // Handle error.
     }
 });
 ```
 
-# Next steps
+## Next steps
 
 More sample code should go here, along with links out to the appropriate code samples.
 
-# Contributing
+## Contributing
 This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.
 
 When you submit a pull request, a CLA-bot will automatically determine whether you need to provide a CLA and decorate the PR appropriately (e.g., label, comment). Simply follow the instructions provided by the bot. You will only need to do this once across all repos using our CLA.

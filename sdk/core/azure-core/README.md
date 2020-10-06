@@ -4,8 +4,8 @@ This is the core library for the Azure SDK for Android, containing the HTTP pipe
 components that are used across all client libraries, including pipeline policies, error types, serialization classes,
 and a logging system. As an end user, you don't need to manually install azure-core because it will be installed
 automatically when you install other SDK libraries. If you are a client library developer, please reference the
-[azure-storage-blob](https://github.com/Azure/azure-sdk-for-android/tree/master/sdk/storage/azure-storage-blob) library
-as an example of how to use the shared azure-core components in your client library.
+[azure-communication-chat](https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/communication/azure-communication-chat)
+library as an example of how to use the shared azure-core components in your client library.
 
 [Source code](https://github.com/Azure/azure-sdk-for-android/tree/master/sdk/core/azure-core)
 | [API reference documentation](https://azure.github.io/azure-sdk-for-android/sdk/core/azure-core/azure-core/index.html)
@@ -22,13 +22,15 @@ as an example of how to use the shared azure-core components in your client libr
   APIs that would require the Java 8+ API desugaring provided by Android Gradle plugin 4.0.0.
 * You must have an [Azure subscription](https://azure.microsoft.com/free/) to use this library.
 
+### Versions available
+The current version of this library is **1.0.0-beta.2**.
+
+> Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
 ### Install the library
 To install the Azure client libraries for Android, add them as dependencies within your
 [Gradle](#add-a-dependency-with-gradle) or
 [Maven](#add-a-dependency-with-maven) build scripts.
-
-> Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before **GA**. We do not currently recommend them for production use.
 
 #### Add a dependency with Gradle
 To import the library into your project using the [Gradle](https://gradle.org/) build system, follow the instructions in [Add build dependencies](https://developer.android.com/studio/build/dependencies):
