@@ -23,10 +23,13 @@ import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
+import com.azure.android.storage.blob.models.BlobGetTagsHeaders;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlobTag;
+import com.azure.android.storage.blob.models.BlobTags;
 import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
@@ -47,6 +50,7 @@ import org.threeten.bp.OffsetDateTime;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -699,6 +703,90 @@ public class StorageBlobAsyncClient {
             requestId,
             cancellationToken,
             callback);
+    }
+
+    /**
+     * Gets tags associated with a blob.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param callback          Callback that receives the response.
+     */
+    public void getTags(String containerName,
+                        String blobName,
+                        CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
+        this.storageBlobServiceClient.getTags(containerName,
+            blobName,
+            new CallbackWithHeader<BlobTags, BlobGetTagsHeaders>() {
+                @Override
+                public void onSuccess(BlobTags result, BlobGetTagsHeaders header, Response response) {
+                    Map<String, String> tags = null;
+                    if (result.getBlobTagSet() != null) {
+                        tags = new HashMap<>();
+                        for (BlobTag tag : result.getBlobTagSet()) {
+                            tags.put(tag.getKey(), tag.getValue());
+                        }
+                    }
+                    callback.onSuccess(tags, header, response);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    callback.onFailure(throwable, response);
+                }
+            });
+    }
+
+    /**
+     * Gets tags associated with a blob.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the
+     *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
+     * @param callback          The callback that receives the response.
+     */
+    public void getTags(String containerName,
+                        String blobName,
+                        String snapshot,
+                        Integer timeout,
+                        String version,
+                        String requestId,
+                        CancellationToken cancellationToken,
+                        CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
+        this.storageBlobServiceClient.getTags(containerName,
+            blobName,
+            snapshot,
+            null,
+            timeout,
+            version,
+            null,
+            requestId,
+            cancellationToken,
+            new CallbackWithHeader<BlobTags, BlobGetTagsHeaders>() {
+                @Override
+                public void onSuccess(BlobTags result, BlobGetTagsHeaders header, Response response) {
+                    Map<String, String> tags = null;
+                    if (result.getBlobTagSet() != null) {
+                        tags = new HashMap<>();
+                        for (BlobTag tag : result.getBlobTagSet()) {
+                            tags.put(tag.getKey(), tag.getValue());
+                        }
+                    }
+                    callback.onSuccess(tags, header, response);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    callback.onFailure(throwable, response);
+                }
+            });
     }
 
     /**
