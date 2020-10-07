@@ -21,8 +21,10 @@ import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlobSetTagsHeaders;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
+import com.azure.android.storage.blob.models.BlobSetTagsResponse;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
@@ -255,6 +257,81 @@ final class StorageBlobServiceImpl {
             version,
             leaseId,
             requestId,
+            cpkInfo,
+            cancellationToken,
+            callback);
+    }
+
+    Void setBlobTags(String containerName,
+                         String blobName,
+                         Map<String, String> tags) {
+        BlobSetTagsResponse blobSetHttpHeadersResponse = setBlobTagsWithRestResponse(containerName,
+            blobName,
+            null,
+            null,
+            null,
+            tags,
+            null,
+            null,
+            CancellationToken.NONE);
+
+        return blobSetHttpHeadersResponse.getValue();
+    }
+
+    void setBlobTags(String containerName,
+                         String blobName,
+                         Map<String, String> tags,
+                         CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
+        setBlobTags(containerName,
+            blobName,
+            null,
+            null,
+            null,
+            tags,
+            null,
+            null,
+            CancellationToken.NONE,
+            callback);
+    }
+
+    BlobSetTagsResponse setBlobTagsWithRestResponse(String containerName,
+                                                    String blobName,
+                                                    Integer timeout,
+                                                    String version,
+                                                    BlobRequestConditions requestConditions,
+                                                    Map<String, String> tags,
+                                                    String requestId,
+                                                    CpkInfo cpkInfo,
+                                                    CancellationToken cancellationToken) {
+        return setBlobTagsWithRestResponseIntern(containerName,
+            blobName,
+            timeout,
+            requestConditions,
+            tags,
+            version,
+            requestId,
+            cpkInfo,
+            cancellationToken,
+            null);
+    }
+
+    void setBlobTags(String containerName,
+                         String blobName,
+                         Integer timeout,
+                         String version,
+                         BlobRequestConditions requestConditions,
+                         Map<String, String> tags,
+                         String requestId,
+                         CpkInfo cpkInfo,
+                         CancellationToken cancellationToken,
+                         CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
+        this.setBlobTagsWithRestResponseIntern(containerName,
+            blobName,
+            timeout,
+            requestConditions,
+            tags,
+            requestId,
+            version,
             cpkInfo,
             cancellationToken,
             callback);
@@ -1000,6 +1077,121 @@ final class StorageBlobServiceImpl {
                         response.headers(),
                         null,
                         headers);
+
+                    return result;
+                } else {
+                    throw new BlobStorageException(null, response.raw());
+                }
+            } else {
+                String strContent = readAsString(response.errorBody());
+
+                throw new BlobStorageException(strContent, response.raw());
+            }
+        }
+    }
+
+    private BlobSetTagsResponse setBlobMetadataWithRestResponseIntern(String containerName,
+                                                                           String blobName,
+                                                                           Integer timeout,
+                                                                           BlobRequestConditions requestConditions,
+                                                                           Map<String, String> tags,
+                                                                           String version,
+                                                                           String requestId,
+                                                                           CpkInfo cpkInfo,
+                                                                           CancellationToken cancellationToken,
+                                                                           CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
+
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+
+        String encryptionKey = null;
+        String encryptionKeySha256 = null;
+        EncryptionAlgorithmType encryptionAlgorithm = null;
+        if (cpkInfo != null) {
+            encryptionKey = cpkInfo.getEncryptionKey();
+            encryptionKeySha256 = cpkInfo.getEncryptionKeySha256();
+            encryptionAlgorithm = cpkInfo.getEncryptionAlgorithm();
+        }
+
+        final String comp = "tags";
+
+        requestConditions = requestConditions == null ? new BlobRequestConditions() : requestConditions;
+        String leaseId = requestConditions.getLeaseId();
+        DateTimeRfc1123 ifModifiedSince = requestConditions.getIfModifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfModifiedSince());
+        DateTimeRfc1123 ifUnmodifiedSince = requestConditions.getIfUnmodifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfUnmodifiedSince());
+        String ifMatch = requestConditions.getIfMatch();
+        String ifNoneMatch = requestConditions.getIfNoneMatch();
+
+        Call<ResponseBody> call = service.setBlobTags(containerName,
+            blobName,
+            timeout,
+            tags,
+            leaseId,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
+            null, // TODO: Add tags when later service version supported.
+            XMS_VERSION, // TODO: Replace with 'version'.
+            requestId,
+            comp,
+            encryptionKey,
+            encryptionKeySha256,
+            encryptionAlgorithm,
+            null // Todo: Add encryption scope with later service version
+        );
+
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        if (callback != null) {
+            executeCall(call, new retrofit2.Callback<ResponseBody>() {
+                @Override
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        if (response.code() == 200) {
+                            BlobSetTagsHeaders typedHeaders = deserializeHeaders(response.headers(),
+                                BlobSetTagsHeaders.class);
+
+                            callback.onSuccess(null,
+                                typedHeaders,
+                                response.raw());
+                        } else {
+                            String strContent = readAsString(response.body());
+
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
+                        }
+                    } else {
+                        String strContent = readAsString(response.errorBody());
+
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    callback.onFailure(t, null);
+                }
+            });
+
+            return null;
+        } else {
+            Response<ResponseBody> response = executeCall(call);
+
+            if (response.isSuccessful()) {
+                if (response.code() == 200) {
+                    BlobSetTagsHeaders deserializedHeaders = deserializeHeaders(response.headers(),
+                        BlobSetTagsHeaders.class);
+
+                    BlobSetTagsResponse result = new BlobSetTagsResponse(response.raw().request(),
+                        response.code(),
+                        response.headers(),
+                        null,
+                        deserializedHeaders);
 
                     return result;
                 } else {
