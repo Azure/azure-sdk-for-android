@@ -489,7 +489,7 @@ public class StorageBlobClientTest {
                 }
             });
 
-        awaitOnLatch(latch, "getBlobPropertiesWithRestResponse");
+        awaitOnLatch(latch, "setBlobHttpHeadersWithRestResponse");
     }
 
     @Test
