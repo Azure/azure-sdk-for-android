@@ -708,9 +708,9 @@ public class StorageBlobAsyncClient {
     /**
      * Gets tags associated with a blob.
      *
-     * @param containerName     The container name.
-     * @param blobName          The blob name.
-     * @param callback          Callback that receives the response.
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param callback      Callback that receives the response.
      */
     public void getBlobTags(String containerName,
                             String blobName,
@@ -926,7 +926,7 @@ public class StorageBlobAsyncClient {
          * is {@code false}.
          *
          * @param requiresBatteryNotLow {@code true} if the battery should be at an acceptable level for the
-         *                                          transfers to run.
+         *                              transfers to run.
          * @return An updated {@link Builder} with the provided battery requirement set.
          */
         public Builder setTransferRequiresBatteryNotLow(boolean requiresBatteryNotLow) {
