@@ -3,7 +3,6 @@ package com.azure.android.storage.blob;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
-import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
@@ -12,7 +11,9 @@ import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobItem;
+import com.azure.android.storage.blob.models.BlobSetMetadataHeaders;
 import com.azure.android.storage.blob.models.BlobsPage;
+import com.azure.android.storage.blob.models.BlobsSetMetadataResponse;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
@@ -26,6 +27,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
@@ -364,7 +366,140 @@ public class StorageBlobClientTest {
         awaitOnLatch(latch, "getBlobPropertiesWithRestResponse");
     }
 
+    @Test
+    public void setBlobMetadata() {
+        // Given a StorageBlobClient.
 
+        // When setting the metadata of a blob using setBlobMetadata().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(200);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a void response be returned by the client.
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("foo", "bar");
+        Void response = storageBlobClient.setBlobMetadata("container",
+            "blob", metadata);
+
+        assertNull(response);
+    }
+
+    @Test
+    public void setBlobHttpHeaders_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When setting the metadata of a blob using setBlobMetadata() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(200);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("foo", "bar");
+        storageBlobAsyncClient.setBlobMetadata("container",
+            "blob", metadata,
+            new CallbackWithHeader<Void, BlobSetMetadataHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobSetMetadataHeaders header, Response response) {
+                    try {
+                        // Then an object with the return headers will be returned by the client to the callback.
+                        assertEquals(200, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "setBlobMetadata");
+    }
+
+    @Test
+    public void setBlobMetadataWithRestResponse() {
+        // Given a StorageBlobClient.
+
+        // When setting the metadata of a blob using setBlobMetadataWithResponse().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(200);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then the client will return an object that contains the details of the REST response.
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("foo", "bar");
+        BlobsSetMetadataResponse response =
+            storageBlobClient.setBlobMetadataWithResponse("container",
+                "blob",
+                null,
+                null,
+                null,
+                metadata,
+                null,
+                null,
+                CancellationToken.NONE);
+
+        assertEquals(200, response.getStatusCode());
+    }
+
+    @Test
+    public void setBlobHttpHeadersWithRestResponse_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When setting the metadata of a blob using setBlobMetadataWithRestResponse() while providing a
+        // callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(200);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("foo", "bar");
+        storageBlobAsyncClient.setBlobMetadata("container",
+            "blob",
+            null,
+            null,
+            null,
+            metadata,
+            null,
+            null,
+            CancellationToken.NONE,
+            new CallbackWithHeader<Void, BlobSetMetadataHeaders>() {
+
+                @Override
+                public void onSuccess(Void result, BlobSetMetadataHeaders header, Response response) {
+                    try {
+                        // Then the client will return an object that contains the details of the REST response
+                        assertEquals(200, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable error, Response response) {
+                    try {
+                        throw new RuntimeException(error);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "getBlobPropertiesWithRestResponse");
+    }
 
     @Test
     public void download() throws IOException {

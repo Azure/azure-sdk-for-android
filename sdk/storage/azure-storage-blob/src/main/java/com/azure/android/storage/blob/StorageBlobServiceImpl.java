@@ -272,6 +272,7 @@ final class StorageBlobServiceImpl {
             null,
             metadata,
             null,
+            null,
             CancellationToken.NONE);
 
         return blobSetHttpHeadersResponse.getValue();
@@ -288,6 +289,7 @@ final class StorageBlobServiceImpl {
             null,
             metadata,
             null,
+            null,
             CancellationToken.NONE,
             callback);
     }
@@ -299,14 +301,16 @@ final class StorageBlobServiceImpl {
                                                                   BlobRequestConditions requestConditions,
                                                                   Map<String, String> metadata,
                                                                   String requestId,
+                                                                  CpkInfo cpkInfo,
                                                                   CancellationToken cancellationToken) {
         return setBlobMetadataWithRestResponseIntern(containerName,
             blobName,
             timeout,
             requestConditions,
             metadata,
-            requestId,
             version,
+            requestId,
+            cpkInfo,
             cancellationToken,
             null);
     }
@@ -318,6 +322,7 @@ final class StorageBlobServiceImpl {
                             BlobRequestConditions requestConditions,
                             Map<String, String> metadata,
                             String requestId,
+                            CpkInfo cpkInfo,
                             CancellationToken cancellationToken,
                             CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
         this.setBlobMetadataWithRestResponseIntern(containerName,
@@ -327,6 +332,7 @@ final class StorageBlobServiceImpl {
             metadata,
             requestId,
             version,
+            cpkInfo,
             cancellationToken,
             callback);
     }
@@ -1091,10 +1097,20 @@ final class StorageBlobServiceImpl {
                                                                             Map<String, String> metadata,
                                                                             String version,
                                                                             String requestId,
+                                                                           CpkInfo cpkInfo,
                                                                             CancellationToken cancellationToken,
                                                                             CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
 
         cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+
+        String encryptionKey = null;
+        String encryptionKeySha256 = null;
+        EncryptionAlgorithmType encryptionAlgorithm = null;
+        if (cpkInfo != null) {
+            encryptionKey = cpkInfo.getEncryptionKey();
+            encryptionKeySha256 = cpkInfo.getEncryptionKeySha256();
+            encryptionAlgorithm = cpkInfo.getEncryptionAlgorithm();
+        }
 
         final String comp = "metadata";
 
@@ -1122,7 +1138,11 @@ final class StorageBlobServiceImpl {
             XMS_VERSION, // TODO: Replace with 'version'.
             requestId,
             comp,
-            // TODO: encryption key stuff);
+            encryptionKey,
+            encryptionKeySha256,
+            encryptionAlgorithm,
+            null // Todo: Add encryption scope with later service version
+            );
 
         ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
             call.cancel();

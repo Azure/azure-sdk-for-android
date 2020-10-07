@@ -27,6 +27,7 @@ import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlobSetMetadataHeaders;
 import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
@@ -368,6 +369,61 @@ public class StorageBlobAsyncClient {
             timeout,
             version,
             blobRequestConditions.getLeaseId(),
+            requestId,
+            cpkInfo,
+            cancellationToken,
+            callback);
+    }
+
+    /**
+     * Changes a blob's metadata. The specified metadata in this method will replace existing metadata. If old values
+     * must be preserved, they must be downloaded and included in the call to this method.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param metadata      Metadata to associate with the blob.
+     * @param callback      Callback that receives the response.
+     */
+    public void setBlobMetadata(String containerName,
+                                String blobName,
+                                Map<String, String> metadata,
+                                CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
+        storageBlobServiceClient.setBlobMetadata(containerName, blobName, metadata, callback);
+    }
+
+    /**
+     * Changes a blob's metadata. The specified metadata in this method will replace existing metadata. If old values
+     * must be preserved, they must be downloaded and included in the call to this method.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version               Specifies the version of the operation to use for this request.
+     * @param requestConditions {@link BlobRequestConditions}
+     * @param metadata           Metadata to associate with the blob.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo           Additional parameters for the operation.
+     * @param cancellationToken The token to request cancellation.
+     * @param callback      Callback that receives the response.
+     */
+    public void setBlobMetadata(String containerName,
+                                               String blobName,
+                                               Integer timeout,
+                                               String version,
+                                               BlobRequestConditions requestConditions,
+                                               Map<String, String> metadata,
+                                               String requestId,
+                                               CpkInfo cpkInfo,
+                                               CancellationToken cancellationToken,
+                                               CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
+        storageBlobServiceClient.setBlobMetadata(containerName,
+            blobName,
+            timeout,
+            version,
+            requestConditions,
+            metadata,
             requestId,
             cpkInfo,
             cancellationToken,

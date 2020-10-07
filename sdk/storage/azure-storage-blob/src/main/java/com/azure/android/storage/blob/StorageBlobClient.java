@@ -6,6 +6,7 @@ package com.azure.android.storage.blob;
 import android.content.Context;
 import android.net.Uri;
 
+import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
@@ -19,7 +20,9 @@ import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
+import com.azure.android.storage.blob.models.BlobSetMetadataHeaders;
 import com.azure.android.storage.blob.models.BlobsPage;
+import com.azure.android.storage.blob.models.BlobsSetMetadataResponse;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
@@ -194,6 +197,56 @@ public class StorageBlobClient {
             timeout,
             version,
             blobRequestConditions.getLeaseId(),
+            requestId,
+            cpkInfo,
+            cancellationToken);
+    }
+
+    /**
+     * Changes a blob's metadata. The specified metadata in this method will replace existing metadata. If old values
+     * must be preserved, they must be downloaded and included in the call to this method.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param metadata      Metadata to associate with the blob.
+     */
+    public Void setBlobMetadata(String containerName,
+                                String blobName,
+                                Map<String, String> metadata) {
+        return storageBlobServiceClient.setBlobMetadata(containerName, blobName, metadata);
+    }
+
+    /**
+     * Changes a blob's metadata. The specified metadata in this method will replace existing metadata. If old values
+     * must be preserved, they must be downloaded and included in the call to this method.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version               Specifies the version of the operation to use for this request.
+     * @param requestConditions {@link BlobRequestConditions}
+     * @param metadata           Metadata to associate with the blob.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo           Additional parameters for the operation.
+     * @param cancellationToken The token to request cancellation.
+     */
+    public BlobsSetMetadataResponse setBlobMetadataWithResponse(String containerName,
+                                                                String blobName,
+                                                                Integer timeout,
+                                                                String version,
+                                                                BlobRequestConditions requestConditions,
+                                                                Map<String, String> metadata,
+                                                                String requestId,
+                                                                CpkInfo cpkInfo,
+                                                                CancellationToken cancellationToken) {
+        return storageBlobServiceClient.setBlobMetadataWithRestResponse(containerName,
+            blobName,
+            timeout,
+            version,
+            requestConditions,
+            metadata,
             requestId,
             cpkInfo,
             cancellationToken);
