@@ -386,7 +386,7 @@ public class StorageBlobClientTest {
     }
 
     @Test
-    public void setBlobHttpHeaders_withCallback() {
+    public void setBlobMetadata_withCallback() {
         // Given a StorageBlobClient.
 
         // When setting the metadata of a blob using setBlobMetadata() while providing a callback.
@@ -453,7 +453,7 @@ public class StorageBlobClientTest {
     }
 
     @Test
-    public void setBlobHttpHeadersWithRestResponse_withCallback() {
+    public void setBlobMetadataWithRestResponse_withCallback() {
         // Given a StorageBlobClient.
 
         // When setting the metadata of a blob using setBlobMetadataWithRestResponse() while providing a
