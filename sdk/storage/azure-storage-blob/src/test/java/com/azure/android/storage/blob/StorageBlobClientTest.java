@@ -422,7 +422,7 @@ public class StorageBlobClientTest {
                 }
             });
 
-        awaitOnLatch(latch, "setBlobMetadata");
+        awaitOnLatch(latch, "setBlobTags");
     }
 
     @Test
@@ -446,17 +446,16 @@ public class StorageBlobClientTest {
                 null,
                 tags,
                 null,
-                null,
                 CancellationToken.NONE);
 
         assertEquals(200, response.getStatusCode());
     }
 
     @Test
-    public void setBlobHttpHeadersWithRestResponse_withCallback() {
+    public void setBlobTagsWithRestResponse_withCallback() {
         // Given a StorageBlobClient.
 
-        // When setting the metadata of a blob using setBlobMetadataWithRestResponse() while providing a
+        // When setting the tags of a blob using setBlobTagsWithRestResponse() while providing a
         // callback.
         MockResponse mockResponse = new MockResponse()
             .setResponseCode(200);
@@ -465,21 +464,20 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        Map<String, String> metadata = new HashMap<>();
-        metadata.put("foo", "bar");
+        Map<String, String> tags = new HashMap<>();
+        tags.put("foo", "bar");
         storageBlobAsyncClient.setBlobTags("container",
             "blob",
             null,
             null,
             null,
-            metadata,
-            null,
+            tags,
             null,
             CancellationToken.NONE,
-            new CallbackWithHeader<Void, BlobSetMetadataHeaders>() {
+            new CallbackWithHeader<Void, BlobSetTagsHeaders>() {
 
                 @Override
-                public void onSuccess(Void result, BlobSetMetadataHeaders header, Response response) {
+                public void onSuccess(Void result, BlobSetTagsHeaders header, Response response) {
                     try {
                         // Then the client will return an object that contains the details of the REST response
                         assertEquals(200, response.code());
@@ -498,7 +496,7 @@ public class StorageBlobClientTest {
                 }
             });
 
-        awaitOnLatch(latch, "getBlobPropertiesWithRestResponse");
+        awaitOnLatch(latch, "setBlobTags");
     }
 
     @Test
