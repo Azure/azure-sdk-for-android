@@ -20,7 +20,6 @@ import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
-import com.azure.android.storage.blob.models.BlobSetTierHeaders;
 import com.azure.android.storage.blob.models.BlobSetTierResponse;
 import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobItem;
@@ -210,9 +209,9 @@ public class StorageBlobClient {
      * @param blobName      The blob name.
      * @param tier          The access tier.
      */
-    public Void setTier(String containerName,
-                        String blobName,
-                        AccessTier tier) {
+    public Void setBlobTier(String containerName,
+                            String blobName,
+                            AccessTier tier) {
         return storageBlobServiceClient.setTier(containerName,  blobName, tier);
     }
 
@@ -237,16 +236,16 @@ public class StorageBlobClient {
      * @param cancellationToken     The token to request cancellation.
      * @return The response information returned from the server when setting a blob's access tier.
      */
-    public BlobSetTierResponse setTierWithRestResponse(String containerName,
-                                                       String blobName,
-                                                       AccessTier tier,
-                                                       String snapshot,
-                                                       Integer timeout,
-                                                       String version,
-                                                       RehydratePriority rehydratePriority,
-                                                       BlobRequestConditions blobRequestConditions,
-                                                       String requestId,
-                                                       CancellationToken cancellationToken) {
+    public BlobSetTierResponse setBlobTierWithRestResponse(String containerName,
+                                                           String blobName,
+                                                           AccessTier tier,
+                                                           String snapshot,
+                                                           Integer timeout,
+                                                           String version,
+                                                           RehydratePriority rehydratePriority,
+                                                           BlobRequestConditions blobRequestConditions,
+                                                           String requestId,
+                                                           CancellationToken cancellationToken) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
         return storageBlobServiceClient.setTierWithRestResponse(containerName,

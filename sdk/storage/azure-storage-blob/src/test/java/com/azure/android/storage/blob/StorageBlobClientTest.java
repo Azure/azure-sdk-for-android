@@ -3,7 +3,6 @@ package com.azure.android.storage.blob;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
-import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
@@ -13,7 +12,6 @@ import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobItem;
-import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobSetTierHeaders;
 import com.azure.android.storage.blob.models.BlobSetTierResponse;
 import com.azure.android.storage.blob.models.BlobsPage;
@@ -22,7 +20,6 @@ import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
-import com.azure.android.storage.blob.models.RehydratePriority;
 
 import org.junit.After;
 import org.junit.Test;
@@ -379,7 +376,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response without body and status code 202 will be returned by the server.
-        Void response = storageBlobClient.setTier("container",
+        Void response = storageBlobClient.setBlobTier("container",
             "blob", AccessTier.HOT);
 
         assertNull(response);
@@ -397,7 +394,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.setTier("container",
+        storageBlobAsyncClient.setBlobTier("container",
             "blob",
             AccessTier.HOT,
             new CallbackWithHeader<Void, BlobSetTierHeaders>() {
@@ -436,7 +433,7 @@ public class StorageBlobClientTest {
 
         // Then a response without body and status code 202 will be returned by the server.
         BlobSetTierResponse response =
-            storageBlobClient.setTierWithRestResponse("container",
+            storageBlobClient.setBlobTierWithRestResponse("container",
                 "blob",
                 AccessTier.HOT,
                 null,
@@ -462,7 +459,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.setTier("container",
+        storageBlobAsyncClient.setBlobTier("container",
             "blob",
             AccessTier.HOT,
             null,

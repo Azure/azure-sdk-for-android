@@ -384,10 +384,10 @@ public class StorageBlobAsyncClient {
      * @param tier          The access tier.
      * @param callback      The callback that receives the response.
      */
-    public void setTier(String containerName,
-                        String blobName,
-                        AccessTier tier,
-                        CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
+    public void setBlobTier(String containerName,
+                            String blobName,
+                            AccessTier tier,
+                            CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
         storageBlobServiceClient.setTier(containerName,
             blobName,
             tier,
@@ -415,17 +415,17 @@ public class StorageBlobAsyncClient {
      * @param cancellationToken     The token to request cancellation.
      * @param callback              Callback that receives the response.
      */
-    public void setTier(String containerName,
-                        String blobName,
-                        AccessTier tier,
-                        String snapshot,
-                        Integer timeout,
-                        String version,
-                        RehydratePriority rehydratePriority,
-                        BlobRequestConditions blobRequestConditions,
-                        String requestId,
-                        CancellationToken cancellationToken,
-                        CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
+    public void setBlobTier(String containerName,
+                            String blobName,
+                            AccessTier tier,
+                            String snapshot,
+                            Integer timeout,
+                            String version,
+                            RehydratePriority rehydratePriority,
+                            BlobRequestConditions blobRequestConditions,
+                            String requestId,
+                            CancellationToken cancellationToken,
+                            CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
         storageBlobServiceClient.setTier(containerName,
