@@ -519,8 +519,8 @@ public class StorageBlobClient {
      * @param blobName          The blob name.
      * @return The blob's tags.
      */
-    public Map<String, String> getTags(String containerName,
-                                              String blobName) {
+    public Map<String, String> getBlobTags(String containerName,
+                                           String blobName) {
         BlobTags response = this.storageBlobServiceClient.getTags(containerName,
             blobName);
         Map<String, String> tags = null;
@@ -548,13 +548,13 @@ public class StorageBlobClient {
      * @param cancellationToken The token to request cancellation.
      * @return A response object containing the blob's tags.
      */
-    public Response<Map<String, String>> getTagsWithRestResponse(String containerName,
-                                                                 String blobName,
-                                                                 String snapshot,
-                                                                 Integer timeout,
-                                                                 String version,
-                                                                 String requestId,
-                                                                 CancellationToken cancellationToken) {
+    public Response<Map<String, String>> getBlobTagsWithRestResponse(String containerName,
+                                                                     String blobName,
+                                                                     String snapshot,
+                                                                     Integer timeout,
+                                                                     String version,
+                                                                     String requestId,
+                                                                     CancellationToken cancellationToken) {
         BlobGetTagsResponse response = this.storageBlobServiceClient.getTagsWithRestResponse(containerName,
             blobName,
             snapshot,

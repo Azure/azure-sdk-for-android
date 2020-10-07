@@ -712,9 +712,9 @@ public class StorageBlobAsyncClient {
      * @param blobName          The blob name.
      * @param callback          Callback that receives the response.
      */
-    public void getTags(String containerName,
-                        String blobName,
-                        CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
+    public void getBlobTags(String containerName,
+                            String blobName,
+                            CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
         this.storageBlobServiceClient.getTags(containerName,
             blobName,
             new CallbackWithHeader<BlobTags, BlobGetTagsHeaders>() {
@@ -752,14 +752,14 @@ public class StorageBlobAsyncClient {
      * @param cancellationToken The token to request cancellation.
      * @param callback          The callback that receives the response.
      */
-    public void getTags(String containerName,
-                        String blobName,
-                        String snapshot,
-                        Integer timeout,
-                        String version,
-                        String requestId,
-                        CancellationToken cancellationToken,
-                        CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
+    public void getBlobTags(String containerName,
+                            String blobName,
+                            String snapshot,
+                            Integer timeout,
+                            String version,
+                            String requestId,
+                            CancellationToken cancellationToken,
+                            CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
         this.storageBlobServiceClient.getTags(containerName,
             blobName,
             snapshot,
