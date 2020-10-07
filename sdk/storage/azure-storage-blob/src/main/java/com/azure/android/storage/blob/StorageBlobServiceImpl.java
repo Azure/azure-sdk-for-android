@@ -25,6 +25,8 @@ import com.azure.android.storage.blob.models.BlobSetTagsHeaders;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobSetTagsResponse;
+import com.azure.android.storage.blob.models.BlobTag;
+import com.azure.android.storage.blob.models.BlobTags;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
@@ -44,6 +46,7 @@ import org.threeten.bp.OffsetDateTime;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -297,20 +300,20 @@ final class StorageBlobServiceImpl {
     BlobSetTagsResponse setBlobTagsWithRestResponse(String containerName,
                                                     String blobName,
                                                     Integer timeout,
-                                                    String version,
-                                                    BlobRequestConditions requestConditions,
+                                                    String versionId,
+                                                    String ifTags,
                                                     Map<String, String> tags,
                                                     String requestId,
-                                                    CpkInfo cpkInfo,
+                                                    String version,
                                                     CancellationToken cancellationToken) {
         return setBlobTagsWithRestResponseIntern(containerName,
             blobName,
             timeout,
-            requestConditions,
+            versionId,
+            ifTags,
             tags,
-            version,
             requestId,
-            cpkInfo,
+            version,
             cancellationToken,
             null);
     }
@@ -318,21 +321,21 @@ final class StorageBlobServiceImpl {
     void setBlobTags(String containerName,
                          String blobName,
                          Integer timeout,
-                         String version,
-                         BlobRequestConditions requestConditions,
+                         String versionId,
+                         String ifTags,
                          Map<String, String> tags,
                          String requestId,
-                         CpkInfo cpkInfo,
+                         String version,
                          CancellationToken cancellationToken,
                          CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
         this.setBlobTagsWithRestResponseIntern(containerName,
             blobName,
             timeout,
-            requestConditions,
+            versionId,
+            ifTags,
             tags,
             requestId,
             version,
-            cpkInfo,
             cancellationToken,
             callback);
     }
@@ -1090,58 +1093,39 @@ final class StorageBlobServiceImpl {
         }
     }
 
-    private BlobSetTagsResponse setBlobMetadataWithRestResponseIntern(String containerName,
-                                                                           String blobName,
-                                                                           Integer timeout,
-                                                                           BlobRequestConditions requestConditions,
-                                                                           Map<String, String> tags,
-                                                                           String version,
-                                                                           String requestId,
-                                                                           CpkInfo cpkInfo,
-                                                                           CancellationToken cancellationToken,
-                                                                           CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
+    private BlobSetTagsResponse setBlobTagsWithRestResponseIntern(String containerName,
+                                                                  String blobName,
+                                                                  Integer timeout,
+                                                                  String versionId,
+                                                                  String iftags,
+                                                                  Map<String, String> tags,
+                                                                  String version,
+                                                                  String requestId,
+                                                                  CancellationToken cancellationToken,
+                                                                  CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
 
         cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
 
-        String encryptionKey = null;
-        String encryptionKeySha256 = null;
-        EncryptionAlgorithmType encryptionAlgorithm = null;
-        if (cpkInfo != null) {
-            encryptionKey = cpkInfo.getEncryptionKey();
-            encryptionKeySha256 = cpkInfo.getEncryptionKeySha256();
-            encryptionAlgorithm = cpkInfo.getEncryptionAlgorithm();
-        }
-
         final String comp = "tags";
 
-        requestConditions = requestConditions == null ? new BlobRequestConditions() : requestConditions;
-        String leaseId = requestConditions.getLeaseId();
-        DateTimeRfc1123 ifModifiedSince = requestConditions.getIfModifiedSince() == null
-            ? null :
-            new DateTimeRfc1123(requestConditions.getIfModifiedSince());
-        DateTimeRfc1123 ifUnmodifiedSince = requestConditions.getIfUnmodifiedSince() == null
-            ? null :
-            new DateTimeRfc1123(requestConditions.getIfUnmodifiedSince());
-        String ifMatch = requestConditions.getIfMatch();
-        String ifNoneMatch = requestConditions.getIfNoneMatch();
+        List<BlobTag> blobTagSet = new ArrayList<>(tags.size());
+        for (Map.Entry<String, String> entry : tags.entrySet()) {
+            blobTagSet.add(new BlobTag().setKey(entry.getKey()).setValue(entry.getValue()));
+        }
+        BlobTags blobTags = new BlobTags();
+        blobTags.setBlobTagSet(blobTagSet);
 
         Call<ResponseBody> call = service.setBlobTags(containerName,
             blobName,
             timeout,
-            tags,
-            leaseId,
-            ifModifiedSince,
-            ifUnmodifiedSince,
-            ifMatch,
-            ifNoneMatch,
-            null, // TODO: Add tags when later service version supported.
-            XMS_VERSION, // TODO: Replace with 'version'.
+            versionId,
+            null, // TODO: calculate Md5?
+            null,
+            iftags,
+            XMS_VERSION,
             requestId,
-            comp,
-            encryptionKey,
-            encryptionKeySha256,
-            encryptionAlgorithm,
-            null // Todo: Add encryption scope with later service version
+            blobTags,
+            comp
         );
 
         ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
@@ -1772,6 +1756,18 @@ final class StorageBlobServiceImpl {
                                      @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
                                      @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
 
+        @PUT("{containerName}/{blob}")
+        Call<ResponseBody> setBlobTags(@Path("containerName") String containerName,
+                                           @Path("blob") String blob,
+                                           @Query("timeout") Integer timeout,
+                                           @Query("version") String versionId,
+                                           @Header("Content-MD5") String transactionalContentMd5,
+                                           @Header("x-ms-content-crc64") String transactionalContentCrc64,
+                                           @Header("x-ms-if-tags") String ifTags,
+                                           @Header("x-ms-version") String version,
+                                           @Header("x-ms-client-request-id") String requestId,
+                                           @Body() BlobTags tags,
+                                           @Query("comp") String comp);
 
         @GET("{containerName}/{blob}")
         Call<ResponseBody> download(@Path("containerName") String containerName,
