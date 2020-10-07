@@ -383,7 +383,7 @@ public class StorageBlobAsyncClient {
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
-     * @param headers {@link BlobHttpHeaders}
+     * @param headers       {@link BlobHttpHeaders}
      * @param callback      Callback that receives the response.
      */
     public void setBlobHttpHeaders(String containerName,
@@ -397,17 +397,17 @@ public class StorageBlobAsyncClient {
      * Changes a blob's HTTP header properties. If only one HTTP header is updated, the others will all be erased. In
      * order to preserve existing values, they must be passed alongside the header being changed.
      *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version               Specifies the version of the operation to use for this request.
+     * @param version           Specifies the version of the operation to use for this request.
      * @param requestConditions {@link BlobRequestConditions}
      * @param headers           {@link BlobHttpHeaders}
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
-     * @param callback      Callback that receives the response.
+     * @param callback          Callback that receives the response.
      */
     public void setBlobHttpHeadersWithResponse(String containerName,
                                                String blobName,
