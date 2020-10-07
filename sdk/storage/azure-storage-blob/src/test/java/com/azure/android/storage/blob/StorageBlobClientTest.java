@@ -13,7 +13,7 @@ import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobSetMetadataHeaders;
 import com.azure.android.storage.blob.models.BlobsPage;
-import com.azure.android.storage.blob.models.BlobsSetMetadataResponse;
+import com.azure.android.storage.blob.models.BlobSetMetadataResponse;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
@@ -438,7 +438,7 @@ public class StorageBlobClientTest {
         // Then the client will return an object that contains the details of the REST response.
         Map<String, String> metadata = new HashMap<>();
         metadata.put("foo", "bar");
-        BlobsSetMetadataResponse response =
+        BlobSetMetadataResponse response =
             storageBlobClient.setBlobMetadataWithResponse("container",
                 "blob",
                 null,

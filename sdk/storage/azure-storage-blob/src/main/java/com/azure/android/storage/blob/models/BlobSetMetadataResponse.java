@@ -12,7 +12,7 @@ import okhttp3.Request;
 /**
  * Contains all response data for the setMetadata operation.
  */
-public final class BlobsSetMetadataResponse extends ResponseBase<BlobSetMetadataHeaders, Void> {
+public final class BlobSetMetadataResponse extends ResponseBase<BlobSetMetadataHeaders, Void> {
     /**
      * Creates an instance of BlobsSetMetadataResponse.
      *
@@ -22,7 +22,7 @@ public final class BlobsSetMetadataResponse extends ResponseBase<BlobSetMetadata
      * @param value the deserialized value of the HTTP response.
      * @param headers the deserialized headers of the HTTP response.
      */
-    public BlobsSetMetadataResponse(Request request, int statusCode, Headers rawHeaders, Void value, BlobSetMetadataHeaders headers) {
+    public BlobSetMetadataResponse(Request request, int statusCode, Headers rawHeaders, Void value, BlobSetMetadataHeaders headers) {
         super(request, statusCode, rawHeaders, value, headers);
     }
 }

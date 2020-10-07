@@ -6,7 +6,6 @@ package com.azure.android.storage.blob;
 import android.content.Context;
 import android.net.Uri;
 
-import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
@@ -20,9 +19,8 @@ import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
-import com.azure.android.storage.blob.models.BlobSetMetadataHeaders;
 import com.azure.android.storage.blob.models.BlobsPage;
-import com.azure.android.storage.blob.models.BlobsSetMetadataResponse;
+import com.azure.android.storage.blob.models.BlobSetMetadataResponse;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
@@ -232,15 +230,15 @@ public class StorageBlobClient {
      * @param cpkInfo           Additional parameters for the operation.
      * @param cancellationToken The token to request cancellation.
      */
-    public BlobsSetMetadataResponse setBlobMetadataWithResponse(String containerName,
-                                                                String blobName,
-                                                                Integer timeout,
-                                                                String version,
-                                                                BlobRequestConditions requestConditions,
-                                                                Map<String, String> metadata,
-                                                                String requestId,
-                                                                CpkInfo cpkInfo,
-                                                                CancellationToken cancellationToken) {
+    public BlobSetMetadataResponse setBlobMetadataWithResponse(String containerName,
+                                                               String blobName,
+                                                               Integer timeout,
+                                                               String version,
+                                                               BlobRequestConditions requestConditions,
+                                                               Map<String, String> metadata,
+                                                               String requestId,
+                                                               CpkInfo cpkInfo,
+                                                               CancellationToken cancellationToken) {
         return storageBlobServiceClient.setBlobMetadataWithRestResponse(containerName,
             blobName,
             timeout,

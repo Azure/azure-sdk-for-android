@@ -24,7 +24,7 @@ import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobSetMetadataHeaders;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
-import com.azure.android.storage.blob.models.BlobsSetMetadataResponse;
+import com.azure.android.storage.blob.models.BlobSetMetadataResponse;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
@@ -265,7 +265,7 @@ final class StorageBlobServiceImpl {
     Void setBlobMetadata(String containerName,
                          String blobName,
                          Map<String, String> metadata) {
-        BlobsSetMetadataResponse blobSetHttpHeadersResponse = setBlobMetadataWithRestResponse(containerName,
+        BlobSetMetadataResponse blobSetHttpHeadersResponse = setBlobMetadataWithRestResponse(containerName,
             blobName,
             null,
             null,
@@ -294,15 +294,15 @@ final class StorageBlobServiceImpl {
             callback);
     }
 
-    BlobsSetMetadataResponse setBlobMetadataWithRestResponse(String containerName,
-                                                                  String blobName,
-                                                                  Integer timeout,
-                                                                  String version,
-                                                                  BlobRequestConditions requestConditions,
-                                                                  Map<String, String> metadata,
-                                                                  String requestId,
-                                                                  CpkInfo cpkInfo,
-                                                                  CancellationToken cancellationToken) {
+    BlobSetMetadataResponse setBlobMetadataWithRestResponse(String containerName,
+                                                            String blobName,
+                                                            Integer timeout,
+                                                            String version,
+                                                            BlobRequestConditions requestConditions,
+                                                            Map<String, String> metadata,
+                                                            String requestId,
+                                                            CpkInfo cpkInfo,
+                                                            CancellationToken cancellationToken) {
         return setBlobMetadataWithRestResponseIntern(containerName,
             blobName,
             timeout,
@@ -1090,16 +1090,16 @@ final class StorageBlobServiceImpl {
         }
     }
 
-    private BlobsSetMetadataResponse setBlobMetadataWithRestResponseIntern(String containerName,
-                                                                            String blobName,
-                                                                            Integer timeout,
-                                                                            BlobRequestConditions requestConditions,
-                                                                            Map<String, String> metadata,
-                                                                            String version,
-                                                                            String requestId,
-                                                                           CpkInfo cpkInfo,
-                                                                            CancellationToken cancellationToken,
-                                                                            CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
+    private BlobSetMetadataResponse setBlobMetadataWithRestResponseIntern(String containerName,
+                                                                          String blobName,
+                                                                          Integer timeout,
+                                                                          BlobRequestConditions requestConditions,
+                                                                          Map<String, String> metadata,
+                                                                          String version,
+                                                                          String requestId,
+                                                                          CpkInfo cpkInfo,
+                                                                          CancellationToken cancellationToken,
+                                                                          CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
 
         cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
 
@@ -1187,7 +1187,7 @@ final class StorageBlobServiceImpl {
                     BlobSetMetadataHeaders deserializedHeaders = deserializeHeaders(response.headers(),
                         BlobSetMetadataHeaders.class);
 
-                    BlobsSetMetadataResponse result = new BlobsSetMetadataResponse(response.raw().request(),
+                    BlobSetMetadataResponse result = new BlobSetMetadataResponse(response.raw().request(),
                         response.code(),
                         response.headers(),
                         null,
