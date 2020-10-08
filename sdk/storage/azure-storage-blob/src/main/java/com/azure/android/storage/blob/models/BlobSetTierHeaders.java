@@ -33,12 +33,6 @@ public class BlobSetTierHeaders {
     @JsonProperty(value = "x-ms-version")
     private String version;
 
-    /*
-     * The errorCode property.
-     */
-    @JsonProperty(value = "x-ms-error-code")
-    private String errorCode;
-
     /**
      * Get the clientRequestId property: If a client request id header is sent
      * in the request, this header will be present in the response with the
@@ -106,26 +100,6 @@ public class BlobSetTierHeaders {
      */
     public BlobSetTierHeaders setVersion(String version) {
         this.version = version;
-        return this;
-    }
-
-    /**
-     * Get the errorCode property: The errorCode property.
-     *
-     * @return the errorCode value.
-     */
-    public String getErrorCode() {
-        return this.errorCode;
-    }
-
-    /**
-     * Set the errorCode property: The errorCode property.
-     *
-     * @param errorCode the errorCode value to set.
-     * @return the BlobSetTierHeaders object itself.
-     */
-    public BlobSetTierHeaders setErrorCode(String errorCode) {
-        this.errorCode = errorCode;
         return this;
     }
 }
