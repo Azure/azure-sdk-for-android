@@ -10,6 +10,7 @@ import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.util.CancellationToken;
+import com.azure.android.storage.blob.implementation.util.ModelHelper;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
@@ -523,14 +524,7 @@ public class StorageBlobClient {
                                            String blobName) {
         BlobTags response = this.storageBlobServiceClient.getTags(containerName,
             blobName);
-        Map<String, String> tags = null;
-        if (response.getBlobTagSet() != null) {
-            tags = new HashMap<>();
-            for (BlobTag tag : response.getBlobTagSet()) {
-                tags.put(tag.getKey(), tag.getValue());
-            }
-        }
-        return tags;
+        return ModelHelper.populateBlobTags(response);
     }
 
     /**
@@ -565,18 +559,10 @@ public class StorageBlobClient {
             null, /* TODO (gapra) : Add in support when we set version to STG73 */
             cancellationToken);
 
-        Map<String, String> tags = null;
-        if (response.getValue().getBlobTagSet() != null) {
-            tags = new HashMap<>();
-            for (BlobTag tag : response.getValue().getBlobTagSet()) {
-                tags.put(tag.getKey(), tag.getValue());
-            }
-        }
-
         return new Response<>(null,
             response.getStatusCode(),
             response.getHeaders(),
-            tags);
+            ModelHelper.populateBlobTags(response.getValue()));
     }
 
     /**

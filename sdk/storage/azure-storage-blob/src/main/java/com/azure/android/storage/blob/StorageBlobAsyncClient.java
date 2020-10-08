@@ -19,6 +19,7 @@ import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.CoreUtil;
+import com.azure.android.storage.blob.implementation.util.ModelHelper;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
@@ -720,14 +721,7 @@ public class StorageBlobAsyncClient {
             new CallbackWithHeader<BlobTags, BlobGetTagsHeaders>() {
                 @Override
                 public void onSuccess(BlobTags result, BlobGetTagsHeaders header, Response response) {
-                    Map<String, String> tags = null;
-                    if (result.getBlobTagSet() != null) {
-                        tags = new HashMap<>();
-                        for (BlobTag tag : result.getBlobTagSet()) {
-                            tags.put(tag.getKey(), tag.getValue());
-                        }
-                    }
-                    callback.onSuccess(tags, header, response);
+                    callback.onSuccess(ModelHelper.populateBlobTags(result), header, response);
                 }
 
                 @Override
@@ -772,14 +766,7 @@ public class StorageBlobAsyncClient {
             new CallbackWithHeader<BlobTags, BlobGetTagsHeaders>() {
                 @Override
                 public void onSuccess(BlobTags result, BlobGetTagsHeaders header, Response response) {
-                    Map<String, String> tags = null;
-                    if (result.getBlobTagSet() != null) {
-                        tags = new HashMap<>();
-                        for (BlobTag tag : result.getBlobTagSet()) {
-                            tags.put(tag.getKey(), tag.getValue());
-                        }
-                    }
-                    callback.onSuccess(tags, header, response);
+                    callback.onSuccess(ModelHelper.populateBlobTags(result), header, response);
                 }
 
                 @Override
