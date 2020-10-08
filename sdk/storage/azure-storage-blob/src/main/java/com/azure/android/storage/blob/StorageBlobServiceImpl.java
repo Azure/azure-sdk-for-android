@@ -1115,6 +1115,20 @@ final class StorageBlobServiceImpl {
         BlobTags blobTags = new BlobTags();
         blobTags.setBlobTagSet(blobTagSet);
 
+        RequestBody tagsBody;
+        try {
+            tagsBody = RequestBody.create(MediaType.get("application/xml; charset=utf-8"),
+                serializerAdapter.serialize(blobTags, SerializerFormat.XML));
+        } catch (IOException ioe) {
+            if (callback != null) {
+                callback.onFailure(ioe, null);
+
+                return null;
+            } else {
+                throw new RuntimeException(ioe);
+            }
+        }
+
         Call<ResponseBody> call = service.setBlobTags(containerName,
             blobName,
             timeout,
@@ -1124,7 +1138,7 @@ final class StorageBlobServiceImpl {
             iftags,
             XMS_VERSION,
             requestId,
-            blobTags,
+            tagsBody,
             comp
         );
 
@@ -1766,7 +1780,7 @@ final class StorageBlobServiceImpl {
                                            @Header("x-ms-if-tags") String ifTags,
                                            @Header("x-ms-version") String version,
                                            @Header("x-ms-client-request-id") String requestId,
-                                           @Body() BlobTags tags,
+                                           @Body RequestBody tags,
                                            @Query("comp") String comp);
 
         @GET("{containerName}/{blob}")
