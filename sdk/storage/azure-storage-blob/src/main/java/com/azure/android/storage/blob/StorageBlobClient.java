@@ -514,7 +514,7 @@ public class StorageBlobClient {
 
     /**
      * Gets tags associated with a blob.
-
+     *
      * @param containerName     The container name.
      * @param blobName          The blob name.
      * @return The blob's tags.
