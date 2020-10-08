@@ -1,6 +1,6 @@
 ext.publishName = "Microsoft Azure Android Client Library common code For Communication Service"
 description = "This package contains the Android client library common code for Microsoft Azure Communication Service."
-version = "1.0.0-beta.1"
+version = "1.0.0-beta.3"
 ext.versionCode = 1
 
 android {
@@ -11,7 +11,7 @@ android {
 }
 
 dependencies {
-    api "com.azure.android:azure-core:1.0.0-beta.1"
+    api "com.azure.android:azure-core:1.0.0-beta.2"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
     testImplementation "junit:junit:$jUnitVersion"
