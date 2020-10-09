@@ -1,12 +1,21 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.core.common;
+package com.azure.android.storage.blob;
+
+import com.azure.android.core.http.ServiceClient;
+import com.azure.android.storage.blob.StorageBlobAsyncClient;
+import com.azure.android.storage.blob.StorageBlobClient;
+import com.azure.android.storage.blob.credential.SasTokenCredential;
+import com.azure.android.storage.blob.interceptor.SasTokenCredentialInterceptor;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -16,6 +25,64 @@ import okhttp3.mockwebserver.MockWebServer;
 public final class TestUtils {
     private TestUtils() {
         // Empty constructor to prevent instantiation of this class.
+    }
+
+    public static StorageBlobClient.Builder initializeDefaultSyncBlobClientBuilder(Interceptor ... interceptors) {
+        return initializeDefaultSyncBlobClientBuilder(enableFiddler(), interceptors);
+    }
+
+    public static StorageBlobClient.Builder initializeDefaultSyncBlobClientBuilder(boolean enableFiddler,
+                                                                                   Interceptor ... interceptors) {
+        return new StorageBlobClient.Builder(getServiceBuilderWithOptionalProxy(enableFiddler, interceptors))
+            .setBlobServiceUrl(getDefaultEndpointString(useHttps()))
+            .setCredentialInterceptor(new SasTokenCredentialInterceptor(new SasTokenCredential(getDefaultSasToken())));
+    }
+
+    public static StorageBlobAsyncClient.Builder initializeDefaultAsyncBlobClientBuilder(Interceptor ... interceptors) {
+        return initializeDefaultAsyncBlobClientBuilder(enableFiddler(), interceptors);
+    }
+
+    public static StorageBlobAsyncClient.Builder initializeDefaultAsyncBlobClientBuilder(boolean enableFiddler,
+                                                                                         Interceptor ... interceptors) {
+        return new StorageBlobAsyncClient.Builder(UUID.randomUUID().toString(),
+            getServiceBuilderWithOptionalProxy(enableFiddler, interceptors))
+            .setBlobServiceUrl(getDefaultEndpointString(useHttps()))
+            .setCredentialInterceptor(new SasTokenCredentialInterceptor(new SasTokenCredential(getDefaultSasToken())));
+    }
+
+    public static String getDefaultEndpointString(boolean useHttps) {
+        String protocol = useHttps ? "https" : "http";
+        return String.format("%s://%s.blob.core.windows.net", protocol, getDefaultAccountName());
+    }
+
+    public static String getDefaultAccountName() {
+        return System.getenv("AZURE_STORAGE_ANDROID_ACCOUNT_NAME");
+    }
+
+    public static String getDefaultSasToken() {
+        return System.getenv("AZURE_STORAGE_ANDROID_SAS_TOKEN");
+    }
+
+    public static ServiceClient.Builder getServiceBuilderWithOptionalProxy(boolean enableFiddler,
+                                                                           Interceptor ... interceptors) {
+        ServiceClient.Builder serviceBuilder = enableFiddler ?
+            new ServiceClient.Builder(new OkHttpClient.Builder()
+                .proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8888)))) :
+            new ServiceClient.Builder();
+
+        for (Interceptor interceptor : interceptors) {
+            serviceBuilder.addInterceptor(interceptor);
+        }
+
+       return serviceBuilder;
+    }
+
+    public static boolean useHttps() {
+        return false;
+    }
+
+    public static boolean enableFiddler() {
+        return true;
     }
 
     public static OkHttpClient buildOkHttpClientWithInterceptor(Interceptor interceptor) {
