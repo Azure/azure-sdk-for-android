@@ -1,0 +1,38 @@
+ext.publishName = "Microsoft Azure Android Client Library test code For Communication Service"
+description = "This package contains the Android client library test code for Microsoft Azure Communication Service."
+version = "1.0.0-beta.3"
+ext.versionCode = 1
+
+android {
+    def Properties properties = new Properties()
+    properties.load(project.rootProject.file("local.properties").newDataInputStream())
+
+    defaultConfig {
+        versionCode project.versionCode
+        versionName project.version
+
+        resValue "string", "syncClientTest_siteUrl", properties.getProperty("syncClientTest.siteUrl", "")
+        resValue "string", "syncClientTest_token", properties.getProperty("syncClientTest.token", "")
+        resValue "string", "syncClientTest_threadOwnerId", properties.getProperty("syncClientTest.threadOwnerId", "")
+        resValue "string", "syncClientTest_threadMemberId", properties.getProperty("syncClientTest.threadMemberId", "")
+    }
+}
+
+dependencies {
+    api 'com.azure.android:azure-core:1.0.0-beta.2'
+    implementation "com.azure.android:azure-communication-chat:$publishedChatVersion"
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
+    implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
+    implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    testImplementation "junit:junit:$jUnitVersion"
+    testImplementation "com.squareup.okhttp3:mockwebserver:$okHttpVersion"
+    testImplementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
+    testImplementation "org.threeten:threetenbp:$threeTenBpVersion"
+    androidTestImplementation "androidx.test.ext:junit:$testExtVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$espressoCoreVersion"
+    androidTestImplementation "com.azure.android:azure-communication-chat:$publishedChatVersion"
+}

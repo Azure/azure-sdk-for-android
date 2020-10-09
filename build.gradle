@@ -176,6 +176,9 @@ allprojects {
         threeTenBpVersion = "1.4.4"
         workVersion = "2.4.0"
         dataproviderVersion =  "2.6"
+        testExtVersion = "1.1.2"
+        espressoCoreVersion = "3.3.0"
+        publishedChatVersion = "1.0.0-beta.2"
     }
 }
 

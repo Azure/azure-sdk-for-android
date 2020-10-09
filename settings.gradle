@@ -1,4 +1,5 @@
 include ':sdk:communication:azure-communication-chat'
+include ':sdk:communication:azure-communication-androidTests'
 include ":sdk:core:azure-core"
 include ":sdk:storage:azure-storage-blob"
 include ":sdk:communication:azure-communication-common"
