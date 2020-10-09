@@ -31,12 +31,15 @@ import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
+import com.azure.android.storage.blob.models.ContainerCreateHeaders;
+import com.azure.android.storage.blob.models.ContainerCreateResponse;
 import com.azure.android.storage.blob.models.ListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
+import com.azure.android.storage.blob.models.PublicAccessType;
 import com.azure.android.storage.blob.transfer.DownloadRequest;
 import com.azure.android.storage.blob.transfer.StorageBlobClientMap;
 import com.azure.android.storage.blob.transfer.TransferClient;
@@ -234,6 +237,55 @@ public class StorageBlobAsyncClient {
     public void cancel(Context context, long transferId) {
         TransferClient.getInstance(context)
             .cancel(transferId);
+    }
+
+    /**
+     * Creates a new container within a storage account. If a container with the same name already exists, the operation
+     * fails.
+     *
+     * @param containerName The container name.
+     * @param callback      Callback that receives the response.
+     */
+    public void createContainer(String containerName,
+                                CallbackWithHeader<Void, ContainerCreateHeaders> callback) {
+        storageBlobServiceClient.createContainer(containerName, callback);
+    }
+
+    /**
+     * Creates a new container within a storage account. If a container with the same name already exists, the operation
+     * fails.
+     *
+     * @param containerName         The container name.
+     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
+     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param metadata              Metadata to associate with the container.
+     * @param publicAccessType      Specifies how the data in this container is available to the public. See the
+     *                              x-ms-blob-public-access header in the Azure Docs for more information. Pass null
+     *                              for no public access.
+     * @param version               Specifies the version of the operation to use for this request.
+     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                              recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken     The token to request cancellation.
+     * @param callback      Callback that receives the response.
+     * @return The response information returned from the server when creating a container.
+     */
+    public void createContainer(String containerName,
+                                                                   Integer timeout,
+                                                                   Map<String, String> metadata,
+                                                                   PublicAccessType publicAccessType,
+                                                                   String version,
+                                                                   String requestId,
+                                                                   CancellationToken cancellationToken,
+                                                                   CallbackWithHeader<Void, ContainerCreateHeaders> callback) {
+
+        storageBlobServiceClient.createContainer(containerName,
+            timeout,
+            metadata,
+            publicAccessType,
+            version,
+            requestId,
+            cancellationToken,
+            callback);
     }
 
     /**

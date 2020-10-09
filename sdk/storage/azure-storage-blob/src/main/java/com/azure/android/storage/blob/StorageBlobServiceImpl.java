@@ -263,6 +263,63 @@ final class StorageBlobServiceImpl {
             callback);
     }
 
+    Void createContainer(String containerName) {
+        return createContainerWithRestResponse(containerName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE).getValue();
+    }
+
+    void createContainer(String containerName,
+                           CallbackWithHeader<Void, ContainerCreateHeaders> callback) {
+        createContainersWithRestResponseIntern(containerName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE,
+            callback);
+    }
+
+    ContainerCreateResponse createContainerWithRestResponse(String containerName,
+                                                                Integer timeout,
+                                                                Map<String, String> metadata,
+                                                                PublicAccessType publicAccessType,
+                                                                String version,
+                                                                String requestId,
+                                                                CancellationToken cancellationToken) {
+        return createContainersWithRestResponseIntern(containerName,
+            timeout,
+            metadata,
+            publicAccessType,
+            version,
+            requestId,
+            cancellationToken,
+            null);
+    }
+
+    void createContainer(String containerName,
+                           Integer timeout,
+                           Map<String, String> metadata,
+                           PublicAccessType publicAccessType,
+                           String version,
+                           String requestId,
+                           CancellationToken cancellationToken,
+                           CallbackWithHeader<Void, ContainerCreateHeaders> callback) {
+        this.createContainersWithRestResponseIntern(containerName,
+            timeout,
+            metadata,
+            publicAccessType,
+            version,
+            requestId,
+            cancellationToken,
+            callback);
+    }
+
     /**
      * Reads the entire blob.
      *

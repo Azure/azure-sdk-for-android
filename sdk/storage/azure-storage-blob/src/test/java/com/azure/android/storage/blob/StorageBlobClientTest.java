@@ -20,6 +20,8 @@ import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
+import com.azure.android.storage.blob.models.ContainerCreateHeaders;
+import com.azure.android.storage.blob.models.ContainerCreateResponse;
 
 import org.junit.After;
 import org.junit.Test;
@@ -75,6 +77,124 @@ public class StorageBlobClientTest {
     @Test
     public void getBlobServiceUrl() {
         assertEquals(storageBlobAsyncClient.getBlobServiceUrl(), BASE_URL);
+    }
+
+    @Test
+    public void createContainer() {
+        // Given a StorageBlobClient.
+
+        // When creating a container using createContainer().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(201);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 201 will be returned by the server.
+        Void response = storageBlobClient.createContainer("containerName");
+
+        assertNull(response);
+    }
+
+    @Test
+    public void createContainer_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When creating a container using createContainer().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(201);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.createContainer("container",
+            new CallbackWithHeader<Void, ContainerCreateHeaders>() {
+                @Override
+                public void onSuccess(Void result, ContainerCreateHeaders header, Response response) {
+                    try {
+                        assertEquals(201, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "createContainer");
+    }
+
+    @Test
+    public void createContainerWithRestResponse() {
+        // Given a StorageBlobClient.
+
+        // When creating a container using createContainer().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(201);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then the client will return an object that contains the details of the REST response.
+        ContainerCreateResponse response =
+            storageBlobClient.createContainerWithRestResponse("container",
+                null,
+                null,
+                null,
+                null,
+                null,
+                CancellationToken.NONE);
+
+        assertEquals(201, response.getStatusCode());
+    }
+
+    @Test
+    public void createContainerWithRestResponse_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When creating a container using createContainer().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(201);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.createContainer("container",
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE,
+            new CallbackWithHeader<Void, ContainerCreateHeaders>() {
+
+                @Override
+                public void onSuccess(Void result, ContainerCreateHeaders header, Response response) {
+                    try {
+                        assertEquals(201, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable error, Response response) {
+                    try {
+                        throw new RuntimeException(error);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "createContainer");
     }
 
     @Test
@@ -230,17 +350,6 @@ public class StorageBlobClientTest {
             });
 
         awaitOnLatch(latch, "getBlobsInPageWithRestResponse");
-    }
-
-    @Test
-    public void getBlobPropertiesNetwork() {
-        StorageBlobClient storageBlobClient = new StorageBlobClient.Builder()
-
-        .setBlobServiceUrl("https://xclientdev3.blob.core.windows.net")
-            .setCredentialInterceptor(new SasTokenCredentialInterceptor(new SasTokenCredential("?sv=2019-12-12&ss=bfqt&srt=sco&sp=rwdlacupx&se=2020-10-10T06:16:18Z&st=2020-10-08T22:16:18Z&spr=https,http&sig=RkBpjH4GWiBpEu6coRAIE8A9%2BTWHDcWJ1b1YKNW6%2BqU%3D")))
-            .build();
-
-        storageBlobClient.getBlobProperties("2482a13b-7c49-42d0-921c-6a5121463fbc0", "1.jpeg");
     }
 
     @Test

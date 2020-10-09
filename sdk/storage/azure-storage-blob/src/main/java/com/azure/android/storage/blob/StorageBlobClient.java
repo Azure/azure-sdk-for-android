@@ -23,12 +23,15 @@ import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
+import com.azure.android.storage.blob.models.ContainerCreateHeaders;
+import com.azure.android.storage.blob.models.ContainerCreateResponse;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
+import com.azure.android.storage.blob.models.PublicAccessType;
 
 import org.threeten.bp.OffsetDateTime;
 
@@ -72,6 +75,51 @@ public class StorageBlobClient {
      */
     public String getBlobServiceUrl() {
         return this.serviceClient.getBaseUrl();
+    }
+
+    /**
+     * Creates a new container within a storage account. If a container with the same name already exists, the operation
+     * fails.
+     *
+     * @param containerName The container name.
+
+     */
+    public Void createContainer(String containerName) {
+        return storageBlobServiceClient.createContainer(containerName);
+    }
+
+    /**
+     * Creates a new container within a storage account. If a container with the same name already exists, the operation
+     * fails.
+     *
+     * @param containerName         The container name.
+     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
+     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param metadata              Metadata to associate with the container.
+     * @param publicAccessType      Specifies how the data in this container is available to the public. See the
+     *                              x-ms-blob-public-access header in the Azure Docs for more information. Pass null
+     *                              for no public access.
+     * @param version               Specifies the version of the operation to use for this request.
+     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                              recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken     The token to request cancellation.
+     * @return The response information returned from the server when creating a container.
+     */
+    public ContainerCreateResponse createContainerWithRestResponse(String containerName,
+                                                                   Integer timeout,
+                                                                   Map<String, String> metadata,
+                                                                   PublicAccessType publicAccessType,
+                                                                   String version,
+                                                                   String requestId,
+                                                                   CancellationToken cancellationToken) {
+
+        return storageBlobServiceClient.createContainerWithRestResponse(containerName,
+            timeout,
+            metadata,
+            publicAccessType,
+            version,
+            requestId,
+            cancellationToken);
     }
 
     /**
