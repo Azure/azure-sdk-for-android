@@ -31,6 +31,7 @@ import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
+import com.azure.android.storage.blob.models.ContainerDeleteHeaders;
 import com.azure.android.storage.blob.models.ListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
@@ -623,10 +624,10 @@ public class StorageBlobAsyncClient {
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
      */
-    void delete(String containerName,
-                String blobName,
-                CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
-        storageBlobServiceClient.delete(containerName,
+    void deleteBlob(String containerName,
+                    String blobName,
+                    CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
+        storageBlobServiceClient.deleteBlob(containerName,
             blobName,
             callback);
     }
@@ -671,21 +672,21 @@ public class StorageBlobAsyncClient {
      * @param cancellationToken The token to request cancellation.
      * @param callback          Callback that receives the response.
      */
-    void delete(String containerName,
-                String blobName,
-                String snapshot,
-                Integer timeout,
-                String version,
-                String leaseId,
-                DeleteSnapshotsOptionType deleteSnapshots,
-                OffsetDateTime ifModifiedSince,
-                OffsetDateTime ifUnmodifiedSince,
-                String ifMatch,
-                String ifNoneMatch,
-                String requestId,
-                CancellationToken cancellationToken,
-                CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
-        storageBlobServiceClient.delete(containerName,
+    void deleteBlob(String containerName,
+                    String blobName,
+                    String snapshot,
+                    Integer timeout,
+                    String version,
+                    String leaseId,
+                    DeleteSnapshotsOptionType deleteSnapshots,
+                    OffsetDateTime ifModifiedSince,
+                    OffsetDateTime ifUnmodifiedSince,
+                    String ifMatch,
+                    String ifNoneMatch,
+                    String requestId,
+                    CancellationToken cancellationToken,
+                    CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
+        storageBlobServiceClient.deleteBlob(containerName,
             blobName,
             snapshot,
             timeout,
@@ -696,6 +697,55 @@ public class StorageBlobAsyncClient {
             ifUnmodifiedSince,
             ifMatch,
             ifNoneMatch,
+            requestId,
+            cancellationToken,
+            callback);
+    }
+
+    /**
+     * Deletes a container.
+     *
+     * @param containerName The container name.
+     * @param callback      Callback that receives the response.
+     */
+    void deleteContainer(String containerName,
+                         CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
+        storageBlobServiceClient.deleteContainer(containerName,
+            callback);
+    }
+
+    /**
+     * Deletes a container
+     *
+     * @param containerName     The container name.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and
+     *                          matches this ID.
+     * @param ifModifiedSince   Specify this header value to operate only on a blob if it has been modified since the
+     *                          specified date/time.
+     * @param ifUnmodifiedSince Specify this header value to operate only on a blob if it has not been modified since
+     *                          the specified date/time.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
+     * @param callback          Callback that receives the response.
+     */
+    void deleteContainer(String containerName,
+                         Integer timeout,
+                         String version,
+                         String leaseId,
+                         OffsetDateTime ifModifiedSince,
+                         OffsetDateTime ifUnmodifiedSince,
+                         String requestId,
+                         CancellationToken cancellationToken,
+                         CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
+        storageBlobServiceClient.deleteContainer(containerName,
+            timeout,
+            version,
+            leaseId,
+            ifModifiedSince,
+            ifUnmodifiedSince,
             requestId,
             cancellationToken,
             callback);
