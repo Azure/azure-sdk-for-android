@@ -1003,8 +1003,6 @@ public class StorageBlobClientTest {
                 null,
                 null,
                 null,
-                null,
-                null,
                 CancellationToken.NONE);
 
         assertEquals(202, response.getStatusCode());
@@ -1023,8 +1021,6 @@ public class StorageBlobClientTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         storageBlobAsyncClient.deleteContainer("container",
-            null,
-            null,
             null,
             null,
             null,
