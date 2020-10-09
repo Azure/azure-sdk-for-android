@@ -29,6 +29,8 @@ import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 import com.azure.android.storage.blob.models.BlockLookupList;
+import com.azure.android.storage.blob.models.ContainerCreateHeaders;
+import com.azure.android.storage.blob.models.ContainerCreateResponse;
 import com.azure.android.storage.blob.models.ListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
@@ -37,6 +39,7 @@ import com.azure.android.storage.blob.models.EncryptionAlgorithmType;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
+import com.azure.android.storage.blob.models.PublicAccessType;
 
 import org.threeten.bp.OffsetDateTime;
 
@@ -833,6 +836,83 @@ final class StorageBlobServiceImpl {
             callback);
     }
 
+    private ContainerCreateResponse createContainersWithRestResponseIntern(String containerName,
+                                                                              Integer timeout,
+                                                                              Map<String, String> metadata,
+                                                                              PublicAccessType publicAccessType,
+                                                                              String version,
+                                                                              String requestId,
+                                                                              CancellationToken cancellationToken,
+                                                                              CallbackWithHeader<Void, ContainerCreateHeaders> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+
+        Call<ResponseBody> call = service.createContainer(containerName,
+            timeout,
+            metadata,
+            publicAccessType,
+            XMS_VERSION, // TODO: Replace with 'version'.
+            requestId,
+            "container",
+            null, // TODO: Add cpk stuff?
+            null);
+
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        if (callback != null) {
+            executeCall(call, new retrofit2.Callback<ResponseBody>() {
+                @Override
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        if (response.code() == 201) {
+                            ContainerCreateHeaders typedHeaders = deserializeHeaders(response.headers(),
+                                ContainerCreateHeaders.class);
+
+                            callback.onSuccess(null, typedHeaders, response.raw());
+                        } else {
+                            callback.onFailure(new BlobStorageException(null, response.raw()), response.raw());
+                        }
+                    } else {
+                        String strContent = readAsString(response.errorBody());
+
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    callback.onFailure(t, null);
+                }
+            });
+
+            return null;
+        } else {
+            Response<ResponseBody> response = executeCall(call);
+
+            if (response.isSuccessful()) {
+                if (response.code() == 201) {
+                    ContainerCreateHeaders headers = deserializeHeaders(response.headers(),
+                        ContainerCreateHeaders.class);
+
+                    ContainerCreateResponse result = new ContainerCreateResponse(response.raw().request(),
+                        response.code(),
+                        response.headers(),
+                        null,
+                        headers);
+
+                    return result;
+                } else {
+                    throw new BlobStorageException(null, response.raw());
+                }
+            } else {
+                String strContent = readAsString(response.errorBody());
+
+                throw new BlobStorageException(strContent, response.raw());
+            }
+        }
+    }
+
     private ContainersListBlobFlatSegmentResponse listBlobFlatSegmentWithRestResponseIntern(String pageId,
                                                                                             String containerName,
                                                                                             String prefix,
@@ -1556,6 +1636,17 @@ final class StorageBlobServiceImpl {
     }
 
     private interface StorageBlobService {
+        @PUT("{containerName}")
+        Call<ResponseBody> createContainer(@Path("containerName") String containerName,
+                                                      @Query("timeout") Integer timeout,
+                                                      @Header("x-ms-meta-") Map<String, String> metadata,
+                                                      @Header("x-ms-blob-public-access") PublicAccessType access,
+                                                      @Header("x-ms-version") String version,
+                                                      @Header("x-ms-client-request-id") String requestId,
+                                                      @Query("restype") String restype,
+                                                      @Header("x-ms-default-encryption-scope") String defaultEncryptionScope,
+                                                      @Header("x-ms-deny-encryption-scope-override") Boolean encryptionScopeOverridePrevented);
+
         @GET("{containerName}")
         Call<ResponseBody> listBlobFlatSegment(@Path("containerName") String containerName,
                                                @Query("prefix") String prefix,

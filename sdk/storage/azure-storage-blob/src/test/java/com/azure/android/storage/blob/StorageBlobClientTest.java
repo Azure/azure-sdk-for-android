@@ -5,6 +5,8 @@ import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.CancellationToken;
+import com.azure.android.storage.blob.credential.SasTokenCredential;
+import com.azure.android.storage.blob.interceptor.SasTokenCredentialInterceptor;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
@@ -228,6 +230,17 @@ public class StorageBlobClientTest {
             });
 
         awaitOnLatch(latch, "getBlobsInPageWithRestResponse");
+    }
+
+    @Test
+    public void getBlobPropertiesNetwork() {
+        StorageBlobClient storageBlobClient = new StorageBlobClient.Builder()
+
+        .setBlobServiceUrl("https://xclientdev3.blob.core.windows.net")
+            .setCredentialInterceptor(new SasTokenCredentialInterceptor(new SasTokenCredential("?sv=2019-12-12&ss=bfqt&srt=sco&sp=rwdlacupx&se=2020-10-10T06:16:18Z&st=2020-10-08T22:16:18Z&spr=https,http&sig=RkBpjH4GWiBpEu6coRAIE8A9%2BTWHDcWJ1b1YKNW6%2BqU%3D")))
+            .build();
+
+        storageBlobClient.getBlobProperties("2482a13b-7c49-42d0-921c-6a5121463fbc0", "1.jpeg");
     }
 
     @Test
