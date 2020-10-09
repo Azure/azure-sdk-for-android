@@ -967,7 +967,7 @@ public class StorageBlobClientTest {
                 public void onSuccess(Void result, ContainerDeleteHeaders header, Response response) {
                     try {
                         // Then a response without body and status code 202 will be returned by the server to the callback.
-                        assertNull(response);
+                        assertEquals(202, response.code());
                     } finally {
                         latch.countDown();
                     }
