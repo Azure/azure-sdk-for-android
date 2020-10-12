@@ -31,6 +31,7 @@ import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
+import com.azure.android.storage.blob.models.ContainerGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.ListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
@@ -370,6 +371,51 @@ public class StorageBlobAsyncClient {
             blobRequestConditions.getLeaseId(),
             requestId,
             cpkInfo,
+            cancellationToken,
+            callback);
+    }
+
+    /**
+     * Gets the container's properties.
+     *
+     * @param containerName The container name.
+     * @param callback      Callback that receives the response.
+     */
+    public void getContainerProperties(String containerName,
+                                       CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
+        storageBlobServiceClient.getContainerProperties(containerName,
+            callback);
+    }
+
+    /**
+     * Gets the container's properties.
+     *
+     * @param containerName         The container name.
+     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
+     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version               Specifies the version of the operation to use for this request.
+     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
+     *                              variety of requests to the conditions present. These conditions are entirely
+     *                              optional.
+     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                              recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken     The token to request cancellation.
+     * @param callback              Callback that receives the response.
+     */
+    public void getContainerProperties(String containerName,
+                                  Integer timeout,
+                                  String version,
+                                  BlobRequestConditions blobRequestConditions,
+                                  String requestId,
+                                  CancellationToken cancellationToken,
+                                  CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
+        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
+
+        storageBlobServiceClient.getContainerProperties(containerName,
+            timeout,
+            version,
+            blobRequestConditions.getLeaseId(),
+            requestId,
             cancellationToken,
             callback);
     }

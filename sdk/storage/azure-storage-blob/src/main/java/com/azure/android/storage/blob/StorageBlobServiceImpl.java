@@ -29,6 +29,8 @@ import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 import com.azure.android.storage.blob.models.BlockLookupList;
+import com.azure.android.storage.blob.models.ContainerGetPropertiesHeaders;
+import com.azure.android.storage.blob.models.ContainerGetPropertiesResponse;
 import com.azure.android.storage.blob.models.ListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
@@ -256,6 +258,91 @@ final class StorageBlobServiceImpl {
             leaseId,
             requestId,
             cpkInfo,
+            cancellationToken,
+            callback);
+    }
+
+    /**
+     * Gets the container's properties.
+     *
+     * @param containerName The container name.
+     * @return The container's properties.
+     */
+    ContainerGetPropertiesHeaders getContainerProperties(String containerName) {
+        ContainerGetPropertiesResponse response = getContainerPropertiesWithResponse(containerName,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE);
+
+        return response.getDeserializedHeaders();
+    }
+
+    /**
+     * Gets the container's properties.
+     *
+     * @param containerName The container name.
+     * @param callback      Callback that receives the response.
+     */
+    void getContainerProperties(String containerName,
+                                CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
+        getContainerPropertiesWithRestResponseIntern(containerName,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE,
+            callback);
+    }
+
+    /**
+     * Gets the container's properties..
+     *
+     * @param containerName The container name.
+     *  @param timeout       The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version       Specifies the version of the operation to use for this request.
+     * @param leaseId       If specified, the operation only succeeds if the resource's lease is active and matches this ID.
+     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
+     * @return A response containing the blob metadata.
+     */
+    ContainerGetPropertiesResponse getContainerPropertiesWithResponse(String containerName,
+                                                                      Integer timeout,
+                                                                      String version,
+                                                                      String leaseId,
+                                                                      String requestId,
+                                                                      CancellationToken cancellationToken) {
+        return getContainerPropertiesWithRestResponseIntern(containerName,
+            timeout,
+            version,
+            leaseId,
+            requestId,
+            cancellationToken,
+            null);
+    }
+
+    /**
+     * The Get Blob Properties operation reads a blob's metadata and properties. You can also call it to read a
+     * snapshot or version.
+     *
+     * @param containerName The container name.
+     * @param timeout       The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version       Specifies the version of the operation to use for this request.
+     * @param leaseId       If specified, the operation only succeeds if the resource's lease is active and matches this ID.
+     * @param callback      Callback that receives the response.
+     */
+    void getContainerProperties(String containerName,
+                                Integer timeout,
+                                String version,
+                                String leaseId,
+                                String requestId,
+                                CancellationToken cancellationToken,
+                                CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
+        this.getContainerPropertiesWithRestResponseIntern(containerName,
+            timeout,
+            version,
+            leaseId,
+            requestId,
             cancellationToken,
             callback);
     }
@@ -1013,6 +1100,80 @@ final class StorageBlobServiceImpl {
         }
     }
 
+    private ContainerGetPropertiesResponse getContainerPropertiesWithRestResponseIntern(String containerName,
+                                                                                        Integer timeout,
+                                                                                        String version,
+                                                                                        String leaseId,
+                                                                                        String requestId,
+                                                                                        CancellationToken cancellationToken,
+                                                                                        CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+        final String restype = "container";
+
+        Call<Void> call = service.getContainerProperties(containerName,
+            timeout,
+            XMS_VERSION, // TODO: Replace with 'version'.
+            leaseId,
+            requestId,
+            restype);
+
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        if (callback != null) {
+            executeCall(call, new retrofit2.Callback<Void>() {
+                @Override
+                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        if (response.code() == 200) {
+                            ContainerGetPropertiesHeaders typedHeaders = deserializeHeaders(response.headers(),
+                                ContainerGetPropertiesHeaders.class);
+
+                            callback.onSuccess(null, typedHeaders, response.raw());
+                        } else {
+                            callback.onFailure(new BlobStorageException(null, response.raw()), response.raw());
+                        }
+                    } else {
+                        String strContent = readAsString(response.errorBody());
+
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                    callback.onFailure(t, null);
+                }
+            });
+
+            return null;
+        } else {
+            Response<Void> response = executeCall(call);
+
+            if (response.isSuccessful()) {
+                if (response.code() == 200) {
+                    ContainerGetPropertiesHeaders headers = deserializeHeaders(response.headers(),
+                        ContainerGetPropertiesHeaders.class);
+
+                    ContainerGetPropertiesResponse result = new ContainerGetPropertiesResponse(response.raw().request(),
+                        response.code(),
+                        response.headers(),
+                        null,
+                        headers);
+
+                    return result;
+                } else {
+                    throw new BlobStorageException(null, response.raw());
+                }
+            } else {
+                String strContent = readAsString(response.errorBody());
+
+                throw new BlobStorageException(strContent, response.raw());
+            }
+        }
+    }
+
     private BlobDownloadResponse downloadWithRestResponseIntern(String containerName,
                                                                 String blobName,
                                                                 String snapshot,
@@ -1579,6 +1740,14 @@ final class StorageBlobServiceImpl {
                                      @Header("x-ms-encryption-key") String encryptionKey,
                                      @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
                                      @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
+
+        @GET("{containerName}")
+        Call<Void> getContainerProperties(@Path("containerName") String containerName,
+                                          @Query("timeout") Integer timeout,
+                                          @Header("x-ms-version") String version,
+                                          @Header("x-ms-lease-id") String leaseId,
+                                          @Header("x-ms-client-request-id") String requestId,
+                                          @Query("restype") String resType);
 
 
         @GET("{containerName}/{blob}")
