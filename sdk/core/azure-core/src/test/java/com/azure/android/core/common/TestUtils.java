@@ -27,6 +27,7 @@ public final class TestUtils {
         // Empty constructor to prevent instantiation of this class.
     }
 
+    // -------------------- GENERATING CLIENTS --------------------------
     public static StorageBlobClient.Builder initializeDefaultSyncBlobClientBuilder(Interceptor ... interceptors) {
         return initializeDefaultSyncBlobClientBuilder(enableFiddler(), interceptors);
     }
@@ -77,12 +78,20 @@ public final class TestUtils {
        return serviceBuilder;
     }
 
+    // ---------------------- CONFIG OPTIONS -----------------------------
+
     public static boolean useHttps() {
         return false;
     }
 
     public static boolean enableFiddler() {
         return true;
+    }
+
+    // --------------------- GENERATING TEST RESOURCES ------------------------
+
+    public static String generateResourceName() {
+        return UUID.randomUUID().toString();
     }
 
     public static OkHttpClient buildOkHttpClientWithInterceptor(Interceptor interceptor) {
