@@ -23,8 +23,8 @@ import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
-import com.azure.android.storage.blob.models.ContainerCreateHeaders;
 import com.azure.android.storage.blob.models.ContainerCreateResponse;
+import com.azure.android.storage.blob.models.ContainerDeleteResponse;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
@@ -482,9 +482,9 @@ public class StorageBlobClient {
      * @param containerName The container name.
      * @param blobName      The blob name.
      */
-    Void delete(String containerName,
-                String blobName) {
-        return storageBlobServiceClient.delete(containerName,
+    Void deleteBlob(String containerName,
+                    String blobName) {
+        return storageBlobServiceClient.deleteBlob(containerName,
             blobName);
     }
 
@@ -528,20 +528,20 @@ public class StorageBlobClient {
      * @param cancellationToken The token to request cancellation.
      * @return A response object containing the details of the delete operation.
      */
-    BlobDeleteResponse deleteWithRestResponse(String containerName,
-                                              String blobName,
-                                              String snapshot,
-                                              Integer timeout,
-                                              String version,
-                                              String leaseId,
-                                              DeleteSnapshotsOptionType deleteSnapshots,
-                                              OffsetDateTime ifModifiedSince,
-                                              OffsetDateTime ifUnmodifiedSince,
-                                              String ifMatch,
-                                              String ifNoneMatch,
-                                              String requestId,
-                                              CancellationToken cancellationToken) {
-        return storageBlobServiceClient.deleteWithRestResponse(containerName,
+    BlobDeleteResponse deleteBlobWithRestResponse(String containerName,
+                                                  String blobName,
+                                                  String snapshot,
+                                                  Integer timeout,
+                                                  String version,
+                                                  String leaseId,
+                                                  DeleteSnapshotsOptionType deleteSnapshots,
+                                                  OffsetDateTime ifModifiedSince,
+                                                  OffsetDateTime ifUnmodifiedSince,
+                                                  String ifMatch,
+                                                  String ifNoneMatch,
+                                                  String requestId,
+                                                  CancellationToken cancellationToken) {
+        return storageBlobServiceClient.deleteBlobWithRestResponse(containerName,
             blobName,
             snapshot,
             timeout,
@@ -552,6 +552,41 @@ public class StorageBlobClient {
             ifUnmodifiedSince,
             ifMatch,
             ifNoneMatch,
+            requestId,
+            cancellationToken);
+    }
+
+    /**
+     * Deletes a container.
+     *
+     * @param containerName The container name.
+     */
+    Void deleteContainer(String containerName) {
+        return storageBlobServiceClient.deleteContainer(containerName);
+    }
+
+    /**
+     * Deletes a container
+     *
+     * @param containerName     The container name.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param requestConditions {@link BlobRequestConditions}
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
+     * @return A response object containing the details of the delete operation.
+     */
+    ContainerDeleteResponse deleteContainerWithRestResponse(String containerName,
+                                                            Integer timeout,
+                                                            String version,
+                                                            BlobRequestConditions requestConditions,
+                                                            String requestId,
+                                                            CancellationToken cancellationToken) {
+        return storageBlobServiceClient.deleteContainerWithRestResponse(containerName,
+            timeout,
+            version,
+            requestConditions,
             requestId,
             cancellationToken);
     }
