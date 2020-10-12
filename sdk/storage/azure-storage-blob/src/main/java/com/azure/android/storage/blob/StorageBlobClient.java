@@ -25,6 +25,8 @@ import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
 import com.azure.android.storage.blob.models.ContainerCreateResponse;
 import com.azure.android.storage.blob.models.ContainerDeleteResponse;
+import com.azure.android.storage.blob.models.ContainerGetPropertiesHeaders;
+import com.azure.android.storage.blob.models.ContainerGetPropertiesResponse;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
@@ -244,6 +246,47 @@ public class StorageBlobClient {
             blobRequestConditions.getLeaseId(),
             requestId,
             cpkInfo,
+            cancellationToken);
+    }
+
+    /**
+     * Gets the container's properties.
+     *
+     * @param containerName The container name.
+     * @return The container's properties
+     */
+    public ContainerGetPropertiesHeaders getContainerProperties(String containerName) {
+        return storageBlobServiceClient.getContainerProperties(containerName);
+    }
+
+    /**
+     * Gets the container's properties.
+     *
+     * @param containerName         The container name.
+     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
+     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version               Specifies the version of the operation to use for this request.
+     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
+     *                              variety of requests to the conditions present. These conditions are entirely
+     *                              optional.
+     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                              recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken     The token to request cancellation.
+     * @return The response information returned from the server when downloading a blob.
+     */
+    public ContainerGetPropertiesResponse getContainerPropertiesWithRestResponse(String containerName,
+                                                                                 Integer timeout,
+                                                                                 String version,
+                                                                                 BlobRequestConditions blobRequestConditions,
+                                                                                 String requestId,
+                                                                                 CancellationToken cancellationToken) {
+        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
+
+        return storageBlobServiceClient.getContainerPropertiesWithResponse(containerName,
+            timeout,
+            version,
+            blobRequestConditions.getLeaseId(),
+            requestId,
             cancellationToken);
     }
 
