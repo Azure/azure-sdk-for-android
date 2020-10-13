@@ -12,6 +12,11 @@ import com.azure.android.storage.blob.TestUtils;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.ContainerCreateHeaders;
 import com.azure.android.storage.blob.models.ContainerCreateResponse;
+import com.azure.android.storage.blob.models.ContainerGetPropertiesHeaders;
+import com.azure.android.storage.blob.models.PublicAccessType;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import okhttp3.Response;
 
@@ -74,6 +79,37 @@ public class ContainerTest {
     }
 
     @Test
+    public void createPublicAccess() {
+        // Setup
+        String containerName = generateResourceName();
+
+        // When
+        ContainerCreateResponse response = syncClient.createContainerWithRestResponse(containerName, null,
+            null, PublicAccessType.BLOB, null, null, null);
+
+        // Then
+        assertEquals(PublicAccessType.BLOB, syncClient.getContainerProperties(containerName).getBlobPublicAccess());
+    }
+
+    @Test
+    public void createMetadata() {
+        // Setup
+        String containerName = generateResourceName();
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("key1", "value1");
+        metadata.put("key2", "value2");
+
+        // When
+        syncClient.createContainerWithRestResponse(containerName, null, metadata, null,
+            null, null, null);
+
+        // Then
+        ContainerGetPropertiesHeaders headers = syncClient.getContainerProperties(containerName);
+        assertEquals("value1", headers.getMetadata().get("key1"));
+        assertEquals("value2", headers.getMetadata().get("key2"));
+    } // TODO should we test special characters or that weird bug that affects ordering for string to sign?
+
+    @Test
     public void createAsync() {
         // Setup
         String containerName = generateResourceName();
@@ -92,10 +128,6 @@ public class ContainerTest {
                 }
             });
     }
-
-    // create public Access
-
-    // create metadata
 
     // Create error tested in min because it throws an expected exception.
 
@@ -121,6 +153,6 @@ public class ContainerTest {
     public void deleteAllNull() {
         // Setup
         String containerName = generateResourceName();
-        syncClient.createContainer()
+        syncClient.createContainer(containerName);
     }
 }

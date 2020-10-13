@@ -13,6 +13,7 @@ import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.Base64Util;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.DateTimeRfc1123;
+import com.azure.android.storage.blob.interceptor.MetadataInterceptor;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
@@ -49,6 +50,7 @@ import org.threeten.bp.OffsetDateTime;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +68,7 @@ import retrofit2.http.Header;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Tag;
 
 /**
  * PACKAGE PRIVATE CLASS AND METHODS
@@ -982,83 +985,6 @@ final class StorageBlobServiceImpl {
             callback);
     }
 
-    private ContainerCreateResponse createContainersWithRestResponseIntern(String containerName,
-                                                                              Integer timeout,
-                                                                              Map<String, String> metadata,
-                                                                              PublicAccessType publicAccessType,
-                                                                              String version,
-                                                                              String requestId,
-                                                                              CancellationToken cancellationToken,
-                                                                              CallbackWithHeader<Void, ContainerCreateHeaders> callback) {
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-
-        Call<ResponseBody> call = service.createContainer(containerName,
-            timeout,
-            metadata,
-            publicAccessType,
-            XMS_VERSION, // TODO: Replace with 'version'.
-            requestId,
-            "container",
-            null, // TODO: Add cpk stuff?
-            null);
-
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
-
-        if (callback != null) {
-            executeCall(call, new retrofit2.Callback<ResponseBody>() {
-                @Override
-                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
-                    if (response.isSuccessful()) {
-                        if (response.code() == 201) {
-                            ContainerCreateHeaders typedHeaders = deserializeHeaders(response.headers(),
-                                ContainerCreateHeaders.class);
-
-                            callback.onSuccess(null, typedHeaders, response.raw());
-                        } else {
-                            callback.onFailure(new BlobStorageException(null, response.raw()), response.raw());
-                        }
-                    } else {
-                        String strContent = readAsString(response.errorBody());
-
-                        callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
-                    callback.onFailure(t, null);
-                }
-            });
-
-            return null;
-        } else {
-            Response<ResponseBody> response = executeCall(call);
-
-            if (response.isSuccessful()) {
-                if (response.code() == 201) {
-                    ContainerCreateHeaders headers = deserializeHeaders(response.headers(),
-                        ContainerCreateHeaders.class);
-
-                    ContainerCreateResponse result = new ContainerCreateResponse(response.raw().request(),
-                        response.code(),
-                        response.headers(),
-                        null,
-                        headers);
-
-                    return result;
-                } else {
-                    throw new BlobStorageException(null, response.raw());
-                }
-            } else {
-                String strContent = readAsString(response.errorBody());
-
-                throw new BlobStorageException(strContent, response.raw());
-            }
-        }
-    }
-
     /**
      * Deletes a container.
      *
@@ -1143,6 +1069,84 @@ final class StorageBlobServiceImpl {
             cancellationToken,
             callback);
     }
+
+    private ContainerCreateResponse createContainersWithRestResponseIntern(String containerName,
+                                                                           Integer timeout,
+                                                                           Map<String, String> metadata,
+                                                                           PublicAccessType publicAccessType,
+                                                                           String version,
+                                                                           String requestId,
+                                                                           CancellationToken cancellationToken,
+                                                                           CallbackWithHeader<Void, ContainerCreateHeaders> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+
+        Call<ResponseBody> call = service.createContainer(containerName,
+            timeout,
+            metadata == null ? null : new MetadataInterceptor.StorageMultiHeaders(metadata),
+            publicAccessType,
+            XMS_VERSION, // TODO: Replace with 'version'.
+            requestId,
+            "container",
+            null, // TODO: Add cpk stuff?
+            null);
+
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        if (callback != null) {
+            executeCall(call, new retrofit2.Callback<ResponseBody>() {
+                @Override
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        if (response.code() == 201) {
+                            ContainerCreateHeaders typedHeaders = deserializeHeaders(response.headers(),
+                                ContainerCreateHeaders.class);
+
+                            callback.onSuccess(null, typedHeaders, response.raw());
+                        } else {
+                            callback.onFailure(new BlobStorageException(null, response.raw()), response.raw());
+                        }
+                    } else {
+                        String strContent = readAsString(response.errorBody());
+
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    callback.onFailure(t, null);
+                }
+            });
+
+            return null;
+        } else {
+            Response<ResponseBody> response = executeCall(call);
+
+            if (response.isSuccessful()) {
+                if (response.code() == 201) {
+                    ContainerCreateHeaders headers = deserializeHeaders(response.headers(),
+                        ContainerCreateHeaders.class);
+
+                    ContainerCreateResponse result = new ContainerCreateResponse(response.raw().request(),
+                        response.code(),
+                        response.headers(),
+                        null,
+                        headers);
+
+                    return result;
+                } else {
+                    throw new BlobStorageException(null, response.raw());
+                }
+            } else {
+                String strContent = readAsString(response.errorBody());
+
+                throw new BlobStorageException(strContent, response.raw());
+            }
+        }
+    }
+
 
     private ContainersListBlobFlatSegmentResponse listBlobFlatSegmentWithRestResponseIntern(String pageId,
                                                                                             String containerName,
@@ -2030,7 +2034,7 @@ final class StorageBlobServiceImpl {
         @PUT("{containerName}")
         Call<ResponseBody> createContainer(@Path("containerName") String containerName,
                                                       @Query("timeout") Integer timeout,
-                                                      @Header("x-ms-meta-") Map<String, String> metadata,
+                                                      @Tag MetadataInterceptor.StorageMultiHeaders metadata,
                                                       @Header("x-ms-blob-public-access") PublicAccessType access,
                                                       @Header("x-ms-version") String version,
                                                       @Header("x-ms-client-request-id") String requestId,

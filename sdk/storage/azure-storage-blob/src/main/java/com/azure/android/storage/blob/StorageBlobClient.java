@@ -10,6 +10,9 @@ import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.util.CancellationToken;
+import com.azure.android.storage.blob.interceptor.MetadataInterceptor;
+import com.azure.android.storage.blob.interceptor.NormalizeEtagInterceptor;
+import com.azure.android.storage.blob.interceptor.ResponseHeadersValidationInterceptor;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
@@ -646,8 +649,7 @@ public class StorageBlobClient {
          */
         public Builder() {
             this(new ServiceClient.Builder());
-            this.serviceClientBuilder
-                .addInterceptor(new AddDateInterceptor());
+            addStandardInterceptors();
         }
 
         /**
@@ -667,6 +669,15 @@ public class StorageBlobClient {
         public Builder(ServiceClient.Builder serviceClientBuilder) {
             this.serviceClientBuilder
                 = Objects.requireNonNull(serviceClientBuilder, "serviceClientBuilder cannot be null.");
+            addStandardInterceptors();
+        }
+
+        private void addStandardInterceptors() {
+            this.serviceClientBuilder
+                .addInterceptor(new AddDateInterceptor())
+                .addInterceptor(new MetadataInterceptor())
+                .addInterceptor(new NormalizeEtagInterceptor());
+                //.addInterceptor(new ResponseHeadersValidationInterceptor()); // TODO: Uncomment when we add a request id interceptor
         }
 
         /**

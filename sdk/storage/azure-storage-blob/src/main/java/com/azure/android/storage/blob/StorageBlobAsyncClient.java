@@ -19,6 +19,9 @@ import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.CoreUtil;
+import com.azure.android.storage.blob.interceptor.MetadataInterceptor;
+import com.azure.android.storage.blob.interceptor.NormalizeEtagInterceptor;
+import com.azure.android.storage.blob.interceptor.ResponseHeadersValidationInterceptor;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
@@ -864,8 +867,7 @@ public class StorageBlobAsyncClient {
          */
         public Builder(String storageBlobClientId) {
             this(storageBlobClientId, new ServiceClient.Builder());
-            this.serviceClientBuilder
-                .addInterceptor(new AddDateInterceptor());
+
         }
 
         /**
@@ -885,6 +887,7 @@ public class StorageBlobAsyncClient {
          */
         public Builder(String storageBlobClientId, ServiceClient.Builder serviceClientBuilder) {
             this(storageBlobClientId, serviceClientBuilder, new Constraints.Builder());
+            addStandardInterceptors();
             this.transferConstraintsBuilder
                 .setRequiredNetworkType(NetworkType.CONNECTED);
         }
@@ -903,6 +906,16 @@ public class StorageBlobAsyncClient {
                 = Objects.requireNonNull(serviceClientBuilder, "serviceClientBuilder cannot be null.");
             this.transferConstraintsBuilder
                 = Objects.requireNonNull(transferConstraintsBuilder, "transferConstraintsBuilder cannot be null.");
+
+            addStandardInterceptors();
+        }
+
+        private void addStandardInterceptors() {
+            this.serviceClientBuilder
+                .addInterceptor(new AddDateInterceptor())
+                .addInterceptor(new MetadataInterceptor())
+                .addInterceptor(new NormalizeEtagInterceptor());
+            //.addInterceptor(new ResponseHeadersValidationInterceptor()); // TODO: Uncomment when we add a request id interceptor
         }
 
         /**
