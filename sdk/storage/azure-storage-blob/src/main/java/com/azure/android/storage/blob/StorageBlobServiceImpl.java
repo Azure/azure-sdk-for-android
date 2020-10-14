@@ -264,7 +264,7 @@ final class StorageBlobServiceImpl {
      * Gets the container's properties..
      *
      * @param containerName The container name.
-     *  @param timeout       The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param timeout       The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param version       Specifies the version of the operation to use for this request.
      * @param leaseId       If specified, the operation only succeeds if the resource's lease is active and matches this ID.
      * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
@@ -1563,7 +1563,7 @@ final class StorageBlobServiceImpl {
                                 response.raw());
                         } else {
                             String strContent = readAsString(response.body());
-                            callback.onFailure(new BlobStorageException(strContent, response.raw()),response.raw());
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
                         }
                     } else {
                         String strContent = readAsString(response.errorBody());
@@ -1864,6 +1864,7 @@ final class StorageBlobServiceImpl {
                         callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
                     }
                 }
+
                 @Override
                 public void onFailure(Call<ResponseBody> call, Throwable t) {
                     callback.onFailure(t, null);
@@ -1994,7 +1995,6 @@ final class StorageBlobServiceImpl {
     }
 
 
-
     private static <T> Response<T> executeCall(Call<T> call) {
         try {
             return call.execute();
@@ -2041,14 +2041,14 @@ final class StorageBlobServiceImpl {
     private interface StorageBlobService {
         @PUT("{containerName}")
         Call<ResponseBody> createContainer(@Path("containerName") String containerName,
-                                                      @Query("timeout") Integer timeout,
-                                                      @Tag MetadataInterceptor.StorageMultiHeaders metadata,
-                                                      @Header("x-ms-blob-public-access") PublicAccessType access,
-                                                      @Header("x-ms-version") String version,
-                                                      @Header("x-ms-client-request-id") String requestId,
-                                                      @Query("restype") String restype,
-                                                      @Header("x-ms-default-encryption-scope") String defaultEncryptionScope,
-                                                      @Header("x-ms-deny-encryption-scope-override") Boolean encryptionScopeOverridePrevented);
+                                           @Query("timeout") Integer timeout,
+                                           @Tag MetadataInterceptor.StorageMultiHeaders metadata,
+                                           @Header("x-ms-blob-public-access") PublicAccessType access,
+                                           @Header("x-ms-version") String version,
+                                           @Header("x-ms-client-request-id") String requestId,
+                                           @Query("restype") String restype,
+                                           @Header("x-ms-default-encryption-scope") String defaultEncryptionScope,
+                                           @Header("x-ms-deny-encryption-scope-override") Boolean encryptionScopeOverridePrevented);
 
         @DELETE("{containerName}")
         Call<ResponseBody> deleteContainer(@Path("containerName") String containerName,

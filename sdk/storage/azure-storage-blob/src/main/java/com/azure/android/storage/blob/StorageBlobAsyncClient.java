@@ -259,28 +259,28 @@ public class StorageBlobAsyncClient {
      * Creates a new container within a storage account. If a container with the same name already exists, the operation
      * fails.
      *
-     * @param containerName         The container name.
-     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
-     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param metadata              Metadata to associate with the container.
-     * @param publicAccessType      Specifies how the data in this container is available to the public. See the
-     *                              x-ms-blob-public-access header in the Azure Docs for more information. Pass null
-     *                              for no public access.
-     * @param version               Specifies the version of the operation to use for this request.
-     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                              recorded in the analytics logs when storage analytics logging is enabled.
-     * @param cancellationToken     The token to request cancellation.
-     * @param callback      Callback that receives the response.
+     * @param containerName     The container name.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param metadata          Metadata to associate with the container.
+     * @param publicAccessType  Specifies how the data in this container is available to the public. See the
+     *                          x-ms-blob-public-access header in the Azure Docs for more information. Pass null
+     *                          for no public access.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
+     * @param callback          Callback that receives the response.
      * @return The response information returned from the server when creating a container.
      */
     public void createContainer(String containerName,
-                                                                   Integer timeout,
-                                                                   Map<String, String> metadata,
-                                                                   PublicAccessType publicAccessType,
-                                                                   String version,
-                                                                   String requestId,
-                                                                   CancellationToken cancellationToken,
-                                                                   CallbackWithHeader<Void, ContainerCreateHeaders> callback) {
+                                Integer timeout,
+                                Map<String, String> metadata,
+                                PublicAccessType publicAccessType,
+                                String version,
+                                String requestId,
+                                CancellationToken cancellationToken,
+                                CallbackWithHeader<Void, ContainerCreateHeaders> callback) {
 
         storageBlobServiceClient.createContainer(containerName,
             timeout,
@@ -458,12 +458,12 @@ public class StorageBlobAsyncClient {
      * @param callback              Callback that receives the response.
      */
     public void getContainerProperties(String containerName,
-                                  Integer timeout,
-                                  String version,
-                                  BlobRequestConditions blobRequestConditions,
-                                  String requestId,
-                                  CancellationToken cancellationToken,
-                                  CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
+                                       Integer timeout,
+                                       String version,
+                                       BlobRequestConditions blobRequestConditions,
+                                       String requestId,
+                                       CancellationToken cancellationToken,
+                                       CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
         storageBlobServiceClient.getContainerProperties(containerName,
@@ -989,7 +989,7 @@ public class StorageBlobAsyncClient {
          * is {@code false}.
          *
          * @param requiresBatteryNotLow {@code true} if the battery should be at an acceptable level for the
-         *                                          transfers to run.
+         *                              transfers to run.
          * @return An updated {@link Builder} with the provided battery requirement set.
          */
         public Builder setTransferRequiresBatteryNotLow(boolean requiresBatteryNotLow) {
