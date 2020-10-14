@@ -11,7 +11,6 @@ import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
-import com.azure.android.storage.blob.models.ContainerCreateHeaders;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;

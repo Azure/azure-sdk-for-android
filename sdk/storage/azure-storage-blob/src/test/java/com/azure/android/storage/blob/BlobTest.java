@@ -7,15 +7,22 @@ import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
+import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobType;
+import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.LeaseStateType;
 import com.azure.android.storage.blob.models.LeaseStatusType;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.threeten.bp.OffsetDateTime;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -24,11 +31,16 @@ import java.util.List;
 import okhttp3.ResponseBody;
 
 import static com.azure.android.storage.blob.TestUtils.enableFiddler;
+import static com.azure.android.storage.blob.TestUtils.garbageEtag;
 import static com.azure.android.storage.blob.TestUtils.generateBlockID;
 import static com.azure.android.storage.blob.TestUtils.generateResourceName;
 import static com.azure.android.storage.blob.TestUtils.getDefaultData;
 import static com.azure.android.storage.blob.TestUtils.initializeDefaultAsyncBlobClientBuilder;
 import static com.azure.android.storage.blob.TestUtils.initializeDefaultSyncBlobClientBuilder;
+import static com.azure.android.storage.blob.TestUtils.newDate;
+import static com.azure.android.storage.blob.TestUtils.oldDate;
+import static com.azure.android.storage.blob.TestUtils.receivedEtag;
+import static com.azure.android.storage.blob.TestUtils.setupMatchCondition;
 import static com.azure.android.storage.blob.TestUtils.validateBasicHeaders;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -37,11 +49,36 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
+
+@RunWith(DataProviderRunner.class)
 public class BlobTest {
     private String containerName;
     private String blobName;
     private static StorageBlobAsyncClient asyncClient;
     private static StorageBlobClient syncClient;
+
+    // TODO: (gapra) Add iftags
+    @DataProvider
+    public static Object[][] accessConditionsSuccess() {
+        return new Object[][] {
+            {null,    null,    null,         null},       // 0
+            {oldDate, null,    null,         null},       // 1
+            {null,    newDate, null,         null},       // 2
+            {null,    null,    receivedEtag, null},       // 3
+            {null,    null,    null,         garbageEtag} // 4
+        };
+    }
+
+    // TODO: (gapra) Add iftags
+    @DataProvider
+    public static Object[][] accessConditionsFail() {
+        return new Object[][] {
+            {newDate, null,    null,        null},        // 0
+            {null,    oldDate, null,        null},        // 1
+            {null,    null,    garbageEtag, null},        // 2
+            {null,    null,    null,        receivedEtag} // 3
+        };
+    }
 
     @BeforeClass
     public static void setupClass() {
@@ -205,7 +242,7 @@ public class BlobTest {
     // Download AC
     // Download AC fail
     // Download md5
-    // Download snapshot
+    // Download snapshot  TODO (gapra) : Test this if we add support for snapshot creation?
 
     @Test
     public void rawDownloadError() {
@@ -235,7 +272,7 @@ public class BlobTest {
     @Test
     public void delete() {
         // When
-        BlobDeleteResponse response = syncClient.deleteBlobWithRestResponse(containerName, blobName, null, null, null, null, null, null, null, null, null, null, null);
+        BlobDeleteResponse response = syncClient.deleteBlobWithRestResponse(containerName, blobName, null, null, null, null, null, null, null);
 
         // Then
         assertEquals(202, response.getStatusCode());
@@ -245,11 +282,44 @@ public class BlobTest {
         assertNotNull(headers.getDateProperty());
     }
 
-    // Delete options
+    // Delete options TODO (gapra) : Test this if we add support for snapshot creation?
 
-    // Delete AC
+    @Test
+    @UseDataProvider("accessConditionsSuccess")
+    public void deleteAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+        // Setup
+        ifMatch = setupMatchCondition(syncClient, containerName, blobName, ifMatch);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
 
-    // Delete AC fail
+        // When
+        BlobDeleteResponse response = syncClient.deleteBlobWithRestResponse(containerName, blobName, null, null ,null,  null, requestConditions, null, null);
+
+        // Then
+        assertEquals(202, response.getStatusCode());
+    }
+
+    @Test
+    @UseDataProvider("accessConditionsFail")
+    public void deleteACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+        // Setup
+        ifNoneMatch = setupMatchCondition(syncClient, containerName, blobName, ifNoneMatch);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
+
+        // When
+        BlobStorageException ex = assertThrows(BlobStorageException.class,
+            () -> syncClient.deleteBlobWithRestResponse(containerName, blobName, null, null ,null,  null, requestConditions, null, null));
+
+        // Then
+        assertEquals(412, ex.getStatusCode());
+    }
 
     @Test
     public void deleteError() {
@@ -263,6 +333,4 @@ public class BlobTest {
         // Then
         assertEquals(404, ex.getStatusCode());
     }
-
-
 }
