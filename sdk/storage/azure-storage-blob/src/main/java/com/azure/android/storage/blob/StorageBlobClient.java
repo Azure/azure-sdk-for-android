@@ -10,6 +10,9 @@ import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.util.CancellationToken;
+import com.azure.android.storage.blob.interceptor.MetadataInterceptor;
+import com.azure.android.storage.blob.interceptor.NormalizeEtagInterceptor;
+import com.azure.android.storage.blob.interceptor.ResponseHeadersValidationInterceptor;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
@@ -84,7 +87,6 @@ public class StorageBlobClient {
      * fails.
      *
      * @param containerName The container name.
-
      */
     public Void createContainer(String containerName) {
         return storageBlobServiceClient.createContainer(containerName);
@@ -94,17 +96,17 @@ public class StorageBlobClient {
      * Creates a new container within a storage account. If a container with the same name already exists, the operation
      * fails.
      *
-     * @param containerName         The container name.
-     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
-     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param metadata              Metadata to associate with the container.
-     * @param publicAccessType      Specifies how the data in this container is available to the public. See the
-     *                              x-ms-blob-public-access header in the Azure Docs for more information. Pass null
-     *                              for no public access.
-     * @param version               Specifies the version of the operation to use for this request.
-     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                              recorded in the analytics logs when storage analytics logging is enabled.
-     * @param cancellationToken     The token to request cancellation.
+     * @param containerName     The container name.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param metadata          Metadata to associate with the container.
+     * @param publicAccessType  Specifies how the data in this container is available to the public. See the
+     *                          x-ms-blob-public-access header in the Azure Docs for more information. Pass null
+     *                          for no public access.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
      * @return The response information returned from the server when creating a container.
      */
     public ContainerCreateResponse createContainerWithRestResponse(String containerName,
@@ -204,7 +206,7 @@ public class StorageBlobClient {
      */
     public BlobGetPropertiesHeaders getBlobProperties(String containerName,
                                                       String blobName) {
-        return storageBlobServiceClient.getBlobProperties(containerName,  blobName);
+        return storageBlobServiceClient.getBlobProperties(containerName, blobName);
     }
 
     /**
@@ -299,7 +301,8 @@ public class StorageBlobClient {
      * or {@link StorageBlobAsyncClient#download(Context, String, String, Uri)} method instead - that method will
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
-     *`
+     * `
+     *
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @return The response containing the blob's bytes.
@@ -410,7 +413,7 @@ public class StorageBlobClient {
      * @param contentMd5        The transactional MD5 for the block content, to be validated by the service.
      * @param contentCrc64      Specify the transactional crc64 for the block content, to be validated by the service.
      * @param timeout           The timeout parameter is expressed in seconds. For more information,
-     *     see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param leaseId           If specified, the staging only succeeds if the resource's lease is active and matches this ID.
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded.
      *                          in the analytics logs when storage analytics logging is enabled.
@@ -646,8 +649,7 @@ public class StorageBlobClient {
          */
         public Builder() {
             this(new ServiceClient.Builder());
-            this.serviceClientBuilder
-                .addInterceptor(new AddDateInterceptor());
+            addStandardInterceptors();
         }
 
         /**
@@ -667,6 +669,15 @@ public class StorageBlobClient {
         public Builder(ServiceClient.Builder serviceClientBuilder) {
             this.serviceClientBuilder
                 = Objects.requireNonNull(serviceClientBuilder, "serviceClientBuilder cannot be null.");
+            addStandardInterceptors();
+        }
+
+        private void addStandardInterceptors() {
+            this.serviceClientBuilder
+                .addInterceptor(new AddDateInterceptor())
+                .addInterceptor(new MetadataInterceptor())
+                .addInterceptor(new NormalizeEtagInterceptor());
+            //.addInterceptor(new ResponseHeadersValidationInterceptor()); // TODO: Uncomment when we add a request id interceptor
         }
 
         /**
