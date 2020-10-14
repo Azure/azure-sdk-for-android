@@ -29,6 +29,7 @@ import static com.azure.android.storage.blob.TestUtils.generateResourceName;
 import static com.azure.android.storage.blob.TestUtils.getDefaultData;
 import static com.azure.android.storage.blob.TestUtils.initializeDefaultAsyncBlobClientBuilder;
 import static com.azure.android.storage.blob.TestUtils.initializeDefaultSyncBlobClientBuilder;
+import static com.azure.android.storage.blob.TestUtils.validateBasicHeaders;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -158,13 +159,8 @@ public class BlobTest {
         // Then
         assertArrayEquals(getDefaultData(), response.getValue().bytes());
         assertEquals(200, response.getStatusCode());
+        validateBasicHeaders(response.getHeaders());
         BlobDownloadHeaders headers = response.getDeserializedHeaders();
-        assertNotNull(headers.getETag());
-//        assertFalse(response.getETag().contains("\"")); // Quotes should be scrubbed from etag header values
-        assertNotNull(headers.getLastModified());
-        assertNotNull(headers.getRequestId());
-        assertNotNull(headers.getVersion());
-        assertNotNull(headers.getDateProperty());
         assertTrue(headers.getMetadata() == null || headers.getMetadata().isEmpty());
         assertEquals(BlobType.BLOCK_BLOB, headers.getBlobType());
         assertNull(headers.getCopyCompletionTime()); // tested in "copy"
