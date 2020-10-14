@@ -9,6 +9,8 @@ import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.credential.SasTokenCredential;
 import com.azure.android.storage.blob.interceptor.SasTokenCredentialInterceptor;
 
+import org.threeten.bp.OffsetDateTime;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
@@ -16,16 +18,30 @@ import java.net.Proxy;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.Headers;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.mockwebserver.MockWebServer;
 
+import static org.junit.Assert.assertFalse;
+
 public final class TestUtils {
     private TestUtils() {
         // Empty constructor to prevent instantiation of this class.
     }
+
+    // ----------------------- CONSTANT VALUES ----------------------------
+    /*
+    The values below are used to create data-driven tests for access conditions.
+     */
+    static final OffsetDateTime oldDate = OffsetDateTime.now().minusDays(1);
+
+    static final OffsetDateTime newDate = OffsetDateTime.now().plusDays(1);
+
 
     // -------------------- GENERATING CLIENTS --------------------------
     public static StorageBlobClient.Builder initializeDefaultSyncBlobClientBuilder(Interceptor ... interceptors) {
@@ -85,7 +101,7 @@ public final class TestUtils {
     }
 
     public static boolean enableFiddler() {
-        return true;
+        return false;
     }
 
     // --------------------- GENERATING TEST RESOURCES ------------------------
@@ -98,6 +114,26 @@ public final class TestUtils {
         return new OkHttpClient().newBuilder()
             .addInterceptor(interceptor)
             .build();
+    }
+
+    // -------------------------- HELPER METHODS -----------------------
+
+    public static void awaitOnLatch(CountDownLatch latch, String method) {
+        try {
+            latch.await(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            assertFalse(method + " didn't produce any result.", true);
+        }
+    }
+
+    public static boolean validateBasicHeaders(Headers headers) {
+        return headers.get("etag") != null &&
+            // Quotes should be scrubbed from etag header values
+            !headers.get("etag").contains("\"") &&
+            headers.get("last-modified") != null &&
+            headers.get("x-ms-request-id") != null &&
+            headers.get("x-ms-version") != null &&
+            headers.get("date") != null;
     }
 
     public static OkHttpClient buildOkHttpClientWithInterceptors(List<Interceptor> interceptors) {

@@ -3,36 +3,75 @@ package com.azure.android.storage.blob;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.runner.RunWith;
+import org.threeten.bp.OffsetDateTime;
 
 import com.azure.android.core.http.CallbackWithHeader;
-import com.azure.android.storage.blob.TestUtils;
+import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.ContainerCreateHeaders;
 import com.azure.android.storage.blob.models.ContainerCreateResponse;
+import com.azure.android.storage.blob.models.ContainerDeleteHeaders;
+import com.azure.android.storage.blob.models.ContainerDeleteResponse;
 import com.azure.android.storage.blob.models.ContainerGetPropertiesHeaders;
+import com.azure.android.storage.blob.models.ContainerGetPropertiesResponse;
 import com.azure.android.storage.blob.models.PublicAccessType;
+import com.tngtech.java.junit.dataprovider.DataProvider;
+import com.tngtech.java.junit.dataprovider.DataProviderRunner;
+import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import okhttp3.Response;
 
+import static com.azure.android.storage.blob.TestUtils.awaitOnLatch;
 import static com.azure.android.storage.blob.TestUtils.enableFiddler;
 import static com.azure.android.storage.blob.TestUtils.generateResourceName;
 import static com.azure.android.storage.blob.TestUtils.initializeDefaultAsyncBlobClientBuilder;
 import static com.azure.android.storage.blob.TestUtils.initializeDefaultSyncBlobClientBuilder;
+import static com.azure.android.storage.blob.TestUtils.newDate;
+import static com.azure.android.storage.blob.TestUtils.oldDate;
+import static com.azure.android.storage.blob.TestUtils.validateBasicHeaders;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
+@RunWith(DataProviderRunner.class)
 public class ContainerTest {
     private String containerName;
     private static StorageBlobAsyncClient asyncClient;
     private static StorageBlobClient syncClient;
 
+    @DataProvider
+    public static Object[][] accessConditionsSuccess() {
+        return new Object[][] {
+            {null,    null},   // 0
+            {oldDate, null},   // 1
+            {null,    newDate} // 2
+        };
+    }
+
+    @DataProvider
+    public static Object[][] accessConditionsFail() {
+        return new Object[][] {
+            {newDate, null},   // 0
+            {null,    oldDate} // 1
+        };
+    }
+
+    @DataProvider
+    public static Object[][] accessConditionsIllegal() {
+        return new Object[][] {
+            {"garbage", null},     // 0
+            {null,      "garbage"} // 1
+        };
+    }
 
     @BeforeClass
     public static void setupClass() {
@@ -76,6 +115,7 @@ public class ContainerTest {
 
         // Then
         assertEquals(201, response.getStatusCode());
+        validateBasicHeaders(response.getHeaders());
     }
 
     @Test
@@ -114,19 +154,28 @@ public class ContainerTest {
         // Setup
         String containerName = generateResourceName();
 
+        CountDownLatch latch = new CountDownLatch(1);
+
         // When
         asyncClient.createContainer(containerName, null, null, null, null,
             null, null, new CallbackWithHeader<Void, ContainerCreateHeaders>() {
                 @Override
                 public void onSuccess(Void result, ContainerCreateHeaders header, Response response) {
                     assertEquals(201, response.code());
+                    latch.countDown();
                 }
 
                 @Override
                 public void onFailure(Throwable throwable, Response response) {
-                    fail("Failed with exception: " + throwable.getMessage());
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
                 }
             });
+
+        awaitOnLatch(latch, "createContainer");
     }
 
     // Create error tested in min because it throws an expected exception.
@@ -154,5 +203,166 @@ public class ContainerTest {
         // Setup
         String containerName = generateResourceName();
         syncClient.createContainer(containerName);
+
+        // When
+        ContainerDeleteResponse response = syncClient.deleteContainerWithRestResponse(containerName, null, null, null,
+            null, null);
+
+        // Then
+        BlobStorageException ex = assertThrows(BlobStorageException.class,
+            () -> syncClient.getContainerProperties(containerName));
+        assertEquals(404, ex.getStatusCode());
+        assertNotNull(response.getDeserializedHeaders().getRequestId());
+        assertNotNull(response.getDeserializedHeaders().getVersion());
+        assertNotNull(response.getDeserializedHeaders().getDateProperty());
+    }
+
+    @Test
+    @UseDataProvider("accessConditionsSuccess")
+    public void deleteAC(OffsetDateTime modified, OffsetDateTime unmodified) {
+        // Setup
+        String containerName = generateResourceName();
+        syncClient.createContainer(containerName);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified);
+
+        // When
+        syncClient.deleteContainerWithRestResponse(containerName, null, null, requestConditions, null, null);
+
+        // Then
+        BlobStorageException ex = assertThrows(BlobStorageException.class,
+            () -> syncClient.getContainerProperties(containerName));
+        assertEquals(404, ex.getStatusCode());
+    }
+
+    @Test
+    @UseDataProvider("accessConditionsFail")
+    public void deleteACFail(OffsetDateTime modified, OffsetDateTime unmodified) {
+        // Setup
+        String containerName = generateResourceName();
+        syncClient.createContainer(containerName);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified);
+
+        // When
+        BlobStorageException ex = assertThrows(BlobStorageException.class,
+            () -> syncClient.deleteContainerWithRestResponse(containerName, null, null, requestConditions, null, null));
+
+        // Then
+        assertEquals(412, ex.getStatusCode());
+    }
+
+    @Test
+    @UseDataProvider("accessConditionsIllegal")
+    public void deleteACIllegal(String ifMatch, String ifNoneMatch) {
+        // Setup
+        String containerName = generateResourceName();
+        syncClient.createContainer(containerName);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
+
+        // Expect
+        assertThrows(UnsupportedOperationException.class,
+            () -> syncClient.deleteContainerWithRestResponse(containerName, null, null, requestConditions, null, null));
+    }
+
+    @Test
+    public void deleteAsync() {
+        // Setup
+        String containerName = generateResourceName();
+        syncClient.createContainer(containerName);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // When
+        asyncClient.deleteContainer(containerName, null, null, null, null, null,
+            new CallbackWithHeader<Void, ContainerDeleteHeaders>() {
+                @Override
+                public void onSuccess(Void result, ContainerDeleteHeaders header, Response response) {
+                    assertEquals(202, response.code());
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "deleteContainer");
+    }
+
+    public void deleteError() {
+        // Setup
+        String containerName = generateResourceName();
+
+        // Expect
+        assertThrows(BlobStorageException.class,
+            () -> syncClient.deleteContainer(containerName));
+    }
+
+    @Test
+    public void getPropertiesMin() {
+        // Expect
+        assertNotNull(syncClient.getContainerProperties(containerName));
+    }
+
+    @Test
+    public void getPropertiesAllNull() {
+        // When
+        ContainerGetPropertiesResponse response = syncClient.getContainerPropertiesWithRestResponse(containerName, null,
+            null, null, null, null);
+        ContainerGetPropertiesHeaders headers = response.getDeserializedHeaders();
+
+        // Then
+        validateBasicHeaders(response.getHeaders());
+        assertNull(headers.getBlobPublicAccess());
+        assertFalse(headers.hasImmutabilityPolicy());
+        assertFalse(headers.hasLegalHold());
+        assertEquals(0, headers.getMetadata().size());
+    }
+
+    @Test
+    public void getGetPropertiesAsync() {
+        // Setup
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // When
+        asyncClient.getContainerProperties(containerName, null, null, null, null, null,
+            new CallbackWithHeader<Void, ContainerGetPropertiesHeaders>() {
+                @Override
+                public void onSuccess(Void result, ContainerGetPropertiesHeaders header, Response response) {
+                    assertEquals(200, response.code());
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "getContainerProperties");
+    }
+
+    @Test
+    public void getPropertiesError() {
+        // Setup
+        String containerName = generateResourceName();
+
+        // Expect
+        assertThrows(BlobStorageException.class,
+            () -> syncClient.getContainerProperties(containerName));
     }
 }
