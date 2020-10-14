@@ -1,8 +1,8 @@
 package com.azure.android.storage.blob;
 
+import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.storage.blob.models.BlobErrorCode;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
-import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobStorageException;
@@ -11,7 +11,7 @@ import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
-import com.azure.android.storage.blob.models.ContainerGetPropertiesHeaders;
+import com.azure.android.storage.blob.models.ContainerCreateHeaders;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -29,7 +29,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
+import okhttp3.Response;
+
+import static com.azure.android.storage.blob.TestUtils.awaitOnLatch;
 import static com.azure.android.storage.blob.TestUtils.enableFiddler;
 import static com.azure.android.storage.blob.TestUtils.garbageEtag;
 import static com.azure.android.storage.blob.TestUtils.generateBlockID;
@@ -41,6 +45,7 @@ import static com.azure.android.storage.blob.TestUtils.newDate;
 import static com.azure.android.storage.blob.TestUtils.oldDate;
 import static com.azure.android.storage.blob.TestUtils.receivedEtag;
 import static com.azure.android.storage.blob.TestUtils.setupMatchCondition;
+import static com.azure.android.storage.blob.TestUtils.validateBasicHeaders;
 import static com.azure.android.storage.blob.TestUtils.validateBlobProperties;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -62,6 +67,7 @@ public class BlockBlobTest {
         };
     }
 
+    // TODO: (gapra) Add iftags
     @DataProvider
     public static Object[][] accessConditionsSuccess() {
         return new Object[][] {
@@ -73,6 +79,7 @@ public class BlockBlobTest {
         };
     }
 
+    // TODO: (gapra) Add iftags
     @DataProvider
     public static Object[][] accessConditionsFail() {
         return new Object[][] {
@@ -205,6 +212,44 @@ public class BlockBlobTest {
         assertEquals(BlobErrorCode.MD5MISMATCH, ex.getErrorCode());
     }
 
+    // No Stage Block Lease tests due to no support for leases yet.
+
+    // Stage block error tested in tests above.
+
+    @Test
+    public void stageBlockAsync() {
+        // Setup
+        String blockId = generateBlockID();
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // Expect
+        asyncClient.stageBlock(containerName, blobName, blockId, getDefaultData(), null, null, null, null,
+            null, null, null, new CallbackWithHeader<Void, BlockBlobStageBlockHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlockBlobStageBlockHeaders headers, Response response) {
+                    assertEquals(201, response.code());
+                    assertNotNull(headers.getXMsContentCrc64());
+                    assertNotNull(headers.getRequestId());
+                    assertNotNull(headers.getVersion());
+                    assertNotNull(headers.getDateProperty());
+                    assertTrue(headers.isServerEncrypted() != null && headers.isServerEncrypted());
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "stageBlock");
+    }
+
     @Test
     public void commitBlockList() {
         // Setup
@@ -218,13 +263,8 @@ public class BlockBlobTest {
 
         // Then
         assertEquals(201, response.getStatusCode());
+        validateBasicHeaders(response.getHeaders());
         BlockBlobCommitBlockListHeaders headers = response.getDeserializedHeaders();
-        assertNotNull(headers.getETag());
-//        assertFalse(headers.getETag().contains("\"")); // Quotes should be scrubbed from etag header values
-        assertNotNull(headers.getLastModified());
-        assertNotNull(headers.getRequestId());
-        assertNotNull(headers.getVersion());
-        assertNotNull(headers.getDateProperty());
         assertNotNull(headers.getXMsContentCrc64());
         assertTrue(headers.isServerEncrypted() != null && headers.isServerEncrypted());
     }
@@ -344,5 +384,43 @@ public class BlockBlobTest {
 
         // Then
         assertEquals(412, ex.getStatusCode());
+    }
+
+    // Commit block list error tested in tests above.
+
+    @Test
+    public void commitBlockListAsync() {
+        // Setup
+        String blockId = generateBlockID();
+        syncClient.stageBlock(containerName, blobName, blockId, getDefaultData(), null);
+        List<String> blockIds = new ArrayList<>();
+        blockIds.add(blockId);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // Expect
+        asyncClient.commitBlockList(containerName, blobName, blockIds, null, null, null, null, null,
+            null, null, null, null, null, new CallbackWithHeader<BlockBlobItem, BlockBlobCommitBlockListHeaders>() {
+                @Override
+                public void onSuccess(BlockBlobItem result, BlockBlobCommitBlockListHeaders headers, Response response) {
+                    assertEquals(201, response.code());
+                    validateBasicHeaders(response.headers());
+                    assertNotNull(headers.getXMsContentCrc64());
+                    assertTrue(headers.isServerEncrypted() != null && headers.isServerEncrypted());
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "commitBlockList");
+
     }
 }
