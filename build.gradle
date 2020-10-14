@@ -175,6 +175,7 @@ allprojects {
         threeTenAbpVersion = "1.2.4"
         threeTenBpVersion = "1.4.4"
         workVersion = "2.4.0"
+        dataproviderVersion =  "2.6"
     }
 }
 
