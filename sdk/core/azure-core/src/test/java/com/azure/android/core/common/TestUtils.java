@@ -56,8 +56,8 @@ public final class TestUtils {
 
     static final String garbageEtag = "garbage";
 
-
     // -------------------- GENERATING CLIENTS --------------------------
+
     public static StorageBlobClient.Builder initializeDefaultSyncBlobClientBuilder(Interceptor ... interceptors) {
         return initializeDefaultSyncBlobClientBuilder(enableFiddler(), interceptors);
     }
@@ -115,10 +115,10 @@ public final class TestUtils {
     }
 
     public static boolean enableFiddler() {
-        return false;
+        return true;
     }
 
-    // --------------------- GENERATING TEST RESOURCES ------------------------
+    // --------------------- GENERATING RESOURCE NAMES ------------------------
 
     public static String generateResourceName() {
         return UUID.randomUUID().toString();
@@ -128,10 +128,10 @@ public final class TestUtils {
         return Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
     }
 
-    public static OkHttpClient buildOkHttpClientWithInterceptor(Interceptor interceptor) {
-        return new OkHttpClient().newBuilder()
-            .addInterceptor(interceptor)
-            .build();
+    // ------------------------ GENERATING DATA ---------------------------
+
+    public static byte[] getDefaultData() {
+        return "Hello World".getBytes(StandardCharsets.UTF_8);
     }
 
     // -------------------------- HELPER METHODS -----------------------
@@ -169,6 +169,14 @@ public final class TestUtils {
         } else {
             return match;
         }
+    }
+
+    // ------------------ OKHTTP AND REQUEST MOCKING ------------------------
+
+    public static OkHttpClient buildOkHttpClientWithInterceptor(Interceptor interceptor) {
+        return new OkHttpClient().newBuilder()
+            .addInterceptor(interceptor)
+            .build();
     }
 
     public static OkHttpClient buildOkHttpClientWithInterceptors(List<Interceptor> interceptors) {
@@ -245,9 +253,4 @@ public final class TestUtils {
         return stringWriter.toString();
     }
 
-    // ------------------------ GENERATING DATA ---------------------------
-
-    public static byte[] getDefaultData() {
-        return "Hello World".getBytes(StandardCharsets.UTF_8);
-    }
 }

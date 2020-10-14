@@ -1571,7 +1571,7 @@ final class StorageBlobServiceImpl {
         Call<ResponseBody> call = service.setBlobMetadata(containerName,
             blobName,
             timeout,
-            metadata,
+            metadata == null ? null : new MetadataInterceptor.StorageMultiHeaders(metadata),
             leaseId,
             ifModifiedSince,
             ifUnmodifiedSince,
@@ -2250,22 +2250,22 @@ final class StorageBlobServiceImpl {
 
         @PUT("{containerName}/{blob}")
         Call<ResponseBody> setBlobMetadata(@Path("containerName") String containerName,
-                                              @Path("blob") String blob,
-                                              @Query("timeout") Integer timeout,
-                                              @Header("x-ms-meta") Map<String, String> metadata, // TODO: Maybe use @HeaderMap annotation?
-                                              @Header("x-ms-lease-id") String leaseId,
-                                              @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
-                                              @Header("If-Unmodified-Sin ce") DateTimeRfc1123 ifUnmodifiedSince,
-                                              @Header("If-Match") String ifMatch,
-                                              @Header("If-None-Match") String ifNoneMatch,
-                                              @Header("x-ms-if-tags") String ifTags,
-                                              @Header("x-ms-version") String version,
-                                              @Header("x-ms-client-request-id") String requestId,
-                                              @Query("comp") String comp,
-                                              @Header("x-ms-encryption-key") String encryptionKey,
-                                              @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
-                                              @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm,
-                                              @Header("x-ms-encryption-scope") String encryptionScope);
+                                           @Path("blob") String blob,
+                                           @Query("timeout") Integer timeout,
+                                           @Tag MetadataInterceptor.StorageMultiHeaders metadata,
+                                           @Header("x-ms-lease-id") String leaseId,
+                                           @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
+                                           @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
+                                           @Header("If-Match") String ifMatch,
+                                           @Header("If-None-Match") String ifNoneMatch,
+                                           @Header("x-ms-if-tags") String ifTags,
+                                           @Header("x-ms-version") String version,
+                                           @Header("x-ms-client-request-id") String requestId,
+                                           @Query("comp") String comp,
+                                           @Header("x-ms-encryption-key") String encryptionKey,
+                                           @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
+                                           @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm,
+                                           @Header("x-ms-encryption-scope") String encryptionScope);
 
         @GET("{containerName}/{blob}")
         Call<ResponseBody> download(@Path("containerName") String containerName,
