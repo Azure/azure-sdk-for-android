@@ -13,6 +13,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -94,6 +96,10 @@ public final class TestUtils {
         return UUID.randomUUID().toString();
     }
 
+    public static String generateBlockID() {
+        return Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
+    }
+
     public static OkHttpClient buildOkHttpClientWithInterceptor(Interceptor interceptor) {
         return new OkHttpClient().newBuilder()
             .addInterceptor(interceptor)
@@ -172,5 +178,11 @@ public final class TestUtils {
         printWriter.flush();
 
         return stringWriter.toString();
+    }
+
+    // ------------------------ GENERATING DATA ---------------------------
+
+    public static byte[] getDefaultData() {
+        return "Hello World".getBytes(StandardCharsets.UTF_8);
     }
 }

@@ -121,6 +121,6 @@ public class ContainerTest {
     public void deleteAllNull() {
         // Setup
         String containerName = generateResourceName();
-        syncClient.createContainer()
+//        syncClient.createContainer()
     }
 }
