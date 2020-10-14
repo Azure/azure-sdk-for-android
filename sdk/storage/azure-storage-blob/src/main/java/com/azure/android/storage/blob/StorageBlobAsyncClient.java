@@ -849,16 +849,9 @@ public class StorageBlobAsyncClient {
      *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and
-     *                          matches this ID.
      * @param deleteSnapshots   Required if the blob has associated snapshots. Specify one of the following two
      *                          options: include: Delete the base blob and all of its snapshots. only: Delete only the blob's snapshots and not the blob itself. Possible values include: 'include', 'only'.
-     * @param ifModifiedSince   Specify this header value to operate only on a blob if it has been modified since the
-     *                          specified date/time.
-     * @param ifUnmodifiedSince Specify this header value to operate only on a blob if it has not been modified since
-     *                          the specified date/time.
-     * @param ifMatch           Specify an ETag value to operate only on blobs with a matching value.
-     * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
+     * @param requestConditions {@link BlobRequestConditions}
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
@@ -869,12 +862,8 @@ public class StorageBlobAsyncClient {
                     String snapshot,
                     Integer timeout,
                     String version,
-                    String leaseId,
                     DeleteSnapshotsOptionType deleteSnapshots,
-                    OffsetDateTime ifModifiedSince,
-                    OffsetDateTime ifUnmodifiedSince,
-                    String ifMatch,
-                    String ifNoneMatch,
+                    BlobRequestConditions requestConditions,
                     String requestId,
                     CancellationToken cancellationToken,
                     CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
@@ -883,12 +872,8 @@ public class StorageBlobAsyncClient {
             snapshot,
             timeout,
             version,
-            leaseId,
             deleteSnapshots,
-            ifModifiedSince,
-            ifUnmodifiedSince,
-            ifMatch,
-            ifNoneMatch,
+            requestConditions,
             requestId,
             cancellationToken,
             callback);

@@ -8,6 +8,7 @@ import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.StorageBlobClient;
 import com.azure.android.storage.blob.credential.SasTokenCredential;
 import com.azure.android.storage.blob.interceptor.SasTokenCredentialInterceptor;
+import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 
 import org.threeten.bp.OffsetDateTime;
 
@@ -15,8 +16,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -41,6 +46,15 @@ public final class TestUtils {
     static final OffsetDateTime oldDate = OffsetDateTime.now().minusDays(1);
 
     static final OffsetDateTime newDate = OffsetDateTime.now().plusDays(1);
+
+    /*
+    Note that this value is only used to check if we are depending on the received etag. This value will not actually
+    be used.
+     */
+
+    static final String receivedEtag = "received";
+
+    static final String garbageEtag = "garbage";
 
 
     // -------------------- GENERATING CLIENTS --------------------------
@@ -110,6 +124,10 @@ public final class TestUtils {
         return UUID.randomUUID().toString();
     }
 
+    public static String generateBlockID() {
+        return Base64.getEncoder().encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
+    }
+
     public static OkHttpClient buildOkHttpClientWithInterceptor(Interceptor interceptor) {
         return new OkHttpClient().newBuilder()
             .addInterceptor(interceptor)
@@ -134,6 +152,23 @@ public final class TestUtils {
             headers.get("x-ms-request-id") != null &&
             headers.get("x-ms-version") != null &&
             headers.get("date") != null;
+    }
+
+    public static boolean validateBlobProperties(BlobGetPropertiesHeaders headers, String cacheControl, String contentDisposition, String contentEncoding, String contentLanguage, byte[] contentMd5, String contentType) {
+        return Objects.equals(headers.getCacheControl(), cacheControl) &&
+            Objects.equals(headers.getContentDisposition(), contentDisposition) &&
+            Objects.equals(headers.getContentEncoding(), contentEncoding) &&
+            Objects.equals(headers.getContentLanguage(), contentLanguage) &&
+            Arrays.equals(headers.getContentMD5(), contentMd5) &&
+            Objects.equals(headers.getContentType(), contentType);
+    }
+
+    public static String setupMatchCondition(StorageBlobClient client, String containerName, String blobName, String match) {
+        if (receivedEtag.equals(match)) {
+            return client.getBlobProperties(containerName, blobName).getETag();
+        } else {
+            return match;
+        }
     }
 
     public static OkHttpClient buildOkHttpClientWithInterceptors(List<Interceptor> interceptors) {
@@ -208,5 +243,11 @@ public final class TestUtils {
         printWriter.flush();
 
         return stringWriter.toString();
+    }
+
+    // ------------------------ GENERATING DATA ---------------------------
+
+    public static byte[] getDefaultData() {
+        return "Hello World".getBytes(StandardCharsets.UTF_8);
     }
 }
