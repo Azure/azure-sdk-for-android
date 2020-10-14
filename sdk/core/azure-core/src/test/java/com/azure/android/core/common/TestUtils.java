@@ -115,7 +115,7 @@ public final class TestUtils {
     }
 
     public static boolean enableFiddler() {
-        return false;
+        return true;
     }
 
     // --------------------- GENERATING TEST RESOURCES ------------------------
@@ -249,5 +249,9 @@ public final class TestUtils {
 
     public static byte[] getDefaultData() {
         return "Hello World".getBytes(StandardCharsets.UTF_8);
+    }
+
+    public static String getDefaultString() {
+        return "Hello World";
     }
 }

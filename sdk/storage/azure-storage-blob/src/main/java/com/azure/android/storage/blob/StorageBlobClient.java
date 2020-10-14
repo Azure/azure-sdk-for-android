@@ -238,14 +238,12 @@ public class StorageBlobClient {
                                                                        String requestId,
                                                                        CpkInfo cpkInfo,
                                                                        CancellationToken cancellationToken) {
-        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
-
         return storageBlobServiceClient.getBlobPropertiesWithRestResponse(containerName,
             blobName,
             snapshot,
             timeout,
             version,
-            blobRequestConditions.getLeaseId(),
+            blobRequestConditions,
             requestId,
             cpkInfo,
             cancellationToken);

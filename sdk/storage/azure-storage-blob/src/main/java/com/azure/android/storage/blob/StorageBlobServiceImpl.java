@@ -411,7 +411,7 @@ final class StorageBlobServiceImpl {
      * @param snapshot      he snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param timeout       The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param version       Specifies the version of the operation to use for this request.
-     * @param leaseId       If specified, the operation only succeeds if the resource's lease is active and matches this ID.
+     * @param requestConditions       {@link BlobRequestConditions}
      * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo       Additional parameters for the operation.
      * @return A response containing the blob metadata.
@@ -421,7 +421,7 @@ final class StorageBlobServiceImpl {
                                                                 String snapshot,
                                                                 Integer timeout,
                                                                 String version,
-                                                                String leaseId,
+                                                                BlobRequestConditions requestConditions,
                                                                 String requestId,
                                                                 CpkInfo cpkInfo,
                                                                 CancellationToken cancellationToken) {
@@ -430,7 +430,7 @@ final class StorageBlobServiceImpl {
             snapshot,
             timeout,
             version,
-            leaseId,
+            requestConditions,
             requestId,
             cpkInfo,
             cancellationToken,
@@ -446,7 +446,7 @@ final class StorageBlobServiceImpl {
      * @param snapshot      he snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param timeout       The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param version       Specifies the version of the operation to use for this request.
-     * @param leaseId       If specified, the operation only succeeds if the resource's lease is active and matches this ID.
+     * @param requestConditions {@link BlobRequestConditions}
      * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo       Additional parameters for the operation.
      * @param callback      Callback that receives the response.
@@ -456,7 +456,7 @@ final class StorageBlobServiceImpl {
                            String snapshot,
                            Integer timeout,
                            String version,
-                           String leaseId,
+                           BlobRequestConditions requestConditions,
                            String requestId,
                            CpkInfo cpkInfo,
                            CancellationToken cancellationToken,
@@ -466,7 +466,7 @@ final class StorageBlobServiceImpl {
             snapshot,
             timeout,
             version,
-            leaseId,
+            requestConditions,
             requestId,
             cpkInfo,
             cancellationToken,
@@ -1372,12 +1372,22 @@ final class StorageBlobServiceImpl {
                                                                               String snapshot,
                                                                               Integer timeout,
                                                                               String version,
-                                                                              String leaseId,
+                                                                              BlobRequestConditions requestConditions,
                                                                               String requestId,
                                                                               CpkInfo cpkInfo,
                                                                               CancellationToken cancellationToken,
                                                                               CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
         cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+        requestConditions = requestConditions == null ? new BlobRequestConditions() : requestConditions;
+        String leaseId = requestConditions.getLeaseId();
+        DateTimeRfc1123 ifModifiedSince = requestConditions.getIfModifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfModifiedSince());
+        DateTimeRfc1123 ifUnmodifiedSince = requestConditions.getIfUnmodifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfUnmodifiedSince());
+        String ifMatch = requestConditions.getIfMatch();
+        String ifNoneMatch = requestConditions.getIfNoneMatch();
         String encryptionKey = null;
         String encryptionKeySha256 = null;
         EncryptionAlgorithmType encryptionAlgorithm = null;
@@ -1394,6 +1404,10 @@ final class StorageBlobServiceImpl {
             timeout,
             XMS_VERSION, // TODO: Replace with 'version'.
             leaseId,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
             requestId,
             encryptionKey,
             encryptionKeySha256,
@@ -2051,6 +2065,10 @@ final class StorageBlobServiceImpl {
                                      @Query("timeout") Integer timeout,
                                      @Header("x-ms-version") String version,
                                      @Header("x-ms-lease-id") String leaseId,
+                                     @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
+                                     @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
+                                     @Header("If-Match") String ifMatch,
+                                     @Header("If-None-Match") String ifNoneMatch,
                                      @Header("x-ms-client-request-id") String requestId,
                                      @Header("x-ms-encryption-key") String encryptionKey,
                                      @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,

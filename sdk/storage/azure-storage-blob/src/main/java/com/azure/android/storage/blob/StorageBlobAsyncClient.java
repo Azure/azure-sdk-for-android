@@ -416,14 +416,12 @@ public class StorageBlobAsyncClient {
                                   CpkInfo cpkInfo,
                                   CancellationToken cancellationToken,
                                   CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
-        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
-
         storageBlobServiceClient.getBlobProperties(containerName,
             blobName,
             snapshot,
             timeout,
             version,
-            blobRequestConditions.getLeaseId(),
+            blobRequestConditions,
             requestId,
             cpkInfo,
             cancellationToken,

@@ -7,6 +7,7 @@ import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
+import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobType;
@@ -25,6 +26,9 @@ import org.junit.runner.RunWith;
 import org.threeten.bp.OffsetDateTime;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +39,7 @@ import static com.azure.android.storage.blob.TestUtils.garbageEtag;
 import static com.azure.android.storage.blob.TestUtils.generateBlockID;
 import static com.azure.android.storage.blob.TestUtils.generateResourceName;
 import static com.azure.android.storage.blob.TestUtils.getDefaultData;
+import static com.azure.android.storage.blob.TestUtils.getDefaultString;
 import static com.azure.android.storage.blob.TestUtils.initializeDefaultAsyncBlobClientBuilder;
 import static com.azure.android.storage.blob.TestUtils.initializeDefaultSyncBlobClientBuilder;
 import static com.azure.android.storage.blob.TestUtils.newDate;
@@ -77,6 +82,16 @@ public class BlobTest {
             {null,    oldDate, null,        null},        // 1
             {null,    null,    garbageEtag, null},        // 2
             {null,    null,    null,        receivedEtag} // 3
+        };
+    }
+
+    @DataProvider
+    public static Object[][] downloadRange() {
+        return new Object[][] {
+            {0L, null, getDefaultString()},                       // 0
+            {0L, 5L,   getDefaultString().substring(0, 0 + 5)},   // 1
+            {3L, 2L,   getDefaultString().substring(3, 3 + 2)},   // 2
+            {1L, 3L,   getDefaultString().substring(1, 1 + 3)}    // 3
         };
     }
 
@@ -162,9 +177,42 @@ public class BlobTest {
         assertEquals(200, response.getStatusCode());
     }
 
-    // Get properties AC
+    @Test
+    @UseDataProvider("accessConditionsSuccess")
+    public void getPropertiesAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+        // Setup
+        ifMatch = setupMatchCondition(syncClient, containerName, blobName, ifMatch);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
 
-    // Get properties AC fail
+        // When
+        BlobGetPropertiesResponse response = syncClient.getBlobPropertiesWithRestResponse(containerName, blobName, null, null, null, requestConditions, null, null, null);
+
+        // Then
+        assertEquals(200, response.getStatusCode());
+    }
+
+    @Test
+    @UseDataProvider("accessConditionsFail")
+    public void getPropertiesACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+        // Setup
+        ifNoneMatch = setupMatchCondition(syncClient, containerName, blobName, ifNoneMatch);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
+
+        // When
+        BlobStorageException ex = assertThrows(BlobStorageException.class,
+            () -> syncClient.getBlobPropertiesWithRestResponse(containerName, blobName, null, null, null, requestConditions, null, null, null));
+
+        // Then
+        assertTrue(ex.getStatusCode() == 304 || ex.getStatusCode() == 412);
+    }
 
     @Test
     public void getPropertiesError() {
@@ -238,10 +286,69 @@ public class BlobTest {
         assertEquals(0, (long) headers.getContentLength());
     }
 
-    // Download range
-    // Download AC
-    // Download AC fail
-    // Download md5
+    @Test
+    @UseDataProvider("downloadRange")
+    public void rawDownloadRange(Long offset, Long count, String expectedData) throws IOException {
+        // Setup
+        BlobRange range = count == null ? new BlobRange(offset) : new BlobRange(offset, count);
+
+        // When
+        BlobDownloadResponse response = syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, range, null, null, null, null, null, null, null);
+
+        // Then
+        assertEquals(expectedData, response.getValue().string());
+        assertTrue(count == null ? response.getStatusCode() == 200 : response.getStatusCode() == 206);
+    }
+
+    @Test
+    @UseDataProvider("accessConditionsSuccess")
+    public void rawDownloadAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+        // Setup
+        ifMatch = setupMatchCondition(syncClient, containerName, blobName, ifMatch);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
+
+        // When
+        BlobDownloadResponse response = syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, null, requestConditions, null, null, null, null, null, null);
+
+        // Then
+        assertEquals(200, response.getStatusCode());
+    }
+
+    @Test
+    @UseDataProvider("accessConditionsFail")
+    public void rawDownloadACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+        // Setup
+        ifNoneMatch = setupMatchCondition(syncClient, containerName, blobName, ifNoneMatch);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
+
+        // When
+        BlobStorageException ex = assertThrows(BlobStorageException.class,
+            () -> syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, null, requestConditions, null, null, null, null, null, null));
+
+        // Then
+        assertTrue(ex.getStatusCode() == 304 || ex.getStatusCode() == 412);
+    }
+
+    @Test
+    public void rawDownloadMd5() throws IOException, NoSuchAlgorithmException {
+        // When
+        BlobDownloadResponse response = syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, new BlobRange(0L, 3L), null, true, null, null, null, null, null);
+
+        // Then
+        assertEquals(getDefaultString().substring(0, 3), response.getValue().string());
+        assertEquals(206, response.getStatusCode());
+        BlobDownloadHeaders headers = response.getDeserializedHeaders();
+        assertArrayEquals(MessageDigest.getInstance("MD5").digest(getDefaultString().substring(0, 3).getBytes()), headers.getContentMd5());
+    }
+
     // Download snapshot  TODO (gapra) : Test this if we add support for snapshot creation?
 
     @Test
