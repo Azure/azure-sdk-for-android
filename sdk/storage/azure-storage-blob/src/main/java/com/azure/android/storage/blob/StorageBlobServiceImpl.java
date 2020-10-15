@@ -980,10 +980,6 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null,
-            null,
-            null,
-            null,
             CancellationToken.NONE).getValue();
     }
 
@@ -1000,10 +996,6 @@ final class StorageBlobServiceImpl {
                     CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
         deleteBlob(containerName,
             blobName,
-            null,
-            null,
-            null,
-            null,
             null,
             null,
             null,
@@ -1039,16 +1031,9 @@ final class StorageBlobServiceImpl {
      *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and
-     *                          matches this ID.
      * @param deleteSnapshots   Required if the blob has associated snapshots. Specify one of the following two
      *                          options: include: Delete the base blob and all of its snapshots. only: Delete only the blob's snapshots and not the blob itself. Possible values include: 'include', 'only'.
-     * @param ifModifiedSince   Specify this header value to operate only on a blob if it has been modified since the
-     *                          specified date/time.
-     * @param ifUnmodifiedSince Specify this header value to operate only on a blob if it has not been modified since
-     *                          the specified date/time.
-     * @param ifMatch           Specify an ETag value to operate only on blobs with a matching value.
-     * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
+     * @param requestConditions {@link BlobRequestConditions}
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @return A response object containing the details of the delete operation.
@@ -1058,12 +1043,8 @@ final class StorageBlobServiceImpl {
                                                   String snapshot,
                                                   Integer timeout,
                                                   String version,
-                                                  String leaseId,
                                                   DeleteSnapshotsOptionType deleteSnapshots,
-                                                  OffsetDateTime ifModifiedSince,
-                                                  OffsetDateTime ifUnmodifiedSince,
-                                                  String ifMatch,
-                                                  String ifNoneMatch,
+                                                  BlobRequestConditions requestConditions,
                                                   String requestId,
                                                   CancellationToken cancellationToken) {
         return deleteBlobWithRestResponseIntern(containerName,
@@ -1071,12 +1052,8 @@ final class StorageBlobServiceImpl {
             snapshot,
             timeout,
             version,
-            leaseId,
             deleteSnapshots,
-            ifModifiedSince,
-            ifUnmodifiedSince,
-            ifMatch,
-            ifNoneMatch,
+            requestConditions,
             requestId,
             cancellationToken,
             null);
@@ -1107,16 +1084,9 @@ final class StorageBlobServiceImpl {
      *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and
-     *                          matches this ID.
      * @param deleteSnapshots   Required if the blob has associated snapshots. Specify one of the following two
      *                          options: include: Delete the base blob and all of its snapshots. only: Delete only the blob's snapshots and not the blob itself. Possible values include: 'include', 'only'.
-     * @param ifModifiedSince   Specify this header value to operate only on a blob if it has been modified since the
-     *                          specified date/time.
-     * @param ifUnmodifiedSince Specify this header value to operate only on a blob if it has not been modified since
-     *                          the specified date/time.
-     * @param ifMatch           Specify an ETag value to operate only on blobs with a matching value.
-     * @param ifNoneMatch       Specify an ETag value to operate only on blobs without a matching value.
+     * @param requestConditions {@link BlobRequestConditions}
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param callback          Callback that receives the response.
@@ -1127,12 +1097,8 @@ final class StorageBlobServiceImpl {
                     String snapshot,
                     Integer timeout,
                     String version,
-                    String leaseId,
                     DeleteSnapshotsOptionType deleteSnapshots,
-                    OffsetDateTime ifModifiedSince,
-                    OffsetDateTime ifUnmodifiedSince,
-                    String ifMatch,
-                    String ifNoneMatch,
+                    BlobRequestConditions requestConditions,
                     String requestId,
                     CancellationToken cancellationToken,
                     CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
@@ -1141,12 +1107,8 @@ final class StorageBlobServiceImpl {
             snapshot,
             timeout,
             version,
-            leaseId,
             deleteSnapshots,
-            ifModifiedSince,
-            ifUnmodifiedSince,
-            ifMatch,
-            ifNoneMatch,
+            requestConditions,
             requestId,
             cancellationToken,
             callback);
@@ -2003,7 +1965,7 @@ final class StorageBlobServiceImpl {
             timeout,
             transactionalContentMD5Converted,
             transactionalContentCrc64Converted,
-            metadata,
+            metadata == null ? null : new MetadataInterceptor.StorageMultiHeaders(metadata),
             leaseId,
             tier,
             ifModifiedSince,
@@ -2095,20 +2057,22 @@ final class StorageBlobServiceImpl {
                                                                 String snapshot,
                                                                 Integer timeout,
                                                                 String version,
-                                                                String leaseId,
                                                                 DeleteSnapshotsOptionType deleteSnapshots,
-                                                                OffsetDateTime ifModifiedSince,
-                                                                OffsetDateTime ifUnmodifiedSince,
-                                                                String ifMatch,
-                                                                String ifNoneMatch,
+                                                                BlobRequestConditions requestConditions,
                                                                 String requestId,
                                                                 CancellationToken cancellationToken,
                                                                 CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
         cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-        DateTimeRfc1123 ifModifiedSinceConverted = ifModifiedSince == null ? null :
-            new DateTimeRfc1123(ifModifiedSince);
-        DateTimeRfc1123 ifUnmodifiedSinceConverted = ifUnmodifiedSince == null ? null :
-            new DateTimeRfc1123(ifUnmodifiedSince);
+        requestConditions = requestConditions == null ? new BlobRequestConditions() : requestConditions;
+        String leaseId = requestConditions.getLeaseId();
+        DateTimeRfc1123 ifModifiedSince = requestConditions.getIfModifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfModifiedSince());
+        DateTimeRfc1123 ifUnmodifiedSince = requestConditions.getIfUnmodifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfUnmodifiedSince());
+        String ifMatch = requestConditions.getIfMatch();
+        String ifNoneMatch = requestConditions.getIfNoneMatch();
 
         Call<ResponseBody> call = service.deleteBlob(containerName,
             blobName,
@@ -2116,8 +2080,8 @@ final class StorageBlobServiceImpl {
             timeout,
             leaseId,
             deleteSnapshots,
-            ifModifiedSinceConverted,
-            ifUnmodifiedSinceConverted,
+            ifModifiedSince,
+            ifUnmodifiedSince,
             ifMatch,
             ifNoneMatch,
             XMS_VERSION, // TODO: Replace with 'version'.
@@ -2337,7 +2301,7 @@ final class StorageBlobServiceImpl {
                                            @Query("timeout") Integer timeout,
                                            @Header("Content-MD5") String transactionalContentMD5,
                                            @Header("x-ms-content-crc64") String transactionalContentCrc64,
-                                           @Header("x-ms-meta-") Map<String, String> metadata,
+                                           @Tag MetadataInterceptor.StorageMultiHeaders metadata,
                                            @Header("x-ms-lease-id") String leaseId,
                                            @Header("x-ms-access-tier") AccessTier tier,
                                            @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
