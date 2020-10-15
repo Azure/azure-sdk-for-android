@@ -583,7 +583,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.setBlobHttpHeadersWithResponse("container",
+        storageBlobAsyncClient.setBlobHttpHeaders("container",
             "blob",
             null,
             null,

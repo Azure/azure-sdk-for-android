@@ -1554,6 +1554,8 @@ final class StorageBlobServiceImpl {
         String ifMatch = requestConditions.getIfMatch();
         String ifNoneMatch = requestConditions.getIfNoneMatch();
 
+        headers = headers == null ? new BlobHttpHeaders() : headers;
+
         Call<ResponseBody> call = service.setBlobHttpHeaders(containerName,
             blobName,
             timeout,
@@ -2253,7 +2255,7 @@ final class StorageBlobServiceImpl {
                                               @Header("x-ms-blob-content-encoding") String contentEncoding,
                                               @Header("x-ms-blob-content-language") String contentLanguage,
                                               @Header("x-ms-blob-content-disposition") String contentDisposition);
-        
+
         @GET("{containerName}/{blob}")
         Call<ResponseBody> download(@Path("containerName") String containerName,
                                     @Path("blob") String blob,

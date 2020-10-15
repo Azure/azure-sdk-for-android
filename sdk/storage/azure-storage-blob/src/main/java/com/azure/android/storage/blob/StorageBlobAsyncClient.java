@@ -299,7 +299,7 @@ public class StorageBlobAsyncClient {
      * @param callback      Callback that receives the response.
      */
     public void deleteContainer(String containerName,
-                         CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
+                                CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
         storageBlobServiceClient.deleteContainer(containerName,
             callback);
     }
@@ -317,12 +317,12 @@ public class StorageBlobAsyncClient {
      * @param callback          Callback that receives the response.
      */
     public void deleteContainer(String containerName,
-                         Integer timeout,
-                         String version,
-                         BlobRequestConditions requestConditions,
-                         String requestId,
-                         CancellationToken cancellationToken,
-                         CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
+                                Integer timeout,
+                                String version,
+                                BlobRequestConditions requestConditions,
+                                String requestId,
+                                CancellationToken cancellationToken,
+                                CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
         storageBlobServiceClient.deleteContainer(containerName,
             timeout,
             version,
@@ -547,15 +547,15 @@ public class StorageBlobAsyncClient {
      * @param cancellationToken The token to request cancellation.
      * @param callback          Callback that receives the response.
      */
-    public void setBlobHttpHeadersWithResponse(String containerName,
-                                               String blobName,
-                                               Integer timeout,
-                                               String version,
-                                               BlobRequestConditions requestConditions,
-                                               BlobHttpHeaders headers,
-                                               String requestId,
-                                               CancellationToken cancellationToken,
-                                               CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
+    public void setBlobHttpHeaders(String containerName,
+                                   String blobName,
+                                   Integer timeout,
+                                   String version,
+                                   BlobRequestConditions requestConditions,
+                                   BlobHttpHeaders headers,
+                                   String requestId,
+                                   CancellationToken cancellationToken,
+                                   CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
         storageBlobServiceClient.setBlobHttpHeaders(containerName,
             blobName,
             timeout,
@@ -817,8 +817,8 @@ public class StorageBlobAsyncClient {
      * @param callback      Callback that receives the response.
      */
     public void deleteBlob(String containerName,
-                    String blobName,
-                    CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
+                           String blobName,
+                           CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
         storageBlobServiceClient.deleteBlob(containerName,
             blobName,
             callback);
@@ -858,15 +858,15 @@ public class StorageBlobAsyncClient {
      * @param callback          Callback that receives the response.
      */
     public void deleteBlob(String containerName,
-                    String blobName,
-                    String snapshot,
-                    Integer timeout,
-                    String version,
-                    DeleteSnapshotsOptionType deleteSnapshots,
-                    BlobRequestConditions requestConditions,
-                    String requestId,
-                    CancellationToken cancellationToken,
-                    CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
+                           String blobName,
+                           String snapshot,
+                           Integer timeout,
+                           String version,
+                           DeleteSnapshotsOptionType deleteSnapshots,
+                           BlobRequestConditions requestConditions,
+                           String requestId,
+                           CancellationToken cancellationToken,
+                           CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
         storageBlobServiceClient.deleteBlob(containerName,
             blobName,
             snapshot,
