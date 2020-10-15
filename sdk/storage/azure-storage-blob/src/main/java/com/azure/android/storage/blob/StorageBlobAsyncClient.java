@@ -601,9 +601,9 @@ public class StorageBlobAsyncClient {
      * @param callback      Callback that receives the response.
      */
     public void setBlobTags(String containerName,
-                                String blobName,
-                                Map<String, String> tags,
-                                CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
+                            String blobName,
+                            Map<String, String> tags,
+                            CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
         storageBlobServiceClient.setBlobTags(containerName, blobName, tags, callback);
     }
 
@@ -616,12 +616,12 @@ public class StorageBlobAsyncClient {
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param ifTags            Specifies a SQL query to apply to the blob's tags.
-     * @param version               Specifies the version of the operation to use for this request.
+     * @param version           Specifies the version of the operation to use for this request.
      * @param tags              Tags to associate with the blob.
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
-     * @param callback      Callback that receives the response.
+     * @param callback          Callback that receives the response.
      */
     public void setBlobTags(String containerName,
                             String blobName,
@@ -955,7 +955,6 @@ public class StorageBlobAsyncClient {
             cancellationToken,
             callback);
     }
-
 
 
     /**

@@ -85,7 +85,7 @@ import retrofit2.http.Tag;
 final class StorageBlobServiceImpl {
     private final StorageBlobService service;
     private final SerializerAdapter serializerAdapter;
-    private static String XMS_VERSION = "2019-02-02";
+    private static String XMS_VERSION = "2019-12-12";
 
     StorageBlobServiceImpl(ServiceClient serviceClient) {
         this.service = serviceClient.getRetrofit().create(StorageBlobService.class);
@@ -603,8 +603,8 @@ final class StorageBlobServiceImpl {
     }
 
     Void setBlobTags(String containerName,
-                         String blobName,
-                         Map<String, String> tags) {
+                     String blobName,
+                     Map<String, String> tags) {
         BlobSetTagsResponse blobSetHttpHeadersResponse = setBlobTagsWithRestResponse(containerName,
             blobName,
             null,
@@ -619,9 +619,9 @@ final class StorageBlobServiceImpl {
     }
 
     void setBlobTags(String containerName,
-                         String blobName,
-                         Map<String, String> tags,
-                         CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
+                     String blobName,
+                     Map<String, String> tags,
+                     CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
         setBlobTags(containerName,
             blobName,
             null,
@@ -656,15 +656,15 @@ final class StorageBlobServiceImpl {
     }
 
     void setBlobTags(String containerName,
-                         String blobName,
-                         Integer timeout,
-                         String versionId,
-                         String ifTags,
-                         Map<String, String> tags,
-                         String requestId,
-                         String version,
-                         CancellationToken cancellationToken,
-                         CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
+                     String blobName,
+                     Integer timeout,
+                     String versionId,
+                     String ifTags,
+                     Map<String, String> tags,
+                     String requestId,
+                     String version,
+                     CancellationToken cancellationToken,
+                     CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
         this.setBlobTagsWithRestResponseIntern(containerName,
             blobName,
             timeout,
@@ -1675,9 +1675,12 @@ final class StorageBlobServiceImpl {
 
         final String comp = "tags";
 
-        List<BlobTag> blobTagSet = new ArrayList<>(tags.size());
-        for (Map.Entry<String, String> entry : tags.entrySet()) {
-            blobTagSet.add(new BlobTag().setKey(entry.getKey()).setValue(entry.getValue()));
+        List<BlobTag> blobTagSet = null;
+        if (tags != null) {
+            blobTagSet = new ArrayList<>(tags.size());
+            for (Map.Entry<String, String> entry : tags.entrySet()) {
+                blobTagSet.add(new BlobTag().setKey(entry.getKey()).setValue(entry.getValue()));
+            }
         }
         BlobTags blobTags = new BlobTags();
         blobTags.setBlobTagSet(blobTagSet);
@@ -1718,7 +1721,7 @@ final class StorageBlobServiceImpl {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
-                        if (response.code() == 200) {
+                        if (response.code() == 204) {
                             BlobSetTagsHeaders typedHeaders = deserializeHeaders(response.headers(),
                                 BlobSetTagsHeaders.class);
 
@@ -1748,7 +1751,7 @@ final class StorageBlobServiceImpl {
             Response<ResponseBody> response = executeCall(call);
 
             if (response.isSuccessful()) {
-                if (response.code() == 200) {
+                if (response.code() == 204) {
                     BlobSetTagsHeaders deserializedHeaders = deserializeHeaders(response.headers(),
                         BlobSetTagsHeaders.class);
 
@@ -2472,16 +2475,16 @@ final class StorageBlobServiceImpl {
 
         @PUT("{containerName}/{blob}")
         Call<ResponseBody> setBlobTags(@Path("containerName") String containerName,
-                                           @Path("blob") String blob,
-                                           @Query("timeout") Integer timeout,
-                                           @Query("version") String versionId,
-                                           @Header("Content-MD5") String transactionalContentMd5,
-                                           @Header("x-ms-content-crc64") String transactionalContentCrc64,
-                                           @Header("x-ms-if-tags") String ifTags,
-                                           @Header("x-ms-version") String version,
-                                           @Header("x-ms-client-request-id") String requestId,
-                                           @Body RequestBody tags,
-                                           @Query("comp") String comp);
+                                       @Path("blob") String blob,
+                                       @Query("timeout") Integer timeout,
+                                       @Query("version") String versionId,
+                                       @Header("Content-MD5") String transactionalContentMd5,
+                                       @Header("x-ms-content-crc64") String transactionalContentCrc64,
+                                       @Header("x-ms-if-tags") String ifTags,
+                                       @Header("x-ms-version") String version,
+                                       @Header("x-ms-client-request-id") String requestId,
+                                       @Body RequestBody tags,
+                                       @Query("comp") String comp);
 
         @GET("{containerName}/{blob}")
         Call<ResponseBody> download(@Path("containerName") String containerName,

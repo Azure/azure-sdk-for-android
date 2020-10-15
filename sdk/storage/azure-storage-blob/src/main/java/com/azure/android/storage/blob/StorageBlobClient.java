@@ -295,8 +295,8 @@ public class StorageBlobClient {
     /**
      * Gets tags associated with a blob.
      *
-     * @param containerName     The container name.
-     * @param blobName          The blob name.
+     * @param containerName The container name.
+     * @param blobName      The blob name.
      * @return The blob's tags.
      */
     public Map<String, String> getBlobTags(String containerName,
@@ -353,8 +353,8 @@ public class StorageBlobClient {
      * @param tags          Tags to associate with the blob.
      */
     public Void setBlobTags(String containerName,
-                                String blobName,
-                                Map<String, String> tags) {
+                            String blobName,
+                            Map<String, String> tags) {
         return storageBlobServiceClient.setBlobTags(containerName, blobName, tags);
     }
 
@@ -367,20 +367,20 @@ public class StorageBlobClient {
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param ifTags            Specifies a SQL query to apply to the blob's tags.
-     * @param version               Specifies the version of the operation to use for this request.
+     * @param version           Specifies the version of the operation to use for this request.
      * @param tags              Tags to associate with the blob.
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
      */
     public BlobSetTagsResponse setBlobTagsWithResponse(String containerName,
-                                                           String blobName,
-                                                           Integer timeout,
-                                                           String ifTags,
-                                                           String version,
-                                                           Map<String, String> tags,
-                                                           String requestId,
-                                                           CancellationToken cancellationToken) {
+                                                       String blobName,
+                                                       Integer timeout,
+                                                       String ifTags,
+                                                       String version,
+                                                       Map<String, String> tags,
+                                                       String requestId,
+                                                       CancellationToken cancellationToken) {
         return storageBlobServiceClient.setBlobTagsWithRestResponse(containerName,
             blobName,
             timeout,

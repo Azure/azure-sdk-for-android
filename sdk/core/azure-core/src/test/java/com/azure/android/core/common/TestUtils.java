@@ -115,7 +115,7 @@ public final class TestUtils {
     }
 
     public static boolean enableFiddler() {
-        return false;
+        return true;
     }
 
     // --------------------- GENERATING TEST RESOURCES ------------------------

@@ -197,6 +197,8 @@ public class BlobTest {
         assertEquals(404, ex.getStatusCode());
     }
 
+    // TODO: Get tags AC tests when support added
+
     @Test
     public void setTagsMin() {
         // Setup
@@ -251,8 +253,7 @@ public class BlobTest {
     }
 
     @Test
-    @UseDataProvider("accessConditionsSuccess")
-    public void setTagsAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+    public void setTagsAC() {
         // Setup
         Map<String, String> t = new HashMap<>();
         t.put("foo", "bar");
@@ -266,8 +267,7 @@ public class BlobTest {
     }
 
     @Test
-    @UseDataProvider("accessConditionsFail")
-    public void setTagsACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+    public void setTagsACFail() {
         // Setup
         Map<String, String> t = new HashMap<>();
         t.put("fizz", "buzz");
@@ -288,7 +288,7 @@ public class BlobTest {
             null, new CallbackWithHeader<Void, BlobSetTagsHeaders>() {
                 @Override
                 public void onSuccess(Void result, BlobSetTagsHeaders header, Response response) {
-                    assertEquals(200, response.code());
+                    assertEquals(204, response.code());
                     latch.countDown();
                 }
 
