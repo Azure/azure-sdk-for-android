@@ -4,6 +4,7 @@ import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.util.CancellationToken;
+import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
@@ -12,12 +13,18 @@ import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobGetTagsHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
+import com.azure.android.storage.blob.models.BlobSetTierHeaders;
+import com.azure.android.storage.blob.models.BlobSetTierResponse;
 import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.BlockBlobsStageBlockResponse;
+import com.azure.android.storage.blob.models.ContainerCreateHeaders;
+import com.azure.android.storage.blob.models.ContainerCreateResponse;
+import com.azure.android.storage.blob.models.ContainerDeleteHeaders;
+import com.azure.android.storage.blob.models.ContainerDeleteResponse;
 
 import org.junit.After;
 import org.junit.Test;
@@ -75,6 +82,124 @@ public class StorageBlobClientTest {
     @Test
     public void getBlobServiceUrl() {
         assertEquals(storageBlobAsyncClient.getBlobServiceUrl(), BASE_URL);
+    }
+
+    @Test
+    public void createContainer() {
+        // Given a StorageBlobClient.
+
+        // When creating a container using createContainer().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(201);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 201 will be returned by the server.
+        Void response = storageBlobClient.createContainer("containerName");
+
+        assertNull(response);
+    }
+
+    @Test
+    public void createContainer_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When creating a container using createContainer().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(201);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.createContainer("container",
+            new CallbackWithHeader<Void, ContainerCreateHeaders>() {
+                @Override
+                public void onSuccess(Void result, ContainerCreateHeaders header, Response response) {
+                    try {
+                        assertEquals(201, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "createContainer");
+    }
+
+    @Test
+    public void createContainerWithRestResponse() {
+        // Given a StorageBlobClient.
+
+        // When creating a container using createContainer().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(201);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then the client will return an object that contains the details of the REST response.
+        ContainerCreateResponse response =
+            storageBlobClient.createContainerWithRestResponse("container",
+                null,
+                null,
+                null,
+                null,
+                null,
+                CancellationToken.NONE);
+
+        assertEquals(201, response.getStatusCode());
+    }
+
+    @Test
+    public void createContainerWithRestResponse_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When creating a container using createContainer().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(201);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.createContainer("container",
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE,
+            new CallbackWithHeader<Void, ContainerCreateHeaders>() {
+
+                @Override
+                public void onSuccess(Void result, ContainerCreateHeaders header, Response response) {
+                    try {
+                        assertEquals(201, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable error, Response response) {
+                    try {
+                        throw new RuntimeException(error);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "createContainer");
     }
 
     @Test
@@ -363,6 +488,134 @@ public class StorageBlobClientTest {
             });
 
         awaitOnLatch(latch, "getBlobPropertiesWithRestResponse");
+    }
+
+    @Test
+    public void setTier() {
+        // Given a StorageBlobClient.
+
+        // When setting tier on a blob using setTier().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 202 will be returned by the server.
+        Void response = storageBlobClient.setBlobTier("container",
+            "blob", AccessTier.HOT);
+
+        assertNull(response);
+    }
+
+    @Test
+    public void setTier_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When setting tier on a blob using setTier() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.setBlobTier("container",
+            "blob",
+            AccessTier.HOT,
+            new CallbackWithHeader<Void, BlobSetTierHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobSetTierHeaders header, Response response) {
+                    try {
+                        // Then a response without body and status code 202 will be returned by the server to the callback.
+                        assertEquals(202, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "setTier");
+    }
+
+    @Test
+    public void setTierWithRestResponse() {
+        // Given a StorageBlobClient.
+
+        // When setting tier on a blob using setTierWithResponse().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 202 will be returned by the server.
+        BlobSetTierResponse response =
+            storageBlobClient.setBlobTierWithRestResponse("container",
+                "blob",
+                AccessTier.HOT,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                CancellationToken.NONE);
+
+        assertEquals(202, response.getStatusCode());
+    }
+
+    @Test
+    public void setTierWithRestResponse_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When setting tier on a blob using setTier() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.setBlobTier("container",
+            "blob",
+            AccessTier.HOT,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE,
+            new CallbackWithHeader<Void, BlobSetTierHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobSetTierHeaders header, Response response) {
+                    try {
+                        // Then a response without body and status code 202 will be returned by the server to the callback.
+                        assertEquals(202, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "setTierWithResponse");
     }
 
     @Test
@@ -801,7 +1054,7 @@ public class StorageBlobClientTest {
     }
 
     @Test
-    public void delete() {
+    public void deleteBlob() {
         // Given a StorageBlobClient.
 
         // When deleting a blob using delete().
@@ -811,14 +1064,14 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response without body and status code 202 will be returned by the server.
-        Void response = storageBlobClient.delete("container",
+        Void response = storageBlobClient.deleteBlob("container",
             "blob");
 
         assertNull(response);
     }
 
     @Test
-    public void delete_withCallback() {
+    public void deleteBlob_withCallback() {
         // Given a StorageBlobClient.
 
         // When deleting a blob using delete() while providing a callback.
@@ -829,7 +1082,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.delete("container",
+        storageBlobAsyncClient.deleteBlob("container",
             "blob",
             new CallbackWithHeader<Void, BlobDeleteHeaders>() {
                 @Override
@@ -856,7 +1109,7 @@ public class StorageBlobClientTest {
     }
 
     @Test
-    public void deleteWithRestResponse() {
+    public void deleteBlobWithRestResponse() {
         // Given a StorageBlobClient.
 
         // When deleting a blob using deleteWithResponse().
@@ -867,12 +1120,8 @@ public class StorageBlobClientTest {
 
         // Then a response without body and status code 202 will be returned by the server.
         BlobDeleteResponse response =
-            storageBlobClient.deleteWithRestResponse("container",
+            storageBlobClient.deleteBlobWithRestResponse("container",
                 "blob",
-                null,
-                null,
-                null,
-                null,
                 null,
                 null,
                 null,
@@ -885,7 +1134,7 @@ public class StorageBlobClientTest {
     }
 
     @Test
-    public void deleteWithRestResponse_withCallback() {
+    public void deleteBlobWithRestResponse_withCallback() {
         // Given a StorageBlobClient.
 
         // When deleting a blob using delete () while providing a callback.
@@ -897,12 +1146,8 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.delete("container",
+        storageBlobAsyncClient.deleteBlob("container",
             "blob",
-            null,
-            null,
-            null,
-            null,
             null,
             null,
             null,
@@ -932,6 +1177,123 @@ public class StorageBlobClientTest {
             });
 
         awaitOnLatch(latch, "deleteWithResponse");
+    }
+
+    @Test
+    public void deleteContainer() {
+        // Given a StorageBlobClient.
+
+        // When deleting a blob using delete().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 202 will be returned by the server.
+        Void response = storageBlobClient.deleteContainer("container");
+
+        assertNull(response);
+    }
+
+    @Test
+    public void deleteContainer_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When deleting a blob using delete() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.deleteContainer("container",
+            new CallbackWithHeader<Void, ContainerDeleteHeaders>() {
+                @Override
+                public void onSuccess(Void result, ContainerDeleteHeaders header, Response response) {
+                    try {
+                        // Then a response without body and status code 202 will be returned by the server to the callback.
+                        assertEquals(202, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "deleteContainer");
+    }
+
+    @Test
+    public void deleteContainerWithRestResponse() {
+        // Given a StorageBlobClient.
+
+        // When deleting a container using deleteWithResponse().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 202 will be returned by the server.
+        ContainerDeleteResponse response =
+            storageBlobClient.deleteContainerWithRestResponse("container",
+                null,
+                null,
+                null,
+                null,
+                CancellationToken.NONE);
+
+        assertEquals(202, response.getStatusCode());
+    }
+
+    @Test
+    public void deleteContainerWithRestResponse_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When deleting a container using deleteContainer() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.deleteContainer("container",
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE,
+            new CallbackWithHeader<Void, ContainerDeleteHeaders>() {
+                @Override
+                public void onSuccess(Void result, ContainerDeleteHeaders header, Response response) {
+                    try {
+                        // Then a response without body and status code 202 will be returned by the server to the callback.
+                        assertEquals(202, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "deleteContainer");
     }
 
     @Test
