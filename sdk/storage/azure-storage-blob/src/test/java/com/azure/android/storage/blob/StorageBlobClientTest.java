@@ -5,8 +5,6 @@ import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.models.AccessTier;
-import com.azure.android.storage.blob.credential.SasTokenCredential;
-import com.azure.android.storage.blob.interceptor.SasTokenCredentialInterceptor;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;

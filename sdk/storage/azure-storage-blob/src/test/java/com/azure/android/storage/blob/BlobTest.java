@@ -1,17 +1,19 @@
 package com.azure.android.storage.blob;
 
 import com.azure.android.storage.blob.models.AccessTier;
+import com.azure.android.storage.blob.models.ArchiveStatus;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
+import com.azure.android.storage.blob.models.BlobItemProperties;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlobSetTierResponse;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobType;
-import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.LeaseStateType;
 import com.azure.android.storage.blob.models.LeaseStatusType;
 import com.tngtech.java.junit.dataprovider.DataProvider;
@@ -26,7 +28,6 @@ import org.junit.runner.RunWith;
 import org.threeten.bp.OffsetDateTime;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -49,6 +50,7 @@ import static com.azure.android.storage.blob.TestUtils.setupMatchCondition;
 import static com.azure.android.storage.blob.TestUtils.validateBasicHeaders;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
@@ -92,6 +94,23 @@ public class BlobTest {
             {0L, 5L,   getDefaultString().substring(0, 0 + 5)},   // 1
             {3L, 2L,   getDefaultString().substring(3, 3 + 2)},   // 2
             {1L, 3L,   getDefaultString().substring(1, 1 + 3)}    // 3
+        };
+    }
+
+    @DataProvider
+    public static Object[][] tierBlockBlob() {
+        return new Object[][] {
+            {AccessTier.HOT},       // 0
+            {AccessTier.COOL},      // 1
+            {AccessTier.ARCHIVE},   // 2
+        };
+    }
+
+    @DataProvider
+    public static Object[][] tierArchiveStatus() {
+        return new Object[][] {
+            {AccessTier.ARCHIVE, AccessTier.COOL, ArchiveStatus.REHYDRATE_PENDING_TO_COOL},    // 0
+            {AccessTier.ARCHIVE, AccessTier.HOT,  ArchiveStatus.REHYDRATE_PENDING_TO_HOT},     // 1
         };
     }
 
@@ -440,4 +459,99 @@ public class BlobTest {
         // Then
         assertEquals(404, ex.getStatusCode());
     }
+
+    @Test
+    @UseDataProvider("tierBlockBlob")
+    public void setTierBlockBlob(AccessTier tier) {
+        // When
+        BlobSetTierResponse response = syncClient.setBlobTierWithRestResponse(containerName, blobName, tier, null, null, null, null, null, null, null);
+
+        // Then
+        assertTrue(response.getStatusCode() == 200 || response.getStatusCode() == 202);
+
+        BlobGetPropertiesHeaders getProperties = syncClient.getBlobProperties(containerName, blobName);
+        assertEquals(tier.toString(), getProperties.getAccessTier());
+
+        BlobItemProperties listProperties = syncClient.getBlobsInPage(null, containerName, null).getItems().get(0).getProperties();
+        assertEquals(tier, listProperties.getAccessTier());
+    }
+
+    // TODO (gapra) : set access tier page blob if page blob support added. Should we expose page blob tiers if not supported? I think no
+
+    @Test
+    public void setTierMin() {
+        // When
+        Void response = syncClient.setBlobTier(containerName, blobName, AccessTier.HOT);
+
+        // Then
+        BlobGetPropertiesHeaders getProperties = syncClient.getBlobProperties(containerName, blobName);
+        assertEquals(AccessTier.HOT.toString(), getProperties.getAccessTier());
+    }
+
+    @Test
+    public void setTierInferred() {
+        // Setup
+        Boolean getPropertiesInferredBefore = syncClient.getBlobProperties(containerName, blobName).isAccessTierInferred();
+        Boolean listBlobsInferredBefore = syncClient.getBlobsInPage(null, containerName, null).getItems().get(0).getProperties().isAccessTierInferred();
+
+        // When
+        syncClient.setBlobTier(containerName, blobName, AccessTier.HOT);
+        Boolean getPropertiesInferredAfter = syncClient.getBlobProperties(containerName, blobName).isAccessTierInferred();
+        Boolean listBlobsInferredAfter = syncClient.getBlobsInPage(null, containerName, null).getItems().get(0).getProperties().isAccessTierInferred();
+
+        // Then
+        assertTrue(getPropertiesInferredBefore);
+        assertTrue(listBlobsInferredBefore);
+
+        assertNotEquals(Boolean.TRUE, getPropertiesInferredAfter);
+        assertNotEquals(Boolean.TRUE, listBlobsInferredAfter);
+    }
+
+    @Test
+    @UseDataProvider("tierArchiveStatus")
+    public void setTierArchiveStatus(AccessTier sourceTier, AccessTier destTier, ArchiveStatus status) {
+        // When
+        syncClient.setBlobTier(containerName, blobName, sourceTier);
+        syncClient.setBlobTier(containerName, blobName, destTier);
+
+        // Then
+        BlobGetPropertiesHeaders getProperties = syncClient.getBlobProperties(containerName, blobName);
+        assertEquals(status.toString(), getProperties.getArchiveStatus());
+
+        BlobItemProperties listProperties = syncClient.getBlobsInPage(null, containerName, null).getItems().get(0).getProperties();
+        assertEquals(status, listProperties.getArchiveStatus());
+    }
+
+    // Set tier snapshot
+
+    // Set tier snapshot error
+
+    @Test
+    public void setTierIA() {
+        // Expect
+        NullPointerException ex = assertThrows(NullPointerException.class,
+            () -> syncClient.setBlobTier(containerName, blobName, null));
+    }
+
+    // Set tier lease
+
+    // Set tier lease error
+
+    // Set tier tags
+
+    // Set tier tags fail
+
+    @Test
+    public void setTierError() {
+        // Setup
+        String blobName = generateResourceName(); // Blob that does not exist.
+
+        // When
+        BlobStorageException ex = assertThrows(BlobStorageException.class,
+            () -> syncClient.setBlobTier(containerName, blobName, AccessTier.HOT));
+
+        // Then
+        assertEquals(404, ex.getStatusCode());
+    }
+
 }
