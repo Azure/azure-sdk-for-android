@@ -16,7 +16,7 @@ import okhttp3.Request;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
-import static com.azure.android.storage.blob.TestUtils.buildOkHttpClientWithInterceptor;
+import static com.azure.android.core.common.TestUtils.buildOkHttpClientWithInterceptor;
 
 
 public class ResponseHeadersValidationInterceptorTest {
