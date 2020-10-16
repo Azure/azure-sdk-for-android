@@ -1,8 +1,12 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.storage.blob;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.threeten.bp.OffsetDateTime;
@@ -43,6 +47,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.fail;
 
 @RunWith(DataProviderRunner.class)
+@Ignore
 public class ContainerTest {
     private String containerName;
     private static StorageBlobAsyncClient asyncClient;

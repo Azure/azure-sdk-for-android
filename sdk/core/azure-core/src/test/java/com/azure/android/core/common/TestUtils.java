@@ -38,9 +38,9 @@ public final class TestUtils {
     /*
     The values below are used to create data-driven tests for access conditions.
      */
-    static final OffsetDateTime oldDate = OffsetDateTime.now().minusDays(1);
+    static final OffsetDateTime oldDate = getOffsetDateTimeNow().minusDays(1);
 
-    static final OffsetDateTime newDate = OffsetDateTime.now().plusDays(1);
+    static final OffsetDateTime newDate = getOffsetDateTimeNow().plusDays(1);
 
 
     // -------------------- GENERATING CLIENTS --------------------------
@@ -61,7 +61,7 @@ public final class TestUtils {
 
     public static StorageBlobAsyncClient.Builder initializeDefaultAsyncBlobClientBuilder(boolean enableFiddler,
                                                                                          Interceptor ... interceptors) {
-        return new StorageBlobAsyncClient.Builder(UUID.randomUUID().toString(),
+        return new StorageBlobAsyncClient.Builder(getRandomUUIDString(),
             getServiceBuilderWithOptionalProxy(enableFiddler, interceptors))
             .setBlobServiceUrl(getDefaultEndpointString(useHttps()))
             .setCredentialInterceptor(new SasTokenCredentialInterceptor(new SasTokenCredential(getDefaultSasToken())));
@@ -107,7 +107,15 @@ public final class TestUtils {
     // --------------------- GENERATING TEST RESOURCES ------------------------
 
     public static String generateResourceName() {
+        return getRandomUUIDString();
+    }
+
+    public static String getRandomUUIDString() {
         return UUID.randomUUID().toString();
+    }
+
+    public static OffsetDateTime getOffsetDateTimeNow() {
+        return OffsetDateTime.now();
     }
 
     public static OkHttpClient buildOkHttpClientWithInterceptor(Interceptor interceptor) {
