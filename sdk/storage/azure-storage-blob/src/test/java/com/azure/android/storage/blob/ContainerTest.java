@@ -31,14 +31,14 @@ import java.util.concurrent.CountDownLatch;
 
 import okhttp3.Response;
 
-import static com.azure.android.storage.blob.TestUtils.awaitOnLatch;
-import static com.azure.android.storage.blob.TestUtils.enableFiddler;
-import static com.azure.android.storage.blob.TestUtils.generateResourceName;
-import static com.azure.android.storage.blob.TestUtils.initializeDefaultAsyncBlobClientBuilder;
-import static com.azure.android.storage.blob.TestUtils.initializeDefaultSyncBlobClientBuilder;
-import static com.azure.android.storage.blob.TestUtils.newDate;
-import static com.azure.android.storage.blob.TestUtils.oldDate;
-import static com.azure.android.storage.blob.TestUtils.validateBasicHeaders;
+import static com.azure.android.core.common.TestUtils.awaitOnLatch;
+import static com.azure.android.storage.blob.BlobTestUtils.enableFiddler;
+import static com.azure.android.storage.blob.BlobTestUtils.generateResourceName;
+import static com.azure.android.storage.blob.BlobTestUtils.initializeDefaultAsyncBlobClientBuilder;
+import static com.azure.android.storage.blob.BlobTestUtils.initializeDefaultSyncBlobClientBuilder;
+import static com.azure.android.storage.blob.BlobTestUtils.newDate;
+import static com.azure.android.storage.blob.BlobTestUtils.oldDate;
+import static com.azure.android.storage.blob.BlobTestUtils.validateBasicHeaders;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
