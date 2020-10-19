@@ -36,5 +36,7 @@ dependencies {
     implementation "javax.xml.stream:stax-api:$staxApiVersion" // https://stackoverflow.com/a/47371517/1473510
     testImplementation "com.squareup.okhttp3:mockwebserver:$okHttpVersion"
     testImplementation "junit:junit:$jUnitVersion"
+    testImplementation  "com.tngtech.junit.dataprovider:junit4-dataprovider:$dataproviderVersion"
+    testImplementation "org.threeten:threetenbp:$threeTenBpVersion"
     annotationProcessor "androidx.room:room-compiler:$roomVersion"
 }
