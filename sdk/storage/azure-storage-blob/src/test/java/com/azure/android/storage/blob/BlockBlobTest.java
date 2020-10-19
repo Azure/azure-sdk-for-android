@@ -234,7 +234,7 @@ public class BlockBlobTest {
                 @Override
                 public void onSuccess(Void result, BlockBlobStageBlockHeaders headers, Response response) {
                     assertEquals(201, response.code());
-                    assertNotNull(headers.getXMsContentCrc64());
+                    assertNotNull(headers.getXMsContentCrc64()); // TODO (gapra) : Get rid of this publically by handwriting public types
                     assertNotNull(headers.getRequestId());
                     assertNotNull(headers.getVersion());
                     assertNotNull(headers.getDateProperty());
