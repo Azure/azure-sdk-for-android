@@ -135,7 +135,6 @@ public final class TestUtils {
     }
 
     // -------------------------- HELPER METHODS -----------------------
-
     public static void awaitOnLatch(CountDownLatch latch, String method) {
         try {
             latch.await(10, TimeUnit.SECONDS);

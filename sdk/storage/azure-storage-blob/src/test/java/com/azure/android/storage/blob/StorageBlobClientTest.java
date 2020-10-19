@@ -1,3 +1,7 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
+
 package com.azure.android.storage.blob;
 
 import com.azure.android.core.http.Callback;
@@ -1045,6 +1049,123 @@ public class StorageBlobClientTest {
             });
 
         awaitOnLatch(latch, "deleteWithResponse");
+    }
+
+    @Test
+    public void deleteContainer() {
+        // Given a StorageBlobClient.
+
+        // When deleting a blob using delete().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 202 will be returned by the server.
+        Void response = storageBlobClient.deleteContainer("container");
+
+        assertNull(response);
+    }
+
+    @Test
+    public void deleteContainer_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When deleting a blob using delete() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.deleteContainer("container",
+            new CallbackWithHeader<Void, ContainerDeleteHeaders>() {
+                @Override
+                public void onSuccess(Void result, ContainerDeleteHeaders header, Response response) {
+                    try {
+                        // Then a response without body and status code 202 will be returned by the server to the callback.
+                        assertEquals(202, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "deleteContainer");
+    }
+
+    @Test
+    public void deleteContainerWithRestResponse() {
+        // Given a StorageBlobClient.
+
+        // When deleting a container using deleteWithResponse().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 202 will be returned by the server.
+        ContainerDeleteResponse response =
+            storageBlobClient.deleteContainerWithRestResponse("container",
+                null,
+                null,
+                null,
+                null,
+                CancellationToken.NONE);
+
+        assertEquals(202, response.getStatusCode());
+    }
+
+    @Test
+    public void deleteContainerWithRestResponse_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When deleting a container using deleteContainer() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.deleteContainer("container",
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE,
+            new CallbackWithHeader<Void, ContainerDeleteHeaders>() {
+                @Override
+                public void onSuccess(Void result, ContainerDeleteHeaders header, Response response) {
+                    try {
+                        // Then a response without body and status code 202 will be returned by the server to the callback.
+                        assertEquals(202, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "deleteContainer");
     }
 
     @Test
