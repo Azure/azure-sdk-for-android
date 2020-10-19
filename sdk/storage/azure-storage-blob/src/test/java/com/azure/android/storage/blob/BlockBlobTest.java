@@ -18,6 +18,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.threeten.bp.OffsetDateTime;
@@ -38,7 +39,6 @@ import static com.azure.android.storage.blob.BlobTestUtils.garbageEtag;
 import static com.azure.android.storage.blob.BlobTestUtils.generateBlockID;
 import static com.azure.android.storage.blob.BlobTestUtils.generateResourceName;
 import static com.azure.android.storage.blob.BlobTestUtils.getDefaultData;
-import static com.azure.android.storage.blob.BlobTestUtils.getDefaultString;
 import static com.azure.android.storage.blob.BlobTestUtils.initializeDefaultAsyncBlobClientBuilder;
 import static com.azure.android.storage.blob.BlobTestUtils.initializeDefaultSyncBlobClientBuilder;
 import static com.azure.android.storage.blob.BlobTestUtils.newDate;
@@ -53,6 +53,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(DataProviderRunner.class)
+@Ignore
 public class BlockBlobTest {
     private String containerName;
     private String blobName;
