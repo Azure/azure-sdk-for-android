@@ -463,13 +463,6 @@ public class StorageBlobAsyncClient {
      *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param version               Specifies the version of the operation to use for this request.
      * @param rehydratePriority     The rehydrate priority.
-     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
-     *                              variety of requests to the conditions present. These conditions are entirely
-     *                              optional.
-     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                              recorded in the analytics logs when storage analytics logging is enabled.
-     * @param cancellationToken     The token to request cancellation.
-     * @param callback              Callback that receives the response.
      */
     public void setBlobTier(String containerName,
                             String blobName,
@@ -498,7 +491,6 @@ public class StorageBlobAsyncClient {
             cancellationToken,
             callback);
     }
-
 
         /**
          * Gets the container's properties.

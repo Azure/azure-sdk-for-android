@@ -309,6 +309,16 @@ public class StorageBlobClient {
     /**
      * Gets the container's properties.
      *
+     * @param containerName The container name.
+     * @return The container's properties
+     */
+    public ContainerGetPropertiesHeaders getContainerProperties(String containerName) {
+        return storageBlobServiceClient.getContainerProperties(containerName);
+    }
+
+    /**
+     * Gets the container's properties.
+     *
      * @param containerName         The container name.
      * @param timeout               The timeout parameter is expressed in seconds. For more information, see
      *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
@@ -337,15 +347,6 @@ public class StorageBlobClient {
             cancellationToken);
     }
 
-    /**
-     * Gets the container's properties.
-            *
-     * @param containerName The container name.
-     * @return The container's properties
-            */
-        public ContainerGetPropertiesHeaders getContainerProperties(String containerName) {
-            return storageBlobServiceClient.getContainerProperties(containerName);
-        }
 
     /**
      * Reads the entire blob.

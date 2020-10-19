@@ -12,6 +12,8 @@ import com.azure.android.storage.blob.models.BlobItemProperties;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobSetTierResponse;
+import com.azure.android.storage.blob.models.BlobRange;
+import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobType;
 import com.azure.android.storage.blob.models.LeaseStateType;
@@ -23,6 +25,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.threeten.bp.OffsetDateTime;
@@ -35,19 +38,19 @@ import java.util.List;
 
 import okhttp3.ResponseBody;
 
-import static com.azure.android.storage.blob.TestUtils.enableFiddler;
-import static com.azure.android.storage.blob.TestUtils.garbageEtag;
-import static com.azure.android.storage.blob.TestUtils.generateBlockID;
-import static com.azure.android.storage.blob.TestUtils.generateResourceName;
-import static com.azure.android.storage.blob.TestUtils.getDefaultData;
-import static com.azure.android.storage.blob.TestUtils.getDefaultString;
-import static com.azure.android.storage.blob.TestUtils.initializeDefaultAsyncBlobClientBuilder;
-import static com.azure.android.storage.blob.TestUtils.initializeDefaultSyncBlobClientBuilder;
-import static com.azure.android.storage.blob.TestUtils.newDate;
-import static com.azure.android.storage.blob.TestUtils.oldDate;
-import static com.azure.android.storage.blob.TestUtils.receivedEtag;
-import static com.azure.android.storage.blob.TestUtils.setupMatchCondition;
-import static com.azure.android.storage.blob.TestUtils.validateBasicHeaders;
+import static com.azure.android.storage.blob.BlobTestUtils.enableFiddler;
+import static com.azure.android.storage.blob.BlobTestUtils.garbageEtag;
+import static com.azure.android.storage.blob.BlobTestUtils.generateBlockID;
+import static com.azure.android.storage.blob.BlobTestUtils.generateResourceName;
+import static com.azure.android.storage.blob.BlobTestUtils.getDefaultData;
+import static com.azure.android.storage.blob.BlobTestUtils.getDefaultString;
+import static com.azure.android.storage.blob.BlobTestUtils.initializeDefaultAsyncBlobClientBuilder;
+import static com.azure.android.storage.blob.BlobTestUtils.initializeDefaultSyncBlobClientBuilder;
+import static com.azure.android.storage.blob.BlobTestUtils.newDate;
+import static com.azure.android.storage.blob.BlobTestUtils.oldDate;
+import static com.azure.android.storage.blob.BlobTestUtils.receivedEtag;
+import static com.azure.android.storage.blob.BlobTestUtils.setupMatchCondition;
+import static com.azure.android.storage.blob.BlobTestUtils.validateBasicHeaders;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -58,6 +61,7 @@ import static org.junit.Assert.assertTrue;
 
 
 @RunWith(DataProviderRunner.class)
+@Ignore
 public class BlobTest {
     private String containerName;
     private String blobName;
@@ -553,5 +557,4 @@ public class BlobTest {
         // Then
         assertEquals(404, ex.getStatusCode());
     }
-
 }

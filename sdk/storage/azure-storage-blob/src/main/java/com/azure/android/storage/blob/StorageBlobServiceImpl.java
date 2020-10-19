@@ -38,6 +38,7 @@ import com.azure.android.storage.blob.models.ContainerDeleteHeaders;
 import com.azure.android.storage.blob.models.ContainerDeleteResponse;
 import com.azure.android.storage.blob.models.ContainerGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.ContainerGetPropertiesResponse;
+import com.azure.android.storage.blob.models.ListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
@@ -53,6 +54,7 @@ import org.threeten.bp.OffsetDateTime;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -477,7 +479,6 @@ final class StorageBlobServiceImpl {
     }
 
     /**
-<<<<<<< HEAD
      * Sets the access tier of a blob.
      *
      * @param containerName The container name.
@@ -2323,6 +2324,7 @@ final class StorageBlobServiceImpl {
                            @Header("x-ms-lease-id") String leaseId,
                            @Header("x-ms-if-tags") String ifTags,
                            @Query("comp") String comp);
+
 
         @GET("{containerName}/{blob}")
         Call<ResponseBody> download(@Path("containerName") String containerName,
