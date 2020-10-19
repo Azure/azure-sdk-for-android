@@ -139,11 +139,15 @@ public class BlockBlobTest {
     public void stageBlockMin() {
         // Setup
         String blockId = generateBlockID();
+        List<String> blockIds = new ArrayList<>();
+        blockIds.add(blockId);
 
         // When
         Void response = syncClient.stageBlock(containerName, blobName, blockId, getDefaultData(), null);
 
         // Then
+        // This would throw if the above stage block failed.
+        syncClient.commitBlockList(containerName, blobName, blockIds, true);
         // When list block support added, check blockBlobClient.listBlocks(BlockListType.ALL).getUncommittedBlocks().size() == 1
     }
 
