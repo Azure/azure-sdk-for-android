@@ -28,7 +28,6 @@ public final class TestUtils {
             .build();
     }
 
-    // -------------------------- HELPER METHODS -----------------------
     public static void awaitOnLatch(CountDownLatch latch, String method) {
         try {
             latch.await(10, TimeUnit.SECONDS);
