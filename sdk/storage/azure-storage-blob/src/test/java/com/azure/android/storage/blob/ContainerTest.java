@@ -3,6 +3,14 @@
 
 package com.azure.android.storage.blob;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.threeten.bp.OffsetDateTime;
+
 import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobStorageException;
@@ -16,14 +24,6 @@ import com.azure.android.storage.blob.models.PublicAccessType;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
-
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.threeten.bp.OffsetDateTime;
 
 import java.util.HashMap;
 import java.util.Map;
