@@ -6,11 +6,16 @@ package com.azure.android.storage.blob;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.storage.blob.credential.SasTokenCredential;
 import com.azure.android.storage.blob.interceptor.SasTokenCredentialInterceptor;
+import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 
 import org.threeten.bp.OffsetDateTime;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -25,7 +30,6 @@ public class BlobTestUtils {
     private BlobTestUtils() {
         // Empty constructor to prevent instantiation of this class.
     }
-
     // ----------------------- CONSTANT VALUES ----------------------------
     /*
     The values below are used to create data-driven tests for access conditions.
@@ -33,6 +37,15 @@ public class BlobTestUtils {
     static final OffsetDateTime oldDate = getOffsetDateTimeNow().minusDays(1);
 
     static final OffsetDateTime newDate = getOffsetDateTimeNow().plusDays(1);
+
+    /*
+    Note that this value is only used to check if we are depending on the received etag. This value will not actually
+    be used.
+     */
+
+    static final String receivedEtag = "received";
+
+    static final String garbageEtag = "garbage";
 
 
     // -------------------- GENERATING CLIENTS --------------------------
@@ -102,6 +115,10 @@ public class BlobTestUtils {
         return getRandomUUIDString();
     }
 
+    public static String generateBlockID() {
+        return Base64.getEncoder().encodeToString(getRandomUUIDString().getBytes(StandardCharsets.UTF_8));
+    }
+
     public static String getRandomUUIDString() {
         return UUID.randomUUID().toString();
     }
@@ -120,5 +137,32 @@ public class BlobTestUtils {
             headers.get("x-ms-request-id") != null &&
             headers.get("x-ms-version") != null &&
             headers.get("date") != null;
+    }
+
+    public static boolean validateBlobProperties(BlobGetPropertiesHeaders headers, String cacheControl, String contentDisposition, String contentEncoding, String contentLanguage, byte[] contentMd5, String contentType) {
+        return Objects.equals(headers.getCacheControl(), cacheControl) &&
+            Objects.equals(headers.getContentDisposition(), contentDisposition) &&
+            Objects.equals(headers.getContentEncoding(), contentEncoding) &&
+            Objects.equals(headers.getContentLanguage(), contentLanguage) &&
+            Arrays.equals(headers.getContentMD5(), contentMd5) &&
+            Objects.equals(headers.getContentType(), contentType);
+    }
+
+    public static String setupMatchCondition(StorageBlobClient client, String containerName, String blobName, String match) {
+        if (receivedEtag.equals(match)) {
+            return client.getBlobProperties(containerName, blobName).getETag();
+        } else {
+            return match;
+        }
+    }
+
+    // ------------------------ GENERATING DATA ---------------------------
+
+    public static byte[] getDefaultData() {
+        return getDefaultString().getBytes(StandardCharsets.UTF_8);
+    }
+
+    public static String getDefaultString() {
+        return "Hello World";
     }
 }

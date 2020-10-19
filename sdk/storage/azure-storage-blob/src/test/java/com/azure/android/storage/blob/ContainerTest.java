@@ -44,7 +44,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.fail;
 
 @RunWith(DataProviderRunner.class)
 @Ignore

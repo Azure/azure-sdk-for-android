@@ -1000,10 +1000,6 @@ public class StorageBlobClientTest {
                 null,
                 null,
                 null,
-                null,
-                null,
-                null,
-                null,
                 CancellationToken.NONE);
 
         assertEquals(202, response.getStatusCode());
@@ -1024,10 +1020,6 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.deleteBlob("container",
             "blob",
-            null,
-            null,
-            null,
-            null,
             null,
             null,
             null,
