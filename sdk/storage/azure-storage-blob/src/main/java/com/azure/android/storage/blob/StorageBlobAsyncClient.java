@@ -499,7 +499,7 @@ public class StorageBlobAsyncClient {
      * @param callback      Callback that receives the response.
      */
     public void getContainerProperties(String containerName,
-        CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
+                                       CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
         storageBlobServiceClient.getContainerProperties(containerName,
             callback);
     }
@@ -519,23 +519,23 @@ public class StorageBlobAsyncClient {
      * @param cancellationToken     The token to request cancellation.
      * @param callback              Callback that receives the response.
      */
-        public void getContainerProperties(String containerName,
-            Integer timeout,
-            String version,
-            BlobRequestConditions blobRequestConditions,
-            String requestId,
-            CancellationToken cancellationToken,
-            CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
-            blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
+    public void getContainerProperties(String containerName,
+                                       Integer timeout,
+                                       String version,
+                                       BlobRequestConditions blobRequestConditions,
+                                       String requestId,
+                                       CancellationToken cancellationToken,
+                                       CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
+        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-            storageBlobServiceClient.getContainerProperties(containerName,
-                timeout,
-                version,
-                blobRequestConditions.getLeaseId(),
-                requestId,
-                cancellationToken,
-                callback);
-        }
+        storageBlobServiceClient.getContainerProperties(containerName,
+            timeout,
+            version,
+            blobRequestConditions.getLeaseId(),
+            requestId,
+            cancellationToken,
+            callback);
+    }
 
     /**
      * Reads the entire blob.
