@@ -314,6 +314,16 @@ public class StorageBlobClient {
     /**
      * Gets the container's properties.
      *
+     * @param containerName The container name.
+     * @return The container's properties
+     */
+    public ContainerGetPropertiesHeaders getContainerProperties(String containerName) {
+        return storageBlobServiceClient.getContainerProperties(containerName);
+    }
+
+    /**
+     * Gets the container's properties.
+     *
      * @param containerName         The container name.
      * @param timeout               The timeout parameter is expressed in seconds. For more information, see
      *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
@@ -324,7 +334,7 @@ public class StorageBlobClient {
      * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
      *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken     The token to request cancellation.
-     * @return The response information returned from the server when getting a container's properties.
+     * @return The response information returned from the server when downloading a blob.
      */
     public ContainerGetPropertiesResponse getContainerPropertiesWithRestResponse(String containerName,
                                                                                  Integer timeout,
@@ -341,16 +351,6 @@ public class StorageBlobClient {
             requestId,
             cancellationToken);
     }
-
-    /**
-     * Gets the container's properties.
-            *
-     * @param containerName The container name.
-     * @return The container's properties
-            */
-        public ContainerGetPropertiesHeaders getContainerProperties(String containerName) {
-            return storageBlobServiceClient.getContainerProperties(containerName);
-        }
 
     /**
      * Reads the entire blob.

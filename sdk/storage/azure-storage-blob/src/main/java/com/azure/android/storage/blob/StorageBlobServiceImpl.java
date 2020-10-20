@@ -16,17 +16,14 @@ import com.azure.android.core.util.DateTimeRfc1123;
 import com.azure.android.storage.blob.interceptor.MetadataInterceptor;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
-import com.azure.android.storage.blob.models.BlobDeleteResponse;
-import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
+import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobGetTagsHeaders;
 import com.azure.android.storage.blob.models.BlobGetTagsResponse;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
-import com.azure.android.storage.blob.models.BlobSetTierHeaders;
-import com.azure.android.storage.blob.models.BlobSetTierResponse;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobTags;
@@ -42,16 +39,15 @@ import com.azure.android.storage.blob.models.ContainerDeleteHeaders;
 import com.azure.android.storage.blob.models.ContainerDeleteResponse;
 import com.azure.android.storage.blob.models.ContainerGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.ContainerGetPropertiesResponse;
+import com.azure.android.storage.blob.models.ListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.EncryptionAlgorithmType;
-import com.azure.android.storage.blob.models.ListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.models.PublicAccessType;
-import com.azure.android.storage.blob.models.RehydratePriority;
 
 import org.threeten.bp.OffsetDateTime;
 
@@ -60,7 +56,6 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import okhttp3.Headers;
 import okhttp3.MediaType;
@@ -477,149 +472,6 @@ final class StorageBlobServiceImpl {
             requestConditions,
             requestId,
             cpkInfo,
-            cancellationToken,
-            callback);
-    }
-
-    /**
-<<<<<<< HEAD
-     * Sets the access tier of a blob.
-     *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @param tier          The access tier.
-     */
-    Void setTier(String containerName,
-                 String blobName,
-                 AccessTier tier) {
-        BlobSetTierResponse response = setTierWithRestResponse(containerName,
-            blobName,
-            tier,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE);
-
-        return response.getValue();
-    }
-
-    /**
-     * Sets the access tier of a blob.
-     *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @param tier          The access tier.
-     * @param callback      The callback that receives the response.
-     */
-    void setTier(String containerName,
-                 String blobName,
-                 AccessTier tier,
-                 CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
-        setTierWithRestResponseIntern(containerName,
-            blobName,
-            tier,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
-            callback);
-    }
-
-    /**
-     * The Set Tier operation sets the tier on a blob. The operation is allowed on a page blob in a premium storage account and on a block blob in a blob storage account (locally redundant storage only). A premium page blob's tier determines the allowed size, IOPS, and bandwidth of the blob. A block blob's tier determines Hot/Cool/Archive storage type. This operation does not update the blob's ETag.
-     *
-     * @param containerName     The container name.
-     * @param blobName          The blob name.
-     * @param tier              Indicates the tier to be set on the blob. Possible values include: 'P4', 'P6', 'P10', 'P15', 'P20', 'P30', 'P40', 'P50', 'P60', 'P70', 'P80', 'Hot', 'Cool', 'Archive'.
-     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param versionId         The version id parameter is an opaque DateTime value that, when present, specifies the version of the blob to operate on. It's for service version 2019-10-10 and newer.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version           Specifies the version of the operation to use for this request.
-     * @param rehydratePriority Optional: Indicates the priority with which to rehydrate an archived blob. Possible values include: 'High', 'Standard'.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
-     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and matches this ID.
-     * @param ifTags            Specify a SQL where clause on blob tags to operate only on blobs with a matching value.
-     * @param cancellationToken The token to request cancellation.
-     * @return The response information returned from the server when setting tier on a blob.
-     */
-    BlobSetTierResponse setTierWithRestResponse(String containerName,
-                                                String blobName,
-                                                AccessTier tier,
-                                                String snapshot,
-                                                String versionId,
-                                                Integer timeout,
-                                                String version,
-                                                RehydratePriority rehydratePriority,
-                                                String requestId,
-                                                String leaseId,
-                                                String ifTags,
-                                                CancellationToken cancellationToken) {
-        return setTierWithRestResponseIntern(containerName,
-            blobName,
-            tier,
-            snapshot,
-            versionId,
-            timeout,
-            version,
-            rehydratePriority,
-            requestId,
-            leaseId,
-            ifTags,
-            cancellationToken,
-            null);
-    }
-
-    /**
-     * The Set Tier operation sets the tier on a blob. The operation is allowed on a page blob in a premium storage account and on a block blob in a blob storage account (locally redundant storage only). A premium page blob's tier determines the allowed size, IOPS, and bandwidth of the blob. A block blob's tier determines Hot/Cool/Archive storage type. This operation does not update the blob's ETag.
-     *
-     * @param containerName The container name.
-     * @param blobName The blob name.
-     * @param tier Indicates the tier to be set on the blob. Possible values include: 'P4', 'P6', 'P10', 'P15', 'P20', 'P30', 'P40', 'P50', 'P60', 'P70', 'P80', 'Hot', 'Cool', 'Archive'.
-     * @param snapshot The snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param versionId The version id parameter is an opaque DateTime value that, when present, specifies the version of the blob to operate on. It's for service version 2019-10-10 and newer.
-     * @param timeout The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version Specifies the version of the operation to use for this request.
-     * @param rehydratePriority Optional: Indicates the priority with which to rehydrate an archived blob. Possible values include: 'High', 'Standard'.
-     * @param requestId Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
-     * @param leaseId If specified, the operation only succeeds if the resource's lease is active and matches this ID.
-     * @param ifTags Specify a SQL where clause on blob tags to operate only on blobs with a matching value.
-     * @param cancellationToken The token to request cancellation.
-     * @param callback Callback that receives the response.
-     */
-    void setTier(String containerName,
-                 String blobName,
-                 AccessTier tier,
-                 String snapshot,
-                 String versionId,
-                 Integer timeout,
-                 String version,
-                 RehydratePriority rehydratePriority,
-                 String requestId,
-                 String leaseId,
-                 String ifTags,
-                 CancellationToken cancellationToken,
-                 CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
-        this.setTierWithRestResponseIntern(containerName,
-            blobName,
-            tier,
-            snapshot,
-            versionId,
-            timeout,
-            version,
-            rehydratePriority,
-            requestId,
-            leaseId,
-            ifTags,
             cancellationToken,
             callback);
     }
@@ -1526,15 +1378,15 @@ final class StorageBlobServiceImpl {
      * @param callback          Callback that receives the response.
      */
     void getTags(String containerName,
-                String blobName,
-                String snapshot,
-                String versionId,
-                Integer timeout,
-                String version,
-                String ifTags,
-                String requestId,
-                CancellationToken cancellationToken,
-                CallbackWithHeader<BlobTags, BlobGetTagsHeaders> callback) {
+                 String blobName,
+                 String snapshot,
+                 String versionId,
+                 Integer timeout,
+                 String version,
+                 String ifTags,
+                 String requestId,
+                 CancellationToken cancellationToken,
+                 CallbackWithHeader<BlobTags, BlobGetTagsHeaders> callback) {
         getTagsWithRestResponseIntern(containerName,
             blobName,
             snapshot,
@@ -1724,96 +1576,6 @@ final class StorageBlobServiceImpl {
                         BlobGetPropertiesHeaders.class);
 
                     BlobGetPropertiesResponse result = new BlobGetPropertiesResponse(response.raw().request(),
-                        response.code(),
-                        response.headers(),
-                        null,
-                        headers);
-
-                    return result;
-                } else {
-                    throw new BlobStorageException(null, response.raw());
-                }
-            } else {
-                String strContent = readAsString(response.errorBody());
-
-                throw new BlobStorageException(strContent, response.raw());
-            }
-        }
-    }
-
-    private BlobSetTierResponse setTierWithRestResponseIntern(String containerName,
-                                                              String blobName,
-                                                              AccessTier tier,
-                                                              String snapshot,
-                                                              String versionId,
-                                                              Integer timeout,
-                                                              String version,
-                                                              RehydratePriority rehydratePriority,
-                                                              String requestId,
-                                                              String leaseId,
-                                                              String ifTags,
-                                                              CancellationToken cancellationToken,
-                                                              CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
-        Objects.requireNonNull(tier);
-
-        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
-
-        final String comp = "tier";
-
-        Call<Void> call = service.setTier(containerName,
-            blobName,
-            snapshot,
-            versionId,
-            timeout,
-            XMS_VERSION, // TODO: Replace with 'version'.
-            tier,
-            rehydratePriority,
-            requestId,
-            leaseId,
-            ifTags,
-            comp
-        );
-
-        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
-            call.cancel();
-        });
-
-        if (callback != null) {
-            executeCall(call, new retrofit2.Callback<Void>() {
-                @Override
-                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
-                    if (response.isSuccessful()) {
-                        if (response.code() == 200 || response.code() == 202) {
-                            BlobSetTierHeaders typedHeaders = deserializeHeaders(response.headers(),
-                                BlobSetTierHeaders.class);
-
-                            callback.onSuccess(null, typedHeaders, response.raw());
-                        } else {
-                            callback.onFailure(new BlobStorageException(null, response.raw()), response.raw());
-                        }
-                    } else {
-                        String strContent = readAsString(response.errorBody());
-
-                        callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
-                    }
-                }
-
-                @Override
-                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
-                    callback.onFailure(t, null);
-                }
-            });
-
-            return null;
-        } else {
-            Response<Void> response = executeCall(call);
-
-            if (response.isSuccessful()) {
-                if (response.code() == 200 || response.code() == 202) {
-                    BlobSetTierHeaders headers = deserializeHeaders(response.headers(),
-                        BlobSetTierHeaders.class);
-
-                    BlobSetTierResponse result = new BlobSetTierResponse(response.raw().request(),
                         response.code(),
                         response.headers(),
                         null,
@@ -2422,6 +2184,7 @@ final class StorageBlobServiceImpl {
             }
         }
     }
+
     private static <T> Response<T> executeCall(Call<T> call) {
         try {
             return call.execute();
@@ -2523,20 +2286,6 @@ final class StorageBlobServiceImpl {
                                      @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
                                      @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
 
-        @PUT("{containerName}/{blob}")
-        Call<Void> setTier(@Path("containerName") String containerName,
-                           @Path("blob") String blob,
-                           @Query("snapshot") String snapshot,
-                           @Query("versionid") String versionId,
-                           @Query("timeout") Integer timeout,
-                           @Header("x-ms-version") String version,
-                           @Header("x-ms-access-tier") AccessTier tier,
-                           @Header("x-ms-rehydrate-priority") RehydratePriority rehydratePriority,
-                           @Header("x-ms-client-request-id") String requestId,
-                           @Header("x-ms-lease-id") String leaseId,
-                           @Header("x-ms-if-tags") String ifTags,
-                           @Query("comp") String comp);
-
         @GET("{containerName}/{blob}")
         Call<ResponseBody> download(@Path("containerName") String containerName,
                                     @Path("blob") String blob,
@@ -2600,20 +2349,6 @@ final class StorageBlobServiceImpl {
                                            @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
                                            @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
 
-        @DELETE("{containerName}/{blob}")
-        Call<ResponseBody> delete(@Path("containerName") String containerName,
-                                  @Path("blob") String blobName,
-                                  @Query("snapshot") String snapshot,
-                                  @Query("timeout") Integer timeout,
-                                  @Header("x-ms-lease-id") String leaseId,
-                                  @Header("x-ms-delete-snapshots") DeleteSnapshotsOptionType deleteSnapshots,
-                                  @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
-                                  @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
-                                  @Header("If-Match") String ifMatch,
-                                  @Header("If-None-Match") String ifNoneMatch,
-                                  @Header("x-ms-version") String version,
-                                  @Header("x-ms-client-request-id") String requestId);
-
         @GET("{containerName}/{blob}")
         Call<ResponseBody> getTags(@Path("containerName") String containerName,
                                    @Path("blob") String blobName,
@@ -2625,6 +2360,7 @@ final class StorageBlobServiceImpl {
                                    @Header("x-ms-client-request-id") String requestId,
                                    @Header("x-ms-if-tags") String ifTags);
 
+        @DELETE("{containerName}/{blob}")
         Call<ResponseBody> deleteBlob(@Path("containerName") String containerName,
                                       @Path("blob") String blobName,
                                       @Query("snapshot") String snapshot,
