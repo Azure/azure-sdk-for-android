@@ -109,16 +109,20 @@ public class StorageBlobAsyncClient {
      * @param context       The application context.
      * @param containerName The container to upload the file to.
      * @param blobName      The name of the target blob holding the uploaded file.
+     * @param computeMd5    Whether or not the library should calculate the md5 and send it for the service to verify.
      * @param file          The local file to upload.
      * @return A LiveData that streams {@link TransferInfo} describing the current state of the transfer.
      */
     public LiveData<TransferInfo> upload(Context context,
                                          String containerName,
-                                         String blobName, File file) {
+                                         String blobName,
+                                         boolean computeMd5,
+                                         File file) {
         final UploadRequest request = new UploadRequest.Builder()
             .storageClientId(this.id)
             .containerName(containerName)
             .blobName(blobName)
+            .computeMd5(computeMd5)
             .file(file)
             .constraints(this.transferConstraints)
             .build();
@@ -132,6 +136,7 @@ public class StorageBlobAsyncClient {
      * @param context       The application context.
      * @param containerName The container to upload the file to.
      * @param blobName      The name of the target blob holding the uploaded file.
+     * @param computeMd5    Whether or not the library should calculate the md5 and send it for the service to verify.
      * @param contentUri    The URI to the Content to upload, the contentUri is resolved using
      *                      {@link android.content.ContentResolver#openAssetFileDescriptor(Uri, String)} with mode as
      *                      "r". The supported URI schemes are: 'content://', 'file://' and 'android.resource://'.
@@ -140,11 +145,13 @@ public class StorageBlobAsyncClient {
     public LiveData<TransferInfo> upload(Context context,
                                          String containerName,
                                          String blobName,
+                                         boolean computeMd5,
                                          Uri contentUri) {
         final UploadRequest request = new UploadRequest.Builder()
             .storageClientId(this.id)
             .containerName(containerName)
             .blobName(blobName)
+            .computeMd5(computeMd5)
             .contentUri(context, contentUri)
             .constraints(this.transferConstraints)
             .build();
