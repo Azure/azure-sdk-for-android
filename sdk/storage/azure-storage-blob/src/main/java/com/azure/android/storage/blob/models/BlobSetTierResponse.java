@@ -10,7 +10,7 @@ import okhttp3.Headers;
 import okhttp3.Request;
 
 /**
- * Contains all response data for the setTier operation.
+ * Contains all response data for the setBlobTier operation.
  */
 public final class BlobSetTierResponse extends ResponseBase<BlobSetTierHeaders, Void> {
 

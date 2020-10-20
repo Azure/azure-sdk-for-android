@@ -1634,7 +1634,7 @@ final class StorageBlobServiceImpl {
 
         final String comp = "tier";
 
-        Call<Void> call = service.setTier(containerName,
+        Call<Void> call = service.setBlobTier(containerName,
             blobName,
             snapshot,
             versionId,
@@ -2310,18 +2310,18 @@ final class StorageBlobServiceImpl {
                                      @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
 
         @PUT("{containerName}/{blob}")
-        Call<Void> setTier(@Path("containerName") String containerName,
-                           @Path("blob") String blob,
-                           @Query("snapshot") String snapshot,
-                           @Query("versionid") String versionId,
-                           @Query("timeout") Integer timeout,
-                           @Header("x-ms-version") String version,
-                           @Header("x-ms-access-tier") AccessTier tier,
-                           @Header("x-ms-rehydrate-priority") RehydratePriority rehydratePriority,
-                           @Header("x-ms-client-request-id") String requestId,
-                           @Header("x-ms-lease-id") String leaseId,
-                           @Header("x-ms-if-tags") String ifTags,
-                           @Query("comp") String comp);
+        Call<Void> setBlobTier(@Path("containerName") String containerName,
+                               @Path("blob") String blob,
+                               @Query("snapshot") String snapshot,
+                               @Query("versionid") String versionId,
+                               @Query("timeout") Integer timeout,
+                               @Header("x-ms-version") String version,
+                               @Header("x-ms-access-tier") AccessTier tier,
+                               @Header("x-ms-rehydrate-priority") RehydratePriority rehydratePriority,
+                               @Header("x-ms-client-request-id") String requestId,
+                               @Header("x-ms-lease-id") String leaseId,
+                               @Header("x-ms-if-tags") String ifTags,
+                               @Query("comp") String comp);
 
 
         @GET("{containerName}/{blob}")
