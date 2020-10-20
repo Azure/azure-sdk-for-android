@@ -102,7 +102,7 @@ public class BlobTestUtils {
     }
 
     public static boolean enableFiddler() {
-        return true;
+        return false;
     }
 
     // --------------------- GENERATING TEST RESOURCES ------------------------
