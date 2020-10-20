@@ -464,7 +464,7 @@ public class BlobTest {
 
     @Test
     @UseDataProvider("tierBlockBlob")
-    public void setTierBlockBlob(AccessTier tier) {
+    public void setBlobTierBlockBlob(AccessTier tier) {
         // When
         BlobSetTierResponse response = syncClient.setBlobTierWithRestResponse(containerName, blobName, tier, null, null, null, null, null, null, null);
 
@@ -481,7 +481,7 @@ public class BlobTest {
     // TODO (gapra) : set access tier page blob if page blob support added. Should we expose page blob tiers if not supported? I think no
 
     @Test
-    public void setTierMin() {
+    public void setBlobTierMin() {
         // When
         Void response = syncClient.setBlobTier(containerName, blobName, AccessTier.HOT);
 
@@ -491,7 +491,7 @@ public class BlobTest {
     }
 
     @Test
-    public void setTierInferred() {
+    public void setBlobTierInferred() {
         // Setup
         Boolean getPropertiesInferredBefore = syncClient.getBlobProperties(containerName, blobName).isAccessTierInferred();
         Boolean listBlobsInferredBefore = syncClient.getBlobsInPage(null, containerName, null).getItems().get(0).getProperties().isAccessTierInferred();
@@ -511,7 +511,7 @@ public class BlobTest {
 
     @Test
     @UseDataProvider("tierArchiveStatus")
-    public void setTierArchiveStatus(AccessTier sourceTier, AccessTier destTier, ArchiveStatus status) {
+    public void setBlobTierArchiveStatus(AccessTier sourceTier, AccessTier destTier, ArchiveStatus status) {
         // When
         syncClient.setBlobTier(containerName, blobName, sourceTier);
         syncClient.setBlobTier(containerName, blobName, destTier);
@@ -529,7 +529,7 @@ public class BlobTest {
     // Set tier snapshot error
 
     @Test
-    public void setTierIA() {
+    public void setBlobTierIA() {
         // Expect
         NullPointerException ex = assertThrows(NullPointerException.class,
             () -> syncClient.setBlobTier(containerName, blobName, null));
@@ -544,7 +544,7 @@ public class BlobTest {
     // Set tier tags fail
 
     @Test
-    public void setTierError() {
+    public void setBlobTierError() {
         // Setup
         String blobName = generateResourceName(); // Blob that does not exist.
 
