@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "676acd791313226090eed7e02bd3cc73",
+    "identityHash": "6483d358c1dd29960d9713a15889941f",
     "entities": [
       {
         "tableName": "blobuploads",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `content_uri` TEXT, `content_size` INTEGER NOT NULL, `use_content_resolver` INTEGER NOT NULL, `storage_blob_client_id` TEXT, `container_name` TEXT, `blob_name` TEXT, `blob_upload_state` INTEGER, `transfer_interrupt_state` INTEGER, `required_network_type` INTEGER, `requires_charging` INTEGER NOT NULL, `requires_device_idle` INTEGER NOT NULL, `requires_battery_not_low` INTEGER NOT NULL, `requires_storage_not_low` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`key` INTEGER PRIMARY KEY AUTOINCREMENT, `content_uri` TEXT, `content_size` INTEGER NOT NULL, `use_content_resolver` INTEGER NOT NULL, `storage_blob_client_id` TEXT, `container_name` TEXT, `blob_name` TEXT, `compute_md5` INTEGER NOT NULL, `blob_upload_state` INTEGER, `transfer_interrupt_state` INTEGER, `required_network_type` INTEGER, `requires_charging` INTEGER NOT NULL, `requires_device_idle` INTEGER NOT NULL, `requires_battery_not_low` INTEGER NOT NULL, `requires_storage_not_low` INTEGER NOT NULL)",
         "fields": [
           {
             "fieldPath": "key",
@@ -49,6 +49,12 @@
             "columnName": "blob_name",
             "affinity": "TEXT",
             "notNull": false
+          },
+          {
+            "fieldPath": "computeMd5",
+            "columnName": "compute_md5",
+            "affinity": "INTEGER",
+            "notNull": true
           },
           {
             "fieldPath": "state",
@@ -352,7 +358,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '676acd791313226090eed7e02bd3cc73')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6483d358c1dd29960d9713a15889941f')"
     ]
   }
 }

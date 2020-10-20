@@ -303,7 +303,7 @@ final class UploadHandler extends Handler {
                 blockContent,
                 null,
                 null,
-                false, /* TODO (gapra): Enable setting this feature on and off */
+                this.blob.computeMd5,
                 null,
                 null,
                 null,

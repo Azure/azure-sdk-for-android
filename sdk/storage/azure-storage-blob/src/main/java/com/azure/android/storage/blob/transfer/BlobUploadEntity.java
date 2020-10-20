@@ -66,6 +66,11 @@ final class BlobUploadEntity {
     @ColumnInfo(name = "blob_name")
     public String blobName;
     /**
+     * Whether or not the library should calculate the md5 and send it for the service to verify.
+     */
+    @ColumnInfo(name = "compute_md5")
+    public boolean computeMd5;
+    /**
      * The current state of the blob upload operation.
      */
     @ColumnInfo(name = "blob_upload_state")
@@ -104,6 +109,7 @@ final class BlobUploadEntity {
      * @param storageBlobClientId identifies the blob storage client to be used
      * @param containerName the container name
      * @param blobName the blob name
+     * @param computeMd5 whether or not the library should calculate the md5 and send it for the service to verify.
      * @param content describes the content to be read while uploading
      * @param constraints The constraints to be satisfied to run the upload operation.
      */
@@ -111,6 +117,7 @@ final class BlobUploadEntity {
     BlobUploadEntity(String storageBlobClientId,
                      String containerName,
                      String blobName,
+                     boolean computeMd5,
                      ReadableContent content,
                      Constraints constraints) throws Throwable {
         Objects.requireNonNull(storageBlobClientId);
@@ -126,6 +133,7 @@ final class BlobUploadEntity {
         this.storageBlobClientId = storageBlobClientId;
         this.containerName = containerName;
         this.blobName = blobName;
+        this.computeMd5 = computeMd5;
         this.state = BlobTransferState.WAIT_TO_BEGIN;
         this.interruptState = TransferInterruptState.NONE;
         this.constraintsColumn = ConstraintsColumn.fromConstraints(constraints);
@@ -158,6 +166,7 @@ final class BlobUploadEntity {
         builder.append(" useContentResolver:" + this.useContentResolver);
         builder.append(" containerName:" + this.containerName);
         builder.append(" blobName:" + this.blobName);
+        builder.append(" computeMd5:" + this.computeMd5);
         builder.append(" state:" + this.state);
         builder.append(" interruptState:" + this.interruptState);
         if (this.commitError != null) {
