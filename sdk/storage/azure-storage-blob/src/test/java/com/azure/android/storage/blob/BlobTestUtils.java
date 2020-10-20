@@ -17,14 +17,10 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.Headers;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
-
-import static org.junit.Assert.assertFalse;
 
 public class BlobTestUtils {
     private BlobTestUtils() {

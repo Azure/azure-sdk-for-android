@@ -16,9 +16,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.mockwebserver.MockWebServer;
 
-import static com.azure.android.storage.blob.TestUtils.buildOkHttpClientWithInterceptor;
-import static com.azure.android.storage.blob.TestUtils.getSimpleRequest;
-import static com.azure.android.storage.blob.TestUtils.getSimpleRequestWithQueryParam;
+import static com.azure.android.core.common.TestUtils.buildOkHttpClientWithInterceptor;
+import static com.azure.android.core.common.TestUtils.getSimpleRequest;
+import static com.azure.android.core.common.TestUtils.getSimpleRequestWithQueryParam;
 import static org.junit.Assert.assertEquals;
 
 public class SasTokenCredentialInterceptorTest {

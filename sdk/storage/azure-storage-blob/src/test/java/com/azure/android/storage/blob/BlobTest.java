@@ -12,8 +12,6 @@ import com.azure.android.storage.blob.models.BlobItemProperties;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobSetTierResponse;
-import com.azure.android.storage.blob.models.BlobRange;
-import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobType;
 import com.azure.android.storage.blob.models.LeaseStateType;
