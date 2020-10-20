@@ -53,7 +53,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(DataProviderRunner.class)
-//@Ignore
+@Ignore
 public class BlockBlobTest {
     private String containerName;
     private String blobName;
