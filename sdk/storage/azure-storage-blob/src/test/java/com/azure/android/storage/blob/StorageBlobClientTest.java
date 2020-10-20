@@ -8,8 +8,7 @@ import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.storage.blob.credential.SasTokenCredential;
-import com.azure.android.storage.blob.interceptor.SasTokenCredentialInterceptor;
+import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
@@ -17,6 +16,8 @@ import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobItem;
+import com.azure.android.storage.blob.models.BlobSetTierHeaders;
+import com.azure.android.storage.blob.models.BlobSetTierResponse;
 import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
@@ -488,6 +489,134 @@ public class StorageBlobClientTest {
             });
 
         awaitOnLatch(latch, "getBlobPropertiesWithRestResponse");
+    }
+
+    @Test
+    public void setBlobTier() {
+        // Given a StorageBlobClient.
+
+        // When setting the tier on a blob using setBlobTier().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 202 will be returned by the server.
+        Void response = storageBlobClient.setBlobTier("container",
+            "blob", AccessTier.HOT);
+
+        assertNull(response);
+    }
+
+    @Test
+    public void setBlobTier_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When setting the tier on a blob using setBlobTier() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.setBlobTier("container",
+            "blob",
+            AccessTier.HOT,
+            new CallbackWithHeader<Void, BlobSetTierHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobSetTierHeaders header, Response response) {
+                    try {
+                        // Then a response without body and status code 202 will be returned by the server to the callback.
+                        assertEquals(202, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "setBlobTier");
+    }
+
+    @Test
+    public void setBlobTierWithRestResponse() {
+        // Given a StorageBlobClient.
+
+        // When setting the tier on a blob using setTierWithResponse().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a response without body and status code 202 will be returned by the server.
+        BlobSetTierResponse response =
+            storageBlobClient.setBlobTierWithRestResponse("container",
+                "blob",
+                AccessTier.HOT,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                CancellationToken.NONE);
+
+        assertEquals(202, response.getStatusCode());
+    }
+
+    @Test
+    public void setBlobTierWithRestResponse_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When setting the tier on a blob using setTier() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(202);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.setBlobTier("container",
+            "blob",
+            AccessTier.HOT,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE,
+            new CallbackWithHeader<Void, BlobSetTierHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobSetTierHeaders header, Response response) {
+                    try {
+                        // Then a response without body and status code 202 will be returned by the server to the callback.
+                        assertEquals(202, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "setBlobTierWithResponse");
     }
 
     @Test
