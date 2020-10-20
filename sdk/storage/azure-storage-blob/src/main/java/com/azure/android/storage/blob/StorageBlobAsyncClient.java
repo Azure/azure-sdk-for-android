@@ -492,17 +492,17 @@ public class StorageBlobAsyncClient {
             callback);
     }
 
-        /**
-         * Gets the container's properties.
-         *
-         * @param containerName The container name.
-         * @param callback      Callback that receives the response.
-         */
-        public void getContainerProperties(String containerName,
-            CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
-            storageBlobServiceClient.getContainerProperties(containerName,
-                callback);
-        }
+    /**
+     * Gets the container's properties.
+     *
+     * @param containerName The container name.
+     * @param callback      Callback that receives the response.
+     */
+    public void getContainerProperties(String containerName,
+        CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
+        storageBlobServiceClient.getContainerProperties(containerName,
+            callback);
+    }
 
     /**
      * Gets the container's properties.
