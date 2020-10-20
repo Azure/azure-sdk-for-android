@@ -53,7 +53,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(DataProviderRunner.class)
-@Ignore
+//@Ignore
 public class BlockBlobTest {
     private String containerName;
     private String blobName;
@@ -123,7 +123,7 @@ public class BlockBlobTest {
         String blockId = generateBlockID();
 
         // When
-        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, blockId, getDefaultData(), null, null, null ,null ,null ,null, null);
+        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, blockId, getDefaultData(), null, null, false, null ,null ,null ,null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -200,7 +200,7 @@ public class BlockBlobTest {
         byte[] correctMd5 = MessageDigest.getInstance("MD5").digest(getDefaultData());
 
         // When
-        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, null, null, null, null, null);
+        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, false, null, null, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -217,6 +217,25 @@ public class BlockBlobTest {
         assertEquals(BlobErrorCode.MD5MISMATCH, ex.getErrorCode());
     }
 
+    @Test
+    public void stageBlockComputeMd5() throws NoSuchAlgorithmException {
+        // When
+        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), null, null, true, null, null, null, null, null);
+
+        // Then
+        assertEquals(201, response.getStatusCode());
+
+        // Setup
+        byte[] correctMd5 = MessageDigest.getInstance("MD5").digest(getDefaultData());
+
+        // When
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, true, null, null, null, null, null));
+
+        // Then
+        assertEquals("'transactionalContentMD5' can not be set when 'computeMd5' is true.", ex.getMessage());
+    }
+
     // No Stage Block Lease tests due to no support for leases yet.
 
     // Stage block error tested in tests above.
@@ -229,7 +248,7 @@ public class BlockBlobTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // Expect
-        asyncClient.stageBlock(containerName, blobName, blockId, getDefaultData(), null, null, null, null,
+        asyncClient.stageBlock(containerName, blobName, blockId, getDefaultData(), null, null, false, null, null,
             null, null, null, new CallbackWithHeader<Void, BlockBlobStageBlockHeaders>() {
                 @Override
                 public void onSuccess(Void result, BlockBlobStageBlockHeaders headers, Response response) {

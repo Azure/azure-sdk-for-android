@@ -53,6 +53,8 @@ import org.threeten.bp.OffsetDateTime;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -838,6 +840,7 @@ final class StorageBlobServiceImpl {
             blockContent,
             contentMd5,
             null,
+            false,
             null,
             null,
             null,
@@ -857,6 +860,7 @@ final class StorageBlobServiceImpl {
             blockContent,
             contentMd5,
             null,
+            false,
             null,
             null,
             null,
@@ -871,6 +875,7 @@ final class StorageBlobServiceImpl {
                                                             byte[] blockContent,
                                                             byte[] transactionalContentMD5,
                                                             byte[] transactionalContentCrc64,
+                                                            boolean computeMd5,
                                                             Integer timeout,
                                                             String leaseId,
                                                             String requestId,
@@ -882,6 +887,7 @@ final class StorageBlobServiceImpl {
             blockContent,
             transactionalContentMD5,
             transactionalContentCrc64,
+            computeMd5,
             timeout,
             leaseId,
             requestId,
@@ -896,6 +902,7 @@ final class StorageBlobServiceImpl {
                     byte[] blockContent,
                     byte[] transactionalContentMD5,
                     byte[] transactionalContentCrc64,
+                    boolean computeMd5,
                     Integer timeout,
                     String leaseId,
                     String requestId,
@@ -908,6 +915,7 @@ final class StorageBlobServiceImpl {
             blockContent,
             transactionalContentMD5,
             transactionalContentCrc64,
+            computeMd5,
             timeout,
             leaseId,
             requestId,
@@ -1822,6 +1830,7 @@ final class StorageBlobServiceImpl {
                                                                           byte[] blockContent,
                                                                           byte[] transactionalContentMD5,
                                                                           byte[] transactionalContentCrc64,
+                                                                          boolean computeMd5,
                                                                           Integer timeout,
                                                                           String leaseId,
                                                                           String requestId,
@@ -1839,6 +1848,18 @@ final class StorageBlobServiceImpl {
         }
         //
         final String comp = "block";
+
+        if (computeMd5) {
+            if (transactionalContentMD5 != null) {
+                throw new IllegalArgumentException("'transactionalContentMD5' can not be set when 'computeMd5' is true.");
+            }
+            try {
+                transactionalContentMD5 = MessageDigest.getInstance("MD5").digest(blockContent);
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         String transactionalContentMD5Converted = Base64Util.encodeToString(transactionalContentMD5);
         String transactionalContentCrc64Converted = Base64Util.encodeToString(transactionalContentCrc64);
         //
