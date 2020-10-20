@@ -7,7 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 /**
- * Defines headers for SetTier operation.
+ * Defines headers for BlobSetTier operation.
  */
 @JacksonXmlRootElement(localName = "Blob-SetTier-Headers")
 public class BlobSetTierHeaders {

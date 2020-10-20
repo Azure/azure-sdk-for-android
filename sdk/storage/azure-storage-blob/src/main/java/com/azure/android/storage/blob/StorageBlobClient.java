@@ -6,14 +6,12 @@ package com.azure.android.storage.blob;
 import android.content.Context;
 import android.net.Uri;
 
-import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.interceptor.MetadataInterceptor;
 import com.azure.android.storage.blob.interceptor.NormalizeEtagInterceptor;
-import com.azure.android.storage.blob.interceptor.ResponseHeadersValidationInterceptor;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
@@ -40,8 +38,6 @@ import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.models.RehydratePriority;
 import com.azure.android.storage.blob.models.PublicAccessType;
-
-import org.threeten.bp.OffsetDateTime;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -262,7 +258,7 @@ public class StorageBlobClient {
     public Void setBlobTier(String containerName,
                             String blobName,
                             AccessTier tier) {
-        return storageBlobServiceClient.setTier(containerName,  blobName, tier);
+        return storageBlobServiceClient.setBlobTier(containerName,  blobName, tier);
     }
 
     /**
@@ -292,7 +288,7 @@ public class StorageBlobClient {
                                                            CancellationToken cancellationToken) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-        return storageBlobServiceClient.setTierWithRestResponse(containerName,
+        return storageBlobServiceClient.setBlobTierWithRestResponse(containerName,
             blobName,
             tier,
             snapshot,
@@ -346,7 +342,6 @@ public class StorageBlobClient {
             requestId,
             cancellationToken);
     }
-
 
     /**
      * Reads the entire blob.

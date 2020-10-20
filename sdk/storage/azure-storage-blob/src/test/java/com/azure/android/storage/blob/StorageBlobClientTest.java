@@ -492,10 +492,10 @@ public class StorageBlobClientTest {
     }
 
     @Test
-    public void setTier() {
+    public void setBlobTier() {
         // Given a StorageBlobClient.
 
-        // When setting tier on a blob using setTier().
+        // When setting the tier on a blob using setBlobTier().
         MockResponse mockResponse = new MockResponse()
             .setResponseCode(202);
 
@@ -509,10 +509,10 @@ public class StorageBlobClientTest {
     }
 
     @Test
-    public void setTier_withCallback() {
+    public void setBlobTier_withCallback() {
         // Given a StorageBlobClient.
 
-        // When setting tier on a blob using setTier() while providing a callback.
+        // When setting the tier on a blob using setBlobTier() while providing a callback.
         MockResponse mockResponse = new MockResponse()
             .setResponseCode(202);
 
@@ -544,14 +544,14 @@ public class StorageBlobClientTest {
                 }
             });
 
-        awaitOnLatch(latch, "setTier");
+        awaitOnLatch(latch, "setBlobTier");
     }
 
     @Test
-    public void setTierWithRestResponse() {
+    public void setBlobTierWithRestResponse() {
         // Given a StorageBlobClient.
 
-        // When setting tier on a blob using setTierWithResponse().
+        // When setting the tier on a blob using setTierWithResponse().
         MockResponse mockResponse = new MockResponse()
             .setResponseCode(202);
 
@@ -574,10 +574,10 @@ public class StorageBlobClientTest {
     }
 
     @Test
-    public void setTierWithRestResponse_withCallback() {
+    public void setBlobTierWithRestResponse_withCallback() {
         // Given a StorageBlobClient.
 
-        // When setting tier on a blob using setTier() while providing a callback.
+        // When setting the tier on a blob using setTier() while providing a callback.
         MockResponse mockResponse = new MockResponse()
             .setResponseCode(202);
 
@@ -616,7 +616,7 @@ public class StorageBlobClientTest {
                 }
             });
 
-        awaitOnLatch(latch, "setTierWithResponse");
+        awaitOnLatch(latch, "setBlobTierWithResponse");
     }
 
     @Test

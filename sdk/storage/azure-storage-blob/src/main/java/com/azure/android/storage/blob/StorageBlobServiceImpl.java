@@ -43,7 +43,6 @@ import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentRespon
 import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.EncryptionAlgorithmType;
-import com.azure.android.storage.blob.models.ListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
@@ -54,7 +53,6 @@ import org.threeten.bp.OffsetDateTime;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -485,10 +483,10 @@ final class StorageBlobServiceImpl {
      * @param blobName      The blob name.
      * @param tier          The access tier.
      */
-    Void setTier(String containerName,
-                 String blobName,
-                 AccessTier tier) {
-        BlobSetTierResponse response = setTierWithRestResponse(containerName,
+    Void setBlobTier(String containerName,
+                     String blobName,
+                     AccessTier tier) {
+        BlobSetTierResponse response = setBlobTierWithRestResponse(containerName,
             blobName,
             tier,
             null,
@@ -512,11 +510,11 @@ final class StorageBlobServiceImpl {
      * @param tier          The access tier.
      * @param callback      The callback that receives the response.
      */
-    void setTier(String containerName,
-                 String blobName,
-                 AccessTier tier,
-                 CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
-        setTierWithRestResponseIntern(containerName,
+    void setBlobTier(String containerName,
+                     String blobName,
+                     AccessTier tier,
+                     CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
+        setBlobTierWithRestResponseIntern(containerName,
             blobName,
             tier,
             null,
@@ -548,19 +546,19 @@ final class StorageBlobServiceImpl {
      * @param cancellationToken The token to request cancellation.
      * @return The response information returned from the server when setting tier on a blob.
      */
-    BlobSetTierResponse setTierWithRestResponse(String containerName,
-                                                String blobName,
-                                                AccessTier tier,
-                                                String snapshot,
-                                                String versionId,
-                                                Integer timeout,
-                                                String version,
-                                                RehydratePriority rehydratePriority,
-                                                String requestId,
-                                                String leaseId,
-                                                String ifTags,
-                                                CancellationToken cancellationToken) {
-        return setTierWithRestResponseIntern(containerName,
+    BlobSetTierResponse setBlobTierWithRestResponse(String containerName,
+                                                    String blobName,
+                                                    AccessTier tier,
+                                                    String snapshot,
+                                                    String versionId,
+                                                    Integer timeout,
+                                                    String version,
+                                                    RehydratePriority rehydratePriority,
+                                                    String requestId,
+                                                    String leaseId,
+                                                    String ifTags,
+                                                    CancellationToken cancellationToken) {
+        return setBlobTierWithRestResponseIntern(containerName,
             blobName,
             tier,
             snapshot,
@@ -592,20 +590,20 @@ final class StorageBlobServiceImpl {
      * @param cancellationToken The token to request cancellation.
      * @param callback Callback that receives the response.
      */
-    void setTier(String containerName,
-                 String blobName,
-                 AccessTier tier,
-                 String snapshot,
-                 String versionId,
-                 Integer timeout,
-                 String version,
-                 RehydratePriority rehydratePriority,
-                 String requestId,
-                 String leaseId,
-                 String ifTags,
-                 CancellationToken cancellationToken,
-                 CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
-        this.setTierWithRestResponseIntern(containerName,
+    void setBlobTier(String containerName,
+                     String blobName,
+                     AccessTier tier,
+                     String snapshot,
+                     String versionId,
+                     Integer timeout,
+                     String version,
+                     RehydratePriority rehydratePriority,
+                     String requestId,
+                     String leaseId,
+                     String ifTags,
+                     CancellationToken cancellationToken,
+                     CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
+        this.setBlobTierWithRestResponseIntern(containerName,
             blobName,
             tier,
             snapshot,
@@ -1617,19 +1615,19 @@ final class StorageBlobServiceImpl {
         }
     }
 
-    private BlobSetTierResponse setTierWithRestResponseIntern(String containerName,
-                                                              String blobName,
-                                                              AccessTier tier,
-                                                              String snapshot,
-                                                              String versionId,
-                                                              Integer timeout,
-                                                              String version,
-                                                              RehydratePriority rehydratePriority,
-                                                              String requestId,
-                                                              String leaseId,
-                                                              String ifTags,
-                                                              CancellationToken cancellationToken,
-                                                              CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
+    private BlobSetTierResponse setBlobTierWithRestResponseIntern(String containerName,
+                                                                  String blobName,
+                                                                  AccessTier tier,
+                                                                  String snapshot,
+                                                                  String versionId,
+                                                                  Integer timeout,
+                                                                  String version,
+                                                                  RehydratePriority rehydratePriority,
+                                                                  String requestId,
+                                                                  String leaseId,
+                                                                  String ifTags,
+                                                                  CancellationToken cancellationToken,
+                                                                  CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
         Objects.requireNonNull(tier);
 
         cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;

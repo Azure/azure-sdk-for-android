@@ -21,7 +21,6 @@ import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.CoreUtil;
 import com.azure.android.storage.blob.interceptor.MetadataInterceptor;
 import com.azure.android.storage.blob.interceptor.NormalizeEtagInterceptor;
-import com.azure.android.storage.blob.interceptor.ResponseHeadersValidationInterceptor;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
@@ -51,8 +50,6 @@ import com.azure.android.storage.blob.transfer.StorageBlobClientMap;
 import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.blob.transfer.TransferInfo;
 import com.azure.android.storage.blob.transfer.UploadRequest;
-
-import org.threeten.bp.OffsetDateTime;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -442,7 +439,7 @@ public class StorageBlobAsyncClient {
                             String blobName,
                             AccessTier tier,
                             CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
-        storageBlobServiceClient.setTier(containerName,
+        storageBlobServiceClient.setBlobTier(containerName,
             blobName,
             tier,
             callback);
@@ -477,7 +474,7 @@ public class StorageBlobAsyncClient {
                             CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-        storageBlobServiceClient.setTier(containerName,
+        storageBlobServiceClient.setBlobTier(containerName,
             blobName,
             tier,
             snapshot,
