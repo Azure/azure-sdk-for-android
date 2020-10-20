@@ -22,7 +22,6 @@ import com.azure.android.core.util.CoreUtil;
 import com.azure.android.storage.blob.implementation.util.ModelHelper;
 import com.azure.android.storage.blob.interceptor.MetadataInterceptor;
 import com.azure.android.storage.blob.interceptor.NormalizeEtagInterceptor;
-import com.azure.android.storage.blob.interceptor.ResponseHeadersValidationInterceptor;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
@@ -32,9 +31,8 @@ import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
-import com.azure.android.storage.blob.models.BlobTag;
-import com.azure.android.storage.blob.models.BlobTags;
 import com.azure.android.storage.blob.models.BlobSetTierHeaders;
+import com.azure.android.storage.blob.models.BlobTags;
 import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
@@ -56,11 +54,8 @@ import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.blob.transfer.TransferInfo;
 import com.azure.android.storage.blob.transfer.UploadRequest;
 
-import org.threeten.bp.OffsetDateTime;
-
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -447,7 +442,7 @@ public class StorageBlobAsyncClient {
                             String blobName,
                             AccessTier tier,
                             CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
-        storageBlobServiceClient.setTier(containerName,
+        storageBlobServiceClient.setBlobTier(containerName,
             blobName,
             tier,
             callback);
@@ -470,31 +465,31 @@ public class StorageBlobAsyncClient {
      * @param rehydratePriority     The rehydrate priority.
      */
     public void setBlobTier(String containerName,
-    String blobName,
-    AccessTier tier,
-    String snapshot,
-    Integer timeout,
-    String version,
-    RehydratePriority rehydratePriority,
-    BlobRequestConditions blobRequestConditions,
-    String requestId,
-    CancellationToken cancellationToken,
-    CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
-    blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
+                            String blobName,
+                            AccessTier tier,
+                            String snapshot,
+                            Integer timeout,
+                            String version,
+                            RehydratePriority rehydratePriority,
+                            BlobRequestConditions blobRequestConditions,
+                            String requestId,
+                            CancellationToken cancellationToken,
+                            CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
+        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-    storageBlobServiceClient.setTier(containerName,
-    blobName,
-    tier,
-    snapshot,
-    null, /* TODO: (gapra) Add version id when there is support for STG73 */
-    timeout,
-    version,
-    rehydratePriority,
-    requestId,
-        blobRequestConditions.getLeaseId(),
-        null, /* TODO: (gapra) Add tags conditions to BlobRequestConditions when there is support for STG73 */
-        cancellationToken,
-        callback);
+        storageBlobServiceClient.setBlobTier(containerName,
+            blobName,
+            tier,
+            snapshot,
+            null, /* TODO: (gapra) Add version id when there is support for STG73 */
+            timeout,
+            version,
+            rehydratePriority,
+            requestId,
+            blobRequestConditions.getLeaseId(),
+            null, /* TODO: (gapra) Add tags conditions to BlobRequestConditions when there is support for STG73 */
+            cancellationToken,
+            callback);
     }
 
     /**

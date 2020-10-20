@@ -6,7 +6,6 @@ package com.azure.android.storage.blob;
 import android.content.Context;
 import android.net.Uri;
 
-import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
@@ -14,7 +13,6 @@ import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.implementation.util.ModelHelper;
 import com.azure.android.storage.blob.interceptor.MetadataInterceptor;
 import com.azure.android.storage.blob.interceptor.NormalizeEtagInterceptor;
-import com.azure.android.storage.blob.interceptor.ResponseHeadersValidationInterceptor;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
@@ -25,9 +23,8 @@ import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
-import com.azure.android.storage.blob.models.BlobTag;
-import com.azure.android.storage.blob.models.BlobTags;
 import com.azure.android.storage.blob.models.BlobSetTierResponse;
+import com.azure.android.storage.blob.models.BlobTags;
 import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
@@ -45,11 +42,8 @@ import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.models.RehydratePriority;
 import com.azure.android.storage.blob.models.PublicAccessType;
 
-import org.threeten.bp.OffsetDateTime;
-
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -267,7 +261,7 @@ public class StorageBlobClient {
     public Void setBlobTier(String containerName,
                             String blobName,
                             AccessTier tier) {
-        return storageBlobServiceClient.setTier(containerName,  blobName, tier);
+        return storageBlobServiceClient.setBlobTier(containerName,  blobName, tier);
     }
 
     /**
@@ -297,7 +291,7 @@ public class StorageBlobClient {
                                                            CancellationToken cancellationToken) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
-        return storageBlobServiceClient.setTierWithRestResponse(containerName,
+        return storageBlobServiceClient.setBlobTierWithRestResponse(containerName,
             blobName,
             tier,
             snapshot,
@@ -334,7 +328,7 @@ public class StorageBlobClient {
      * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
      *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken     The token to request cancellation.
-     * @return The response information returned from the server when downloading a blob.
+     * @return The response information returned from the server when getting a container's properties.
      */
     public ContainerGetPropertiesResponse getContainerPropertiesWithRestResponse(String containerName,
                                                                                  Integer timeout,

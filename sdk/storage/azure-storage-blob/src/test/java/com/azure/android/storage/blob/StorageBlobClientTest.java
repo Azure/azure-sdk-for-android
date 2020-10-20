@@ -1,6 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+
 package com.azure.android.storage.blob;
 
 import com.azure.android.core.http.Callback;
@@ -8,8 +9,6 @@ import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.models.AccessTier;
-import com.azure.android.storage.blob.credential.SasTokenCredential;
-import com.azure.android.storage.blob.interceptor.SasTokenCredentialInterceptor;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
@@ -496,10 +495,10 @@ public class StorageBlobClientTest {
     }
 
     @Test
-    public void setTier() {
+    public void setBlobTier() {
         // Given a StorageBlobClient.
 
-        // When setting tier on a blob using setTier().
+        // When setting the tier on a blob using setBlobTier().
         MockResponse mockResponse = new MockResponse()
             .setResponseCode(202);
 
@@ -513,10 +512,10 @@ public class StorageBlobClientTest {
     }
 
     @Test
-    public void setTier_withCallback() {
+    public void setBlobTier_withCallback() {
         // Given a StorageBlobClient.
 
-        // When setting tier on a blob using setTier() while providing a callback.
+        // When setting the tier on a blob using setBlobTier() while providing a callback.
         MockResponse mockResponse = new MockResponse()
             .setResponseCode(202);
 
@@ -548,14 +547,14 @@ public class StorageBlobClientTest {
                 }
             });
 
-        awaitOnLatch(latch, "setTier");
+        awaitOnLatch(latch, "setBlobTier");
     }
 
     @Test
-    public void setTierWithRestResponse() {
+    public void setBlobTierWithRestResponse() {
         // Given a StorageBlobClient.
 
-        // When setting tier on a blob using setTierWithResponse().
+        // When setting the tier on a blob using setTierWithResponse().
         MockResponse mockResponse = new MockResponse()
             .setResponseCode(202);
 
@@ -578,10 +577,10 @@ public class StorageBlobClientTest {
     }
 
     @Test
-    public void setTierWithRestResponse_withCallback() {
+    public void setBlobTierWithRestResponse_withCallback() {
         // Given a StorageBlobClient.
 
-        // When setting tier on a blob using setTier() while providing a callback.
+        // When setting the tier on a blob using setTier() while providing a callback.
         MockResponse mockResponse = new MockResponse()
             .setResponseCode(202);
 
@@ -620,7 +619,7 @@ public class StorageBlobClientTest {
                 }
             });
 
-        awaitOnLatch(latch, "setTierWithResponse");
+        awaitOnLatch(latch, "setBlobTierWithResponse");
     }
 
     @Test
