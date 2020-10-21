@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.storage.blob.interceptor;
 
 import com.azure.android.core.http.HttpHeader;
@@ -12,8 +15,8 @@ import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
 
-import static com.azure.android.storage.blob.TestUtils.buildOkHttpClientWithInterceptor;
-import static com.azure.android.storage.blob.TestUtils.getSimpleRequest;
+import static com.azure.android.core.common.TestUtils.buildOkHttpClientWithInterceptor;
+import static com.azure.android.core.common.TestUtils.getSimpleRequest;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 

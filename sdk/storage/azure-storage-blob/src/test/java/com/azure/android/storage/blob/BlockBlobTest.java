@@ -18,6 +18,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.threeten.bp.OffsetDateTime;
@@ -32,26 +33,27 @@ import java.util.concurrent.CountDownLatch;
 
 import okhttp3.Response;
 
-import static com.azure.android.storage.blob.TestUtils.awaitOnLatch;
-import static com.azure.android.storage.blob.TestUtils.enableFiddler;
-import static com.azure.android.storage.blob.TestUtils.garbageEtag;
-import static com.azure.android.storage.blob.TestUtils.generateBlockID;
-import static com.azure.android.storage.blob.TestUtils.generateResourceName;
-import static com.azure.android.storage.blob.TestUtils.getDefaultData;
-import static com.azure.android.storage.blob.TestUtils.initializeDefaultAsyncBlobClientBuilder;
-import static com.azure.android.storage.blob.TestUtils.initializeDefaultSyncBlobClientBuilder;
-import static com.azure.android.storage.blob.TestUtils.newDate;
-import static com.azure.android.storage.blob.TestUtils.oldDate;
-import static com.azure.android.storage.blob.TestUtils.receivedEtag;
-import static com.azure.android.storage.blob.TestUtils.setupMatchCondition;
-import static com.azure.android.storage.blob.TestUtils.validateBasicHeaders;
-import static com.azure.android.storage.blob.TestUtils.validateBlobProperties;
+import static com.azure.android.core.common.TestUtils.awaitOnLatch;
+import static com.azure.android.storage.blob.BlobTestUtils.enableFiddler;
+import static com.azure.android.storage.blob.BlobTestUtils.garbageEtag;
+import static com.azure.android.storage.blob.BlobTestUtils.generateBlockID;
+import static com.azure.android.storage.blob.BlobTestUtils.generateResourceName;
+import static com.azure.android.storage.blob.BlobTestUtils.getDefaultData;
+import static com.azure.android.storage.blob.BlobTestUtils.initializeDefaultAsyncBlobClientBuilder;
+import static com.azure.android.storage.blob.BlobTestUtils.initializeDefaultSyncBlobClientBuilder;
+import static com.azure.android.storage.blob.BlobTestUtils.newDate;
+import static com.azure.android.storage.blob.BlobTestUtils.oldDate;
+import static com.azure.android.storage.blob.BlobTestUtils.receivedEtag;
+import static com.azure.android.storage.blob.BlobTestUtils.setupMatchCondition;
+import static com.azure.android.storage.blob.BlobTestUtils.validateBasicHeaders;
+import static com.azure.android.storage.blob.BlobTestUtils.validateBlobProperties;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(DataProviderRunner.class)
+@Ignore
 public class BlockBlobTest {
     private String containerName;
     private String blobName;
@@ -137,11 +139,15 @@ public class BlockBlobTest {
     public void stageBlockMin() {
         // Setup
         String blockId = generateBlockID();
+        List<String> blockIds = new ArrayList<>();
+        blockIds.add(blockId);
 
         // When
         Void response = syncClient.stageBlock(containerName, blobName, blockId, getDefaultData(), null);
 
         // Then
+        // This would throw if the above stage block failed.
+        syncClient.commitBlockList(containerName, blobName, blockIds, true);
         // When list block support added, check blockBlobClient.listBlocks(BlockListType.ALL).getUncommittedBlocks().size() == 1
     }
 
@@ -228,7 +234,7 @@ public class BlockBlobTest {
                 @Override
                 public void onSuccess(Void result, BlockBlobStageBlockHeaders headers, Response response) {
                     assertEquals(201, response.code());
-                    assertNotNull(headers.getXMsContentCrc64());
+                    assertNotNull(headers.getXMsContentCrc64()); // TODO (gapra) : Get rid of this publically by handwriting public types
                     assertNotNull(headers.getRequestId());
                     assertNotNull(headers.getVersion());
                     assertNotNull(headers.getDateProperty());

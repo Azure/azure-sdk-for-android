@@ -16,16 +16,23 @@ import com.azure.android.core.util.DateTimeRfc1123;
 import com.azure.android.storage.blob.interceptor.MetadataInterceptor;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
-import com.azure.android.storage.blob.models.BlobDownloadResponse;
+import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
+import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
+import com.azure.android.storage.blob.models.BlobGetTagsHeaders;
+import com.azure.android.storage.blob.models.BlobGetTagsResponse;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlobSetHttpHeadersHeaders;
+import com.azure.android.storage.blob.models.BlobSetHttpHeadersResponse;
 import com.azure.android.storage.blob.models.BlobSetMetadataHeaders;
-import com.azure.android.storage.blob.models.BlobStorageException;
-import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobSetMetadataResponse;
+import com.azure.android.storage.blob.models.BlobSetTierHeaders;
+import com.azure.android.storage.blob.models.BlobSetTierResponse;
+import com.azure.android.storage.blob.models.BlobStorageException;
+import com.azure.android.storage.blob.models.BlobTags;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
@@ -47,14 +54,15 @@ import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.models.PublicAccessType;
+import com.azure.android.storage.blob.models.RehydratePriority;
 
 import org.threeten.bp.OffsetDateTime;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import okhttp3.Headers;
 import okhttp3.MediaType;
@@ -408,14 +416,14 @@ final class StorageBlobServiceImpl {
      * The Get Blob Properties operation reads a blob's metadata and properties. You can also call it to read a
      * snapshot or version.
      *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @param snapshot      he snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout       The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version       Specifies the version of the operation to use for this request.
-     * @param leaseId       If specified, the operation only succeeds if the resource's lease is active and matches this ID.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
-     * @param cpkInfo       Additional parameters for the operation.
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param snapshot          he snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param requestConditions {@link BlobRequestConditions}
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo           Additional parameters for the operation.
      * @return A response containing the blob metadata.
      */
     BlobGetPropertiesResponse getBlobPropertiesWithRestResponse(String containerName,
@@ -423,7 +431,7 @@ final class StorageBlobServiceImpl {
                                                                 String snapshot,
                                                                 Integer timeout,
                                                                 String version,
-                                                                String leaseId,
+                                                                BlobRequestConditions requestConditions,
                                                                 String requestId,
                                                                 CpkInfo cpkInfo,
                                                                 CancellationToken cancellationToken) {
@@ -432,7 +440,7 @@ final class StorageBlobServiceImpl {
             snapshot,
             timeout,
             version,
-            leaseId,
+            requestConditions,
             requestId,
             cpkInfo,
             cancellationToken,
@@ -443,22 +451,22 @@ final class StorageBlobServiceImpl {
      * The Get Blob Properties operation reads a blob's metadata and properties. You can also call it to read a
      * snapshot or version.
      *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @param snapshot      he snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout       The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version       Specifies the version of the operation to use for this request.
-     * @param leaseId       If specified, the operation only succeeds if the resource's lease is active and matches this ID.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
-     * @param cpkInfo       Additional parameters for the operation.
-     * @param callback      Callback that receives the response.
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param snapshot          he snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param requestConditions {@link BlobRequestConditions}
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo           Additional parameters for the operation.
+     * @param callback          Callback that receives the response.
      */
     void getBlobProperties(String containerName,
                            String blobName,
                            String snapshot,
                            Integer timeout,
                            String version,
-                           String leaseId,
+                           BlobRequestConditions requestConditions,
                            String requestId,
                            CpkInfo cpkInfo,
                            CancellationToken cancellationToken,
@@ -468,9 +476,78 @@ final class StorageBlobServiceImpl {
             snapshot,
             timeout,
             version,
-            leaseId,
+            requestConditions,
             requestId,
             cpkInfo,
+            cancellationToken,
+            callback);
+    }
+
+    Void setBlobHttpHeaders(String containerName,
+                            String blobName,
+                            BlobHttpHeaders headers) {
+        BlobSetHttpHeadersResponse blobSetHttpHeadersResponse = setBlobHttpHeadersWithRestResponse(containerName,
+            blobName,
+            null,
+            null,
+            null,
+            headers,
+            null,
+            CancellationToken.NONE);
+
+        return blobSetHttpHeadersResponse.getValue();
+    }
+
+    void setBlobHttpHeaders(String containerName,
+                            String blobName,
+                            BlobHttpHeaders headers,
+                            CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
+        setBlobHttpHeaders(containerName,
+            blobName,
+            null,
+            null,
+            null,
+            headers,
+            null,
+            CancellationToken.NONE,
+            callback);
+    }
+
+    BlobSetHttpHeadersResponse setBlobHttpHeadersWithRestResponse(String containerName,
+                                                                  String blobName,
+                                                                  Integer timeout,
+                                                                  String version,
+                                                                  BlobRequestConditions requestConditions,
+                                                                  BlobHttpHeaders headers,
+                                                                  String requestId,
+                                                                  CancellationToken cancellationToken) {
+        return setHttpHeadersWithRestResponseIntern(containerName,
+            blobName,
+            timeout,
+            requestConditions,
+            headers,
+            requestId,
+            version,
+            cancellationToken,
+            null);
+    }
+
+    void setBlobHttpHeaders(String containerName,
+                            String blobName,
+                            Integer timeout,
+                            String version,
+                            BlobRequestConditions requestConditions,
+                            BlobHttpHeaders headers,
+                            String requestId,
+                            CancellationToken cancellationToken,
+                            CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
+        this.setHttpHeadersWithRestResponseIntern(containerName,
+            blobName,
+            timeout,
+            requestConditions,
+            headers,
+            requestId,
+            version,
             cancellationToken,
             callback);
     }
@@ -492,9 +569,9 @@ final class StorageBlobServiceImpl {
     }
 
     void setBlobMetadata(String containerName,
-                            String blobName,
-                            Map<String, String> metadata,
-                            CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
+                         String blobName,
+                         Map<String, String> metadata,
+                         CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
         setBlobMetadata(containerName,
             blobName,
             null,
@@ -529,15 +606,15 @@ final class StorageBlobServiceImpl {
     }
 
     void setBlobMetadata(String containerName,
-                            String blobName,
-                            Integer timeout,
-                            String version,
-                            BlobRequestConditions requestConditions,
-                            Map<String, String> metadata,
-                            String requestId,
-                            CpkInfo cpkInfo,
-                            CancellationToken cancellationToken,
-                            CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
+                         String blobName,
+                         Integer timeout,
+                         String version,
+                         BlobRequestConditions requestConditions,
+                         Map<String, String> metadata,
+                         String requestId,
+                         CpkInfo cpkInfo,
+                         CancellationToken cancellationToken,
+                         CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
         this.setBlobMetadataWithRestResponseIntern(containerName,
             blobName,
             timeout,
@@ -546,6 +623,148 @@ final class StorageBlobServiceImpl {
             requestId,
             version,
             cpkInfo,
+            cancellationToken,
+            callback);
+    }
+
+    /**
+     * Sets the access tier of a blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param tier          The access tier.
+     */
+    Void setBlobTier(String containerName,
+                     String blobName,
+                     AccessTier tier) {
+        BlobSetTierResponse response = setBlobTierWithRestResponse(containerName,
+            blobName,
+            tier,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE);
+
+        return response.getValue();
+    }
+
+    /**
+     * Sets the access tier of a blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param tier          The access tier.
+     * @param callback      The callback that receives the response.
+     */
+    void setBlobTier(String containerName,
+                     String blobName,
+                     AccessTier tier,
+                     CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
+        setBlobTierWithRestResponseIntern(containerName,
+            blobName,
+            tier,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE,
+            callback);
+    }
+
+    /**
+     * The Set Blob Tier operation sets the tier on a blob. The operation is allowed on a page blob in a premium storage account and on a block blob in a blob storage account (locally redundant storage only). A premium page blob's tier determines the allowed size, IOPS, and bandwidth of the blob. A block blob's tier determines Hot/Cool/Archive storage type. This operation does not update the blob's ETag.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param tier              Indicates the tier to be set on the blob. Possible values include: 'P4', 'P6', 'P10', 'P15', 'P20', 'P30', 'P40', 'P50', 'P60', 'P70', 'P80', 'Hot', 'Cool', 'Archive'.
+     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param versionId         The version id parameter is an opaque DateTime value that, when present, specifies the version of the blob to operate on. It's for service version 2019-10-10 and newer.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param rehydratePriority Optional: Indicates the priority with which to rehydrate an archived blob. Possible values include: 'High', 'Standard'.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
+     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and matches this ID.
+     * @param ifTags            Specify a SQL where clause on blob tags to operate only on blobs with a matching value.
+     * @param cancellationToken The token to request cancellation.
+     * @return The response information returned from the server when setting tier on a blob.
+     */
+    BlobSetTierResponse setBlobTierWithRestResponse(String containerName,
+                                                    String blobName,
+                                                    AccessTier tier,
+                                                    String snapshot,
+                                                    String versionId,
+                                                    Integer timeout,
+                                                    String version,
+                                                    RehydratePriority rehydratePriority,
+                                                    String requestId,
+                                                    String leaseId,
+                                                    String ifTags,
+                                                    CancellationToken cancellationToken) {
+        return setBlobTierWithRestResponseIntern(containerName,
+            blobName,
+            tier,
+            snapshot,
+            versionId,
+            timeout,
+            version,
+            rehydratePriority,
+            requestId,
+            leaseId,
+            ifTags,
+            cancellationToken,
+            null);
+    }
+
+    /**
+     * The Set Blob Tier operation sets the tier on a blob. The operation is allowed on a page blob in a premium storage account and on a block blob in a blob storage account (locally redundant storage only). A premium page blob's tier determines the allowed size, IOPS, and bandwidth of the blob. A block blob's tier determines Hot/Cool/Archive storage type. This operation does not update the blob's ETag.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param tier              Indicates the tier to be set on the blob. Possible values include: 'P4', 'P6', 'P10', 'P15', 'P20', 'P30', 'P40', 'P50', 'P60', 'P70', 'P80', 'Hot', 'Cool', 'Archive'.
+     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param versionId         The version id parameter is an opaque DateTime value that, when present, specifies the version of the blob to operate on. It's for service version 2019-10-10 and newer.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param rehydratePriority Optional: Indicates the priority with which to rehydrate an archived blob. Possible values include: 'High', 'Standard'.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
+     * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and matches this ID.
+     * @param ifTags            Specify a SQL where clause on blob tags to operate only on blobs with a matching value.
+     * @param cancellationToken The token to request cancellation.
+     * @param callback          Callback that receives the response.
+     */
+    void setBlobTier(String containerName,
+                     String blobName,
+                     AccessTier tier,
+                     String snapshot,
+                     String versionId,
+                     Integer timeout,
+                     String version,
+                     RehydratePriority rehydratePriority,
+                     String requestId,
+                     String leaseId,
+                     String ifTags,
+                     CancellationToken cancellationToken,
+                     CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
+        this.setBlobTierWithRestResponseIntern(containerName,
+            blobName,
+            tier,
+            snapshot,
+            versionId,
+            timeout,
+            version,
+            rehydratePriority,
+            requestId,
+            leaseId,
+            ifTags,
             cancellationToken,
             callback);
     }
@@ -1111,6 +1330,127 @@ final class StorageBlobServiceImpl {
             callback);
     }
 
+    /**
+     * Gets tags associated with a blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @return A response containing the blob tags information.
+     */
+    BlobTags getTags(String containerName,
+                     String blobName) {
+        return getTagsWithRestResponse(containerName,
+            blobName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE).getValue();
+    }
+
+    /**
+     * Gets tags associated with a blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param callback      Callback that receives the response.
+     */
+    void getTags(String containerName,
+                 String blobName,
+                 CallbackWithHeader<BlobTags, BlobGetTagsHeaders> callback) {
+        getTags(containerName,
+            blobName,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            CancellationToken.NONE,
+            callback);
+    }
+
+    /**
+     * Gets tags associated with a blob.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the
+     *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param versionId         The version id parameter is an opaque DateTime value that, when present, specifies the version of the blob to operate on. It's for service version 2019-10-10 and newer.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param ifTags            Specify a SQL where clause on blob tags to operate only on blobs with a matching value.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
+     * @return The response information returned from the server when getting tags on a blob.
+     */
+    BlobGetTagsResponse getTagsWithRestResponse(String containerName,
+                                                String blobName,
+                                                String snapshot,
+                                                String versionId,
+                                                Integer timeout,
+                                                String version,
+                                                String requestId,
+                                                String ifTags,
+                                                CancellationToken cancellationToken) {
+        return getTagsWithRestResponseIntern(containerName,
+            blobName,
+            snapshot,
+            versionId,
+            timeout,
+            version,
+            requestId,
+            ifTags,
+            cancellationToken,
+            null);
+    }
+
+
+    /**
+     * Gets tags associated with a blob.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the
+     *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param versionId         The version id parameter is an opaque DateTime value that, when present, specifies the version of the blob to operate on. It's for service version 2019-10-10 and newer.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param ifTags            Specify a SQL where clause on blob tags to operate only on blobs with a matching value.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
+     * @param callback          Callback that receives the response.
+     */
+    void getTags(String containerName,
+                 String blobName,
+                 String snapshot,
+                 String versionId,
+                 Integer timeout,
+                 String version,
+                 String ifTags,
+                 String requestId,
+                 CancellationToken cancellationToken,
+                 CallbackWithHeader<BlobTags, BlobGetTagsHeaders> callback) {
+        getTagsWithRestResponseIntern(containerName,
+            blobName,
+            snapshot,
+            versionId,
+            timeout,
+            version,
+            requestId,
+            ifTags,
+            cancellationToken,
+            callback);
+    }
+
+
     private ContainerCreateResponse createContainersWithRestResponseIntern(String containerName,
                                                                            Integer timeout,
                                                                            Map<String, String> metadata,
@@ -1449,12 +1789,22 @@ final class StorageBlobServiceImpl {
                                                                               String snapshot,
                                                                               Integer timeout,
                                                                               String version,
-                                                                              String leaseId,
+                                                                              BlobRequestConditions requestConditions,
                                                                               String requestId,
                                                                               CpkInfo cpkInfo,
                                                                               CancellationToken cancellationToken,
                                                                               CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
         cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+        requestConditions = requestConditions == null ? new BlobRequestConditions() : requestConditions;
+        String leaseId = requestConditions.getLeaseId();
+        DateTimeRfc1123 ifModifiedSince = requestConditions.getIfModifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfModifiedSince());
+        DateTimeRfc1123 ifUnmodifiedSince = requestConditions.getIfUnmodifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfUnmodifiedSince());
+        String ifMatch = requestConditions.getIfMatch();
+        String ifNoneMatch = requestConditions.getIfNoneMatch();
         String encryptionKey = null;
         String encryptionKeySha256 = null;
         EncryptionAlgorithmType encryptionAlgorithm = null;
@@ -1471,6 +1821,10 @@ final class StorageBlobServiceImpl {
             timeout,
             XMS_VERSION, // TODO: Replace with 'version'.
             leaseId,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
             requestId,
             encryptionKey,
             encryptionKeySha256,
@@ -1520,6 +1874,113 @@ final class StorageBlobServiceImpl {
                         response.headers(),
                         null,
                         headers);
+
+                    return result;
+                } else {
+                    throw new BlobStorageException(null, response.raw());
+                }
+            } else {
+                String strContent = readAsString(response.errorBody());
+
+                throw new BlobStorageException(strContent, response.raw());
+            }
+        }
+    }
+
+    private BlobSetHttpHeadersResponse setHttpHeadersWithRestResponseIntern(String containerName,
+                                                                            String blobName,
+                                                                            Integer timeout,
+                                                                            BlobRequestConditions requestConditions,
+                                                                            BlobHttpHeaders headers,
+                                                                            String version,
+                                                                            String requestId,
+                                                                            CancellationToken cancellationToken,
+                                                                            CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
+
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+
+        final String comp = "properties";
+
+        requestConditions = requestConditions == null ? new BlobRequestConditions() : requestConditions;
+        String leaseId = requestConditions.getLeaseId();
+        DateTimeRfc1123 ifModifiedSince = requestConditions.getIfModifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfModifiedSince());
+        DateTimeRfc1123 ifUnmodifiedSince = requestConditions.getIfUnmodifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfUnmodifiedSince());
+        String ifMatch = requestConditions.getIfMatch();
+        String ifNoneMatch = requestConditions.getIfNoneMatch();
+
+        headers = headers == null ? new BlobHttpHeaders() : headers;
+
+        Call<ResponseBody> call = service.setBlobHttpHeaders(containerName,
+            blobName,
+            timeout,
+            leaseId,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
+            null, // TODO: Add tags when later service version supported.
+            XMS_VERSION, // TODO: Replace with 'version'.
+            requestId,
+            comp,
+            headers.getCacheControl(),
+            headers.getContentType(),
+            headers.getContentMd5() == null ? null : Base64Util.encodeToString(headers.getContentMd5()),
+            headers.getContentEncoding(),
+            headers.getContentLanguage(),
+            headers.getContentDisposition());
+
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        if (callback != null) {
+            executeCall(call, new retrofit2.Callback<ResponseBody>() {
+                @Override
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        if (response.code() == 200) {
+                            BlobSetHttpHeadersHeaders typedHeaders = deserializeHeaders(response.headers(),
+                                BlobSetHttpHeadersHeaders.class);
+
+                            callback.onSuccess(null,
+                                typedHeaders,
+                                response.raw());
+                        } else {
+                            String strContent = readAsString(response.body());
+
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
+                        }
+                    } else {
+                        String strContent = readAsString(response.errorBody());
+
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    callback.onFailure(t, null);
+                }
+            });
+
+            return null;
+        } else {
+            Response<ResponseBody> response = executeCall(call);
+
+            if (response.isSuccessful()) {
+                if (response.code() == 200) {
+                    BlobSetHttpHeadersHeaders deserializedHeaders = deserializeHeaders(response.headers(),
+                        BlobSetHttpHeadersHeaders.class);
+
+                    BlobSetHttpHeadersResponse result = new BlobSetHttpHeadersResponse(response.raw().request(),
+                        response.code(),
+                        response.headers(),
+                        null,
+                        deserializedHeaders);
 
                     return result;
                 } else {
@@ -1585,7 +2046,7 @@ final class StorageBlobServiceImpl {
             encryptionKeySha256,
             encryptionAlgorithm,
             null // Todo: Add encryption scope with later service version
-            );
+        );
 
         ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
             call.cancel();
@@ -1635,6 +2096,96 @@ final class StorageBlobServiceImpl {
                         response.headers(),
                         null,
                         deserializedHeaders);
+
+                    return result;
+                } else {
+                    throw new BlobStorageException(null, response.raw());
+                }
+            } else {
+                String strContent = readAsString(response.errorBody());
+
+                throw new BlobStorageException(strContent, response.raw());
+            }
+        }
+    }
+
+    private BlobSetTierResponse setBlobTierWithRestResponseIntern(String containerName,
+                                                                  String blobName,
+                                                                  AccessTier tier,
+                                                                  String snapshot,
+                                                                  String versionId,
+                                                                  Integer timeout,
+                                                                  String version,
+                                                                  RehydratePriority rehydratePriority,
+                                                                  String requestId,
+                                                                  String leaseId,
+                                                                  String ifTags,
+                                                                  CancellationToken cancellationToken,
+                                                                  CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
+        Objects.requireNonNull(tier);
+
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+
+        final String comp = "tier";
+
+        Call<Void> call = service.setBlobTier(containerName,
+            blobName,
+            snapshot,
+            versionId,
+            timeout,
+            XMS_VERSION, // TODO: Replace with 'version'.
+            tier,
+            rehydratePriority,
+            requestId,
+            leaseId,
+            ifTags,
+            comp
+        );
+
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        if (callback != null) {
+            executeCall(call, new retrofit2.Callback<Void>() {
+                @Override
+                public void onResponse(@NonNull Call<Void> call, @NonNull Response<Void> response) {
+                    if (response.isSuccessful()) {
+                        if (response.code() == 200 || response.code() == 202) {
+                            BlobSetTierHeaders typedHeaders = deserializeHeaders(response.headers(),
+                                BlobSetTierHeaders.class);
+
+                            callback.onSuccess(null, typedHeaders, response.raw());
+                        } else {
+                            callback.onFailure(new BlobStorageException(null, response.raw()), response.raw());
+                        }
+                    } else {
+                        String strContent = readAsString(response.errorBody());
+
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
+                    callback.onFailure(t, null);
+                }
+            });
+
+            return null;
+        } else {
+            Response<Void> response = executeCall(call);
+
+            if (response.isSuccessful()) {
+                if (response.code() == 200 || response.code() == 202) {
+                    BlobSetTierHeaders headers = deserializeHeaders(response.headers(),
+                        BlobSetTierHeaders.class);
+
+                    BlobSetTierResponse result = new BlobSetTierResponse(response.raw().request(),
+                        response.code(),
+                        response.headers(),
+                        null,
+                        headers);
 
                     return result;
                 } else {
@@ -2150,6 +2701,95 @@ final class StorageBlobServiceImpl {
         }
     }
 
+    private BlobGetTagsResponse getTagsWithRestResponseIntern(String containerName,
+                                                              String blobName,
+                                                              String snapshot,
+                                                              String versionId,
+                                                              Integer timeout,
+                                                              String version,
+                                                              String requestId,
+                                                              String ifTags,
+                                                              CancellationToken cancellationToken,
+                                                              CallbackWithHeader<BlobTags, BlobGetTagsHeaders> callback) {
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+        final String comp = "tags";
+
+        Call<ResponseBody> call = service.getTags(containerName,
+            blobName,
+            snapshot,
+            versionId,
+            timeout,
+            comp,
+            XMS_VERSION, // TODO: Replace with 'version'.
+            requestId,
+            ifTags);
+
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        if (callback != null) {
+            executeCall(call, new retrofit2.Callback<ResponseBody>() {
+                @Override
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        if (response.code() == 200) {
+                            BlobTags typedContent = deserializeContent(response.body(),
+                                BlobTags.class);
+
+                            BlobGetTagsHeaders typedHeaders = deserializeHeaders(response.headers(),
+                                BlobGetTagsHeaders.class);
+
+                            callback.onSuccess(typedContent, typedHeaders, response.raw());
+                        } else {
+                            String strContent = readAsString(response.body());
+
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
+                        }
+                    } else {
+                        String strContent = readAsString(response.errorBody());
+
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    callback.onFailure(t, null);
+                }
+            });
+
+            return null;
+        } else {
+            Response<ResponseBody> response = executeCall(call);
+
+            if (response.isSuccessful()) {
+                if (response.code() == 200) {
+                    BlobTags typedContent = deserializeContent(response.body(),
+                        BlobTags.class);
+
+                    BlobGetTagsHeaders headers = deserializeHeaders(response.headers(),
+                        BlobGetTagsHeaders.class);
+
+                    BlobGetTagsResponse result = new BlobGetTagsResponse(response.raw().request(),
+                        response.code(),
+                        response.headers(),
+                        typedContent,
+                        headers);
+
+                    return result;
+                } else {
+                    String strContent = readAsString(response.body());
+
+                    throw new BlobStorageException(strContent, response.raw());
+                }
+            } else {
+                String strContent = readAsString(response.errorBody());
+
+                throw new BlobStorageException(strContent, response.raw());
+            }
+        }
+    }
 
     private static <T> Response<T> executeCall(Call<T> call) {
         try {
@@ -2243,10 +2883,34 @@ final class StorageBlobServiceImpl {
                                      @Query("timeout") Integer timeout,
                                      @Header("x-ms-version") String version,
                                      @Header("x-ms-lease-id") String leaseId,
+                                     @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
+                                     @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
+                                     @Header("If-Match") String ifMatch,
+                                     @Header("If-None-Match") String ifNoneMatch,
                                      @Header("x-ms-client-request-id") String requestId,
                                      @Header("x-ms-encryption-key") String encryptionKey,
                                      @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
                                      @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm);
+
+        @PUT("{containerName}/{blob}")
+        Call<ResponseBody> setBlobHttpHeaders(@Path("containerName") String containerName,
+                                              @Path("blob") String blob,
+                                              @Query("timeout") Integer timeout,
+                                              @Header("x-ms-lease-id") String leaseId,
+                                              @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
+                                              @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
+                                              @Header("If-Match") String ifMatch,
+                                              @Header("If-None-Match") String ifNoneMatch,
+                                              @Header("x-ms-if-tags") String ifTags,
+                                              @Header("x-ms-version") String version,
+                                              @Header("x-ms-client-request-id") String requestId,
+                                              @Query("comp") String comp,
+                                              @Header("x-ms-blob-cache-control") String cacheControl,
+                                              @Header("x-ms-blob-content-type") String contentType,
+                                              @Header("x-ms-blob-content-md5") String contentMd5,
+                                              @Header("x-ms-blob-content-encoding") String contentEncoding,
+                                              @Header("x-ms-blob-content-language") String contentLanguage,
+                                              @Header("x-ms-blob-content-disposition") String contentDisposition);
 
         @PUT("{containerName}/{blob}")
         Call<ResponseBody> setBlobMetadata(@Path("containerName") String containerName,
@@ -2266,6 +2930,21 @@ final class StorageBlobServiceImpl {
                                            @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
                                            @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm,
                                            @Header("x-ms-encryption-scope") String encryptionScope);
+
+        @PUT("{containerName}/{blob}")
+        Call<Void> setBlobTier(@Path("containerName") String containerName,
+                               @Path("blob") String blob,
+                               @Query("snapshot") String snapshot,
+                               @Query("versionid") String versionId,
+                               @Query("timeout") Integer timeout,
+                               @Header("x-ms-version") String version,
+                               @Header("x-ms-access-tier") AccessTier tier,
+                               @Header("x-ms-rehydrate-priority") RehydratePriority rehydratePriority,
+                               @Header("x-ms-client-request-id") String requestId,
+                               @Header("x-ms-lease-id") String leaseId,
+                               @Header("x-ms-if-tags") String ifTags,
+                               @Query("comp") String comp);
+
 
         @GET("{containerName}/{blob}")
         Call<ResponseBody> download(@Path("containerName") String containerName,
@@ -2343,6 +3022,17 @@ final class StorageBlobServiceImpl {
                                       @Header("If-None-Match") String ifNoneMatch,
                                       @Header("x-ms-version") String version,
                                       @Header("x-ms-client-request-id") String requestId);
+
+        @GET("{containerName}/{blob}")
+        Call<ResponseBody> getTags(@Path("containerName") String containerName,
+                                   @Path("blob") String blobName,
+                                   @Query("snapshot") String snapshot,
+                                   @Query("versionid") String versionId,
+                                   @Query("timeout") Integer timeout,
+                                   @Query("comp") String comp,
+                                   @Header("x-ms-version") String version,
+                                   @Header("x-ms-client-request-id") String requestId,
+                                   @Header("x-ms-if-tags") String ifTags);
     }
 
     private boolean validateNoETag(BlobRequestConditions modifiedRequestConditions) {
