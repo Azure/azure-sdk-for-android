@@ -16,7 +16,10 @@ import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobGetTagsHeaders;
+import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
+import com.azure.android.storage.blob.models.BlobSetHttpHeadersHeaders;
+import com.azure.android.storage.blob.models.BlobSetHttpHeadersResponse;
 import com.azure.android.storage.blob.models.BlobSetTierHeaders;
 import com.azure.android.storage.blob.models.BlobSetTierResponse;
 import com.azure.android.storage.blob.models.BlobsPage;
@@ -492,6 +495,132 @@ public class StorageBlobClientTest {
             });
 
         awaitOnLatch(latch, "getBlobPropertiesWithRestResponse");
+    }
+
+    @Test
+    public void setBlobHttpHeaders() {
+        // Given a StorageBlobClient.
+
+        // When setting the properties of a blob using setBlobHttpHeaders().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(200)
+            .setHeader("Content-Type", "application/text");
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a void response be returned by the client.
+        Void response = storageBlobClient.setBlobHttpHeaders("container",
+            "blob", new BlobHttpHeaders());
+
+        assertNull(response);
+    }
+
+    @Test
+    public void setBlobHttpHeaders_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When setting the properties of a blob using setBlobHttpHeaders() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(200);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.setBlobHttpHeaders("container",
+            "blob", new BlobHttpHeaders(),
+            new CallbackWithHeader<Void, BlobSetHttpHeadersHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobSetHttpHeadersHeaders header, Response response) {
+                    try {
+                        // Then an object with the return headers will be returned by the client to the callback.
+                        assertEquals(200, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "setBlobHttpHeaders");
+    }
+
+    @Test
+    public void setBlobHttpHeadersWithRestResponse() {
+        // Given a StorageBlobClient.
+
+        // When setting the properties of a blob using setBlobHttpHeadersWithResponse().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(200);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then the client will return an object that contains the details of the REST response.
+        BlobSetHttpHeadersResponse response =
+            storageBlobClient.setBlobHttpHeadersWithResponse("container",
+                "blob",
+                null,
+                null,
+                null,
+                new BlobHttpHeaders(),
+                null,
+                CancellationToken.NONE);
+
+        assertEquals(200, response.getStatusCode());
+    }
+
+    @Test
+    public void setBlobHttpHeadersWithRestResponse_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When setting the properties of a blob using setBlobHttpHeadersWithRestResponse() while providing a
+        // callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(200);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        storageBlobAsyncClient.setBlobHttpHeaders("container",
+            "blob",
+            null,
+            null,
+            null,
+            new BlobHttpHeaders(),
+            null,
+            CancellationToken.NONE,
+            new CallbackWithHeader<Void, BlobSetHttpHeadersHeaders>() {
+
+                @Override
+                public void onSuccess(Void result, BlobSetHttpHeadersHeaders header, Response response) {
+                    try {
+                        // Then the client will return an object that contains the details of the REST response
+                        assertEquals(200, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable error, Response response) {
+                    try {
+                        throw new RuntimeException(error);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "setBlobHttpHeadersWithRestResponse");
     }
 
     @Test

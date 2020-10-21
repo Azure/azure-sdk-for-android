@@ -18,6 +18,7 @@ import okhttp3.mockwebserver.MockWebServer;
 
 import static com.azure.android.core.common.TestUtils.buildOkHttpClientWithInterceptor;
 
+
 public class ResponseHeadersValidationInterceptorTest {
     private static final String CLIENT_ID_HEADER = "x-ms-client-id";
     private static final String ENCRYPTION_KEY_SHA256_HEADER = "x-ms-encryption-key-sha256";

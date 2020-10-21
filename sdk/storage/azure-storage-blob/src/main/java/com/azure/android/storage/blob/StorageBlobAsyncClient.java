@@ -31,6 +31,7 @@ import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlobSetHttpHeadersHeaders;
 import com.azure.android.storage.blob.models.BlobSetTierHeaders;
 import com.azure.android.storage.blob.models.BlobTags;
 import com.azure.android.storage.blob.models.BlobsPage;
@@ -431,6 +432,58 @@ public class StorageBlobAsyncClient {
     }
 
     /**
+     * Changes a blob's HTTP header properties. If only one HTTP header is updated, the others will all be erased. In
+     * order to preserve existing values, they must be passed alongside the header being changed.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param headers       {@link BlobHttpHeaders}
+     * @param callback      Callback that receives the response.
+     */
+    public void setBlobHttpHeaders(String containerName,
+                                   String blobName,
+                                   BlobHttpHeaders headers,
+                                   CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
+        storageBlobServiceClient.setBlobHttpHeaders(containerName, blobName, headers, callback);
+    }
+
+    /**
+     * Changes a blob's HTTP header properties. If only one HTTP header is updated, the others will all be erased. In
+     * order to preserve existing values, they must be passed alongside the header being changed.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param requestConditions {@link BlobRequestConditions}
+     * @param headers           {@link BlobHttpHeaders}
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
+     * @param callback          Callback that receives the response.
+     */
+    public void setBlobHttpHeaders(String containerName,
+                                   String blobName,
+                                   Integer timeout,
+                                   String version,
+                                   BlobRequestConditions requestConditions,
+                                   BlobHttpHeaders headers,
+                                   String requestId,
+                                   CancellationToken cancellationToken,
+                                   CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
+        storageBlobServiceClient.setBlobHttpHeaders(containerName,
+            blobName,
+            timeout,
+            version,
+            requestConditions,
+            headers,
+            requestId,
+            cancellationToken,
+            callback);
+    }
+
+    /**
      * Sets the blob's tier.
      *
      * @param containerName The container name.
@@ -448,21 +501,19 @@ public class StorageBlobAsyncClient {
             callback);
     }
 
-
-
     /**
      * Sets the blob's tier.
      *
-     * @param containerName         The container name.
-     * @param blobName              The blob name.
-     * @param tier                  The access tier.
-     * @param snapshot              The snapshot parameter is an opaque DateTime value that, when present, specifies
-     *                              the blob snapshot to retrieve. For more information on working with blob snapshots,
-     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
-     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version               Specifies the version of the operation to use for this request.
-     * @param rehydratePriority     The rehydrate priority.
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param tier              The access tier.
+     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies
+     *                          the blob snapshot to retrieve. For more information on working with blob snapshots,
+     *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param rehydratePriority The rehydrate priority.
      */
     public void setBlobTier(String containerName,
                             String blobName,
