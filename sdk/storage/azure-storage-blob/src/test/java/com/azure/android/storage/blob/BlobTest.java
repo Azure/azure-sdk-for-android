@@ -2,6 +2,7 @@ package com.azure.android.storage.blob;
 
 import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.storage.blob.models.AccessTier;
+import com.azure.android.storage.blob.models.ArchiveStatus;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
@@ -9,12 +10,14 @@ import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
+import com.azure.android.storage.blob.models.BlobItemProperties;
+import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobSetHttpHeadersHeaders;
 import com.azure.android.storage.blob.models.BlobSetHttpHeadersResponse;
+import com.azure.android.storage.blob.models.BlobSetTierResponse;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobType;
-import com.azure.android.storage.blob.models.BlockBlobsCommitBlockListResponse;
 import com.azure.android.storage.blob.models.LeaseStateType;
 import com.azure.android.storage.blob.models.LeaseStatusType;
 import com.tngtech.java.junit.dataprovider.DataProvider;
@@ -24,6 +27,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.threeten.bp.OffsetDateTime;
@@ -38,22 +42,24 @@ import java.util.concurrent.CountDownLatch;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-import static com.azure.android.storage.blob.TestUtils.awaitOnLatch;
-import static com.azure.android.storage.blob.TestUtils.enableFiddler;
-import static com.azure.android.storage.blob.TestUtils.garbageEtag;
-import static com.azure.android.storage.blob.TestUtils.generateBlockID;
-import static com.azure.android.storage.blob.TestUtils.generateResourceName;
-import static com.azure.android.storage.blob.TestUtils.getDefaultData;
-import static com.azure.android.storage.blob.TestUtils.initializeDefaultAsyncBlobClientBuilder;
-import static com.azure.android.storage.blob.TestUtils.initializeDefaultSyncBlobClientBuilder;
-import static com.azure.android.storage.blob.TestUtils.newDate;
-import static com.azure.android.storage.blob.TestUtils.oldDate;
-import static com.azure.android.storage.blob.TestUtils.receivedEtag;
-import static com.azure.android.storage.blob.TestUtils.setupMatchCondition;
-import static com.azure.android.storage.blob.TestUtils.validateBasicHeaders;
-import static com.azure.android.storage.blob.TestUtils.validateBlobProperties;
+import static com.azure.android.core.common.TestUtils.awaitOnLatch;
+import static com.azure.android.storage.blob.BlobTestUtils.enableFiddler;
+import static com.azure.android.storage.blob.BlobTestUtils.garbageEtag;
+import static com.azure.android.storage.blob.BlobTestUtils.generateBlockID;
+import static com.azure.android.storage.blob.BlobTestUtils.generateResourceName;
+import static com.azure.android.storage.blob.BlobTestUtils.getDefaultData;
+import static com.azure.android.storage.blob.BlobTestUtils.getDefaultString;
+import static com.azure.android.storage.blob.BlobTestUtils.initializeDefaultAsyncBlobClientBuilder;
+import static com.azure.android.storage.blob.BlobTestUtils.initializeDefaultSyncBlobClientBuilder;
+import static com.azure.android.storage.blob.BlobTestUtils.newDate;
+import static com.azure.android.storage.blob.BlobTestUtils.oldDate;
+import static com.azure.android.storage.blob.BlobTestUtils.receivedEtag;
+import static com.azure.android.storage.blob.BlobTestUtils.setupMatchCondition;
+import static com.azure.android.storage.blob.BlobTestUtils.validateBasicHeaders;
+import static com.azure.android.storage.blob.BlobTestUtils.validateBlobProperties;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
@@ -61,6 +67,7 @@ import static org.junit.Assert.assertTrue;
 
 
 @RunWith(DataProviderRunner.class)
+@Ignore
 public class BlobTest {
     private String containerName;
     private String blobName;
@@ -91,10 +98,29 @@ public class BlobTest {
     }
 
     @DataProvider
-    public static Object[][] headers() throws NoSuchAlgorithmException {
+    public static Object[][] downloadRange() {
         return new Object[][] {
-            {null, null, null, null, null, null}, // 0
-            {"control", "disposition", "encoding", "language", MessageDigest.getInstance("MD5").digest(getDefaultData()), "type"},   // 1
+            {0L, null, getDefaultString()},                       // 0
+            {0L, 5L,   getDefaultString().substring(0, 0 + 5)},   // 1
+            {3L, 2L,   getDefaultString().substring(3, 3 + 2)},   // 2
+            {1L, 3L,   getDefaultString().substring(1, 1 + 3)}    // 3
+        };
+    }
+
+    @DataProvider
+    public static Object[][] tierBlockBlob() {
+        return new Object[][] {
+            {AccessTier.HOT},       // 0
+            {AccessTier.COOL},      // 1
+            {AccessTier.ARCHIVE},   // 2
+        };
+    }
+
+    @DataProvider
+    public static Object[][] tierArchiveStatus() {
+        return new Object[][] {
+            {AccessTier.ARCHIVE, AccessTier.COOL, ArchiveStatus.REHYDRATE_PENDING_TO_COOL},    // 0
+            {AccessTier.ARCHIVE, AccessTier.HOT,  ArchiveStatus.REHYDRATE_PENDING_TO_HOT},     // 1
         };
     }
 
@@ -180,9 +206,42 @@ public class BlobTest {
         assertEquals(200, response.getStatusCode());
     }
 
-    // Get properties AC
+    @Test
+    @UseDataProvider("accessConditionsSuccess")
+    public void getPropertiesAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+        // Setup
+        ifMatch = setupMatchCondition(syncClient, containerName, blobName, ifMatch);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
 
-    // Get properties AC fail
+        // When
+        BlobGetPropertiesResponse response = syncClient.getBlobPropertiesWithRestResponse(containerName, blobName, null, null, null, requestConditions, null, null, null);
+
+        // Then
+        assertEquals(200, response.getStatusCode());
+    }
+
+    @Test
+    @UseDataProvider("accessConditionsFail")
+    public void getPropertiesACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+        // Setup
+        ifNoneMatch = setupMatchCondition(syncClient, containerName, blobName, ifNoneMatch);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
+
+        // When
+        BlobStorageException ex = assertThrows(BlobStorageException.class,
+            () -> syncClient.getBlobPropertiesWithRestResponse(containerName, blobName, null, null, null, requestConditions, null, null, null));
+
+        // Then
+        assertTrue(ex.getStatusCode() == 304 || ex.getStatusCode() == 412);
+    }
 
     @Test
     public void getPropertiesError() {
@@ -366,10 +425,69 @@ public class BlobTest {
         assertEquals(0, (long) headers.getContentLength());
     }
 
-    // Download range
-    // Download AC
-    // Download AC fail
-    // Download md5
+    @Test
+    @UseDataProvider("downloadRange")
+    public void rawDownloadRange(Long offset, Long count, String expectedData) throws IOException {
+        // Setup
+        BlobRange range = count == null ? new BlobRange(offset) : new BlobRange(offset, count);
+
+        // When
+        BlobDownloadResponse response = syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, range, null, null, null, null, null, null, null);
+
+        // Then
+        assertEquals(expectedData, response.getValue().string());
+        assertTrue(count == null ? response.getStatusCode() == 200 : response.getStatusCode() == 206);
+    }
+
+    @Test
+    @UseDataProvider("accessConditionsSuccess")
+    public void rawDownloadAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+        // Setup
+        ifMatch = setupMatchCondition(syncClient, containerName, blobName, ifMatch);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
+
+        // When
+        BlobDownloadResponse response = syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, null, requestConditions, null, null, null, null, null, null);
+
+        // Then
+        assertEquals(200, response.getStatusCode());
+    }
+
+    @Test
+    @UseDataProvider("accessConditionsFail")
+    public void rawDownloadACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+        // Setup
+        ifNoneMatch = setupMatchCondition(syncClient, containerName, blobName, ifNoneMatch);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
+
+        // When
+        BlobStorageException ex = assertThrows(BlobStorageException.class,
+            () -> syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, null, requestConditions, null, null, null, null, null, null));
+
+        // Then
+        assertTrue(ex.getStatusCode() == 304 || ex.getStatusCode() == 412);
+    }
+
+    @Test
+    public void rawDownloadMd5() throws IOException, NoSuchAlgorithmException {
+        // When
+        BlobDownloadResponse response = syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, new BlobRange(0L, 3L), null, true, null, null, null, null, null);
+
+        // Then
+        assertEquals(getDefaultString().substring(0, 3), response.getValue().string());
+        assertEquals(206, response.getStatusCode());
+        BlobDownloadHeaders headers = response.getDeserializedHeaders();
+        assertArrayEquals(MessageDigest.getInstance("MD5").digest(getDefaultString().substring(0, 3).getBytes()), headers.getContentMd5());
+    }
+
     // Download snapshot  TODO (gapra) : Test this if we add support for snapshot creation?
 
     @Test
@@ -457,6 +575,100 @@ public class BlobTest {
         // When
         BlobStorageException ex = assertThrows(BlobStorageException.class,
             () -> syncClient.deleteBlob(containerName, blobName));
+
+        // Then
+        assertEquals(404, ex.getStatusCode());
+    }
+
+    @Test
+    @UseDataProvider("tierBlockBlob")
+    public void setBlobTierBlockBlob(AccessTier tier) {
+        // When
+        BlobSetTierResponse response = syncClient.setBlobTierWithRestResponse(containerName, blobName, tier, null, null, null, null, null, null, null);
+
+        // Then
+        assertTrue(response.getStatusCode() == 200 || response.getStatusCode() == 202);
+
+        BlobGetPropertiesHeaders getProperties = syncClient.getBlobProperties(containerName, blobName);
+        assertEquals(tier.toString(), getProperties.getAccessTier());
+
+        BlobItemProperties listProperties = syncClient.getBlobsInPage(null, containerName, null).getItems().get(0).getProperties();
+        assertEquals(tier, listProperties.getAccessTier());
+    }
+
+    // TODO (gapra) : set access tier page blob if page blob support added. Should we expose page blob tiers if not supported? I think no
+
+    @Test
+    public void setBlobTierMin() {
+        // When
+        Void response = syncClient.setBlobTier(containerName, blobName, AccessTier.HOT);
+
+        // Then
+        BlobGetPropertiesHeaders getProperties = syncClient.getBlobProperties(containerName, blobName);
+        assertEquals(AccessTier.HOT.toString(), getProperties.getAccessTier());
+    }
+
+    @Test
+    public void setBlobTierInferred() {
+        // Setup
+        Boolean getPropertiesInferredBefore = syncClient.getBlobProperties(containerName, blobName).isAccessTierInferred();
+        Boolean listBlobsInferredBefore = syncClient.getBlobsInPage(null, containerName, null).getItems().get(0).getProperties().isAccessTierInferred();
+
+        // When
+        syncClient.setBlobTier(containerName, blobName, AccessTier.HOT);
+        Boolean getPropertiesInferredAfter = syncClient.getBlobProperties(containerName, blobName).isAccessTierInferred();
+        Boolean listBlobsInferredAfter = syncClient.getBlobsInPage(null, containerName, null).getItems().get(0).getProperties().isAccessTierInferred();
+
+        // Then
+        assertTrue(getPropertiesInferredBefore);
+        assertTrue(listBlobsInferredBefore);
+
+        assertNotEquals(Boolean.TRUE, getPropertiesInferredAfter);
+        assertNotEquals(Boolean.TRUE, listBlobsInferredAfter);
+    }
+
+    @Test
+    @UseDataProvider("tierArchiveStatus")
+    public void setBlobTierArchiveStatus(AccessTier sourceTier, AccessTier destTier, ArchiveStatus status) {
+        // When
+        syncClient.setBlobTier(containerName, blobName, sourceTier);
+        syncClient.setBlobTier(containerName, blobName, destTier);
+
+        // Then
+        BlobGetPropertiesHeaders getProperties = syncClient.getBlobProperties(containerName, blobName);
+        assertEquals(status.toString(), getProperties.getArchiveStatus());
+
+        BlobItemProperties listProperties = syncClient.getBlobsInPage(null, containerName, null).getItems().get(0).getProperties();
+        assertEquals(status, listProperties.getArchiveStatus());
+    }
+
+    // Set tier snapshot
+
+    // Set tier snapshot error
+
+    @Test
+    public void setBlobTierIA() {
+        // Expect
+        NullPointerException ex = assertThrows(NullPointerException.class,
+            () -> syncClient.setBlobTier(containerName, blobName, null));
+    }
+
+    // Set tier lease
+
+    // Set tier lease error
+
+    // Set tier tags
+
+    // Set tier tags fail
+
+    @Test
+    public void setBlobTierError() {
+        // Setup
+        String blobName = generateResourceName(); // Blob that does not exist.
+
+        // When
+        BlobStorageException ex = assertThrows(BlobStorageException.class,
+            () -> syncClient.setBlobTier(containerName, blobName, AccessTier.HOT));
 
         // Then
         assertEquals(404, ex.getStatusCode());

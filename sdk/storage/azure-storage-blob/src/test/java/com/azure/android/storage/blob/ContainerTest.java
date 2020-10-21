@@ -1,4 +1,15 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.storage.blob;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.threeten.bp.OffsetDateTime;
 
 import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
@@ -14,27 +25,20 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.threeten.bp.OffsetDateTime;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 import okhttp3.Response;
 
-import static com.azure.android.storage.blob.TestUtils.awaitOnLatch;
-import static com.azure.android.storage.blob.TestUtils.enableFiddler;
-import static com.azure.android.storage.blob.TestUtils.generateResourceName;
-import static com.azure.android.storage.blob.TestUtils.initializeDefaultAsyncBlobClientBuilder;
-import static com.azure.android.storage.blob.TestUtils.initializeDefaultSyncBlobClientBuilder;
-import static com.azure.android.storage.blob.TestUtils.newDate;
-import static com.azure.android.storage.blob.TestUtils.oldDate;
-import static com.azure.android.storage.blob.TestUtils.validateBasicHeaders;
+import static com.azure.android.core.common.TestUtils.awaitOnLatch;
+import static com.azure.android.storage.blob.BlobTestUtils.enableFiddler;
+import static com.azure.android.storage.blob.BlobTestUtils.generateResourceName;
+import static com.azure.android.storage.blob.BlobTestUtils.initializeDefaultAsyncBlobClientBuilder;
+import static com.azure.android.storage.blob.BlobTestUtils.initializeDefaultSyncBlobClientBuilder;
+import static com.azure.android.storage.blob.BlobTestUtils.newDate;
+import static com.azure.android.storage.blob.BlobTestUtils.oldDate;
+import static com.azure.android.storage.blob.BlobTestUtils.validateBasicHeaders;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -42,6 +46,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 
 @RunWith(DataProviderRunner.class)
+@Ignore
 public class ContainerTest {
     private String containerName;
     private static StorageBlobAsyncClient asyncClient;
