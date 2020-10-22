@@ -67,18 +67,18 @@ public final class UploadRequest {
     }
 
     /**
-     * Get whether or not the library should calculate the md5 and send it for the service to verify.
+     * Get the name of the target blob holding uploaded file.
      *
-     * @return Whether or not the library should calculate the md5 and send it for the service to verify.
+     * @return The blob name.
      */
     String getBlobName() {
         return this.blobName;
     }
 
     /**
-     * Get the name of the target blob holding uploaded file.
+     * Get whether or not the library should calculate the md5 and send it for the service to verify.
      *
-     * @return The blob name.
+     * @return Whether or not the library should calculate the md5 and send it for the service to verify.
      */
     boolean isComputeMd5() {
         return this.computeMd5;
