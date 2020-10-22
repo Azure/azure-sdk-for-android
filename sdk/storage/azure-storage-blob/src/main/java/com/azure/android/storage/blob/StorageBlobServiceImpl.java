@@ -27,6 +27,8 @@ import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobSetHttpHeadersHeaders;
 import com.azure.android.storage.blob.models.BlobSetHttpHeadersResponse;
+import com.azure.android.storage.blob.models.BlobSetMetadataHeaders;
+import com.azure.android.storage.blob.models.BlobSetMetadataResponse;
 import com.azure.android.storage.blob.models.BlobSetTierHeaders;
 import com.azure.android.storage.blob.models.BlobSetTierResponse;
 import com.azure.android.storage.blob.models.BlobStorageException;
@@ -546,6 +548,81 @@ final class StorageBlobServiceImpl {
             headers,
             requestId,
             version,
+            cancellationToken,
+            callback);
+    }
+
+    Void setBlobMetadata(String containerName,
+                         String blobName,
+                         Map<String, String> metadata) {
+        BlobSetMetadataResponse blobSetHttpHeadersResponse = setBlobMetadataWithRestResponse(containerName,
+            blobName,
+            null,
+            null,
+            null,
+            metadata,
+            null,
+            null,
+            CancellationToken.NONE);
+
+        return blobSetHttpHeadersResponse.getValue();
+    }
+
+    void setBlobMetadata(String containerName,
+                         String blobName,
+                         Map<String, String> metadata,
+                         CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
+        setBlobMetadata(containerName,
+            blobName,
+            null,
+            null,
+            null,
+            metadata,
+            null,
+            null,
+            CancellationToken.NONE,
+            callback);
+    }
+
+    BlobSetMetadataResponse setBlobMetadataWithRestResponse(String containerName,
+                                                            String blobName,
+                                                            Integer timeout,
+                                                            String version,
+                                                            BlobRequestConditions requestConditions,
+                                                            Map<String, String> metadata,
+                                                            String requestId,
+                                                            CpkInfo cpkInfo,
+                                                            CancellationToken cancellationToken) {
+        return setBlobMetadataWithRestResponseIntern(containerName,
+            blobName,
+            timeout,
+            requestConditions,
+            metadata,
+            version,
+            requestId,
+            cpkInfo,
+            cancellationToken,
+            null);
+    }
+
+    void setBlobMetadata(String containerName,
+                         String blobName,
+                         Integer timeout,
+                         String version,
+                         BlobRequestConditions requestConditions,
+                         Map<String, String> metadata,
+                         String requestId,
+                         CpkInfo cpkInfo,
+                         CancellationToken cancellationToken,
+                         CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
+        this.setBlobMetadataWithRestResponseIntern(containerName,
+            blobName,
+            timeout,
+            requestConditions,
+            metadata,
+            requestId,
+            version,
+            cpkInfo,
             cancellationToken,
             callback);
     }
@@ -1917,6 +1994,121 @@ final class StorageBlobServiceImpl {
         }
     }
 
+    private BlobSetMetadataResponse setBlobMetadataWithRestResponseIntern(String containerName,
+                                                                          String blobName,
+                                                                          Integer timeout,
+                                                                          BlobRequestConditions requestConditions,
+                                                                          Map<String, String> metadata,
+                                                                          String version,
+                                                                          String requestId,
+                                                                          CpkInfo cpkInfo,
+                                                                          CancellationToken cancellationToken,
+                                                                          CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
+
+        cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+
+        String encryptionKey = null;
+        String encryptionKeySha256 = null;
+        EncryptionAlgorithmType encryptionAlgorithm = null;
+        if (cpkInfo != null) {
+            encryptionKey = cpkInfo.getEncryptionKey();
+            encryptionKeySha256 = cpkInfo.getEncryptionKeySha256();
+            encryptionAlgorithm = cpkInfo.getEncryptionAlgorithm();
+        }
+
+        final String comp = "metadata";
+
+        requestConditions = requestConditions == null ? new BlobRequestConditions() : requestConditions;
+        String leaseId = requestConditions.getLeaseId();
+        DateTimeRfc1123 ifModifiedSince = requestConditions.getIfModifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfModifiedSince());
+        DateTimeRfc1123 ifUnmodifiedSince = requestConditions.getIfUnmodifiedSince() == null
+            ? null :
+            new DateTimeRfc1123(requestConditions.getIfUnmodifiedSince());
+        String ifMatch = requestConditions.getIfMatch();
+        String ifNoneMatch = requestConditions.getIfNoneMatch();
+
+        Call<ResponseBody> call = service.setBlobMetadata(containerName,
+            blobName,
+            timeout,
+            metadata == null ? null : new MetadataInterceptor.StorageMultiHeaders(metadata),
+            leaseId,
+            ifModifiedSince,
+            ifUnmodifiedSince,
+            ifMatch,
+            ifNoneMatch,
+            null, // TODO: Add tags when later service version supported.
+            XMS_VERSION, // TODO: Replace with 'version'.
+            requestId,
+            comp,
+            encryptionKey,
+            encryptionKeySha256,
+            encryptionAlgorithm,
+            null // Todo: Add encryption scope with later service version
+        );
+
+        ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
+            call.cancel();
+        });
+
+        if (callback != null) {
+            executeCall(call, new retrofit2.Callback<ResponseBody>() {
+                @Override
+                public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        if (response.code() == 200) {
+                            BlobSetMetadataHeaders typedHeaders = deserializeHeaders(response.headers(),
+                                BlobSetMetadataHeaders.class);
+
+                            callback.onSuccess(null,
+                                typedHeaders,
+                                response.raw());
+                        } else {
+                            String strContent = readAsString(response.body());
+
+                            callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
+                        }
+                    } else {
+                        String strContent = readAsString(response.errorBody());
+
+                        callback.onFailure(new BlobStorageException(strContent, response.raw()), response.raw());
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<ResponseBody> call, @NonNull Throwable t) {
+                    callback.onFailure(t, null);
+                }
+            });
+
+            return null;
+        } else {
+            Response<ResponseBody> response = executeCall(call);
+
+            if (response.isSuccessful()) {
+                if (response.code() == 200) {
+                    BlobSetMetadataHeaders deserializedHeaders = deserializeHeaders(response.headers(),
+                        BlobSetMetadataHeaders.class);
+
+                    BlobSetMetadataResponse result = new BlobSetMetadataResponse(response.raw().request(),
+                        response.code(),
+                        response.headers(),
+                        null,
+                        deserializedHeaders);
+
+                    return result;
+                } else {
+                    throw new BlobStorageException(null, response.raw());
+                }
+            } else {
+                String strContent = readAsString(response.errorBody());
+
+                throw new BlobStorageException(strContent, response.raw());
+            }
+        }
+    }
+
     private BlobSetTierResponse setBlobTierWithRestResponseIntern(String containerName,
                                                                   String blobName,
                                                                   AccessTier tier,
@@ -2719,6 +2911,25 @@ final class StorageBlobServiceImpl {
                                               @Header("x-ms-blob-content-encoding") String contentEncoding,
                                               @Header("x-ms-blob-content-language") String contentLanguage,
                                               @Header("x-ms-blob-content-disposition") String contentDisposition);
+
+        @PUT("{containerName}/{blob}")
+        Call<ResponseBody> setBlobMetadata(@Path("containerName") String containerName,
+                                           @Path("blob") String blob,
+                                           @Query("timeout") Integer timeout,
+                                           @Tag MetadataInterceptor.StorageMultiHeaders metadata,
+                                           @Header("x-ms-lease-id") String leaseId,
+                                           @Header("If-Modified-Since") DateTimeRfc1123 ifModifiedSince,
+                                           @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
+                                           @Header("If-Match") String ifMatch,
+                                           @Header("If-None-Match") String ifNoneMatch,
+                                           @Header("x-ms-if-tags") String ifTags,
+                                           @Header("x-ms-version") String version,
+                                           @Header("x-ms-client-request-id") String requestId,
+                                           @Query("comp") String comp,
+                                           @Header("x-ms-encryption-key") String encryptionKey,
+                                           @Header("x-ms-encryption-key-sha256") String encryptionKeySha256,
+                                           @Header("x-ms-encryption-algorithm") EncryptionAlgorithmType encryptionAlgorithm,
+                                           @Header("x-ms-encryption-scope") String encryptionScope);
 
         @PUT("{containerName}/{blob}")
         Call<Void> setBlobTier(@Path("containerName") String containerName,
