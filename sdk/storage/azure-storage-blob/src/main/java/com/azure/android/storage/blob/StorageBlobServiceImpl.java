@@ -90,7 +90,7 @@ import retrofit2.http.Tag;
 final class StorageBlobServiceImpl {
     private final StorageBlobService service;
     private final SerializerAdapter serializerAdapter;
-    private static String XMS_VERSION = "2019-02-02";
+    private static String XMS_VERSION = "2019-12-12";
 
     StorageBlobServiceImpl(ServiceClient serviceClient) {
         this.service = serviceClient.getRetrofit().create(StorageBlobService.class);
@@ -2811,7 +2811,7 @@ final class StorageBlobServiceImpl {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
-                        if (response.code() == 204) {
+                        if (response.code() == 200) {
                             BlobTags typedContent = deserializeContent(response.body(),
                                 BlobTags.class);
 
@@ -2842,7 +2842,7 @@ final class StorageBlobServiceImpl {
             Response<ResponseBody> response = executeCall(call);
 
             if (response.isSuccessful()) {
-                if (response.code() == 204) {
+                if (response.code() == 200) {
                     BlobTags typedContent = deserializeContent(response.body(),
                         BlobTags.class);
 
