@@ -147,6 +147,15 @@ public class BlobTest {
         };
     }
 
+    @DataProvider
+    public static Object[][] tags() {
+        return new Object[][] {
+            {null, null, null, null},
+            {"foo", "bar", "fizz", "buzz"},
+            {" +-./:=_  +-./:=_", " +-./:=_", null, null}
+        };
+    }
+
     @BeforeClass
     public static void setupClass() {
         asyncClient = initializeDefaultAsyncBlobClientBuilder(enableFiddler()).build();
@@ -289,7 +298,7 @@ public class BlobTest {
 
         // Then
         BlobGetPropertiesHeaders responseHeaders = syncClient.getBlobProperties(containerName, blobName);
-        assertEquals("contentType", responseHeaders.getMetadata().get("foo"));
+        assertEquals("contentType", responseHeaders.getContentType());
     }
 
     @Test
