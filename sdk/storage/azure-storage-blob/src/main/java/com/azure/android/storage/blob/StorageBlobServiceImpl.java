@@ -2811,7 +2811,7 @@ final class StorageBlobServiceImpl {
                 @Override
                 public void onResponse(@NonNull Call<ResponseBody> call, @NonNull Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
-                        if (response.code() == 200) {
+                        if (response.code() == 204) {
                             BlobTags typedContent = deserializeContent(response.body(),
                                 BlobTags.class);
 
@@ -2842,7 +2842,7 @@ final class StorageBlobServiceImpl {
             Response<ResponseBody> response = executeCall(call);
 
             if (response.isSuccessful()) {
-                if (response.code() == 200) {
+                if (response.code() == 204) {
                     BlobTags typedContent = deserializeContent(response.body(),
                         BlobTags.class);
 
@@ -2912,7 +2912,7 @@ final class StorageBlobServiceImpl {
             blobName,
             timeout,
             versionId,
-            null, // TODO: calculate Md5?
+            null,
             null,
             iftags,
             XMS_VERSION,
