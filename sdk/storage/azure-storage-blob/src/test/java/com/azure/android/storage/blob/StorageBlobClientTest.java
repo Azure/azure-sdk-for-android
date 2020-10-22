@@ -22,6 +22,8 @@ import com.azure.android.storage.blob.models.BlobSetHttpHeadersHeaders;
 import com.azure.android.storage.blob.models.BlobSetHttpHeadersResponse;
 import com.azure.android.storage.blob.models.BlobSetMetadataHeaders;
 import com.azure.android.storage.blob.models.BlobSetMetadataResponse;
+import com.azure.android.storage.blob.models.BlobSetTagsHeaders;
+import com.azure.android.storage.blob.models.BlobSetTagsResponse;
 import com.azure.android.storage.blob.models.BlobSetTierHeaders;
 import com.azure.android.storage.blob.models.BlobSetTierResponse;
 import com.azure.android.storage.blob.models.BlobsPage;
@@ -1725,6 +1727,139 @@ public class StorageBlobClientTest {
             });
 
         awaitOnLatch(latch, "getBlobTags");
+    }
+
+    @Test
+    public void setBlobTags() {
+        // Given a StorageBlobClient.
+
+        // When setting the tags of a blob using setBlobTags().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(204);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then a void response be returned by the client.
+        Map<String, String> tags = new HashMap<>();
+        tags.put("foo", "bar");
+        Void response = storageBlobClient.setBlobTags("container",
+            "blob", tags);
+
+        assertNull(response);
+    }
+
+    @Test
+    public void setBlobTags_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When setting the tags of a blob using setBlobTags() while providing a callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(204);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        Map<String, String> tags = new HashMap<>();
+        tags.put("foo", "bar");
+        storageBlobAsyncClient.setBlobTags("container",
+            "blob", tags,
+            new CallbackWithHeader<Void, BlobSetTagsHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobSetTagsHeaders header, Response response) {
+                    try {
+                        // Then an object with the return headers will be returned by the client to the callback.
+                        assertEquals(204, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "setBlobTags");
+    }
+
+    @Test
+    public void setBlobTagsWithRestResponse() {
+        // Given a StorageBlobClient.
+
+        // When setting the tags of a blob using setBlobTagsWithResponse().
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(204);
+
+        mockWebServer.enqueue(mockResponse);
+
+        // Then the client will return an object that contains the details of the REST response.
+        Map<String, String> tags = new HashMap<>();
+        tags.put("foo", "bar");
+        BlobSetTagsResponse response =
+            storageBlobClient.setBlobTagsWithResponse("container",
+                "blob",
+                null,
+                null,
+                null,
+                tags,
+                null,
+                CancellationToken.NONE);
+
+        assertEquals(204, response.getStatusCode());
+    }
+
+    @Test
+    public void setBlobTagsWithRestResponse_withCallback() {
+        // Given a StorageBlobClient.
+
+        // When setting the tags of a blob using setBlobTagsWithRestResponse() while providing a
+        // callback.
+        MockResponse mockResponse = new MockResponse()
+            .setResponseCode(204);
+
+        mockWebServer.enqueue(mockResponse);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        Map<String, String> tags = new HashMap<>();
+        tags.put("foo", "bar");
+        storageBlobAsyncClient.setBlobTags("container",
+            "blob",
+            null,
+            null,
+            null,
+            tags,
+            null,
+            CancellationToken.NONE,
+            new CallbackWithHeader<Void, BlobSetTagsHeaders>() {
+
+                @Override
+                public void onSuccess(Void result, BlobSetTagsHeaders header, Response response) {
+                    try {
+                        // Then the client will return an object that contains the details of the REST response
+                        assertEquals(204, response.code());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable error, Response response) {
+                    try {
+                        throw new RuntimeException(error);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "setBlobTags");
     }
 
     private static String readFileToString(String filePath) {

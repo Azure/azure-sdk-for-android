@@ -33,6 +33,7 @@ import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobSetHttpHeadersHeaders;
 import com.azure.android.storage.blob.models.BlobSetMetadataHeaders;
+import com.azure.android.storage.blob.models.BlobSetTagsHeaders;
 import com.azure.android.storage.blob.models.BlobSetTierHeaders;
 import com.azure.android.storage.blob.models.BlobTags;
 import com.azure.android.storage.blob.models.BlobsPage;
@@ -893,9 +894,9 @@ public class StorageBlobAsyncClient {
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
      */
-    void deleteBlob(String containerName,
-                    String blobName,
-                    CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
+    public void deleteBlob(String containerName,
+                           String blobName,
+                           CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
         storageBlobServiceClient.deleteBlob(containerName,
             blobName,
             callback);
@@ -934,16 +935,16 @@ public class StorageBlobAsyncClient {
      * @param cancellationToken The token to request cancellation.
      * @param callback          Callback that receives the response.
      */
-    void deleteBlob(String containerName,
-                    String blobName,
-                    String snapshot,
-                    Integer timeout,
-                    String version,
-                    DeleteSnapshotsOptionType deleteSnapshots,
-                    BlobRequestConditions requestConditions,
-                    String requestId,
-                    CancellationToken cancellationToken,
-                    CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
+    public void deleteBlob(String containerName,
+                           String blobName,
+                           String snapshot,
+                           Integer timeout,
+                           String version,
+                           DeleteSnapshotsOptionType deleteSnapshots,
+                           BlobRequestConditions requestConditions,
+                           String requestId,
+                           CancellationToken cancellationToken,
+                           CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
         storageBlobServiceClient.deleteBlob(containerName,
             blobName,
             snapshot,
@@ -962,8 +963,8 @@ public class StorageBlobAsyncClient {
      * @param containerName The container name.
      * @param callback      Callback that receives the response.
      */
-    void deleteContainer(String containerName,
-                         CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
+    public void deleteContainer(String containerName,
+                                CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
         storageBlobServiceClient.deleteContainer(containerName,
             callback);
     }
@@ -980,13 +981,13 @@ public class StorageBlobAsyncClient {
      * @param cancellationToken The token to request cancellation.
      * @param callback          Callback that receives the response.
      */
-    void deleteContainer(String containerName,
-                         Integer timeout,
-                         String version,
-                         BlobRequestConditions requestConditions,
-                         String requestId,
-                         CancellationToken cancellationToken,
-                         CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
+    public void deleteContainer(String containerName,
+                                Integer timeout,
+                                String version,
+                                BlobRequestConditions requestConditions,
+                                String requestId,
+                                CancellationToken cancellationToken,
+                                CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
         storageBlobServiceClient.deleteContainer(containerName,
             timeout,
             version,
@@ -1064,6 +1065,59 @@ public class StorageBlobAsyncClient {
                     callback.onFailure(throwable, response);
                 }
             });
+    }
+
+    /**
+     * Changes a blob's tags. The specified tags in this method will replace existing tags. If old values
+     * must be preserved, they must be downloaded and included in the call to this method.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param tags          Tags to associate with the blob.
+     * @param callback      Callback that receives the response.
+     */
+    public void setBlobTags(String containerName,
+                            String blobName,
+                            Map<String, String> tags,
+                            CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
+        storageBlobServiceClient.setBlobTags(containerName, blobName, tags, callback);
+    }
+
+    /**
+     * Changes a blob's tags. The specified tags in this method will replace existing tags. If old values
+     * must be preserved, they must be downloaded and included in the call to this method.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param ifTags            Specifies a SQL query to apply to the blob's tags.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param tags              Tags to associate with the blob.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
+     * @param callback          Callback that receives the response.
+     */
+    public void setBlobTags(String containerName,
+                            String blobName,
+                            Integer timeout,
+                            String ifTags,
+                            String version,
+                            Map<String, String> tags,
+                            String requestId,
+                            CancellationToken cancellationToken,
+                            CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
+        storageBlobServiceClient.setBlobTags(containerName,
+            blobName,
+            timeout,
+            null, // TODO: Add back with versioning support
+            ifTags,
+            tags,
+            requestId,
+            version,
+            cancellationToken,
+            callback);
     }
 
     /**

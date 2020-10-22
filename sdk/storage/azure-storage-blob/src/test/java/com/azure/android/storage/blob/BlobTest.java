@@ -17,6 +17,8 @@ import com.azure.android.storage.blob.models.BlobSetHttpHeadersHeaders;
 import com.azure.android.storage.blob.models.BlobSetHttpHeadersResponse;
 import com.azure.android.storage.blob.models.BlobSetMetadataHeaders;
 import com.azure.android.storage.blob.models.BlobSetMetadataResponse;
+import com.azure.android.storage.blob.models.BlobSetTagsHeaders;
+import com.azure.android.storage.blob.models.BlobSetTagsResponse;
 import com.azure.android.storage.blob.models.BlobSetTierResponse;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobType;
@@ -142,6 +144,15 @@ public class BlobTest {
         return new Object[][] {
             {AccessTier.ARCHIVE, AccessTier.COOL, ArchiveStatus.REHYDRATE_PENDING_TO_COOL},    // 0
             {AccessTier.ARCHIVE, AccessTier.HOT,  ArchiveStatus.REHYDRATE_PENDING_TO_HOT},     // 1
+        };
+    }
+
+    @DataProvider
+    public static Object[][] tags() {
+        return new Object[][] {
+            {null, null, null, null},
+            {"foo", "bar", "fizz", "buzz"},
+            {" +-./:=_  +-./:=_", " +-./:=_", null, null}
         };
     }
 
@@ -287,7 +298,7 @@ public class BlobTest {
 
         // Then
         BlobGetPropertiesHeaders responseHeaders = syncClient.getBlobProperties(containerName, blobName);
-        assertEquals("contentType", responseHeaders.getMetadata().get("foo"));
+        assertEquals("contentType", responseHeaders.getContentType());
     }
 
     @Test
@@ -810,4 +821,112 @@ public class BlobTest {
         // Then
         assertEquals(404, ex.getStatusCode());
     }
+
+    @Test
+    public void setTagsMin() {
+        // Setup
+        Map<String, String> tags = new HashMap<>();
+        tags.put("foo", "bar");
+
+        // When
+        syncClient.setBlobTags(containerName, blobName, tags);
+
+        // Then
+        Map<String, String> responseTags = syncClient.getBlobTags(containerName, blobName);
+        assertEquals(1, responseTags.size());
+        assertEquals("bar", responseTags.get("foo"));
+    }
+
+    @Test
+    public void setTagsAllNull() {
+        // When
+        BlobSetTagsResponse response =
+            syncClient.setBlobTagsWithResponse(containerName, blobName, null, null, null, null, null, null);
+
+        // Then
+        assertEquals(0, syncClient.getBlobProperties(containerName, blobName).getMetadata().size());
+        assertEquals(204, response.getStatusCode());
+        assertNotNull(response.getHeaders().get("x-ms-request-id"));
+        assertNotNull(response.getHeaders().get("x-ms-version"));
+        assertNotNull(response.getHeaders().get("date"));
+    }
+
+    @Test
+    @UseDataProvider("tags")
+    public void setTagsTags(String key1, String value1, String key2, String value2) {
+        // Setup
+        Map<String, String> tags = new HashMap<>();
+        if (key1 != null && value1 != null) {
+            tags.put(key1, value1);
+        }
+        if (key2 != null && value2 != null) {
+            tags.put(key2, value2);
+        }
+
+        // When
+        BlobSetTagsResponse response =
+            syncClient.setBlobTagsWithResponse(containerName, blobName, null, null, null, tags, null, null);
+
+        // Then
+        Map<String, String> tagsResponse = syncClient.getBlobTags(containerName, blobName);
+        assertEquals(tags.size(), tagsResponse.size());
+        for(Map.Entry<String, String> entry : tags.entrySet()) {
+            assertEquals(entry.getValue(), tagsResponse.get(entry.getKey()));
+        }
+    }
+
+    @Test
+    public void setTagsAC() {
+        // Setup
+        Map<String, String> t = new HashMap<>();
+        t.put("foo", "bar");
+        syncClient.setBlobTags(containerName, blobName, t);
+        t = new HashMap<>();
+        t.put("fizz", "buzz");
+
+        // Expect
+        assertEquals(204, syncClient.setBlobTagsWithResponse(containerName, blobName, null, "\"foo\" = 'bar'", null,
+            t, null,null).getStatusCode());
+    }
+
+    @Test
+    public void setTagsACFail() {
+        // Setup
+        Map<String, String> t = new HashMap<>();
+        t.put("fizz", "buzz");
+
+        // Expect
+        assertThrows(BlobStorageException.class,
+            () -> syncClient.setBlobTagsWithResponse(containerName, blobName, null, "\"foo\" = 'bar'", null, t,
+                null, null));
+    }
+
+    @Test
+    public void setTagsAsync() {
+        // Setup
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // When
+        asyncClient.setBlobTags(containerName, blobName, null, null, null, null, null,
+            null, new CallbackWithHeader<Void, BlobSetTagsHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobSetTagsHeaders header, Response response) {
+                    assertEquals(204, response.code());
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "setBlobTags");
+    }
+
+    // setTagsError tested in AC fail as it throws BlobStorageException
 }

@@ -25,6 +25,7 @@ import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobSetHttpHeadersResponse;
 import com.azure.android.storage.blob.models.BlobSetMetadataResponse;
+import com.azure.android.storage.blob.models.BlobSetTagsResponse;
 import com.azure.android.storage.blob.models.BlobSetTierResponse;
 import com.azure.android.storage.blob.models.BlobTags;
 import com.azure.android.storage.blob.models.BlobsPage;
@@ -682,8 +683,8 @@ public class StorageBlobClient {
      * @param containerName The container name.
      * @param blobName      The blob name.
      */
-    Void deleteBlob(String containerName,
-                    String blobName) {
+    public Void deleteBlob(String containerName,
+                           String blobName) {
         return storageBlobServiceClient.deleteBlob(containerName,
             blobName);
     }
@@ -721,15 +722,15 @@ public class StorageBlobClient {
      * @param cancellationToken The token to request cancellation.
      * @return A response object containing the details of the delete operation.
      */
-    BlobDeleteResponse deleteBlobWithRestResponse(String containerName,
-                                                  String blobName,
-                                                  String snapshot,
-                                                  Integer timeout,
-                                                  String version,
-                                                  DeleteSnapshotsOptionType deleteSnapshots,
-                                                  BlobRequestConditions requestConditions,
-                                                  String requestId,
-                                                  CancellationToken cancellationToken) {
+    public BlobDeleteResponse deleteBlobWithRestResponse(String containerName,
+                                                         String blobName,
+                                                         String snapshot,
+                                                         Integer timeout,
+                                                         String version,
+                                                         DeleteSnapshotsOptionType deleteSnapshots,
+                                                         BlobRequestConditions requestConditions,
+                                                         String requestId,
+                                                         CancellationToken cancellationToken) {
         return storageBlobServiceClient.deleteBlobWithRestResponse(containerName,
             blobName,
             snapshot,
@@ -746,7 +747,7 @@ public class StorageBlobClient {
      *
      * @param containerName The container name.
      */
-    Void deleteContainer(String containerName) {
+    public Void deleteContainer(String containerName) {
         return storageBlobServiceClient.deleteContainer(containerName);
     }
 
@@ -762,12 +763,12 @@ public class StorageBlobClient {
      * @param cancellationToken The token to request cancellation.
      * @return A response object containing the details of the delete operation.
      */
-    ContainerDeleteResponse deleteContainerWithRestResponse(String containerName,
-                                                            Integer timeout,
-                                                            String version,
-                                                            BlobRequestConditions requestConditions,
-                                                            String requestId,
-                                                            CancellationToken cancellationToken) {
+    public ContainerDeleteResponse deleteContainerWithRestResponse(String containerName,
+                                                                   Integer timeout,
+                                                                   String version,
+                                                                   BlobRequestConditions requestConditions,
+                                                                   String requestId,
+                                                                   CancellationToken cancellationToken) {
         return storageBlobServiceClient.deleteContainerWithRestResponse(containerName,
             timeout,
             version,
@@ -826,6 +827,54 @@ public class StorageBlobClient {
             response.getStatusCode(),
             response.getHeaders(),
             ModelHelper.populateBlobTags(response.getValue()));
+    }
+
+    /**
+     * Changes a blob's tags. The specified tags in this method will replace existing tags. If old values
+     * must be preserved, they must be downloaded and included in the call to this method.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param tags          Tags to associate with the blob.
+     */
+    public Void setBlobTags(String containerName,
+                            String blobName,
+                            Map<String, String> tags) {
+        return storageBlobServiceClient.setBlobTags(containerName, blobName, tags);
+    }
+
+    /**
+     * Changes a blob's tags. The specified tags in this method will replace existing tags. If old values
+     * must be preserved, they must be downloaded and included in the call to this method.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param ifTags            Specifies a SQL query to apply to the blob's tags.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param tags              Tags to associate with the blob.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
+     */
+    public BlobSetTagsResponse setBlobTagsWithResponse(String containerName,
+                                                       String blobName,
+                                                       Integer timeout,
+                                                       String ifTags,
+                                                       String version,
+                                                       Map<String, String> tags,
+                                                       String requestId,
+                                                       CancellationToken cancellationToken) {
+        return storageBlobServiceClient.setBlobTagsWithRestResponse(containerName,
+            blobName,
+            timeout,
+            null, // TODO: Add back with versioning support
+            ifTags,
+            tags,
+            requestId,
+            version,
+            cancellationToken);
     }
 
     /**
