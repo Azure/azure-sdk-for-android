@@ -3,7 +3,6 @@
 
 package com.azure.android.storage.blob.models;
 
-import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
@@ -15,7 +14,6 @@ import java.util.List;
  * Blob tags.
  */
 @JacksonXmlRootElement(localName = "Tags")
-@Fluent
 public final class BlobTags {
     private static final class TagSetWrapper {
         @JacksonXmlProperty(localName = "Tag")

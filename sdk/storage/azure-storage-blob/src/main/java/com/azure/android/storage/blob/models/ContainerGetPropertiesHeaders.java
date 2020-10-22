@@ -121,12 +121,6 @@ public final class ContainerGetPropertiesHeaders {
     @JsonProperty(value = "x-ms-deny-encryption-scope-override")
     private Boolean denyEncryptionScopeOverride;
 
-    /*
-     * The errorCode property.
-     */
-    @JsonProperty(value = "x-ms-error-code")
-    private String errorCode;
-
     /**
      * Get the metadata property: The metadata property.
      *
@@ -481,26 +475,6 @@ public final class ContainerGetPropertiesHeaders {
      */
     public ContainerGetPropertiesHeaders setDenyEncryptionScopeOverride(Boolean denyEncryptionScopeOverride) {
         this.denyEncryptionScopeOverride = denyEncryptionScopeOverride;
-        return this;
-    }
-
-    /**
-     * Get the errorCode property: The errorCode property.
-     *
-     * @return the errorCode value.
-     */
-    public String getErrorCode() {
-        return this.errorCode;
-    }
-
-    /**
-     * Set the errorCode property: The errorCode property.
-     *
-     * @param errorCode the errorCode value to set.
-     * @return the ContainerGetPropertiesHeaders object itself.
-     */
-    public ContainerGetPropertiesHeaders setErrorCode(String errorCode) {
-        this.errorCode = errorCode;
         return this;
     }
 }

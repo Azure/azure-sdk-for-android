@@ -3,7 +3,6 @@
 
 package com.azure.android.storage.blob.models;
 
-import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
@@ -11,7 +10,6 @@ import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
  * The BlobTag model.
  */
 @JacksonXmlRootElement(localName = "Tag")
-@Fluent
 public final class BlobTag {
     /*
      * The key property.

@@ -19,10 +19,9 @@ import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.CoreUtil;
+import com.azure.android.storage.blob.implementation.util.ModelHelper;
 import com.azure.android.storage.blob.interceptor.MetadataInterceptor;
 import com.azure.android.storage.blob.interceptor.NormalizeEtagInterceptor;
-import com.azure.android.storage.blob.interceptor.ResponseHeadersValidationInterceptor;
-import com.azure.android.storage.blob.implementation.util.ModelHelper;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
@@ -32,8 +31,10 @@ import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlobSetHttpHeadersHeaders;
+import com.azure.android.storage.blob.models.BlobSetMetadataHeaders;
 import com.azure.android.storage.blob.models.BlobSetTagsHeaders;
-import com.azure.android.storage.blob.models.BlobTag;
+import com.azure.android.storage.blob.models.BlobSetTierHeaders;
 import com.azure.android.storage.blob.models.BlobTags;
 import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
@@ -48,6 +49,7 @@ import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
+import com.azure.android.storage.blob.models.RehydratePriority;
 import com.azure.android.storage.blob.models.PublicAccessType;
 import com.azure.android.storage.blob.transfer.DownloadRequest;
 import com.azure.android.storage.blob.transfer.StorageBlobClientMap;
@@ -55,11 +57,8 @@ import com.azure.android.storage.blob.transfer.TransferClient;
 import com.azure.android.storage.blob.transfer.TransferInfo;
 import com.azure.android.storage.blob.transfer.UploadRequest;
 
-import org.threeten.bp.OffsetDateTime;
-
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -299,91 +298,6 @@ public class StorageBlobAsyncClient {
     }
 
     /**
-     * Deletes a container.
-     *
-     * @param containerName The container name.
-     * @param callback      Callback that receives the response.
-     */
-    public void deleteContainer(String containerName,
-                                CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
-        storageBlobServiceClient.deleteContainer(containerName,
-            callback);
-    }
-
-    /**
-     * Deletes a container
-     *
-     * @param containerName     The container name.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestConditions {@link BlobRequestConditions}
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
-     * @param cancellationToken The token to request cancellation.
-     * @param callback          Callback that receives the response.
-     */
-    public void deleteContainer(String containerName,
-                                Integer timeout,
-                                String version,
-                                BlobRequestConditions requestConditions,
-                                String requestId,
-                                CancellationToken cancellationToken,
-                                CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
-        storageBlobServiceClient.deleteContainer(containerName,
-            timeout,
-            version,
-            requestConditions,
-            requestId,
-            cancellationToken,
-            callback);
-    }
-
-    /**
-     * Gets the container's properties.
-     *
-     * @param containerName The container name.
-     * @param callback      Callback that receives the response.
-     */
-    public void getContainerProperties(String containerName,
-                                       CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
-        storageBlobServiceClient.getContainerProperties(containerName,
-            callback);
-    }
-
-    /**
-     * Gets the container's properties.
-     *
-     * @param containerName         The container name.
-     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
-     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version               Specifies the version of the operation to use for this request.
-     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
-     *                              variety of requests to the conditions present. These conditions are entirely
-     *                              optional.
-     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                              recorded in the analytics logs when storage analytics logging is enabled.
-     * @param cancellationToken     The token to request cancellation.
-     * @param callback              Callback that receives the response.
-     */
-    public void getContainerProperties(String containerName,
-                                       Integer timeout,
-                                       String version,
-                                       BlobRequestConditions blobRequestConditions,
-                                       String requestId,
-                                       CancellationToken cancellationToken,
-                                       CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
-        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
-
-        storageBlobServiceClient.getContainerProperties(containerName,
-            timeout,
-            version,
-            blobRequestConditions.getLeaseId(),
-            requestId,
-            cancellationToken,
-            callback);
-    }
-
-    /**
      * Gets a list of blobs identified by a page id in a given container.
      *
      * @param pageId        Identifies the portion of the list to be returned.
@@ -507,14 +421,12 @@ public class StorageBlobAsyncClient {
                                   CpkInfo cpkInfo,
                                   CancellationToken cancellationToken,
                                   CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
-        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
-
         storageBlobServiceClient.getBlobProperties(containerName,
             blobName,
             snapshot,
             timeout,
             version,
-            blobRequestConditions.getLeaseId(),
+            blobRequestConditions,
             requestId,
             cpkInfo,
             cancellationToken,
@@ -522,124 +434,213 @@ public class StorageBlobAsyncClient {
     }
 
     /**
-     * Gets tags associated with a blob.
+     * Changes a blob's HTTP header properties. If only one HTTP header is updated, the others will all be erased. In
+     * order to preserve existing values, they must be passed alongside the header being changed.
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
+     * @param headers       {@link BlobHttpHeaders}
      * @param callback      Callback that receives the response.
      */
-    public void getBlobTags(String containerName,
-                            String blobName,
-                            CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
-        this.storageBlobServiceClient.getTags(containerName,
-            blobName,
-            new CallbackWithHeader<BlobTags, BlobGetTagsHeaders>() {
-                @Override
-                public void onSuccess(BlobTags result, BlobGetTagsHeaders header, Response response) {
-                    callback.onSuccess(ModelHelper.populateBlobTags(result), header, response);
-                }
-
-                @Override
-                public void onFailure(Throwable throwable, Response response) {
-                    callback.onFailure(throwable, response);
-                }
-            });
+    public void setBlobHttpHeaders(String containerName,
+                                   String blobName,
+                                   BlobHttpHeaders headers,
+                                   CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
+        storageBlobServiceClient.setBlobHttpHeaders(containerName, blobName, headers, callback);
     }
 
     /**
-     * Gets tags associated with a blob.
-     *
-     * @param containerName     The container name.
-     * @param blobName          The blob name.
-     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the
-     *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version           Specifies the version of the operation to use for this request.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
-     * @param cancellationToken The token to request cancellation.
-     * @param callback          The callback that receives the response.
-     */
-    public void getBlobTags(String containerName,
-                            String blobName,
-                            String snapshot,
-                            Integer timeout,
-                            String version,
-                            String requestId,
-                            CancellationToken cancellationToken,
-                            CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
-        this.storageBlobServiceClient.getTags(containerName,
-            blobName,
-            snapshot,
-            null,
-            timeout,
-            version,
-            null,
-            requestId,
-            cancellationToken,
-            new CallbackWithHeader<BlobTags, BlobGetTagsHeaders>() {
-                @Override
-                public void onSuccess(BlobTags result, BlobGetTagsHeaders header, Response response) {
-                    callback.onSuccess(ModelHelper.populateBlobTags(result), header, response);
-                }
-
-                @Override
-                public void onFailure(Throwable throwable, Response response) {
-                    callback.onFailure(throwable, response);
-                }
-            });
-    }
-
-    /**
-     * Changes a blob's tags. The specified tags in this method will replace existing tags. If old values
-     * must be preserved, they must be downloaded and included in the call to this method.
-     *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @param tags          Tags to associate with the blob.
-     * @param callback      Callback that receives the response.
-     */
-    public void setBlobTags(String containerName,
-                            String blobName,
-                            Map<String, String> tags,
-                            CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
-        storageBlobServiceClient.setBlobTags(containerName, blobName, tags, callback);
-    }
-
-    /**
-     * Changes a blob's tags. The specified tags in this method will replace existing tags. If old values
-     * must be preserved, they must be downloaded and included in the call to this method.
+     * Changes a blob's HTTP header properties. If only one HTTP header is updated, the others will all be erased. In
+     * order to preserve existing values, they must be passed alongside the header being changed.
      *
      * @param containerName     The container name.
      * @param blobName          The blob name.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param ifTags            Specifies a SQL query to apply to the blob's tags.
      * @param version           Specifies the version of the operation to use for this request.
-     * @param tags              Tags to associate with the blob.
+     * @param requestConditions {@link BlobRequestConditions}
+     * @param headers           {@link BlobHttpHeaders}
      * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
      *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
      * @param callback          Callback that receives the response.
      */
-    public void setBlobTags(String containerName,
-                            String blobName,
-                            Integer timeout,
-                            String ifTags,
-                            String version,
-                            Map<String, String> tags,
-                            String requestId,
-                            CancellationToken cancellationToken,
-                            CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
-        storageBlobServiceClient.setBlobTags(containerName,
+    public void setBlobHttpHeaders(String containerName,
+                                   String blobName,
+                                   Integer timeout,
+                                   String version,
+                                   BlobRequestConditions requestConditions,
+                                   BlobHttpHeaders headers,
+                                   String requestId,
+                                   CancellationToken cancellationToken,
+                                   CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
+        storageBlobServiceClient.setBlobHttpHeaders(containerName,
             blobName,
             timeout,
-            null, // TODO: Add back with versioning support
-            ifTags,
-            tags,
-            requestId,
             version,
+            requestConditions,
+            headers,
+            requestId,
+            cancellationToken,
+            callback);
+    }
+
+    /**
+     * Changes a blob's metadata. The specified metadata in this method will replace existing metadata. If old values
+     * must be preserved, they must be downloaded and included in the call to this method.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param metadata      Metadata to associate with the blob.
+     * @param callback      Callback that receives the response.
+     */
+    public void setBlobMetadata(String containerName,
+                                String blobName,
+                                Map<String, String> metadata,
+                                CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
+        storageBlobServiceClient.setBlobMetadata(containerName, blobName, metadata, callback);
+    }
+
+    /**
+     * Changes a blob's metadata. The specified metadata in this method will replace existing metadata. If old values
+     * must be preserved, they must be downloaded and included in the call to this method.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param requestConditions {@link BlobRequestConditions}
+     * @param metadata          Metadata to associate with the blob.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cpkInfo           Additional parameters for the operation.
+     * @param cancellationToken The token to request cancellation.
+     * @param callback          Callback that receives the response.
+     */
+    public void setBlobMetadata(String containerName,
+                                String blobName,
+                                Integer timeout,
+                                String version,
+                                BlobRequestConditions requestConditions,
+                                Map<String, String> metadata,
+                                String requestId,
+                                CpkInfo cpkInfo,
+                                CancellationToken cancellationToken,
+                                CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
+        storageBlobServiceClient.setBlobMetadata(containerName,
+            blobName,
+            timeout,
+            version,
+            requestConditions,
+            metadata,
+            requestId,
+            cpkInfo,
+            cancellationToken,
+            callback);
+    }
+
+    /**
+     * Sets the blob's tier.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param tier          The access tier.
+     * @param callback      The callback that receives the response.
+     */
+    public void setBlobTier(String containerName,
+                            String blobName,
+                            AccessTier tier,
+                            CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
+        storageBlobServiceClient.setBlobTier(containerName,
+            blobName,
+            tier,
+            callback);
+    }
+
+    /**
+     * Sets the blob's tier.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param tier              The access tier.
+     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies
+     *                          the blob snapshot to retrieve. For more information on working with blob snapshots,
+     *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param rehydratePriority The rehydrate priority.
+     */
+    public void setBlobTier(String containerName,
+                            String blobName,
+                            AccessTier tier,
+                            String snapshot,
+                            Integer timeout,
+                            String version,
+                            RehydratePriority rehydratePriority,
+                            BlobRequestConditions blobRequestConditions,
+                            String requestId,
+                            CancellationToken cancellationToken,
+                            CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
+        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
+
+        storageBlobServiceClient.setBlobTier(containerName,
+            blobName,
+            tier,
+            snapshot,
+            null, /* TODO: (gapra) Add version id when there is support for STG73 */
+            timeout,
+            version,
+            rehydratePriority,
+            requestId,
+            blobRequestConditions.getLeaseId(),
+            null, /* TODO: (gapra) Add tags conditions to BlobRequestConditions when there is support for STG73 */
+            cancellationToken,
+            callback);
+    }
+
+    /**
+     * Gets the container's properties.
+     *
+     * @param containerName The container name.
+     * @param callback      Callback that receives the response.
+     */
+    public void getContainerProperties(String containerName,
+                                       CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
+        storageBlobServiceClient.getContainerProperties(containerName,
+            callback);
+    }
+
+    /**
+     * Gets the container's properties.
+     *
+     * @param containerName         The container name.
+     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
+     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version               Specifies the version of the operation to use for this request.
+     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
+     *                              variety of requests to the conditions present. These conditions are entirely
+     *                              optional.
+     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                              recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken     The token to request cancellation.
+     * @param callback              Callback that receives the response.
+     */
+    public void getContainerProperties(String containerName,
+                                       Integer timeout,
+                                       String version,
+                                       BlobRequestConditions blobRequestConditions,
+                                       String requestId,
+                                       CancellationToken cancellationToken,
+                                       CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
+        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
+
+        storageBlobServiceClient.getContainerProperties(containerName,
+            timeout,
+            version,
+            blobRequestConditions.getLeaseId(),
+            requestId,
             cancellationToken,
             callback);
     }
@@ -893,9 +894,9 @@ public class StorageBlobAsyncClient {
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
      */
-    void deleteBlob(String containerName,
-                    String blobName,
-                    CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
+    public void deleteBlob(String containerName,
+                           String blobName,
+                           CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
         storageBlobServiceClient.deleteBlob(containerName,
             blobName,
             callback);
@@ -934,16 +935,16 @@ public class StorageBlobAsyncClient {
      * @param cancellationToken The token to request cancellation.
      * @param callback          Callback that receives the response.
      */
-    void deleteBlob(String containerName,
-                    String blobName,
-                    String snapshot,
-                    Integer timeout,
-                    String version,
-                    DeleteSnapshotsOptionType deleteSnapshots,
-                    BlobRequestConditions requestConditions,
-                    String requestId,
-                    CancellationToken cancellationToken,
-                    CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
+    public void deleteBlob(String containerName,
+                           String blobName,
+                           String snapshot,
+                           Integer timeout,
+                           String version,
+                           DeleteSnapshotsOptionType deleteSnapshots,
+                           BlobRequestConditions requestConditions,
+                           String requestId,
+                           CancellationToken cancellationToken,
+                           CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
         storageBlobServiceClient.deleteBlob(containerName,
             blobName,
             snapshot,
@@ -956,6 +957,168 @@ public class StorageBlobAsyncClient {
             callback);
     }
 
+    /**
+     * Deletes a container.
+     *
+     * @param containerName The container name.
+     * @param callback      Callback that receives the response.
+     */
+    public void deleteContainer(String containerName,
+                                CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
+        storageBlobServiceClient.deleteContainer(containerName,
+            callback);
+    }
+
+    /**
+     * Deletes a container
+     *
+     * @param containerName     The container name.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param requestConditions {@link BlobRequestConditions}
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
+     * @param callback          Callback that receives the response.
+     */
+    public void deleteContainer(String containerName,
+                                Integer timeout,
+                                String version,
+                                BlobRequestConditions requestConditions,
+                                String requestId,
+                                CancellationToken cancellationToken,
+                                CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
+        storageBlobServiceClient.deleteContainer(containerName,
+            timeout,
+            version,
+            requestConditions,
+            requestId,
+            cancellationToken,
+            callback);
+    }
+
+    /**
+     * Gets tags associated with a blob.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param callback      Callback that receives the response.
+     */
+    public void getBlobTags(String containerName,
+                            String blobName,
+                            CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
+        this.storageBlobServiceClient.getTags(containerName,
+            blobName,
+            new CallbackWithHeader<BlobTags, BlobGetTagsHeaders>() {
+                @Override
+                public void onSuccess(BlobTags result, BlobGetTagsHeaders header, Response response) {
+                    callback.onSuccess(ModelHelper.populateBlobTags(result), header, response);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    callback.onFailure(throwable, response);
+                }
+            });
+    }
+
+    /**
+     * Gets tags associated with a blob.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the
+     *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
+     * @param callback          The callback that receives the response.
+     */
+    public void getBlobTags(String containerName,
+                            String blobName,
+                            String snapshot,
+                            Integer timeout,
+                            String version,
+                            String requestId,
+                            CancellationToken cancellationToken,
+                            CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
+        this.storageBlobServiceClient.getTags(containerName,
+            blobName,
+            snapshot,
+            null,
+            timeout,
+            version,
+            null,
+            requestId,
+            cancellationToken,
+            new CallbackWithHeader<BlobTags, BlobGetTagsHeaders>() {
+                @Override
+                public void onSuccess(BlobTags result, BlobGetTagsHeaders header, Response response) {
+                    callback.onSuccess(ModelHelper.populateBlobTags(result), header, response);
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    callback.onFailure(throwable, response);
+                }
+            });
+    }
+
+    /**
+     * Changes a blob's tags. The specified tags in this method will replace existing tags. If old values
+     * must be preserved, they must be downloaded and included in the call to this method.
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @param tags          Tags to associate with the blob.
+     * @param callback      Callback that receives the response.
+     */
+    public void setBlobTags(String containerName,
+                            String blobName,
+                            Map<String, String> tags,
+                            CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
+        storageBlobServiceClient.setBlobTags(containerName, blobName, tags, callback);
+    }
+
+    /**
+     * Changes a blob's tags. The specified tags in this method will replace existing tags. If old values
+     * must be preserved, they must be downloaded and included in the call to this method.
+     *
+     * @param containerName     The container name.
+     * @param blobName          The blob name.
+     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
+     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
+     * @param ifTags            Specifies a SQL query to apply to the blob's tags.
+     * @param version           Specifies the version of the operation to use for this request.
+     * @param tags              Tags to associate with the blob.
+     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
+     *                          recorded in the analytics logs when storage analytics logging is enabled.
+     * @param cancellationToken The token to request cancellation.
+     * @param callback          Callback that receives the response.
+     */
+    public void setBlobTags(String containerName,
+                            String blobName,
+                            Integer timeout,
+                            String ifTags,
+                            String version,
+                            Map<String, String> tags,
+                            String requestId,
+                            CancellationToken cancellationToken,
+                            CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
+        storageBlobServiceClient.setBlobTags(containerName,
+            blobName,
+            timeout,
+            null, // TODO: Add back with versioning support
+            ifTags,
+            tags,
+            requestId,
+            version,
+            cancellationToken,
+            callback);
+    }
 
     /**
      * Builder for {@link StorageBlobAsyncClient}.
