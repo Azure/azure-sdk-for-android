@@ -1735,7 +1735,7 @@ public class StorageBlobClientTest {
 
         // When setting the tags of a blob using setBlobTags().
         MockResponse mockResponse = new MockResponse()
-            .setResponseCode(200);
+            .setResponseCode(204);
 
         mockWebServer.enqueue(mockResponse);
 
@@ -1754,7 +1754,7 @@ public class StorageBlobClientTest {
 
         // When setting the tags of a blob using setBlobTags() while providing a callback.
         MockResponse mockResponse = new MockResponse()
-            .setResponseCode(200);
+            .setResponseCode(204);
 
         mockWebServer.enqueue(mockResponse);
 
@@ -1769,7 +1769,7 @@ public class StorageBlobClientTest {
                 public void onSuccess(Void result, BlobSetTagsHeaders header, Response response) {
                     try {
                         // Then an object with the return headers will be returned by the client to the callback.
-                        assertEquals(200, response.code());
+                        assertEquals(204, response.code());
                     } finally {
                         latch.countDown();
                     }
@@ -1794,7 +1794,7 @@ public class StorageBlobClientTest {
 
         // When setting the tags of a blob using setBlobTagsWithResponse().
         MockResponse mockResponse = new MockResponse()
-            .setResponseCode(200);
+            .setResponseCode(204);
 
         mockWebServer.enqueue(mockResponse);
 
@@ -1811,7 +1811,7 @@ public class StorageBlobClientTest {
                 null,
                 CancellationToken.NONE);
 
-        assertEquals(200, response.getStatusCode());
+        assertEquals(204, response.getStatusCode());
     }
 
     @Test
@@ -1821,7 +1821,7 @@ public class StorageBlobClientTest {
         // When setting the tags of a blob using setBlobTagsWithRestResponse() while providing a
         // callback.
         MockResponse mockResponse = new MockResponse()
-            .setResponseCode(200);
+            .setResponseCode(204);
 
         mockWebServer.enqueue(mockResponse);
 
@@ -1843,7 +1843,7 @@ public class StorageBlobClientTest {
                 public void onSuccess(Void result, BlobSetTagsHeaders header, Response response) {
                     try {
                         // Then the client will return an object that contains the details of the REST response
-                        assertEquals(200, response.code());
+                        assertEquals(204, response.code());
                     } finally {
                         latch.countDown();
                     }
