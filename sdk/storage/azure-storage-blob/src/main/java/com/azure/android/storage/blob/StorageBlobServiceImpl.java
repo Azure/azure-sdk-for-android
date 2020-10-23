@@ -90,18 +90,17 @@ import retrofit2.http.Tag;
 final class StorageBlobServiceImpl {
     private final StorageBlobService service;
     private final SerializerAdapter serializerAdapter;
-    private static String XMS_VERSION = "2019-12-12";
+    private final String serviceVersion;
 
-    StorageBlobServiceImpl(ServiceClient serviceClient) {
+    StorageBlobServiceImpl(ServiceClient serviceClient, String serviceVersion) {
         this.service = serviceClient.getRetrofit().create(StorageBlobService.class);
         this.serializerAdapter = SerializerAdapter.createDefault();
+        this.serviceVersion = serviceVersion;
     }
 
 
     Void createContainer(String containerName) {
         return createContainerWithRestResponse(containerName,
-            null,
-            null,
             null,
             null,
             null,
@@ -114,8 +113,6 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null,
-            null,
             CancellationToken.NONE,
             callback);
     }
@@ -124,15 +121,11 @@ final class StorageBlobServiceImpl {
                                                             Integer timeout,
                                                             Map<String, String> metadata,
                                                             PublicAccessType publicAccessType,
-                                                            String version,
-                                                            String requestId,
                                                             CancellationToken cancellationToken) {
         return createContainersWithRestResponseIntern(containerName,
             timeout,
             metadata,
             publicAccessType,
-            version,
-            requestId,
             cancellationToken,
             null);
     }
@@ -141,16 +134,12 @@ final class StorageBlobServiceImpl {
                          Integer timeout,
                          Map<String, String> metadata,
                          PublicAccessType publicAccessType,
-                         String version,
-                         String requestId,
                          CancellationToken cancellationToken,
                          CallbackWithHeader<Void, ContainerCreateHeaders> callback) {
         this.createContainersWithRestResponseIntern(containerName,
             timeout,
             metadata,
             publicAccessType,
-            version,
-            requestId,
             cancellationToken,
             callback);
     }
@@ -162,8 +151,6 @@ final class StorageBlobServiceImpl {
      */
     Void deleteContainer(String containerName) {
         return deleteContainerWithRestResponse(containerName,
-            null,
-            null,
             null,
             null,
             CancellationToken.NONE).getValue();
@@ -181,8 +168,6 @@ final class StorageBlobServiceImpl {
         deleteContainer(containerName,
             null,
             null,
-            null,
-            null,
             CancellationToken.NONE,
             callback);
     }
@@ -194,21 +179,15 @@ final class StorageBlobServiceImpl {
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param requestConditions {@link BlobRequestConditions}
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @return A response object containing the details of the delete operation.
      */
     ContainerDeleteResponse deleteContainerWithRestResponse(String containerName,
                                                             Integer timeout,
-                                                            String version,
                                                             BlobRequestConditions requestConditions,
-                                                            String requestId,
                                                             CancellationToken cancellationToken) {
         return deleteContainerWithRestResponseIntern(containerName,
             timeout,
-            version,
             requestConditions,
-            requestId,
             cancellationToken,
             null);
     }
@@ -220,22 +199,16 @@ final class StorageBlobServiceImpl {
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param requestConditions {@link BlobRequestConditions}
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param callback          Callback that receives the response.
      */
     void deleteContainer(String containerName,
                          Integer timeout,
-                         String version,
                          BlobRequestConditions requestConditions,
-                         String requestId,
                          CancellationToken cancellationToken,
                          CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
         deleteContainerWithRestResponseIntern(containerName,
             timeout,
-            version,
             requestConditions,
-            requestId,
             cancellationToken,
             callback);
     }
@@ -248,8 +221,6 @@ final class StorageBlobServiceImpl {
      */
     ContainerGetPropertiesHeaders getContainerProperties(String containerName) {
         ContainerGetPropertiesResponse response = getContainerPropertiesWithResponse(containerName,
-            null,
-            null,
             null,
             null,
             CancellationToken.NONE);
@@ -268,8 +239,6 @@ final class StorageBlobServiceImpl {
         getContainerPropertiesWithRestResponseIntern(containerName,
             null,
             null,
-            null,
-            null,
             CancellationToken.NONE,
             callback);
     }
@@ -279,22 +248,16 @@ final class StorageBlobServiceImpl {
      *
      * @param containerName The container name.
      * @param timeout       The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version       Specifies the version of the operation to use for this request.
      * @param leaseId       If specified, the operation only succeeds if the resource's lease is active and matches this ID.
-     * @param requestId     Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
      * @return A response containing the blob metadata.
      */
     ContainerGetPropertiesResponse getContainerPropertiesWithResponse(String containerName,
                                                                       Integer timeout,
-                                                                      String version,
                                                                       String leaseId,
-                                                                      String requestId,
                                                                       CancellationToken cancellationToken) {
         return getContainerPropertiesWithRestResponseIntern(containerName,
             timeout,
-            version,
             leaseId,
-            requestId,
             cancellationToken,
             null);
     }
@@ -310,7 +273,6 @@ final class StorageBlobServiceImpl {
             options.getPrefix(),
             options.getMaxResultsPerPage(),
             options.getDetails().toList(),
-            null,
             null,
             CancellationToken.NONE);
 
@@ -329,7 +291,6 @@ final class StorageBlobServiceImpl {
             options.getMaxResultsPerPage(),
             options.getDetails().toList(),
             null,
-            null,
             CancellationToken.NONE,
             callback);
     }
@@ -340,14 +301,12 @@ final class StorageBlobServiceImpl {
                                                                               Integer maxResults,
                                                                               List<ListBlobsIncludeItem> include,
                                                                               Integer timeout,
-                                                                              String requestId,
                                                                               CancellationToken cancellationToken) {
         return this.listBlobFlatSegmentWithRestResponseIntern(pageId, containerName,
             prefix,
             maxResults,
             include,
             timeout,
-            requestId,
             cancellationToken,
             null);
     }
@@ -358,7 +317,6 @@ final class StorageBlobServiceImpl {
                              Integer maxResults,
                              List<ListBlobsIncludeItem> include,
                              Integer timeout,
-                             String requestId,
                              CancellationToken cancellationToken,
                              CallbackWithHeader<ListBlobsFlatSegmentResponse, ListBlobFlatSegmentHeaders> callback) {
         this.listBlobFlatSegmentWithRestResponseIntern(pageId,
@@ -367,7 +325,6 @@ final class StorageBlobServiceImpl {
             maxResults,
             include,
             timeout,
-            requestId,
             cancellationToken,
             callback);
     }
@@ -383,8 +340,6 @@ final class StorageBlobServiceImpl {
                                                String blobName) {
         BlobGetPropertiesResponse blobGetPropertiesResponse = getBlobPropertiesWithRestResponse(containerName,
             blobName,
-            null,
-            null,
             null,
             null,
             null,
@@ -410,8 +365,6 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null,
-            null,
             CancellationToken.NONE,
             callback);
     }
@@ -424,9 +377,7 @@ final class StorageBlobServiceImpl {
      * @param blobName          The blob name.
      * @param snapshot          he snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version           Specifies the version of the operation to use for this request.
      * @param requestConditions {@link BlobRequestConditions}
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo           Additional parameters for the operation.
      * @return A response containing the blob metadata.
      */
@@ -434,18 +385,14 @@ final class StorageBlobServiceImpl {
                                                                 String blobName,
                                                                 String snapshot,
                                                                 Integer timeout,
-                                                                String version,
                                                                 BlobRequestConditions requestConditions,
-                                                                String requestId,
                                                                 CpkInfo cpkInfo,
                                                                 CancellationToken cancellationToken) {
         return getBlobPropertiesWithRestResponseIntern(containerName,
             blobName,
             snapshot,
             timeout,
-            version,
             requestConditions,
-            requestId,
             cpkInfo,
             cancellationToken,
             null);
@@ -459,9 +406,7 @@ final class StorageBlobServiceImpl {
      * @param blobName          The blob name.
      * @param snapshot          he snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version           Specifies the version of the operation to use for this request.
      * @param requestConditions {@link BlobRequestConditions}
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo           Additional parameters for the operation.
      * @param callback          Callback that receives the response.
      */
@@ -469,9 +414,7 @@ final class StorageBlobServiceImpl {
                            String blobName,
                            String snapshot,
                            Integer timeout,
-                           String version,
                            BlobRequestConditions requestConditions,
-                           String requestId,
                            CpkInfo cpkInfo,
                            CancellationToken cancellationToken,
                            CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
@@ -479,9 +422,7 @@ final class StorageBlobServiceImpl {
             blobName,
             snapshot,
             timeout,
-            version,
             requestConditions,
-            requestId,
             cpkInfo,
             cancellationToken,
             callback);
@@ -494,9 +435,7 @@ final class StorageBlobServiceImpl {
             blobName,
             null,
             null,
-            null,
             headers,
-            null,
             CancellationToken.NONE);
 
         return blobSetHttpHeadersResponse.getValue();
@@ -510,9 +449,7 @@ final class StorageBlobServiceImpl {
             blobName,
             null,
             null,
-            null,
             headers,
-            null,
             CancellationToken.NONE,
             callback);
     }
@@ -520,18 +457,14 @@ final class StorageBlobServiceImpl {
     BlobSetHttpHeadersResponse setBlobHttpHeadersWithRestResponse(String containerName,
                                                                   String blobName,
                                                                   Integer timeout,
-                                                                  String version,
                                                                   BlobRequestConditions requestConditions,
                                                                   BlobHttpHeaders headers,
-                                                                  String requestId,
                                                                   CancellationToken cancellationToken) {
         return setHttpHeadersWithRestResponseIntern(containerName,
             blobName,
             timeout,
             requestConditions,
             headers,
-            requestId,
-            version,
             cancellationToken,
             null);
     }
@@ -539,10 +472,8 @@ final class StorageBlobServiceImpl {
     void setBlobHttpHeaders(String containerName,
                             String blobName,
                             Integer timeout,
-                            String version,
                             BlobRequestConditions requestConditions,
                             BlobHttpHeaders headers,
-                            String requestId,
                             CancellationToken cancellationToken,
                             CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
         this.setHttpHeadersWithRestResponseIntern(containerName,
@@ -550,8 +481,6 @@ final class StorageBlobServiceImpl {
             timeout,
             requestConditions,
             headers,
-            requestId,
-            version,
             cancellationToken,
             callback);
     }
@@ -563,9 +492,7 @@ final class StorageBlobServiceImpl {
             blobName,
             null,
             null,
-            null,
             metadata,
-            null,
             null,
             CancellationToken.NONE);
 
@@ -580,9 +507,7 @@ final class StorageBlobServiceImpl {
             blobName,
             null,
             null,
-            null,
             metadata,
-            null,
             null,
             CancellationToken.NONE,
             callback);
@@ -591,10 +516,8 @@ final class StorageBlobServiceImpl {
     BlobSetMetadataResponse setBlobMetadataWithRestResponse(String containerName,
                                                             String blobName,
                                                             Integer timeout,
-                                                            String version,
                                                             BlobRequestConditions requestConditions,
                                                             Map<String, String> metadata,
-                                                            String requestId,
                                                             CpkInfo cpkInfo,
                                                             CancellationToken cancellationToken) {
         return setBlobMetadataWithRestResponseIntern(containerName,
@@ -602,8 +525,6 @@ final class StorageBlobServiceImpl {
             timeout,
             requestConditions,
             metadata,
-            version,
-            requestId,
             cpkInfo,
             cancellationToken,
             null);
@@ -612,10 +533,8 @@ final class StorageBlobServiceImpl {
     void setBlobMetadata(String containerName,
                          String blobName,
                          Integer timeout,
-                         String version,
                          BlobRequestConditions requestConditions,
                          Map<String, String> metadata,
-                         String requestId,
                          CpkInfo cpkInfo,
                          CancellationToken cancellationToken,
                          CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
@@ -624,8 +543,6 @@ final class StorageBlobServiceImpl {
             timeout,
             requestConditions,
             metadata,
-            requestId,
-            version,
             cpkInfo,
             cancellationToken,
             callback);
@@ -644,8 +561,6 @@ final class StorageBlobServiceImpl {
         BlobSetTierResponse response = setBlobTierWithRestResponse(containerName,
             blobName,
             tier,
-            null,
-            null,
             null,
             null,
             null,
@@ -678,8 +593,6 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null,
-            null,
             CancellationToken.NONE,
             callback);
     }
@@ -693,9 +606,7 @@ final class StorageBlobServiceImpl {
      * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param versionId         The version id parameter is an opaque DateTime value that, when present, specifies the version of the blob to operate on. It's for service version 2019-10-10 and newer.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version           Specifies the version of the operation to use for this request.
      * @param rehydratePriority Optional: Indicates the priority with which to rehydrate an archived blob. Possible values include: 'High', 'Standard'.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
      * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and matches this ID.
      * @param ifTags            Specify a SQL where clause on blob tags to operate only on blobs with a matching value.
      * @param cancellationToken The token to request cancellation.
@@ -707,9 +618,7 @@ final class StorageBlobServiceImpl {
                                                     String snapshot,
                                                     String versionId,
                                                     Integer timeout,
-                                                    String version,
                                                     RehydratePriority rehydratePriority,
-                                                    String requestId,
                                                     String leaseId,
                                                     String ifTags,
                                                     CancellationToken cancellationToken) {
@@ -719,9 +628,7 @@ final class StorageBlobServiceImpl {
             snapshot,
             versionId,
             timeout,
-            version,
             rehydratePriority,
-            requestId,
             leaseId,
             ifTags,
             cancellationToken,
@@ -737,9 +644,7 @@ final class StorageBlobServiceImpl {
      * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param versionId         The version id parameter is an opaque DateTime value that, when present, specifies the version of the blob to operate on. It's for service version 2019-10-10 and newer.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version           Specifies the version of the operation to use for this request.
      * @param rehydratePriority Optional: Indicates the priority with which to rehydrate an archived blob. Possible values include: 'High', 'Standard'.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded in the analytics logs when storage analytics logging is enabled.
      * @param leaseId           If specified, the operation only succeeds if the resource's lease is active and matches this ID.
      * @param ifTags            Specify a SQL where clause on blob tags to operate only on blobs with a matching value.
      * @param cancellationToken The token to request cancellation.
@@ -751,9 +656,7 @@ final class StorageBlobServiceImpl {
                      String snapshot,
                      String versionId,
                      Integer timeout,
-                     String version,
                      RehydratePriority rehydratePriority,
-                     String requestId,
                      String leaseId,
                      String ifTags,
                      CancellationToken cancellationToken,
@@ -764,9 +667,7 @@ final class StorageBlobServiceImpl {
             snapshot,
             versionId,
             timeout,
-            version,
             rehydratePriority,
-            requestId,
             leaseId,
             ifTags,
             cancellationToken,
@@ -779,22 +680,17 @@ final class StorageBlobServiceImpl {
      *
      * @param containerName The container name.
      * @param timeout       The timeout parameter is expressed in seconds. For more information, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version       Specifies the version of the operation to use for this request.
      * @param leaseId       If specified, the operation only succeeds if the resource's lease is active and matches this ID.
      * @param callback      Callback that receives the response.
      */
     void getContainerProperties(String containerName,
                                 Integer timeout,
-                                String version,
                                 String leaseId,
-                                String requestId,
                                 CancellationToken cancellationToken,
                                 CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
         this.getContainerPropertiesWithRestResponseIntern(containerName,
             timeout,
-            version,
             leaseId,
-            requestId,
             cancellationToken,
             callback);
     }
@@ -810,8 +706,6 @@ final class StorageBlobServiceImpl {
                           String blobName) {
         return downloadWithRestResponse(containerName,
             blobName,
-            null,
-            null,
             null,
             null,
             null,
@@ -849,8 +743,6 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null,
-            null,
             CancellationToken.NONE,
             callback);
     }
@@ -877,9 +769,6 @@ final class StorageBlobServiceImpl {
      * @param ifUnmodifiedSince    The datetime that resources must have remained unmodified since.
      * @param ifMatch              Specify an ETag value to operate only on blobs with a matching value.
      * @param ifNoneMatch          Specify an ETag value to operate only on blobs without a matching value.
-     * @param version              Specifies the version of the operation to use for this request.
-     * @param requestId            Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                             recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo              Additional parameters for the operation.
      * @return A response containing the blob data.
      */
@@ -895,8 +784,6 @@ final class StorageBlobServiceImpl {
                                                   OffsetDateTime ifUnmodifiedSince,
                                                   String ifMatch,
                                                   String ifNoneMatch,
-                                                  String version,
-                                                  String requestId,
                                                   CpkInfo cpkInfo,
                                                   CancellationToken cancellationToken) {
         return downloadWithRestResponseIntern(containerName,
@@ -911,8 +798,6 @@ final class StorageBlobServiceImpl {
             ifUnmodifiedSince,
             ifMatch,
             ifNoneMatch,
-            version,
-            requestId,
             cpkInfo,
             cancellationToken,
             null);
@@ -940,9 +825,6 @@ final class StorageBlobServiceImpl {
      * @param ifUnmodifiedSince    The datetime that resources must have remained unmodified since.
      * @param ifMatch              Specify an ETag value to operate only on blobs with a matching value.
      * @param ifNoneMatch          Specify an ETag value to operate only on blobs without a matching value.
-     * @param version              Specifies the version of the operation to use for this request.
-     * @param requestId            Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                             recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo              Additional parameters for the operation.
      * @param callback             Callback that receives the response.
      */
@@ -958,8 +840,6 @@ final class StorageBlobServiceImpl {
                      OffsetDateTime ifUnmodifiedSince,
                      String ifMatch,
                      String ifNoneMatch,
-                     String version,
-                     String requestId,
                      CpkInfo cpkInfo,
                      CancellationToken cancellationToken,
                      CallbackWithHeader<ResponseBody, BlobDownloadHeaders> callback) {
@@ -975,8 +855,6 @@ final class StorageBlobServiceImpl {
             ifUnmodifiedSince,
             ifMatch,
             ifNoneMatch,
-            version,
-            requestId,
             cpkInfo,
             cancellationToken,
             callback);
@@ -992,7 +870,6 @@ final class StorageBlobServiceImpl {
             base64BlockId,
             blockContent,
             contentMd5,
-            null,
             null,
             null,
             null,
@@ -1015,7 +892,6 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null,
             CancellationToken.NONE,
             callback);
     }
@@ -1028,7 +904,6 @@ final class StorageBlobServiceImpl {
                                                             byte[] transactionalContentCrc64,
                                                             Integer timeout,
                                                             String leaseId,
-                                                            String requestId,
                                                             CpkInfo cpkInfo,
                                                             CancellationToken cancellationToken) {
         return this.stageBlockWithRestResponseIntern(containerName,
@@ -1039,7 +914,6 @@ final class StorageBlobServiceImpl {
             transactionalContentCrc64,
             timeout,
             leaseId,
-            requestId,
             cpkInfo,
             cancellationToken,
             null);
@@ -1053,7 +927,6 @@ final class StorageBlobServiceImpl {
                     byte[] transactionalContentCrc64,
                     Integer timeout,
                     String leaseId,
-                    String requestId,
                     CpkInfo cpkInfo,
                     CancellationToken cancellationToken,
                     CallbackWithHeader<Void, BlockBlobStageBlockHeaders> callback) {
@@ -1065,7 +938,6 @@ final class StorageBlobServiceImpl {
             transactionalContentCrc64,
             timeout,
             leaseId,
-            requestId,
             cpkInfo,
             cancellationToken,
             callback);
@@ -1090,7 +962,6 @@ final class StorageBlobServiceImpl {
             null,
             null,
             requestConditions,
-            null,
             null,
             null,
             CancellationToken.NONE);
@@ -1120,7 +991,6 @@ final class StorageBlobServiceImpl {
             requestConditions,
             null,
             null,
-            null,
             CancellationToken.NONE,
             callback);
     }
@@ -1134,7 +1004,6 @@ final class StorageBlobServiceImpl {
                                                                       BlobHttpHeaders blobHttpHeaders,
                                                                       Map<String, String> metadata,
                                                                       BlobRequestConditions requestConditions,
-                                                                      String requestId,
                                                                       CpkInfo cpkInfo,
                                                                       AccessTier tier,
                                                                       CancellationToken cancellationToken) {
@@ -1147,7 +1016,6 @@ final class StorageBlobServiceImpl {
             blobHttpHeaders,
             metadata,
             requestConditions,
-            requestId,
             cpkInfo,
             tier,
             cancellationToken,
@@ -1163,7 +1031,6 @@ final class StorageBlobServiceImpl {
                          BlobHttpHeaders blobHttpHeaders,
                          Map<String, String> metadata,
                          BlobRequestConditions requestConditions,
-                         String requestId,
                          CpkInfo cpkInfo,
                          AccessTier tier,
                          CancellationToken cancellationToken,
@@ -1177,7 +1044,6 @@ final class StorageBlobServiceImpl {
             blobHttpHeaders,
             metadata,
             requestConditions,
-            requestId,
             cpkInfo,
             tier,
             cancellationToken,
@@ -1194,8 +1060,6 @@ final class StorageBlobServiceImpl {
                     String blobName) {
         return deleteBlobWithRestResponse(containerName,
             blobName,
-            null,
-            null,
             null,
             null,
             null,
@@ -1220,8 +1084,6 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null,
-            null,
             CancellationToken.NONE,
             callback);
     }
@@ -1254,27 +1116,21 @@ final class StorageBlobServiceImpl {
      * @param deleteSnapshots   Required if the blob has associated snapshots. Specify one of the following two
      *                          options: include: Delete the base blob and all of its snapshots. only: Delete only the blob's snapshots and not the blob itself. Possible values include: 'include', 'only'.
      * @param requestConditions {@link BlobRequestConditions}
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @return A response object containing the details of the delete operation.
      */
     BlobDeleteResponse deleteBlobWithRestResponse(String containerName,
                                                   String blobName,
                                                   String snapshot,
                                                   Integer timeout,
-                                                  String version,
                                                   DeleteSnapshotsOptionType deleteSnapshots,
                                                   BlobRequestConditions requestConditions,
-                                                  String requestId,
                                                   CancellationToken cancellationToken) {
         return deleteBlobWithRestResponseIntern(containerName,
             blobName,
             snapshot,
             timeout,
-            version,
             deleteSnapshots,
             requestConditions,
-            requestId,
             cancellationToken,
             null);
     }
@@ -1307,8 +1163,6 @@ final class StorageBlobServiceImpl {
      * @param deleteSnapshots   Required if the blob has associated snapshots. Specify one of the following two
      *                          options: include: Delete the base blob and all of its snapshots. only: Delete only the blob's snapshots and not the blob itself. Possible values include: 'include', 'only'.
      * @param requestConditions {@link BlobRequestConditions}
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param callback          Callback that receives the response.
      * @return A handle to the service call.
      */
@@ -1316,20 +1170,16 @@ final class StorageBlobServiceImpl {
                     String blobName,
                     String snapshot,
                     Integer timeout,
-                    String version,
                     DeleteSnapshotsOptionType deleteSnapshots,
                     BlobRequestConditions requestConditions,
-                    String requestId,
                     CancellationToken cancellationToken,
                     CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
         deleteBlobWithRestResponseIntern(containerName,
             blobName,
             snapshot,
             timeout,
-            version,
             deleteSnapshots,
             requestConditions,
-            requestId,
             cancellationToken,
             callback);
     }
@@ -1345,8 +1195,6 @@ final class StorageBlobServiceImpl {
                      String blobName) {
         return getTagsWithRestResponse(containerName,
             blobName,
-            null,
-            null,
             null,
             null,
             null,
@@ -1370,8 +1218,6 @@ final class StorageBlobServiceImpl {
             null,
             null,
             null,
-            null,
-            null,
             CancellationToken.NONE,
             callback);
     }
@@ -1386,10 +1232,7 @@ final class StorageBlobServiceImpl {
      * @param versionId         The version id parameter is an opaque DateTime value that, when present, specifies the version of the blob to operate on. It's for service version 2019-10-10 and newer.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version           Specifies the version of the operation to use for this request.
      * @param ifTags            Specify a SQL where clause on blob tags to operate only on blobs with a matching value.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
      * @return The response information returned from the server when getting tags on a blob.
      */
@@ -1398,8 +1241,6 @@ final class StorageBlobServiceImpl {
                                                 String snapshot,
                                                 String versionId,
                                                 Integer timeout,
-                                                String version,
-                                                String requestId,
                                                 String ifTags,
                                                 CancellationToken cancellationToken) {
         return getTagsWithRestResponseIntern(containerName,
@@ -1407,8 +1248,6 @@ final class StorageBlobServiceImpl {
             snapshot,
             versionId,
             timeout,
-            version,
-            requestId,
             ifTags,
             cancellationToken,
             null);
@@ -1425,10 +1264,7 @@ final class StorageBlobServiceImpl {
      * @param versionId         The version id parameter is an opaque DateTime value that, when present, specifies the version of the blob to operate on. It's for service version 2019-10-10 and newer.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version           Specifies the version of the operation to use for this request.
      * @param ifTags            Specify a SQL where clause on blob tags to operate only on blobs with a matching value.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
      * @param callback          Callback that receives the response.
      */
@@ -1437,9 +1273,7 @@ final class StorageBlobServiceImpl {
                  String snapshot,
                  String versionId,
                  Integer timeout,
-                 String version,
                  String ifTags,
-                 String requestId,
                  CancellationToken cancellationToken,
                  CallbackWithHeader<BlobTags, BlobGetTagsHeaders> callback) {
         getTagsWithRestResponseIntern(containerName,
@@ -1447,8 +1281,6 @@ final class StorageBlobServiceImpl {
             snapshot,
             versionId,
             timeout,
-            version,
-            requestId,
             ifTags,
             cancellationToken,
             callback);
@@ -1463,8 +1295,6 @@ final class StorageBlobServiceImpl {
             null,
             null,
             tags,
-            null,
-            null,
             CancellationToken.NONE);
 
         return blobSetHttpHeadersResponse.getValue();
@@ -1480,8 +1310,6 @@ final class StorageBlobServiceImpl {
             null,
             null,
             tags,
-            null,
-            null,
             CancellationToken.NONE,
             callback);
     }
@@ -1492,8 +1320,6 @@ final class StorageBlobServiceImpl {
                                                     String versionId,
                                                     String ifTags,
                                                     Map<String, String> tags,
-                                                    String requestId,
-                                                    String version,
                                                     CancellationToken cancellationToken) {
         return setBlobTagsWithRestResponseIntern(containerName,
             blobName,
@@ -1501,8 +1327,6 @@ final class StorageBlobServiceImpl {
             versionId,
             ifTags,
             tags,
-            requestId,
-            version,
             cancellationToken,
             null);
     }
@@ -1513,8 +1337,6 @@ final class StorageBlobServiceImpl {
                      String versionId,
                      String ifTags,
                      Map<String, String> tags,
-                     String requestId,
-                     String version,
                      CancellationToken cancellationToken,
                      CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
         this.setBlobTagsWithRestResponseIntern(containerName,
@@ -1523,8 +1345,6 @@ final class StorageBlobServiceImpl {
             versionId,
             ifTags,
             tags,
-            requestId,
-            version,
             cancellationToken,
             callback);
     }
@@ -1533,8 +1353,6 @@ final class StorageBlobServiceImpl {
                                                                            Integer timeout,
                                                                            Map<String, String> metadata,
                                                                            PublicAccessType publicAccessType,
-                                                                           String version,
-                                                                           String requestId,
                                                                            CancellationToken cancellationToken,
                                                                            CallbackWithHeader<Void, ContainerCreateHeaders> callback) {
         cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
@@ -1543,8 +1361,8 @@ final class StorageBlobServiceImpl {
             timeout,
             metadata == null ? null : new MetadataInterceptor.StorageMultiHeaders(metadata),
             publicAccessType,
-            XMS_VERSION, // TODO: Replace with 'version'.
-            requestId,
+            serviceVersion,
+            null,
             "container",
             null, // TODO: Add cpk stuff?
             null);
@@ -1608,9 +1426,7 @@ final class StorageBlobServiceImpl {
 
     private ContainerDeleteResponse deleteContainerWithRestResponseIntern(String containerName,
                                                                           Integer timeout,
-                                                                          String version,
                                                                           BlobRequestConditions requestConditions,
-                                                                          String requestId,
                                                                           CancellationToken cancellationToken,
                                                                           CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
         cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
@@ -1633,8 +1449,8 @@ final class StorageBlobServiceImpl {
             requestConditions.getLeaseId(),
             ifModifiedSinceConverted,
             ifUnmodifiedSinceConverted,
-            XMS_VERSION, // TODO: Replace with 'version'.
-            requestId);
+            serviceVersion,
+            null);
 
         ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
             call.cancel();
@@ -1699,9 +1515,7 @@ final class StorageBlobServiceImpl {
 
     private ContainerGetPropertiesResponse getContainerPropertiesWithRestResponseIntern(String containerName,
                                                                                         Integer timeout,
-                                                                                        String version,
                                                                                         String leaseId,
-                                                                                        String requestId,
                                                                                         CancellationToken cancellationToken,
                                                                                         CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
         cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
@@ -1709,9 +1523,9 @@ final class StorageBlobServiceImpl {
 
         Call<Void> call = service.getContainerProperties(containerName,
             timeout,
-            XMS_VERSION, // TODO: Replace with 'version'.
+            serviceVersion,
             leaseId,
-            requestId,
+            null,
             restype);
 
         ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
@@ -1777,7 +1591,6 @@ final class StorageBlobServiceImpl {
                                                                                             Integer maxResults,
                                                                                             List<ListBlobsIncludeItem> include,
                                                                                             Integer timeout,
-                                                                                            String requestId,
                                                                                             CancellationToken cancellationToken,
                                                                                             CallbackWithHeader<ListBlobsFlatSegmentResponse, ListBlobFlatSegmentHeaders> callback) {
         cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
@@ -1790,8 +1603,8 @@ final class StorageBlobServiceImpl {
             maxResults,
             this.serializerAdapter.serializeList(include, SerializerAdapter.CollectionFormat.CSV),
             timeout,
-            XMS_VERSION,
-            requestId,
+            serviceVersion,
+            null,
             resType,
             comp);
 
@@ -1866,9 +1679,7 @@ final class StorageBlobServiceImpl {
                                                                               String blobName,
                                                                               String snapshot,
                                                                               Integer timeout,
-                                                                              String version,
                                                                               BlobRequestConditions requestConditions,
-                                                                              String requestId,
                                                                               CpkInfo cpkInfo,
                                                                               CancellationToken cancellationToken,
                                                                               CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
@@ -1897,13 +1708,13 @@ final class StorageBlobServiceImpl {
             blobName,
             snapshot,
             timeout,
-            XMS_VERSION, // TODO: Replace with 'version'.
+            serviceVersion, // TODO: Replace with 'version'.
             leaseId,
             ifModifiedSince,
             ifUnmodifiedSince,
             ifMatch,
             ifNoneMatch,
-            requestId,
+            null,
             encryptionKey,
             encryptionKeySha256,
             encryptionAlgorithm);
@@ -1970,8 +1781,6 @@ final class StorageBlobServiceImpl {
                                                                             Integer timeout,
                                                                             BlobRequestConditions requestConditions,
                                                                             BlobHttpHeaders headers,
-                                                                            String version,
-                                                                            String requestId,
                                                                             CancellationToken cancellationToken,
                                                                             CallbackWithHeader<Void, BlobSetHttpHeadersHeaders> callback) {
 
@@ -2001,8 +1810,8 @@ final class StorageBlobServiceImpl {
             ifMatch,
             ifNoneMatch,
             null, // TODO: Add tags when later service version supported.
-            XMS_VERSION, // TODO: Replace with 'version'.
-            requestId,
+            serviceVersion, // TODO: Replace with 'version'.
+            null,
             comp,
             headers.getCacheControl(),
             headers.getContentType(),
@@ -2077,8 +1886,6 @@ final class StorageBlobServiceImpl {
                                                                           Integer timeout,
                                                                           BlobRequestConditions requestConditions,
                                                                           Map<String, String> metadata,
-                                                                          String version,
-                                                                          String requestId,
                                                                           CpkInfo cpkInfo,
                                                                           CancellationToken cancellationToken,
                                                                           CallbackWithHeader<Void, BlobSetMetadataHeaders> callback) {
@@ -2117,8 +1924,8 @@ final class StorageBlobServiceImpl {
             ifMatch,
             ifNoneMatch,
             null, // TODO: Add tags when later service version supported.
-            XMS_VERSION, // TODO: Replace with 'version'.
-            requestId,
+            serviceVersion, // TODO: Replace with 'version'.
+            null,
             comp,
             encryptionKey,
             encryptionKeySha256,
@@ -2193,9 +2000,7 @@ final class StorageBlobServiceImpl {
                                                                   String snapshot,
                                                                   String versionId,
                                                                   Integer timeout,
-                                                                  String version,
                                                                   RehydratePriority rehydratePriority,
-                                                                  String requestId,
                                                                   String leaseId,
                                                                   String ifTags,
                                                                   CancellationToken cancellationToken,
@@ -2211,10 +2016,10 @@ final class StorageBlobServiceImpl {
             snapshot,
             versionId,
             timeout,
-            XMS_VERSION, // TODO: Replace with 'version'.
+            serviceVersion,
             tier,
             rehydratePriority,
-            requestId,
+            null,
             leaseId,
             ifTags,
             comp
@@ -2289,8 +2094,6 @@ final class StorageBlobServiceImpl {
                                                                 OffsetDateTime ifUnmodifiedSince,
                                                                 String ifMatch,
                                                                 String ifNoneMatch,
-                                                                String version,
-                                                                String requestId,
                                                                 CpkInfo cpkInfo,
                                                                 CancellationToken cancellationToken,
                                                                 CallbackWithHeader<ResponseBody, BlobDownloadHeaders> callback) {
@@ -2322,8 +2125,8 @@ final class StorageBlobServiceImpl {
             ifUnmodifiedSinceConverted,
             ifMatch,
             ifNoneMatch,
-            XMS_VERSION, // TODO: Replace with 'version'.
-            requestId,
+            serviceVersion,
+            null,
             encryptionKey,
             encryptionKeySha256,
             encryptionAlgorithm);
@@ -2396,7 +2199,6 @@ final class StorageBlobServiceImpl {
                                                                           byte[] transactionalContentCrc64,
                                                                           Integer timeout,
                                                                           String leaseId,
-                                                                          String requestId,
                                                                           CpkInfo cpkInfo,
                                                                           CancellationToken cancellationToken,
                                                                           CallbackWithHeader<Void, BlockBlobStageBlockHeaders> callback) {
@@ -2426,8 +2228,8 @@ final class StorageBlobServiceImpl {
             body,
             timeout,
             leaseId,
-            XMS_VERSION,
-            requestId,
+            serviceVersion,
+            null,
             comp,
             encryptionKey,
             encryptionKeySha256,
@@ -2500,7 +2302,6 @@ final class StorageBlobServiceImpl {
                                                                                     BlobHttpHeaders blobHttpHeaders,
                                                                                     Map<String, String> metadata,
                                                                                     BlobRequestConditions requestConditions,
-                                                                                    String requestId,
                                                                                     CpkInfo cpkInfo,
                                                                                     AccessTier tier,
                                                                                     CancellationToken cancellationToken,
@@ -2604,8 +2405,8 @@ final class StorageBlobServiceImpl {
             ifMatch,
             ifNoneMatch,
             blocks,
-            XMS_VERSION,
-            requestId,
+            serviceVersion,
+            null,
             comp,
             cacheControl,
             contentType,
@@ -2687,10 +2488,8 @@ final class StorageBlobServiceImpl {
                                                                 String blobName,
                                                                 String snapshot,
                                                                 Integer timeout,
-                                                                String version,
                                                                 DeleteSnapshotsOptionType deleteSnapshots,
                                                                 BlobRequestConditions requestConditions,
-                                                                String requestId,
                                                                 CancellationToken cancellationToken,
                                                                 CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
         cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
@@ -2715,8 +2514,8 @@ final class StorageBlobServiceImpl {
             ifUnmodifiedSince,
             ifMatch,
             ifNoneMatch,
-            XMS_VERSION, // TODO: Replace with 'version'.
-            requestId);
+            serviceVersion, // TODO: Replace with 'version'.
+            null);
 
         ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
             call.cancel();
@@ -2784,8 +2583,6 @@ final class StorageBlobServiceImpl {
                                                               String snapshot,
                                                               String versionId,
                                                               Integer timeout,
-                                                              String version,
-                                                              String requestId,
                                                               String ifTags,
                                                               CancellationToken cancellationToken,
                                                               CallbackWithHeader<BlobTags, BlobGetTagsHeaders> callback) {
@@ -2798,8 +2595,8 @@ final class StorageBlobServiceImpl {
             versionId,
             timeout,
             comp,
-            XMS_VERSION, // TODO: Replace with 'version'.
-            requestId,
+            serviceVersion, // TODO: Replace with 'version'.
+            null,
             ifTags);
 
         ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
@@ -2875,8 +2672,6 @@ final class StorageBlobServiceImpl {
                                                                   String versionId,
                                                                   String iftags,
                                                                   Map<String, String> tags,
-                                                                  String version,
-                                                                  String requestId,
                                                                   CancellationToken cancellationToken,
                                                                   CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
 
@@ -2915,8 +2710,8 @@ final class StorageBlobServiceImpl {
             null,
             null,
             iftags,
-            XMS_VERSION,
-            requestId,
+            serviceVersion,
+            null,
             tagsBody,
             comp
         );

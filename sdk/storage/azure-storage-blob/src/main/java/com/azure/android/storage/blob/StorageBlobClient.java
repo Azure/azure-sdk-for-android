@@ -9,6 +9,7 @@ import android.net.Uri;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
+import com.azure.android.core.http.interceptor.RequestIdInterceptor;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.implementation.util.ModelHelper;
 import com.azure.android.storage.blob.interceptor.MetadataInterceptor;
@@ -64,9 +65,9 @@ public class StorageBlobClient {
     private final ServiceClient serviceClient;
     private final StorageBlobServiceImpl storageBlobServiceClient;
 
-    private StorageBlobClient(ServiceClient serviceClient) {
+    private StorageBlobClient(ServiceClient serviceClient, String serviceVersion) {
         this.serviceClient = serviceClient;
-        this.storageBlobServiceClient = new StorageBlobServiceImpl(this.serviceClient);
+        this.storageBlobServiceClient = new StorageBlobServiceImpl(this.serviceClient, serviceVersion);
     }
 
     /**
@@ -108,9 +109,6 @@ public class StorageBlobClient {
      * @param publicAccessType  Specifies how the data in this container is available to the public. See the
      *                          x-ms-blob-public-access header in the Azure Docs for more information. Pass null
      *                          for no public access.
-     * @param version           Specifies the version of the operation to use for this request.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
      * @return The response information returned from the server when creating a container.
      */
@@ -118,16 +116,12 @@ public class StorageBlobClient {
                                                                    Integer timeout,
                                                                    Map<String, String> metadata,
                                                                    PublicAccessType publicAccessType,
-                                                                   String version,
-                                                                   String requestId,
                                                                    CancellationToken cancellationToken) {
 
         return storageBlobServiceClient.createContainerWithRestResponse(containerName,
             timeout,
             metadata,
             publicAccessType,
-            version,
-            requestId,
             cancellationToken);
     }
 
@@ -165,8 +159,6 @@ public class StorageBlobClient {
      * @param include           Include this parameter to specify one or more datasets to include in the response.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded in
-     *                          the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
      * @return A response object containing a list of blobs.
      */
@@ -176,7 +168,6 @@ public class StorageBlobClient {
                                                               Integer maxResults,
                                                               List<ListBlobsIncludeItem> include,
                                                               Integer timeout,
-                                                              String requestId,
                                                               CancellationToken cancellationToken) {
         ContainersListBlobFlatSegmentResponse result
             = this.storageBlobServiceClient.listBlobFlatSegmentWithRestResponse(pageId,
@@ -185,7 +176,6 @@ public class StorageBlobClient {
             maxResults,
             include,
             timeout,
-            requestId,
             cancellationToken);
         final List<BlobItem> list;
         if (result.getValue().getSegment() != null
@@ -224,12 +214,9 @@ public class StorageBlobClient {
      *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param timeout               The timeout parameter is expressed in seconds. For more information, see
      *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version               Specifies the version of the operation to use for this request.
      * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
      *                              variety of requests to the conditions present. These conditions are entirely
      *                              optional.
-     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo               Additional parameters for the operation.
      * @param cancellationToken     The token to request cancellation.
      * @return The response information returned from the server when downloading a blob.
@@ -238,18 +225,14 @@ public class StorageBlobClient {
                                                                        String blobName,
                                                                        String snapshot,
                                                                        Integer timeout,
-                                                                       String version,
                                                                        BlobRequestConditions blobRequestConditions,
-                                                                       String requestId,
                                                                        CpkInfo cpkInfo,
                                                                        CancellationToken cancellationToken) {
         return storageBlobServiceClient.getBlobPropertiesWithRestResponse(containerName,
             blobName,
             snapshot,
             timeout,
-            version,
             blobRequestConditions,
-            requestId,
             cpkInfo,
             cancellationToken);
     }
@@ -276,29 +259,22 @@ public class StorageBlobClient {
      * @param blobName          The blob name.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version           Specifies the version of the operation to use for this request.
      * @param requestConditions {@link BlobRequestConditions}
      * @param headers           {@link BlobHttpHeaders}
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
      * @return The response object.
      */
     public BlobSetHttpHeadersResponse setBlobHttpHeadersWithResponse(String containerName,
                                                                      String blobName,
                                                                      Integer timeout,
-                                                                     String version,
                                                                      BlobRequestConditions requestConditions,
                                                                      BlobHttpHeaders headers,
-                                                                     String requestId,
                                                                      CancellationToken cancellationToken) {
         return storageBlobServiceClient.setBlobHttpHeadersWithRestResponse(containerName,
             blobName,
             timeout,
-            version,
             requestConditions,
             headers,
-            requestId,
             cancellationToken);
     }
 
@@ -324,30 +300,23 @@ public class StorageBlobClient {
      * @param blobName          The blob name.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version           Specifies the version of the operation to use for this request.
      * @param requestConditions {@link BlobRequestConditions}
      * @param metadata          Metadata to associate with the blob.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo           Additional parameters for the operation.
      * @param cancellationToken The token to request cancellation.
      */
     public BlobSetMetadataResponse setBlobMetadataWithResponse(String containerName,
                                                                String blobName,
                                                                Integer timeout,
-                                                               String version,
                                                                BlobRequestConditions requestConditions,
                                                                Map<String, String> metadata,
-                                                               String requestId,
                                                                CpkInfo cpkInfo,
                                                                CancellationToken cancellationToken) {
         return storageBlobServiceClient.setBlobMetadataWithRestResponse(containerName,
             blobName,
             timeout,
-            version,
             requestConditions,
             metadata,
-            requestId,
             cpkInfo,
             cancellationToken);
     }
@@ -376,7 +345,6 @@ public class StorageBlobClient {
      *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version           Specifies the version of the operation to use for this request.
      * @param rehydratePriority The rehydrate priority.
      * @return The response information returned from the server when setting a blob's access tier.
      */
@@ -385,10 +353,8 @@ public class StorageBlobClient {
                                                            AccessTier tier,
                                                            String snapshot,
                                                            Integer timeout,
-                                                           String version,
                                                            RehydratePriority rehydratePriority,
                                                            BlobRequestConditions blobRequestConditions,
-                                                           String requestId,
                                                            CancellationToken cancellationToken) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
@@ -398,9 +364,7 @@ public class StorageBlobClient {
             snapshot,
             null,  /* TODO: (gapra) Add version id when there is support for STG73 */
             timeout,
-            version,
             rehydratePriority,
-            requestId,
             blobRequestConditions.getLeaseId(),
             null, /* TODO: (gapra) Add tags conditions to BlobRequestConditions when there is support for STG73 */
             cancellationToken);
@@ -422,28 +386,21 @@ public class StorageBlobClient {
      * @param containerName         The container name.
      * @param timeout               The timeout parameter is expressed in seconds. For more information, see
      *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version               Specifies the version of the operation to use for this request.
      * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
      *                              variety of requests to the conditions present. These conditions are entirely
      *                              optional.
-     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken     The token to request cancellation.
      * @return The response information returned from the server when getting a container's properties.
      */
     public ContainerGetPropertiesResponse getContainerPropertiesWithRestResponse(String containerName,
                                                                                  Integer timeout,
-                                                                                 String version,
                                                                                  BlobRequestConditions blobRequestConditions,
-                                                                                 String requestId,
                                                                                  CancellationToken cancellationToken) {
         blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
         return storageBlobServiceClient.getContainerPropertiesWithResponse(containerName,
             timeout,
-            version,
             blobRequestConditions.getLeaseId(),
-            requestId,
             cancellationToken);
     }
 
@@ -493,9 +450,6 @@ public class StorageBlobClient {
      *                              MD5 hash for the range, as long as the range is less than or equal to 4 MB in size.
      * @param getRangeContentCrc64  When set to true and specified together with the Range, the service returns the
      *                              CRC64 hash for the range, as long as the range is less than or equal to 4 MB in size.
-     * @param version               Specifies the version of the operation to use for this request.
-     * @param requestId             Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                              recorded in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo               Additional parameters for the operation.
      * @param cancellationToken     The token to request cancellation.
      * @return The response information returned from the server when downloading a blob.
@@ -508,8 +462,6 @@ public class StorageBlobClient {
                                                             BlobRequestConditions blobRequestConditions,
                                                             Boolean getRangeContentMd5,
                                                             Boolean getRangeContentCrc64,
-                                                            String version,
-                                                            String requestId,
                                                             CpkInfo cpkInfo,
                                                             CancellationToken cancellationToken) {
         range = range == null ? new BlobRange(0) : range;
@@ -527,8 +479,6 @@ public class StorageBlobClient {
             blobRequestConditions.getIfUnmodifiedSince(),
             blobRequestConditions.getIfMatch(),
             blobRequestConditions.getIfNoneMatch(),
-            version,
-            requestId,
             cpkInfo,
             cancellationToken);
     }
@@ -570,8 +520,6 @@ public class StorageBlobClient {
      * @param timeout           The timeout parameter is expressed in seconds. For more information,
      *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param leaseId           If specified, the staging only succeeds if the resource's lease is active and matches this ID.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded.
-     *                          in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo           Additional parameters for the operation.
      * @param cancellationToken The token to request cancellation.
      * @return The response object.
@@ -584,7 +532,6 @@ public class StorageBlobClient {
                                                                    byte[] contentCrc64,
                                                                    Integer timeout,
                                                                    String leaseId,
-                                                                   String requestId,
                                                                    CpkInfo cpkInfo,
                                                                    CancellationToken cancellationToken) {
         return this.storageBlobServiceClient.stageBlockWithRestResponse(containerName,
@@ -595,7 +542,6 @@ public class StorageBlobClient {
             contentCrc64,
             timeout,
             leaseId,
-            requestId,
             cpkInfo,
             cancellationToken);
     }
@@ -642,8 +588,6 @@ public class StorageBlobClient {
      * @param blobHttpHeaders   Additional Http headers for this operation.
      * @param metadata          Specifies a user-defined name-value pair associated with the blob.
      * @param requestConditions {@link BlobRequestConditions}.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is recorded
-     *                          in the analytics logs when storage analytics logging is enabled.
      * @param cpkInfo           Additional parameters for the operation.
      * @param tier              Indicates the tier to be set on the blob.
      * @param cancellationToken The token to request cancellation.
@@ -658,7 +602,6 @@ public class StorageBlobClient {
                                                                              BlobHttpHeaders blobHttpHeaders,
                                                                              Map<String, String> metadata,
                                                                              BlobRequestConditions requestConditions,
-                                                                             String requestId,
                                                                              CpkInfo cpkInfo,
                                                                              AccessTier tier,
                                                                              CancellationToken cancellationToken) {
@@ -671,7 +614,6 @@ public class StorageBlobClient {
             blobHttpHeaders,
             metadata,
             requestConditions,
-            requestId,
             cpkInfo,
             tier,
             cancellationToken);
@@ -717,8 +659,6 @@ public class StorageBlobClient {
      * @param deleteSnapshots   Required if the blob has associated snapshots. Specify one of the following two
      *                          options: include: Delete the base blob and all of its snapshots. only: Delete only the blob's snapshots and not the blob itself. Possible values include: 'include', 'only'.
      * @param requestConditions {@link BlobRequestConditions}
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
      * @return A response object containing the details of the delete operation.
      */
@@ -726,19 +666,15 @@ public class StorageBlobClient {
                                                          String blobName,
                                                          String snapshot,
                                                          Integer timeout,
-                                                         String version,
                                                          DeleteSnapshotsOptionType deleteSnapshots,
                                                          BlobRequestConditions requestConditions,
-                                                         String requestId,
                                                          CancellationToken cancellationToken) {
         return storageBlobServiceClient.deleteBlobWithRestResponse(containerName,
             blobName,
             snapshot,
             timeout,
-            version,
             deleteSnapshots,
             requestConditions,
-            requestId,
             cancellationToken);
     }
 
@@ -758,22 +694,16 @@ public class StorageBlobClient {
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param requestConditions {@link BlobRequestConditions}
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
      * @return A response object containing the details of the delete operation.
      */
     public ContainerDeleteResponse deleteContainerWithRestResponse(String containerName,
                                                                    Integer timeout,
-                                                                   String version,
                                                                    BlobRequestConditions requestConditions,
-                                                                   String requestId,
                                                                    CancellationToken cancellationToken) {
         return storageBlobServiceClient.deleteContainerWithRestResponse(containerName,
             timeout,
-            version,
             requestConditions,
-            requestId,
             cancellationToken);
     }
 
@@ -800,9 +730,6 @@ public class StorageBlobClient {
      *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param version           Specifies the version of the operation to use for this request.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
      * @return A response object containing the blob's tags.
      */
@@ -810,16 +737,12 @@ public class StorageBlobClient {
                                                                      String blobName,
                                                                      String snapshot,
                                                                      Integer timeout,
-                                                                     String version,
-                                                                     String requestId,
                                                                      CancellationToken cancellationToken) {
         BlobGetTagsResponse response = this.storageBlobServiceClient.getTagsWithRestResponse(containerName,
             blobName,
             snapshot,
             null, /* TODO (gapra) : Add in support when we set version to STG73 */
             timeout,
-            version,
-            requestId,
             null, /* TODO (gapra) : Add in support when we set version to STG73 */
             cancellationToken);
 
@@ -852,19 +775,14 @@ public class StorageBlobClient {
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param ifTags            Specifies a SQL query to apply to the blob's tags.
-     * @param version           Specifies the version of the operation to use for this request.
      * @param tags              Tags to associate with the blob.
-     * @param requestId         Provides a client-generated, opaque value with a 1 KB character limit that is
-     *                          recorded in the analytics logs when storage analytics logging is enabled.
      * @param cancellationToken The token to request cancellation.
      */
     public BlobSetTagsResponse setBlobTagsWithResponse(String containerName,
                                                        String blobName,
                                                        Integer timeout,
                                                        String ifTags,
-                                                       String version,
                                                        Map<String, String> tags,
-                                                       String requestId,
                                                        CancellationToken cancellationToken) {
         return storageBlobServiceClient.setBlobTagsWithRestResponse(containerName,
             blobName,
@@ -872,8 +790,6 @@ public class StorageBlobClient {
             null, // TODO: Add back with versioning support
             ifTags,
             tags,
-            requestId,
-            version,
             cancellationToken);
     }
 
@@ -883,6 +799,7 @@ public class StorageBlobClient {
      */
     public static class Builder {
         private final ServiceClient.Builder serviceClientBuilder;
+        private BlobServiceVersion serviceVersion;
 
         /**
          * Creates a {@link Builder}.
@@ -914,6 +831,7 @@ public class StorageBlobClient {
 
         private void addStandardInterceptors() {
             this.serviceClientBuilder
+                .addInterceptor(new RequestIdInterceptor())
                 .addInterceptor(new AddDateInterceptor())
                 .addInterceptor(new MetadataInterceptor())
                 .addInterceptor(new NormalizeEtagInterceptor());
@@ -929,6 +847,17 @@ public class StorageBlobClient {
         public Builder setBlobServiceUrl(String blobServiceUrl) {
             Objects.requireNonNull(blobServiceUrl, "blobServiceUrl cannot be null.");
             this.serviceClientBuilder.setBaseUrl(blobServiceUrl);
+            return this;
+        }
+
+        /**
+         * Sets the service version for the {@link StorageBlobClient}.
+         *
+         * @param serviceVersion {@link BlobServiceVersion}
+         * @return An updated {@link StorageBlobClient.Builder} with the provided blob service version set.
+         */
+        public StorageBlobClient.Builder setServiceVersion(BlobServiceVersion serviceVersion) {
+            this.serviceVersion = serviceVersion;
             return this;
         }
 
@@ -949,7 +878,9 @@ public class StorageBlobClient {
          * @return A {@link StorageBlobClient}.
          */
         public StorageBlobClient build() {
-            StorageBlobClient client = new StorageBlobClient(this.serviceClientBuilder.build());
+            BlobServiceVersion version = this.serviceVersion == null ? BlobServiceVersion.getLatest()
+                : this.serviceVersion;
+            StorageBlobClient client = new StorageBlobClient(this.serviceClientBuilder.build(), version.getVersion());
             return client;
         }
 
