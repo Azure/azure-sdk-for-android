@@ -1708,7 +1708,7 @@ final class StorageBlobServiceImpl {
             blobName,
             snapshot,
             timeout,
-            serviceVersion, // TODO: Replace with 'version'.
+            serviceVersion,
             leaseId,
             ifModifiedSince,
             ifUnmodifiedSince,
@@ -1810,7 +1810,7 @@ final class StorageBlobServiceImpl {
             ifMatch,
             ifNoneMatch,
             null, // TODO: Add tags when later service version supported.
-            serviceVersion, // TODO: Replace with 'version'.
+            serviceVersion,
             null,
             comp,
             headers.getCacheControl(),
@@ -1924,7 +1924,7 @@ final class StorageBlobServiceImpl {
             ifMatch,
             ifNoneMatch,
             null, // TODO: Add tags when later service version supported.
-            serviceVersion, // TODO: Replace with 'version'.
+            serviceVersion,
             null,
             comp,
             encryptionKey,
@@ -2514,7 +2514,7 @@ final class StorageBlobServiceImpl {
             ifUnmodifiedSince,
             ifMatch,
             ifNoneMatch,
-            serviceVersion, // TODO: Replace with 'version'.
+            serviceVersion,
             null);
 
         ((CancellationTokenImpl) cancellationToken).registerOnCancel(() -> {
@@ -2595,7 +2595,7 @@ final class StorageBlobServiceImpl {
             versionId,
             timeout,
             comp,
-            serviceVersion, // TODO: Replace with 'version'.
+            serviceVersion,
             null,
             ifTags);
 
