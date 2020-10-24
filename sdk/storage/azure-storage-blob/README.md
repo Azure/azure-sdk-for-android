@@ -64,7 +64,7 @@ Place the libraries' .aar files in your application module's `libs` directory, a
 `build.gradle` file, updating (or adding) the `fileTree` dependency targeting the `libs` directory to include .aar
 files.
 
-If you plan to use the [Microsoft Authentication Library (MSAL) for Android](http://aka.ms/aadv2) in your project, add
+If you plan to use the [Microsoft Authentication Library (MSAL) for Android](https://aka.ms/aadv2) in your project, add
 it by following the library's
 [installation instructions](https://github.com/AzureAD/microsoft-authentication-library-for-android#using-msal).
 
