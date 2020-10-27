@@ -968,6 +968,7 @@ public class StorageBlobAsyncClient {
                             String blobName,
                             String snapshot,
                             Integer timeout,
+                            String ifTags,
                             CancellationToken cancellationToken,
                             CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
         this.storageBlobServiceClient.getTags(containerName,
@@ -975,7 +976,7 @@ public class StorageBlobAsyncClient {
             snapshot,
             null,
             timeout,
-            null,
+            ifTags,
             cancellationToken,
             new CallbackWithHeader<BlobTags, BlobGetTagsHeaders>() {
                 @Override
@@ -1022,7 +1023,7 @@ public class StorageBlobAsyncClient {
     public void setBlobTags(String containerName,
                             String blobName,
                             Integer timeout,
-                            String ifTags,
+                            String ifTags, /*TODO: Should this be BlobRequestConditions? */
                             Map<String, String> tags,
                             CancellationToken cancellationToken,
                             CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {

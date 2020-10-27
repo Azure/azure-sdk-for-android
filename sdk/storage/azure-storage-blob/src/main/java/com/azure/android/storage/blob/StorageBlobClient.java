@@ -737,13 +737,14 @@ public class StorageBlobClient {
                                                                      String blobName,
                                                                      String snapshot,
                                                                      Integer timeout,
+                                                                     String ifTags,
                                                                      CancellationToken cancellationToken) {
         BlobGetTagsResponse response = this.storageBlobServiceClient.getTagsWithRestResponse(containerName,
             blobName,
             snapshot,
             null, /* TODO (gapra) : Add in support when we set version to STG73 */
             timeout,
-            null, /* TODO (gapra) : Add in support when we set version to STG73 */
+            ifTags,
             cancellationToken);
 
         return new Response<>(null,
@@ -781,7 +782,7 @@ public class StorageBlobClient {
     public BlobSetTagsResponse setBlobTagsWithResponse(String containerName,
                                                        String blobName,
                                                        Integer timeout,
-                                                       String ifTags,
+                                                       String ifTags, /*TODO: Should this be BlobRequestConditions? */
                                                        Map<String, String> tags,
                                                        CancellationToken cancellationToken) {
         return storageBlobServiceClient.setBlobTagsWithRestResponse(containerName,
