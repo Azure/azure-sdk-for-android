@@ -20,7 +20,6 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.impl.WorkManagerImpl;
 
-import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
@@ -121,6 +120,7 @@ public final class TransferClient {
                 BlobUploadEntity blob = new BlobUploadEntity(uploadRequest.getStorageClientId(),
                     uploadRequest.getContainerName(),
                     uploadRequest.getBlobName(),
+                    uploadRequest.isComputeMd5(),
                     readableContent,
                     uploadRequest.getConstraints());
                 List<BlockUploadEntity> blocks

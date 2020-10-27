@@ -303,6 +303,7 @@ final class UploadHandler extends Handler {
                 blockContent,
                 null,
                 null,
+                this.blob.computeMd5,
                 null,
                 null,
                 null,

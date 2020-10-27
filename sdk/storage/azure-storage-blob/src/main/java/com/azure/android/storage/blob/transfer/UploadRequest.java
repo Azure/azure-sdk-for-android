@@ -20,6 +20,7 @@ public final class UploadRequest {
     private final String storageClientId;
     private final String containerName;
     private final String blobName;
+    private Boolean computeMd5;
     private final ReadableContent readableContent;
     private final Constraints constraints;
 
@@ -29,17 +30,20 @@ public final class UploadRequest {
      * @param storageClientId Identifies the {@link com.azure.android.storage.blob.StorageBlobAsyncClient} for the upload.
      * @param containerName   The name of the container to upload the content to.
      * @param blobName        The name of the target blob holding the uploaded content.
+     * @param computeMd5      Whether or not the library should calculate the md5 and send it for the service to verify.
      * @param readableContent The object describing the content in the device that needs to be uploaded.
      * @param constraints     The constraints to be satisfied to execute the upload.
      */
     private UploadRequest(String storageClientId,
                           String containerName,
                           String blobName,
+                          Boolean computeMd5,
                           ReadableContent readableContent,
                           Constraints constraints) {
         this.storageClientId = storageClientId;
         this.containerName = containerName;
         this.blobName = blobName;
+        this.computeMd5 = computeMd5;
         this.readableContent = readableContent;
         this.constraints = constraints;
     }
@@ -72,6 +76,15 @@ public final class UploadRequest {
     }
 
     /**
+     * Get whether or not the library should calculate the md5 and send it for the service to verify.
+     *
+     * @return Whether or not the library should calculate the md5 and send it for the service to verify.
+     */
+    Boolean isComputeMd5() {
+        return this.computeMd5;
+    }
+
+    /**
      * Get the object describing the content in the device that needs to be uploaded.
      *
      * @return The content description.
@@ -96,6 +109,7 @@ public final class UploadRequest {
         private String storageClientId;
         private String containerName;
         private String blobName;
+        private Boolean computeMd5;
         private ReadableContent readableContent;
         private Constraints constraints;
 
@@ -135,6 +149,17 @@ public final class UploadRequest {
          */
         public Builder blobName(String blobName) {
             this.blobName = blobName;
+            return this;
+        }
+
+        /**
+         * Set whether or not the library should calculate the md5 and send it for the service to verify.
+         *
+         * @param computeMd5 Whether or not the library should calculate the md5 and send it for the service to verify.
+         * @return Builder with the provided computeMd5 value set.
+         */
+        public Builder computeMd5(Boolean computeMd5) {
+            this.computeMd5 = computeMd5;
             return this;
         }
 
@@ -201,6 +226,7 @@ public final class UploadRequest {
             return new UploadRequest(this.storageClientId,
                 this.containerName,
                 this.blobName,
+                this.computeMd5,
                 this.readableContent,
                 this.constraints);
         }

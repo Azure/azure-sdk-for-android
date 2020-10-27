@@ -116,16 +116,20 @@ public class StorageBlobAsyncClient {
      * @param context       The application context.
      * @param containerName The container to upload the file to.
      * @param blobName      The name of the target blob holding the uploaded file.
+     * @param computeMd5    Whether or not the library should calculate the md5 and send it for the service to verify.
      * @param file          The local file to upload.
      * @return A LiveData that streams {@link TransferInfo} describing the current state of the transfer.
      */
     public LiveData<TransferInfo> upload(Context context,
                                          String containerName,
-                                         String blobName, File file) {
+                                         String blobName,
+                                         Boolean computeMd5,
+                                         File file) {
         final UploadRequest request = new UploadRequest.Builder()
             .storageClientId(this.id)
             .containerName(containerName)
             .blobName(blobName)
+            .computeMd5(computeMd5)
             .file(file)
             .constraints(this.transferConstraints)
             .build();
@@ -139,6 +143,7 @@ public class StorageBlobAsyncClient {
      * @param context       The application context.
      * @param containerName The container to upload the file to.
      * @param blobName      The name of the target blob holding the uploaded file.
+     * @param computeMd5    Whether or not the library should calculate the md5 and send it for the service to verify.
      * @param contentUri    The URI to the Content to upload, the contentUri is resolved using
      *                      {@link android.content.ContentResolver#openAssetFileDescriptor(Uri, String)} with mode as
      *                      "r". The supported URI schemes are: 'content://', 'file://' and 'android.resource://'.
@@ -147,11 +152,13 @@ public class StorageBlobAsyncClient {
     public LiveData<TransferInfo> upload(Context context,
                                          String containerName,
                                          String blobName,
+                                         Boolean computeMd5,
                                          Uri contentUri) {
         final UploadRequest request = new UploadRequest.Builder()
             .storageClientId(this.id)
             .containerName(containerName)
             .blobName(blobName)
+            .computeMd5(computeMd5)
             .contentUri(context, contentUri)
             .constraints(this.transferConstraints)
             .build();
@@ -720,6 +727,7 @@ public class StorageBlobAsyncClient {
      * @param blockContent      The block content in bytes.
      * @param contentMd5        The transactional MD5 for the block content, to be validated by the service.
      * @param contentCrc64      Specify the transactional crc64 for the block content, to be validated by the service.
+     * @param computeMd5        Whether or not the library should calculate the md5 and send it for the service to verify.
      * @param timeout           The timeout parameter is expressed in seconds. For more information,
      *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param leaseId           If specified, the staging only succeeds if the resource's lease is active and matches this ID.
@@ -733,6 +741,7 @@ public class StorageBlobAsyncClient {
                            byte[] blockContent,
                            byte[] contentMd5,
                            byte[] contentCrc64,
+                           Boolean computeMd5,
                            Integer timeout,
                            String leaseId,
                            CpkInfo cpkInfo,
@@ -744,6 +753,7 @@ public class StorageBlobAsyncClient {
             blockContent,
             contentMd5,
             contentCrc64,
+            computeMd5,
             timeout,
             leaseId,
             cpkInfo,

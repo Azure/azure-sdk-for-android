@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.threeten.bp.OffsetDateTime;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -31,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static com.azure.android.core.common.TestUtils.awaitOnLatch;
@@ -123,7 +126,7 @@ public class BlockBlobTest {
         String blockId = generateBlockID();
 
         // When
-        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, blockId, getDefaultData(), null, null, null, null ,null, null);
+        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, blockId, getDefaultData(), null, null, null, null ,null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -200,7 +203,7 @@ public class BlockBlobTest {
         byte[] correctMd5 = MessageDigest.getInstance("MD5").digest(getDefaultData());
 
         // When
-        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, null, null, null, null);
+        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, null, null, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -217,6 +220,45 @@ public class BlockBlobTest {
         assertEquals(BlobErrorCode.MD5MISMATCH, ex.getErrorCode());
     }
 
+    @Test
+    public void stageBlockComputeMd5() {
+        // Success Case
+        // When
+        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), null, null, true, null, null, null, null);
+
+        // Then
+        assertEquals(201, response.getStatusCode());
+    }
+
+    @Test
+    public void stageBlockComputeMd5Error() throws NoSuchAlgorithmException {
+        // Error Case - data was modified after md5 was computed
+        // When
+        StorageBlobClient tempClient = initializeDefaultSyncBlobClientBuilder(enableFiddler(), chain -> {
+            Request newRequest = chain.request()
+                .newBuilder()
+                .put(RequestBody.create(null, "Jr;;p Ept;f".getBytes(StandardCharsets.UTF_8)))
+                .build();
+            return chain.proceed(newRequest);
+        }).build();
+        BlobStorageException exception = assertThrows(BlobStorageException.class,
+            () -> tempClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), null, null, true, null, null, null, null));
+
+        // Then
+        assertEquals(BlobErrorCode.MD5MISMATCH, exception.getErrorCode());
+
+        // Error Case - computeMd5 conflicts with contentMd5 being passed in
+        // Setup
+        byte[] correctMd5 = MessageDigest.getInstance("MD5").digest(getDefaultData());
+
+        // When
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+            () -> syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, true, null, null, null, null));
+
+        // Then
+        assertEquals("'transactionalContentMD5' can not be set when 'computeMd5' is true.", ex.getMessage());
+    }
+
     // No Stage Block Lease tests due to no support for leases yet.
 
     // Stage block error tested in tests above.
@@ -229,7 +271,7 @@ public class BlockBlobTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // Expect
-        asyncClient.stageBlock(containerName, blobName, blockId, getDefaultData(), null, null, null,
+        asyncClient.stageBlock(containerName, blobName, blockId, getDefaultData(), null, null, false, null,
             null, null, null, new CallbackWithHeader<Void, BlockBlobStageBlockHeaders>() {
                 @Override
                 public void onSuccess(Void result, BlockBlobStageBlockHeaders headers, Response response) {
