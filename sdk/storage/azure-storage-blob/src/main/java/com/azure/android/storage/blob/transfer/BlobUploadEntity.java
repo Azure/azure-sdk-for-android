@@ -69,7 +69,7 @@ final class BlobUploadEntity {
      * Whether or not the library should calculate the md5 and send it for the service to verify.
      */
     @ColumnInfo(name = "compute_md5")
-    public boolean computeMd5;
+    public Boolean computeMd5;
     /**
      * The current state of the blob upload operation.
      */
@@ -117,7 +117,7 @@ final class BlobUploadEntity {
     BlobUploadEntity(String storageBlobClientId,
                      String containerName,
                      String blobName,
-                     boolean computeMd5,
+                     Boolean computeMd5,
                      ReadableContent content,
                      Constraints constraints) throws Throwable {
         Objects.requireNonNull(storageBlobClientId);

@@ -20,7 +20,7 @@ public final class UploadRequest {
     private final String storageClientId;
     private final String containerName;
     private final String blobName;
-    private boolean computeMd5;
+    private Boolean computeMd5;
     private final ReadableContent readableContent;
     private final Constraints constraints;
 
@@ -37,7 +37,7 @@ public final class UploadRequest {
     private UploadRequest(String storageClientId,
                           String containerName,
                           String blobName,
-                          boolean computeMd5,
+                          Boolean computeMd5,
                           ReadableContent readableContent,
                           Constraints constraints) {
         this.storageClientId = storageClientId;
@@ -80,7 +80,7 @@ public final class UploadRequest {
      *
      * @return Whether or not the library should calculate the md5 and send it for the service to verify.
      */
-    boolean isComputeMd5() {
+    Boolean isComputeMd5() {
         return this.computeMd5;
     }
 
@@ -158,7 +158,7 @@ public final class UploadRequest {
          * @param computeMd5 Whether or not the library should calculate the md5 and send it for the service to verify.
          * @return Builder with the provided computeMd5 value set.
          */
-        public Builder computeMd5(boolean computeMd5) {
+        public Builder computeMd5(Boolean computeMd5) {
             this.computeMd5 = computeMd5;
             return this;
         }

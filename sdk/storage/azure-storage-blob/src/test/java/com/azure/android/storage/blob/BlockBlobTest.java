@@ -123,7 +123,7 @@ public class BlockBlobTest {
         String blockId = generateBlockID();
 
         // When
-        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, blockId, getDefaultData(), null, null, null, null ,null, null);
+        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, blockId, getDefaultData(), null, null, null, null ,null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -200,7 +200,7 @@ public class BlockBlobTest {
         byte[] correctMd5 = MessageDigest.getInstance("MD5").digest(getDefaultData());
 
         // When
-        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, null, null, null, null);
+        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, null, null, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -220,7 +220,7 @@ public class BlockBlobTest {
     @Test
     public void stageBlockComputeMd5() throws NoSuchAlgorithmException {
         // When
-        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), null, null, true, null, null, null, null, null);
+        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), null, null, true, null, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -230,7 +230,7 @@ public class BlockBlobTest {
 
         // When
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-            () -> syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, true, null, null, null, null, null));
+            () -> syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, true, null, null, null, null));
 
         // Then
         assertEquals("'transactionalContentMD5' can not be set when 'computeMd5' is true.", ex.getMessage());
@@ -248,7 +248,7 @@ public class BlockBlobTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // Expect
-        asyncClient.stageBlock(containerName, blobName, blockId, getDefaultData(), null, null, false,
+        asyncClient.stageBlock(containerName, blobName, blockId, getDefaultData(), null, null, false, null,
             null, null, null, new CallbackWithHeader<Void, BlockBlobStageBlockHeaders>() {
                 @Override
                 public void onSuccess(Void result, BlockBlobStageBlockHeaders headers, Response response) {

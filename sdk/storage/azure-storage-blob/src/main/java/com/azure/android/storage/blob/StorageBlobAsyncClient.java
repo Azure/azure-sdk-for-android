@@ -123,7 +123,7 @@ public class StorageBlobAsyncClient {
     public LiveData<TransferInfo> upload(Context context,
                                          String containerName,
                                          String blobName,
-                                         boolean computeMd5,
+                                         Boolean computeMd5,
                                          File file) {
         final UploadRequest request = new UploadRequest.Builder()
             .storageClientId(this.id)
@@ -152,7 +152,7 @@ public class StorageBlobAsyncClient {
     public LiveData<TransferInfo> upload(Context context,
                                          String containerName,
                                          String blobName,
-                                         boolean computeMd5,
+                                         Boolean computeMd5,
                                          Uri contentUri) {
         final UploadRequest request = new UploadRequest.Builder()
             .storageClientId(this.id)
@@ -741,7 +741,7 @@ public class StorageBlobAsyncClient {
                            byte[] blockContent,
                            byte[] contentMd5,
                            byte[] contentCrc64,
-                           boolean computeMd5,
+                           Boolean computeMd5,
                            Integer timeout,
                            String leaseId,
                            CpkInfo cpkInfo,

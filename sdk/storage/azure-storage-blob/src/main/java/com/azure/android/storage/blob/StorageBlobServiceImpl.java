@@ -873,7 +873,7 @@ final class StorageBlobServiceImpl {
             blockContent,
             contentMd5,
             null,
-            false,
+            null,
             null,
             null,
             null,
@@ -892,7 +892,7 @@ final class StorageBlobServiceImpl {
             blockContent,
             contentMd5,
             null,
-            false,
+            null,
             null,
             null,
             null,
@@ -906,7 +906,7 @@ final class StorageBlobServiceImpl {
                                                             byte[] blockContent,
                                                             byte[] transactionalContentMD5,
                                                             byte[] transactionalContentCrc64,
-                                                            boolean computeMd5,
+                                                            Boolean computeMd5,
                                                             Integer timeout,
                                                             String leaseId,
                                                             CpkInfo cpkInfo,
@@ -931,7 +931,7 @@ final class StorageBlobServiceImpl {
                     byte[] blockContent,
                     byte[] transactionalContentMD5,
                     byte[] transactionalContentCrc64,
-                    boolean computeMd5,
+                    Boolean computeMd5,
                     Integer timeout,
                     String leaseId,
                     CpkInfo cpkInfo,
@@ -2205,7 +2205,7 @@ final class StorageBlobServiceImpl {
                                                                           byte[] blockContent,
                                                                           byte[] transactionalContentMD5,
                                                                           byte[] transactionalContentCrc64,
-                                                                          boolean computeMd5,
+                                                                          Boolean computeMd5,
                                                                           Integer timeout,
                                                                           String leaseId,
                                                                           CpkInfo cpkInfo,
@@ -2223,7 +2223,7 @@ final class StorageBlobServiceImpl {
         //
         final String comp = "block";
 
-        if (computeMd5) {
+        if (computeMd5 != null && computeMd5) {
             if (transactionalContentMD5 != null) {
                 throw new IllegalArgumentException("'transactionalContentMD5' can not be set when 'computeMd5' is true.");
             }

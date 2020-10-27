@@ -531,7 +531,7 @@ public class StorageBlobClient {
                                                                    byte[] blockContent,
                                                                    byte[] contentMd5,
                                                                    byte[] contentCrc64,
-                                                                   boolean computeMd5,
+                                                                   Boolean computeMd5,
                                                                    Integer timeout,
                                                                    String leaseId,
                                                                    CpkInfo cpkInfo,
