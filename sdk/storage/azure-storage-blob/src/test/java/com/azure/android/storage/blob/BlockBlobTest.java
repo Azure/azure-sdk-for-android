@@ -23,6 +23,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.threeten.bp.OffsetDateTime;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -31,6 +33,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 
 import static com.azure.android.core.common.TestUtils.awaitOnLatch;
@@ -219,12 +224,29 @@ public class BlockBlobTest {
 
     @Test
     public void stageBlockComputeMd5() throws NoSuchAlgorithmException {
+        // Success Case
         // When
         BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), null, null, true, null, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
 
+        // Error Case - data was modified after md5 was computed
+        // When
+        StorageBlobClient tempClient = initializeDefaultSyncBlobClientBuilder(enableFiddler(), new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Request newRequest = chain.request()
+                    .newBuilder()
+                    .put(RequestBody.create(null, "Jr;;p Ept;f".getBytes(StandardCharsets.UTF_8)))
+                    .build();
+                return chain.proceed(newRequest);
+            }
+        }).build();
+        assertThrows(BlobStorageException.class,
+            () -> tempClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), null, null, true, null, null, null, null));
+
+        // Error Case - computeMd5 conflicts with contentMd5 being passed in
         // Setup
         byte[] correctMd5 = MessageDigest.getInstance("MD5").digest(getDefaultData());
 
