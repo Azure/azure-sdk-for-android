@@ -123,7 +123,7 @@ public class BlockBlobTest {
         String blockId = generateBlockID();
 
         // When
-        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, blockId, getDefaultData(), null, null, null ,null ,null ,null, null);
+        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, blockId, getDefaultData(), null, null, null, null ,null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -200,7 +200,7 @@ public class BlockBlobTest {
         byte[] correctMd5 = MessageDigest.getInstance("MD5").digest(getDefaultData());
 
         // When
-        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, null, null, null, null, null);
+        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, null, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -229,7 +229,7 @@ public class BlockBlobTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // Expect
-        asyncClient.stageBlock(containerName, blobName, blockId, getDefaultData(), null, null, null, null,
+        asyncClient.stageBlock(containerName, blobName, blockId, getDefaultData(), null, null, null,
             null, null, null, new CallbackWithHeader<Void, BlockBlobStageBlockHeaders>() {
                 @Override
                 public void onSuccess(Void result, BlockBlobStageBlockHeaders headers, Response response) {
@@ -264,7 +264,7 @@ public class BlockBlobTest {
         blockIds.add(blockId);
 
         // When
-        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithRestResponse(containerName, blobName, blockIds, null ,null,  null, null, null, null, null, null, null, null);
+        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithRestResponse(containerName, blobName, blockIds, null ,null, null, null, null, null, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -322,7 +322,7 @@ public class BlockBlobTest {
             .setContentType(contentType);
 
         // When
-        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithRestResponse(containerName, blobName, null, null ,null,  null, headers, null, null, null, null, null, null);
+        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithRestResponse(containerName, blobName, null, null ,null,  null, headers, null, null, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -342,7 +342,7 @@ public class BlockBlobTest {
         metadata.put("key2", "value2");
 
         // When
-        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithRestResponse(containerName, blobName, null, null ,null,  null, null, metadata, null, null, null, null, null);
+        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithRestResponse(containerName, blobName, null, null ,null,  null, null, metadata, null, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -366,7 +366,7 @@ public class BlockBlobTest {
             .setIfNoneMatch(ifNoneMatch);
 
         // When
-        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithRestResponse(containerName, blobName, null, null ,null,  null, null, null, requestConditions, null, null, null, null);
+        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithRestResponse(containerName, blobName, null, null ,null,  null, null, null, requestConditions, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -385,7 +385,7 @@ public class BlockBlobTest {
 
         // When
         BlobStorageException ex = assertThrows(BlobStorageException.class,
-            () -> syncClient.commitBlockListWithRestResponse(containerName, blobName, null, null ,null,  null, null, null, requestConditions, null, null, null, null));
+            () -> syncClient.commitBlockListWithRestResponse(containerName, blobName, null, null ,null,  null, null, null, requestConditions, null, null, null));
 
         // Then
         assertEquals(412, ex.getStatusCode());
@@ -404,7 +404,7 @@ public class BlockBlobTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // Expect
-        asyncClient.commitBlockList(containerName, blobName, blockIds, null, null, null, null, null,
+        asyncClient.commitBlockList(containerName, blobName, blockIds, null, null, null, null,
             null, null, null, null, null, new CallbackWithHeader<BlockBlobItem, BlockBlobCommitBlockListHeaders>() {
                 @Override
                 public void onSuccess(BlockBlobItem result, BlockBlobCommitBlockListHeaders headers, Response response) {

@@ -164,8 +164,6 @@ public class StorageBlobClientTest {
                 null,
                 null,
                 null,
-                null,
-                null,
                 CancellationToken.NONE);
 
         assertEquals(201, response.getStatusCode());
@@ -184,8 +182,6 @@ public class StorageBlobClientTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         storageBlobAsyncClient.createContainer("container",
-            null,
-            null,
             null,
             null,
             null,
@@ -303,7 +299,6 @@ public class StorageBlobClientTest {
                 null,
                 null,
                 null,
-                null,
                 CancellationToken.NONE);
 
         // Then the client will return an object that contains both the details of the REST response and a list
@@ -334,7 +329,6 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.getBlobsInPage(null,
             "testContainer",
-            null,
             null,
             null,
             null,
@@ -446,8 +440,6 @@ public class StorageBlobClientTest {
                 null,
                 null,
                 null,
-                null,
-                null,
                 CancellationToken.NONE);
 
         assertEquals("application/text", response.getDeserializedHeaders().getContentType());
@@ -469,8 +461,6 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.getBlobProperties("container",
             "blob",
-            null,
-            null,
             null,
             null,
             null,
@@ -574,9 +564,7 @@ public class StorageBlobClientTest {
                 "blob",
                 null,
                 null,
-                null,
                 new BlobHttpHeaders(),
-                null,
                 CancellationToken.NONE);
 
         assertEquals(200, response.getStatusCode());
@@ -599,9 +587,7 @@ public class StorageBlobClientTest {
             "blob",
             null,
             null,
-            null,
             new BlobHttpHeaders(),
-            null,
             CancellationToken.NONE,
             new CallbackWithHeader<Void, BlobSetHttpHeadersHeaders>() {
 
@@ -705,9 +691,7 @@ public class StorageBlobClientTest {
                 "blob",
                 null,
                 null,
-                null,
                 metadata,
-                null,
                 null,
                 CancellationToken.NONE);
 
@@ -733,9 +717,7 @@ public class StorageBlobClientTest {
             "blob",
             null,
             null,
-            null,
             metadata,
-            null,
             null,
             CancellationToken.NONE,
             new CallbackWithHeader<Void, BlobSetMetadataHeaders>() {
@@ -838,8 +820,6 @@ public class StorageBlobClientTest {
                 null,
                 null,
                 null,
-                null,
-                null,
                 CancellationToken.NONE);
 
         assertEquals(202, response.getStatusCode());
@@ -860,8 +840,6 @@ public class StorageBlobClientTest {
         storageBlobAsyncClient.setBlobTier("container",
             "blob",
             AccessTier.HOT,
-            null,
-            null,
             null,
             null,
             null,
@@ -973,8 +951,6 @@ public class StorageBlobClientTest {
             null,
             null,
             null,
-            null,
-            null,
             CancellationToken.NONE);
 
         assertEquals(200, response.getStatusCode());
@@ -997,8 +973,6 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.rawDownload("testContainer",
             "testBlob",
-            null,
-            null,
             null,
             null,
             null,
@@ -1116,7 +1090,6 @@ public class StorageBlobClientTest {
             null,
             null,
             null,
-            null,
             CancellationToken.NONE);
 
         assertEquals(201, response.getStatusCode());
@@ -1138,7 +1111,6 @@ public class StorageBlobClientTest {
             "testBlob",
             null,
             new byte[0],
-            null,
             null,
             null,
             null,
@@ -1263,7 +1235,6 @@ public class StorageBlobClientTest {
             null,
             null,
             null,
-            null,
             CancellationToken.NONE);
 
         assertEquals(false, response.getBlockBlobItem().isServerEncrypted());
@@ -1288,7 +1259,6 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.commitBlockList("testContainer",
             "testBlob",
-            null,
             null,
             null,
             null,
@@ -1399,8 +1369,6 @@ public class StorageBlobClientTest {
                 null,
                 null,
                 null,
-                null,
-                null,
                 CancellationToken.NONE);
 
         assertEquals(202, response.getStatusCode());
@@ -1421,8 +1389,6 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.deleteBlob("container",
             "blob",
-            null,
-            null,
             null,
             null,
             null,
@@ -1520,8 +1486,6 @@ public class StorageBlobClientTest {
             storageBlobClient.deleteContainerWithRestResponse("container",
                 null,
                 null,
-                null,
-                null,
                 CancellationToken.NONE);
 
         assertEquals(202, response.getStatusCode());
@@ -1540,8 +1504,6 @@ public class StorageBlobClientTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         storageBlobAsyncClient.deleteContainer("container",
-            null,
-            null,
             null,
             null,
             CancellationToken.NONE,
@@ -1660,8 +1622,6 @@ public class StorageBlobClientTest {
                 "blobName",
                 null,
                 null,
-                null,
-                null,
                 CancellationToken.NONE);
 
         // Then a map containing the details of the blob tags will be returned by the service and converted to a Map
@@ -1693,8 +1653,6 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.getBlobTags("testContainer",
             "testBlob",
-            null,
-            null,
             null,
             null,
             CancellationToken.NONE,
@@ -1806,9 +1764,7 @@ public class StorageBlobClientTest {
                 "blob",
                 null,
                 null,
-                null,
                 tags,
-                null,
                 CancellationToken.NONE);
 
         assertEquals(204, response.getStatusCode());
@@ -1833,9 +1789,7 @@ public class StorageBlobClientTest {
             "blob",
             null,
             null,
-            null,
             tags,
-            null,
             CancellationToken.NONE,
             new CallbackWithHeader<Void, BlobSetTagsHeaders>() {
 

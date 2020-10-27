@@ -299,8 +299,6 @@ final class DownloadHandler extends Handler {
                 null,
                 null,
                 null,
-                null,
-                null,
                 this.cancellationToken,
                 new CallbackWithHeader<ResponseBody, BlobDownloadHeaders>() {
                     @Override
