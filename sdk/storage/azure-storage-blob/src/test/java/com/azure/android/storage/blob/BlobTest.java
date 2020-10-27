@@ -1,5 +1,6 @@
 package com.azure.android.storage.blob;
 
+import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.ArchiveStatus;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
@@ -8,9 +9,16 @@ import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
+import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItemProperties;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
+import com.azure.android.storage.blob.models.BlobSetHttpHeadersHeaders;
+import com.azure.android.storage.blob.models.BlobSetHttpHeadersResponse;
+import com.azure.android.storage.blob.models.BlobSetMetadataHeaders;
+import com.azure.android.storage.blob.models.BlobSetMetadataResponse;
+import com.azure.android.storage.blob.models.BlobSetTagsHeaders;
+import com.azure.android.storage.blob.models.BlobSetTagsResponse;
 import com.azure.android.storage.blob.models.BlobSetTierResponse;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobType;
@@ -32,10 +40,15 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static com.azure.android.core.common.TestUtils.awaitOnLatch;
 import static com.azure.android.storage.blob.BlobTestUtils.enableFiddler;
 import static com.azure.android.storage.blob.BlobTestUtils.garbageEtag;
 import static com.azure.android.storage.blob.BlobTestUtils.generateBlockID;
@@ -49,6 +62,7 @@ import static com.azure.android.storage.blob.BlobTestUtils.oldDate;
 import static com.azure.android.storage.blob.BlobTestUtils.receivedEtag;
 import static com.azure.android.storage.blob.BlobTestUtils.setupMatchCondition;
 import static com.azure.android.storage.blob.BlobTestUtils.validateBasicHeaders;
+import static com.azure.android.storage.blob.BlobTestUtils.validateBlobProperties;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
@@ -100,6 +114,23 @@ public class BlobTest {
     }
 
     @DataProvider
+    public static Object[][] headers() throws NoSuchAlgorithmException {
+        return new Object[][] {
+            {null, null, null, null, null, null}, // 0
+            {"control", "disposition", "encoding", "language", MessageDigest.getInstance("MD5").digest(getDefaultData()), "type"},   // 1
+        };
+    }
+
+    @DataProvider
+    public static Object[][] metadata() {
+        return new Object[][]{
+            {null, null, null, null},       // 0
+            {"foo", "bar", "fizz", "buzz"}, // 1
+            {"i0", "a", "i_", "a"}          // 2. Test culture sensitive word sort.
+        };
+    }
+
+    @DataProvider
     public static Object[][] tierBlockBlob() {
         return new Object[][] {
             {AccessTier.HOT},       // 0
@@ -113,6 +144,15 @@ public class BlobTest {
         return new Object[][] {
             {AccessTier.ARCHIVE, AccessTier.COOL, ArchiveStatus.REHYDRATE_PENDING_TO_COOL},    // 0
             {AccessTier.ARCHIVE, AccessTier.HOT,  ArchiveStatus.REHYDRATE_PENDING_TO_HOT},     // 1
+        };
+    }
+
+    @DataProvider
+    public static Object[][] tags() {
+        return new Object[][] {
+            {null, null, null, null},
+            {"foo", "bar", "fizz", "buzz"},
+            {" +-./:=_  +-./:=_", " +-./:=_", null, null}
         };
     }
 
@@ -247,6 +287,232 @@ public class BlobTest {
         // Then
         assertEquals(404, ex.getStatusCode());
     }
+
+    @Test
+    public void setHttpHeadersMin() {
+        // Setup
+        BlobHttpHeaders headers = new BlobHttpHeaders().setContentType("contentType");
+
+        // When
+        syncClient.setBlobHttpHeaders(containerName, blobName, headers);
+
+        // Then
+        BlobGetPropertiesHeaders responseHeaders = syncClient.getBlobProperties(containerName, blobName);
+        assertEquals("contentType", responseHeaders.getContentType());
+    }
+
+    @Test
+    public void setHttpHeadersAllNull() {
+        // When
+        BlobSetHttpHeadersResponse response =
+            syncClient.setBlobHttpHeadersWithResponse(containerName, blobName, null, null, null, null, null, null);
+
+        // Then
+        assertEquals(200, response.getStatusCode());
+        validateBasicHeaders(response.getHeaders());
+    }
+
+    @Test
+    @UseDataProvider("headers")
+    public void setHttpHeadersHeaders(String cacheControl, String contentDisposition, String contentEncoding, String contentLanguage, byte[] contentMd5, String contentType) {
+        // Setup
+        BlobHttpHeaders headers = new BlobHttpHeaders()
+            .setCacheControl(cacheControl)
+            .setContentDisposition(contentDisposition)
+            .setContentEncoding(contentEncoding)
+            .setContentLanguage(contentLanguage)
+            .setContentMd5(contentMd5)
+            .setContentType(contentType);
+
+        // When
+        BlobSetHttpHeadersResponse response =
+            syncClient.setBlobHttpHeadersWithResponse(containerName, blobName, null, null, null, headers, null, null);
+
+        // Then
+        validateBasicHeaders(response.getHeaders());
+        assertEquals(200, response.getStatusCode());
+
+        // If the value isn't set the service will automatically set it
+        contentType = (contentType == null) ? "application/octet-stream" : contentType;
+        BlobGetPropertiesHeaders getPropertiesHeaders = syncClient.getBlobProperties(containerName, blobName);
+        validateBlobProperties(getPropertiesHeaders, cacheControl, contentDisposition, contentEncoding, contentLanguage, contentMd5, contentType);
+    }
+
+    @Test
+    @UseDataProvider("accessConditionsSuccess")
+    public void setHttpHeadersAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+        // Setup
+        ifMatch = setupMatchCondition(syncClient, containerName, blobName, ifMatch);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
+
+        // Expect
+        assertEquals(200, syncClient.setBlobHttpHeadersWithResponse(containerName, blobName, null, null, requestConditions,
+            null, null, null).getStatusCode());
+    }
+
+    @Test
+    @UseDataProvider("accessConditionsFail")
+    public void setHttpHeadersACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+        // Setup
+        ifNoneMatch = setupMatchCondition(syncClient, containerName, blobName, ifNoneMatch);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
+
+        // Expect
+        assertThrows(BlobStorageException.class,
+            () -> syncClient.setBlobHttpHeadersWithResponse(containerName, blobName, null, null, requestConditions, null,
+                null, null));
+    }
+
+    @Test
+    public void setHttpHeadersAsync() {
+        // Setup
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // When
+        asyncClient.setBlobHttpHeaders(containerName, blobName, null, null, null, null,
+            null, null, new CallbackWithHeader<Void, BlobSetHttpHeadersHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobSetHttpHeadersHeaders header, Response response) {
+                    assertEquals(200, response.code());
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "setHttpHeaders");
+    }
+
+    @Test
+    public void setMetadataMin() {
+        // Setup
+        Map<String, String> metadata = new HashMap<>();
+        metadata.put("foo", "bar");
+
+        // When
+        syncClient.setBlobMetadata(containerName, blobName, metadata);
+
+        // Then
+        BlobGetPropertiesHeaders headers = syncClient.getBlobProperties(containerName, blobName);
+        assertEquals(1, headers.getMetadata().size());
+        assertEquals("bar", headers.getMetadata().get("foo"));
+    }
+
+    @Test
+    public void setMetadataAllNull() {
+        // When
+        BlobSetMetadataResponse response =
+            syncClient.setBlobMetadataWithResponse(containerName, blobName, null, null, null, null, null, null, null);
+
+        // Then
+        assertEquals(0, syncClient.getBlobProperties(containerName, blobName).getMetadata().size());
+        assertEquals(200, response.getStatusCode());
+        validateBasicHeaders(response.getHeaders());
+        assertTrue(response.getDeserializedHeaders().isServerEncrypted());
+    }
+
+    @Test
+    @UseDataProvider("metadata")
+    public void setMetadataMetadata(String key1, String value1, String key2, String value2) {
+        // Setup
+        Map<String, String> metadata = new HashMap<>();
+        if (key1 != null && value1 != null) {
+            metadata.put(key1, value1);
+        }
+        if (key2 != null && value2 != null) {
+            metadata.put(key2, value2);
+        }
+
+        // When
+        BlobSetMetadataResponse response =
+            syncClient.setBlobMetadataWithResponse(containerName, blobName, null, null, null, metadata, null, null,
+                null);
+
+        // Then
+        validateBasicHeaders(response.getHeaders());
+        BlobGetPropertiesHeaders headers = syncClient.getBlobProperties(containerName, blobName);
+        assertEquals(metadata.size(), headers.getMetadata().size());
+        for(Map.Entry<String, String> entry : metadata.entrySet()) {
+            assertEquals(entry.getValue(), headers.getMetadata().get(entry.getKey()));
+        }
+    }
+
+    @Test
+    @UseDataProvider("accessConditionsSuccess")
+    public void setMetadataAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+        // Setup
+        ifMatch = setupMatchCondition(syncClient, containerName, blobName, ifMatch);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
+
+        // Expect
+        assertEquals(200, syncClient.setBlobMetadataWithResponse(containerName, blobName, null, null, requestConditions,
+            null, null, null,null).getStatusCode());
+    }
+
+    @Test
+    @UseDataProvider("accessConditionsFail")
+    public void setMetadataACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+        // Setup
+        ifNoneMatch = setupMatchCondition(syncClient, containerName, blobName, ifNoneMatch);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch);
+
+        // Expect
+        assertThrows(BlobStorageException.class,
+            () -> syncClient.setBlobMetadataWithResponse(containerName, blobName, null, null, requestConditions, null,
+                null, null, null));
+    }
+
+    @Test
+    public void setMetadataAsync() {
+        // Setup
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // When
+        asyncClient.setBlobMetadata(containerName, blobName, null, null, null, null, null,
+            null, null, new CallbackWithHeader<Void, BlobSetMetadataHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobSetMetadataHeaders header, Response response) {
+                    assertEquals(200, response.code());
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "setBlobMetadata");
+    }
+
+    // setMetadataError tested in AC fail as it throws BlobStorageException
 
     @Test
     public void rawDownloadMin() throws IOException {
@@ -555,4 +821,112 @@ public class BlobTest {
         // Then
         assertEquals(404, ex.getStatusCode());
     }
+
+    @Test
+    public void setTagsMin() {
+        // Setup
+        Map<String, String> tags = new HashMap<>();
+        tags.put("foo", "bar");
+
+        // When
+        syncClient.setBlobTags(containerName, blobName, tags);
+
+        // Then
+        Map<String, String> responseTags = syncClient.getBlobTags(containerName, blobName);
+        assertEquals(1, responseTags.size());
+        assertEquals("bar", responseTags.get("foo"));
+    }
+
+    @Test
+    public void setTagsAllNull() {
+        // When
+        BlobSetTagsResponse response =
+            syncClient.setBlobTagsWithResponse(containerName, blobName, null, null, null, null, null, null);
+
+        // Then
+        assertEquals(0, syncClient.getBlobProperties(containerName, blobName).getMetadata().size());
+        assertEquals(204, response.getStatusCode());
+        assertNotNull(response.getHeaders().get("x-ms-request-id"));
+        assertNotNull(response.getHeaders().get("x-ms-version"));
+        assertNotNull(response.getHeaders().get("date"));
+    }
+
+    @Test
+    @UseDataProvider("tags")
+    public void setTagsTags(String key1, String value1, String key2, String value2) {
+        // Setup
+        Map<String, String> tags = new HashMap<>();
+        if (key1 != null && value1 != null) {
+            tags.put(key1, value1);
+        }
+        if (key2 != null && value2 != null) {
+            tags.put(key2, value2);
+        }
+
+        // When
+        BlobSetTagsResponse response =
+            syncClient.setBlobTagsWithResponse(containerName, blobName, null, null, null, tags, null, null);
+
+        // Then
+        Map<String, String> tagsResponse = syncClient.getBlobTags(containerName, blobName);
+        assertEquals(tags.size(), tagsResponse.size());
+        for(Map.Entry<String, String> entry : tags.entrySet()) {
+            assertEquals(entry.getValue(), tagsResponse.get(entry.getKey()));
+        }
+    }
+
+    @Test
+    public void setTagsAC() {
+        // Setup
+        Map<String, String> t = new HashMap<>();
+        t.put("foo", "bar");
+        syncClient.setBlobTags(containerName, blobName, t);
+        t = new HashMap<>();
+        t.put("fizz", "buzz");
+
+        // Expect
+        assertEquals(204, syncClient.setBlobTagsWithResponse(containerName, blobName, null, "\"foo\" = 'bar'", null,
+            t, null,null).getStatusCode());
+    }
+
+    @Test
+    public void setTagsACFail() {
+        // Setup
+        Map<String, String> t = new HashMap<>();
+        t.put("fizz", "buzz");
+
+        // Expect
+        assertThrows(BlobStorageException.class,
+            () -> syncClient.setBlobTagsWithResponse(containerName, blobName, null, "\"foo\" = 'bar'", null, t,
+                null, null));
+    }
+
+    @Test
+    public void setTagsAsync() {
+        // Setup
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // When
+        asyncClient.setBlobTags(containerName, blobName, null, null, null, null, null,
+            null, new CallbackWithHeader<Void, BlobSetTagsHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobSetTagsHeaders header, Response response) {
+                    assertEquals(204, response.code());
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "setBlobTags");
+    }
+
+    // setTagsError tested in AC fail as it throws BlobStorageException
 }
