@@ -307,7 +307,6 @@ final class UploadHandler extends Handler {
                 null,
                 null,
                 null,
-                null,
                 this.cancellationToken,
                 new CallbackWithHeader<Void, BlockBlobStageBlockHeaders>() {
                     @Override
@@ -346,7 +345,6 @@ final class UploadHandler extends Handler {
         this.blobClient.commitBlockList(blob.containerName,
             blob.blobName,
             blockIds,
-            null,
             null,
             null,
             null,

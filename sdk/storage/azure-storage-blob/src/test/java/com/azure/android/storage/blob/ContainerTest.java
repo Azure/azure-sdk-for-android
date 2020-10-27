@@ -3,14 +3,6 @@
 
 package com.azure.android.storage.blob;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.threeten.bp.OffsetDateTime;
-
 import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobStorageException;
@@ -24,6 +16,14 @@ import com.azure.android.storage.blob.models.PublicAccessType;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.threeten.bp.OffsetDateTime;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -115,7 +115,7 @@ public class ContainerTest {
 
         // When
         ContainerCreateResponse response = syncClient.createContainerWithRestResponse(containerName, null,
-            null, null, null, null, null);
+            null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -129,7 +129,7 @@ public class ContainerTest {
 
         // When
         ContainerCreateResponse response = syncClient.createContainerWithRestResponse(containerName, null,
-            null, PublicAccessType.BLOB, null, null, null);
+            null, PublicAccessType.BLOB, null);
 
         // Then
         assertEquals(PublicAccessType.BLOB, syncClient.getContainerProperties(containerName).getBlobPublicAccess());
@@ -145,7 +145,7 @@ public class ContainerTest {
 
         // When
         syncClient.createContainerWithRestResponse(containerName, null, metadata, null,
-            null, null, null);
+            null);
 
         // Then
         ContainerGetPropertiesHeaders headers = syncClient.getContainerProperties(containerName);
@@ -161,7 +161,7 @@ public class ContainerTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // When
-        asyncClient.createContainer(containerName, null, null, null, null,
+        asyncClient.createContainer(containerName, null, null,
             null, null, new CallbackWithHeader<Void, ContainerCreateHeaders>() {
                 @Override
                 public void onSuccess(Void result, ContainerCreateHeaders header, Response response) {
@@ -209,8 +209,7 @@ public class ContainerTest {
         syncClient.createContainer(containerName);
 
         // When
-        ContainerDeleteResponse response = syncClient.deleteContainerWithRestResponse(containerName, null, null, null,
-            null, null);
+        ContainerDeleteResponse response = syncClient.deleteContainerWithRestResponse(containerName, null, null, null);
 
         // Then
         BlobStorageException ex = assertThrows(BlobStorageException.class,
@@ -232,7 +231,7 @@ public class ContainerTest {
             .setIfUnmodifiedSince(unmodified);
 
         // When
-        syncClient.deleteContainerWithRestResponse(containerName, null, null, requestConditions, null, null);
+        syncClient.deleteContainerWithRestResponse(containerName, null, requestConditions, null);
 
         // Then
         BlobStorageException ex = assertThrows(BlobStorageException.class,
@@ -252,7 +251,7 @@ public class ContainerTest {
 
         // When
         BlobStorageException ex = assertThrows(BlobStorageException.class,
-            () -> syncClient.deleteContainerWithRestResponse(containerName, null, null, requestConditions, null, null));
+            () -> syncClient.deleteContainerWithRestResponse(containerName, null, requestConditions, null));
 
         // Then
         assertEquals(412, ex.getStatusCode());
@@ -270,7 +269,7 @@ public class ContainerTest {
 
         // Expect
         assertThrows(UnsupportedOperationException.class,
-            () -> syncClient.deleteContainerWithRestResponse(containerName, null, null, requestConditions, null, null));
+            () -> syncClient.deleteContainerWithRestResponse(containerName, null, requestConditions, null));
     }
 
     @Test
@@ -282,7 +281,7 @@ public class ContainerTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // When
-        asyncClient.deleteContainer(containerName, null, null, null, null, null,
+        asyncClient.deleteContainer(containerName, null, null, null,
             new CallbackWithHeader<Void, ContainerDeleteHeaders>() {
                 @Override
                 public void onSuccess(Void result, ContainerDeleteHeaders header, Response response) {
@@ -322,7 +321,7 @@ public class ContainerTest {
     public void getPropertiesAllNull() {
         // When
         ContainerGetPropertiesResponse response = syncClient.getContainerPropertiesWithRestResponse(containerName, null,
-            null, null, null, null);
+            null, null);
         ContainerGetPropertiesHeaders headers = response.getDeserializedHeaders();
 
         // Then
@@ -339,7 +338,7 @@ public class ContainerTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // When
-        asyncClient.getContainerProperties(containerName, null, null, null, null, null,
+        asyncClient.getContainerProperties(containerName, null, null, null,
             new CallbackWithHeader<Void, ContainerGetPropertiesHeaders>() {
                 @Override
                 public void onSuccess(Void result, ContainerGetPropertiesHeaders header, Response response) {
