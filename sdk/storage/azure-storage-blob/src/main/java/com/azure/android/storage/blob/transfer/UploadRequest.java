@@ -109,7 +109,7 @@ public final class UploadRequest {
         private String storageClientId;
         private String containerName;
         private String blobName;
-        private boolean computeMd5;
+        private Boolean computeMd5;
         private ReadableContent readableContent;
         private Constraints constraints;
 
