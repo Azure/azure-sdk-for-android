@@ -820,6 +820,7 @@ public class StorageBlobClientTest {
                 null,
                 null,
                 null,
+                null,
                 CancellationToken.NONE);
 
         assertEquals(202, response.getStatusCode());
@@ -840,6 +841,7 @@ public class StorageBlobClientTest {
         storageBlobAsyncClient.setBlobTier("container",
             "blob",
             AccessTier.HOT,
+            null,
             null,
             null,
             null,
@@ -902,7 +904,6 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.rawDownload("testContainer",
             "testBlob",
-
             new CallbackWithHeader<ResponseBody, BlobDownloadHeaders>() {
                 @Override
                 public void onSuccess(ResponseBody result, BlobDownloadHeaders header, Response response) {
@@ -1624,6 +1625,7 @@ public class StorageBlobClientTest {
                 "blobName",
                 null,
                 null,
+                null,
                 CancellationToken.NONE);
 
         // Then a map containing the details of the blob tags will be returned by the service and converted to a Map
@@ -1655,6 +1657,7 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.getBlobTags("testContainer",
             "testBlob",
+            null,
             null,
             null,
             CancellationToken.NONE,

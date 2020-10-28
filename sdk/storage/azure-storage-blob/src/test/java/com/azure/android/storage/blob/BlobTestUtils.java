@@ -15,6 +15,8 @@ import java.net.Proxy;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -42,6 +44,10 @@ public class BlobTestUtils {
     static final String receivedEtag = "received";
 
     static final String garbageEtag = "garbage";
+
+    static final String correctTagsCondition = "\"foo\" = 'bar'";
+
+    static final String garbageTagsCondition = "\"notfoo\" = 'notbar'";
 
 
     // -------------------- GENERATING CLIENTS --------------------------
@@ -102,7 +108,7 @@ public class BlobTestUtils {
     }
 
     public static boolean enableFiddler() {
-        return false;
+        return true;
     }
 
     // --------------------- GENERATING TEST RESOURCES ------------------------
@@ -150,6 +156,12 @@ public class BlobTestUtils {
         } else {
             return match;
         }
+    }
+
+    public static void setupTagsCondition(StorageBlobClient client, String containerName, String blobName) {
+        Map<String, String> t = new HashMap<>();
+        t.put("foo", "bar");
+        client.setBlobTags(containerName, blobName, t);
     }
 
     // ------------------------ GENERATING DATA ---------------------------

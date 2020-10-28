@@ -553,10 +553,10 @@ public class StorageBlobAsyncClient {
                             String snapshot,
                             Integer timeout,
                             RehydratePriority rehydratePriority,
-                            BlobRequestConditions blobRequestConditions,
+                            String leaseId,
+                            String tagsConditions,
                             CancellationToken cancellationToken,
                             CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
-        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
         storageBlobServiceClient.setBlobTier(containerName,
             blobName,
@@ -565,8 +565,8 @@ public class StorageBlobAsyncClient {
             null, /* TODO: (gapra) Add version id when there is support for STG73 */
             timeout,
             rehydratePriority,
-            blobRequestConditions.getLeaseId(),
-            null, /* TODO: (gapra) Add tags conditions to BlobRequestConditions when there is support for STG73 */
+            leaseId,
+            tagsConditions,
             cancellationToken,
             callback);
     }
@@ -678,13 +678,9 @@ public class StorageBlobAsyncClient {
             snapshot,
             timeout,
             range.toHeaderValue(),
-            blobRequestConditions.getLeaseId(),
             getRangeContentMd5,
             getRangeContentCrc64,
-            blobRequestConditions.getIfModifiedSince(),
-            blobRequestConditions.getIfUnmodifiedSince(),
-            blobRequestConditions.getIfMatch(),
-            blobRequestConditions.getIfNoneMatch(),
+            blobRequestConditions,
             cpkInfo,
             cancellationToken,
             callback);
