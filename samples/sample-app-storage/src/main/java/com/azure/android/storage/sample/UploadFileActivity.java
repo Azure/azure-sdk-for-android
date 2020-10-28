@@ -117,7 +117,7 @@ public class UploadFileActivity extends AppCompatActivity {
         Log.d("Upload Content", "File size: " + fileSize);
 
         try {
-            storageBlobAsyncClient.upload(getApplicationContext(), containerName, blobName, fileUri)
+            storageBlobAsyncClient.upload(getApplicationContext(), containerName, blobName, false, fileUri)
                 .observe(this, new TransferObserver() {
                     @Override
                     public void onStart(long transferId) {

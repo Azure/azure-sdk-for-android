@@ -517,6 +517,7 @@ public class StorageBlobClient {
      * @param blockContent      The block content in bytes.
      * @param contentMd5        The transactional MD5 for the block content, to be validated by the service.
      * @param contentCrc64      Specify the transactional crc64 for the block content, to be validated by the service.
+     * @param computeMd5        Whether or not the library should calculate the md5 and send it for the service to verify.
      * @param timeout           The timeout parameter is expressed in seconds. For more information,
      *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
      * @param leaseId           If specified, the staging only succeeds if the resource's lease is active and matches this ID.
@@ -530,6 +531,7 @@ public class StorageBlobClient {
                                                                    byte[] blockContent,
                                                                    byte[] contentMd5,
                                                                    byte[] contentCrc64,
+                                                                   Boolean computeMd5,
                                                                    Integer timeout,
                                                                    String leaseId,
                                                                    CpkInfo cpkInfo,
@@ -540,6 +542,7 @@ public class StorageBlobClient {
             blockContent,
             contentMd5,
             contentCrc64,
+            computeMd5,
             timeout,
             leaseId,
             cpkInfo,
