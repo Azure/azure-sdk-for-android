@@ -2942,7 +2942,7 @@ final class StorageBlobServiceImpl {
                                     @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
                                     @Header("If-Match") String ifMatch,
                                     @Header("If-None-Match") String ifNoneMatch,
-                                    @Header("x-ms-iftags") String ifTags,
+                                    @Header("x-ms-if-tags") String ifTags,
                                     @Header("x-ms-version") String version,
                                     @Header("x-ms-client-request-id") String requestId,
                                     @Header("x-ms-encryption-key") String encryptionKey,
@@ -2979,7 +2979,7 @@ final class StorageBlobServiceImpl {
                                            @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
                                            @Header("If-Match") String ifMatch,
                                            @Header("If-None-Match") String ifNoneMatch,
-                                           @Header("x-ms-iftags") String ifTags,
+                                           @Header("x-ms-if-tags") String ifTags,
                                            @Body RequestBody blocks,
                                            @Header("x-ms-version") String version,
                                            @Header("x-ms-client-request-id") String requestId,
@@ -3005,7 +3005,7 @@ final class StorageBlobServiceImpl {
                                       @Header("If-Unmodified-Since") DateTimeRfc1123 ifUnmodifiedSince,
                                       @Header("If-Match") String ifMatch,
                                       @Header("If-None-Match") String ifNoneMatch,
-                                      @Header("x-ms-iftags") String ifTags,
+                                      @Header("x-ms-if-tags") String ifTags,
                                       @Header("x-ms-version") String version,
                                       @Header("x-ms-client-request-id") String requestId);
 

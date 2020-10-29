@@ -82,7 +82,6 @@ public class BlobTest {
     private static StorageBlobAsyncClient asyncClient;
     private static StorageBlobClient syncClient;
 
-    // TODO: (gapra) Add iftags
     @DataProvider
     public static Object[][] accessConditionsSuccess() {
         return new Object[][] {
@@ -95,7 +94,6 @@ public class BlobTest {
         };
     }
 
-    // TODO: (gapra) Add iftags
     @DataProvider
     public static Object[][] accessConditionsFail() {
         return new Object[][] {
