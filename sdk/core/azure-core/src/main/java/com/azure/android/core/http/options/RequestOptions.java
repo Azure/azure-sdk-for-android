@@ -12,21 +12,21 @@ import com.azure.android.core.util.CancellationToken;
 /**
  * Options for a service operation to be carried out by a {@link ServiceClient}.
  */
-public class AzureOptions {
+public class RequestOptions {
     @Nullable
     String clientRequestId;
     @NonNull
     CancellationToken cancellationToken;
 
     /**
-     * Creates an instance of {@link AzureOptions}.
+     * Creates an instance of {@link RequestOptions}.
      *
      * @param clientRequestId   A client-generated, opaque value with 1KB character limit that is recorded in analytics
      *                          logs. Highly recommended for correlating client-side activities with requests received
      *                          by the server.
      * @param cancellationToken A token used to make a best-effort attempt at canceling a request.
      */
-    public AzureOptions(@Nullable String clientRequestId, CancellationToken cancellationToken) {
+    public RequestOptions(@Nullable String clientRequestId, CancellationToken cancellationToken) {
         this.clientRequestId = clientRequestId;
         this.cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
     }

@@ -11,7 +11,7 @@ import com.azure.android.core.util.logging.ClientLogger;
 /**
  * Options for configuring a {@link ServiceClient}.
  */
-public class AzureClientOptions {
+public class ClientOptions {
     @NonNull
     private String apiVersion;
     @NonNull
@@ -22,28 +22,28 @@ public class AzureClientOptions {
     private TransportOptions transportOptions;
 
     /**
-     * Creates an instance of {@link AzureClientOptions} without {@link TelemetryOptions} and {@link TransportOptions}.
+     * Creates an instance of {@link ClientOptions} without {@link TelemetryOptions} and {@link TransportOptions}.
      *
      * @param apiVersion The API version of the service to invoke.
      * @param logger     The {@link ClientLogger} to be used by the {@link ServiceClient}.
      */
-    public AzureClientOptions(@NonNull String apiVersion,
-                              @NonNull ClientLogger logger) {
+    public ClientOptions(@NonNull String apiVersion,
+                         @NonNull ClientLogger logger) {
         this(apiVersion, logger, new TelemetryOptions(false, null), new TransportOptions(null, null));
     }
 
     /**
-     * Creates an instance of {@link AzureClientOptions}.
+     * Creates an instance of {@link ClientOptions}.
      *
      * @param apiVersion       The API version of the service to invoke.
      * @param logger           The {@link ClientLogger} to be used by the {@link ServiceClient}.
      * @param telemetryOptions Options for configuring telemetry sent by the {@link ServiceClient}.
      * @param transportOptions Options for configuring calls sent by the {@link ServiceClient}.
      */
-    public AzureClientOptions(@NonNull String apiVersion,
-                              @NonNull ClientLogger logger,
-                              @NonNull TelemetryOptions telemetryOptions,
-                              @NonNull TransportOptions transportOptions) {
+    public ClientOptions(@NonNull String apiVersion,
+                         @NonNull ClientLogger logger,
+                         @NonNull TelemetryOptions telemetryOptions,
+                         @NonNull TransportOptions transportOptions) {
         this.apiVersion = apiVersion;
         this.logger = logger;
         this.telemetryOptions = telemetryOptions;
