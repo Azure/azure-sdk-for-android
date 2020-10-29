@@ -31,6 +31,7 @@ import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.threeten.bp.OffsetDateTime;
@@ -75,7 +76,7 @@ import static org.junit.Assert.assertTrue;
 
 
 @RunWith(DataProviderRunner.class)
-//@Ignore
+@Ignore
 public class BlobTest {
     private String containerName;
     private String blobName;
