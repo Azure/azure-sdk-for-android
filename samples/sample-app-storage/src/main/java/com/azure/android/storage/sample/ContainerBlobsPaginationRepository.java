@@ -63,7 +63,7 @@ final class ContainerBlobsPaginationRepository
                 }
                 storageBlobAsyncClient.getBlobsInPage(pageIdentifier, containerName, options.getPrefix(),
                     options.getMaxResultsPerPage(), options.getDetails().toList(),
-                    null, null, CancellationToken.NONE,
+                    null, CancellationToken.NONE,
                     new Callback<BlobsPage>() {
                         @Override
                         public void onSuccess(BlobsPage result, Response response) {

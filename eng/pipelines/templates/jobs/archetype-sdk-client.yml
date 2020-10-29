@@ -19,7 +19,7 @@ jobs:
       - ${{ each artifact in parameters.Artifacts }}:
         - pwsh: |
             $artifactsToStage = Get-ChildItem sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/repo/**/${{artifact.name}}* -Recurse | Where-Object -FilterScript { $_.Name -match "(jar|pom|aar|module)$" }
-            $stagingLocation = New-Item -Type Directory -Path $(Build.ArtifactStagingDirectory) -Name ${{artifact.name}}
+            $stagingLocation = New-Item -Type Directory -Path $(Build.ArtifactStagingDirectory) -Name ${{artifact.safeName}}
             $artifactsToStage | Copy-Item -Destination $stagingLocation
           displayName: Stage ${{artifact.name}} for upload
 
@@ -40,6 +40,7 @@ jobs:
       - template: ../../../common/pipelines/templates/steps/verify-links.yml
         parameters:
           Directory: ''
+          CheckLinkGuidance: $true
 
       - script: |
           ./gradlew sdk:${{parameters.ServiceDirectory}}:lintDebug

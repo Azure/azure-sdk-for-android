@@ -2,8 +2,6 @@ package com.azure.android.core.http;
 
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.http.interceptor.LoggingInterceptor;
-import com.azure.android.core.internal.util.serializer.SerializerAdapter;
-import com.azure.android.core.internal.util.serializer.SerializerFormat;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -27,7 +25,6 @@ public class ServiceClientTest {
     public static void setUp() {
         serviceClient = new ServiceClient.Builder()
             .setBaseUrl(BASE_URL)
-            .setSerializationFormat(SerializerFormat.JSON)
             .build();
     }
 
@@ -42,11 +39,6 @@ public class ServiceClientTest {
     @Test
     public void getBaseUrl() {
         assertEquals(BASE_URL, serviceClient.getBaseUrl());
-    }
-
-    @Test
-    public void getSerializerAdapter() {
-        assertEquals(SerializerAdapter.createDefault(), serviceClient.getSerializerAdapter());
     }
 
     @Test
@@ -66,7 +58,6 @@ public class ServiceClientTest {
             .setConnectionPool(new ConnectionPool())
             .addNetworkInterceptor(new LoggingInterceptor(null))
             .addInterceptor(new AddDateInterceptor())
-            .setSerializationFormat(SerializerFormat.JSON)
             .setBaseUrl(BASE_URL)
             .setConnectionTimeout(100, TimeUnit.SECONDS)
             .setCallTimeout(150, TimeUnit.SECONDS)
@@ -80,7 +71,6 @@ public class ServiceClientTest {
         assertNotNull(retrofit);
         assertEquals(BASE_URL, retrofit.baseUrl().toString());
         assertEquals(BASE_URL, otherServiceClient.getBaseUrl());
-        assertEquals(SerializerAdapter.createDefault(), otherServiceClient.getSerializerAdapter());
     }
 
     @Test
@@ -88,7 +78,6 @@ public class ServiceClientTest {
         ServiceClient otherServiceClient = serviceClient.newBuilder()
             .addNetworkInterceptor(new LoggingInterceptor(null))
             .addInterceptor(new AddDateInterceptor())
-            .setSerializationFormat(SerializerFormat.JSON)
             .build();
 
         Retrofit retrofit = serviceClient.getRetrofit();
@@ -96,14 +85,12 @@ public class ServiceClientTest {
 
         assertEquals(retrofit.baseUrl().toString(), otherRetrofit.baseUrl().toString());
         assertEquals(serviceClient.getBaseUrl(), otherServiceClient.getBaseUrl());
-        assertEquals(serviceClient.getSerializerAdapter(), otherServiceClient.getSerializerAdapter());
     }
 
     @Test
     public void buildClient_withNoSlashAtTheEndOfBaseUrl() {
         ServiceClient otherServiceClient = new ServiceClient.Builder()
             .setBaseUrl("http://127.0.0.1")
-            .setSerializationFormat(SerializerFormat.JSON)
             .build();
 
         assertEquals("http://127.0.0.1/", otherServiceClient.getBaseUrl());
@@ -112,14 +99,6 @@ public class ServiceClientTest {
     @Test(expected = IllegalArgumentException.class)
     public void buildClient_withNoBaseUrl_willThrowException() {
         ServiceClient otherServiceClient = new ServiceClient.Builder()
-            .setSerializationFormat(SerializerFormat.JSON)
-            .build();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void buildClient_withNoSerializationFormat_willThrowException() {
-        ServiceClient otherServiceClient = new ServiceClient.Builder()
-            .setBaseUrl(BASE_URL)
             .build();
     }
 

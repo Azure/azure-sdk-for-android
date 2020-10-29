@@ -55,8 +55,10 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
         packagingOptions {
             exclude 'META-INF/DEPENDENCIES'
             exclude 'META-INF/LICENSE'
+            exclude 'META-INF/LICENSE.md'
             exclude 'META-INF/license'
             exclude 'META-INF/NOTICE'
+            exclude 'META-INF/NOTICE.md'
             exclude 'META-INF/notice'
             exclude 'META-INF/ASL2.0'
             exclude("META-INF/*.md")
@@ -173,6 +175,7 @@ allprojects {
         threeTenAbpVersion = "1.2.4"
         threeTenBpVersion = "1.4.4"
         workVersion = "2.4.0"
+        dataproviderVersion =  "2.6"
     }
 }
 

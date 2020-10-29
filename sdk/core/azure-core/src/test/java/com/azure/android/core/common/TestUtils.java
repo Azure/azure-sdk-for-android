@@ -7,11 +7,15 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.mockwebserver.MockWebServer;
+
+import static org.junit.Assert.assertFalse;
 
 public final class TestUtils {
     private TestUtils() {
@@ -22,6 +26,14 @@ public final class TestUtils {
         return new OkHttpClient().newBuilder()
             .addInterceptor(interceptor)
             .build();
+    }
+
+    public static void awaitOnLatch(CountDownLatch latch, String method) {
+        try {
+            latch.await(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            assertFalse(method + " didn't produce any result.", true);
+        }
     }
 
     public static OkHttpClient buildOkHttpClientWithInterceptors(List<Interceptor> interceptors) {
