@@ -974,7 +974,7 @@ public class StorageBlobAsyncClient {
                             String blobName,
                             String snapshot,
                             Integer timeout,
-                            String ifTags,
+                            String tagsConditions,
                             CancellationToken cancellationToken,
                             CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
         this.storageBlobServiceClient.getTags(containerName,
@@ -982,7 +982,7 @@ public class StorageBlobAsyncClient {
             snapshot,
             null,
             timeout,
-            ifTags,
+            tagsConditions,
             cancellationToken,
             new CallbackWithHeader<BlobTags, BlobGetTagsHeaders>() {
                 @Override
@@ -1021,7 +1021,7 @@ public class StorageBlobAsyncClient {
      * @param blobName          The blob name.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param ifTags            Specifies a SQL query to apply to the blob's tags.
+     * @param tagsConditions    Specifies a SQL query to apply to the blob's tags.
      * @param tags              Tags to associate with the blob.
      * @param cancellationToken The token to request cancellation.
      * @param callback          Callback that receives the response.
@@ -1029,7 +1029,7 @@ public class StorageBlobAsyncClient {
     public void setBlobTags(String containerName,
                             String blobName,
                             Integer timeout,
-                            String ifTags, /*TODO: Should this be BlobRequestConditions? */
+                            String tagsConditions, /*TODO: Should this be BlobRequestConditions? */
                             Map<String, String> tags,
                             CancellationToken cancellationToken,
                             CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
@@ -1037,7 +1037,7 @@ public class StorageBlobAsyncClient {
             blobName,
             timeout,
             null, // TODO: Add back with versioning support
-            ifTags,
+            tagsConditions,
             tags,
             cancellationToken,
             callback);
