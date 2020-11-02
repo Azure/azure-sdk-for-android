@@ -51,8 +51,10 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 import static com.azure.android.core.common.TestUtils.awaitOnLatch;
+import static com.azure.android.storage.blob.BlobTestUtils.correctTagsCondition;
 import static com.azure.android.storage.blob.BlobTestUtils.enableFiddler;
 import static com.azure.android.storage.blob.BlobTestUtils.garbageEtag;
+import static com.azure.android.storage.blob.BlobTestUtils.garbageTagsCondition;
 import static com.azure.android.storage.blob.BlobTestUtils.generateBlockID;
 import static com.azure.android.storage.blob.BlobTestUtils.generateResourceName;
 import static com.azure.android.storage.blob.BlobTestUtils.getDefaultData;
@@ -63,6 +65,7 @@ import static com.azure.android.storage.blob.BlobTestUtils.newDate;
 import static com.azure.android.storage.blob.BlobTestUtils.oldDate;
 import static com.azure.android.storage.blob.BlobTestUtils.receivedEtag;
 import static com.azure.android.storage.blob.BlobTestUtils.setupMatchCondition;
+import static com.azure.android.storage.blob.BlobTestUtils.setupTagsCondition;
 import static com.azure.android.storage.blob.BlobTestUtils.validateBasicHeaders;
 import static com.azure.android.storage.blob.BlobTestUtils.validateBlobProperties;
 import static org.junit.Assert.assertArrayEquals;
@@ -82,26 +85,26 @@ public class BlobTest {
     private static StorageBlobAsyncClient asyncClient;
     private static StorageBlobClient syncClient;
 
-    // TODO: (gapra) Add iftags
     @DataProvider
     public static Object[][] accessConditionsSuccess() {
         return new Object[][] {
-            {null,    null,    null,         null},       // 0
-            {oldDate, null,    null,         null},       // 1
-            {null,    newDate, null,         null},       // 2
-            {null,    null,    receivedEtag, null},       // 3
-            {null,    null,    null,         garbageEtag} // 4
+            {null,    null,    null,         null,        null},                // 0
+            {oldDate, null,    null,         null,        null},                // 1
+            {null,    newDate, null,         null,        null},                // 2
+            {null,    null,    receivedEtag, null,        null},                // 3
+            {null,    null,    null,         garbageEtag, null},                // 4
+            {null,    null,    null,         null,        correctTagsCondition} // 5
         };
     }
 
-    // TODO: (gapra) Add iftags
     @DataProvider
     public static Object[][] accessConditionsFail() {
         return new Object[][] {
-            {newDate, null,    null,        null},        // 0
-            {null,    oldDate, null,        null},        // 1
-            {null,    null,    garbageEtag, null},        // 2
-            {null,    null,    null,        receivedEtag} // 3
+            {newDate, null,    null,        null,         null},                // 0
+            {null,    oldDate, null,        null,         null},                // 1
+            {null,    null,    garbageEtag, null,         null},                // 2
+            {null,    null,    null,        receivedEtag, null},                // 3
+            {null,    null,    null,        null,         garbageTagsCondition} // 4
         };
     }
 
@@ -242,14 +245,16 @@ public class BlobTest {
 
     @Test
     @UseDataProvider("accessConditionsSuccess")
-    public void getPropertiesAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+    public void getPropertiesAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch, String tagsCondition) {
         // Setup
+        setupTagsCondition(syncClient, containerName, blobName);
         ifMatch = setupMatchCondition(syncClient, containerName, blobName, ifMatch);
         BlobRequestConditions requestConditions = new BlobRequestConditions()
             .setIfModifiedSince(modified)
             .setIfUnmodifiedSince(unmodified)
             .setIfMatch(ifMatch)
-            .setIfNoneMatch(ifNoneMatch);
+            .setIfNoneMatch(ifNoneMatch)
+            .setTagsConditions(tagsCondition);
 
         // When
         BlobGetPropertiesResponse response = syncClient.getBlobPropertiesWithRestResponse(containerName, blobName, null, null, requestConditions, null,null);
@@ -260,14 +265,15 @@ public class BlobTest {
 
     @Test
     @UseDataProvider("accessConditionsFail")
-    public void getPropertiesACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+    public void getPropertiesACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch, String tagsCondition) {
         // Setup
         ifNoneMatch = setupMatchCondition(syncClient, containerName, blobName, ifNoneMatch);
         BlobRequestConditions requestConditions = new BlobRequestConditions()
             .setIfModifiedSince(modified)
             .setIfUnmodifiedSince(unmodified)
             .setIfMatch(ifMatch)
-            .setIfNoneMatch(ifNoneMatch);
+            .setIfNoneMatch(ifNoneMatch)
+            .setTagsConditions(tagsCondition);
 
         // When
         BlobStorageException ex = assertThrows(BlobStorageException.class,
@@ -368,14 +374,16 @@ public class BlobTest {
 
     @Test
     @UseDataProvider("accessConditionsSuccess")
-    public void setHttpHeadersAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+    public void setHttpHeadersAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch, String tagsCondition) {
         // Setup
+        setupTagsCondition(syncClient, containerName, blobName);
         ifMatch = setupMatchCondition(syncClient, containerName, blobName, ifMatch);
         BlobRequestConditions requestConditions = new BlobRequestConditions()
             .setIfModifiedSince(modified)
             .setIfUnmodifiedSince(unmodified)
             .setIfMatch(ifMatch)
-            .setIfNoneMatch(ifNoneMatch);
+            .setIfNoneMatch(ifNoneMatch)
+            .setTagsConditions(tagsCondition);
 
         // Expect
         assertEquals(200, syncClient.setBlobHttpHeadersWithResponse(containerName, blobName, null, requestConditions,
@@ -384,14 +392,15 @@ public class BlobTest {
 
     @Test
     @UseDataProvider("accessConditionsFail")
-    public void setHttpHeadersACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+    public void setHttpHeadersACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch, String tagsCondition) {
         // Setup
         ifNoneMatch = setupMatchCondition(syncClient, containerName, blobName, ifNoneMatch);
         BlobRequestConditions requestConditions = new BlobRequestConditions()
             .setIfModifiedSince(modified)
             .setIfUnmodifiedSince(unmodified)
             .setIfMatch(ifMatch)
-            .setIfNoneMatch(ifNoneMatch);
+            .setIfNoneMatch(ifNoneMatch)
+            .setTagsConditions(tagsCondition);
 
         // Expect
         assertThrows(BlobStorageException.class,
@@ -482,14 +491,16 @@ public class BlobTest {
 
     @Test
     @UseDataProvider("accessConditionsSuccess")
-    public void setMetadataAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+    public void setMetadataAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch, String tagsCondition) {
         // Setup
+        setupTagsCondition(syncClient, containerName, blobName);
         ifMatch = setupMatchCondition(syncClient, containerName, blobName, ifMatch);
         BlobRequestConditions requestConditions = new BlobRequestConditions()
             .setIfModifiedSince(modified)
             .setIfUnmodifiedSince(unmodified)
             .setIfMatch(ifMatch)
-            .setIfNoneMatch(ifNoneMatch);
+            .setIfNoneMatch(ifNoneMatch)
+            .setTagsConditions(tagsCondition);
 
         // Expect
         assertEquals(200, syncClient.setBlobMetadataWithResponse(containerName, blobName, null, requestConditions,
@@ -498,14 +509,15 @@ public class BlobTest {
 
     @Test
     @UseDataProvider("accessConditionsFail")
-    public void setMetadataACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+    public void setMetadataACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch, String tagsCondition) {
         // Setup
         ifNoneMatch = setupMatchCondition(syncClient, containerName, blobName, ifNoneMatch);
         BlobRequestConditions requestConditions = new BlobRequestConditions()
             .setIfModifiedSince(modified)
             .setIfUnmodifiedSince(unmodified)
             .setIfMatch(ifMatch)
-            .setIfNoneMatch(ifNoneMatch);
+            .setIfNoneMatch(ifNoneMatch)
+            .setTagsConditions(tagsCondition);
 
         // Expect
         assertThrows(BlobStorageException.class,
@@ -617,14 +629,16 @@ public class BlobTest {
 
     @Test
     @UseDataProvider("accessConditionsSuccess")
-    public void rawDownloadAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+    public void rawDownloadAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch, String tagsCondition) {
         // Setup
+        setupTagsCondition(syncClient, containerName, blobName);
         ifMatch = setupMatchCondition(syncClient, containerName, blobName, ifMatch);
         BlobRequestConditions requestConditions = new BlobRequestConditions()
             .setIfModifiedSince(modified)
             .setIfUnmodifiedSince(unmodified)
             .setIfMatch(ifMatch)
-            .setIfNoneMatch(ifNoneMatch);
+            .setIfNoneMatch(ifNoneMatch)
+            .setTagsConditions(tagsCondition);
 
         // When
         BlobDownloadResponse response = syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, null, requestConditions, null, null, null, null);
@@ -635,14 +649,15 @@ public class BlobTest {
 
     @Test
     @UseDataProvider("accessConditionsFail")
-    public void rawDownloadACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+    public void rawDownloadACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch, String tagsCondition) {
         // Setup
         ifNoneMatch = setupMatchCondition(syncClient, containerName, blobName, ifNoneMatch);
         BlobRequestConditions requestConditions = new BlobRequestConditions()
             .setIfModifiedSince(modified)
             .setIfUnmodifiedSince(unmodified)
             .setIfMatch(ifMatch)
-            .setIfNoneMatch(ifNoneMatch);
+            .setIfNoneMatch(ifNoneMatch)
+            .setTagsConditions(tagsCondition);
 
         // When
         BlobStorageException ex = assertThrows(BlobStorageException.class,
@@ -741,14 +756,16 @@ public class BlobTest {
 
     @Test
     @UseDataProvider("accessConditionsSuccess")
-    public void deleteAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+    public void deleteAC(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch, String tagsCondition) {
         // Setup
+        setupTagsCondition(syncClient, containerName, blobName);
         ifMatch = setupMatchCondition(syncClient, containerName, blobName, ifMatch);
         BlobRequestConditions requestConditions = new BlobRequestConditions()
             .setIfModifiedSince(modified)
             .setIfUnmodifiedSince(unmodified)
             .setIfMatch(ifMatch)
-            .setIfNoneMatch(ifNoneMatch);
+            .setIfNoneMatch(ifNoneMatch)
+            .setTagsConditions(tagsCondition);
 
         // When
         BlobDeleteResponse response = syncClient.deleteBlobWithRestResponse(containerName, blobName, null, null ,null, requestConditions, null);
@@ -759,14 +776,15 @@ public class BlobTest {
 
     @Test
     @UseDataProvider("accessConditionsFail")
-    public void deleteACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch) {
+    public void deleteACFail(OffsetDateTime modified, OffsetDateTime unmodified, String ifMatch, String ifNoneMatch, String tagsCondition) {
         // Setup
         ifNoneMatch = setupMatchCondition(syncClient, containerName, blobName, ifNoneMatch);
         BlobRequestConditions requestConditions = new BlobRequestConditions()
             .setIfModifiedSince(modified)
             .setIfUnmodifiedSince(unmodified)
             .setIfMatch(ifMatch)
-            .setIfNoneMatch(ifNoneMatch);
+            .setIfNoneMatch(ifNoneMatch)
+            .setTagsConditions(tagsCondition);
 
         // When
         BlobStorageException ex = assertThrows(BlobStorageException.class,
@@ -819,7 +837,7 @@ public class BlobTest {
     @UseDataProvider("tierBlockBlob")
     public void setBlobTierBlockBlob(AccessTier tier) {
         // When
-        BlobSetTierResponse response = syncClient.setBlobTierWithRestResponse(containerName, blobName, tier, null, null, null, null, null);
+        BlobSetTierResponse response = syncClient.setBlobTierWithRestResponse(containerName, blobName, tier, null, null, null, null, null, null);
 
         // Then
         assertTrue(response.getStatusCode() == 200 || response.getStatusCode() == 202);
@@ -892,9 +910,22 @@ public class BlobTest {
 
     // Set tier lease error
 
-    // Set tier tags
+    @Test
+    public void setBlobTierAC() {
+        // Setup
+        setupTagsCondition(syncClient, containerName, blobName);
 
-    // Set tier tags fail
+        // Expect
+        assertEquals(200, syncClient.setBlobTierWithRestResponse(containerName, blobName, AccessTier.HOT, null, null, null, null, correctTagsCondition,
+            null).getStatusCode());
+    }
+
+    @Test
+    public void setBlobTierACFail() {
+        // Expect
+        assertThrows(BlobStorageException.class,
+            () -> syncClient.setBlobTierWithRestResponse(containerName, blobName, AccessTier.HOT, null, null, null, null, garbageTagsCondition, null));
+    }
 
     @Test
     public void setBlobTierError() {
@@ -991,14 +1022,12 @@ public class BlobTest {
     @Test
     public void setTagsAC() {
         // Setup
+        setupTagsCondition(syncClient, containerName, blobName);
         Map<String, String> t = new HashMap<>();
-        t.put("foo", "bar");
-        syncClient.setBlobTags(containerName, blobName, t);
-        t = new HashMap<>();
         t.put("fizz", "buzz");
 
         // Expect
-        assertEquals(204, syncClient.setBlobTagsWithResponse(containerName, blobName, null, "\"foo\" = 'bar'",
+        assertEquals(204, syncClient.setBlobTagsWithResponse(containerName, blobName, null, correctTagsCondition,
             t, null).getStatusCode());
     }
 
@@ -1010,7 +1039,7 @@ public class BlobTest {
 
         // Expect
         assertThrows(BlobStorageException.class,
-            () -> syncClient.setBlobTagsWithResponse(containerName, blobName, null, "\"foo\" = 'bar'", t,
+            () -> syncClient.setBlobTagsWithResponse(containerName, blobName, null, garbageTagsCondition, t,
                 null));
     }
 
@@ -1042,6 +1071,23 @@ public class BlobTest {
     }
 
     // setTagsError tested in AC fail as it throws BlobStorageException
+    @Test
+    public void getTagsAC() {
+        // Setup
+        setupTagsCondition(syncClient, containerName, blobName);
+
+        // Expect
+        assertEquals(200, syncClient.getBlobTagsWithRestResponse(containerName, blobName, null, null, correctTagsCondition,
+            null).getStatusCode());
+    }
+
+    @Test
+    public void getTagsACFail() {
+        // Expect
+        assertThrows(BlobStorageException.class,
+            () -> syncClient.getBlobTagsWithRestResponse(containerName, blobName, null, null, garbageTagsCondition,
+                null));
+    }
 
     @Test
     public void getTagsAsync() {

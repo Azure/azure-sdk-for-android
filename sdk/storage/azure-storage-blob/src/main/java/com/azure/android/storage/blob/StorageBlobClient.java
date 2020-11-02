@@ -354,9 +354,9 @@ public class StorageBlobClient {
                                                            String snapshot,
                                                            Integer timeout,
                                                            RehydratePriority rehydratePriority,
-                                                           BlobRequestConditions blobRequestConditions,
+                                                           String leaseId,
+                                                           String tagsConditions,
                                                            CancellationToken cancellationToken) {
-        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
 
         return storageBlobServiceClient.setBlobTierWithRestResponse(containerName,
             blobName,
@@ -365,8 +365,8 @@ public class StorageBlobClient {
             null,  /* TODO: (gapra) Add version id when there is support for STG73 */
             timeout,
             rehydratePriority,
-            blobRequestConditions.getLeaseId(),
-            null, /* TODO: (gapra) Add tags conditions to BlobRequestConditions when there is support for STG73 */
+            leaseId,
+            tagsConditions,
             cancellationToken);
     }
 
@@ -472,13 +472,9 @@ public class StorageBlobClient {
             snapshot,
             timeout,
             range.toHeaderValue(),
-            blobRequestConditions.getLeaseId(),
             getRangeContentMd5,
             getRangeContentCrc64,
-            blobRequestConditions.getIfModifiedSince(),
-            blobRequestConditions.getIfUnmodifiedSince(),
-            blobRequestConditions.getIfMatch(),
-            blobRequestConditions.getIfNoneMatch(),
+            blobRequestConditions,
             cpkInfo,
             cancellationToken);
     }
@@ -740,13 +736,14 @@ public class StorageBlobClient {
                                                                      String blobName,
                                                                      String snapshot,
                                                                      Integer timeout,
+                                                                     String tagsConditions,
                                                                      CancellationToken cancellationToken) {
         BlobGetTagsResponse response = this.storageBlobServiceClient.getTagsWithRestResponse(containerName,
             blobName,
             snapshot,
             null, /* TODO (gapra) : Add in support when we set version to STG73 */
             timeout,
-            null, /* TODO (gapra) : Add in support when we set version to STG73 */
+            tagsConditions,
             cancellationToken);
 
         return new Response<>(null,
@@ -777,21 +774,21 @@ public class StorageBlobClient {
      * @param blobName          The blob name.
      * @param timeout           The timeout parameter is expressed in seconds. For more information, see
      *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param ifTags            Specifies a SQL query to apply to the blob's tags.
+     * @param tagsConditions            Specifies a SQL query to apply to the blob's tags.
      * @param tags              Tags to associate with the blob.
      * @param cancellationToken The token to request cancellation.
      */
     public BlobSetTagsResponse setBlobTagsWithResponse(String containerName,
                                                        String blobName,
                                                        Integer timeout,
-                                                       String ifTags,
+                                                       String tagsConditions, /*TODO: Should this be BlobRequestConditions? */
                                                        Map<String, String> tags,
                                                        CancellationToken cancellationToken) {
         return storageBlobServiceClient.setBlobTagsWithRestResponse(containerName,
             blobName,
             timeout,
             null, // TODO: Add back with versioning support
-            ifTags,
+            tagsConditions,
             tags,
             cancellationToken);
     }
