@@ -9,6 +9,7 @@ import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
+import com.azure.android.storage.blob.models.BlobGetTagsHeaders;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItemProperties;
 import com.azure.android.storage.blob.models.BlobRange;
@@ -19,6 +20,7 @@ import com.azure.android.storage.blob.models.BlobSetMetadataHeaders;
 import com.azure.android.storage.blob.models.BlobSetMetadataResponse;
 import com.azure.android.storage.blob.models.BlobSetTagsHeaders;
 import com.azure.android.storage.blob.models.BlobSetTagsResponse;
+import com.azure.android.storage.blob.models.BlobSetTierHeaders;
 import com.azure.android.storage.blob.models.BlobSetTierResponse;
 import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobType;
@@ -292,6 +294,32 @@ public class BlobTest {
 
         // Then
         assertEquals(404, ex.getStatusCode());
+    }
+
+    @Test
+    public void getPropertiesAsync() {
+        // Setup
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // When
+        asyncClient.getBlobProperties(containerName, blobName, new CallbackWithHeader<Void, BlobGetPropertiesHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobGetPropertiesHeaders header, Response response) {
+                    assertEquals(200, response.code());
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "getBlobProperties");
     }
 
     @Test
@@ -667,6 +695,39 @@ public class BlobTest {
     }
 
     @Test
+    public void rawDownloadAsync() {
+        // Setup
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // When
+        asyncClient.rawDownload(containerName, blobName, new CallbackWithHeader<ResponseBody, BlobDownloadHeaders>() {
+            @Override
+            public void onSuccess(ResponseBody result, BlobDownloadHeaders header, Response response) {
+                try {
+                    assertEquals(getDefaultString(), result.string());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    latch.countDown();
+                }
+                assertEquals(200, response.code());
+                latch.countDown();
+            }
+
+            @Override
+            public void onFailure(Throwable throwable, Response response) {
+                try {
+                    throw new RuntimeException(throwable);
+                } finally {
+                    latch.countDown();
+                }
+            }
+        });
+
+        awaitOnLatch(latch, "rawDownload");
+    }
+
+    @Test
     public void deleteMin() {
         // When
         syncClient.deleteBlob(containerName, blobName);
@@ -744,6 +805,32 @@ public class BlobTest {
 
         // Then
         assertEquals(404, ex.getStatusCode());
+    }
+
+    @Test
+    public void deleteAsync() {
+        // Setup
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // When
+        asyncClient.deleteBlob(containerName, blobName, new CallbackWithHeader<Void, BlobDeleteHeaders>() {
+                @Override
+                public void onSuccess(Void result, BlobDeleteHeaders header, Response response) {
+                    assertEquals(202, response.code());
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "deleteBlob");
     }
 
     @Test
@@ -854,6 +941,32 @@ public class BlobTest {
     }
 
     @Test
+    public void setBlobTierAsync() {
+        // Setup
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // When
+        asyncClient.setBlobTier(containerName, blobName, AccessTier.HOT, new CallbackWithHeader<Void, BlobSetTierHeaders>() {
+            @Override
+            public void onSuccess(Void result, BlobSetTierHeaders header, Response response) {
+                assertEquals(200, response.code());
+                latch.countDown();
+            }
+
+            @Override
+            public void onFailure(Throwable throwable, Response response) {
+                try {
+                    throw new RuntimeException(throwable);
+                } finally {
+                    latch.countDown();
+                }
+            }
+        });
+
+        awaitOnLatch(latch, "setBlobTier");
+    }
+
+    @Test
     public void setTagsMin() {
         // Setup
         Map<String, String> tags = new HashMap<>();
@@ -958,7 +1071,6 @@ public class BlobTest {
     }
 
     // setTagsError tested in AC fail as it throws BlobStorageException
-
     @Test
     public void getTagsAC() {
         // Setup
@@ -977,4 +1089,29 @@ public class BlobTest {
                 null));
     }
 
+    @Test
+    public void getTagsAsync() {
+        // Setup
+        CountDownLatch latch = new CountDownLatch(1);
+
+        // When
+        asyncClient.getBlobTags(containerName, blobName, new CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders>() {
+                @Override
+                public void onSuccess(Map<String, String> result, BlobGetTagsHeaders header, Response response) {
+                    assertEquals(200, response.code());
+                    latch.countDown();
+                }
+
+                @Override
+                public void onFailure(Throwable throwable, Response response) {
+                    try {
+                        throw new RuntimeException(throwable);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
+
+        awaitOnLatch(latch, "getBlobTags");
+    }
 }
