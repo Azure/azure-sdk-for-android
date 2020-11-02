@@ -13,6 +13,7 @@ import org.threeten.bp.OffsetDateTime;
  */
 public class BlobRequestConditions extends RequestConditions {
     private String leaseId;
+    private String tagsConditions;
 
     /**
      * Optionally limit requests to resources that match the passed ETag.
@@ -81,6 +82,26 @@ public class BlobRequestConditions extends RequestConditions {
      */
     public BlobRequestConditions setLeaseId(String leaseId) {
         this.leaseId = leaseId;
+        return this;
+    }
+
+    /**
+     * Gets the SQL statement that apply to the tags of the blob.
+     *
+     * @return The SQL statement that apply to the tags of the blob.
+     */
+    public String getTagsConditions() {
+        return tagsConditions;
+    }
+
+    /**
+     * Optionally applies the SQL statement to the tags of the blob.
+     *
+     * @param tagsConditions The SQL statement that apply to the tags of the blob.
+     * @return The updated BlobRequestConditions object.
+     */
+    public BlobRequestConditions setTagsConditions(String tagsConditions) {
+        this.tagsConditions = tagsConditions;
         return this;
     }
 }
