@@ -68,7 +68,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets The Azure Core generic ServiceClient to setup interceptors and produce retrofit proxy.
-     *
+     * 
      * @return the serviceClient value.
      */
     public ServiceClient getServiceClient() {
@@ -82,7 +82,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets The endpoint of the Azure Communication resource.
-     *
+     * 
      * @return the endpoint value.
      */
     public String getEndpoint() {
@@ -96,7 +96,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets Api Version.
-     *
+     * 
      * @return the apiVersion value.
      */
     public String getApiVersion() {
@@ -105,7 +105,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Initializes an instance of AzureCommunicationChatService client.
-     *
+     * 
      * @param serviceClient The Azure Core generic ServiceClient to setup interceptors and produce retrofit proxy.
      * @param endpoint The endpoint of the Azure Communication resource.
      */
@@ -185,7 +185,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets read receipts for a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get the read receipts for.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -284,7 +284,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets read receipts for a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get the read receipts for.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -318,7 +318,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets read receipts for a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get the read receipts for.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -332,7 +332,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets read receipts for a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get the read receipts for.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -346,21 +346,21 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets read receipts for a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get the read receipts for.
-     * @param collectionCallback the Callback that receives the response collection.
+     * @param callback the Callback that receives the response collection.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatReadReceiptsPagesAsync(String chatThreadId, final Callback<AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>>> collectionCallback) {
+    public void listChatReadReceiptsPagesAsync(String chatThreadId, final Callback<AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>>> callback) {
         ReadReceiptPageAsyncRetriever retriever = new ReadReceiptPageAsyncRetriever(chatThreadId, this);
-        collectionCallback.onSuccess(new AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>>(retriever), null);
+        callback.onSuccess(new AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>>(retriever), null);
     }
 
     /**
      * Sends a read receipt event to a thread, on behalf of a user.
-     *
+     * 
      * @param chatThreadId Thread id to send the read receipt event to.
      * @param body Request payload for sending a read receipt.
      * @param callback the Callback that receives the response.
@@ -410,7 +410,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Sends a read receipt event to a thread, on behalf of a user.
-     *
+     * 
      * @param chatThreadId Thread id to send the read receipt event to.
      * @param body Request payload for sending a read receipt.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -444,7 +444,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Sends a message to a thread.
-     *
+     * 
      * @param chatThreadId The thread id to send the message to.
      * @param body Details of the message to send.
      * @param callback the Callback that receives the response.
@@ -494,7 +494,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Sends a message to a thread.
-     *
+     * 
      * @param chatThreadId The thread id to send the message to.
      * @param body Details of the message to send.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -528,7 +528,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets a list of messages from a thread.
-     *
+     * 
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
      * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
@@ -647,7 +647,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets a list of messages from a thread.
-     *
+     * 
      * @param chatThreadId The thread id of the message.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -662,7 +662,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets a list of messages from a thread.
-     *
+     * 
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
      * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
@@ -698,7 +698,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets a list of messages from a thread.
-     *
+     * 
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
      * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
@@ -714,7 +714,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets a list of messages from a thread.
-     *
+     * 
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
      * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
@@ -730,7 +730,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets a list of messages from a thread.
-     *
+     * 
      * @param chatThreadId The thread id of the message.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -745,23 +745,23 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets a list of messages from a thread.
-     *
+     * 
      * @param chatThreadId The thread id of the message.
-     * @param collectionCallback the Callback that receives the response collection.
      * @param maxPageSize The maximum number of messages to be returned per page.
      * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param callback the Callback that receives the response collection.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatMessagesPagesAsync(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, final Callback<AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>> collectionCallback) {
+    public void listChatMessagesPagesAsync(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, final Callback<AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>> callback) {
         ChatMessagePageAsyncRetriever retriever = new ChatMessagePageAsyncRetriever(chatThreadId, maxPageSize, startTime, this);
-        collectionCallback.onSuccess(new AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>(retriever), null);
+        callback.onSuccess(new AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>(retriever), null);
     }
 
     /**
      * Gets a message by id.
-     *
+     * 
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @param callback the Callback that receives the response.
@@ -804,7 +804,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets a message by id.
-     *
+     * 
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -832,7 +832,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Updates a message.
-     *
+     * 
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @param body Details of the request to update the message.
@@ -883,7 +883,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Updates a message.
-     *
+     * 
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @param body Details of the request to update the message.
@@ -918,7 +918,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Deletes a message.
-     *
+     * 
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @param callback the Callback that receives the response.
@@ -961,7 +961,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Deletes a message.
-     *
+     * 
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -989,7 +989,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Posts a typing event to a thread, on behalf of a user.
-     *
+     * 
      * @param chatThreadId Id of the thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1031,7 +1031,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Posts a typing event to a thread, on behalf of a user.
-     *
+     * 
      * @param chatThreadId Id of the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -1058,7 +1058,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets the members of a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get members for.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1157,7 +1157,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets the members of a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get members for.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -1191,7 +1191,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets the members of a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get members for.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -1205,7 +1205,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets the members of a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get members for.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -1219,21 +1219,21 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets the members of a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get members for.
-     * @param collectionCallback the Callback that receives the response collection.
+     * @param callback the Callback that receives the response collection.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatThreadMembersPagesAsync(String chatThreadId, final Callback<AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>>> collectionCallback) {
+    public void listChatThreadMembersPagesAsync(String chatThreadId, final Callback<AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>>> callback) {
         ChatThreadMemberPageAsyncRetriever retriever = new ChatThreadMemberPageAsyncRetriever(chatThreadId, this);
-        collectionCallback.onSuccess(new AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>>(retriever), null);
+        callback.onSuccess(new AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>>(retriever), null);
     }
 
     /**
      * Adds thread members to a thread. If members already exist, no change occurs.
-     *
+     * 
      * @param chatThreadId Id of the thread to add members to.
      * @param body Thread members to be added to the thread.
      * @param callback the Callback that receives the response.
@@ -1283,7 +1283,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Adds thread members to a thread. If members already exist, no change occurs.
-     *
+     * 
      * @param chatThreadId Id of the thread to add members to.
      * @param body Thread members to be added to the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1317,7 +1317,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Remove a member from a thread.
-     *
+     * 
      * @param chatThreadId Thread id to remove the member from.
      * @param chatMemberId Id of the thread member to remove from the thread.
      * @param callback the Callback that receives the response.
@@ -1360,7 +1360,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Remove a member from a thread.
-     *
+     * 
      * @param chatThreadId Thread id to remove the member from.
      * @param chatMemberId Id of the thread member to remove from the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1388,7 +1388,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Creates a chat thread.
-     *
+     * 
      * @param body Request payload for creating a chat thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1437,7 +1437,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Creates a chat thread.
-     *
+     * 
      * @param body Request payload for creating a chat thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -1470,7 +1470,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets the list of chat threads of a user.
-     *
+     * 
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @param callback the Callback that receives the response.
@@ -1579,7 +1579,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets the list of chat threads of a user.
-     *
+     * 
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -1593,7 +1593,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets the list of chat threads of a user.
-     *
+     * 
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1628,7 +1628,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets the list of chat threads of a user.
-     *
+     * 
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1643,7 +1643,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets the list of chat threads of a user.
-     *
+     * 
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1658,7 +1658,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets the list of chat threads of a user.
-     *
+     * 
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the list of chat threads of a user.
@@ -1671,22 +1671,22 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets the list of chat threads of a user.
-     *
-     * @param collectionCallback the Callback that receives the response collection.
+     * 
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param callback the Callback that receives the response collection.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatThreadsPagesAsync(Integer maxPageSize, OffsetDateTime startTime, final Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>> collectionCallback) {
+    public void listChatThreadsPagesAsync(Integer maxPageSize, OffsetDateTime startTime, final Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>> callback) {
         ChatThreadInfoPageAsyncRetriever retriever = new ChatThreadInfoPageAsyncRetriever(maxPageSize, startTime, this);
-        collectionCallback.onSuccess(new AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>(retriever), null);
+        callback.onSuccess(new AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>(retriever), null);
     }
 
     /**
      * Updates a thread's properties.
-     *
+     * 
      * @param chatThreadId The id of the thread to update.
      * @param body Request payload for updating a chat thread.
      * @param callback the Callback that receives the response.
@@ -1736,7 +1736,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Updates a thread's properties.
-     *
+     * 
      * @param chatThreadId The id of the thread to update.
      * @param body Request payload for updating a chat thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1770,7 +1770,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets a chat thread.
-     *
+     * 
      * @param chatThreadId Thread id to get.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1812,7 +1812,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Gets a chat thread.
-     *
+     * 
      * @param chatThreadId Thread id to get.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -1839,7 +1839,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Deletes a thread.
-     *
+     * 
      * @param chatThreadId Thread id to delete.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1881,7 +1881,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Deletes a thread.
-     *
+     * 
      * @param chatThreadId Thread id to delete.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -1908,7 +1908,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Get the next page of items.
-     *
+     * 
      * @param nextLink The nextLink parameter.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -1950,7 +1950,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Get the next page of items.
-     *
+     * 
      * @param nextLink The nextLink parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -1984,7 +1984,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Get the next page of items.
-     *
+     * 
      * @param nextLink The nextLink parameter.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -2026,7 +2026,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Get the next page of items.
-     *
+     * 
      * @param nextLink The nextLink parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -2060,7 +2060,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Get the next page of items.
-     *
+     * 
      * @param nextLink The nextLink parameter.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -2102,7 +2102,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Get the next page of items.
-     *
+     * 
      * @param nextLink The nextLink parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -2136,7 +2136,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Get the next page of items.
-     *
+     * 
      * @param nextLink The nextLink parameter.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -2178,7 +2178,7 @@ public final class AzureCommunicationChatServiceImpl {
 
     /**
      * Get the next page of items.
-     *
+     * 
      * @param nextLink The nextLink parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
