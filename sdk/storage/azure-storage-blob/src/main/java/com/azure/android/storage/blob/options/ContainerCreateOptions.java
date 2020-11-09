@@ -8,6 +8,7 @@ import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.models.PublicAccessType;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Extended options that may be passed when creating a container.
@@ -22,6 +23,7 @@ public class ContainerCreateOptions {
     private CancellationToken cancellationToken;
 
     public ContainerCreateOptions(@NonNull String containerName) {
+        Objects.requireNonNull(containerName);
         this.containerName  = containerName;
     }
 

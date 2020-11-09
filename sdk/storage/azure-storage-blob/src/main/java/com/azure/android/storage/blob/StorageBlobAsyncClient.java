@@ -260,6 +260,7 @@ public class StorageBlobAsyncClient {
     /**
      * Creates a new container within a storage account. If a container with the same name already exists, the operation
      * fails.
+     * For more information, see the <a href="https://docs.microsoft.com/rest/api/storageservices/create-container">Azure Docs</a>.
      *
      * @param containerName The container name.
      * @param callback      Callback that receives the response.
@@ -272,12 +273,14 @@ public class StorageBlobAsyncClient {
     /**
      * Creates a new container within a storage account. If a container with the same name already exists, the operation
      * fails.
+     * For more information, see the <a href="https://docs.microsoft.com/rest/api/storageservices/create-container">Azure Docs</a>.
      *
      * @param options {@link ContainerCreateOptions}
      * @param callback Callback that receives the response.
      */
     public void createContainer(@NonNull ContainerCreateOptions options,
                                 @Nullable CallbackWithHeader<Void, ContainerCreateHeaders> callback) {
+        Objects.requireNonNull(options);
         storageBlobServiceClient.createContainer(options.getContainerName(),
             options.getTimeout(),
             options.getMetadata(),

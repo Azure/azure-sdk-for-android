@@ -94,6 +94,7 @@ public class StorageBlobClient {
     /**
      * Creates a new container within a storage account. If a container with the same name already exists, the operation
      * fails.
+     * For more information, see the <a href="https://docs.microsoft.com/rest/api/storageservices/create-container">Azure Docs</a>.
      *
      * @param containerName The container name.
      */
@@ -105,12 +106,14 @@ public class StorageBlobClient {
     /**
      * Creates a new container within a storage account. If a container with the same name already exists, the operation
      * fails.
+     * For more information, see the <a href="https://docs.microsoft.com/rest/api/storageservices/create-container">Azure Docs</a>.
      *
      * @param options {@link ContainerCreateOptions}
      * @return The response information returned from the server when creating a container.
      */
     @NonNull
     public ContainerCreateResponse createContainerWithResponse(@NonNull ContainerCreateOptions options) {
+        Objects.requireNonNull(options);
         return storageBlobServiceClient.createContainerWithRestResponse(options.getContainerName(),
             options.getTimeout(),
             options.getMetadata(),
