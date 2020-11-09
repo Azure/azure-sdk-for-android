@@ -13,6 +13,7 @@ import com.azure.android.storage.blob.models.ContainerDeleteResponse;
 import com.azure.android.storage.blob.models.ContainerGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.ContainerGetPropertiesResponse;
 import com.azure.android.storage.blob.models.PublicAccessType;
+import com.azure.android.storage.blob.options.ContainerCreateOptions;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -114,8 +115,7 @@ public class ContainerTest {
         String containerName = generateResourceName();
 
         // When
-        ContainerCreateResponse response = syncClient.createContainerWithRestResponse(containerName, null,
-            null, null, null);
+        ContainerCreateResponse response = syncClient.createContainerWithResponse(new ContainerCreateOptions(containerName));
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -128,8 +128,8 @@ public class ContainerTest {
         String containerName = generateResourceName();
 
         // When
-        ContainerCreateResponse response = syncClient.createContainerWithRestResponse(containerName, null,
-            null, PublicAccessType.BLOB, null);
+        ContainerCreateResponse response = syncClient.createContainerWithResponse(new ContainerCreateOptions(containerName)
+            .setPublicAccessType(PublicAccessType.BLOB));
 
         // Then
         assertEquals(PublicAccessType.BLOB, syncClient.getContainerProperties(containerName).getBlobPublicAccess());
@@ -144,8 +144,7 @@ public class ContainerTest {
         metadata.put("key2", "value2");
 
         // When
-        syncClient.createContainerWithRestResponse(containerName, null, metadata, null,
-            null);
+        syncClient.createContainerWithResponse(new ContainerCreateOptions(containerName).setMetadata(metadata));
 
         // Then
         ContainerGetPropertiesHeaders headers = syncClient.getContainerProperties(containerName);
@@ -161,8 +160,8 @@ public class ContainerTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // When
-        asyncClient.createContainer(containerName, null, null,
-            null, null, new CallbackWithHeader<Void, ContainerCreateHeaders>() {
+        asyncClient.createContainer(new ContainerCreateOptions(containerName),
+            new CallbackWithHeader<Void, ContainerCreateHeaders>() {
                 @Override
                 public void onSuccess(Void result, ContainerCreateHeaders header, Response response) {
                     assertEquals(201, response.code());

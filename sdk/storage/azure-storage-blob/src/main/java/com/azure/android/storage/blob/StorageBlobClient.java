@@ -6,6 +6,9 @@ package com.azure.android.storage.blob;
 import android.content.Context;
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
@@ -18,12 +21,12 @@ import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
+import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobGetTagsResponse;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
-import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobSetHttpHeadersResponse;
 import com.azure.android.storage.blob.models.BlobSetMetadataResponse;
 import com.azure.android.storage.blob.models.BlobSetTagsResponse;
@@ -44,7 +47,7 @@ import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.models.RehydratePriority;
-import com.azure.android.storage.blob.models.PublicAccessType;
+import com.azure.android.storage.blob.options.ContainerCreateOptions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -94,35 +97,25 @@ public class StorageBlobClient {
      *
      * @param containerName The container name.
      */
-    public Void createContainer(String containerName) {
-        return storageBlobServiceClient.createContainer(containerName);
+    @Nullable
+    public Void createContainer(@NonNull String containerName) {
+        return this.createContainerWithResponse(new ContainerCreateOptions(containerName)).getValue();
     }
 
     /**
      * Creates a new container within a storage account. If a container with the same name already exists, the operation
      * fails.
      *
-     * @param containerName     The container name.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param metadata          Metadata to associate with the container.
-     * @param publicAccessType  Specifies how the data in this container is available to the public. See the
-     *                          x-ms-blob-public-access header in the Azure Docs for more information. Pass null
-     *                          for no public access.
-     * @param cancellationToken The token to request cancellation.
+     * @param options {@link ContainerCreateOptions}
      * @return The response information returned from the server when creating a container.
      */
-    public ContainerCreateResponse createContainerWithRestResponse(String containerName,
-                                                                   Integer timeout,
-                                                                   Map<String, String> metadata,
-                                                                   PublicAccessType publicAccessType,
-                                                                   CancellationToken cancellationToken) {
-
-        return storageBlobServiceClient.createContainerWithRestResponse(containerName,
-            timeout,
-            metadata,
-            publicAccessType,
-            cancellationToken);
+    @NonNull
+    public ContainerCreateResponse createContainerWithResponse(@NonNull ContainerCreateOptions options) {
+        return storageBlobServiceClient.createContainerWithRestResponse(options.getContainerName(),
+            options.getTimeout(),
+            options.getMetadata(),
+            options.getPublicAccessType(),
+            options.getCancellationToken());
     }
 
     /**
