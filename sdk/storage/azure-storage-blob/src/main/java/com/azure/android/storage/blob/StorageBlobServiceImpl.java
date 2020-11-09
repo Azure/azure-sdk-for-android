@@ -1405,9 +1405,10 @@ final class StorageBlobServiceImpl {
         final String restype = "container";
         requestConditions = requestConditions == null ? new BlobRequestConditions() : requestConditions;
         if (!validateNoETag(requestConditions)) {
-            // Throwing is preferred to Single.error because this will error out immediately instead of waiting until
-            // subscription.
             throw new UnsupportedOperationException("ETag access conditions are not supported for this API.");
+        }
+        if (!validateNoTagsConditions(requestConditions)) {
+            throw new UnsupportedOperationException("Tags conditions are not supported for this API.");
         }
 
         DateTimeRfc1123 ifModifiedSinceConverted = requestConditions.getIfModifiedSince() == null ? null :
@@ -3039,5 +3040,12 @@ final class StorageBlobServiceImpl {
             return true;
         }
         return modifiedRequestConditions.getIfMatch() == null && modifiedRequestConditions.getIfNoneMatch() == null;
+    }
+
+    private boolean validateNoTagsConditions(BlobRequestConditions requestConditions) {
+        if (requestConditions == null) {
+            return true;
+        }
+        return requestConditions.getTagsConditions() == null;
     }
 }

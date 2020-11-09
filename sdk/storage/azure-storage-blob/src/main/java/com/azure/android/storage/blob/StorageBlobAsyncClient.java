@@ -53,6 +53,8 @@ import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.models.RehydratePriority;
 import com.azure.android.storage.blob.options.ContainerCreateOptions;
+import com.azure.android.storage.blob.options.ContainerDeleteOptions;
+import com.azure.android.storage.blob.options.ContainerGetPropertiesOptions;
 import com.azure.android.storage.blob.transfer.DownloadRequest;
 import com.azure.android.storage.blob.transfer.StorageBlobClientMap;
 import com.azure.android.storage.blob.transfer.TransferClient;
@@ -281,12 +283,66 @@ public class StorageBlobAsyncClient {
     public void createContainer(@NonNull ContainerCreateOptions options,
                                 @Nullable CallbackWithHeader<Void, ContainerCreateHeaders> callback) {
         Objects.requireNonNull(options);
-        storageBlobServiceClient.createContainer(options.getContainerName(),
-            options.getTimeout(),
-            options.getMetadata(),
-            options.getPublicAccessType(),
-            options.getCancellationToken(),
-            callback);
+        storageBlobServiceClient.createContainer(options.getContainerName(), options.getTimeout(),
+            options.getMetadata(), options.getPublicAccessType(), options.getCancellationToken(), callback);
+    }
+
+
+    /**
+     * Marks the specified container for deletion. The container and any blobs contained within it are later deleted
+     * during garbage collection. For more information, see the
+     * <a href="https://docs.microsoft.com/rest/api/storageservices/delete-container">Azure Docs</a>.
+     *
+     * @param containerName The container name.
+     * @param callback      Callback that receives the response.
+     */
+    public void deleteContainer(@NonNull String containerName,
+                                @Nullable CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
+        this.deleteContainer(new ContainerDeleteOptions(containerName), callback);
+    }
+
+    /**
+     * Marks the specified container for deletion. The container and any blobs contained within it are later deleted
+     * during garbage collection. For more information, see the
+     * <a href="https://docs.microsoft.com/rest/api/storageservices/delete-container">Azure Docs</a>.
+     *
+     * @param options {@link ContainerDeleteOptions}
+     * @param callback Callback that receives the response.
+     */
+    public void deleteContainer(@NonNull ContainerDeleteOptions options,
+                                @Nullable CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
+        Objects.requireNonNull(options);
+        storageBlobServiceClient.deleteContainer(options.getContainerName(), options.getTimeout(),
+            options.getRequestConditions(), options.getCancellationToken(), callback);
+    }
+
+    /**
+     * Returns the container's metadata and system properties. For more information, see the
+     * <a href="https://docs.microsoft.com/rest/api/storageservices/get-container-metadata">Azure Docs</a>.
+     *
+     * @param containerName The container name.
+     * @param callback      Callback that receives the response.
+     */
+    public void getContainerProperties(@NonNull String containerName,
+                                       @Nullable CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
+        this.getContainerProperties(new ContainerGetPropertiesOptions(containerName), callback);
+    }
+
+    /**
+     * Returns the container's metadata and system properties. For more information, see the
+     * <a href="https://docs.microsoft.com/rest/api/storageservices/get-container-metadata">Azure Docs</a>.
+     *
+     * @param options {@link ContainerGetPropertiesOptions}
+     * @param callback Callback that receives the response.
+     */
+    public void getContainerProperties(@NonNull ContainerGetPropertiesOptions options,
+                                       @Nullable CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
+        Objects.requireNonNull(options);
+        BlobRequestConditions requestConditions = options.getRequestConditions() == null ? new BlobRequestConditions()
+            : options.getRequestConditions();
+
+        storageBlobServiceClient.getContainerProperties(options.getContainerName(), options.getTimeout(),
+            requestConditions.getLeaseId(), options.getCancellationToken(), callback);
     }
 
     /**
@@ -558,44 +614,6 @@ public class StorageBlobAsyncClient {
             rehydratePriority,
             leaseId,
             tagsConditions,
-            cancellationToken,
-            callback);
-    }
-
-    /**
-     * Gets the container's properties.
-     *
-     * @param containerName The container name.
-     * @param callback      Callback that receives the response.
-     */
-    public void getContainerProperties(String containerName,
-                                       CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
-        storageBlobServiceClient.getContainerProperties(containerName,
-            callback);
-    }
-
-    /**
-     * Gets the container's properties.
-     *
-     * @param containerName         The container name.
-     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
-     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
-     *                              variety of requests to the conditions present. These conditions are entirely
-     *                              optional.
-     * @param cancellationToken     The token to request cancellation.
-     * @param callback              Callback that receives the response.
-     */
-    public void getContainerProperties(String containerName,
-                                       Integer timeout,
-                                       BlobRequestConditions blobRequestConditions,
-                                       CancellationToken cancellationToken,
-                                       CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
-        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
-
-        storageBlobServiceClient.getContainerProperties(containerName,
-            timeout,
-            blobRequestConditions.getLeaseId(),
             cancellationToken,
             callback);
     }
@@ -890,39 +908,6 @@ public class StorageBlobAsyncClient {
             callback);
     }
 
-    /**
-     * Deletes a container.
-     *
-     * @param containerName The container name.
-     * @param callback      Callback that receives the response.
-     */
-    public void deleteContainer(String containerName,
-                                CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
-        storageBlobServiceClient.deleteContainer(containerName,
-            callback);
-    }
-
-    /**
-     * Deletes a container
-     *
-     * @param containerName     The container name.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestConditions {@link BlobRequestConditions}
-     * @param cancellationToken The token to request cancellation.
-     * @param callback          Callback that receives the response.
-     */
-    public void deleteContainer(String containerName,
-                                Integer timeout,
-                                BlobRequestConditions requestConditions,
-                                CancellationToken cancellationToken,
-                                CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
-        storageBlobServiceClient.deleteContainer(containerName,
-            timeout,
-            requestConditions,
-            cancellationToken,
-            callback);
-    }
 
     /**
      * Gets tags associated with a blob.

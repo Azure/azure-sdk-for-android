@@ -8,27 +8,25 @@ import androidx.annotation.Nullable;
 
 import com.azure.android.core.annotation.Fluent;
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.storage.blob.models.PublicAccessType;
+import com.azure.android.storage.blob.models.BlobRequestConditions;
 
-import java.util.Map;
 import java.util.Objects;
 
 /**
- * Extended options that may be passed when creating a container.
+ * Extended options that may be passed when deleting a container.
  */
 @Fluent
-public class ContainerCreateOptions {
+public class ContainerDeleteOptions {
 
     private final String containerName;
-    private Map<String, String> metadata;
-    private PublicAccessType publicAccessType;
+    private BlobRequestConditions requestConditions;
     private Integer timeout;
     private CancellationToken cancellationToken;
 
     /**
      * @param containerName The container name.
      */
-    public ContainerCreateOptions(@NonNull String containerName) {
+    public ContainerDeleteOptions(@NonNull String containerName) {
         Objects.requireNonNull(containerName);
         this.containerName  = containerName;
     }
@@ -42,39 +40,21 @@ public class ContainerCreateOptions {
     }
 
     /**
-     * @return The metadata to associate with the container.
+     * @return {@link BlobRequestConditions}.
      */
     @Nullable
-    public Map<String, String> getMetadata() {
-        return metadata;
+    public BlobRequestConditions getRequestConditions() {
+        return requestConditions;
     }
 
     /**
-     * @param metadata  The metadata to associate with the container.
+     * Note: E-Tag access conditions and tags conditions are not supported for this API.
+     * @param requestConditions {@link BlobRequestConditions}
      * @return The updated options.
      */
     @NonNull
-    public ContainerCreateOptions setMetadata(@Nullable Map<String, String> metadata) {
-        this.metadata = metadata;
-        return this;
-    }
-
-    /**
-     * @return  Specifies how the data in this container is available to the public.
-     */
-    @Nullable
-    public PublicAccessType getPublicAccessType() {
-        return publicAccessType;
-    }
-
-    /**
-     * @param publicAccessType Specifies how the data in this container is available to the public.
-     * Pass null for no public access.
-     * @return The updated options.
-     */
-    @NonNull
-    public ContainerCreateOptions setPublicAccessType(@Nullable PublicAccessType publicAccessType) {
-        this.publicAccessType = publicAccessType;
+    public ContainerDeleteOptions setRequestConditions(@Nullable BlobRequestConditions requestConditions) {
+        this.requestConditions = requestConditions;
         return this;
     }
 
@@ -92,7 +72,7 @@ public class ContainerCreateOptions {
      * @return The updated options.
      */
     @NonNull
-    public ContainerCreateOptions setTimeout(@Nullable Integer timeout) {
+    public ContainerDeleteOptions setTimeout(@Nullable Integer timeout) {
         this.timeout = timeout;
         return this;
     }
@@ -110,7 +90,7 @@ public class ContainerCreateOptions {
      * @return The updated options.
      */
     @NonNull
-    public ContainerCreateOptions setCancellationToken(@Nullable CancellationToken cancellationToken) {
+    public ContainerDeleteOptions setCancellationToken(@Nullable CancellationToken cancellationToken) {
         this.cancellationToken = cancellationToken;
         return this;
     }
