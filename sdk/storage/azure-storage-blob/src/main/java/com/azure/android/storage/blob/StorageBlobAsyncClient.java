@@ -27,6 +27,7 @@ import com.azure.android.storage.blob.interceptor.NormalizeEtagInterceptor;
 import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteHeaders;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
+import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.BlobGetTagsHeaders;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
@@ -52,6 +53,7 @@ import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.models.RehydratePriority;
+import com.azure.android.storage.blob.options.BlobGetPropertiesOptions;
 import com.azure.android.storage.blob.options.ContainerCreateOptions;
 import com.azure.android.storage.blob.options.ContainerDeleteOptions;
 import com.azure.android.storage.blob.options.ContainerGetPropertiesOptions;
@@ -421,53 +423,31 @@ public class StorageBlobAsyncClient {
     }
 
     /**
-     * Reads the blob's metadata and properties.
+     * Returns the blob's metadata and properties. For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties">Azure Docs</a></p>.
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
      */
-    public void getBlobProperties(String containerName,
-                                  String blobName,
-                                  CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
-        storageBlobServiceClient.getBlobProperties(containerName,
-            blobName,
-            callback);
+    public void getBlobProperties(@NonNull String containerName, @NonNull String blobName,
+                                  @Nullable CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
+        this.getBlobProperties(new BlobGetPropertiesOptions(containerName, blobName), callback);
     }
 
     /**
-     * Reads a blob's metadata and properties.
+     * Returns the blob's metadata and properties. For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties">Azure Docs</a></p>.
      *
-     * @param containerName         The container name.
-     * @param blobName              The blob name.
-     * @param snapshot              The snapshot parameter is an opaque DateTime value that, when present, specifies
-     *                              the blob snapshot to retrieve. For more information on working with blob snapshots,
-     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
-     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
-     *                              variety of requests to the conditions present. These conditions are entirely
-     *                              optional.
-     * @param cpkInfo               Additional parameters for the operation.
-     * @param cancellationToken     The token to request cancellation.
-     * @param callback              Callback that receives the response.
+     * @param options {@link BlobGetPropertiesOptions}
+     * @param callback Callback that receives the response.
      */
-    public void getBlobProperties(String containerName,
-                                  String blobName,
-                                  String snapshot,
-                                  Integer timeout,
-                                  BlobRequestConditions blobRequestConditions,
-                                  CpkInfo cpkInfo,
-                                  CancellationToken cancellationToken,
-                                  CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
-        storageBlobServiceClient.getBlobProperties(containerName,
-            blobName,
-            snapshot,
-            timeout,
-            blobRequestConditions,
-            cpkInfo,
-            cancellationToken,
-            callback);
+    public void getBlobProperties(@NonNull BlobGetPropertiesOptions options,
+                                  @Nullable CallbackWithHeader<Void, BlobGetPropertiesHeaders> callback) {
+        Objects.requireNonNull(options);
+        storageBlobServiceClient.getBlobProperties(options.getContainerName(), options.getBlobName(),
+            options.getSnapshot(), options.getTimeout(), options.getRequestConditions(), options.getCpkInfo(),
+            options.getCancellationToken(), callback);
     }
 
     /**
@@ -634,6 +614,7 @@ public class StorageBlobAsyncClient {
      */
     public void rawDownload(String containerName,
                             String blobName,
+                            Callback<BlobDownloadResponse> callback
                             CallbackWithHeader<ResponseBody, BlobDownloadHeaders> callback) {
         storageBlobServiceClient.download(containerName,
             blobName,

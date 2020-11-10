@@ -26,6 +26,7 @@ import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobType;
 import com.azure.android.storage.blob.models.LeaseStateType;
 import com.azure.android.storage.blob.models.LeaseStatusType;
+import com.azure.android.storage.blob.options.BlobGetPropertiesOptions;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -236,8 +237,7 @@ public class BlobTest {
     @Test
     public void getProperties() {
         // When
-        BlobGetPropertiesResponse response = syncClient.getBlobPropertiesWithRestResponse(containerName, blobName,
-            null, null, null, null, null);
+        BlobGetPropertiesResponse response = syncClient.getBlobPropertiesWithResponse(new BlobGetPropertiesOptions(containerName, blobName));
 
         // Then
         assertEquals(200, response.getStatusCode());
@@ -257,7 +257,7 @@ public class BlobTest {
             .setTagsConditions(tagsCondition);
 
         // When
-        BlobGetPropertiesResponse response = syncClient.getBlobPropertiesWithRestResponse(containerName, blobName, null, null, requestConditions, null,null);
+        BlobGetPropertiesResponse response = syncClient.getBlobPropertiesWithResponse(new BlobGetPropertiesOptions(containerName, blobName).setRequestConditions(requestConditions));
 
         // Then
         assertEquals(200, response.getStatusCode());
@@ -277,7 +277,7 @@ public class BlobTest {
 
         // When
         BlobStorageException ex = assertThrows(BlobStorageException.class,
-            () -> syncClient.getBlobPropertiesWithRestResponse(containerName, blobName, null, null, requestConditions, null, null));
+            () -> syncClient.getBlobPropertiesWithResponse(new BlobGetPropertiesOptions(containerName, blobName).setRequestConditions(requestConditions)));
 
         // Then
         assertTrue(ex.getStatusCode() == 304 || ex.getStatusCode() == 412);

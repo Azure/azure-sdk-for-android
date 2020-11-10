@@ -46,6 +46,7 @@ import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.models.RehydratePriority;
+import com.azure.android.storage.blob.options.BlobGetPropertiesOptions;
 import com.azure.android.storage.blob.options.ContainerCreateOptions;
 import com.azure.android.storage.blob.options.ContainerDeleteOptions;
 import com.azure.android.storage.blob.options.ContainerGetPropertiesOptions;
@@ -244,48 +245,33 @@ public class StorageBlobClient {
     }
 
     /**
-     * Reads the blob's metadata and properties.
+     * Returns the blob's metadata and properties. For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties">Azure Docs</a></p>.
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @return The blob's metadata and properties
      */
-    public BlobGetPropertiesHeaders getBlobProperties(String containerName,
-                                                      String blobName) {
-        return storageBlobServiceClient.getBlobProperties(containerName, blobName);
+    @NonNull
+    public BlobGetPropertiesHeaders getBlobProperties(@NonNull String containerName,
+                                                      @NonNull String blobName) {
+        return this.getBlobPropertiesWithResponse(new BlobGetPropertiesOptions(containerName, blobName))
+            .getDeserializedHeaders();
     }
 
     /**
-     * Reads a blob's metadata and properties.
+     * Returns the blob's metadata and properties. For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties">Azure Docs</a></p>.
      *
-     * @param containerName         The container name.
-     * @param blobName              The blob name.
-     * @param snapshot              The snapshot parameter is an opaque DateTime value that, when present, specifies
-     *                              the blob snapshot to retrieve. For more information on working with blob snapshots,
-     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
-     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
-     *                              variety of requests to the conditions present. These conditions are entirely
-     *                              optional.
-     * @param cpkInfo               Additional parameters for the operation.
-     * @param cancellationToken     The token to request cancellation.
+     * @param options {@link BlobGetPropertiesOptions}
      * @return The response information returned from the server when downloading a blob.
      */
-    public BlobGetPropertiesResponse getBlobPropertiesWithRestResponse(String containerName,
-                                                                       String blobName,
-                                                                       String snapshot,
-                                                                       Integer timeout,
-                                                                       BlobRequestConditions blobRequestConditions,
-                                                                       CpkInfo cpkInfo,
-                                                                       CancellationToken cancellationToken) {
-        return storageBlobServiceClient.getBlobPropertiesWithRestResponse(containerName,
-            blobName,
-            snapshot,
-            timeout,
-            blobRequestConditions,
-            cpkInfo,
-            cancellationToken);
+    @NonNull
+    public BlobGetPropertiesResponse getBlobPropertiesWithResponse(@NonNull BlobGetPropertiesOptions options) {
+        Objects.requireNonNull(options);
+        return storageBlobServiceClient.getBlobPropertiesWithRestResponse(options.getContainerName(),
+            options.getBlobName(), options.getSnapshot(), options.getTimeout(), options.getRequestConditions(),
+            options.getCpkInfo(), options.getCancellationToken());
     }
 
     /**

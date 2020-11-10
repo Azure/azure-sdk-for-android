@@ -36,6 +36,7 @@ import com.azure.android.storage.blob.models.ContainerCreateHeaders;
 import com.azure.android.storage.blob.models.ContainerCreateResponse;
 import com.azure.android.storage.blob.models.ContainerDeleteHeaders;
 import com.azure.android.storage.blob.models.ContainerDeleteResponse;
+import com.azure.android.storage.blob.options.BlobGetPropertiesOptions;
 import com.azure.android.storage.blob.options.ContainerCreateOptions;
 import com.azure.android.storage.blob.options.ContainerDeleteOptions;
 
@@ -428,13 +429,8 @@ public class StorageBlobClientTest {
         // Then the client will return an object that contains both the details of the REST response and
         // a an object with the blob properties.
         BlobGetPropertiesResponse response =
-            storageBlobClient.getBlobPropertiesWithRestResponse("container",
-                "blob",
-                null,
-                null,
-                null,
-                null,
-                CancellationToken.NONE);
+            storageBlobClient.getBlobPropertiesWithResponse(new BlobGetPropertiesOptions("container",
+                "blob").setCancellationToken(CancellationToken.NONE));
 
         assertEquals("application/text", response.getDeserializedHeaders().getContentType());
     }
@@ -453,13 +449,8 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.getBlobProperties("container",
-            "blob",
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
+        storageBlobAsyncClient.getBlobProperties(new BlobGetPropertiesOptions("container",
+            "blob").setCancellationToken(CancellationToken.NONE),
             new CallbackWithHeader<Void, BlobGetPropertiesHeaders>() {
 
                 @Override
