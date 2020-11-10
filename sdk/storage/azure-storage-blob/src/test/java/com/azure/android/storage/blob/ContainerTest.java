@@ -73,11 +73,22 @@ public class ContainerTest {
     }
 
     @DataProvider
-    public static Object[][] accessConditionsIllegal() {
+    public static Object[][] deleteAccessConditionsIllegal() {
         return new Object[][] {
             {"garbage", null,      null},     // 0
             {null,      "garbage", null},     // 1
             {null,      null,      "garbage"} // 2
+        };
+    }
+
+    @DataProvider
+    public static Object[][] getPropertiesAccessConditionsIllegal() {
+        return new Object[][] {
+            {"garbage", null,      null,    null,    null},     // 0
+            {null,      "garbage", null,    null,    null},     // 1
+            {null,      null,      oldDate, null,    null},     // 2
+            {null,      null,      null,    oldDate, null},     // 3
+            {null,      null,      null,    null,    "garbage"} // 4
         };
     }
 
@@ -260,7 +271,7 @@ public class ContainerTest {
     }
 
     @Test
-    @UseDataProvider("accessConditionsIllegal")
+    @UseDataProvider("deleteAccessConditionsIllegal")
     public void deleteACIllegal(String ifMatch, String ifNoneMatch, String tagsConditions) {
         // Setup
         String containerName = generateResourceName();
@@ -332,6 +343,22 @@ public class ContainerTest {
         assertFalse(headers.hasImmutabilityPolicy());
         assertFalse(headers.hasLegalHold());
         assertEquals(0, headers.getMetadata().size());
+    }
+
+    @Test
+    @UseDataProvider("getPropertiesAccessConditionsIllegal")
+    public void getPropertiesACIllegal(String ifMatch, String ifNoneMatch, OffsetDateTime modified, OffsetDateTime unmodified, String tagsConditions) {
+        // Setup
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch)
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setTagsConditions(tagsConditions);
+
+        // Expect
+        assertThrows(UnsupportedOperationException.class,
+            () -> syncClient.getContainerPropertiesWithResponse(new ContainerGetPropertiesOptions(containerName).setRequestConditions(requestConditions)));
     }
 
     @Test

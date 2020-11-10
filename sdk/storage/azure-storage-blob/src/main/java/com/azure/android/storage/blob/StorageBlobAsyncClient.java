@@ -314,6 +314,7 @@ public class StorageBlobAsyncClient {
     public void deleteContainer(@NonNull ContainerDeleteOptions options,
                                 @Nullable CallbackWithHeader<Void, ContainerDeleteHeaders> callback) {
         Objects.requireNonNull(options);
+        ModelHelper.validateRequestConditions(options.getRequestConditions(), false, true, true, false);
         storageBlobServiceClient.deleteContainer(options.getContainerName(), options.getTimeout(),
             options.getRequestConditions(), options.getCancellationToken(), callback);
     }
@@ -340,6 +341,7 @@ public class StorageBlobAsyncClient {
     public void getContainerProperties(@NonNull ContainerGetPropertiesOptions options,
                                        @Nullable CallbackWithHeader<Void, ContainerGetPropertiesHeaders> callback) {
         Objects.requireNonNull(options);
+        ModelHelper.validateRequestConditions(options.getRequestConditions(), false, false, true, false);
         BlobRequestConditions requestConditions = options.getRequestConditions() == null ? new BlobRequestConditions()
             : options.getRequestConditions();
 

@@ -7,6 +7,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
@@ -100,7 +101,7 @@ public class StorageBlobClient {
      *
      * @param containerName The container name.
      */
-    @NonNull
+    @Nullable
     public Void createContainer(@NonNull String containerName) {
         return this.createContainerWithResponse(new ContainerCreateOptions(containerName)).getValue();
     }
@@ -127,7 +128,7 @@ public class StorageBlobClient {
      *
      * @param containerName The container name.
      */
-    @NonNull
+    @Nullable
     public Void deleteContainer(@NonNull String containerName) {
         return this.deleteContainerWithResponse(new ContainerDeleteOptions(containerName)).getValue();
     }
@@ -143,6 +144,7 @@ public class StorageBlobClient {
     @NonNull
     public ContainerDeleteResponse deleteContainerWithResponse(@NonNull ContainerDeleteOptions options) {
         Objects.requireNonNull(options);
+        ModelHelper.validateRequestConditions(options.getRequestConditions(), false, true, true, false);
         return storageBlobServiceClient.deleteContainerWithRestResponse(options.getContainerName(),
             options.getTimeout(), options.getRequestConditions(), options.getCancellationToken());
     }
@@ -170,6 +172,7 @@ public class StorageBlobClient {
     @NonNull
     public ContainerGetPropertiesResponse getContainerPropertiesWithResponse(@NonNull ContainerGetPropertiesOptions options) {
         Objects.requireNonNull(options);
+        ModelHelper.validateRequestConditions(options.getRequestConditions(), false, false, true, false);
         BlobRequestConditions requestConditions = options.getRequestConditions() == null ? new BlobRequestConditions()
             : options.getRequestConditions();
 

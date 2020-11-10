@@ -48,7 +48,7 @@ public class ContainerGetPropertiesOptions {
     }
 
     /**
-     * Note: Only lease ID is supported for this API.
+     * Note: Only lease id is supported for this API.
      * @param requestConditions {@link BlobRequestConditions}
      * @return The updated options.
      */

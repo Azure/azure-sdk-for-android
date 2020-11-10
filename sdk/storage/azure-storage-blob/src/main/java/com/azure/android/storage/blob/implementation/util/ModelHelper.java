@@ -3,6 +3,9 @@
 
 package com.azure.android.storage.blob.implementation.util;
 
+import androidx.annotation.Nullable;
+
+import com.azure.android.storage.blob.models.BlobRequestConditions;
 import com.azure.android.storage.blob.models.BlobTag;
 import com.azure.android.storage.blob.models.BlobTags;
 
@@ -26,5 +29,36 @@ public class ModelHelper {
             }
         }
         return tags;
+    }
+
+    /**
+     * Validates only certain request conditions properties can be set.
+     *
+     * @param requestConditions {@link BlobRequestConditions}
+     * @param matchConditions Whether or not match conditions can be set.
+     * @param modifiedConditions Whether or not modified conditions can be set.
+     * @param leaseId Whether or not lease id can be set.
+     * @param tagsConditions Whether or not tags conditions can be set.
+     */
+    public static void validateRequestConditions(@Nullable BlobRequestConditions requestConditions,
+                                                 boolean matchConditions, boolean modifiedConditions, boolean leaseId,
+                                                 boolean tagsConditions) {
+        if (requestConditions == null) {
+            return;
+        }
+        if (!matchConditions && (requestConditions.getIfMatch() != null
+            || requestConditions.getIfNoneMatch() != null)) {
+            throw new UnsupportedOperationException("Match conditions are not supported for this API.");
+        }
+        if (!modifiedConditions && (requestConditions.getIfModifiedSince() != null
+            || requestConditions.getIfUnmodifiedSince() != null)) {
+            throw new UnsupportedOperationException("Modified conditions are not supported for this API.");
+        }
+        if (!leaseId && requestConditions.getLeaseId() != null) {
+            throw new UnsupportedOperationException("Lease id condition is not supported for this API.");
+        }
+        if (!tagsConditions && requestConditions.getTagsConditions() != null) {
+            throw new UnsupportedOperationException("Tags conditions are not supported for this API.");
+        }
     }
 }
