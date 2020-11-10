@@ -142,6 +142,7 @@ public class StorageBlobClient {
     @NonNull
     public ContainerDeleteResponse deleteContainerWithResponse(@NonNull ContainerDeleteOptions options) {
         Objects.requireNonNull(options);
+        ModelHelper.validateRequestConditions(options.getRequestConditions(), false, true, true, false);
         return storageBlobServiceClient.deleteContainerWithRestResponse(options.getContainerName(),
             options.getTimeout(), options.getRequestConditions(), options.getCancellationToken());
     }
@@ -169,6 +170,7 @@ public class StorageBlobClient {
     @NonNull
     public ContainerGetPropertiesResponse getContainerPropertiesWithResponse(@NonNull ContainerGetPropertiesOptions options) {
         Objects.requireNonNull(options);
+        ModelHelper.validateRequestConditions(options.getRequestConditions(), false, false, true, false);
         BlobRequestConditions requestConditions = options.getRequestConditions() == null ? new BlobRequestConditions()
             : options.getRequestConditions();
 

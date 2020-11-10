@@ -48,7 +48,7 @@ public class ContainerGetPropertiesOptions {
     }
 
     /**
-     * Note: E-Tag access conditions and tags conditions are not supported for this API.
+     * Note: Only lease id is supported for this API.
      * @param requestConditions {@link BlobRequestConditions}
      * @return The updated options.
      */
