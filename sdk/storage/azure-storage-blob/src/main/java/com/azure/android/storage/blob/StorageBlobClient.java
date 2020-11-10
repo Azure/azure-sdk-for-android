@@ -7,6 +7,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
@@ -99,7 +100,7 @@ public class StorageBlobClient {
      *
      * @param containerName The container name.
      */
-    @NonNull
+    @Nullable
     public Void createContainer(@NonNull String containerName) {
         return this.createContainerWithResponse(new ContainerCreateOptions(containerName)).getValue();
     }
@@ -126,7 +127,7 @@ public class StorageBlobClient {
      *
      * @param containerName The container name.
      */
-    @NonNull
+    @Nullable
     public Void deleteContainer(@NonNull String containerName) {
         return this.deleteContainerWithResponse(new ContainerDeleteOptions(containerName)).getValue();
     }
