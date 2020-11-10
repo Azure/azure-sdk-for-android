@@ -131,7 +131,7 @@ public class BlockBlobTest {
         String blockId = generateBlockID();
 
         // When
-        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, blockId, getDefaultData(), null, null, null, null ,null, null, null);
+        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithResponse(containerName, blobName, blockId, getDefaultData(), null, null, null, null ,null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -208,7 +208,7 @@ public class BlockBlobTest {
         byte[] correctMd5 = MessageDigest.getInstance("MD5").digest(getDefaultData());
 
         // When
-        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, null, null, null, null, null);
+        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, null, null, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -229,7 +229,7 @@ public class BlockBlobTest {
     public void stageBlockComputeMd5() {
         // Success Case
         // When
-        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), null, null, true, null, null, null, null);
+        BlockBlobsStageBlockResponse response = syncClient.stageBlockWithResponse(containerName, blobName, generateBlockID(), getDefaultData(), null, null, true, null, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -247,7 +247,7 @@ public class BlockBlobTest {
             return chain.proceed(newRequest);
         }).build();
         BlobStorageException exception = assertThrows(BlobStorageException.class,
-            () -> tempClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), null, null, true, null, null, null, null));
+            () -> tempClient.stageBlockWithResponse(containerName, blobName, generateBlockID(), getDefaultData(), null, null, true, null, null, null, null));
 
         // Then
         assertEquals(BlobErrorCode.MD5MISMATCH, exception.getErrorCode());
@@ -258,7 +258,7 @@ public class BlockBlobTest {
 
         // When
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-            () -> syncClient.stageBlockWithRestResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, true, null, null, null, null));
+            () -> syncClient.stageBlockWithResponse(containerName, blobName, generateBlockID(), getDefaultData(), correctMd5, null, true, null, null, null, null));
 
         // Then
         assertEquals("'transactionalContentMD5' can not be set when 'computeMd5' is true.", ex.getMessage());
@@ -311,7 +311,7 @@ public class BlockBlobTest {
         blockIds.add(blockId);
 
         // When
-        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithRestResponse(containerName, blobName, blockIds, null ,null, null, null, null, null, null, null, null);
+        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithResponse(containerName, blobName, blockIds, null ,null, null, null, null, null, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -369,7 +369,7 @@ public class BlockBlobTest {
             .setContentType(contentType);
 
         // When
-        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithRestResponse(containerName, blobName, null, null ,null,  null, headers, null, null, null, null, null);
+        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithResponse(containerName, blobName, null, null ,null,  null, headers, null, null, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -389,7 +389,7 @@ public class BlockBlobTest {
         metadata.put("key2", "value2");
 
         // When
-        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithRestResponse(containerName, blobName, null, null ,null,  null, null, metadata, null, null, null, null);
+        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithResponse(containerName, blobName, null, null ,null,  null, null, metadata, null, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -413,7 +413,7 @@ public class BlockBlobTest {
             .setTagsConditions(tagsConditions);
 
         // When
-        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithRestResponse(containerName, blobName, null, null ,null,  null, null, null, requestConditions, null, null, null);
+        BlockBlobsCommitBlockListResponse response = syncClient.commitBlockListWithResponse(containerName, blobName, null, null ,null,  null, null, null, requestConditions, null, null, null);
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -433,7 +433,7 @@ public class BlockBlobTest {
 
         // When
         BlobStorageException ex = assertThrows(BlobStorageException.class,
-            () -> syncClient.commitBlockListWithRestResponse(containerName, blobName, null, null ,null,  null, null, null, requestConditions, null, null, null));
+            () -> syncClient.commitBlockListWithResponse(containerName, blobName, null, null ,null,  null, null, null, requestConditions, null, null, null));
 
         // Then
         assertEquals(412, ex.getStatusCode());

@@ -742,7 +742,7 @@ public class BlobTest {
     @Test
     public void delete() {
         // When
-        BlobDeleteResponse response = syncClient.deleteBlobWithRestResponse(containerName, blobName, null, null, null, null, null);
+        BlobDeleteResponse response = syncClient.deleteBlobWithResponse(containerName, blobName, null, null, null, null, null);
 
         // Then
         assertEquals(202, response.getStatusCode());
@@ -768,7 +768,7 @@ public class BlobTest {
             .setTagsConditions(tagsCondition);
 
         // When
-        BlobDeleteResponse response = syncClient.deleteBlobWithRestResponse(containerName, blobName, null, null ,null, requestConditions, null);
+        BlobDeleteResponse response = syncClient.deleteBlobWithResponse(containerName, blobName, null, null ,null, requestConditions, null);
 
         // Then
         assertEquals(202, response.getStatusCode());
@@ -788,7 +788,7 @@ public class BlobTest {
 
         // When
         BlobStorageException ex = assertThrows(BlobStorageException.class,
-            () -> syncClient.deleteBlobWithRestResponse(containerName, blobName, null, null ,null, requestConditions, null));
+            () -> syncClient.deleteBlobWithResponse(containerName, blobName, null, null ,null, requestConditions, null));
 
         // Then
         assertEquals(412, ex.getStatusCode());
@@ -1077,7 +1077,7 @@ public class BlobTest {
         setupTagsCondition(syncClient, containerName, blobName);
 
         // Expect
-        assertEquals(200, syncClient.getBlobTagsWithRestResponse(containerName, blobName, null, null, correctTagsCondition,
+        assertEquals(200, syncClient.getBlobTagsWithResponse(containerName, blobName, null, null, correctTagsCondition,
             null).getStatusCode());
     }
 
@@ -1085,7 +1085,7 @@ public class BlobTest {
     public void getTagsACFail() {
         // Expect
         assertThrows(BlobStorageException.class,
-            () -> syncClient.getBlobTagsWithRestResponse(containerName, blobName, null, null, garbageTagsCondition,
+            () -> syncClient.getBlobTagsWithResponse(containerName, blobName, null, null, garbageTagsCondition,
                 null));
     }
 

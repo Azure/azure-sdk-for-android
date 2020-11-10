@@ -1067,7 +1067,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response without body and status code 201 will be returned by the server.
-        BlockBlobsStageBlockResponse response = storageBlobClient.stageBlockWithRestResponse("testContainer",
+        BlockBlobsStageBlockResponse response = storageBlobClient.stageBlockWithResponse("testContainer",
             "testBlob",
             null,
             new byte[0],
@@ -1212,7 +1212,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response with the blob's details and status code 201 will be returned by the server.
-        BlockBlobsCommitBlockListResponse response = storageBlobClient.commitBlockListWithRestResponse("testContainer",
+        BlockBlobsCommitBlockListResponse response = storageBlobClient.commitBlockListWithResponse("testContainer",
             "testBlob",
             null,
             null,
@@ -1351,7 +1351,7 @@ public class StorageBlobClientTest {
 
         // Then a response without body and status code 202 will be returned by the server.
         BlobDeleteResponse response =
-            storageBlobClient.deleteBlobWithRestResponse("container",
+            storageBlobClient.deleteBlobWithResponse("container",
                 "blob",
                 null,
                 null,
@@ -1602,7 +1602,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         com.azure.android.core.http.Response<Map<String, String>> response =
-            storageBlobClient.getBlobTagsWithRestResponse("testContainer",
+            storageBlobClient.getBlobTagsWithResponse("testContainer",
                 "blobName",
                 null,
                 null,

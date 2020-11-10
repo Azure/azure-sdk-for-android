@@ -46,16 +46,18 @@ import com.azure.android.storage.blob.models.ContainerCreateHeaders;
 import com.azure.android.storage.blob.models.ContainerDeleteHeaders;
 import com.azure.android.storage.blob.models.ContainerGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.CpkInfo;
-import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.ListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
+import com.azure.android.storage.blob.options.BlobDeleteOptions;
 import com.azure.android.storage.blob.options.BlobGetPropertiesOptions;
+import com.azure.android.storage.blob.options.BlobGetTagsOptions;
 import com.azure.android.storage.blob.options.BlobRawDownloadOptions;
 import com.azure.android.storage.blob.options.BlobSetAccessTierOptions;
 import com.azure.android.storage.blob.options.BlobSetHttpHeadersOptions;
 import com.azure.android.storage.blob.options.BlobSetMetadataOptions;
+import com.azure.android.storage.blob.options.BlobSetTagsOptions;
 import com.azure.android.storage.blob.options.ContainerCreateOptions;
 import com.azure.android.storage.blob.options.ContainerDeleteOptions;
 import com.azure.android.storage.blob.options.ContainerGetPropertiesOptions;
@@ -770,121 +772,69 @@ public class StorageBlobAsyncClient {
 
     /**
      * Deletes the specified blob or snapshot. Note that deleting a blob also deletes all its snapshots.
+     * <p>For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/delete-blob">Azure Docs</a></p>
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
      */
-    public void deleteBlob(String containerName,
-                           String blobName,
-                           CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
-        storageBlobServiceClient.deleteBlob(containerName,
-            blobName,
-            callback);
+    public void deleteBlob(@NonNull String containerName, @NonNull String blobName,
+                           @Nullable CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
+        this.deleteBlob(containerName, blobName, callback);
     }
 
     /**
      * Deletes the specified blob or snapshot. Note that deleting a blob also deletes all its snapshots.
-     * <p>
-     * If the storage account's soft delete feature is disabled then, when a blob is deleted, it is permanently
-     * removed from the storage account. If the storage account's soft delete feature is enabled, then, when a blob
-     * is deleted, it is marked for deletion and becomes inaccessible immediately. However, the blob service retains
-     * the blob or snapshot for the number of days specified by the DeleteRetentionPolicy section of
-     * &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-service-properties"&gt; Storage service properties.&lt;/a&gt;.
-     * After the specified number of days has passed, the blob's data is permanently removed from the storage account.
-     * Note that you continue to be charged for the soft-deleted blob's storage until it is permanently removed. Use
-     * the List Blobs API and specify the "include=deleted" query parameter to discover which blobs and snapshots
-     * have been soft deleted. You can then use the Undelete Blob API to restore a soft-deleted blob. All other
-     * operations on a soft-deleted blob or snapshot causes the service to return an HTTP status code of 404
-     * (ResourceNotFound). If the storage account's automatic snapshot feature is enabled, then, when a blob is
-     * deleted, an automatic snapshot is created. The blob becomes inaccessible immediately. All other operations on
-     * the blob causes the service to return an HTTP status code of 404 (ResourceNotFound). You can access automatic
-     * snapshot using snapshot timestamp or version ID. You can restore the blob by calling Put or Copy Blob API with
-     * automatic snapshot as source. Deleting automatic snapshot requires shared key or special SAS/RBAC permissions.
+     * <p>For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/delete-blob">Azure Docs</a></p>
      *
-     * @param containerName     The container name.
-     * @param blobName          The blob name.
-     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the
-     *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param deleteSnapshots   Required if the blob has associated snapshots. Specify one of the following two
-     *                          options: include: Delete the base blob and all of its snapshots. only: Delete only the blob's snapshots and not the blob itself. Possible values include: 'include', 'only'.
-     * @param requestConditions {@link BlobRequestConditions}
-     * @param cancellationToken The token to request cancellation.
+     * @param options {@link BlobDeleteOptions}
      * @param callback          Callback that receives the response.
      */
-    public void deleteBlob(String containerName,
-                           String blobName,
-                           String snapshot,
-                           Integer timeout,
-                           DeleteSnapshotsOptionType deleteSnapshots,
-                           BlobRequestConditions requestConditions,
-                           CancellationToken cancellationToken,
-                           CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
-        storageBlobServiceClient.deleteBlob(containerName,
-            blobName,
-            snapshot,
-            timeout,
-            deleteSnapshots,
-            requestConditions,
-            cancellationToken,
-            callback);
+    public void deleteBlob(@NonNull BlobDeleteOptions options,
+                           @Nullable CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
+        Objects.requireNonNull(options);
+        storageBlobServiceClient.deleteBlob(options.getContainerName(), options.getBlobName(), options.getSnapshot(),
+            options.getTimeout(), options.getDeleteSnapshots(), options.getRequestConditions(),
+            options.getCancellationToken(), callback);
     }
 
 
     /**
-     * Gets tags associated with a blob.
+     * Returns the blob's tags.
+     * <p>For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-tags">Azure Docs</a></p>
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @param callback      Callback that receives the response.
      */
-    public void getBlobTags(String containerName,
-                            String blobName,
-                            CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
-        this.storageBlobServiceClient.getTags(containerName,
-            blobName,
-            new CallbackWithHeader<BlobTags, BlobGetTagsHeaders>() {
-                @Override
-                public void onSuccess(BlobTags result, BlobGetTagsHeaders header, Response response) {
-                    callback.onSuccess(ModelHelper.populateBlobTags(result), header, response);
-                }
-
-                @Override
-                public void onFailure(Throwable throwable, Response response) {
-                    callback.onFailure(throwable, response);
-                }
-            });
+    public void getBlobTags(@NonNull String containerName,
+                            @NonNull String blobName,
+                            @Nullable CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
+        this.getBlobTags(new BlobGetTagsOptions(containerName, blobName), callback);
     }
 
     /**
-     * Gets tags associated with a blob.
+     * Returns the blob's tags.
+     * <p>For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-tags">Azure Docs</a></p>
      *
-     * @param containerName     The container name.
-     * @param blobName          The blob name.
-     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies the
-     *                          blob snapshot to retrieve. For more information on working with blob snapshots, see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param cancellationToken The token to request cancellation.
+     * @param options {@link BlobGetTagsOptions}
      * @param callback          The callback that receives the response.
      */
-    public void getBlobTags(String containerName,
-                            String blobName,
-                            String snapshot,
-                            Integer timeout,
-                            String tagsConditions,
-                            CancellationToken cancellationToken,
-                            CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
-        this.storageBlobServiceClient.getTags(containerName,
-            blobName,
-            snapshot,
-            null,
-            timeout,
-            tagsConditions,
-            cancellationToken,
-            new CallbackWithHeader<BlobTags, BlobGetTagsHeaders>() {
+    public void getBlobTags(@NonNull BlobGetTagsOptions options,
+                            @Nullable CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders> callback) {
+        Objects.requireNonNull(options);
+        ModelHelper.validateRequestConditions(options.getRequestConditions(), false, false, false, true);
+        BlobRequestConditions requestConditions = options.getRequestConditions() == null ? new BlobRequestConditions()
+            : options.getRequestConditions();
+
+        this.storageBlobServiceClient.getTags(options.getContainerName(), options.getBlobName(),
+            options.getSnapshot(), null, options.getTimeout(), requestConditions.getTagsConditions(),
+            options.getCancellationToken(), callback == null ? null
+                : new CallbackWithHeader<BlobTags, BlobGetTagsHeaders>() {
                 @Override
                 public void onSuccess(BlobTags result, BlobGetTagsHeaders header, Response response) {
                     callback.onSuccess(ModelHelper.populateBlobTags(result), header, response);
@@ -898,49 +848,40 @@ public class StorageBlobAsyncClient {
     }
 
     /**
-     * Changes a blob's tags. The specified tags in this method will replace existing tags. If old values
-     * must be preserved, they must be downloaded and included in the call to this method.
+     * Sets user defined tags. The specified tags in this method will replace existing tags. If old values must be
+     * preserved, they must be downloaded and included in the call to this method.
+     * <p>For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-tags">Azure Docs</a></p>
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @param tags          Tags to associate with the blob.
      * @param callback      Callback that receives the response.
      */
-    public void setBlobTags(String containerName,
-                            String blobName,
-                            Map<String, String> tags,
-                            CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
-        storageBlobServiceClient.setBlobTags(containerName, blobName, tags, callback);
+    public void setBlobTags(@NonNull String containerName, @NonNull String blobName, @Nullable Map<String, String> tags,
+                            @Nullable CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
+        this.setBlobTags(new BlobSetTagsOptions(containerName, blobName, tags), callback);
     }
 
     /**
-     * Changes a blob's tags. The specified tags in this method will replace existing tags. If old values
-     * must be preserved, they must be downloaded and included in the call to this method.
+     * Sets user defined tags. The specified tags in this method will replace existing tags. If old values must be
+     * preserved, they must be downloaded and included in the call to this method.
+     * <p>For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-tags">Azure Docs</a></p>
      *
-     * @param containerName     The container name.
-     * @param blobName          The blob name.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param tagsConditions    Specifies a SQL query to apply to the blob's tags.
-     * @param tags              Tags to associate with the blob.
-     * @param cancellationToken The token to request cancellation.
+     * @param options {@link BlobSetTagsOptions}
      * @param callback          Callback that receives the response.
      */
-    public void setBlobTags(String containerName,
-                            String blobName,
-                            Integer timeout,
-                            String tagsConditions, /*TODO: Should this be BlobRequestConditions? */
-                            Map<String, String> tags,
-                            CancellationToken cancellationToken,
-                            CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
-        storageBlobServiceClient.setBlobTags(containerName,
-            blobName,
-            timeout,
-            null, // TODO: Add back with versioning support
-            tagsConditions,
-            tags,
-            cancellationToken,
-            callback);
+    public void setBlobTags(@NonNull BlobSetTagsOptions options,
+                            @Nullable CallbackWithHeader<Void, BlobSetTagsHeaders> callback) {
+        Objects.requireNonNull(options);
+        ModelHelper.validateRequestConditions(options.getRequestConditions(), false, false, false, true);
+        BlobRequestConditions requestConditions = options.getRequestConditions() == null ? new BlobRequestConditions()
+            : options.getRequestConditions();
+
+        storageBlobServiceClient.setBlobTags(options.getContainerName(), options.getBlobName(),
+            options.getTimeout(), null, requestConditions.getTagsConditions(), options.getTags(),
+            options.getCancellationToken(), callback);
     }
 
     /**
