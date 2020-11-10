@@ -46,8 +46,11 @@ import com.azure.android.storage.blob.models.DeleteSnapshotsOptionType;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
-import com.azure.android.storage.blob.models.RehydratePriority;
 import com.azure.android.storage.blob.options.BlobGetPropertiesOptions;
+import com.azure.android.storage.blob.options.BlobRawDownloadOptions;
+import com.azure.android.storage.blob.options.BlobSetAccessTierOptions;
+import com.azure.android.storage.blob.options.BlobSetHttpHeadersOptions;
+import com.azure.android.storage.blob.options.BlobSetMetadataOptions;
 import com.azure.android.storage.blob.options.ContainerCreateOptions;
 import com.azure.android.storage.blob.options.ContainerDeleteOptions;
 import com.azure.android.storage.blob.options.ContainerGetPropertiesOptions;
@@ -256,8 +259,7 @@ public class StorageBlobClient {
      * @return The blob's metadata and properties
      */
     @NonNull
-    public BlobGetPropertiesHeaders getBlobProperties(@NonNull String containerName,
-                                                      @NonNull String blobName) {
+    public BlobGetPropertiesHeaders getBlobProperties(@NonNull String containerName, @NonNull String blobName) {
         return this.getBlobPropertiesWithResponse(new BlobGetPropertiesOptions(containerName, blobName))
             .getDeserializedHeaders();
     }
@@ -267,7 +269,7 @@ public class StorageBlobClient {
      * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob-properties">Azure Docs</a></p>.
      *
      * @param options {@link BlobGetPropertiesOptions}
-     * @return The response information returned from the server when downloading a blob.
+     * @return The response information returned from the server when getting a blob's properties.
      */
     @NonNull
     public BlobGetPropertiesResponse getBlobPropertiesWithResponse(@NonNull BlobGetPropertiesOptions options) {
@@ -285,150 +287,102 @@ public class StorageBlobClient {
      * @param blobName      The blob name.
      * @param headers       {@link BlobHttpHeaders}
      */
-    public Void setBlobHttpHeaders(String containerName,
-                                   String blobName,
-                                   BlobHttpHeaders headers) {
-        return storageBlobServiceClient.setBlobHttpHeaders(containerName, blobName, headers);
+    @Nullable
+    public Void setBlobHttpHeaders(@NonNull String containerName, @NonNull String blobName,
+                                   @Nullable BlobHttpHeaders headers) {
+        return this.setBlobHttpHeadersWithResponse(new BlobSetHttpHeadersOptions(containerName, blobName, headers))
+            .getValue();
     }
 
     /**
      * Changes a blob's HTTP header properties. If only one HTTP header is updated, the others will all be erased. In
      * order to preserve existing values, they must be passed alongside the header being changed.
      *
-     * @param containerName     The container name.
-     * @param blobName          The blob name.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestConditions {@link BlobRequestConditions}
-     * @param headers           {@link BlobHttpHeaders}
-     * @param cancellationToken The token to request cancellation.
-     * @return The response object.
+     * @param options {@link BlobSetHttpHeadersOptions}
+     * @return The response information returned from the server when setting a blob's http headers.
      */
-    public BlobSetHttpHeadersResponse setBlobHttpHeadersWithResponse(String containerName,
-                                                                     String blobName,
-                                                                     Integer timeout,
-                                                                     BlobRequestConditions requestConditions,
-                                                                     BlobHttpHeaders headers,
-                                                                     CancellationToken cancellationToken) {
-        return storageBlobServiceClient.setBlobHttpHeadersWithRestResponse(containerName,
-            blobName,
-            timeout,
-            requestConditions,
-            headers,
-            cancellationToken);
+    @NonNull
+    public BlobSetHttpHeadersResponse setBlobHttpHeadersWithResponse(@NonNull BlobSetHttpHeadersOptions options) {
+        Objects.requireNonNull(options);
+        return storageBlobServiceClient.setBlobHttpHeadersWithRestResponse(options.getContainerName(),
+            options.getBlobName(), options.getTimeout(), options.getRequestConditions(), options.getHeaders(),
+            options.getCancellationToken());
     }
 
     /**
      * Changes a blob's metadata. The specified metadata in this method will replace existing metadata. If old values
      * must be preserved, they must be downloaded and included in the call to this method.
+     * <p>For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-metadata">Azure Docs</a></p>
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @param metadata      Metadata to associate with the blob.
      */
-    public Void setBlobMetadata(String containerName,
-                                String blobName,
-                                Map<String, String> metadata) {
-        return storageBlobServiceClient.setBlobMetadata(containerName, blobName, metadata);
+    @Nullable
+    public Void setBlobMetadata(@NonNull String containerName, @NonNull String blobName,
+                                @Nullable Map<String, String> metadata) {
+        return this.setBlobMetadataWithResponse(new BlobSetMetadataOptions(containerName, blobName, metadata))
+            .getValue();
     }
 
     /**
      * Changes a blob's metadata. The specified metadata in this method will replace existing metadata. If old values
      * must be preserved, they must be downloaded and included in the call to this method.
+     * <p>For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-metadata">Azure Docs</a></p>
      *
-     * @param containerName     The container name.
-     * @param blobName          The blob name.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestConditions {@link BlobRequestConditions}
-     * @param metadata          Metadata to associate with the blob.
-     * @param cpkInfo           Additional parameters for the operation.
-     * @param cancellationToken The token to request cancellation.
+     * @param options {@link BlobSetMetadataOptions}
+     * @return The response information returned from the server when setting a blob's metadata.
      */
-    public BlobSetMetadataResponse setBlobMetadataWithResponse(String containerName,
-                                                               String blobName,
-                                                               Integer timeout,
-                                                               BlobRequestConditions requestConditions,
-                                                               Map<String, String> metadata,
-                                                               CpkInfo cpkInfo,
-                                                               CancellationToken cancellationToken) {
-        return storageBlobServiceClient.setBlobMetadataWithRestResponse(containerName,
-            blobName,
-            timeout,
-            requestConditions,
-            metadata,
-            cpkInfo,
-            cancellationToken);
+    @NonNull
+    public BlobSetMetadataResponse setBlobMetadataWithResponse(@NonNull BlobSetMetadataOptions options) {
+        return storageBlobServiceClient.setBlobMetadataWithRestResponse(options.getContainerName(),
+            options.getBlobName(), options.getTimeout(), options.getRequestConditions(), options.getMetadata(),
+            options.getCpkInfo(), options.getCancellationToken());
     }
 
+    /* TODO: (gapra) Should we remove everything related to PageBlobs here? */
     /**
-     * Sets the blob's tier.
+     * Sets the tier on a blob. The operation is allowed on a page blob in a premium storage account or a block blob in
+     * a blob storage or GPV2 account. A premium page blob's tier determines the allowed size, IOPS, and bandwidth of
+     * the blob. A block blob's tier determines the Hot/Cool/Archive storage type. This does not update the blob's
+     * etag.
+     * <p>For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-tier">Azure Docs</a></p>
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
      * @param tier          The access tier.
      */
-    public Void setBlobTier(String containerName,
-                            String blobName,
-                            AccessTier tier) {
-        return storageBlobServiceClient.setBlobTier(containerName, blobName, tier);
+    @Nullable
+    public Void setBlobAccessTier(@NonNull String containerName, @NonNull String blobName, @Nullable AccessTier tier) {
+        return this.setBlobAccessTierWithResponse(new BlobSetAccessTierOptions(containerName, blobName, tier))
+            .getValue();
     }
 
     /**
-     * Sets the blob's tier.
+     * Sets the tier on a blob. The operation is allowed on a page blob in a premium storage account or a block blob in
+     * a blob storage or GPV2 account. A premium page blob's tier determines the allowed size, IOPS, and bandwidth of
+     * the blob. A block blob's tier determines the Hot/Cool/Archive storage type. This does not update the blob's
+     * etag.
+     * <p>For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/set-blob-tier">Azure Docs</a></p>
      *
-     * @param containerName     The container name.
-     * @param blobName          The blob name.
-     * @param tier              The access tier.
-     * @param snapshot          The snapshot parameter is an opaque DateTime value that, when present, specifies
-     *                          the blob snapshot to retrieve. For more information on working with blob snapshots,
-     *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param rehydratePriority The rehydrate priority.
+     * @param options {@link BlobSetAccessTierOptions}
      * @return The response information returned from the server when setting a blob's access tier.
      */
-    public BlobSetTierResponse setBlobTierWithRestResponse(String containerName,
-                                                           String blobName,
-                                                           AccessTier tier,
-                                                           String snapshot,
-                                                           Integer timeout,
-                                                           RehydratePriority rehydratePriority,
-                                                           String leaseId,
-                                                           String tagsConditions,
-                                                           CancellationToken cancellationToken) {
+    @NonNull
+    public BlobSetTierResponse setBlobAccessTierWithResponse(@NonNull BlobSetAccessTierOptions options) {
+        Objects.requireNonNull(options);
+        ModelHelper.validateRequestConditions(options.getRequestConditions(), false, false, true, true);
+        BlobRequestConditions requestConditions = options.getRequestConditions() == null ? new BlobRequestConditions()
+            : options.getRequestConditions();
 
-        return storageBlobServiceClient.setBlobTierWithRestResponse(containerName,
-            blobName,
-            tier,
-            snapshot,
-            null,  /* TODO: (gapra) Add version id when there is support for STG73 */
-            timeout,
-            rehydratePriority,
-            leaseId,
-            tagsConditions,
-            cancellationToken);
-    }
-
-    /**
-     * Reads the entire blob.
-     *
-     * <p>
-     * This method will execute a raw HTTP GET in order to download a single blob to the destination.
-     * It is **STRONGLY** recommended that you use the {@link StorageBlobAsyncClient#download(Context, String, String, File)}
-     * or {@link StorageBlobAsyncClient#download(Context, String, String, Uri)} method instead - that method will
-     * manage the transfer in the face of changing network conditions, and is able to transfer multiple
-     * blocks in parallel.
-     * `
-     *
-     * @param containerName The container name.
-     * @param blobName      The blob name.
-     * @return The response containing the blob's bytes.
-     */
-    public ResponseBody rawDownload(String containerName,
-                                    String blobName) {
-        return storageBlobServiceClient.download(containerName,
-            blobName);
+        return storageBlobServiceClient.setBlobTierWithRestResponse(options.getContainerName(), options.getBlobName(),
+            options.getAccessTier(), options.getSnapshot(), null /*TODO: (gapra) VersionId?*/ , options.getTimeout(),
+            options.getRehydratePriority(), requestConditions.getLeaseId(), requestConditions.getTagsConditions(),
+            options.getCancellationToken());
     }
 
     /**
@@ -441,48 +395,44 @@ public class StorageBlobClient {
      * manage the transfer in the face of changing network conditions, and is able to transfer multiple
      * blocks in parallel.
      *
-     * @param containerName         The container name.
-     * @param blobName              The blob name.
-     * @param snapshot              The snapshot parameter is an opaque DateTime value that, when present, specifies
-     *                              the blob snapshot to retrieve. For more information on working with blob snapshots,
-     *                              see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/creating-a-snapshot-of-a-blob"&gt;Creating a Snapshot of a Blob.&lt;/a&gt;.
-     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
-     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param range                 Return only the bytes of the blob in the specified range.
-     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
-     *                              variety of requests to the conditions present. These conditions are entirely
-     *                              optional.
-     * @param getRangeContentMd5    When set to true and specified together with the Range, the service returns the
-     *                              MD5 hash for the range, as long as the range is less than or equal to 4 MB in size.
-     * @param getRangeContentCrc64  When set to true and specified together with the Range, the service returns the
-     *                              CRC64 hash for the range, as long as the range is less than or equal to 4 MB in size.
-     * @param cpkInfo               Additional parameters for the operation.
-     * @param cancellationToken     The token to request cancellation.
+     * <p>For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob">Azure Docs</a></p>
+     *
+     * @param containerName The container name.
+     * @param blobName      The blob name.
+     * @return The response containing the blob's bytes.
+     */
+    @NonNull
+    public ResponseBody rawDownload(@NonNull String containerName,
+                                    @NonNull String blobName) {
+        return this.rawDownloadWithResponse(new BlobRawDownloadOptions(containerName, blobName)).getValue();
+    }
+
+    /**
+     * Reads a range of bytes from a blob.
+     *
+     * <p>
+     * This method will execute a raw HTTP GET in order to download a single blob to the destination.
+     * It is **STRONGLY** recommended that you use the {@link StorageBlobAsyncClient#download(Context, String, String, File)}
+     * or {@link StorageBlobAsyncClient#download(Context, String, String, Uri)} method instead - that method will
+     * manage the transfer in the face of changing network conditions, and is able to transfer multiple
+     * blocks in parallel.
+     *
+     * <p>For more information, see the
+     * <a href="https://docs.microsoft.com/en-us/rest/api/storageservices/get-blob">Azure Docs</a></p>
+     *
+     * @param options {@link BlobRawDownloadOptions}
      * @return The response information returned from the server when downloading a blob.
      */
-    public BlobDownloadResponse rawDownloadWithRestResponse(String containerName,
-                                                            String blobName,
-                                                            String snapshot,
-                                                            Integer timeout,
-                                                            BlobRange range,
-                                                            BlobRequestConditions blobRequestConditions,
-                                                            Boolean getRangeContentMd5,
-                                                            Boolean getRangeContentCrc64,
-                                                            CpkInfo cpkInfo,
-                                                            CancellationToken cancellationToken) {
-        range = range == null ? new BlobRange(0) : range;
-        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
+    @NonNull
+    public BlobDownloadResponse rawDownloadWithResponse(@NonNull BlobRawDownloadOptions options) {
+        Objects.requireNonNull(options);
+        BlobRange range = options.getRange() == null ? new BlobRange(0) : options.getRange();
 
-        return storageBlobServiceClient.downloadWithRestResponse(containerName,
-            blobName,
-            snapshot,
-            timeout,
-            range.toHeaderValue(),
-            getRangeContentMd5,
-            getRangeContentCrc64,
-            blobRequestConditions,
-            cpkInfo,
-            cancellationToken);
+        return storageBlobServiceClient.downloadWithRestResponse(options.getContainerName(), options.getBlobName(),
+            options.getSnapshot(), options.getTimeout(), range.toHeaderValue(), options.isRetrieveContentRangeMd5(),
+            options.isRetrieveContentRangeCrc64(), options.getRequestConditions(), options.getCpkInfo(),
+            options.getCancellationToken());
     }
 
     /**

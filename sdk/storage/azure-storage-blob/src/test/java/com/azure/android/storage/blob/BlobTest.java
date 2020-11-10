@@ -566,7 +566,7 @@ public class BlobTest {
     @Test
     public void rawDownloadValues() throws IOException {
         // When
-        BlobDownloadResponse response = syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, null, null, null, null, null, null);
+        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(containerName, blobName, null, null, null, null, null, null, null, null);
 
         // Then
         assertArrayEquals(getDefaultData(), response.getValue().bytes());
@@ -604,7 +604,7 @@ public class BlobTest {
         syncClient.commitBlockList(containerName, blobName, new ArrayList<>(), false);
 
         // When
-        BlobDownloadResponse response = syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, null, null, null, null, null, null);
+        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(containerName, blobName, null, null, null, null, null, null, null, null);
 
         // Then
         assertEquals("", response.getValue().string());
@@ -620,7 +620,7 @@ public class BlobTest {
         BlobRange range = count == null ? new BlobRange(offset) : new BlobRange(offset, count);
 
         // When
-        BlobDownloadResponse response = syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, range, null, null,  null, null, null);
+        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(containerName, blobName, null, null, range, null, null,  null, null, null);
 
         // Then
         assertEquals(expectedData, response.getValue().string());
@@ -641,7 +641,7 @@ public class BlobTest {
             .setTagsConditions(tagsCondition);
 
         // When
-        BlobDownloadResponse response = syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, null, requestConditions, null, null, null, null);
+        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(containerName, blobName, null, null, null, requestConditions, null, null, null, null);
 
         // Then
         assertEquals(200, response.getStatusCode());
@@ -661,7 +661,7 @@ public class BlobTest {
 
         // When
         BlobStorageException ex = assertThrows(BlobStorageException.class,
-            () -> syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, null, requestConditions, null, null, null, null));
+            () -> syncClient.rawDownloadWithResponse(containerName, blobName, null, null, null, requestConditions, null, null, null, null));
 
         // Then
         assertTrue(ex.getStatusCode() == 304 || ex.getStatusCode() == 412);
@@ -670,7 +670,7 @@ public class BlobTest {
     @Test
     public void rawDownloadMd5() throws IOException, NoSuchAlgorithmException {
         // When
-        BlobDownloadResponse response = syncClient.rawDownloadWithRestResponse(containerName, blobName, null, null, new BlobRange(0L, 3L), null, true, null, null, null);
+        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(containerName, blobName, null, null, new BlobRange(0L, 3L), null, true, null, null, null);
 
         // Then
         assertEquals(getDefaultString().substring(0, 3), response.getValue().string());
@@ -837,7 +837,7 @@ public class BlobTest {
     @UseDataProvider("tierBlockBlob")
     public void setBlobTierBlockBlob(AccessTier tier) {
         // When
-        BlobSetTierResponse response = syncClient.setBlobTierWithRestResponse(containerName, blobName, tier, null, null, null, null, null, null);
+        BlobSetTierResponse response = syncClient.setBlobAccessTierWithResponse(containerName, blobName, tier, null, null, null, null, null, null);
 
         // Then
         assertTrue(response.getStatusCode() == 200 || response.getStatusCode() == 202);
@@ -854,7 +854,7 @@ public class BlobTest {
     @Test
     public void setBlobTierMin() {
         // When
-        Void response = syncClient.setBlobTier(containerName, blobName, AccessTier.HOT);
+        Void response = syncClient.setBlobAccessTier(containerName, blobName, AccessTier.HOT);
 
         // Then
         BlobGetPropertiesHeaders getProperties = syncClient.getBlobProperties(containerName, blobName);
@@ -868,7 +868,7 @@ public class BlobTest {
         Boolean listBlobsInferredBefore = syncClient.getBlobsInPage(null, containerName, null).getItems().get(0).getProperties().isAccessTierInferred();
 
         // When
-        syncClient.setBlobTier(containerName, blobName, AccessTier.HOT);
+        syncClient.setBlobAccessTier(containerName, blobName, AccessTier.HOT);
         Boolean getPropertiesInferredAfter = syncClient.getBlobProperties(containerName, blobName).isAccessTierInferred();
         Boolean listBlobsInferredAfter = syncClient.getBlobsInPage(null, containerName, null).getItems().get(0).getProperties().isAccessTierInferred();
 
@@ -884,8 +884,8 @@ public class BlobTest {
     @UseDataProvider("tierArchiveStatus")
     public void setBlobTierArchiveStatus(AccessTier sourceTier, AccessTier destTier, ArchiveStatus status) {
         // When
-        syncClient.setBlobTier(containerName, blobName, sourceTier);
-        syncClient.setBlobTier(containerName, blobName, destTier);
+        syncClient.setBlobAccessTier(containerName, blobName, sourceTier);
+        syncClient.setBlobAccessTier(containerName, blobName, destTier);
 
         // Then
         BlobGetPropertiesHeaders getProperties = syncClient.getBlobProperties(containerName, blobName);
@@ -903,7 +903,7 @@ public class BlobTest {
     public void setBlobTierIA() {
         // Expect
         NullPointerException ex = assertThrows(NullPointerException.class,
-            () -> syncClient.setBlobTier(containerName, blobName, null));
+            () -> syncClient.setBlobAccessTier(containerName, blobName, null));
     }
 
     // Set tier lease
@@ -916,7 +916,7 @@ public class BlobTest {
         setupTagsCondition(syncClient, containerName, blobName);
 
         // Expect
-        assertEquals(200, syncClient.setBlobTierWithRestResponse(containerName, blobName, AccessTier.HOT, null, null, null, null, correctTagsCondition,
+        assertEquals(200, syncClient.setBlobAccessTierWithResponse(containerName, blobName, AccessTier.HOT, null, null, null, null, correctTagsCondition,
             null).getStatusCode());
     }
 
@@ -924,7 +924,7 @@ public class BlobTest {
     public void setBlobTierACFail() {
         // Expect
         assertThrows(BlobStorageException.class,
-            () -> syncClient.setBlobTierWithRestResponse(containerName, blobName, AccessTier.HOT, null, null, null, null, garbageTagsCondition, null));
+            () -> syncClient.setBlobAccessTierWithResponse(containerName, blobName, AccessTier.HOT, null, null, null, null, garbageTagsCondition, null));
     }
 
     @Test
@@ -934,7 +934,7 @@ public class BlobTest {
 
         // When
         BlobStorageException ex = assertThrows(BlobStorageException.class,
-            () -> syncClient.setBlobTier(containerName, blobName, AccessTier.HOT));
+            () -> syncClient.setBlobAccessTier(containerName, blobName, AccessTier.HOT));
 
         // Then
         assertEquals(404, ex.getStatusCode());
@@ -946,7 +946,7 @@ public class BlobTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // When
-        asyncClient.setBlobTier(containerName, blobName, AccessTier.HOT, new CallbackWithHeader<Void, BlobSetTierHeaders>() {
+        asyncClient.setBlobAccessTier(containerName, blobName, AccessTier.HOT, new CallbackWithHeader<Void, BlobSetTierHeaders>() {
             @Override
             public void onSuccess(Void result, BlobSetTierHeaders header, Response response) {
                 assertEquals(200, response.code());

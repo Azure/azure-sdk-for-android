@@ -741,7 +741,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response without body and status code 202 will be returned by the server.
-        Void response = storageBlobClient.setBlobTier("container",
+        Void response = storageBlobClient.setBlobAccessTier("container",
             "blob", AccessTier.HOT);
 
         assertNull(response);
@@ -759,7 +759,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.setBlobTier("container",
+        storageBlobAsyncClient.setBlobAccessTier("container",
             "blob",
             AccessTier.HOT,
             new CallbackWithHeader<Void, BlobSetTierHeaders>() {
@@ -798,7 +798,7 @@ public class StorageBlobClientTest {
 
         // Then a response without body and status code 202 will be returned by the server.
         BlobSetTierResponse response =
-            storageBlobClient.setBlobTierWithRestResponse("container",
+            storageBlobClient.setBlobAccessTierWithResponse("container",
                 "blob",
                 AccessTier.HOT,
                 null,
@@ -823,7 +823,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.setBlobTier("container",
+        storageBlobAsyncClient.setBlobAccessTier("container",
             "blob",
             AccessTier.HOT,
             null,
@@ -928,7 +928,7 @@ public class StorageBlobClientTest {
 
         // Then an object with the blob's contents will be returned by the client, including its properties and
         // details from the REST response.
-        BlobDownloadResponse response = storageBlobClient.rawDownloadWithRestResponse("testContainer",
+        BlobDownloadResponse response = storageBlobClient.rawDownloadWithResponse("testContainer",
             "testBlob",
             null,
             null,
