@@ -13,8 +13,14 @@
 # PRLabel: %Communication
 /sdk/communication/                                 @RezaJooyandeh @JianpingChen
 
+# PRLabel: %Azure.Core
 /sdk/core/                                          @bsiegel @vcolin7 @anuchandy
+
+# PRLabel: %Storage
 /sdk/storage/                                       @bsiegel @vcolin7 @anuchandy
+
+# PRLabel: %EngSys
+/sdk/template/                                      @Azure/azure-sdk-eng
 
 ###########
 # Eng Sys
