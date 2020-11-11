@@ -45,7 +45,6 @@ import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
 import com.azure.android.storage.blob.models.ContainerCreateHeaders;
 import com.azure.android.storage.blob.models.ContainerDeleteHeaders;
 import com.azure.android.storage.blob.models.ContainerGetPropertiesHeaders;
-import com.azure.android.storage.blob.models.CpkInfo;
 import com.azure.android.storage.blob.models.ListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
@@ -58,6 +57,8 @@ import com.azure.android.storage.blob.options.BlobSetAccessTierOptions;
 import com.azure.android.storage.blob.options.BlobSetHttpHeadersOptions;
 import com.azure.android.storage.blob.options.BlobSetMetadataOptions;
 import com.azure.android.storage.blob.options.BlobSetTagsOptions;
+import com.azure.android.storage.blob.options.BlockBlobCommitBlockListOptions;
+import com.azure.android.storage.blob.options.BlockBlobStageBlockOptions;
 import com.azure.android.storage.blob.options.ContainerCreateOptions;
 import com.azure.android.storage.blob.options.ContainerDeleteOptions;
 import com.azure.android.storage.blob.options.ContainerGetPropertiesOptions;
@@ -622,7 +623,10 @@ public class StorageBlobAsyncClient {
     }
 
     /**
-     * Creates a new block to be committed as part of a blob.
+     * Uploads the specified block to the block blob's "staging area" to be later committed by a call to
+     * commitBlockList.
+     * <p>For more information, see the
+     * <a href="https://docs.microsoft.com/rest/api/storageservices/put-block">Azure Docs</a>.</p>
      *
      * @param containerName The container name.
      * @param blobName      The blob name.
@@ -633,63 +637,33 @@ public class StorageBlobAsyncClient {
      * @param contentMd5    The transactional MD5 for the body, to be validated by the service.
      * @param callback      Callback that receives the response.
      */
-    public void stageBlock(String containerName,
-                           String blobName,
-                           String base64BlockId,
-                           byte[] blockContent,
-                           byte[] contentMd5,
-                           CallbackWithHeader<Void, BlockBlobStageBlockHeaders> callback) {
-        this.storageBlobServiceClient.stageBlock(containerName,
-            blobName,
-            base64BlockId,
-            blockContent,
-            contentMd5,
-            callback);
+    public void stageBlock(@NonNull String containerName, @NonNull String blobName, @NonNull String base64BlockId,
+                           @NonNull byte[] blockContent, @Nullable byte[] contentMd5,
+                           @Nullable CallbackWithHeader<Void, BlockBlobStageBlockHeaders> callback) {
+        this.stageBlock(new BlockBlobStageBlockOptions(containerName, blobName, base64BlockId, blockContent)
+            .setContentMd5(contentMd5), callback);
     }
 
     /**
-     * Creates a new block to be committed as part of a blob.
+     * Uploads the specified block to the block blob's "staging area" to be later committed by a call to
+     * commitBlockList.
+     * <p>For more information, see the
+     * <a href="https://docs.microsoft.com/rest/api/storageservices/put-block">Azure Docs</a>.</p>
      *
-     * @param containerName     The container name.
-     * @param blobName          The blob name.
-     * @param base64BlockId     A valid Base64 string value that identifies the block. Prior to encoding, the string must
-     *                          be less than or equal to 64 bytes in size. For a given blob, the length of the value specified
-     *                          for the base64BlockId parameter must be the same size for each block.
-     * @param blockContent      The block content in bytes.
-     * @param contentMd5        The transactional MD5 for the block content, to be validated by the service.
-     * @param contentCrc64      Specify the transactional crc64 for the block content, to be validated by the service.
-     * @param computeMd5        Whether or not the library should calculate the md5 and send it for the service to verify.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information,
-     *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param leaseId           If specified, the staging only succeeds if the resource's lease is active and matches this ID.
-     * @param cpkInfo           Additional parameters for the operation.
-     * @param cancellationToken The token to request cancellation.
+     * @param options {@link BlockBlobStageBlockOptions}
      * @param callback          Callback that receives the response.
      */
-    public void stageBlock(String containerName,
-                           String blobName,
-                           String base64BlockId,
-                           byte[] blockContent,
-                           byte[] contentMd5,
-                           byte[] contentCrc64,
-                           Boolean computeMd5,
-                           Integer timeout,
-                           String leaseId,
-                           CpkInfo cpkInfo,
-                           CancellationToken cancellationToken,
-                           CallbackWithHeader<Void, BlockBlobStageBlockHeaders> callback) {
-        this.storageBlobServiceClient.stageBlock(containerName,
-            blobName,
-            base64BlockId,
-            blockContent,
-            contentMd5,
-            contentCrc64,
-            computeMd5,
-            timeout,
-            leaseId,
-            cpkInfo,
-            cancellationToken,
-            callback);
+    public void stageBlock(@NonNull BlockBlobStageBlockOptions options,
+                           @Nullable CallbackWithHeader<Void, BlockBlobStageBlockHeaders> callback) {
+        Objects.requireNonNull(options);
+        ModelHelper.validateRequestConditions(options.getRequestConditions(), false, false, true, false);
+        BlobRequestConditions requestConditions = options.getRequestConditions() == null ? new BlobRequestConditions()
+            : options.getRequestConditions();
+
+        this.storageBlobServiceClient.stageBlock(options.getContainerName(), options.getBlobName(),
+            options.getBase64BlockId(), options.getData(), options.getContentMd5(), options.getContentCrc64(),
+            options.isComputeMd5(), options.getTimeout(), requestConditions.getLeaseId(), options.getCpkInfo(),
+            options.getCancellationToken(), callback);
     }
 
     /**
@@ -707,16 +681,15 @@ public class StorageBlobAsyncClient {
      * @param overwrite      Indicate whether to overwrite the block list if already exists.
      * @param callback       Callback that receives the response.
      */
-    public void commitBlockList(String containerName,
-                                String blobName,
-                                List<String> base64BlockIds,
-                                boolean overwrite,
-                                CallbackWithHeader<BlockBlobItem, BlockBlobCommitBlockListHeaders> callback) {
-        this.storageBlobServiceClient.commitBlockList(containerName,
-            blobName,
-            base64BlockIds,
-            overwrite,
-            callback);
+    public void commitBlockList(@NonNull String containerName, @NonNull String blobName,
+                                @Nullable List<String> base64BlockIds, boolean overwrite,
+                                @Nullable CallbackWithHeader<BlockBlobItem, BlockBlobCommitBlockListHeaders> callback) {
+        BlobRequestConditions requestConditions = null;
+        if (!overwrite) {
+            requestConditions = new BlobRequestConditions().setIfNoneMatch("*");
+        }
+        this.commitBlockList(new BlockBlobCommitBlockListOptions(containerName, blobName, base64BlockIds)
+                .setRequestConditions(requestConditions), callback);
     }
 
     /**
@@ -727,47 +700,16 @@ public class StorageBlobAsyncClient {
      * blocks together. You can do this by specifying whether to commit a block from the committed block list or from
      * the uncommitted block list, or to commit the most recently uploaded version of the block, whichever list it may belong to.
      *
-     * @param containerName     The container name.
-     * @param blobName          The blob name.
-     * @param base64BlockIds    The block IDs.
-     * @param contentMD5        Specify the transactional md5 for the body, to be validated by the service.
-     * @param contentCrc64      Specify the transactional crc64 for the body, to be validated by the service.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information,
-     *                          see &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param blobHttpHeaders   Additional Http headers for this operation.
-     * @param metadata          Specifies a user-defined name-value pair associated with the blob.
-     * @param requestConditions {@link BlobRequestConditions}.
-     * @param cpkInfo           Additional parameters for the operation.
-     * @param tier              Indicates the tier to be set on the blob.
-     * @param cancellationToken The token to request cancellation.
-     * @param callback          Callback that receives the response.
+     * @param options {@link BlockBlobCommitBlockListOptions}
+     * @param callback Callback that receives the response.
      */
-    public void commitBlockList(String containerName,
-                                String blobName,
-                                List<String> base64BlockIds,
-                                byte[] contentMD5,
-                                byte[] contentCrc64,
-                                Integer timeout,
-                                BlobHttpHeaders blobHttpHeaders,
-                                Map<String, String> metadata,
-                                BlobRequestConditions requestConditions,
-                                CpkInfo cpkInfo,
-                                AccessTier tier,
-                                CancellationToken cancellationToken,
-                                CallbackWithHeader<BlockBlobItem, BlockBlobCommitBlockListHeaders> callback) {
-        this.storageBlobServiceClient.commitBlockList(containerName,
-            blobName,
-            base64BlockIds,
-            contentMD5,
-            contentCrc64,
-            timeout,
-            blobHttpHeaders,
-            metadata,
-            requestConditions,
-            cpkInfo,
-            tier,
-            cancellationToken,
-            callback);
+    public void commitBlockList(@NonNull BlockBlobCommitBlockListOptions options,
+                                @Nullable CallbackWithHeader<BlockBlobItem, BlockBlobCommitBlockListHeaders> callback) {
+        Objects.requireNonNull(options);
+        this.storageBlobServiceClient.commitBlockList(options.getContainerName(),
+            options.getBlobName(), options.getBase64BlockIds(), options.getContentMd5(), options.getContentCrc64(),
+            options.getTimeout(), options.getHeaders(), options.getMetadata(), options.getRequestConditions(),
+            options.getCpkInfo(), options.getAccessTier(), options.getCancellationToken(), callback);
     }
 
     /**
@@ -781,7 +723,7 @@ public class StorageBlobAsyncClient {
      */
     public void deleteBlob(@NonNull String containerName, @NonNull String blobName,
                            @Nullable CallbackWithHeader<Void, BlobDeleteHeaders> callback) {
-        this.deleteBlob(containerName, blobName, callback);
+        this.deleteBlob(new BlobDeleteOptions(containerName, blobName), callback);
     }
 
     /**

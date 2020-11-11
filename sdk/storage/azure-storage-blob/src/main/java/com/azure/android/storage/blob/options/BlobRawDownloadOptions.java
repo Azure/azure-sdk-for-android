@@ -151,7 +151,7 @@ public class BlobRawDownloadOptions {
     }
 
     /**
-     * @return Whether the CRC-64 hash for the specified blob range should be returned.
+     * @return Whether the CRC64 hash for the specified blob range should be returned.
      */
     @Nullable
     public Boolean isRetrieveContentRangeCrc64() {
@@ -159,7 +159,7 @@ public class BlobRawDownloadOptions {
     }
 
     /**
-     * @param retrieveContentRangeCrc64 Whether the CRC-64 hash for the specified blob range should be returned.
+     * @param retrieveContentRangeCrc64 Whether the CRC64 hash for the specified blob range should be returned.
      * @return The updated options.
      */
     @NonNull

@@ -18,6 +18,7 @@ import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlobDownloadHeaders;
 import com.azure.android.storage.blob.models.BlobRange;
+import com.azure.android.storage.blob.options.BlobRawDownloadOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -290,16 +291,9 @@ final class DownloadHandler extends Handler {
 
             Log.v(TAG, "downloadBlob(): Downloading block: " + block.blockId + getThreadName());
 
-            blobClient.rawDownload(blob.containerName,
-                blob.blobName,
-                null,
-                null,
-                new BlobRange(block.blockOffset, block.blockSize),
-                null,
-                null,
-                null,
-                null,
-                this.cancellationToken,
+            blobClient.rawDownload(new BlobRawDownloadOptions(blob.containerName, blob.blobName)
+                    .setRange(new BlobRange(block.blockOffset, block.blockOffset))
+                    .setCancellationToken(cancellationToken),
                 new CallbackWithHeader<ResponseBody, BlobDownloadHeaders>() {
                     @Override
                     public void onSuccess(ResponseBody result, BlobDownloadHeaders header, Response response) {

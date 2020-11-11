@@ -26,7 +26,14 @@ import com.azure.android.storage.blob.models.BlobStorageException;
 import com.azure.android.storage.blob.models.BlobType;
 import com.azure.android.storage.blob.models.LeaseStateType;
 import com.azure.android.storage.blob.models.LeaseStatusType;
+import com.azure.android.storage.blob.options.BlobDeleteOptions;
 import com.azure.android.storage.blob.options.BlobGetPropertiesOptions;
+import com.azure.android.storage.blob.options.BlobGetTagsOptions;
+import com.azure.android.storage.blob.options.BlobRawDownloadOptions;
+import com.azure.android.storage.blob.options.BlobSetAccessTierOptions;
+import com.azure.android.storage.blob.options.BlobSetHttpHeadersOptions;
+import com.azure.android.storage.blob.options.BlobSetMetadataOptions;
+import com.azure.android.storage.blob.options.BlobSetTagsOptions;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -339,7 +346,7 @@ public class BlobTest {
     public void setHttpHeadersAllNull() {
         // When
         BlobSetHttpHeadersResponse response =
-            syncClient.setBlobHttpHeadersWithResponse(containerName, blobName, null, null, null, null);
+            syncClient.setBlobHttpHeadersWithResponse(new BlobSetHttpHeadersOptions(containerName, blobName, null));
 
         // Then
         assertEquals(200, response.getStatusCode());
@@ -360,7 +367,7 @@ public class BlobTest {
 
         // When
         BlobSetHttpHeadersResponse response =
-            syncClient.setBlobHttpHeadersWithResponse(containerName, blobName, null, null, headers, null);
+            syncClient.setBlobHttpHeadersWithResponse(new BlobSetHttpHeadersOptions(containerName, blobName, headers));
 
         // Then
         validateBasicHeaders(response.getHeaders());
@@ -386,8 +393,7 @@ public class BlobTest {
             .setTagsConditions(tagsCondition);
 
         // Expect
-        assertEquals(200, syncClient.setBlobHttpHeadersWithResponse(containerName, blobName, null, requestConditions,
-            null, null).getStatusCode());
+        assertEquals(200, syncClient.setBlobHttpHeadersWithResponse(new BlobSetHttpHeadersOptions(containerName, blobName, null).setRequestConditions(requestConditions)).getStatusCode());
     }
 
     @Test
@@ -404,8 +410,7 @@ public class BlobTest {
 
         // Expect
         assertThrows(BlobStorageException.class,
-            () -> syncClient.setBlobHttpHeadersWithResponse(containerName, blobName, null, requestConditions, null,
-                null));
+            () -> syncClient.setBlobHttpHeadersWithResponse(new BlobSetHttpHeadersOptions(containerName, blobName, null).setRequestConditions(requestConditions)));
     }
 
     @Test
@@ -414,8 +419,8 @@ public class BlobTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // When
-        asyncClient.setBlobHttpHeaders(containerName, blobName, null, null,
-            null, null, new CallbackWithHeader<Void, BlobSetHttpHeadersHeaders>() {
+        asyncClient.setBlobHttpHeaders(new BlobSetHttpHeadersOptions(containerName, blobName, null),
+            new CallbackWithHeader<Void, BlobSetHttpHeadersHeaders>() {
                 @Override
                 public void onSuccess(Void result, BlobSetHttpHeadersHeaders header, Response response) {
                     assertEquals(200, response.code());
@@ -454,7 +459,7 @@ public class BlobTest {
     public void setMetadataAllNull() {
         // When
         BlobSetMetadataResponse response =
-            syncClient.setBlobMetadataWithResponse(containerName, blobName, null, null, null, null, null);
+            syncClient.setBlobMetadataWithResponse(new BlobSetMetadataOptions(containerName, blobName, null));
 
         // Then
         assertEquals(0, syncClient.getBlobProperties(containerName, blobName).getMetadata().size());
@@ -477,8 +482,7 @@ public class BlobTest {
 
         // When
         BlobSetMetadataResponse response =
-            syncClient.setBlobMetadataWithResponse(containerName, blobName, null, null, metadata, null,
-                null);
+            syncClient.setBlobMetadataWithResponse(new BlobSetMetadataOptions(containerName, blobName, metadata));
 
         // Then
         validateBasicHeaders(response.getHeaders());
@@ -503,8 +507,7 @@ public class BlobTest {
             .setTagsConditions(tagsCondition);
 
         // Expect
-        assertEquals(200, syncClient.setBlobMetadataWithResponse(containerName, blobName, null, requestConditions,
-            null, null, null).getStatusCode());
+        assertEquals(200, syncClient.setBlobMetadataWithResponse(new BlobSetMetadataOptions(containerName, blobName, null).setRequestConditions(requestConditions)).getStatusCode());
     }
 
     @Test
@@ -521,8 +524,7 @@ public class BlobTest {
 
         // Expect
         assertThrows(BlobStorageException.class,
-            () -> syncClient.setBlobMetadataWithResponse(containerName, blobName, null, requestConditions, null,
-                null, null));
+            () -> syncClient.setBlobMetadataWithResponse(new BlobSetMetadataOptions(containerName, blobName, null).setRequestConditions(requestConditions)));
     }
 
     @Test
@@ -531,8 +533,8 @@ public class BlobTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // When
-        asyncClient.setBlobMetadata(containerName, blobName, null, null, null,
-            null, null, new CallbackWithHeader<Void, BlobSetMetadataHeaders>() {
+        asyncClient.setBlobMetadata(new BlobSetMetadataOptions(containerName, blobName, null),
+            new CallbackWithHeader<Void, BlobSetMetadataHeaders>() {
                 @Override
                 public void onSuccess(Void result, BlobSetMetadataHeaders header, Response response) {
                     assertEquals(200, response.code());
@@ -566,7 +568,7 @@ public class BlobTest {
     @Test
     public void rawDownloadValues() throws IOException {
         // When
-        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(containerName, blobName, null, null, null, null, null, null, null, null);
+        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(new BlobRawDownloadOptions(containerName, blobName));
 
         // Then
         assertArrayEquals(getDefaultData(), response.getValue().bytes());
@@ -604,7 +606,7 @@ public class BlobTest {
         syncClient.commitBlockList(containerName, blobName, new ArrayList<>(), false);
 
         // When
-        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(containerName, blobName, null, null, null, null, null, null, null, null);
+        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(new BlobRawDownloadOptions(containerName, blobName));
 
         // Then
         assertEquals("", response.getValue().string());
@@ -620,7 +622,7 @@ public class BlobTest {
         BlobRange range = count == null ? new BlobRange(offset) : new BlobRange(offset, count);
 
         // When
-        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(containerName, blobName, null, null, range, null, null,  null, null, null);
+        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(new BlobRawDownloadOptions(containerName, blobName).setRange(range));
 
         // Then
         assertEquals(expectedData, response.getValue().string());
@@ -641,7 +643,7 @@ public class BlobTest {
             .setTagsConditions(tagsCondition);
 
         // When
-        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(containerName, blobName, null, null, null, requestConditions, null, null, null, null);
+        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(new BlobRawDownloadOptions(containerName, blobName).setRequestConditions(requestConditions));
 
         // Then
         assertEquals(200, response.getStatusCode());
@@ -661,7 +663,7 @@ public class BlobTest {
 
         // When
         BlobStorageException ex = assertThrows(BlobStorageException.class,
-            () -> syncClient.rawDownloadWithResponse(containerName, blobName, null, null, null, requestConditions, null, null, null, null));
+            () -> syncClient.rawDownloadWithResponse(new BlobRawDownloadOptions(containerName, blobName).setRequestConditions(requestConditions)));
 
         // Then
         assertTrue(ex.getStatusCode() == 304 || ex.getStatusCode() == 412);
@@ -670,7 +672,7 @@ public class BlobTest {
     @Test
     public void rawDownloadMd5() throws IOException, NoSuchAlgorithmException {
         // When
-        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(containerName, blobName, null, null, new BlobRange(0L, 3L), null, true, null, null, null);
+        BlobDownloadResponse response = syncClient.rawDownloadWithResponse(new BlobRawDownloadOptions(containerName, blobName).setRange(new BlobRange(0L, 3L)).setRetrieveContentRangeMd5(true));
 
         // Then
         assertEquals(getDefaultString().substring(0, 3), response.getValue().string());
@@ -742,7 +744,7 @@ public class BlobTest {
     @Test
     public void delete() {
         // When
-        BlobDeleteResponse response = syncClient.deleteBlobWithResponse(containerName, blobName, null, null, null, null, null);
+        BlobDeleteResponse response = syncClient.deleteBlobWithResponse(new BlobDeleteOptions(containerName, blobName));
 
         // Then
         assertEquals(202, response.getStatusCode());
@@ -768,7 +770,7 @@ public class BlobTest {
             .setTagsConditions(tagsCondition);
 
         // When
-        BlobDeleteResponse response = syncClient.deleteBlobWithResponse(containerName, blobName, null, null ,null, requestConditions, null);
+        BlobDeleteResponse response = syncClient.deleteBlobWithResponse(new BlobDeleteOptions(containerName, blobName).setRequestConditions(requestConditions));
 
         // Then
         assertEquals(202, response.getStatusCode());
@@ -788,7 +790,7 @@ public class BlobTest {
 
         // When
         BlobStorageException ex = assertThrows(BlobStorageException.class,
-            () -> syncClient.deleteBlobWithResponse(containerName, blobName, null, null ,null, requestConditions, null));
+            () -> syncClient.deleteBlobWithResponse(new BlobDeleteOptions(containerName, blobName).setRequestConditions(requestConditions)));
 
         // Then
         assertEquals(412, ex.getStatusCode());
@@ -837,7 +839,7 @@ public class BlobTest {
     @UseDataProvider("tierBlockBlob")
     public void setBlobTierBlockBlob(AccessTier tier) {
         // When
-        BlobSetTierResponse response = syncClient.setBlobAccessTierWithResponse(containerName, blobName, tier, null, null, null, null, null, null);
+        BlobSetTierResponse response = syncClient.setBlobAccessTierWithResponse(new BlobSetAccessTierOptions(containerName, blobName, tier));
 
         // Then
         assertTrue(response.getStatusCode() == 200 || response.getStatusCode() == 202);
@@ -914,17 +916,22 @@ public class BlobTest {
     public void setBlobTierAC() {
         // Setup
         setupTagsCondition(syncClient, containerName, blobName);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setTagsConditions(correctTagsCondition);
 
         // Expect
-        assertEquals(200, syncClient.setBlobAccessTierWithResponse(containerName, blobName, AccessTier.HOT, null, null, null, null, correctTagsCondition,
-            null).getStatusCode());
+        assertEquals(200, syncClient.setBlobAccessTierWithResponse(new BlobSetAccessTierOptions(containerName, blobName, AccessTier.HOT).setRequestConditions(requestConditions)).getStatusCode());
     }
 
     @Test
     public void setBlobTierACFail() {
+        // Setup
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setTagsConditions(garbageTagsCondition);
+
         // Expect
         assertThrows(BlobStorageException.class,
-            () -> syncClient.setBlobAccessTierWithResponse(containerName, blobName, AccessTier.HOT, null, null, null, null, garbageTagsCondition, null));
+            () -> syncClient.setBlobAccessTierWithResponse(new BlobSetAccessTierOptions(containerName, blobName, AccessTier.HOT).setRequestConditions(requestConditions)));
     }
 
     @Test
@@ -985,7 +992,7 @@ public class BlobTest {
     public void setTagsAllNull() {
         // When
         BlobSetTagsResponse response =
-            syncClient.setBlobTagsWithResponse(containerName, blobName, null, null, null, null);
+            syncClient.setBlobTagsWithResponse(new BlobSetTagsOptions(containerName, blobName, null));
 
         // Then
         assertEquals(0, syncClient.getBlobProperties(containerName, blobName).getMetadata().size());
@@ -1009,7 +1016,7 @@ public class BlobTest {
 
         // When
         BlobSetTagsResponse response =
-            syncClient.setBlobTagsWithResponse(containerName, blobName, null, null,  tags, null);
+            syncClient.setBlobTagsWithResponse(new BlobSetTagsOptions(containerName, blobName, tags));
 
         // Then
         Map<String, String> tagsResponse = syncClient.getBlobTags(containerName, blobName);
@@ -1025,10 +1032,11 @@ public class BlobTest {
         setupTagsCondition(syncClient, containerName, blobName);
         Map<String, String> t = new HashMap<>();
         t.put("fizz", "buzz");
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setTagsConditions(correctTagsCondition);
 
         // Expect
-        assertEquals(204, syncClient.setBlobTagsWithResponse(containerName, blobName, null, correctTagsCondition,
-            t, null).getStatusCode());
+        assertEquals(204, syncClient.setBlobTagsWithResponse(new BlobSetTagsOptions(containerName, blobName, t).setRequestConditions(requestConditions)).getStatusCode());
     }
 
     @Test
@@ -1036,11 +1044,12 @@ public class BlobTest {
         // Setup
         Map<String, String> t = new HashMap<>();
         t.put("fizz", "buzz");
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setTagsConditions(garbageTagsCondition);
 
         // Expect
         assertThrows(BlobStorageException.class,
-            () -> syncClient.setBlobTagsWithResponse(containerName, blobName, null, garbageTagsCondition, t,
-                null));
+            () -> syncClient.setBlobTagsWithResponse(new BlobSetTagsOptions(containerName, blobName, t).setRequestConditions(requestConditions)));
     }
 
     @Test
@@ -1049,8 +1058,8 @@ public class BlobTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // When
-        asyncClient.setBlobTags(containerName, blobName, null, null, null,
-            null, new CallbackWithHeader<Void, BlobSetTagsHeaders>() {
+        asyncClient.setBlobTags(new BlobSetTagsOptions(containerName, blobName, null),
+            new CallbackWithHeader<Void, BlobSetTagsHeaders>() {
                 @Override
                 public void onSuccess(Void result, BlobSetTagsHeaders header, Response response) {
                     assertEquals(204, response.code());
@@ -1075,18 +1084,22 @@ public class BlobTest {
     public void getTagsAC() {
         // Setup
         setupTagsCondition(syncClient, containerName, blobName);
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setTagsConditions(correctTagsCondition);
 
         // Expect
-        assertEquals(200, syncClient.getBlobTagsWithResponse(containerName, blobName, null, null, correctTagsCondition,
-            null).getStatusCode());
+        assertEquals(200, syncClient.getBlobTagsWithResponse(new BlobGetTagsOptions(containerName, blobName).setRequestConditions(requestConditions)).getStatusCode());
     }
 
     @Test
     public void getTagsACFail() {
+        // Setup
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setTagsConditions(garbageTagsCondition);
+
         // Expect
         assertThrows(BlobStorageException.class,
-            () -> syncClient.getBlobTagsWithResponse(containerName, blobName, null, null, garbageTagsCondition,
-                null));
+            () -> syncClient.getBlobTagsWithResponse(new BlobGetTagsOptions(containerName, blobName).setRequestConditions(requestConditions)));
     }
 
     @Test

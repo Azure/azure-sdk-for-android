@@ -19,6 +19,8 @@ import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlockBlobCommitBlockListHeaders;
 import com.azure.android.storage.blob.models.BlockBlobItem;
 import com.azure.android.storage.blob.models.BlockBlobStageBlockHeaders;
+import com.azure.android.storage.blob.options.BlockBlobCommitBlockListOptions;
+import com.azure.android.storage.blob.options.BlockBlobStageBlockOptions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -297,17 +299,9 @@ final class UploadHandler extends Handler {
                 return;
             }
 
-            this.blobClient.stageBlock(this.blob.containerName,
-                this.blob.blobName,
-                block.blockId,
-                blockContent,
-                null,
-                null,
-                this.blob.computeMd5,
-                null,
-                null,
-                null,
-                this.cancellationToken,
+            this.blobClient.stageBlock(new BlockBlobStageBlockOptions(this.blob.containerName, this.blob.blobName,
+                block.blockId, blockContent).setComputeMd5(this.blob.computeMd5)
+                    .setCancellationToken(this.cancellationToken),
                 new CallbackWithHeader<Void, BlockBlobStageBlockHeaders>() {
                     @Override
                     public void onSuccess(Void result, BlockBlobStageBlockHeaders header, Response response) {
@@ -342,18 +336,8 @@ final class UploadHandler extends Handler {
 
         List<String> blockIds = this.db.uploadDao().getBlockIds(this.uploadId);
 
-        this.blobClient.commitBlockList(blob.containerName,
-            blob.blobName,
-            blockIds,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            this.cancellationToken,
+        this.blobClient.commitBlockList(new BlockBlobCommitBlockListOptions(blob.containerName, blob.blobName, blockIds)
+                .setCancellationToken(this.cancellationToken),
             new CallbackWithHeader<BlockBlobItem, BlockBlobCommitBlockListHeaders>() {
                 @Override
                 public void onSuccess(BlockBlobItem result, BlockBlobCommitBlockListHeaders header, Response response) {

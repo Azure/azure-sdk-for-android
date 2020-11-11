@@ -36,7 +36,16 @@ import com.azure.android.storage.blob.models.ContainerCreateHeaders;
 import com.azure.android.storage.blob.models.ContainerCreateResponse;
 import com.azure.android.storage.blob.models.ContainerDeleteHeaders;
 import com.azure.android.storage.blob.models.ContainerDeleteResponse;
+import com.azure.android.storage.blob.options.BlobDeleteOptions;
 import com.azure.android.storage.blob.options.BlobGetPropertiesOptions;
+import com.azure.android.storage.blob.options.BlobGetTagsOptions;
+import com.azure.android.storage.blob.options.BlobRawDownloadOptions;
+import com.azure.android.storage.blob.options.BlobSetAccessTierOptions;
+import com.azure.android.storage.blob.options.BlobSetHttpHeadersOptions;
+import com.azure.android.storage.blob.options.BlobSetMetadataOptions;
+import com.azure.android.storage.blob.options.BlobSetTagsOptions;
+import com.azure.android.storage.blob.options.BlockBlobCommitBlockListOptions;
+import com.azure.android.storage.blob.options.BlockBlobStageBlockOptions;
 import com.azure.android.storage.blob.options.ContainerCreateOptions;
 import com.azure.android.storage.blob.options.ContainerDeleteOptions;
 
@@ -545,12 +554,8 @@ public class StorageBlobClientTest {
 
         // Then the client will return an object that contains the details of the REST response.
         BlobSetHttpHeadersResponse response =
-            storageBlobClient.setBlobHttpHeadersWithResponse("container",
-                "blob",
-                null,
-                null,
-                new BlobHttpHeaders(),
-                CancellationToken.NONE);
+            storageBlobClient.setBlobHttpHeadersWithResponse(new BlobSetHttpHeadersOptions("container",
+                "blob", new BlobHttpHeaders()).setCancellationToken(CancellationToken.NONE));
 
         assertEquals(200, response.getStatusCode());
     }
@@ -568,12 +573,8 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.setBlobHttpHeaders("container",
-            "blob",
-            null,
-            null,
-            new BlobHttpHeaders(),
-            CancellationToken.NONE,
+        storageBlobAsyncClient.setBlobHttpHeaders(new BlobSetHttpHeadersOptions("container",
+                "blob", new BlobHttpHeaders()).setCancellationToken(CancellationToken.NONE),
             new CallbackWithHeader<Void, BlobSetHttpHeadersHeaders>() {
 
                 @Override
@@ -672,13 +673,8 @@ public class StorageBlobClientTest {
         Map<String, String> metadata = new HashMap<>();
         metadata.put("foo", "bar");
         BlobSetMetadataResponse response =
-            storageBlobClient.setBlobMetadataWithResponse("container",
-                "blob",
-                null,
-                null,
-                metadata,
-                null,
-                CancellationToken.NONE);
+            storageBlobClient.setBlobMetadataWithResponse(new BlobSetMetadataOptions("container",
+                "blob", metadata).setCancellationToken(CancellationToken.NONE));
 
         assertEquals(200, response.getStatusCode());
     }
@@ -698,13 +694,8 @@ public class StorageBlobClientTest {
 
         Map<String, String> metadata = new HashMap<>();
         metadata.put("foo", "bar");
-        storageBlobAsyncClient.setBlobMetadata("container",
-            "blob",
-            null,
-            null,
-            metadata,
-            null,
-            CancellationToken.NONE,
+        storageBlobAsyncClient.setBlobMetadata(new BlobSetMetadataOptions("container",
+            "blob", metadata).setCancellationToken(CancellationToken.NONE),
             new CallbackWithHeader<Void, BlobSetMetadataHeaders>() {
 
                 @Override
@@ -798,15 +789,8 @@ public class StorageBlobClientTest {
 
         // Then a response without body and status code 202 will be returned by the server.
         BlobSetTierResponse response =
-            storageBlobClient.setBlobAccessTierWithResponse("container",
-                "blob",
-                AccessTier.HOT,
-                null,
-                null,
-                null,
-                null,
-                null,
-                CancellationToken.NONE);
+            storageBlobClient.setBlobAccessTierWithResponse(new BlobSetAccessTierOptions("container",
+                "blob", AccessTier.HOT).setCancellationToken(CancellationToken.NONE));
 
         assertEquals(202, response.getStatusCode());
     }
@@ -823,15 +807,8 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.setBlobAccessTier("container",
-            "blob",
-            AccessTier.HOT,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
+        storageBlobAsyncClient.setBlobAccessTier(new BlobSetAccessTierOptions("container",
+            "blob", AccessTier.HOT).setCancellationToken(CancellationToken.NONE),
             new CallbackWithHeader<Void, BlobSetTierHeaders>() {
                 @Override
                 public void onSuccess(Void result, BlobSetTierHeaders header, Response response) {
@@ -928,16 +905,8 @@ public class StorageBlobClientTest {
 
         // Then an object with the blob's contents will be returned by the client, including its properties and
         // details from the REST response.
-        BlobDownloadResponse response = storageBlobClient.rawDownloadWithResponse("testContainer",
-            "testBlob",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE);
+        BlobDownloadResponse response = storageBlobClient.rawDownloadWithResponse(new BlobRawDownloadOptions("testContainer",
+            "testBlob").setCancellationToken(CancellationToken.NONE));
 
         assertEquals(200, response.getStatusCode());
         assertEquals("testBody", response.getValue().string());
@@ -957,16 +926,8 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.rawDownload("testContainer",
-            "testBlob",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
+        storageBlobAsyncClient.rawDownload(new BlobRawDownloadOptions("testContainer",
+            "testBlob").setCancellationToken(CancellationToken.NONE),
             new CallbackWithHeader<ResponseBody, BlobDownloadHeaders>() {
                 @Override
                 public void onSuccess(ResponseBody result, BlobDownloadHeaders header, Response response) {
@@ -1029,7 +990,7 @@ public class StorageBlobClientTest {
 
         storageBlobAsyncClient.stageBlock("testContainer",
             "testBlob",
-            null,
+            BlobTestUtils.generateBlockID(),
             new byte[0],
             null,
             new CallbackWithHeader<Void, BlockBlobStageBlockHeaders>() {
@@ -1067,17 +1028,8 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response without body and status code 201 will be returned by the server.
-        BlockBlobsStageBlockResponse response = storageBlobClient.stageBlockWithResponse("testContainer",
-            "testBlob",
-            null,
-            new byte[0],
-            null,
-            null,
-            false,
-            null,
-            null,
-            null,
-            CancellationToken.NONE);
+        BlockBlobsStageBlockResponse response = storageBlobClient.stageBlockWithResponse(new BlockBlobStageBlockOptions("testContainer",
+            "testBlob", BlobTestUtils.generateBlockID(), new byte[0]).setCancellationToken(CancellationToken.NONE));
 
         assertEquals(201, response.getStatusCode());
     }
@@ -1094,17 +1046,8 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.stageBlock("testContainer",
-            "testBlob",
-            null,
-            new byte[0],
-            null,
-            null,
-            false,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
+        storageBlobAsyncClient.stageBlock(new BlockBlobStageBlockOptions("testContainer",
+            "testBlob", BlobTestUtils.generateBlockID(), new byte[0]).setCancellationToken(CancellationToken.NONE),
             new CallbackWithHeader<Void, BlockBlobStageBlockHeaders>() {
                 @Override
                 public void onSuccess(Void result, BlockBlobStageBlockHeaders header, Response response) {
@@ -1212,18 +1155,8 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         // Then a response with the blob's details and status code 201 will be returned by the server.
-        BlockBlobsCommitBlockListResponse response = storageBlobClient.commitBlockListWithResponse("testContainer",
-            "testBlob",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE);
+        BlockBlobsCommitBlockListResponse response = storageBlobClient.commitBlockListWithResponse(new BlockBlobCommitBlockListOptions("testContainer",
+            "testBlob", null).setCancellationToken(CancellationToken.NONE));
 
         assertEquals(false, response.getBlockBlobItem().isServerEncrypted());
         assertEquals("testEtag", response.getBlockBlobItem().getETag());
@@ -1245,19 +1178,8 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.commitBlockList("testContainer",
-            "testBlob",
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
-
+        storageBlobAsyncClient.commitBlockList(new BlockBlobCommitBlockListOptions("testContainer",
+            "testBlob", null).setCancellationToken(CancellationToken.NONE),
             new CallbackWithHeader<BlockBlobItem, BlockBlobCommitBlockListHeaders>() {
                 @Override
                 public void onSuccess(BlockBlobItem result, BlockBlobCommitBlockListHeaders header, Response response) {
@@ -1351,13 +1273,8 @@ public class StorageBlobClientTest {
 
         // Then a response without body and status code 202 will be returned by the server.
         BlobDeleteResponse response =
-            storageBlobClient.deleteBlobWithResponse("container",
-                "blob",
-                null,
-                null,
-                null,
-                null,
-                CancellationToken.NONE);
+            storageBlobClient.deleteBlobWithResponse(new BlobDeleteOptions("container",
+                "blob").setCancellationToken(CancellationToken.NONE));
 
         assertEquals(202, response.getStatusCode());
     }
@@ -1375,13 +1292,8 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.deleteBlob("container",
-            "blob",
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
+        storageBlobAsyncClient.deleteBlob(new BlobDeleteOptions("container",
+                "blob").setCancellationToken(CancellationToken.NONE),
             new CallbackWithHeader<Void, BlobDeleteHeaders>() {
                 @Override
                 public void onSuccess(Void result, BlobDeleteHeaders header, Response response) {
@@ -1602,12 +1514,8 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         com.azure.android.core.http.Response<Map<String, String>> response =
-            storageBlobClient.getBlobTagsWithResponse("testContainer",
-                "blobName",
-                null,
-                null,
-                null,
-                CancellationToken.NONE);
+            storageBlobClient.getBlobTagsWithResponse(new BlobGetTagsOptions("testContainer",
+                "blobName").setCancellationToken(CancellationToken.NONE));
 
         // Then a map containing the details of the blob tags will be returned by the service and converted to a Map
         // by the client.
@@ -1636,12 +1544,8 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.getBlobTags("testContainer",
-            "testBlob",
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
+        storageBlobAsyncClient.getBlobTags(new BlobGetTagsOptions("testContainer",
+                "blobName").setCancellationToken(CancellationToken.NONE),
             new CallbackWithHeader<Map<String, String>, BlobGetTagsHeaders>() {
 
                 @Override
@@ -1746,12 +1650,8 @@ public class StorageBlobClientTest {
         Map<String, String> tags = new HashMap<>();
         tags.put("foo", "bar");
         BlobSetTagsResponse response =
-            storageBlobClient.setBlobTagsWithResponse("container",
-                "blob",
-                null,
-                null,
-                tags,
-                CancellationToken.NONE);
+            storageBlobClient.setBlobTagsWithResponse(new BlobSetTagsOptions("container",
+                "blob", tags).setCancellationToken(CancellationToken.NONE));
 
         assertEquals(204, response.getStatusCode());
     }
@@ -1771,12 +1671,8 @@ public class StorageBlobClientTest {
 
         Map<String, String> tags = new HashMap<>();
         tags.put("foo", "bar");
-        storageBlobAsyncClient.setBlobTags("container",
-            "blob",
-            null,
-            null,
-            tags,
-            CancellationToken.NONE,
+        storageBlobAsyncClient.setBlobTags(new BlobSetTagsOptions("container",
+                "blob", tags).setCancellationToken(CancellationToken.NONE),
             new CallbackWithHeader<Void, BlobSetTagsHeaders>() {
 
                 @Override
