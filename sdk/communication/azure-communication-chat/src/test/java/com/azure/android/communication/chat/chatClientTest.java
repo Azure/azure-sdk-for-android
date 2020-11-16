@@ -2,7 +2,7 @@ package com.azure.android.communication.chat;
 
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatThreadInfo;
-import com.azure.android.communication.chat.models.ChatThreadMember;
+import com.azure.android.communication.chat.models.ChatParticipant;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
@@ -71,7 +71,7 @@ public class chatClientTest {
     public void listThreadPagesWithRestResponse() {
         mockThreadsResponse(5);
 
-        final Response<Page<ChatThreadMember>> firstPage = chatServiceClient.listChatThreadMembersWithRestResponse("threadId");
+        final Response<Page<ChatParticipant>> firstPage = chatServiceClient.listChatParticipantsWithRestResponse("threadId");
         assertEquals(5, firstPage.getValue().getItems().size());
 
         mockThreadsResponse(3);

@@ -5,7 +5,6 @@
 package com.azure.android.communication.chat.models;
 
 import com.azure.android.core.annotation.Fluent;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
@@ -21,14 +20,14 @@ public final class CreateChatThreadRequest {
     private String topic;
 
     /*
-     * Members to be added to the chat thread.
+     * Participants to be added to the chat thread.
      */
-    @JsonProperty(value = "members", required = true)
-    private List<ChatThreadMember> members;
+    @JsonProperty(value = "participants", required = true)
+    private List<ChatParticipant> participants;
 
     /**
      * Get the topic property: The chat thread topic.
-     * 
+     *
      * @return the topic value.
      */
     public String getTopic() {
@@ -37,7 +36,7 @@ public final class CreateChatThreadRequest {
 
     /**
      * Set the topic property: The chat thread topic.
-     * 
+     *
      * @param topic the topic value to set.
      * @return the CreateChatThreadRequest object itself.
      */
@@ -47,22 +46,22 @@ public final class CreateChatThreadRequest {
     }
 
     /**
-     * Get the members property: Members to be added to the chat thread.
-     * 
-     * @return the members value.
+     * Get the participants property: Participants to be added to the chat thread.
+     *
+     * @return the participants value.
      */
-    public List<ChatThreadMember> getMembers() {
-        return this.members;
+    public List<ChatParticipant> getParticipants() {
+        return this.participants;
     }
 
     /**
-     * Set the members property: Members to be added to the chat thread.
-     * 
-     * @param members the members value to set.
+     * Set the participants property: Participants to be added to the chat thread.
+     *
+     * @param participants the participants value to set.
      * @return the CreateChatThreadRequest object itself.
      */
-    public CreateChatThreadRequest setMembers(List<ChatThreadMember> members) {
-        this.members = members;
+    public CreateChatThreadRequest setParticipants(List<ChatParticipant> participants) {
+        this.participants = participants;
         return this;
     }
 }

@@ -5,39 +5,38 @@
 package com.azure.android.communication.chat.models;
 
 import com.azure.android.core.annotation.Fluent;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.threeten.bp.OffsetDateTime;
 
 /**
- * The ChatThreadMember model.
+ * The ChatParticipant model.
  */
 @Fluent
-public final class ChatThreadMember {
+public final class ChatParticipant {
     /*
-     * The id of the chat thread member in the format
+     * The id of the chat thread participant in the format
      * `8:acs:ResourceId_AcsUserId`.
      */
     @JsonProperty(value = "id", required = true)
     private String id;
 
     /*
-     * Display name for the chat thread member.
+     * Display name for the chat thread participant.
      */
     @JsonProperty(value = "displayName")
     private String displayName;
 
     /*
-     * Time from which the chat history is shared with the member. The
+     * Time from which the chat history is shared with the participant. The
      * timestamp is in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
      */
     @JsonProperty(value = "shareHistoryTime")
     private OffsetDateTime shareHistoryTime;
 
     /**
-     * Get the id property: The id of the chat thread member in the format
+     * Get the id property: The id of the chat thread participant in the format
      * `8:acs:ResourceId_AcsUserId`.
-     * 
+     *
      * @return the id value.
      */
     public String getId() {
@@ -45,20 +44,20 @@ public final class ChatThreadMember {
     }
 
     /**
-     * Set the id property: The id of the chat thread member in the format
+     * Set the id property: The id of the chat thread participant in the format
      * `8:acs:ResourceId_AcsUserId`.
-     * 
+     *
      * @param id the id value to set.
-     * @return the ChatThreadMember object itself.
+     * @return the ChatParticipant object itself.
      */
-    public ChatThreadMember setId(String id) {
+    public ChatParticipant setId(String id) {
         this.id = id;
         return this;
     }
 
     /**
-     * Get the displayName property: Display name for the chat thread member.
-     * 
+     * Get the displayName property: Display name for the chat thread participant.
+     *
      * @return the displayName value.
      */
     public String getDisplayName() {
@@ -66,21 +65,21 @@ public final class ChatThreadMember {
     }
 
     /**
-     * Set the displayName property: Display name for the chat thread member.
-     * 
+     * Set the displayName property: Display name for the chat thread participant.
+     *
      * @param displayName the displayName value to set.
-     * @return the ChatThreadMember object itself.
+     * @return the ChatParticipant object itself.
      */
-    public ChatThreadMember setDisplayName(String displayName) {
+    public ChatParticipant setDisplayName(String displayName) {
         this.displayName = displayName;
         return this;
     }
 
     /**
      * Get the shareHistoryTime property: Time from which the chat history is
-     * shared with the member. The timestamp is in ISO8601 format:
+     * shared with the participant. The timestamp is in ISO8601 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     * 
+     *
      * @return the shareHistoryTime value.
      */
     public OffsetDateTime getShareHistoryTime() {
@@ -89,13 +88,13 @@ public final class ChatThreadMember {
 
     /**
      * Set the shareHistoryTime property: Time from which the chat history is
-     * shared with the member. The timestamp is in ISO8601 format:
+     * shared with the participant. The timestamp is in ISO8601 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     * 
+     *
      * @param shareHistoryTime the shareHistoryTime value to set.
-     * @return the ChatThreadMember object itself.
+     * @return the ChatParticipant object itself.
      */
-    public ChatThreadMember setShareHistoryTime(OffsetDateTime shareHistoryTime) {
+    public ChatParticipant setShareHistoryTime(OffsetDateTime shareHistoryTime) {
         this.shareHistoryTime = shareHistoryTime;
         return this;
     }

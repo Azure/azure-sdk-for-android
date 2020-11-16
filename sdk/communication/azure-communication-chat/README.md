@@ -79,11 +79,11 @@ AzureCommunicationChatServiceAsyncClient client = new AzureCommunicationChatServ
 
 User access tokens enable you to build client applications that directly authenticate to Azure Communication Services. Refer [here](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens) to learn how to create a user and issue a User Access Token.
 
-The id for the user created above will be necessary later to add said user as a member of a new chat thread. The initiator of the create request must be in the list of members of the chat thread.
+The id for the user created above will be necessary later to add said user as a participant of a new chat thread. The initiator of the create request must be in the list of participants of the chat thread.
 
 ### Chat Thread
 
-A chat conversation is represented by a chat thread. Each user in the thread is called a thread member. Thread members can chat with one another privately in a 1:1 chat or huddle up in a 1:N group chat. 
+A chat conversation is represented by a chat thread. Each user in the thread is called a thread participant. Thread participants can chat with one another privately in a 1:1 chat or huddle up in a 1:N group chat. 
 
 ### Chat operations
 
@@ -105,11 +105,11 @@ Once you initialize an `AzureCommunicationChatClient` class, you can perform the
 - [Update a message](#update-a-message)
 - [Delete a message](#delete-a-message)
 
-#### Thread Member Operations
+#### Thread Participant Operations
 
-- [Get thread members](#get-thread-members)
-- [Add thread members](#add-thread-members)
-- [Remove a thread member](#remove-a-thread-member)
+- [Get thread participants](#get-thread-participants)
+- [Add thread participants](#add-thread-participants)
+- [Remove a thread participant](#remove-a-thread-participant)
 
 #### Events Operations
 
@@ -126,13 +126,13 @@ Once you initialize an `AzureCommunicationChatClient` class, you can perform the
 Use the `create` method to create a thread.
 
 ```java
-//  The list of ChatThreadMember to be added to the thread.
-List<ChatThreadMember> members = new ArrayList<>();
+//  The list of ChatParticipant to be added to the thread.
+List<ChatParticipant> participants = new ArrayList<>();
 // The communication user ID you created before, required.
 final String id = "<user_id>";
-// The display name for the thread member.
-final String displayName = "initial member";
-members.add(new ChatThreadMember()
+// The display name for the thread participant.
+final String displayName = "initial participant";
+participants.add(new ChatParticipant()
     .setId(id)
     .setDisplayName(displayName));
 
@@ -141,7 +141,7 @@ final String topic = "General";
 // The model to pass to the create method.
 CreateChatThreadRequest thread = new CreateChatThreadRequest()
     .setTopic(topic)
-    .setMembers(members);
+    .setParticipants(participants);
 
 client.createChatThread(thread, new Callback<MultiStatusResponse>() {
     public void onSuccess(MultiStatusResponse result, okhttp3.Response response) {
@@ -468,28 +468,28 @@ client.deleteChatMessage(threadId, messageId, new Callback<Void>() {
 });
 ```
 
-### Thread Member Operations
+### Thread Participant Operations
 
-#### Get thread members
+#### Get thread participants
 
-Use the `listChatThreadMembers` method to retrieve the members participating in a thread.
+Use the `listChatParticipants` method to retrieve the participants participating in a thread.
 
 ```java
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-client.listChatThreadMembersPages(threadId,
-    new Callback<AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>>>() {
+client.listChatParticipantsPages(threadId,
+    new Callback<AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>>>() {
     @Override
-    public void onSuccess(AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>> firstPage,
+    public void onSuccess(AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>> firstPage,
         Response response) {
-        // pageCollection enables enumerating list of chat members.
-        pageCollection.getFirstPage(new Callback<Page<ChatThreadMember>>() {
+        // pageCollection enables enumerating list of chat participants.
+        pageCollection.getFirstPage(new Callback<Page<ChatParticipant>>() {
             @Override
-            public void onSuccess(Page<ChatThreadMember> firstPage, Response response) {
-                for (ChatThreadMember member : firstPage.getItems()) {
+            public void onSuccess(Page<ChatParticipant> firstPage, Response response) {
+                for (ChatParticipant participant : firstPage.getItems()) {
                     // Take further action.
                 }
-                retrieveNextMembersPages(firstPage.getPageId(), pageCollection);
+                retrieveNextParticipantsPages(firstPage.getPageId(), pageCollection);
             }
 
             @Override
@@ -505,16 +505,16 @@ client.listChatThreadMembersPages(threadId,
     }
 });
 
-void retrieveNextMembersPages(String nextPageId,
-    AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>> pageCollection) {
-    pageCollection.getPage(nextPageId, new Callback<Page<ChatThreadMember>>() {
+void retrieveNextParticipantsPages(String nextPageId,
+    AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>> pageCollection) {
+    pageCollection.getPage(nextPageId, new Callback<Page<ChatParticipant>>() {
         @Override
-        public void onSuccess(Page<ChatThreadMember> nextPage, Response response) {
-            for (ChatThreadMember member : nextPage.getItems()) {
+        public void onSuccess(Page<ChatParticipant> nextPage, Response response) {
+            for (ChatParticipant participant : nextPage.getItems()) {
                 // Take further action.
             }
             if (nextPage.getPageId() != null) {
-                retrieveNextMembersPages(nextPage.getPageId(), pageCollection);
+                retrieveNextParticipantsPages(nextPage.getPageId(), pageCollection);
             }
         }
 
@@ -526,25 +526,25 @@ void retrieveNextMembersPages(String nextPageId,
 }
 ```
 
-#### Add thread members
+#### Add thread participants
 
-Use the `add` method to add members to a thread.
+Use the `add` method to add participants to a thread.
 
 ```java
-//  The list of ChatThreadMember to be added to the thread.
-List<ChatThreadMember> members = new ArrayList<>();
+//  The list of ChatParticipant to be added to the thread.
+List<ChatParticipant> participants = new ArrayList<>();
 // The CommunicationUser.identifier you created before, required.
 final String id = "<user_id>";
-// The display name for the thread member.
-final String displayName = "a new member";
-members.add(new ChatThreadMember().setId(id).setDisplayName(displayName));
+// The display name for the thread participant.
+final String displayName = "a new participant";
+participants.add(new ChatParticipant().setId(id).setDisplayName(displayName));
 // The model to pass to the add method.
-AddChatThreadMembersRequest threadMembers = new AddChatThreadMembersRequest()
-    .setMembers(members);
+AddChatParticipantsRequest participants = new AddChatParticipantsRequest()
+    .setParticipants(participants);
 
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-client.addChatThreadMembers(threadId, threadMembers, new Callback<Void>() {
+client.addChatParticipants(threadId, participants, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
@@ -557,16 +557,16 @@ client.addChatThreadMembers(threadId, threadMembers, new Callback<Void>() {
 });
 ```
 
-#### Remove a thread member
+#### Remove a thread participant
 
-Use the `removeChatThreadMember` method to remove a member from a thread.
+Use the `removeChatParticipant` method to remove a participant from a thread.
 
 ```java
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-// The unique ID of the member.
-final String memberId = "<member_id>";
-client.removeChatThreadMember(threadId, memberId, new Callback<Void>() {
+// The unique ID of the participant.
+final String participantId = "<participant_id>";
+client.removeChatParticipant(threadId, participantId, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
@@ -606,7 +606,7 @@ client.sendTypingNotification(threadId, new Callback<Void>() {
 Use the `send` method to post a read receipt event to a thread, on behalf of a user.
 
 ```java
-// The unique ID of the member.
+// The unique ID of the participant.
 final String messageId = "<message_id>";
 // The model to be passed to the send method.
 SendReadReceiptRequest readReceipt = new SendReadReceiptRequest()
@@ -639,7 +639,7 @@ client.listChatReadReceiptsPages(threadId,
     @Override
     public void onSuccess(AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>> result,
         Response response) {
-        // pageCollection enables enumerating list of chat members.
+        // pageCollection enables enumerating list of chat participants.
         pageCollection.getFirstPage(new Callback<Page<ReadReceipt>>() {
             @Override
             public void onSuccess(Page<ReadReceipt> firstPage, Response response) {
