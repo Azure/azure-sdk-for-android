@@ -13,6 +13,9 @@ import com.azure.android.storage.blob.models.ContainerDeleteResponse;
 import com.azure.android.storage.blob.models.ContainerGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.ContainerGetPropertiesResponse;
 import com.azure.android.storage.blob.models.PublicAccessType;
+import com.azure.android.storage.blob.options.ContainerCreateOptions;
+import com.azure.android.storage.blob.options.ContainerDeleteOptions;
+import com.azure.android.storage.blob.options.ContainerGetPropertiesOptions;
 import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
@@ -70,10 +73,22 @@ public class ContainerTest {
     }
 
     @DataProvider
-    public static Object[][] accessConditionsIllegal() {
+    public static Object[][] deleteAccessConditionsIllegal() {
         return new Object[][] {
-            {"garbage", null},     // 0
-            {null,      "garbage"} // 1
+            {"garbage", null,      null},     // 0
+            {null,      "garbage", null},     // 1
+            {null,      null,      "garbage"} // 2
+        };
+    }
+
+    @DataProvider
+    public static Object[][] getPropertiesAccessConditionsIllegal() {
+        return new Object[][] {
+            {"garbage", null,      null,    null,    null},     // 0
+            {null,      "garbage", null,    null,    null},     // 1
+            {null,      null,      oldDate, null,    null},     // 2
+            {null,      null,      null,    oldDate, null},     // 3
+            {null,      null,      null,    null,    "garbage"} // 4
         };
     }
 
@@ -114,8 +129,7 @@ public class ContainerTest {
         String containerName = generateResourceName();
 
         // When
-        ContainerCreateResponse response = syncClient.createContainerWithRestResponse(containerName, null,
-            null, null, null);
+        ContainerCreateResponse response = syncClient.createContainerWithResponse(new ContainerCreateOptions(containerName));
 
         // Then
         assertEquals(201, response.getStatusCode());
@@ -128,8 +142,8 @@ public class ContainerTest {
         String containerName = generateResourceName();
 
         // When
-        ContainerCreateResponse response = syncClient.createContainerWithRestResponse(containerName, null,
-            null, PublicAccessType.BLOB, null);
+        ContainerCreateResponse response = syncClient.createContainerWithResponse(new ContainerCreateOptions(containerName)
+            .setPublicAccessType(PublicAccessType.BLOB));
 
         // Then
         assertEquals(PublicAccessType.BLOB, syncClient.getContainerProperties(containerName).getBlobPublicAccess());
@@ -144,8 +158,7 @@ public class ContainerTest {
         metadata.put("key2", "value2");
 
         // When
-        syncClient.createContainerWithRestResponse(containerName, null, metadata, null,
-            null);
+        syncClient.createContainerWithResponse(new ContainerCreateOptions(containerName).setMetadata(metadata));
 
         // Then
         ContainerGetPropertiesHeaders headers = syncClient.getContainerProperties(containerName);
@@ -161,8 +174,8 @@ public class ContainerTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // When
-        asyncClient.createContainer(containerName, null, null,
-            null, null, new CallbackWithHeader<Void, ContainerCreateHeaders>() {
+        asyncClient.createContainer(new ContainerCreateOptions(containerName),
+            new CallbackWithHeader<Void, ContainerCreateHeaders>() {
                 @Override
                 public void onSuccess(Void result, ContainerCreateHeaders header, Response response) {
                     assertEquals(201, response.code());
@@ -187,7 +200,7 @@ public class ContainerTest {
     // Cancellation token? Request Id? Version?
 
     @Test
-    public void deleteMin() throws InterruptedException {
+    public void deleteMin() {
         // Setup
         String containerName = generateResourceName();
         syncClient.createContainer(containerName);
@@ -209,7 +222,7 @@ public class ContainerTest {
         syncClient.createContainer(containerName);
 
         // When
-        ContainerDeleteResponse response = syncClient.deleteContainerWithRestResponse(containerName, null, null, null);
+        ContainerDeleteResponse response = syncClient.deleteContainerWithResponse(new ContainerDeleteOptions(containerName));
 
         // Then
         BlobStorageException ex = assertThrows(BlobStorageException.class,
@@ -231,7 +244,7 @@ public class ContainerTest {
             .setIfUnmodifiedSince(unmodified);
 
         // When
-        syncClient.deleteContainerWithRestResponse(containerName, null, requestConditions, null);
+        syncClient.deleteContainerWithResponse(new ContainerDeleteOptions(containerName).setRequestConditions(requestConditions));
 
         // Then
         BlobStorageException ex = assertThrows(BlobStorageException.class,
@@ -251,25 +264,26 @@ public class ContainerTest {
 
         // When
         BlobStorageException ex = assertThrows(BlobStorageException.class,
-            () -> syncClient.deleteContainerWithRestResponse(containerName, null, requestConditions, null));
+            () -> syncClient.deleteContainerWithResponse(new ContainerDeleteOptions(containerName).setRequestConditions(requestConditions)));
 
         // Then
         assertEquals(412, ex.getStatusCode());
     }
 
     @Test
-    @UseDataProvider("accessConditionsIllegal")
-    public void deleteACIllegal(String ifMatch, String ifNoneMatch) {
+    @UseDataProvider("deleteAccessConditionsIllegal")
+    public void deleteACIllegal(String ifMatch, String ifNoneMatch, String tagsConditions) {
         // Setup
         String containerName = generateResourceName();
         syncClient.createContainer(containerName);
         BlobRequestConditions requestConditions = new BlobRequestConditions()
             .setIfMatch(ifMatch)
-            .setIfNoneMatch(ifNoneMatch);
+            .setIfNoneMatch(ifNoneMatch)
+            .setTagsConditions(tagsConditions);
 
         // Expect
         assertThrows(UnsupportedOperationException.class,
-            () -> syncClient.deleteContainerWithRestResponse(containerName, null, requestConditions, null));
+            () -> syncClient.deleteContainerWithResponse(new ContainerDeleteOptions(containerName).setRequestConditions(requestConditions)));
     }
 
     @Test
@@ -281,7 +295,7 @@ public class ContainerTest {
         CountDownLatch latch = new CountDownLatch(1);
 
         // When
-        asyncClient.deleteContainer(containerName, null, null, null,
+        asyncClient.deleteContainer(new ContainerDeleteOptions(containerName),
             new CallbackWithHeader<Void, ContainerDeleteHeaders>() {
                 @Override
                 public void onSuccess(Void result, ContainerDeleteHeaders header, Response response) {
@@ -320,8 +334,7 @@ public class ContainerTest {
     @Test
     public void getPropertiesAllNull() {
         // When
-        ContainerGetPropertiesResponse response = syncClient.getContainerPropertiesWithRestResponse(containerName, null,
-            null, null);
+        ContainerGetPropertiesResponse response = syncClient.getContainerPropertiesWithResponse(new ContainerGetPropertiesOptions(containerName));
         ContainerGetPropertiesHeaders headers = response.getDeserializedHeaders();
 
         // Then
@@ -333,12 +346,28 @@ public class ContainerTest {
     }
 
     @Test
-    public void getGetPropertiesAsync() {
+    @UseDataProvider("getPropertiesAccessConditionsIllegal")
+    public void getPropertiesACIllegal(String ifMatch, String ifNoneMatch, OffsetDateTime modified, OffsetDateTime unmodified, String tagsConditions) {
+        // Setup
+        BlobRequestConditions requestConditions = new BlobRequestConditions()
+            .setIfMatch(ifMatch)
+            .setIfNoneMatch(ifNoneMatch)
+            .setIfModifiedSince(modified)
+            .setIfUnmodifiedSince(unmodified)
+            .setTagsConditions(tagsConditions);
+
+        // Expect
+        assertThrows(UnsupportedOperationException.class,
+            () -> syncClient.getContainerPropertiesWithResponse(new ContainerGetPropertiesOptions(containerName).setRequestConditions(requestConditions)));
+    }
+
+    @Test
+    public void getPropertiesAsync() {
         // Setup
         CountDownLatch latch = new CountDownLatch(1);
 
         // When
-        asyncClient.getContainerProperties(containerName, null, null, null,
+        asyncClient.getContainerProperties(new ContainerGetPropertiesOptions(containerName),
             new CallbackWithHeader<Void, ContainerGetPropertiesHeaders>() {
                 @Override
                 public void onSuccess(Void result, ContainerGetPropertiesHeaders header, Response response) {
