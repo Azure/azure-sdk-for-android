@@ -13,10 +13,10 @@ import com.azure.android.communication.chat.models.ChatParticipant;
 import com.azure.android.communication.chat.models.CreateChatThreadRequest;
 import com.azure.android.communication.chat.models.ErrorException;
 import com.azure.android.communication.chat.models.MultiStatusResponse;
-import com.azure.android.communication.chat.models.ReadReceipt;
+import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.SendChatMessageRequest;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
-import com.azure.android.communication.chat.models.SendReadReceiptRequest;
+import com.azure.android.communication.chat.models.SendChatMessageReadReceiptRequest;
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
 import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
 import com.azure.android.core.http.Callback;
@@ -48,7 +48,7 @@ public final class AzureCommunicationChatServiceAsyncClient {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatReadReceipts(String chatThreadId, final Callback<Page<ReadReceipt>> callback) {
+    public void listChatReadReceipts(String chatThreadId, final Callback<Page<ChatMessageReadReceipt>> callback) {
         this.serviceClient.listChatReadReceipts(chatThreadId, callback);
     }
 
@@ -61,7 +61,7 @@ public final class AzureCommunicationChatServiceAsyncClient {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatReadReceiptsPages(String chatThreadId, final Callback<AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>>> collectionCallback) {
+    public void listChatReadReceiptsPages(String chatThreadId, final Callback<AsyncPagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>>> collectionCallback) {
         this.serviceClient.listChatReadReceiptsPagesAsync(chatThreadId, collectionCallback);
     }
 
@@ -75,7 +75,7 @@ public final class AzureCommunicationChatServiceAsyncClient {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void sendChatReadReceipt(String chatThreadId, SendReadReceiptRequest body, final Callback<Void> callback) {
+    public void sendChatReadReceipt(String chatThreadId, SendChatMessageReadReceiptRequest body, final Callback<Void> callback) {
         this.serviceClient.sendChatReadReceipt(chatThreadId, body, callback);
     }
 
@@ -348,7 +348,7 @@ public final class AzureCommunicationChatServiceAsyncClient {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatReadReceiptsNext(String nextLink, final Callback<Page<ReadReceipt>> callback) {
+    public void listChatReadReceiptsNext(String nextLink, final Callback<Page<ChatMessageReadReceipt>> callback) {
         this.serviceClient.listChatReadReceiptsNext(nextLink, callback);
     }
 

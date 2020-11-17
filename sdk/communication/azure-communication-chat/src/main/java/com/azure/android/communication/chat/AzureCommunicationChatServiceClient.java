@@ -13,10 +13,10 @@ import com.azure.android.communication.chat.models.ChatParticipant;
 import com.azure.android.communication.chat.models.CreateChatThreadRequest;
 import com.azure.android.communication.chat.models.ErrorException;
 import com.azure.android.communication.chat.models.MultiStatusResponse;
-import com.azure.android.communication.chat.models.ReadReceipt;
+import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.SendChatMessageRequest;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
-import com.azure.android.communication.chat.models.SendReadReceiptRequest;
+import com.azure.android.communication.chat.models.SendChatMessageReadReceiptRequest;
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
 import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
 import com.azure.android.core.http.Response;
@@ -49,7 +49,7 @@ public final class AzureCommunicationChatServiceClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return read receipts for a thread.
      */
-    public Response<Page<ReadReceipt>> listChatReadReceiptsWithRestResponse(String chatThreadId) {
+    public Response<Page<ChatMessageReadReceipt>> listChatReadReceiptsWithRestResponse(String chatThreadId) {
         return this.serviceClient.listChatReadReceiptsWithRestResponse(chatThreadId);
     }
 
@@ -62,7 +62,7 @@ public final class AzureCommunicationChatServiceClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return read receipts for a thread.
      */
-    public PagedDataResponseCollection<ReadReceipt, Page<ReadReceipt>> listChatReadReceiptsWithPageResponse(String chatThreadId) {
+    public PagedDataResponseCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> listChatReadReceiptsWithPageResponse(String chatThreadId) {
         return this.serviceClient.listChatReadReceiptsWithPageResponse(chatThreadId);
     }
 
@@ -75,7 +75,7 @@ public final class AzureCommunicationChatServiceClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return read receipts for a thread.
      */
-    public PagedDataCollection<ReadReceipt, Page<ReadReceipt>> listChatReadReceiptsWithPage(String chatThreadId) {
+    public PagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> listChatReadReceiptsWithPage(String chatThreadId) {
         return this.serviceClient.listChatReadReceiptsWithPage(chatThreadId);
     }
 
@@ -89,7 +89,7 @@ public final class AzureCommunicationChatServiceClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> sendChatReadReceiptWithRestResponse(String chatThreadId, SendReadReceiptRequest body) {
+    public Response<Void> sendChatReadReceiptWithRestResponse(String chatThreadId, SendChatMessageReadReceiptRequest body) {
         return this.serviceClient.sendChatReadReceiptWithRestResponse(chatThreadId, body);
     }
 
@@ -403,7 +403,7 @@ public final class AzureCommunicationChatServiceClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Page<ReadReceipt>> listChatReadReceiptsNextWithRestResponse(String nextLink) {
+    public Response<Page<ChatMessageReadReceipt>> listChatReadReceiptsNextWithRestResponse(String nextLink) {
         return this.serviceClient.listChatReadReceiptsNextWithRestResponse(nextLink);
     }
 

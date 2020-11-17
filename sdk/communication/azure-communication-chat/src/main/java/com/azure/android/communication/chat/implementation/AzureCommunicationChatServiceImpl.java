@@ -15,11 +15,11 @@ import com.azure.android.communication.chat.models.ChatThreadsInfoCollection;
 import com.azure.android.communication.chat.models.CreateChatThreadRequest;
 import com.azure.android.communication.chat.models.ErrorException;
 import com.azure.android.communication.chat.models.MultiStatusResponse;
-import com.azure.android.communication.chat.models.ReadReceipt;
-import com.azure.android.communication.chat.models.ReadReceiptsCollection;
+import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
+import com.azure.android.communication.chat.models.ChatMessageReadReceiptsCollection;
 import com.azure.android.communication.chat.models.SendChatMessageRequest;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
-import com.azure.android.communication.chat.models.SendReadReceiptRequest;
+import com.azure.android.communication.chat.models.SendChatMessageReadReceiptRequest;
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
 import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
 import com.azure.android.core.http.Callback;
@@ -192,21 +192,21 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatReadReceipts(String chatThreadId, final Callback<Page<ReadReceipt>> callback) {
+    public void listChatReadReceipts(String chatThreadId, final Callback<Page<ChatMessageReadReceipt>> callback) {
         Call<ResponseBody> call = service.listChatReadReceipts(chatThreadId, this.getApiVersion());
         retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     if (response.code() == 200) {
-                        final ReadReceiptsCollection decodedResult;
+                        final ChatMessageReadReceiptsCollection decodedResult;
                         try {
-                            decodedResult = deserializeContent(response.headers(), response.body(), ReadReceiptsCollection.class);
+                            decodedResult = deserializeContent(response.headers(), response.body(), ChatMessageReadReceiptsCollection.class);
                         } catch(Exception ex) {
                             callback.onFailure(ex, response.raw());
                             return;
                         }
-                        callback.onSuccess(new Page<ReadReceipt>(response.raw().request().url().toString(), decodedResult.getValue(), decodedResult.getNextLink()), response.raw());
+                        callback.onSuccess(new Page<ChatMessageReadReceipt>(response.raw().request().url().toString(), decodedResult.getValue(), decodedResult.getNextLink()), response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
                         callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
@@ -225,7 +225,7 @@ public final class AzureCommunicationChatServiceImpl {
         call.enqueue(retrofitCallback);
     }
 
-    private static final class ReadReceiptPageAsyncRetriever extends AsyncPagedDataRetriever<ReadReceipt, Page<ReadReceipt>> {
+    private static final class ReadReceiptPageAsyncRetriever extends AsyncPagedDataRetriever<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> {
         private final String chatThreadId;
 
         private final AzureCommunicationChatServiceImpl serviceClient;
@@ -235,16 +235,16 @@ public final class AzureCommunicationChatServiceImpl {
             this.serviceClient = serviceClient;
         }
 
-        public void getFirstPage(Callback<Page<ReadReceipt>> callback) {
+        public void getFirstPage(Callback<Page<ChatMessageReadReceipt>> callback) {
             serviceClient.listChatReadReceipts(chatThreadId, callback);
         }
 
-        public void getPage(String pageId, Callback<Page<ReadReceipt>> callback) {
+        public void getPage(String pageId, Callback<Page<ChatMessageReadReceipt>> callback) {
             serviceClient.listChatReadReceiptsNext(pageId, callback);
         }
     }
 
-    private static final class ReadReceiptPageResponseRetriever extends PagedDataResponseRetriever<ReadReceipt, Page<ReadReceipt>> {
+    private static final class ReadReceiptPageResponseRetriever extends PagedDataResponseRetriever<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> {
         private final String chatThreadId;
 
         private final AzureCommunicationChatServiceImpl serviceClient;
@@ -254,16 +254,16 @@ public final class AzureCommunicationChatServiceImpl {
             this.serviceClient = serviceClient;
         }
 
-        public Response<Page<ReadReceipt>> getFirstPage() {
+        public Response<Page<ChatMessageReadReceipt>> getFirstPage() {
              return serviceClient.listChatReadReceiptsWithRestResponse(chatThreadId);
         }
 
-        public Response<Page<ReadReceipt>> getPage(String pageId) {
+        public Response<Page<ChatMessageReadReceipt>> getPage(String pageId) {
             return serviceClient.listChatReadReceiptsNextWithRestResponse(pageId);
         }
     }
 
-    private static final class ReadReceiptPageRetriever extends PagedDataRetriever<ReadReceipt, Page<ReadReceipt>> {
+    private static final class ReadReceiptPageRetriever extends PagedDataRetriever<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> {
         private final String chatThreadId;
 
         private final AzureCommunicationChatServiceImpl serviceClient;
@@ -273,11 +273,11 @@ public final class AzureCommunicationChatServiceImpl {
             this.serviceClient = serviceClient;
         }
 
-        public Page<ReadReceipt> getFirstPage() {
+        public Page<ChatMessageReadReceipt> getFirstPage() {
              return serviceClient.listChatReadReceiptsWithRestResponse(chatThreadId).getValue();
         }
 
-        public Page<ReadReceipt> getPage(String pageId) {
+        public Page<ChatMessageReadReceipt> getPage(String pageId) {
             return serviceClient.listChatReadReceiptsNextWithRestResponse(pageId).getValue();
         }
     }
@@ -291,13 +291,13 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return read receipts for a thread.
      */
-    public Response<Page<ReadReceipt>> listChatReadReceiptsWithRestResponse(String chatThreadId) {
+    public Response<Page<ChatMessageReadReceipt>> listChatReadReceiptsWithRestResponse(String chatThreadId) {
         final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.listChatReadReceipts(chatThreadId, this.getApiVersion()));
         if (response.isSuccessful()) {
             if (response.code() == 200) {
-                final ReadReceiptsCollection decodedResult;
+                final ChatMessageReadReceiptsCollection decodedResult;
                 try {
-                    decodedResult = this.deserializeContent(response.headers(), response.body(), ReadReceiptsCollection.class);
+                    decodedResult = this.deserializeContent(response.headers(), response.body(), ChatMessageReadReceiptsCollection.class);
                 } catch(Exception ex) {
                     final String strContent = this.readAsString(response.body());
                     throw new ErrorException(strContent, response.raw());
@@ -305,7 +305,7 @@ public final class AzureCommunicationChatServiceImpl {
                 return new Response<>(response.raw().request(),
                                         response.code(),
                                         response.headers(),
-                                        new Page<ReadReceipt>(response.raw().request().url().toString(), decodedResult.getValue(), decodedResult.getNextLink()));
+                                        new Page<ChatMessageReadReceipt>(response.raw().request().url().toString(), decodedResult.getValue(), decodedResult.getNextLink()));
             } else {
                 final String strContent = this.readAsString(response.body());
                 throw new ErrorException(strContent, response.raw());
@@ -325,9 +325,9 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return read receipts for a thread.
      */
-    public PagedDataResponseCollection<ReadReceipt, Page<ReadReceipt>> listChatReadReceiptsWithPageResponse(String chatThreadId) {
+    public PagedDataResponseCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> listChatReadReceiptsWithPageResponse(String chatThreadId) {
         ReadReceiptPageResponseRetriever retriever = new ReadReceiptPageResponseRetriever(chatThreadId, this);
-        return new PagedDataResponseCollection<ReadReceipt, Page<ReadReceipt>>(retriever);
+        return new PagedDataResponseCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>>(retriever);
     }
 
     /**
@@ -339,9 +339,9 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return read receipts for a thread.
      */
-    public PagedDataCollection<ReadReceipt, Page<ReadReceipt>> listChatReadReceiptsWithPage(String chatThreadId) {
+    public PagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> listChatReadReceiptsWithPage(String chatThreadId) {
         ReadReceiptPageRetriever retriever = new ReadReceiptPageRetriever(chatThreadId, this);
-        return new PagedDataCollection<ReadReceipt, Page<ReadReceipt>>(retriever);
+        return new PagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>>(retriever);
     }
 
     /**
@@ -353,9 +353,9 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatReadReceiptsPagesAsync(String chatThreadId, final Callback<AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>>> collectionCallback) {
+    public void listChatReadReceiptsPagesAsync(String chatThreadId, final Callback<AsyncPagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>>> collectionCallback) {
         ReadReceiptPageAsyncRetriever retriever = new ReadReceiptPageAsyncRetriever(chatThreadId, this);
-        collectionCallback.onSuccess(new AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>>(retriever), null);
+        collectionCallback.onSuccess(new AsyncPagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>>(retriever), null);
     }
 
     /**
@@ -368,7 +368,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void sendChatReadReceipt(String chatThreadId, SendReadReceiptRequest body, final Callback<Void> callback) {
+    public void sendChatReadReceipt(String chatThreadId, SendChatMessageReadReceiptRequest body, final Callback<Void> callback) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), serializerAdapter.serialize(body, resolveSerializerFormat("application/json")));
@@ -418,7 +418,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> sendChatReadReceiptWithRestResponse(String chatThreadId, SendReadReceiptRequest body) {
+    public Response<Void> sendChatReadReceiptWithRestResponse(String chatThreadId, SendChatMessageReadReceiptRequest body) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.serializerAdapter.serialize(body, this.resolveSerializerFormat("application/json")));
@@ -1915,21 +1915,21 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatReadReceiptsNext(String nextLink, final Callback<Page<ReadReceipt>> callback) {
+    public void listChatReadReceiptsNext(String nextLink, final Callback<Page<ChatMessageReadReceipt>> callback) {
         Call<ResponseBody> call = service.listChatReadReceiptsNext(nextLink);
         retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     if (response.code() == 200) {
-                        final ReadReceiptsCollection decodedResult;
+                        final ChatMessageReadReceiptsCollection decodedResult;
                         try {
-                            decodedResult = deserializeContent(response.headers(), response.body(), ReadReceiptsCollection.class);
+                            decodedResult = deserializeContent(response.headers(), response.body(), ChatMessageReadReceiptsCollection.class);
                         } catch(Exception ex) {
                             callback.onFailure(ex, response.raw());
                             return;
                         }
-                        callback.onSuccess(new Page<ReadReceipt>(nextLink, decodedResult.getValue(), decodedResult.getNextLink()), response.raw());
+                        callback.onSuccess(new Page<ChatMessageReadReceipt>(nextLink, decodedResult.getValue(), decodedResult.getNextLink()), response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
                         callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
@@ -1957,13 +1957,13 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Page<ReadReceipt>> listChatReadReceiptsNextWithRestResponse(String nextLink) {
+    public Response<Page<ChatMessageReadReceipt>> listChatReadReceiptsNextWithRestResponse(String nextLink) {
         final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.listChatReadReceiptsNext(nextLink));
         if (response.isSuccessful()) {
             if (response.code() == 200) {
-                final ReadReceiptsCollection decodedResult;
+                final ChatMessageReadReceiptsCollection decodedResult;
                 try {
-                    decodedResult = this.deserializeContent(response.headers(), response.body(), ReadReceiptsCollection.class);
+                    decodedResult = this.deserializeContent(response.headers(), response.body(), ChatMessageReadReceiptsCollection.class);
                 } catch(Exception ex) {
                     final String strContent = this.readAsString(response.body());
                     throw new ErrorException(strContent, response.raw());
@@ -1971,7 +1971,7 @@ public final class AzureCommunicationChatServiceImpl {
                 return new Response<>(response.raw().request(),
                                         response.code(),
                                         response.headers(),
-                                        new Page<ReadReceipt>(nextLink, decodedResult.getValue(), decodedResult.getNextLink()));
+                                        new Page<ChatMessageReadReceipt>(nextLink, decodedResult.getValue(), decodedResult.getNextLink()));
             } else {
                 final String strContent = this.readAsString(response.body());
                 throw new ErrorException(strContent, response.raw());

@@ -5,14 +5,13 @@
 package com.azure.android.communication.chat.models;
 
 import com.azure.android.core.annotation.Fluent;
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * The SendReadReceiptRequest model.
+ * The SendChatMessageReadReceiptRequest model.
  */
 @Fluent
-public final class SendReadReceiptRequest {
+public final class SendChatMessageReadReceiptRequest {
     /*
      * Id of the latest chat message read by the user.
      */
@@ -22,7 +21,7 @@ public final class SendReadReceiptRequest {
     /**
      * Get the chatMessageId property: Id of the latest chat message read by
      * the user.
-     * 
+     *
      * @return the chatMessageId value.
      */
     public String getChatMessageId() {
@@ -32,11 +31,11 @@ public final class SendReadReceiptRequest {
     /**
      * Set the chatMessageId property: Id of the latest chat message read by
      * the user.
-     * 
+     *
      * @param chatMessageId the chatMessageId value to set.
-     * @return the SendReadReceiptRequest object itself.
+     * @return the SendChatMessageReadReceiptRequest object itself.
      */
-    public SendReadReceiptRequest setChatMessageId(String chatMessageId) {
+    public SendChatMessageReadReceiptRequest setChatMessageId(String chatMessageId) {
         this.chatMessageId = chatMessageId;
         return this;
     }
