@@ -4,6 +4,7 @@
 
 package com.azure.android.communication.chat.implementation;
 
+import com.azure.android.communication.chat.models.AddChatParticipantRequest;
 import com.azure.android.communication.chat.models.AddChatParticipantsRequest;
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessagesCollection;
@@ -148,6 +149,9 @@ public final class AzureCommunicationChatServiceImpl {
 
         @GET("/chat/threads/{chatThreadId}/participants")
         Call<ResponseBody> listChatParticipants(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion);
+
+        @POST("/chat/threads/{chatThreadId}/participant")
+        Call<ResponseBody> addChatParticipant(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion, @Body RequestBody body);
 
         @POST("/chat/threads/{chatThreadId}/participants")
         Call<ResponseBody> addChatParticipants(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion, @Body RequestBody body);
@@ -1229,6 +1233,90 @@ public final class AzureCommunicationChatServiceImpl {
     public void listChatParticipantsPagesAsync(String chatThreadId, final Callback<AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>>> collectionCallback) {
         ChatParticipantPageAsyncRetriever retriever = new ChatParticipantPageAsyncRetriever(chatThreadId, this);
         collectionCallback.onSuccess(new AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>>(retriever), null);
+    }
+
+    /**
+     * Adds thread participant to a thread. If participant already exist, no change occurs.
+     *
+     * @param chatThreadId Id of the thread to add participant to.
+     * @param body Thread participant to be added to the thread.
+     * @param callback the Callback that receives the response.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void addChatParticipant(String chatThreadId, AddChatParticipantRequest body, final Callback<Void> callback) {
+        final okhttp3.RequestBody okHttp3RequestBody;
+        try {
+            okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), serializerAdapter.serialize(body, resolveSerializerFormat("application/json")));
+        } catch(java.io.IOException ioe) {
+            callback.onFailure(new RuntimeException(ioe), null);
+            return;
+        }
+        Call<ResponseBody> call = service.addChatParticipant(chatThreadId, this.getApiVersion(), okHttp3RequestBody);
+        retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    if (response.code() == 207) {
+                        final Void decodedResult;
+                        try {
+                            decodedResult = deserializeContent(response.headers(), response.body(), Void.class);
+                        } catch(Exception ex) {
+                            callback.onFailure(ex, response.raw());
+                            return;
+                        }
+                        callback.onSuccess(decodedResult, response.raw());
+                    } else {
+                        final String strContent = readAsString(response.body());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
+                    }
+                } else {
+                    final String strContent = readAsString(response.errorBody());
+                    callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                callback.onFailure(t, null);
+            }
+        };
+        call.enqueue(retrofitCallback);
+    }
+
+    /**
+     * Adds thread participant to a thread. If participant already exist, no change occurs.
+     *
+     * @param chatThreadId Id of the thread to add participant to.
+     * @param body Thread participant to be added to the thread.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the response.
+     */
+    public Response<Void> addChatParticipantWithRestResponse(String chatThreadId, AddChatParticipantRequest body) {
+        final okhttp3.RequestBody okHttp3RequestBody;
+        try {
+            okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.serializerAdapter.serialize(body, this.resolveSerializerFormat("application/json")));
+        } catch(java.io.IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+        final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.addChatParticipant(chatThreadId, this.getApiVersion(), okHttp3RequestBody));
+        if (response.isSuccessful()) {
+            if (response.code() == 207) {
+                return new Response<>(response.raw().request(),
+                    response.code(),
+                    response.headers(),
+                    this.deserializeContent(response.headers(), response.body(), Void.class));
+            } else {
+                final String strContent = this.readAsString(response.body());
+                throw new ErrorException(strContent, response.raw());
+            }
+        } else {
+            final String strContent = this.readAsString(response.errorBody());
+            throw new HttpResponseException(strContent, response.raw());
+        }
     }
 
     /**
