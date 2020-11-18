@@ -358,7 +358,7 @@ public class StorageBlobClient {
      * @param tier          The access tier.
      */
     @Nullable
-    public Void setBlobAccessTier(@NonNull String containerName, @NonNull String blobName, @Nullable AccessTier tier) {
+    public Void setBlobAccessTier(@NonNull String containerName, @NonNull String blobName, @NonNull AccessTier tier) {
         return this.setBlobAccessTierWithResponse(new BlobSetAccessTierOptions(containerName, blobName, tier))
             .getValue();
     }

@@ -34,9 +34,10 @@ public class BlobSetAccessTierOptions {
      * @param blobName The blob name.
      * @param accessTier {@link AccessTier}
      */
-    public BlobSetAccessTierOptions(@NonNull String containerName, @NonNull String blobName, @Nullable AccessTier accessTier) {
+    public BlobSetAccessTierOptions(@NonNull String containerName, @NonNull String blobName, @NonNull AccessTier accessTier) {
         Objects.requireNonNull(containerName);
         Objects.requireNonNull(blobName);
+        Objects.requireNonNull(accessTier);
         this.containerName = containerName;
         this.blobName = blobName;
         this.accessTier = accessTier;
@@ -61,7 +62,7 @@ public class BlobSetAccessTierOptions {
     /**
      * @return {@link AccessTier}.
      */
-    @Nullable
+    @NonNull
     public AccessTier getAccessTier() {
         return accessTier;
     }

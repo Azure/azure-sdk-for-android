@@ -20,7 +20,7 @@ public class BlobGetTagsOptions {
 
     private final String containerName;
     private final String blobName;
-    private String snapshot; /*  TODO: (gapra) : Should  we even expose this since we cant make snapshots anyway?*/
+    private String snapshot;
     private BlobRequestConditions requestConditions;
     private Integer timeout;
     private CancellationToken cancellationToken;

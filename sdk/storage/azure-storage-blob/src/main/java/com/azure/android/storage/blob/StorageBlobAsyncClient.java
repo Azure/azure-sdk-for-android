@@ -544,7 +544,7 @@ public class StorageBlobAsyncClient {
      */
     public void setBlobAccessTier(@NonNull String containerName,
                                   @NonNull String blobName,
-                                  @Nullable AccessTier tier,
+                                  @NonNull AccessTier tier,
                                   @Nullable CallbackWithHeader<Void, BlobSetTierHeaders> callback) {
         this.setBlobAccessTier(new BlobSetAccessTierOptions(containerName, blobName, tier), callback);
     }

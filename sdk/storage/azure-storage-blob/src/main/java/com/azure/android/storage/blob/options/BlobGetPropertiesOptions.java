@@ -21,7 +21,7 @@ public class BlobGetPropertiesOptions {
 
     private final String containerName;
     private final String blobName;
-    private String snapshot; /*  TODO: (gapra) : Should  we even expose this since we cant make snapshots anyway?*/
+    private String snapshot;
     private CpkInfo cpkInfo; /* TODO: (gapra) : Should this be exposed as a handwrapped type? */
     private BlobRequestConditions requestConditions;
     private Integer timeout;
