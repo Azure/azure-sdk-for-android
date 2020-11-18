@@ -18,7 +18,7 @@ import com.azure.android.communication.chat.models.SendChatMessageRequest;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.SendChatMessageReadReceiptRequest;
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
-import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
+import com.azure.android.communication.chat.models.UpdateTopicRequest;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
@@ -364,8 +364,8 @@ public final class AzureCommunicationChatServiceClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> updateChatThreadWithRestResponse(String chatThreadId, UpdateChatThreadRequest body) {
-        return this.serviceClient.updateChatThreadWithRestResponse(chatThreadId, body);
+    public Response<Void> updateTopicWithRestResponse(String chatThreadId, UpdateTopicRequest body) {
+        return this.serviceClient.updateTopicWithRestResponse(chatThreadId, body);
     }
 
     /**

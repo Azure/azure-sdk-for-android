@@ -21,7 +21,7 @@ import com.azure.android.communication.chat.models.SendChatMessageRequest;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.SendChatMessageReadReceiptRequest;
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
-import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
+import com.azure.android.communication.chat.models.UpdateTopicRequest;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
@@ -162,7 +162,7 @@ public final class AzureCommunicationChatServiceImpl {
         Call<ResponseBody> listChatThreads(@Query("maxPageSize") Integer maxPageSize, @Query("startTime") OffsetDateTime startTime, @Query("api-version") String apiVersion);
 
         @PATCH("/chat/threads/{chatThreadId}")
-        Call<ResponseBody> updateChatThread(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion, @Body RequestBody body);
+        Call<ResponseBody> updateTopic(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion, @Body RequestBody body);
 
         @GET("/chat/threads/{chatThreadId}")
         Call<ResponseBody> getChatThread(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion);
@@ -1694,7 +1694,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void updateChatThread(String chatThreadId, UpdateChatThreadRequest body, final Callback<Void> callback) {
+    public void updateTopic(String chatThreadId, UpdateTopicRequest body, final Callback<Void> callback) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), serializerAdapter.serialize(body, resolveSerializerFormat("application/json")));
@@ -1702,7 +1702,7 @@ public final class AzureCommunicationChatServiceImpl {
             callback.onFailure(new RuntimeException(ioe), null);
             return;
         }
-        Call<ResponseBody> call = service.updateChatThread(chatThreadId, this.getApiVersion(), okHttp3RequestBody);
+        Call<ResponseBody> call = service.updateTopic(chatThreadId, this.getApiVersion(), okHttp3RequestBody);
         retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
@@ -1744,14 +1744,14 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the response.
      */
-    public Response<Void> updateChatThreadWithRestResponse(String chatThreadId, UpdateChatThreadRequest body) {
+    public Response<Void> updateTopicWithRestResponse(String chatThreadId, UpdateTopicRequest body) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.serializerAdapter.serialize(body, this.resolveSerializerFormat("application/json")));
         } catch(java.io.IOException ioe) {
             throw new RuntimeException(ioe);
         }
-        final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.updateChatThread(chatThreadId, this.getApiVersion(), okHttp3RequestBody));
+        final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.updateTopic(chatThreadId, this.getApiVersion(), okHttp3RequestBody));
         if (response.isSuccessful()) {
             if (response.code() == 200) {
                 return new Response<>(response.raw().request(),

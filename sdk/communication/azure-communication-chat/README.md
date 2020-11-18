@@ -252,12 +252,12 @@ Use the `update` method to update a thread's properties.
 // The new topic for the thread.
 final String topic = "updated topic";
 // The model to pass to the update method.
-UpdateChatThreadRequest thread = new UpdateChatThreadRequest()
+UpdateTopicRequest thread = new UpdateTopicRequest()
     .setTopic(topic);
 
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-client.updateChatThread(threadId, thread, new Callback<Void>() {
+client.updateTopic(threadId, thread, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
