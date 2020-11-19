@@ -254,8 +254,8 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.getBlobsInPage(null,
-            "testContainer",
+        storageBlobAsyncClient.getBlobsInPage("testContainer",
+            null,
             null,
 
             new Callback<BlobsPage>() {
