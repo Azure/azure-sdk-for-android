@@ -26,8 +26,8 @@ public final class ChatMessage {
      * Possible values:
      * - Text
      * - ThreadActivity/TopicUpdate
-     * - ThreadActivity/AddParticipant
-     * - ThreadActivity/DeleteParticipant
+     * - ThreadActivity/AddMember
+     * - ThreadActivity/DeleteMember
      */
     @JsonProperty(value = "type")
     private String type;
@@ -100,8 +100,8 @@ public final class ChatMessage {
      * Possible values:
      * - Text
      * - ThreadActivity/TopicUpdate
-     * - ThreadActivity/AddParticipant
-     * - ThreadActivity/DeleteParticipant.
+     * - ThreadActivity/AddMember
+     * - ThreadActivity/DeleteMember.
      *
      * @return the type value.
      */
@@ -115,8 +115,8 @@ public final class ChatMessage {
      * Possible values:
      * - Text
      * - ThreadActivity/TopicUpdate
-     * - ThreadActivity/AddParticipant
-     * - ThreadActivity/DeleteParticipant.
+     * - ThreadActivity/AddMember
+     * - ThreadActivity/DeleteMember.
      *
      * @param type the type value to set.
      * @return the ChatMessage object itself.

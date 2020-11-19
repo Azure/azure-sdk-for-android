@@ -19,11 +19,28 @@ import com.azure.android.communication.chat.models.SendChatMessageReadReceiptReq
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
 import com.azure.android.communication.chat.models.UpdateTopicRequest;
 import com.azure.android.core.http.Callback;
+import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
+import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;
+import com.azure.android.core.http.responsepaging.AsyncPagedDataRetriever;
+import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
+import com.azure.android.core.http.responsepaging.PagedDataResponseRetriever;
 import com.azure.android.core.util.paging.Page;
+import com.azure.android.core.util.paging.PagedDataCollection;
+import com.azure.android.core.util.paging.PagedDataRetriever;
 import okhttp3.Interceptor;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import org.threeten.bp.OffsetDateTime;
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.DELETE;
+import retrofit2.http.GET;
+import retrofit2.http.PATCH;
+import retrofit2.http.Path;
+import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 /**
  * Initializes a new instance of the asynchronous AzureCommunicationChatService type.
