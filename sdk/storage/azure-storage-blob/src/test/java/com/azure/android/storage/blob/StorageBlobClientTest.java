@@ -228,8 +228,8 @@ public class StorageBlobClientTest {
 
         mockWebServer.enqueue(mockResponse);
 
-        BlobsPage blobsPage = storageBlobClient.getBlobsInPage(null,
-            "testContainer",
+        BlobsPage blobsPage = storageBlobClient.getBlobsInPage("testContainer",
+            null,
             null);
 
         // Then a list containing the details of the blobs will be returned by the service and converted to BlobItem
@@ -958,7 +958,7 @@ public class StorageBlobClientTest {
         // Then a response without body and status code 201 will be returned by the server.
         Void response = storageBlobClient.stageBlock("testContainer",
             "testBlob",
-            null,
+            BlobTestUtils.generateBlockID(),
             new byte[0],
             null);
 
