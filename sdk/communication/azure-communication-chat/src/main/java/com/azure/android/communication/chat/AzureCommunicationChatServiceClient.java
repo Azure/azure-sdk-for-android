@@ -15,7 +15,6 @@ import com.azure.android.communication.chat.models.ErrorException;
 import com.azure.android.communication.chat.models.MultiStatusResponse;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.SendChatMessageRequest;
-import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.SendChatMessageReadReceiptRequest;
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
 import com.azure.android.communication.chat.models.UpdateTopicRequest;
@@ -103,7 +102,7 @@ public final class AzureCommunicationChatServiceClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the send message operation.
      */
-    public Response<SendChatMessageResult> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageRequest body) {
+    public Response<String> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageRequest body) {
         return this.serviceClient.sendChatMessageWithRestResponse(chatThreadId, body);
     }
 

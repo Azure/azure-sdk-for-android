@@ -15,7 +15,6 @@ import com.azure.android.communication.chat.models.ErrorException;
 import com.azure.android.communication.chat.models.MultiStatusResponse;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.SendChatMessageRequest;
-import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.SendChatMessageReadReceiptRequest;
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
 import com.azure.android.communication.chat.models.UpdateTopicRequest;
@@ -89,7 +88,7 @@ public final class AzureCommunicationChatServiceAsyncClient {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void sendChatMessage(String chatThreadId, SendChatMessageRequest body, final Callback<SendChatMessageResult> callback) {
+    public void sendChatMessage(String chatThreadId, SendChatMessageRequest body, final Callback<String> callback) {
         this.serviceClient.sendChatMessage(chatThreadId, body, callback);
     }
 

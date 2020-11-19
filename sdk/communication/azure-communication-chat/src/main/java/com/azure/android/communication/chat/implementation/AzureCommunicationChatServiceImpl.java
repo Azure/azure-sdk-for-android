@@ -19,7 +19,6 @@ import com.azure.android.communication.chat.models.MultiStatusResponse;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatMessageReadReceiptsCollection;
 import com.azure.android.communication.chat.models.SendChatMessageRequest;
-import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.SendChatMessageReadReceiptRequest;
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
 import com.azure.android.communication.chat.models.UpdateTopicRequest;
@@ -456,7 +455,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void sendChatMessage(String chatThreadId, SendChatMessageRequest body, final Callback<SendChatMessageResult> callback) {
+    public void sendChatMessage(String chatThreadId, SendChatMessageRequest body, final Callback<String> callback) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), serializerAdapter.serialize(body, resolveSerializerFormat("application/json")));
@@ -470,14 +469,14 @@ public final class AzureCommunicationChatServiceImpl {
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     if (response.code() == 201) {
-                        final SendChatMessageResult decodedResult;
+                        final String messageId;
                         try {
-                            decodedResult = deserializeContent(response.headers(), response.body(), SendChatMessageResult.class);
+                            messageId = deserializeContent(response.headers(), response.body(), String.class);
                         } catch(Exception ex) {
                             callback.onFailure(ex, response.raw());
                             return;
                         }
-                        callback.onSuccess(decodedResult, response.raw());
+                        callback.onSuccess(messageId, response.raw());
                     } else {
                         final String strContent = readAsString(response.body());
                         callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
@@ -506,7 +505,7 @@ public final class AzureCommunicationChatServiceImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the send message operation.
      */
-    public Response<SendChatMessageResult> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageRequest body) {
+    public Response<String> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageRequest body) {
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.serializerAdapter.serialize(body, this.resolveSerializerFormat("application/json")));
@@ -519,7 +518,7 @@ public final class AzureCommunicationChatServiceImpl {
                 return new Response<>(response.raw().request(),
                                         response.code(),
                                         response.headers(),
-                                        this.deserializeContent(response.headers(), response.body(), SendChatMessageResult.class));
+                                        this.deserializeContent(response.headers(), response.body(), String.class));
             } else {
                 final String strContent = this.readAsString(response.body());
                 throw new ErrorException(strContent, response.raw());
