@@ -48,6 +48,7 @@ import com.azure.android.storage.blob.options.BlockBlobCommitBlockListOptions;
 import com.azure.android.storage.blob.options.BlockBlobStageBlockOptions;
 import com.azure.android.storage.blob.options.ContainerCreateOptions;
 import com.azure.android.storage.blob.options.ContainerDeleteOptions;
+import com.azure.android.storage.blob.options.ContainerListBlobsOptions;
 
 import org.junit.After;
 import org.junit.Test;
@@ -297,13 +298,7 @@ public class StorageBlobClientTest {
         mockWebServer.enqueue(mockResponse);
 
         com.azure.android.core.http.Response<BlobsPage> response =
-            storageBlobClient.getBlobsInPageWithRestResponse(null,
-                "testContainer",
-                null,
-                null,
-                null,
-                null,
-                CancellationToken.NONE);
+            storageBlobClient.getBlobsInPageWithResponse(new ContainerListBlobsOptions("testContainer"));
 
         // Then the client will return an object that contains both the details of the REST response and a list
         // with the details of the blobs.
@@ -331,13 +326,7 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.getBlobsInPage(null,
-            "testContainer",
-            null,
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
+        storageBlobAsyncClient.getBlobsInPage(new ContainerListBlobsOptions("testContainer"),
             new Callback<BlobsPage>() {
                 @Override
                 public void onSuccess(BlobsPage result, Response response) {

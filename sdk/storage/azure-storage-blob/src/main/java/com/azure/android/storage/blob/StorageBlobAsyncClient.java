@@ -19,7 +19,6 @@ import com.azure.android.core.http.CallbackWithHeader;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.http.interceptor.RequestIdInterceptor;
-import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.CoreUtil;
 import com.azure.android.storage.blob.implementation.util.ModelHelper;
 import com.azure.android.storage.blob.interceptor.MetadataInterceptor;
@@ -47,7 +46,6 @@ import com.azure.android.storage.blob.models.ContainerDeleteHeaders;
 import com.azure.android.storage.blob.models.ContainerGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.ListBlobFlatSegmentHeaders;
 import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
-import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.options.BlobDeleteOptions;
 import com.azure.android.storage.blob.options.BlobGetPropertiesOptions;
@@ -62,6 +60,7 @@ import com.azure.android.storage.blob.options.BlockBlobStageBlockOptions;
 import com.azure.android.storage.blob.options.ContainerCreateOptions;
 import com.azure.android.storage.blob.options.ContainerDeleteOptions;
 import com.azure.android.storage.blob.options.ContainerGetPropertiesOptions;
+import com.azure.android.storage.blob.options.ContainerListBlobsOptions;
 import com.azure.android.storage.blob.transfer.DownloadRequest;
 import com.azure.android.storage.blob.transfer.StorageBlobClientMap;
 import com.azure.android.storage.blob.transfer.TransferClient;
@@ -355,71 +354,73 @@ public class StorageBlobAsyncClient {
     }
 
     /**
-     * Gets a list of blobs identified by a page id in a given container.
+     * Gets a list of blobs identified by a page id in a given container. The directories are
+     * flattened and only actual blobs and no directories are returned.
+     *
+     * <p>
+     * Blob names are returned in lexicographic order. For more information, see the
+     * <a href="https://docs.microsoft.com/rest/api/storageservices/list-blobs">Azure Docs</a>.
+     *
+     * <p>
+     * E.g. listing a container containing a 'foo' folder, which contains blobs 'foo1' and 'foo2', and a blob on the
+     * root level 'bar', will return
+     *
+     * <ul>
+     * <li>foo/foo1
+     * <li>foo/foo2
+     * <li>bar
+     * </ul>
      *
      * @param pageId        Identifies the portion of the list to be returned.
      * @param containerName The container name.
-     * @param options       The page options.
+     * @param listBlobsOptions       The page options.
      * @param callback      Callback that receives the retrieved blob list.
      */
-    public void getBlobsInPage(String pageId,
-                               String containerName,
-                               ListBlobsOptions options,
-                               Callback<BlobsPage> callback) {
-        this.storageBlobServiceClient.listBlobFlatSegment(pageId,
-            containerName,
-            options,
-            new CallbackWithHeader<ListBlobsFlatSegmentResponse, ListBlobFlatSegmentHeaders>() {
-                @Override
-                public void onSuccess(ListBlobsFlatSegmentResponse result, ListBlobFlatSegmentHeaders header, Response response) {
-                    List<BlobItem> list = result.getSegment() == null
-                        ? new ArrayList<>(0)
-                        : result.getSegment().getBlobItems();
-                    callback.onSuccess(new BlobsPage(list, pageId, result.getNextMarker()), response);
-                }
-
-                @Override
-                public void onFailure(Throwable throwable, Response response) {
-                    callback.onFailure(throwable, response);
-                }
-            });
+    public void getBlobsInPage(@NonNull String containerName,
+                               @Nullable String pageId,
+                               @Nullable ListBlobsOptions listBlobsOptions,
+                               @Nullable Callback<BlobsPage> callback) {
+        this.getBlobsInPage(new ContainerListBlobsOptions(containerName).setPageId(pageId)
+                .setListBlobsOptions(listBlobsOptions), callback);
     }
 
     /**
-     * Gets a list of blobs identified by a page id in a given container.
+     * Gets a list of blobs identified by a page id in a given container. The directories are
+     * flattened and only actual blobs and no directories are returned.
      *
-     * @param pageId            Identifies the portion of the list to be returned.
-     * @param containerName     The container name.
-     * @param prefix            Filters the results to return only blobs whose name begins with the specified prefix.
-     * @param maxResults        Specifies the maximum number of blobs to return.
-     * @param include           Include this parameter to specify one or more datasets to include in the response.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param callback          Callback that receives the response.
-     * @param cancellationToken The token to request cancellation.
+     * <p>
+     * Blob names are returned in lexicographic order. For more information, see the
+     * <a href="https://docs.microsoft.com/rest/api/storageservices/list-blobs">Azure Docs</a>.
+     *
+     * <p>
+     * E.g. listing a container containing a 'foo' folder, which contains blobs 'foo1' and 'foo2', and a blob on the
+     * root level 'bar', will return
+     *
+     * <ul>
+     * <li>foo/foo1
+     * <li>foo/foo2
+     * <li>bar
+     * </ul>
+     *
+     * @param options {@link ListBlobsOptions}
+     * @param callback      Callback that receives the retrieved blob list.
      */
-    public void getBlobsInPage(String pageId,
-                               String containerName,
-                               String prefix,
-                               Integer maxResults,
-                               List<ListBlobsIncludeItem> include,
-                               Integer timeout,
-                               CancellationToken cancellationToken,
-                               Callback<BlobsPage> callback) {
-        this.storageBlobServiceClient.listBlobFlatSegment(pageId,
-            containerName,
-            prefix,
-            maxResults,
-            include,
-            timeout,
-            cancellationToken,
-            new CallbackWithHeader<ListBlobsFlatSegmentResponse, ListBlobFlatSegmentHeaders>() {
+    public void getBlobsInPage(@NonNull ContainerListBlobsOptions options, @Nullable Callback<BlobsPage> callback) {
+        Objects.requireNonNull(options);
+        ListBlobsOptions listBlobsOptions = options.getListBlobsOptions() == null ? new ListBlobsOptions()
+            : options.getListBlobsOptions();
+
+        this.storageBlobServiceClient.listBlobFlatSegment(options.getPageId(), options.getContainerName(),
+            listBlobsOptions.getPrefix(), listBlobsOptions.getMaxResultsPerPage(),
+            listBlobsOptions.getDetails().toList(), options.getTimeout(), options.getCancellationToken(),
+            callback == null ? null :
+                new CallbackWithHeader<ListBlobsFlatSegmentResponse, ListBlobFlatSegmentHeaders>() {
                 @Override
                 public void onSuccess(ListBlobsFlatSegmentResponse result, ListBlobFlatSegmentHeaders header, Response response) {
                     List<BlobItem> list = result.getSegment() == null
                         ? new ArrayList<>(0)
                         : result.getSegment().getBlobItems();
-                    callback.onSuccess(new BlobsPage(list, pageId, result.getNextMarker()), response);
+                    callback.onSuccess(new BlobsPage(list, options.getPageId(), result.getNextMarker()), response);
                 }
 
                 @Override

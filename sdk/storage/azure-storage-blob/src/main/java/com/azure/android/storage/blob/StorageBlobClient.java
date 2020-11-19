@@ -13,7 +13,6 @@ import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
 import com.azure.android.core.http.interceptor.RequestIdInterceptor;
-import com.azure.android.core.util.CancellationToken;
 import com.azure.android.storage.blob.implementation.util.ModelHelper;
 import com.azure.android.storage.blob.interceptor.MetadataInterceptor;
 import com.azure.android.storage.blob.interceptor.NormalizeEtagInterceptor;
@@ -40,8 +39,6 @@ import com.azure.android.storage.blob.models.ContainerDeleteResponse;
 import com.azure.android.storage.blob.models.ContainerGetPropertiesHeaders;
 import com.azure.android.storage.blob.models.ContainerGetPropertiesResponse;
 import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse;
-import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
-import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.options.BlobDeleteOptions;
 import com.azure.android.storage.blob.options.BlobGetPropertiesOptions;
@@ -56,6 +53,7 @@ import com.azure.android.storage.blob.options.BlockBlobStageBlockOptions;
 import com.azure.android.storage.blob.options.ContainerCreateOptions;
 import com.azure.android.storage.blob.options.ContainerDeleteOptions;
 import com.azure.android.storage.blob.options.ContainerGetPropertiesOptions;
+import com.azure.android.storage.blob.options.ContainerListBlobsOptions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -186,57 +184,66 @@ public class StorageBlobClient {
     }
 
     /**
-     * Gets a list of blobs identified by a page id in a given container.
+     * Gets a list of blobs identified by a page id in a given container. The directories are
+     * flattened and only actual blobs and no directories are returned.
+     *
+     * <p>
+     * Blob names are returned in lexicographic order. For more information, see the
+     * <a href="https://docs.microsoft.com/rest/api/storageservices/list-blobs">Azure Docs</a>.
+     *
+     * <p>
+     * E.g. listing a container containing a 'foo' folder, which contains blobs 'foo1' and 'foo2', and a blob on the
+     * root level 'bar', will return
+     *
+     * <ul>
+     * <li>foo/foo1
+     * <li>foo/foo2
+     * <li>bar
+     * </ul>
      *
      * @param pageId        Identifies the portion of the list to be returned.
      * @param containerName The container name.
-     * @param options       The page options.
-     * @return A list of blobs.
+     * @param listBlobsOptions       The page options.
+     * @return A response object containing a list of blobs.
      */
-    public BlobsPage getBlobsInPage(String pageId,
-                                    String containerName,
-                                    ListBlobsOptions options) {
-        ListBlobsFlatSegmentResponse result = this.storageBlobServiceClient.listBlobFlatSegment(pageId,
-            containerName, options);
-
-        final List<BlobItem> list;
-        if (result.getSegment() != null
-            && result.getSegment().getBlobItems() != null) {
-            list = result.getSegment().getBlobItems();
-        } else {
-            list = new ArrayList<>(0);
-        }
-        return new BlobsPage(list, pageId, result.getNextMarker());
+    @NonNull
+    public BlobsPage getBlobsInPage(@NonNull String containerName, @Nullable String pageId,
+                                    @Nullable ListBlobsOptions listBlobsOptions) {
+        return getBlobsInPageWithResponse(new ContainerListBlobsOptions(containerName).setPageId(pageId)
+        .setListBlobsOptions(listBlobsOptions)).getValue();
     }
 
     /**
-     * Gets a list of blobs identified by a page id in a given container.
+     * Gets a list of blobs identified by a page id in a given container. The directories are
+     * flattened and only actual blobs and no directories are returned.
      *
-     * @param pageId            Identifies the portion of the list to be returned.
-     * @param containerName     The container name.
-     * @param prefix            Filters the results to return only blobs whose name begins with the specified prefix.
-     * @param maxResults        Specifies the maximum number of blobs to return.
-     * @param include           Include this parameter to specify one or more datasets to include in the response.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param cancellationToken The token to request cancellation.
+     * <p>
+     * Blob names are returned in lexicographic order. For more information, see the
+     * <a href="https://docs.microsoft.com/rest/api/storageservices/list-blobs">Azure Docs</a>.
+     *
+     * <p>
+     * E.g. listing a container containing a 'foo' folder, which contains blobs 'foo1' and 'foo2', and a blob on the
+     * root level 'bar', will return
+     *
+     * <ul>
+     * <li>foo/foo1
+     * <li>foo/foo2
+     * <li>bar
+     * </ul>
+     *
+     * @param options {@link ListBlobsOptions}
      * @return A response object containing a list of blobs.
      */
-    public Response<BlobsPage> getBlobsInPageWithRestResponse(String pageId,
-                                                              String containerName,
-                                                              String prefix,
-                                                              Integer maxResults,
-                                                              List<ListBlobsIncludeItem> include,
-                                                              Integer timeout,
-                                                              CancellationToken cancellationToken) {
+    @NonNull
+    public Response<BlobsPage> getBlobsInPageWithResponse(@NonNull ContainerListBlobsOptions options) {
+        Objects.requireNonNull(options);
+        ListBlobsOptions listBlobsOptions = options.getListBlobsOptions() == null ? new ListBlobsOptions()
+            : options.getListBlobsOptions();
+
         ContainersListBlobFlatSegmentResponse result
-            = this.storageBlobServiceClient.listBlobFlatSegmentWithRestResponse(pageId,
-            containerName,
-            prefix,
-            maxResults,
-            include,
-            timeout,
-            cancellationToken);
+            = this.storageBlobServiceClient.listBlobFlatSegmentWithRestResponse(options.getPageId(),
+            options.getContainerName(), listBlobsOptions.getPrefix(), listBlobsOptions.getMaxResultsPerPage(),
+            listBlobsOptions.getDetails().toList(), options.getTimeout(), options.getCancellationToken());
         final List<BlobItem> list;
         if (result.getValue().getSegment() != null
             && result.getValue().getSegment().getBlobItems() != null) {
@@ -244,7 +251,7 @@ public class StorageBlobClient {
         } else {
             list = new ArrayList<>(0);
         }
-        BlobsPage blobsPage = new BlobsPage(list, pageId, result.getValue().getNextMarker());
+        BlobsPage blobsPage = new BlobsPage(list, options.getPageId(), result.getValue().getNextMarker());
 
         return new Response<>(null,
             result.getStatusCode(),

@@ -10,6 +10,7 @@ import com.azure.android.storage.blob.StorageBlobAsyncClient;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobsPage;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
+import com.azure.android.storage.blob.options.ContainerListBlobsOptions;
 import com.azure.android.storage.sample.core.util.paging.DefaultPaginationDescription;
 import com.azure.android.storage.sample.core.util.paging.PageItemsFetcher;
 import com.azure.android.storage.sample.core.util.paging.PaginationDescription;
@@ -61,9 +62,8 @@ final class ContainerBlobsPaginationRepository
                 if (pageSize != null && pageSize > 0) {
                     options.setMaxResultsPerPage(pageSize);
                 }
-                storageBlobAsyncClient.getBlobsInPage(pageIdentifier, containerName, options.getPrefix(),
-                    options.getMaxResultsPerPage(), options.getDetails().toList(),
-                    null, CancellationToken.NONE,
+                storageBlobAsyncClient.getBlobsInPage(new ContainerListBlobsOptions(containerName).setPageId(pageIdentifier)
+                    .setListBlobsOptions(options).setCancellationToken(CancellationToken.NONE),
                     new Callback<BlobsPage>() {
                         @Override
                         public void onSuccess(BlobsPage result, Response response) {
