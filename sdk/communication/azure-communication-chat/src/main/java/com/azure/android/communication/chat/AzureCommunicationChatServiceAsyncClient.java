@@ -5,18 +5,7 @@
 package com.azure.android.communication.chat;
 
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
-import com.azure.android.communication.chat.models.AddChatParticipantsRequest;
-import com.azure.android.communication.chat.models.ChatMessage;
-import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
-import com.azure.android.communication.chat.models.ChatParticipant;
-import com.azure.android.communication.chat.models.ChatThread;
-import com.azure.android.communication.chat.models.ChatThreadInfo;
-import com.azure.android.communication.chat.models.CreateChatThreadRequest;
-import com.azure.android.communication.chat.models.ErrorException;
-import com.azure.android.communication.chat.models.SendChatMessageRequest;
-import com.azure.android.communication.chat.models.SendReadReceiptRequest;
-import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
-import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
+import com.azure.android.communication.chat.models.*;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;

@@ -68,19 +68,6 @@ public class chatClientTest {
     }
 
     @Test
-    public void listThreadPagesWithRestResponse() {
-        mockThreadsResponse(5);
-
-        final Response<Page<ChatParticipant>> firstPage = chatServiceClient.listChatParticipantsWithRestResponse("threadId");
-        assertEquals(5, firstPage.getValue().getItems().size());
-
-        mockThreadsResponse(3);
-
-        final Response<Page<ChatThreadInfo>> nextPage = chatServiceClient.listChatThreadsNextWithRestResponse(firstPage.getValue().getNextPageId());
-        assertEquals(3, nextPage.getValue().getItems().size());
-    }
-
-    @Test
     public void listMessagePages() {
         mockMessagesResponse(5);
 
@@ -110,19 +97,6 @@ public class chatClientTest {
         assertEquals(3, nextPage.getValue().getItems().size());
 
         assertEquals(5, pagesWithResponse.getPage(nextPage.getValue().getPreviousPageId()).getValue().getItems().size());
-    }
-
-    @Test
-    public void listMessagePagesWithRestResponse() {
-        mockMessagesResponse(5);
-
-        final Response<Page<ChatMessage>> firstPage = chatServiceClient.listChatMessagesWithRestResponse("threadId", 5, OffsetDateTime.now());
-        assertEquals(5, firstPage.getValue().getItems().size());
-
-        mockMessagesResponse(3);
-
-        final Response<Page<ChatMessage>> nextPage = chatServiceClient.listChatMessagesNextWithRestResponse(firstPage.getValue().getNextPageId());
-        assertEquals(3, nextPage.getValue().getItems().size());
     }
 
     private void mockThreadsResponse(int n) {

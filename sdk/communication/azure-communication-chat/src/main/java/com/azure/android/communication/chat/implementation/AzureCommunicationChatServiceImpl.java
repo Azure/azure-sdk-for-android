@@ -4,22 +4,8 @@
 
 package com.azure.android.communication.chat.implementation;
 
-import com.azure.android.communication.chat.models.AddChatParticipantsRequest;
-import com.azure.android.communication.chat.models.ChatMessage;
-import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
-import com.azure.android.communication.chat.models.ChatMessageReadReceiptsCollection;
-import com.azure.android.communication.chat.models.ChatMessagesCollection;
-import com.azure.android.communication.chat.models.ChatParticipant;
-import com.azure.android.communication.chat.models.ChatParticipantsCollection;
-import com.azure.android.communication.chat.models.ChatThread;
-import com.azure.android.communication.chat.models.ChatThreadInfo;
-import com.azure.android.communication.chat.models.ChatThreadsInfoCollection;
-import com.azure.android.communication.chat.models.CreateChatThreadRequest;
-import com.azure.android.communication.chat.models.ErrorException;
-import com.azure.android.communication.chat.models.SendChatMessageRequest;
-import com.azure.android.communication.chat.models.SendReadReceiptRequest;
-import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
-import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
+import com.azure.android.communication.chat.implementation.converters.SendChatMessageResultConverter;
+import com.azure.android.communication.chat.models.*;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
@@ -523,9 +509,11 @@ public final class AzureCommunicationChatServiceImpl {
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
                     if (response.code() == 201) {
+                        final SendChatMessageResult decodedResult;
                         final String messageId;
                         try {
-                            messageId = deserializeContent(response.headers(), response.body(), String.class);
+                            decodedResult = deserializeContent(response.headers(), response.body(), SendChatMessageResult.class);
+                            messageId = SendChatMessageResultConverter.convert(decodedResult);
                         } catch(Exception ex) {
                             callback.onFailure(ex, response.raw());
                             return;
@@ -569,10 +557,11 @@ public final class AzureCommunicationChatServiceImpl {
         final retrofit2.Response<ResponseBody> response = this.executeRetrofitCall(service.sendChatMessage(chatThreadId, this.getApiVersion(), okHttp3RequestBody));
         if (response.isSuccessful()) {
             if (response.code() == 201) {
-                return new Response<>(response.raw().request(),
+                String messageId = SendChatMessageResultConverter.convert(this.deserializeContent(response.headers(), response.body(), SendChatMessageResult.class))
+;                return new Response<>(response.raw().request(),
                                         response.code(),
                                         response.headers(),
-                                        this.deserializeContent(response.headers(), response.body(), String.class));
+                                        messageId);
             } else {
                 final String strContent = this.readAsString(response.body());
                 throw new ErrorException(strContent, response.raw());
