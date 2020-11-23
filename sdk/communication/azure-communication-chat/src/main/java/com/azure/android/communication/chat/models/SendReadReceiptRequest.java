@@ -8,10 +8,10 @@ import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * The SendChatMessageReadReceiptRequest model.
+ * The SendReadReceiptRequest model.
  */
 @Fluent
-public final class SendChatMessageReadReceiptRequest {
+public final class SendReadReceiptRequest {
     /*
      * Id of the latest chat message read by the user.
      */
@@ -33,9 +33,9 @@ public final class SendChatMessageReadReceiptRequest {
      * the user.
      *
      * @param chatMessageId the chatMessageId value to set.
-     * @return the SendChatMessageReadReceiptRequest object itself.
+     * @return the SendReadReceiptRequest object itself.
      */
-    public SendChatMessageReadReceiptRequest setChatMessageId(String chatMessageId) {
+    public SendReadReceiptRequest setChatMessageId(String chatMessageId) {
         this.chatMessageId = chatMessageId;
         return this;
     }

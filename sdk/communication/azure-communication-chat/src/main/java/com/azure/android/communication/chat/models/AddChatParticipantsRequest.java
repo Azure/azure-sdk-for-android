@@ -5,6 +5,7 @@
 package com.azure.android.communication.chat.models;
 
 import com.azure.android.core.annotation.Fluent;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
@@ -21,7 +22,7 @@ public final class AddChatParticipantsRequest {
 
     /**
      * Get the participants property: Participants to add to a chat thread.
-     *
+     * 
      * @return the participants value.
      */
     public List<ChatParticipant> getParticipants() {
@@ -30,7 +31,7 @@ public final class AddChatParticipantsRequest {
 
     /**
      * Set the participants property: Participants to add to a chat thread.
-     *
+     * 
      * @param participants the participants value to set.
      * @return the AddChatParticipantsRequest object itself.
      */

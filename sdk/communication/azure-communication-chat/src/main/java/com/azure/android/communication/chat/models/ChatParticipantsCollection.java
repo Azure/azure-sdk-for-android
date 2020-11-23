@@ -5,6 +5,7 @@
 package com.azure.android.communication.chat.models;
 
 import com.azure.android.core.annotation.Fluent;
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
@@ -14,21 +15,21 @@ import java.util.List;
 @Fluent
 public final class ChatParticipantsCollection {
     /*
-     * Chat thread participants.
+     * Chat participants.
      */
     @JsonProperty(value = "value")
     private List<ChatParticipant> value;
 
     /*
-     * If there are more chat threads that can be retrieved, the next link will
-     * be populated.
+     * If there are more chat participants that can be retrieved, the next link
+     * will be populated.
      */
     @JsonProperty(value = "nextLink", access = JsonProperty.Access.WRITE_ONLY)
     private String nextLink;
 
     /**
-     * Get the value property: Chat thread participants.
-     *
+     * Get the value property: Chat participants.
+     * 
      * @return the value value.
      */
     public List<ChatParticipant> getValue() {
@@ -36,8 +37,8 @@ public final class ChatParticipantsCollection {
     }
 
     /**
-     * Set the value property: Chat thread participants.
-     *
+     * Set the value property: Chat participants.
+     * 
      * @param value the value value to set.
      * @return the ChatParticipantsCollection object itself.
      */
@@ -47,9 +48,9 @@ public final class ChatParticipantsCollection {
     }
 
     /**
-     * Get the nextLink property: If there are more chat threads that can be
-     * retrieved, the next link will be populated.
-     *
+     * Get the nextLink property: If there are more chat participants that can
+     * be retrieved, the next link will be populated.
+     * 
      * @return the nextLink value.
      */
     public String getNextLink() {

@@ -22,7 +22,7 @@ public final class ChatMessage {
 
     /*
      * Type of the chat message.
-     *
+     * 
      * Possible values:
      * - Text
      * - ThreadActivity/TopicUpdate
@@ -87,7 +87,7 @@ public final class ChatMessage {
     /**
      * Get the id property: The id of the chat message. This id is server
      * generated.
-     *
+     * 
      * @return the id value.
      */
     public String getId() {
@@ -96,13 +96,13 @@ public final class ChatMessage {
 
     /**
      * Get the type property: Type of the chat message.
-     *
+     * 
      * Possible values:
      * - Text
      * - ThreadActivity/TopicUpdate
      * - ThreadActivity/AddMember
      * - ThreadActivity/DeleteMember.
-     *
+     * 
      * @return the type value.
      */
     public String getType() {
@@ -111,13 +111,13 @@ public final class ChatMessage {
 
     /**
      * Set the type property: Type of the chat message.
-     *
+     * 
      * Possible values:
      * - Text
      * - ThreadActivity/TopicUpdate
      * - ThreadActivity/AddMember
      * - ThreadActivity/DeleteMember.
-     *
+     * 
      * @param type the type value to set.
      * @return the ChatMessage object itself.
      */
@@ -128,7 +128,7 @@ public final class ChatMessage {
 
     /**
      * Get the priority property: The chat message priority.
-     *
+     * 
      * @return the priority value.
      */
     public ChatMessagePriority getPriority() {
@@ -137,7 +137,7 @@ public final class ChatMessage {
 
     /**
      * Set the priority property: The chat message priority.
-     *
+     * 
      * @param priority the priority value to set.
      * @return the ChatMessage object itself.
      */
@@ -148,7 +148,7 @@ public final class ChatMessage {
 
     /**
      * Get the version property: Version of the chat message.
-     *
+     * 
      * @return the version value.
      */
     public String getVersion() {
@@ -157,7 +157,7 @@ public final class ChatMessage {
 
     /**
      * Get the content property: Content of the chat message.
-     *
+     * 
      * @return the content value.
      */
     public String getContent() {
@@ -166,7 +166,7 @@ public final class ChatMessage {
 
     /**
      * Set the content property: Content of the chat message.
-     *
+     * 
      * @param content the content value to set.
      * @return the ChatMessage object itself.
      */
@@ -179,7 +179,7 @@ public final class ChatMessage {
      * Get the senderDisplayName property: The display name of the chat message
      * sender. This property is used to populate sender name for push
      * notifications.
-     *
+     * 
      * @return the senderDisplayName value.
      */
     public String getSenderDisplayName() {
@@ -190,7 +190,7 @@ public final class ChatMessage {
      * Set the senderDisplayName property: The display name of the chat message
      * sender. This property is used to populate sender name for push
      * notifications.
-     *
+     * 
      * @param senderDisplayName the senderDisplayName value to set.
      * @return the ChatMessage object itself.
      */
@@ -203,7 +203,7 @@ public final class ChatMessage {
      * Get the createdOn property: The timestamp when the chat message arrived
      * at the server. The timestamp is in ISO8601 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * 
      * @return the createdOn value.
      */
     public OffsetDateTime getCreatedOn() {
@@ -212,7 +212,7 @@ public final class ChatMessage {
 
     /**
      * Get the senderId property: The id of the chat message sender.
-     *
+     * 
      * @return the senderId value.
      */
     public String getSenderId() {
@@ -222,7 +222,7 @@ public final class ChatMessage {
     /**
      * Get the deletedOn property: The timestamp when the chat message was
      * deleted. The timestamp is in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * 
      * @return the deletedOn value.
      */
     public OffsetDateTime getDeletedOn() {
@@ -232,7 +232,7 @@ public final class ChatMessage {
     /**
      * Set the deletedOn property: The timestamp when the chat message was
      * deleted. The timestamp is in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * 
      * @param deletedOn the deletedOn value to set.
      * @return the ChatMessage object itself.
      */
@@ -244,7 +244,7 @@ public final class ChatMessage {
     /**
      * Get the editedOn property: The timestamp when the chat message was
      * edited. The timestamp is in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * 
      * @return the editedOn value.
      */
     public OffsetDateTime getEditedOn() {
@@ -254,7 +254,7 @@ public final class ChatMessage {
     /**
      * Set the editedOn property: The timestamp when the chat message was
      * edited. The timestamp is in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * 
      * @param editedOn the editedOn value to set.
      * @return the ChatMessage object itself.
      */
