@@ -81,7 +81,7 @@ AzureCommunicationChatServiceAsyncClient client = new AzureCommunicationChatServ
 
 User access tokens enable you to build client applications that directly authenticate to Azure Communication Services. Refer [here](https://docs.microsoft.com/azure/communication-services/quickstarts/access-tokens) to learn how to create a user and issue a User Access Token.
 
-The id for the user created above will be necessary later to add said user as a participant of a new chat thread. The initiator of the create request must be in the list of participants of the chat thread.
+The id for the user created above will be necessary later to add said user as a participant of a new chat thread. 
 
 ### Chat Thread
 
