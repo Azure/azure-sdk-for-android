@@ -10,12 +10,12 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import org.threeten.bp.OffsetDateTime;
 
 /**
- * The ReadReceipt model.
+ * The ChatMessageReadReceipt model.
  */
 @Immutable
-public final class ReadReceipt {
+public final class ChatMessageReadReceipt {
     /*
-     * Read receipt sender id.
+     * Chat message read receipt sender id.
      */
     @JsonProperty(value = "senderId", access = JsonProperty.Access.WRITE_ONLY)
     private String senderId;
@@ -28,14 +28,14 @@ public final class ReadReceipt {
     private String chatMessageId;
 
     /*
-     * Read receipt timestamp. The timestamp is in ISO8601 format:
+     * Chat message read receipt timestamp. The timestamp is in ISO8601 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      */
     @JsonProperty(value = "readOn", access = JsonProperty.Access.WRITE_ONLY)
     private OffsetDateTime readOn;
 
     /**
-     * Get the senderId property: Read receipt sender id.
+     * Get the senderId property: Chat message read receipt sender id.
      * 
      * @return the senderId value.
      */
@@ -54,8 +54,8 @@ public final class ReadReceipt {
     }
 
     /**
-     * Get the readOn property: Read receipt timestamp. The timestamp is in
-     * ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * Get the readOn property: Chat message read receipt timestamp. The
+     * timestamp is in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * 
      * @return the readOn value.
      */

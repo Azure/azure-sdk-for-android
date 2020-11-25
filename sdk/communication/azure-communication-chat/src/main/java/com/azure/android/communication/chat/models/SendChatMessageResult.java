@@ -21,7 +21,7 @@ public final class SendChatMessageResult {
 
     /**
      * Get the id property: A server-generated message id.
-     * 
+     *
      * @return the id value.
      */
     public String getId() {

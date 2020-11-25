@@ -5,47 +5,13 @@
 package com.azure.android.communication.chat;
 
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
-import com.azure.android.communication.chat.models.AddChatThreadMembersRequest;
-import com.azure.android.communication.chat.models.ChatMessage;
-import com.azure.android.communication.chat.models.ChatMessagesCollection;
-import com.azure.android.communication.chat.models.ChatThread;
-import com.azure.android.communication.chat.models.ChatThreadInfo;
-import com.azure.android.communication.chat.models.ChatThreadMember;
-import com.azure.android.communication.chat.models.ChatThreadMembersCollection;
-import com.azure.android.communication.chat.models.ChatThreadsInfoCollection;
-import com.azure.android.communication.chat.models.CreateChatThreadRequest;
-import com.azure.android.communication.chat.models.ErrorException;
-import com.azure.android.communication.chat.models.MultiStatusResponse;
-import com.azure.android.communication.chat.models.ReadReceipt;
-import com.azure.android.communication.chat.models.ReadReceiptsCollection;
-import com.azure.android.communication.chat.models.SendChatMessageRequest;
-import com.azure.android.communication.chat.models.SendChatMessageResult;
-import com.azure.android.communication.chat.models.SendReadReceiptRequest;
-import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
-import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
+import com.azure.android.communication.chat.models.*;
 import com.azure.android.core.http.Callback;
-import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
-import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;
-import com.azure.android.core.http.responsepaging.AsyncPagedDataRetriever;
-import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
-import com.azure.android.core.http.responsepaging.PagedDataResponseRetriever;
 import com.azure.android.core.util.paging.Page;
-import com.azure.android.core.util.paging.PagedDataCollection;
-import com.azure.android.core.util.paging.PagedDataRetriever;
 import okhttp3.Interceptor;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import org.threeten.bp.OffsetDateTime;
-import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.DELETE;
-import retrofit2.http.GET;
-import retrofit2.http.PATCH;
-import retrofit2.http.Path;
-import retrofit2.http.POST;
-import retrofit2.http.Query;
 
 /**
  * Initializes a new instance of the asynchronous AzureCommunicationChatService type.
@@ -61,57 +27,46 @@ public final class AzureCommunicationChatServiceAsyncClient {
     }
 
     /**
-     * Gets read receipts for a thread.
+     * Gets chat message read receipts for a thread.
      *
-     * @param chatThreadId Thread id to get the read receipts for.
-     * @param callback the Callback that receives the response.
+     * @param chatThreadId Thread id to get the chat message read receipts for.
+     * @param maxPageSize The maximum number of chat message read receipts to be returned per page.
+     * @param skip Skips chat message read receipts up to a specified position in response.
+     * @param callback the Callback that receives the response collection.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatReadReceipts(String chatThreadId, final Callback<Page<ReadReceipt>> callback) {
-        this.serviceClient.listChatReadReceipts(chatThreadId, callback);
-    }
-
-    /**
-     * Gets read receipts for a thread.
-     *
-     * @param chatThreadId Thread id to get the read receipts for.
-     * @param collectionCallback the Callback that receives the response collection.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void listChatReadReceiptsPages(String chatThreadId, final Callback<AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>>> collectionCallback) {
-        this.serviceClient.listChatReadReceiptsPagesAsync(chatThreadId, collectionCallback);
+    public void listChatReadReceiptsPages(String chatThreadId, Integer maxPageSize, Integer skip, final Callback<AsyncPagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>>> callback) {
+        this.serviceClient.listChatReadReceiptsPagesAsync(chatThreadId, maxPageSize, skip, callback);
     }
 
     /**
      * Sends a read receipt event to a thread, on behalf of a user.
      *
      * @param chatThreadId Thread id to send the read receipt event to.
-     * @param body Request payload for sending a read receipt.
+     * @param sendReadReceiptRequest Request payload for sending a read receipt.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void sendChatReadReceipt(String chatThreadId, SendReadReceiptRequest body, final Callback<Void> callback) {
-        this.serviceClient.sendChatReadReceipt(chatThreadId, body, callback);
+    public void sendChatReadReceipt(String chatThreadId, SendReadReceiptRequest sendReadReceiptRequest, final Callback<Void> callback) {
+        this.serviceClient.sendChatReadReceipt(chatThreadId, sendReadReceiptRequest, callback);
     }
 
     /**
      * Sends a message to a thread.
      *
      * @param chatThreadId The thread id to send the message to.
-     * @param body Details of the message to send.
+     * @param sendChatMessageRequest Details of the message to send.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void sendChatMessage(String chatThreadId, SendChatMessageRequest body, final Callback<SendChatMessageResult> callback) {
-        this.serviceClient.sendChatMessage(chatThreadId, body, callback);
+    public void sendChatMessage(String chatThreadId, SendChatMessageRequest sendChatMessageRequest, final Callback<String> callback) {
+        this.serviceClient.sendChatMessage(chatThreadId, sendChatMessageRequest, callback);
     }
 
     /**
@@ -120,41 +75,13 @@ public final class AzureCommunicationChatServiceAsyncClient {
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
      * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     * @param callback the Callback that receives the response.
+     * @param callback the Callback that receives the response collection.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatMessages(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, final Callback<Page<ChatMessage>> callback) {
-        this.serviceClient.listChatMessages(chatThreadId, maxPageSize, startTime, callback);
-    }
-
-    /**
-     * Gets a list of messages from a thread.
-     *
-     * @param chatThreadId The thread id of the message.
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void listChatMessages(String chatThreadId, final Callback<Page<ChatMessage>> callback) {
-        this.serviceClient.listChatMessages(chatThreadId, callback);
-    }
-
-    /**
-     * Gets a list of messages from a thread.
-     *
-     * @param chatThreadId The thread id of the message.
-     * @param collectionCallback the Callback that receives the response collection.
-     * @param maxPageSize The maximum number of messages to be returned per page.
-     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void listChatMessagesPages(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, final Callback<AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>> collectionCallback) {
-        this.serviceClient.listChatMessagesPagesAsync(chatThreadId, maxPageSize, startTime, collectionCallback);
+    public void listChatMessagesPages(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, final Callback<AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>> callback) {
+        this.serviceClient.listChatMessagesPagesAsync(chatThreadId, maxPageSize, startTime, callback);
     }
 
     /**
@@ -176,14 +103,14 @@ public final class AzureCommunicationChatServiceAsyncClient {
      *
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
-     * @param body Details of the request to update the message.
+     * @param updateChatMessageRequest Details of the request to update the message.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void updateChatMessage(String chatThreadId, String chatMessageId, UpdateChatMessageRequest body, final Callback<Void> callback) {
-        this.serviceClient.updateChatMessage(chatThreadId, chatMessageId, body, callback);
+    public void updateChatMessage(String chatThreadId, String chatMessageId, UpdateChatMessageRequest updateChatMessageRequest, final Callback<Void> callback) {
+        this.serviceClient.updateChatMessage(chatThreadId, chatMessageId, updateChatMessageRequest, callback);
     }
 
     /**
@@ -214,70 +141,73 @@ public final class AzureCommunicationChatServiceAsyncClient {
     }
 
     /**
-     * Gets the members of a thread.
+     * Gets the participants of a thread.
      *
-     * @param chatThreadId Thread id to get members for.
+     * @param chatThreadId Thread id to get participants for.
+     * @param maxPageSize The maximum number of participants to be returned per page.
+     * @param skip Skips participants up to a specified position in response.
+     * @param callback the Callback that receives the response collection.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void listChatParticipantsPages(String chatThreadId, Integer maxPageSize, Integer skip, final Callback<AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>>> callback) {
+        this.serviceClient.listChatParticipantsPagesAsync(chatThreadId, maxPageSize, skip, callback);
+    }
+
+    /**
+     * Adds thread participants to a thread. If participants already exist, no change occurs.
+     *
+     * @param chatThreadId Id of the thread to add participants to.
+     * @param addChatParticipantsRequest Participants to be added to the thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatThreadMembers(String chatThreadId, final Callback<Page<ChatThreadMember>> callback) {
-        this.serviceClient.listChatThreadMembers(chatThreadId, callback);
+    public void addChatParticipants(String chatThreadId, AddChatParticipantsRequest addChatParticipantsRequest, final Callback<Void> callback) {
+        this.serviceClient.addChatParticipants(chatThreadId, addChatParticipantsRequest, callback);
     }
 
     /**
-     * Gets the members of a thread.
+     * Remove a participant from a thread.
      *
-     * @param chatThreadId Thread id to get members for.
-     * @param collectionCallback the Callback that receives the response collection.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void listChatThreadMembersPages(String chatThreadId, final Callback<AsyncPagedDataCollection<ChatThreadMember, Page<ChatThreadMember>>> collectionCallback) {
-        this.serviceClient.listChatThreadMembersPagesAsync(chatThreadId, collectionCallback);
-    }
-
-    /**
-     * Adds thread members to a thread. If members already exist, no change occurs.
-     *
-     * @param chatThreadId Id of the thread to add members to.
-     * @param body Thread members to be added to the thread.
+     * @param chatThreadId Thread id to remove the participant from.
+     * @param chatParticipantId Id of the thread participant to remove from the thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void addChatThreadMembers(String chatThreadId, AddChatThreadMembersRequest body, final Callback<Void> callback) {
-        this.serviceClient.addChatThreadMembers(chatThreadId, body, callback);
-    }
-
-    /**
-     * Remove a member from a thread.
-     *
-     * @param chatThreadId Thread id to remove the member from.
-     * @param chatMemberId Id of the thread member to remove from the thread.
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void removeChatThreadMember(String chatThreadId, String chatMemberId, final Callback<Void> callback) {
-        this.serviceClient.removeChatThreadMember(chatThreadId, chatMemberId, callback);
+    public void removeChatParticipant(String chatThreadId, String chatParticipantId, final Callback<Void> callback) {
+        this.serviceClient.removeChatParticipant(chatThreadId, chatParticipantId, callback);
     }
 
     /**
      * Creates a chat thread.
      *
-     * @param body Request payload for creating a chat thread.
+     * @param createChatThreadRequest Request payload for creating a chat thread.
+     * @param azureAcsIdempotencyKey Idempotency key to ensure request retries don't yield different side effects.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void createChatThread(CreateChatThreadRequest body, final Callback<MultiStatusResponse> callback) {
-        this.serviceClient.createChatThread(body, callback);
+    public void createChatThread(CreateChatThreadRequest createChatThreadRequest, String azureAcsIdempotencyKey, final Callback<ChatThread> callback) {
+        this.serviceClient.createChatThread(createChatThreadRequest, azureAcsIdempotencyKey, callback);
+    }
+
+    /**
+     * Creates a chat thread.
+     *
+     * @param createChatThreadRequest Request payload for creating a chat thread.
+     * @param callback the Callback that receives the response.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void createChatThread(CreateChatThreadRequest createChatThreadRequest, final Callback<ChatThread> callback) {
+        this.serviceClient.createChatThread(createChatThreadRequest, callback);
     }
 
     /**
@@ -285,53 +215,27 @@ public final class AzureCommunicationChatServiceAsyncClient {
      *
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     * @param callback the Callback that receives the response.
+     * @param callback the Callback that receives the response collection.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void listChatThreads(Integer maxPageSize, OffsetDateTime startTime, final Callback<Page<ChatThreadInfo>> callback) {
-        this.serviceClient.listChatThreads(maxPageSize, startTime, callback);
-    }
-
-    /**
-     * Gets the list of chat threads of a user.
-     *
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void listChatThreads(final Callback<Page<ChatThreadInfo>> callback) {
-        this.serviceClient.listChatThreads(callback);
-    }
-
-    /**
-     * Gets the list of chat threads of a user.
-     *
-     * @param collectionCallback the Callback that receives the response collection.
-     * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void listChatThreadsPages(Integer maxPageSize, OffsetDateTime startTime, final Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>> collectionCallback) {
-        this.serviceClient.listChatThreadsPagesAsync(maxPageSize, startTime, collectionCallback);
+    public void listChatThreadsPages(Integer maxPageSize, OffsetDateTime startTime, final Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>> callback) {
+        this.serviceClient.listChatThreadsPagesAsync(maxPageSize, startTime, callback);
     }
 
     /**
      * Updates a thread's properties.
      *
      * @param chatThreadId The id of the thread to update.
-     * @param body Request payload for updating a chat thread.
+     * @param updateChatThreadRequest Request payload for updating a chat thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void updateChatThread(String chatThreadId, UpdateChatThreadRequest body, final Callback<Void> callback) {
-        this.serviceClient.updateChatThread(chatThreadId, body, callback);
+    public void updateChatThread(String chatThreadId, UpdateChatThreadRequest updateChatThreadRequest, final Callback<Void> callback) {
+        this.serviceClient.updateChatThread(chatThreadId, updateChatThreadRequest, callback);
     }
 
     /**
@@ -358,58 +262,6 @@ public final class AzureCommunicationChatServiceAsyncClient {
      */
     public void deleteChatThread(String chatThreadId, final Callback<Void> callback) {
         this.serviceClient.deleteChatThread(chatThreadId, callback);
-    }
-
-    /**
-     * Get the next page of items.
-     *
-     * @param nextLink null
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void listChatReadReceiptsNext(String nextLink, final Callback<Page<ReadReceipt>> callback) {
-        this.serviceClient.listChatReadReceiptsNext(nextLink, callback);
-    }
-
-    /**
-     * Get the next page of items.
-     *
-     * @param nextLink null
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void listChatMessagesNext(String nextLink, final Callback<Page<ChatMessage>> callback) {
-        this.serviceClient.listChatMessagesNext(nextLink, callback);
-    }
-
-    /**
-     * Get the next page of items.
-     *
-     * @param nextLink null
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void listChatThreadMembersNext(String nextLink, final Callback<Page<ChatThreadMember>> callback) {
-        this.serviceClient.listChatThreadMembersNext(nextLink, callback);
-    }
-
-    /**
-     * Get the next page of items.
-     *
-     * @param nextLink null
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void listChatThreadsNext(String nextLink, final Callback<Page<ChatThreadInfo>> callback) {
-        this.serviceClient.listChatThreadsNext(nextLink, callback);
     }
 
     /**
