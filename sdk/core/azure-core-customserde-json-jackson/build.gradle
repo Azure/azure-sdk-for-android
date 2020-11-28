@@ -1,0 +1,23 @@
+ext.publishName = "Microsoft Azure Android Core Credential Library"
+description = "This package contains core credential types for Azure Android clients."
+version = "1.0.0-beta.1"
+ext.versionCode = 1
+
+android {
+    defaultConfig {
+        versionCode project.versionCode
+        versionName project.version
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    api project(":sdk:core:azure-core-customserde")
+    implementation project(":sdk:core:azure-core-serde-jackson")
+    implementation project(":sdk:core:azure-core-logging")
+    api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"
+    api "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
+    api "javax.xml.stream:stax-api:$staxApiVersion" // https://stackoverflow.com/a/47371517/1473510
+    testImplementation "androidx.arch.core:core-testing:$archCoreTestVersion"
+    testImplementation "junit:junit:$jUnitVersion"
+}

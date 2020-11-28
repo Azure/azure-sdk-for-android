@@ -1,0 +1,22 @@
+ext.publishName = "Microsoft Azure Android Serde Jackson Library"
+description = "This package contains Serde implementation using Jackson for Azure Android clients."
+version = "1.0.0-beta.1"
+ext.versionCode = 1
+
+android {
+    defaultConfig {
+        versionCode project.versionCode
+        versionName project.version
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    api project(":sdk:core:azure-core-serde")
+    compileOnly project(":sdk:core:azure-core-micro") // provided'
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
+    implementation "javax.xml.stream:stax-api:$staxApiVersion" // https://stackoverflow.com/a/47371517/1473510
+    testImplementation "androidx.arch.core:core-testing:$archCoreTestVersion"
+    testImplementation "junit:junit:$jUnitVersion"
+}

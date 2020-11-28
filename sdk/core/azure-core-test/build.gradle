@@ -1,0 +1,37 @@
+ext.publishName = "Microsoft Azure Android Core Test Library"
+description = "This package contains core types for testing Azure Android clients."
+version = "1.0.0-beta.1"
+ext.versionCode = 1
+
+android {
+    defaultConfig {
+        versionCode project.versionCode
+        versionName project.version
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+
+    api project(":sdk:core:azure-core-serde-jackson")
+    api project(":sdk:core:azure-core-rest")
+    api project(":sdk:core:azure-core-micro")
+    implementation project(":sdk:core:azure-core-logging")
+    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
+    api "io.projectreactor:reactor-core:3.3.11.RELEASE"
+    api "io.projectreactor:reactor-test:3.3.11.RELEASE"
+    implementation 'org.testng:testng:6.9.6'
+    testImplementation "androidx.arch.core:core-testing:$archCoreTestVersion"
+    // (Required) Writing and executing Unit Tests on the JUnit Platform
+    implementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+    testImplementation "com.github.tomakehurst:wiremock-standalone:2.24.1"
+
+    // (Optional) If you need "Parameterized Tests"
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.0")
+
+    // (Optional) If you also have JUnit 4-based tests
+    testImplementation "junit:junit:$jUnitVersion"
+    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.7.0")
+}

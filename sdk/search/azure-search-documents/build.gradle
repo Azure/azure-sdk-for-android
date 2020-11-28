@@ -1,0 +1,40 @@
+ext.publishName = "Microsoft Azure Android Search Library"
+description = "This package contains Azure Search API for Azure Android clients."
+version = "1.0.0-beta.1"
+ext.versionCode = 1
+
+android {
+    defaultConfig {
+        versionCode project.versionCode
+        versionName project.version
+    }
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation project(":sdk:core:azure-core-logging")
+    api project(":sdk:core:azure-core-micro")
+    api project(":sdk:core:azure-core-credential")
+    api project(":sdk:core:azure-core-rest")
+    api project(":sdk:core:azure-core-http")
+    api project(":sdk:core:azure-core-http-okhttp")
+    api project(":sdk:core:azure-core-serde-jackson")
+    api project(":sdk:core:azure-core-logging")
+    api project(":sdk:core:azure-core-customserde-json-jackson")
+    api "io.projectreactor:reactor-core:3.3.11.RELEASE"
+    testImplementation project(":sdk:core:azure-core-test")
+    testImplementation "androidx.arch.core:core-testing:$archCoreTestVersion"
+    // (Required) Writing and executing Unit Tests on the JUnit Platform
+    implementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
+    testImplementation "com.github.tomakehurst:wiremock-standalone:2.24.1"
+    // (Optional) If you need "Parameterized Tests"
+    testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.0")
+    testImplementation "junit:junit:$jUnitVersion"
+    testImplementation "org.mockito:mockito-core:3.3.3"
+}
