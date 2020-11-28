@@ -5,12 +5,10 @@ package com.azure.core.test;
 
 import com.azure.core.test.http.HttpClientTests;
 import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 
 import java.nio.charset.StandardCharsets;
-
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
 
 /**
  * WireMock server used when running {@link HttpClientTests}.
@@ -42,37 +40,37 @@ public class HttpClientTestsWireMockServer {
             .gzipDisabled(true));
 
         // Basic bytes response.
-        server.stubFor(get(PLAIN_RESPONSE).willReturn(aResponse().withBody(RETURN_BYTES)));
+        server.stubFor(WireMock.get(PLAIN_RESPONSE).willReturn(WireMock.aResponse().withBody(RETURN_BYTES)));
 
         // Basic bytes with 'Content-Encoding' header.
-        server.stubFor(get(HEADER_RESPONSE).willReturn(aResponse().withBody(RETURN_BYTES)
+        server.stubFor(WireMock.get(HEADER_RESPONSE).willReturn(WireMock.aResponse().withBody(RETURN_BYTES)
             .withHeader("Content-Type", "charset=UTF-16BE")));
 
         // Basic bytes with invalid 'Content-Encoding' header.
-        server.stubFor(get(INVALID_HEADER_RESPONSE).willReturn(aResponse().withBody(RETURN_BYTES)
+        server.stubFor(WireMock.get(INVALID_HEADER_RESPONSE).willReturn(WireMock.aResponse().withBody(RETURN_BYTES)
             .withHeader("Content-Type", "charset=invalid")));
 
         // Bytes with leading UTF-8 BOM.
-        server.stubFor(get(UTF_8_BOM_RESPONSE).willReturn(aResponse().withBody(addBom(UTF_8_BOM))));
+        server.stubFor(WireMock.get(UTF_8_BOM_RESPONSE).willReturn(WireMock.aResponse().withBody(addBom(UTF_8_BOM))));
 
         // Bytes with leading UTF-16 BE BOM.
-        server.stubFor(get(UTF_16BE_BOM_RESPONSE).willReturn(aResponse().withBody(addBom(UTF_16BE_BOM))));
+        server.stubFor(WireMock.get(UTF_16BE_BOM_RESPONSE).willReturn(WireMock.aResponse().withBody(addBom(UTF_16BE_BOM))));
 
         // Bytes with leading UTF-16 LE BOM.
-        server.stubFor(get(UTF_16LE_BOM_RESPONSE).willReturn(aResponse().withBody(addBom(UTF_16LE_BOM))));
+        server.stubFor(WireMock.get(UTF_16LE_BOM_RESPONSE).willReturn(WireMock.aResponse().withBody(addBom(UTF_16LE_BOM))));
 
         // Bytes with leading UTF-32 BE BOM.
-        server.stubFor(get(UTF_32BE_BOM_RESPONSE).willReturn(aResponse().withBody(addBom(UTF_32BE_BOM))));
+        server.stubFor(WireMock.get(UTF_32BE_BOM_RESPONSE).willReturn(WireMock.aResponse().withBody(addBom(UTF_32BE_BOM))));
 
         // Bytes with leading UTF-32 LE BOM.
-        server.stubFor(get(UTF_32LE_BOM_RESPONSE).willReturn(aResponse().withBody(addBom(UTF_32LE_BOM))));
+        server.stubFor(WireMock.get(UTF_32LE_BOM_RESPONSE).willReturn(WireMock.aResponse().withBody(addBom(UTF_32LE_BOM))));
 
         // Bytes with leading UTF-8 BOM and matching 'Content-Encoding' header.
-        server.stubFor(get(BOM_WITH_SAME_HEADER).willReturn(aResponse()
+        server.stubFor(WireMock.get(BOM_WITH_SAME_HEADER).willReturn(WireMock.aResponse()
             .withBody(addBom(UTF_8_BOM)).withHeader("Content-Type", "charset=UTF-8")));
 
         // Bytes with leading UTF-8 BOM and differing 'Content-Encoding' header.
-        server.stubFor(get(BOM_WITH_DIFFERENT_HEADER).willReturn(aResponse()
+        server.stubFor(WireMock.get(BOM_WITH_DIFFERENT_HEADER).willReturn(WireMock.aResponse()
             .withBody(addBom(UTF_8_BOM)).withHeader("Content-Type", "charset=UTF-16")));
 
         return server;
