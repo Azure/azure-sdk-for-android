@@ -5,42 +5,60 @@
 package com.azure.android.communication.chat;
 
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
+import com.azure.android.communication.chat.implementation.ChatThreadsImpl;
 import com.azure.android.communication.chat.models.AddChatParticipantsRequest;
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
+import com.azure.android.communication.chat.models.ChatMessageReadReceiptsCollection;
+import com.azure.android.communication.chat.models.ChatMessagesCollection;
 import com.azure.android.communication.chat.models.ChatParticipant;
-import com.azure.android.communication.chat.models.ChatThread;
-import com.azure.android.communication.chat.models.ChatThreadInfo;
-import com.azure.android.communication.chat.models.CreateChatThreadRequest;
+import com.azure.android.communication.chat.models.ChatParticipantsCollection;
 import com.azure.android.communication.chat.models.ErrorException;
 import com.azure.android.communication.chat.models.SendChatMessageRequest;
+import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.SendReadReceiptRequest;
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
 import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
+import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
+import com.azure.android.core.http.exception.HttpResponseException;
+import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;
+import com.azure.android.core.http.responsepaging.AsyncPagedDataRetriever;
 import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
+import com.azure.android.core.http.responsepaging.PagedDataResponseRetriever;
 import com.azure.android.core.util.paging.Page;
 import com.azure.android.core.util.paging.PagedDataCollection;
+import com.azure.android.core.util.paging.PagedDataRetriever;
 import okhttp3.Interceptor;
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import org.threeten.bp.OffsetDateTime;
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.DELETE;
+import retrofit2.http.GET;
+import retrofit2.http.PATCH;
+import retrofit2.http.Path;
+import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 /**
  * Initializes a new instance of the synchronous AzureCommunicationChatService type.
  */
-public final class AzureCommunicationChatServiceClient {
-    private AzureCommunicationChatServiceImpl serviceClient;
+public final class ChatThreadClient {
+    private ChatThreadsImpl serviceClient;
 
     /**
-     * Initializes an instance of AzureCommunicationChatService client.
+     * Initializes an instance of ChatThreads client.
      */
-    AzureCommunicationChatServiceClient(AzureCommunicationChatServiceImpl serviceClient) {
+    ChatThreadClient(ChatThreadsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
     /**
      * Gets chat message read receipts for a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get the chat message read receipts for.
      * @param maxPageSize The maximum number of chat message read receipts to be returned per page.
      * @param skip Skips chat message read receipts up to a specified position in response.
@@ -55,7 +73,7 @@ public final class AzureCommunicationChatServiceClient {
 
     /**
      * Gets chat message read receipts for a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get the chat message read receipts for.
      * @param maxPageSize The maximum number of chat message read receipts to be returned per page.
      * @param skip Skips chat message read receipts up to a specified position in response.
@@ -70,7 +88,7 @@ public final class AzureCommunicationChatServiceClient {
 
     /**
      * Sends a read receipt event to a thread, on behalf of a user.
-     *
+     * 
      * @param chatThreadId Thread id to send the read receipt event to.
      * @param sendReadReceiptRequest Request payload for sending a read receipt.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -84,21 +102,21 @@ public final class AzureCommunicationChatServiceClient {
 
     /**
      * Sends a message to a thread.
-     *
+     * 
      * @param chatThreadId The thread id to send the message to.
      * @param sendChatMessageRequest Details of the message to send.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the ID of the message sent.
+     * @return result of the send message operation.
      */
-    public Response<String> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageRequest sendChatMessageRequest) {
+    public Response<SendChatMessageResult> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageRequest sendChatMessageRequest) {
         return this.serviceClient.sendChatMessageWithRestResponse(chatThreadId, sendChatMessageRequest);
     }
 
     /**
      * Gets a list of messages from a thread.
-     *
+     * 
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
      * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
@@ -113,7 +131,7 @@ public final class AzureCommunicationChatServiceClient {
 
     /**
      * Gets a list of messages from a thread.
-     *
+     * 
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
      * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
@@ -128,7 +146,7 @@ public final class AzureCommunicationChatServiceClient {
 
     /**
      * Gets a message by id.
-     *
+     * 
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -142,7 +160,7 @@ public final class AzureCommunicationChatServiceClient {
 
     /**
      * Updates a message.
-     *
+     * 
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @param updateChatMessageRequest Details of the request to update the message.
@@ -157,7 +175,7 @@ public final class AzureCommunicationChatServiceClient {
 
     /**
      * Deletes a message.
-     *
+     * 
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -171,7 +189,7 @@ public final class AzureCommunicationChatServiceClient {
 
     /**
      * Posts a typing event to a thread, on behalf of a user.
-     *
+     * 
      * @param chatThreadId Id of the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -184,7 +202,7 @@ public final class AzureCommunicationChatServiceClient {
 
     /**
      * Gets the participants of a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get participants for.
      * @param maxPageSize The maximum number of participants to be returned per page.
      * @param skip Skips participants up to a specified position in response.
@@ -199,7 +217,7 @@ public final class AzureCommunicationChatServiceClient {
 
     /**
      * Gets the participants of a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get participants for.
      * @param maxPageSize The maximum number of participants to be returned per page.
      * @param skip Skips participants up to a specified position in response.
@@ -214,7 +232,7 @@ public final class AzureCommunicationChatServiceClient {
 
     /**
      * Adds thread participants to a thread. If participants already exist, no change occurs.
-     *
+     * 
      * @param chatThreadId Id of the thread to add participants to.
      * @param addChatParticipantsRequest Participants to be added to the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -228,7 +246,7 @@ public final class AzureCommunicationChatServiceClient {
 
     /**
      * Remove a participant from a thread.
-     *
+     * 
      * @param chatThreadId Thread id to remove the participant from.
      * @param chatParticipantId Id of the thread participant to remove from the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -241,63 +259,8 @@ public final class AzureCommunicationChatServiceClient {
     }
 
     /**
-     * Creates a chat thread.
-     *
-     * @param createChatThreadRequest Request payload for creating a chat thread.
-     * @param azureAcsIdempotencyKey Idempotency key to ensure request retries don't yield different side effects.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    public Response<ChatThread> createChatThreadWithRestResponse(CreateChatThreadRequest createChatThreadRequest, String azureAcsIdempotencyKey) {
-        return this.serviceClient.createChatThreadWithRestResponse(createChatThreadRequest, azureAcsIdempotencyKey);
-    }
-
-    /**
-     * Creates a chat thread.
-     *
-     * @param createChatThreadRequest Request payload for creating a chat thread.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
-     */
-    public ChatThread createChatThread(CreateChatThreadRequest createChatThreadRequest) {
-        return this.serviceClient.createChatThread(createChatThreadRequest);
-    }
-
-    /**
-     * Gets the list of chat threads of a user.
-     *
-     * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the list of chat threads of a user.
-     */
-    public PagedDataResponseCollection<ChatThreadInfo, Page<ChatThreadInfo>> listChatThreadsWithPageResponse(Integer maxPageSize, OffsetDateTime startTime) {
-        return this.serviceClient.listChatThreadsWithPageResponse(maxPageSize, startTime);
-    }
-
-    /**
-     * Gets the list of chat threads of a user.
-     *
-     * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the list of chat threads of a user.
-     */
-    public PagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>> listChatThreadsWithPage(Integer maxPageSize, OffsetDateTime startTime) {
-        return this.serviceClient.listChatThreadsWithPage(maxPageSize, startTime);
-    }
-
-    /**
      * Updates a thread's properties.
-     *
+     * 
      * @param chatThreadId The id of the thread to update.
      * @param updateChatThreadRequest Request payload for updating a chat thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -310,33 +273,7 @@ public final class AzureCommunicationChatServiceClient {
     }
 
     /**
-     * Gets a chat thread.
-     *
-     * @param chatThreadId Thread id to get.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a chat thread.
-     */
-    public Response<ChatThread> getChatThreadWithRestResponse(String chatThreadId) {
-        return this.serviceClient.getChatThreadWithRestResponse(chatThreadId);
-    }
-
-    /**
-     * Deletes a thread.
-     *
-     * @param chatThreadId Thread id to delete.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the completion.
-     */
-    public Response<Void> deleteChatThreadWithRestResponse(String chatThreadId) {
-        return this.serviceClient.deleteChatThreadWithRestResponse(chatThreadId);
-    }
-
-    /**
-     * A builder for creating a new instance of the AzureCommunicationChatServiceClient type.
+     * A builder for creating a new instance of the ChatThreadClient type.
      */
     public static final class Builder {
         /*
@@ -346,7 +283,7 @@ public final class AzureCommunicationChatServiceClient {
 
         /**
          * Sets The endpoint of the Azure Communication resource.
-         *
+         * 
          * @param endpoint the endpoint value.
          * @return the Builder.
          */
@@ -362,7 +299,7 @@ public final class AzureCommunicationChatServiceClient {
 
         /**
          * Sets The Azure Core generic ServiceClient Builder.
-         *
+         * 
          * @param serviceClientBuilder the serviceClientBuilder value.
          * @return the Builder.
          */
@@ -378,7 +315,7 @@ public final class AzureCommunicationChatServiceClient {
 
         /**
          * Sets The Interceptor to set intercept request and set credentials.
-         *
+         * 
          * @param credentialInterceptor the credentialInterceptor value.
          * @return the Builder.
          */
@@ -387,12 +324,31 @@ public final class AzureCommunicationChatServiceClient {
             return this;
         }
 
-        /**
-         * Builds an instance of AzureCommunicationChatServiceClient with the provided parameters.
-         *
-         * @return an instance of AzureCommunicationChatServiceClient.
+        /*
+         * base url of the service
          */
-        public AzureCommunicationChatServiceClient build() {
+        private String baseUrl;
+
+        /**
+         * Sets base url of the service.
+         * 
+         * @param baseUrl the baseUrl value.
+         * @return the Builder.
+         */
+        public Builder baseUrl(String baseUrl) {
+            this.baseUrl = baseUrl;
+            return this;
+        }
+
+        /**
+         * Builds an instance of ChatThreadClient with the provided parameters.
+         * 
+         * @return an instance of ChatThreadClient.
+         */
+        public ChatThreadClient build() {
+            if (baseUrl == null) {
+                this.baseUrl = "{endpoint}";
+            }
             if (serviceClientBuilder == null) {
                 if (endpoint == null) {
                     throw new IllegalArgumentException("Missing required parameters 'endpoint'.");
@@ -400,14 +356,14 @@ public final class AzureCommunicationChatServiceClient {
                 this.serviceClientBuilder = new ServiceClient.Builder();
             }
             if (endpoint != null) {
-                final String retrofitBaseUrl = endpoint;
+                final String retrofitBaseUrl = baseUrl.replace("{endpoint}", endpoint);
                 serviceClientBuilder.setBaseUrl(retrofitBaseUrl);
             }
             if (credentialInterceptor != null) {
                 serviceClientBuilder.setCredentialsInterceptor(credentialInterceptor);
             }
             AzureCommunicationChatServiceImpl internalClient = new AzureCommunicationChatServiceImpl(serviceClientBuilder.build(), endpoint);
-            return new AzureCommunicationChatServiceClient(internalClient);
+            return new ChatThreadClient(internalClient.getChatThreads());
         }
     }
 }
