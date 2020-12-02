@@ -96,7 +96,7 @@ public final class ChatThreadAsyncClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void sendChatMessage(String chatThreadId, SendChatMessageRequest sendChatMessageRequest, final Callback<String> callback) {
-        Callback<SendChatMessageResult> proxyCallbadk = new Callback<SendChatMessageResult>() {
+        Callback<SendChatMessageResult> proxyCallback = new Callback<SendChatMessageResult>() {
             @Override
             public void onSuccess(SendChatMessageResult result, Response response) {
                 if (result == null) {
@@ -110,7 +110,7 @@ public final class ChatThreadAsyncClient {
                 callback.onFailure(throwable, response);
             }
         };
-        this.serviceClient.sendChatMessage(chatThreadId, sendChatMessageRequest, proxyCallbadk);
+        this.serviceClient.sendChatMessage(chatThreadId, sendChatMessageRequest, proxyCallback);
     }
 
     /**
