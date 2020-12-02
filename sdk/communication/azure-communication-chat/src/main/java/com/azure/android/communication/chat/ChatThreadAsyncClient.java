@@ -5,24 +5,57 @@
 package com.azure.android.communication.chat;
 
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
-import com.azure.android.communication.chat.models.*;
+import com.azure.android.communication.chat.implementation.ChatThreadsImpl;
+import com.azure.android.communication.chat.models.AddChatParticipantsRequest;
+import com.azure.android.communication.chat.models.ChatMessage;
+import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
+import com.azure.android.communication.chat.models.ChatMessageReadReceiptsCollection;
+import com.azure.android.communication.chat.models.ChatMessagesCollection;
+import com.azure.android.communication.chat.models.ChatParticipant;
+import com.azure.android.communication.chat.models.ChatParticipantsCollection;
+import com.azure.android.communication.chat.models.ErrorException;
+import com.azure.android.communication.chat.models.SendChatMessageRequest;
+import com.azure.android.communication.chat.models.SendChatMessageResult;
+import com.azure.android.communication.chat.models.SendReadReceiptRequest;
+import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
+import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.ServiceClient;
+import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;
+import com.azure.android.core.http.responsepaging.AsyncPagedDataRetriever;
+import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
+import com.azure.android.core.http.responsepaging.PagedDataResponseRetriever;
 import com.azure.android.core.util.paging.Page;
+import com.azure.android.core.util.paging.PagedDataCollection;
+import com.azure.android.core.util.paging.PagedDataRetriever;
 import okhttp3.Interceptor;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.threeten.bp.OffsetDateTime;
+
+import java.util.ArrayList;
+
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.DELETE;
+import retrofit2.http.GET;
+import retrofit2.http.PATCH;
+import retrofit2.http.Path;
+import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 /**
  * Initializes a new instance of the asynchronous AzureCommunicationChatService type.
  */
-public final class AzureCommunicationChatServiceAsyncClient {
-    private AzureCommunicationChatServiceImpl serviceClient;
+public final class ChatThreadAsyncClient {
+    private ChatThreadsImpl serviceClient;
 
     /**
-     * Initializes an instance of AzureCommunicationChatService client.
+     * Initializes an instance of ChatThreads client.
      */
-    AzureCommunicationChatServiceAsyncClient(AzureCommunicationChatServiceImpl serviceClient) {
+    ChatThreadAsyncClient(ChatThreadsImpl serviceClient) {
         this.serviceClient = serviceClient;
     }
 
@@ -66,7 +99,21 @@ public final class AzureCommunicationChatServiceAsyncClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void sendChatMessage(String chatThreadId, SendChatMessageRequest sendChatMessageRequest, final Callback<String> callback) {
-        this.serviceClient.sendChatMessage(chatThreadId, sendChatMessageRequest, callback);
+        Callback<SendChatMessageResult> proxyCallback = new Callback<SendChatMessageResult>() {
+            @Override
+            public void onSuccess(SendChatMessageResult result, Response response) {
+                if (result == null) {
+                    callback.onSuccess(null, response);
+                } else {
+                    callback.onSuccess(result.getId(), response);
+                }
+            }
+            @Override
+            public void onFailure(Throwable throwable, Response response) {
+                callback.onFailure(throwable, response);
+            }
+        };
+        this.serviceClient.sendChatMessage(chatThreadId, sendChatMessageRequest, proxyCallback);
     }
 
     /**
@@ -170,6 +217,22 @@ public final class AzureCommunicationChatServiceAsyncClient {
     }
 
     /**
+     * Adds a thread participant to a thread. If the participant already exists, no change occurs.
+     *
+     * @param chatThreadId Id of the thread to add participants to.
+     * @param chatParticipant Participant to be added to the thread.
+     * @param callback the Callback that receives the response.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void addChatParticipant(String chatThreadId, ChatParticipant chatParticipant, final Callback<Void> callback) {
+        ArrayList<ChatParticipant> participants = new ArrayList<ChatParticipant>();
+        participants.add(chatParticipant);
+        this.serviceClient.addChatParticipants(chatThreadId, new AddChatParticipantsRequest().setParticipants(participants), callback);
+    }
+
+    /**
      * Remove a participant from a thread.
      *
      * @param chatThreadId Thread id to remove the participant from.
@@ -181,47 +244,6 @@ public final class AzureCommunicationChatServiceAsyncClient {
      */
     public void removeChatParticipant(String chatThreadId, String chatParticipantId, final Callback<Void> callback) {
         this.serviceClient.removeChatParticipant(chatThreadId, chatParticipantId, callback);
-    }
-
-    /**
-     * Creates a chat thread.
-     *
-     * @param createChatThreadRequest Request payload for creating a chat thread.
-     * @param azureAcsIdempotencyKey Idempotency key to ensure request retries don't yield different side effects.
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void createChatThread(CreateChatThreadRequest createChatThreadRequest, String azureAcsIdempotencyKey, final Callback<ChatThread> callback) {
-        this.serviceClient.createChatThread(createChatThreadRequest, azureAcsIdempotencyKey, callback);
-    }
-
-    /**
-     * Creates a chat thread.
-     *
-     * @param createChatThreadRequest Request payload for creating a chat thread.
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void createChatThread(CreateChatThreadRequest createChatThreadRequest, final Callback<ChatThread> callback) {
-        this.serviceClient.createChatThread(createChatThreadRequest, callback);
-    }
-
-    /**
-     * Gets the list of chat threads of a user.
-     *
-     * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     * @param callback the Callback that receives the response collection.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void listChatThreadsPages(Integer maxPageSize, OffsetDateTime startTime, final Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>> callback) {
-        this.serviceClient.listChatThreadsPagesAsync(maxPageSize, startTime, callback);
     }
 
     /**
@@ -239,33 +261,7 @@ public final class AzureCommunicationChatServiceAsyncClient {
     }
 
     /**
-     * Gets a chat thread.
-     *
-     * @param chatThreadId Thread id to get.
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void getChatThread(String chatThreadId, final Callback<ChatThread> callback) {
-        this.serviceClient.getChatThread(chatThreadId, callback);
-    }
-
-    /**
-     * Deletes a thread.
-     *
-     * @param chatThreadId Thread id to delete.
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void deleteChatThread(String chatThreadId, final Callback<Void> callback) {
-        this.serviceClient.deleteChatThread(chatThreadId, callback);
-    }
-
-    /**
-     * A builder for creating a new instance of the AzureCommunicationChatServiceAsyncClient type.
+     * A builder for creating a new instance of the ChatThreadAsyncClient type.
      */
     public static final class Builder {
         /*
@@ -316,12 +312,31 @@ public final class AzureCommunicationChatServiceAsyncClient {
             return this;
         }
 
-        /**
-         * Builds an instance of AzureCommunicationChatServiceAsyncClient with the provided parameters.
-         *
-         * @return an instance of AzureCommunicationChatServiceAsyncClient.
+        /*
+         * base url of the service
          */
-        public AzureCommunicationChatServiceAsyncClient build() {
+        private String baseUrl;
+
+        /**
+         * Sets base url of the service.
+         *
+         * @param baseUrl the baseUrl value.
+         * @return the Builder.
+         */
+        public Builder baseUrl(String baseUrl) {
+            this.baseUrl = baseUrl;
+            return this;
+        }
+
+        /**
+         * Builds an instance of ChatThreadAsyncClient with the provided parameters.
+         *
+         * @return an instance of ChatThreadAsyncClient.
+         */
+        public ChatThreadAsyncClient build() {
+            if (baseUrl == null) {
+                this.baseUrl = "{endpoint}";
+            }
             if (serviceClientBuilder == null) {
                 if (endpoint == null) {
                     throw new IllegalArgumentException("Missing required parameters 'endpoint'.");
@@ -329,14 +344,14 @@ public final class AzureCommunicationChatServiceAsyncClient {
                 this.serviceClientBuilder = new ServiceClient.Builder();
             }
             if (endpoint != null) {
-                final String retrofitBaseUrl = endpoint;
+                final String retrofitBaseUrl = baseUrl.replace("{endpoint}", endpoint);
                 serviceClientBuilder.setBaseUrl(retrofitBaseUrl);
             }
             if (credentialInterceptor != null) {
                 serviceClientBuilder.setCredentialsInterceptor(credentialInterceptor);
             }
             AzureCommunicationChatServiceImpl internalClient = new AzureCommunicationChatServiceImpl(serviceClientBuilder.build(), endpoint);
-            return new AzureCommunicationChatServiceAsyncClient(internalClient);
+            return new ChatThreadAsyncClient(internalClient.getChatThreads());
         }
     }
 }
