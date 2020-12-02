@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+    name: "rohitpc363-9284"
+    labels:
+        app: "rohitpc363-9284"
+spec:
+    type: ClusterIP
+    ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+      name: http
+    selector:
+        app: "rohitpc363-9284"
