@@ -68,6 +68,7 @@ public class InterceptorManager implements AutoCloseable {
      * The test session records are persisted in the path: "<i>session-records/{@code testName}.json</i>"
      *
      * @param testName Name of the test session record.
+     * @param unitTestOutDir The unit test output directory
      * @param testMode The {@link TestMode} for this interceptor.
      * @throws UncheckedIOException If {@code testMode} is {@link TestMode#PLAYBACK} and an existing test session record
      * could not be located or the data could not be deserialized into an instance of {@link RecordedData}.
@@ -175,6 +176,7 @@ public class InterceptorManager implements AutoCloseable {
      * The test session records are read from: "<i>session-records/{@code testName}.json</i>"
      *
      * @param testName Name of the test.
+     * @param unitTestOutDir The unit test output directory
      * @param textReplacementRules A set of rules to replace text in {@link NetworkCallRecord#getResponse()} when
      * playing back network calls.
      * @param doNotRecord Flag indicating whether network calls should be record or played back.

@@ -33,6 +33,11 @@ public class HttpClientTestsWireMockServer {
 
     private static final byte[] RETURN_BYTES = "Hello World!".getBytes(StandardCharsets.UTF_8);
 
+    /**
+     * Gets a WireMockServer instance to validate the HttpClient tests.
+     *
+     * @return The WireMockServer.
+     */
     public static WireMockServer getHttpClientTestsServer() {
         WireMockServer server = new WireMockServer(WireMockConfiguration.options()
             .dynamicPort()

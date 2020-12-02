@@ -40,7 +40,15 @@ import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.put;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathMatching;
 
+/**
+ * The WireMockServer for REST proxy tests.
+ */
 public final class RestProxyTestsWireMockServer {
+    /**
+     * Gets a WireMockServer instance to validate the REST proxy tests.
+     *
+     * @return The WireMockServer.
+     */
     public static WireMockServer getRestProxyTestsServer() {
         WireMockServer server = new WireMockServer(WireMockConfiguration.options()
             .extensions(new RestProxyResponseTransformer())
