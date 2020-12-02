@@ -1,0 +1,16 @@
+apply plugin: 'java-library'
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+jar {
+    baseName "sdk-build-tools"
+}
+
+dependencies {
+    implementation 'com.puppycrawl.tools:checkstyle:8.29'
+    testImplementation 'com.puppycrawl.tools:checkstyle:8.29:tests'
+    testImplementation 'junit:junit:4.13.1'
+}

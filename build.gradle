@@ -21,14 +21,12 @@ buildscript {
     }
 }
 
-apply plugin: "com.vanniktech.android.junit.jacoco"
-
-
 // Configure all client library projects with the standard Android build / publish template
 configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 3 }) {
     apply plugin: "com.android.library"
     apply plugin: "maven-publish"
     apply plugin: 'com.getkeepsafe.dexcount'
+    apply plugin: "com.vanniktech.android.junit.jacoco"
     apply plugin: 'checkstyle'
 
     group = "com.azure.android"
@@ -95,11 +93,17 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
         jacocoVersion = "$jacocoVersion"
     }
 
+    // add dependency to the module with azure custom check styles.
+    dependencies {
+        checkstyle project(":eng:code-quality-reports")
+    }
+
     task checkstyle(type: Checkstyle) {
         project.ext.checkstyleVersion = '8.29'
         description 'Runs Checkstyle inspection.'
         group = 'Code Quality'
         configDirectory = file("${rootDir}/config/checkstyle")
+        configProperties = [samedir: "${rootDir}/config/checkstyle"]
         ignoreFailures false
         showViolations true
         maxWarnings = 0
