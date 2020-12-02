@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+    name: "rohitpc363-9284"
+    labels:
+        app: "rohitpc363-9284"
+    annotations:
+        kubernetes.io/ingress.class: addon-http-application-routing
+spec:
+    rules:
+        - host: rohitpc363b132-rohitpc363-9284.f5f9c9eb356d4e1494b6.southeastasia.aksapp.io
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: "rohitpc363-9284"
+                servicePort: 8080
