@@ -34,6 +34,9 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.threeten.bp.OffsetDateTime;
+
+import java.util.ArrayList;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -211,6 +214,22 @@ public final class ChatThreadAsyncClient {
      */
     public void addChatParticipants(String chatThreadId, AddChatParticipantsRequest addChatParticipantsRequest, final Callback<Void> callback) {
         this.serviceClient.addChatParticipants(chatThreadId, addChatParticipantsRequest, callback);
+    }
+
+    /**
+     * Adds a thread participant to a thread. If the participant already exists, no change occurs.
+     *
+     * @param chatThreadId Id of the thread to add participants to.
+     * @param chatParticipant Participant to be added to the thread.
+     * @param callback the Callback that receives the response.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void addChatParticipant(String chatThreadId, ChatParticipant chatParticipant, final Callback<Void> callback) {
+        ArrayList<ChatParticipant> participants = new ArrayList<ChatParticipant>();
+        participants.add(chatParticipant);
+        this.serviceClient.addChatParticipants(chatThreadId, new AddChatParticipantsRequest().setParticipants(participants), callback);
     }
 
     /**
