@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "rohitpc363-9284"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "rohitpc363-9284"
+  template:
+    metadata:
+      labels:
+        app: "rohitpc363-9284"
+    spec:
+      containers:
+        - name: "rohitpc363-9284"
+          image: "rohitpc363.azurecr.io/rohitpc363"
+          ports:
+          - containerPort: 8080
