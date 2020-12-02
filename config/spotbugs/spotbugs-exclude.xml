@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<FindBugsFilter>
+  <Match>
+    <Class name="com.azure.core.micro.util.Base64Url"/>
+    <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
+  </Match>
+
+  <Match>
+    <Class name="com.azure.core.micro.util.Configuration"/>
+    <Bug pattern="CN_IDIOM_NO_SUPER_CALL"/>
+  </Match>
+
+  <Match>
+    <Class name="com.azure.core.micro.util.CoreUtils"/>
+    <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
+  </Match>
+
+  <Match>
+    <Class name="com.azure.core.logging.ClientLogger" />
+    <Bug pattern="CRLF_INJECTION_LOGS" />
+  </Match>
+
+  <Match>
+    <Class name="com.azure.core.logging.implementation.DefaultLogger" />
+    <Bug pattern="INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE" />
+  </Match>
+
+  <Match>
+    <Class name="com.azure.core.credential.SimpleTokenCache"/>
+    <Method name="refreshLog"/>
+    <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
+  </Match>
+
+  <!-- No need to implements cloneable. -->
+  <Match>
+    <Or>
+      <Class name="com.azure.core.http.HttpPipelineNextPolicy"/>
+      <Class name="com.azure.core.http.HttpRequest"/>
+    </Or>
+    <Bug pattern="CN_IMPLEMENTS_CLONE_BUT_NOT_CLONEABLE"/>
+  </Match>
+
+  <!-- The HttpRequest fields are serializable. Flux<T> and HttpHeaders are able to serialize and deserialize. -->
+  <Match>
+    <Class name="com.azure.core.http.HttpRequest"/>
+    <Bug pattern="SE_BAD_FIELD"/>
+  </Match>
+
+  <!-- The predictable randomness doesn't expose any crucial detail in this case. -->
+  <Match>
+    <Class name="com.azure.core.http.policy.ExponentialBackoff" />
+    <Bug pattern="PREDICTABLE_RANDOM" />
+  </Match>
+
+  <Match>
+    <Class name="com.azure.core.http.implementation.Util"/>
+    <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
+  </Match>
+
+  <!-- Empty byte array is returned as null to reactor. Reactor transform null from Callable to downstream onComplete  -->
+  <Match>
+    <Class name="~com\.azure\.core\.http\.okhttp\.OkHttpAsyncHttpClient\$OkHttpResponse(.*)"/>
+    <Method name="~(.*)\$(getBodyAsByteArray|null)\$(.*)"/>
+    <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
+  </Match>
+
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP"/>
+    <Class name="com.azure.core.rest.implementation.AccessibleByteArrayOutputStream"/>
+  </Match>
+
+  <Match>
+    <Class name="com.azure.core.rest.implementation.TypeUtil"/>
+    <Bug pattern="BC_UNCONFIRMED_CAST"/>
+  </Match>
+
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP"/>
+    <Class name="com.azure.core.serde.jackson.AccessibleByteArrayOutputStream"/>
+  </Match>
+
+  <Match>
+    <Class
+        name="~com\.azure\.core\.serde\.jackson\.(AdditionalPropertiesDeserializer|AdditionalPropertiesSerializer|FlatteningDeserializer|FlatteningSerializer)"/>
+    <Bug pattern="SE_NO_SERIALVERSIONID"/>
+  </Match>
+
+  <Match>
+    <Or>
+      <Class name="com.azure.core.serde.jackson.FlatteningSerializer"/>
+      <Class name="com.azure.core.serde.jackson.FlatteningDeserializer"/>
+      <Class name="com.azure.core.serde.jackson.AdditionalPropertiesSerializer"/>
+      <Class name="com.azure.core.serde.jackson.AdditionalPropertiesDeserializer"/>
+    </Or>
+    <Bug pattern="SE_BAD_FIELD"/>
+  </Match>
+
+  <Match>
+    <Class name="com.azure.core.serde.jackson.TypeUtil"/>
+    <Bug pattern="BC_UNCONFIRMED_CAST"/>
+  </Match>
+
+  <Match>
+    <Class name="com.azure.core.serde.Base64Url"/>
+    <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
+  </Match>
+
+  <Match>
+    <Class name="com.azure.core.rest.RestProxy"/>
+    <Method name="endTracingSpan"/>
+    <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+  </Match>
+
+  <!-- FIXME: spotbugs issues in core test packages -->
+  <Match>
+    <Or>
+      <Package name="com.azure.core.test"/>
+      <Package name="com.azure.core.test.implementation"/>
+      <Package name="com.azure.core.test.http"/>
+    </Or>
+    <Bug pattern="DM_BOXED_PRIMITIVE_FOR_PARSING,
+                  DM_CONVERT_CASE,
+                  EC_UNRELATED_TYPES,
+                  REC_CATCH_EXCEPTION,
+                  DM_DEFAULT_ENCODING,
+                  NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE,
+                  RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE,
+                  UPM_UNCALLED_PRIVATE_METHOD"/>
+  </Match>
+
+  <!-- The field is designed to be unread and for serialization purpose. -->
+  <Match>
+      <Class name="~com\.azure\.search\.documents\.indexes\.models\.(EdgeNGramTokenFilter|KeywordTokenizer|LuceneStandardTokenizer|NGramTokenFilter)"/>
+      <Bug pattern="URF_UNREAD_FIELD"/>
+  </Match>
+
+  <!-- Use static final ObjectMapper property to save the cost of ObjectMapper initialization. -->
+  <Match>
+    <Class name="com.azure.search.documents.SearchAsyncClient" />
+    <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON" />
+  </Match>
+  <Match>
+    <Class name="~com\.azure\.search\.documents\.indexes\.implementation\.models\.(Suggester|SynonymMap)" />
+    <Bug pattern="IP_PARAMETER_IS_DEAD_BUT_OVERWRITTEN"/>
+  </Match>
+
+  <!-- Use the property to take the custom serializer from SearchClient. -->
+  <Match>
+    <Class name="~com\.azure\.search\.documents\.models\.(SearchResult|SuggestResult)" />
+    <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR" />
+  </Match>
+
+  <!-- Use abstract TypeReference class for serialize and deserialize API. -->
+  <Match>
+    <Class name="~com\.azure\.search\.documents\.models\.(SearchResult|SuggestResult)" />
+    <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON" />
+  </Match>
+
+</FindBugsFilter>
+

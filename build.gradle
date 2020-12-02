@@ -4,6 +4,9 @@ buildscript {
     repositories {
         google()
         jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
 
     ext {
@@ -18,6 +21,7 @@ buildscript {
         classpath "de.mannodermaus.gradle.plugins:android-junit5:1.6.2.0"
         classpath "com.vanniktech:gradle-android-junit-jacoco-plugin:$androidJunitJacocoGradlePluginVersion"
         classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:2.0.0'
+        classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.6.0"
     }
 }
 
@@ -28,6 +32,7 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
     apply plugin: 'com.getkeepsafe.dexcount'
     apply plugin: "com.vanniktech.android.junit.jacoco"
     apply plugin: 'checkstyle'
+    apply plugin: 'com.github.spotbugs'
 
     group = "com.azure.android"
 
@@ -93,7 +98,7 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
         jacocoVersion = "$jacocoVersion"
     }
 
-    // add dependency to the module with azure custom check styles.
+    // Add dependency to the module containing azure custom checkstyle.
     dependencies {
         checkstyle project(":eng:code-quality-reports")
     }
@@ -114,6 +119,21 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
     // Check code style after project evaluation
     afterEvaluate {
         check.dependsOn('checkstyle')
+    }
+
+    // Set spotbugs plugin to use SpotBugs.
+    dependencies {
+        spotbugs 'com.github.spotbugs:spotbugs:4.0.0'
+    }
+
+    spotbugs {
+        ignoreFailures = false
+        showStackTraces = true
+        showProgress = true
+        effort = "max"
+        reportLevel = "Low" // threshold
+        reportsDir = file("$buildDir/spotbugs")
+        excludeFilter = file("${rootDir}/config/spotbugs/spotbugs-exclude.xml")
     }
 
     task sourcesJar(type: Jar) {
