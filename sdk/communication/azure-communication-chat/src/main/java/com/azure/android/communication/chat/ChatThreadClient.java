@@ -58,7 +58,7 @@ public final class ChatThreadClient {
 
     /**
      * Gets chat message read receipts for a thread.
-     * 
+     *
      * @param chatThreadId Thread id to get the chat message read receipts for.
      * @param maxPageSize The maximum number of chat message read receipts to be returned per page.
      * @param skip Skips chat message read receipts up to a specified position in response.
@@ -73,7 +73,7 @@ public final class ChatThreadClient {
 
     /**
      * Gets chat message read receipts for a thread.
-     * 
+     *
      * @param chatThreadId Thread id to get the chat message read receipts for.
      * @param maxPageSize The maximum number of chat message read receipts to be returned per page.
      * @param skip Skips chat message read receipts up to a specified position in response.
@@ -88,7 +88,7 @@ public final class ChatThreadClient {
 
     /**
      * Sends a read receipt event to a thread, on behalf of a user.
-     * 
+     *
      * @param chatThreadId Thread id to send the read receipt event to.
      * @param sendReadReceiptRequest Request payload for sending a read receipt.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -102,7 +102,7 @@ public final class ChatThreadClient {
 
     /**
      * Sends a message to a thread.
-     * 
+     *
      * @param chatThreadId The thread id to send the message to.
      * @param sendChatMessageRequest Details of the message to send.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -110,13 +110,16 @@ public final class ChatThreadClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the send message operation.
      */
-    public Response<SendChatMessageResult> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageRequest sendChatMessageRequest) {
-        return this.serviceClient.sendChatMessageWithRestResponse(chatThreadId, sendChatMessageRequest);
+    public Response<String> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageRequest sendChatMessageRequest) {
+        Response<SendChatMessageResult> sendResult = this.serviceClient.sendChatMessageWithRestResponse(chatThreadId, sendChatMessageRequest);
+        if (sendResult.getValue() == null)
+            return new Response<String>(null, sendResult.getStatusCode(), sendResult.getHeaders(), null);
+        return new Response<String>(null, sendResult.getStatusCode(), sendResult.getHeaders(), sendResult.getValue().getId());
     }
 
     /**
      * Gets a list of messages from a thread.
-     * 
+     *
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
      * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
@@ -131,7 +134,7 @@ public final class ChatThreadClient {
 
     /**
      * Gets a list of messages from a thread.
-     * 
+     *
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
      * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
@@ -146,7 +149,7 @@ public final class ChatThreadClient {
 
     /**
      * Gets a message by id.
-     * 
+     *
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -160,7 +163,7 @@ public final class ChatThreadClient {
 
     /**
      * Updates a message.
-     * 
+     *
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @param updateChatMessageRequest Details of the request to update the message.
@@ -175,7 +178,7 @@ public final class ChatThreadClient {
 
     /**
      * Deletes a message.
-     * 
+     *
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -189,7 +192,7 @@ public final class ChatThreadClient {
 
     /**
      * Posts a typing event to a thread, on behalf of a user.
-     * 
+     *
      * @param chatThreadId Id of the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -202,7 +205,7 @@ public final class ChatThreadClient {
 
     /**
      * Gets the participants of a thread.
-     * 
+     *
      * @param chatThreadId Thread id to get participants for.
      * @param maxPageSize The maximum number of participants to be returned per page.
      * @param skip Skips participants up to a specified position in response.
@@ -217,7 +220,7 @@ public final class ChatThreadClient {
 
     /**
      * Gets the participants of a thread.
-     * 
+     *
      * @param chatThreadId Thread id to get participants for.
      * @param maxPageSize The maximum number of participants to be returned per page.
      * @param skip Skips participants up to a specified position in response.
@@ -232,7 +235,7 @@ public final class ChatThreadClient {
 
     /**
      * Adds thread participants to a thread. If participants already exist, no change occurs.
-     * 
+     *
      * @param chatThreadId Id of the thread to add participants to.
      * @param addChatParticipantsRequest Participants to be added to the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -246,7 +249,7 @@ public final class ChatThreadClient {
 
     /**
      * Remove a participant from a thread.
-     * 
+     *
      * @param chatThreadId Thread id to remove the participant from.
      * @param chatParticipantId Id of the thread participant to remove from the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -260,7 +263,7 @@ public final class ChatThreadClient {
 
     /**
      * Updates a thread's properties.
-     * 
+     *
      * @param chatThreadId The id of the thread to update.
      * @param updateChatThreadRequest Request payload for updating a chat thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -283,7 +286,7 @@ public final class ChatThreadClient {
 
         /**
          * Sets The endpoint of the Azure Communication resource.
-         * 
+         *
          * @param endpoint the endpoint value.
          * @return the Builder.
          */
@@ -299,7 +302,7 @@ public final class ChatThreadClient {
 
         /**
          * Sets The Azure Core generic ServiceClient Builder.
-         * 
+         *
          * @param serviceClientBuilder the serviceClientBuilder value.
          * @return the Builder.
          */
@@ -315,7 +318,7 @@ public final class ChatThreadClient {
 
         /**
          * Sets The Interceptor to set intercept request and set credentials.
-         * 
+         *
          * @param credentialInterceptor the credentialInterceptor value.
          * @return the Builder.
          */
@@ -331,7 +334,7 @@ public final class ChatThreadClient {
 
         /**
          * Sets base url of the service.
-         * 
+         *
          * @param baseUrl the baseUrl value.
          * @return the Builder.
          */
@@ -342,7 +345,7 @@ public final class ChatThreadClient {
 
         /**
          * Builds an instance of ChatThreadClient with the provided parameters.
-         * 
+         *
          * @return an instance of ChatThreadClient.
          */
         public ChatThreadClient build() {
