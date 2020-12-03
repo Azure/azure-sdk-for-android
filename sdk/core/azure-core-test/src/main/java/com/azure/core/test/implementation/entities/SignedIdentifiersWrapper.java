@@ -3,16 +3,16 @@
 
 package com.azure.core.test.implementation.entities;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+import com.azure.core.serde.SerdeProperty;
+import com.azure.core.serde.SerdeToPojo;
+import com.azure.core.serde.SerdeXmlProperty;
+import com.azure.core.serde.SerdeXmlRootElement;
 
 import java.util.List;
 
-@JacksonXmlRootElement(localName = "SignedIdentifiers")
+@SerdeXmlRootElement(localName = "SignedIdentifiers")
 public class SignedIdentifiersWrapper {
-    @JacksonXmlProperty(localName = "SignedIdentifier")
+    @SerdeXmlProperty(localName = "SignedIdentifier")
     private final List<SignedIdentifierInner> signedIdentifiers;
 
     /**
@@ -20,8 +20,8 @@ public class SignedIdentifiersWrapper {
      *
      * @param signedIdentifiers Identifiers to wrap.
      */
-    @JsonCreator
-    public SignedIdentifiersWrapper(@JsonProperty("signedIdentifiers") List<SignedIdentifierInner> signedIdentifiers) {
+    @SerdeToPojo
+    public SignedIdentifiersWrapper(@SerdeProperty("signedIdentifiers") List<SignedIdentifierInner> signedIdentifiers) {
         this.signedIdentifiers = signedIdentifiers;
     }
 

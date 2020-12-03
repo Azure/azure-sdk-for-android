@@ -3,7 +3,7 @@
 
 package com.azure.core.test.implementation.entities;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.azure.core.serde.SerdeProperty;
 
 /**
  * signed identifier.
@@ -12,13 +12,13 @@ public class SignedIdentifierInner {
     /**
      * a unique id.
      */
-    @JsonProperty(value = "Id", required = true)
+    @SerdeProperty(value = "Id")
     private String id;
 
     /**
      * The access policy.
      */
-    @JsonProperty(value = "AccessPolicy", required = true)
+    @SerdeProperty(value = "AccessPolicy")
     private AccessPolicy accessPolicy;
 
     /**

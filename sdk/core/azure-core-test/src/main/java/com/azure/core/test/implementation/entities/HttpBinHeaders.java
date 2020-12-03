@@ -4,25 +4,25 @@
 package com.azure.core.test.implementation.entities;
 
 import com.azure.core.micro.util.DateTimeRfc1123;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.azure.core.serde.SerdeProperty;
 
 /**
  * Defines headers for httpbin.org operations.
  */
 public class HttpBinHeaders {
-    @JsonProperty(value = "Date")
+    @SerdeProperty(value = "Date")
     private DateTimeRfc1123 date;
 
-    @JsonProperty(value = "Via")
+    @SerdeProperty(value = "Via")
     private String via;
 
-    @JsonProperty(value = "Connection")
+    @SerdeProperty(value = "Connection")
     private String connection;
 
-    @JsonProperty(value = "X-Processed-Time")
+    @SerdeProperty(value = "X-Processed-Time")
     private double xProcessedTime;
 
-    @JsonProperty(value = "Access-Control-Allow-Credentials")
+    @SerdeProperty(value = "Access-Control-Allow-Credentials")
     private boolean accessControlAllowCredentials;
 
     /**

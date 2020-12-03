@@ -3,19 +3,19 @@
 
 package com.azure.core.test.implementation.entities;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.azure.core.serde.SerdeProperty;
+import com.azure.core.serde.SerdeXmlProperty;
 
 import java.util.Arrays;
 
 public class Slide {
-    @JacksonXmlProperty(localName = "type", isAttribute = true)
+    @SerdeXmlProperty(localName = "type", isAttribute = true)
     private String type;
 
-    @JsonProperty("title")
+    @SerdeProperty("title")
     private String title;
 
-    @JsonProperty("item")
+    @SerdeProperty("item")
     private String[] items;
 
     /**

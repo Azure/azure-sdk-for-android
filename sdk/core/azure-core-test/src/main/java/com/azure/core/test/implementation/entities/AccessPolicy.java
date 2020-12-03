@@ -3,7 +3,7 @@
 
 package com.azure.core.test.implementation.entities;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.azure.core.serde.SerdeProperty;
 
 import java.time.OffsetDateTime;
 
@@ -14,19 +14,19 @@ public class AccessPolicy {
     /**
      * the date-time the policy is active.
      */
-    @JsonProperty(value = "Start")
+    @SerdeProperty(value = "Start")
     private OffsetDateTime start;
 
     /**
      * the date-time the policy expires.
      */
-    @JsonProperty(value = "Expiry")
+    @SerdeProperty(value = "Expiry")
     private OffsetDateTime expiry;
 
     /**
      * the permissions for the acl policy.
      */
-    @JsonProperty(value = "Permission")
+    @SerdeProperty(value = "Permission")
     private String permission;
 
     /**

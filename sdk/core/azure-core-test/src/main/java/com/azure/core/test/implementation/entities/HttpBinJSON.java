@@ -3,7 +3,7 @@
 
 package com.azure.core.test.implementation.entities;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.azure.core.serde.SerdeProperty;
 
 import java.util.Map;
 
@@ -11,13 +11,13 @@ import java.util.Map;
  * Maps to the JSON return values from http://httpbin.org.
  */
 public class HttpBinJSON {
-    @JsonProperty()
+    @SerdeProperty("url")
     private String url;
 
-    @JsonProperty()
+    @SerdeProperty("headers")
     private Map<String, String> headers;
 
-    @JsonProperty()
+    @SerdeProperty("data")
     private Object data;
 
     /**

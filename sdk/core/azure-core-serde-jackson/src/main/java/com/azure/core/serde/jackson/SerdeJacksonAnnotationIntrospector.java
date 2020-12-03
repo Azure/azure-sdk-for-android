@@ -14,6 +14,8 @@ import com.azure.core.serde.SerdeSubTypes;
 import com.azure.core.serde.SerdeToPojo;
 import com.azure.core.serde.SerdeTypeInfo;
 import com.azure.core.serde.SerdeTypeName;
+import com.azure.core.serde.SerdeXmlProperty;
+import com.azure.core.serde.SerdeXmlRootElement;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -25,7 +27,9 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedClass;
 import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.jsontype.NamedType;
 import com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder;
+import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.util.ClassUtil;
+import com.fasterxml.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,7 +42,7 @@ import java.util.stream.Stream;
  * {@link JacksonAnnotationIntrospector} implementation to map serde annotation to
  * Jackson annotations.
  */
-final class SerdeJacksonAnnotationIntrospector extends JacksonAnnotationIntrospector {
+final class SerdeJacksonAnnotationIntrospector extends JacksonXmlAnnotationIntrospector {
     private static final long serialVersionUID = 1L;
 
     @Override
@@ -201,5 +205,55 @@ final class SerdeJacksonAnnotationIntrospector extends JacksonAnnotationIntrospe
             }
             return result;
         }
+    }
+
+    @Override
+    public String findNamespace(Annotated ann) {
+        SerdeXmlProperty prop = ann.getAnnotation(SerdeXmlProperty.class);
+        if (prop == null) {
+            return super.findNamespace(ann);
+        } else {
+            return prop.namespace();
+        }
+    }
+
+    @Override
+    public Boolean isOutputAsAttribute(Annotated ann) {
+        SerdeXmlProperty prop = ann.getAnnotation(SerdeXmlProperty.class);
+        if (prop == null) {
+            return super.isOutputAsAttribute(ann);
+        } else {
+            return prop.isAttribute() ? Boolean.TRUE : Boolean.FALSE;
+        }
+    }
+
+    @Override
+    protected PropertyName _findXmlName(Annotated a) {
+        SerdeXmlProperty prop = a.getAnnotation(SerdeXmlProperty.class);
+        if (prop == null) {
+            return super._findXmlName(a);
+        } else {
+            return PropertyName.construct(prop.localName(), prop.namespace());
+        }
+    }
+
+    @Override
+    public PropertyName findRootName(AnnotatedClass ac) {
+        SerdeXmlRootElement root = ac.getAnnotation(SerdeXmlRootElement.class);
+        if (root == null) {
+            return super.findRootName(ac);
+        } else {
+            String local = root.localName();
+            String ns = root.namespace();
+            if (local.length() == 0 && ns.length() == 0) {
+                return PropertyName.USE_DEFAULT;
+            }
+            return new PropertyName(local, ns);
+        }
+    }
+
+    @Override
+    protected StdTypeResolverBuilder _constructStdTypeResolverBuilder() {
+        return new StdTypeResolverBuilder();
     }
 }

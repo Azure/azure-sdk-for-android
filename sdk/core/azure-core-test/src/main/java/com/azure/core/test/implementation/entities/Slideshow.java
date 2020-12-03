@@ -3,22 +3,22 @@
 
 package com.azure.core.test.implementation.entities;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.azure.core.serde.SerdeProperty;
+import com.azure.core.serde.SerdeXmlProperty;
 
 import java.util.Arrays;
 
 public class Slideshow {
-    @JacksonXmlProperty(localName = "title", isAttribute = true)
+    @SerdeXmlProperty(localName = "title", isAttribute = true)
     private String title;
 
-    @JacksonXmlProperty(localName = "date", isAttribute = true)
+    @SerdeXmlProperty(localName = "date", isAttribute = true)
     private String date;
 
-    @JacksonXmlProperty(localName = "author", isAttribute = true)
+    @SerdeXmlProperty(localName = "author", isAttribute = true)
     private String author;
 
-    @JsonProperty("slide")
+    @SerdeProperty("slide")
     private Slide[] slides;
 
     /**
