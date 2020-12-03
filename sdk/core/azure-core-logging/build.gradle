@@ -11,8 +11,7 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation "org.slf4j:slf4j-api:1.7.30"
-    testImplementation "androidx.arch.core:core-testing:$archCoreTestVersion"
-    testImplementation "junit:junit:$jUnitVersion"
+    // <!-- begin: implementation Dependencies -->
+    implementation ("org.slf4j:slf4j-api:$slf4jApiVersion")
+    // <!-- end: implementation Dependencies -->
 }

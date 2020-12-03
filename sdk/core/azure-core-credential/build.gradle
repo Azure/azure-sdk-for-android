@@ -11,9 +11,11 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation project(":sdk:core:azure-core-logging")
-    api "io.projectreactor:reactor-core:3.3.11.RELEASE"
-    testImplementation "androidx.arch.core:core-testing:$archCoreTestVersion"
-    testImplementation "junit:junit:$jUnitVersion"
+    // <!-- begin: api Dependencies -->
+    api ("io.projectreactor:reactor-core:$reactorCoreVersion")
+    // <!-- end: api Dependencies -->
+
+    // <!-- begin: implementation Dependencies -->
+    implementation project (":sdk:core:azure-core-logging")
+    // <!-- end: implementation Dependencies -->
 }

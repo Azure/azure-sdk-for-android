@@ -10,7 +10,12 @@ jar {
 }
 
 dependencies {
-    implementation 'com.puppycrawl.tools:checkstyle:8.29'
-    testImplementation 'com.puppycrawl.tools:checkstyle:8.29:tests'
-    testImplementation 'junit:junit:4.13.1'
+    // <!-- begin: implementation Dependencies -->
+    implementation ("com.puppycrawl.tools:checkstyle:$puppycrawlVersion")
+    // <!-- end: implementation Dependencies -->
+
+    // <!-- begin: test Dependencies -->
+    testImplementation ("com.puppycrawl.tools:checkstyle:$puppycrawlVersion:tests")
+    testImplementation ("junit:junit:4.13.1")
+    // <!-- end: test Dependencies -->
 }

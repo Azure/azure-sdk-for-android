@@ -11,13 +11,15 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-    api project(":sdk:core:azure-core-customserde")
-    implementation project(":sdk:core:azure-core-serde-jackson")
-    implementation project(":sdk:core:azure-core-logging")
-    api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion"
-    api "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion"
-    api "javax.xml.stream:stax-api:$staxApiVersion" // https://stackoverflow.com/a/47371517/1473510
-    testImplementation "androidx.arch.core:core-testing:$archCoreTestVersion"
-    testImplementation "junit:junit:$jUnitVersion"
+    // <!-- begin: api Dependencies -->
+    api project (":sdk:core:azure-core-customserde")
+    api ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    api ("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
+    api ("javax.xml.stream:stax-api:$staxApiVersion") // https://stackoverflow.com/a/47371517/1473510
+    // <!-- end: api Dependencies -->
+
+    // <!-- begin: implementation Dependencies -->
+    implementation project (":sdk:core:azure-core-serde-jackson")
+    implementation project (":sdk:core:azure-core-logging")
+    // <!-- end: implementation Dependencies -->
 }

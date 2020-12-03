@@ -3,8 +3,6 @@
 
 package com.azure.core.http.util;
 
-import com.azure.core.http.util.UrlBuilder;
-import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -20,7 +18,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -191,7 +188,7 @@ public class UrlBuilderTests {
         final UrlBuilder builder = new UrlBuilder()
             .setHost("www.example.com?a=b");
         assertEquals("www.example.com", builder.getHost());
-        assertThat(builder.toString(), CoreMatchers.containsString("a=b"));
+        assertTrue(builder.toString().contains("a=b"));
         assertEquals("www.example.com?a=b", builder.toString());
     }
 
@@ -322,7 +319,7 @@ public class UrlBuilderTests {
         final UrlBuilder builder = new UrlBuilder()
             .setPort("50?a=b&c=d");
         assertEquals(50, builder.getPort());
-        assertThat(builder.toString(), CoreMatchers.containsString("?a=b&c=d"));
+        assertTrue(builder.toString().contains("?a=b&c=d"));
         assertEquals(":50?a=b&c=d", builder.toString());
     }
 

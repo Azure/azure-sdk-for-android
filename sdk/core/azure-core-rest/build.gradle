@@ -11,27 +11,25 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
+    // <!-- begin: api Dependencies -->
+    api project (":sdk:core:azure-core-http")
+    api project (":sdk:core:azure-core-serde")
+    api project (":sdk:core:azure-core-micro")
+    api ("io.projectreactor:reactor-core:$reactorCoreVersion")
+    // <!-- end: api Dependencies -->
 
-    api project(":sdk:core:azure-core-http")
-    api project(":sdk:core:azure-core-serde")
-    api project(":sdk:core:azure-core-micro")
-    implementation project(":sdk:core:azure-core-logging")
+    // <!-- begin: implementation Dependencies -->
+    implementation project (":sdk:core:azure-core-logging")
+    // <!-- end: implementation Dependencies -->
 
-    api "io.projectreactor:reactor-core:3.3.11.RELEASE"
-    testImplementation project(":sdk:core:azure-core-serde-jackson")
-    testImplementation project(":sdk:core:azure-core-test")
-    testImplementation "io.projectreactor:reactor-test:3.3.11.RELEASE"
-    testImplementation "androidx.arch.core:core-testing:$archCoreTestVersion"
-    // (Required) Writing and executing Unit Tests on the JUnit Platform
-    implementation("org.junit.jupiter:junit-jupiter-api:5.7.0") // implementation scope for 'AzureTestWatcher'
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.7.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.7.0")
-    // (Optional) If you need "Parameterized Tests"
-    testImplementation("org.junit.jupiter:junit-jupiter-params:5.7.0")
-    testImplementation "com.github.tomakehurst:wiremock-standalone:2.24.1"
-    // (Optional) If you also have JUnit 4-based tests
-    testImplementation "junit:junit:$jUnitVersion"
-    testRuntimeOnly("org.junit.vintage:junit-vintage-engine:5.7.0")
-    testImplementation "org.mockito:mockito-core:3.3.3"
+    // <!-- begin: test Dependencies -->
+    testImplementation project (":sdk:core:azure-core-serde-jackson")
+    testImplementation project (":sdk:core:azure-core-test")
+    testImplementation ("io.projectreactor:reactor-test:$reactorTestVersion")
+    testImplementation ("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
+    testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
+    testImplementation ("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
+    testImplementation ("com.github.tomakehurst:wiremock-standalone:$wireMockVersion")
+    testImplementation ("org.mockito:mockito-core:$mockitoVersion")
+    // <!-- end: test Dependencies -->
 }

@@ -11,7 +11,4 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-    testImplementation "androidx.arch.core:core-testing:$archCoreTestVersion"
-    testImplementation "junit:junit:$jUnitVersion"
 }

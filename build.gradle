@@ -14,6 +14,15 @@ buildscript {
         androidGradlePluginVersion = "4.0.1"
         androidJunitJacocoGradlePluginVersion = "0.16.0"
         jacocoVersion = "0.8.5"
+        junitJupiterVersion = "5.7.0"
+        mockitoVersion = "3.3.3"
+        orgtestngVersion = "6.9.6"
+        okHttpVersion = "4.8.1"
+        puppycrawlVersion = "8.29"
+        reactorCoreVersion = "3.3.11.RELEASE"
+        reactorTestVersion = "3.3.11.RELEASE"
+        slf4jApiVersion = "1.7.30"
+        wireMockVersion = "2.24.1"
     }
 
     dependencies {
@@ -211,7 +220,7 @@ allprojects {
         appCompatVersion = "1.2.0"
         archCoreTestVersion = "2.1.0"
         concurrentFuturesVersion = "1.0.0"
-        jUnitVersion = "4.13"
+        jUnitVersion = "5.7.0"
         jacksonVersion = "2.11.2"
         lifecycleVersion = "2.2.0"
         okHttpVersion = "3.14.9"
