@@ -11,10 +11,8 @@ import java.util.Set;
 
 /**
  * An escaper that escapes URL data through percent encoding.
- *
- * TODO (anuchan) turn this back to pke private once the tests are moved
  */
-public final class PercentEscaper {
+final class PercentEscaper {
     private static final char[] HEX_CHARACTERS = "0123456789ABCDEF".toCharArray();
 
     /*
@@ -33,7 +31,7 @@ public final class PercentEscaper {
      * @param safeCharacters Collection of characters that won't be escaped.
      * @param usePlusForSpace If true {@code ' '} will be escaped as {@code '+'} instead of {@code "%20"}.
      */
-    public PercentEscaper(String safeCharacters, boolean usePlusForSpace) {
+    PercentEscaper(String safeCharacters, boolean usePlusForSpace) {
         this.usePlusForSpace = usePlusForSpace;
 
         if (usePlusForSpace && safeCharacters != null && safeCharacters.contains(" ")) {

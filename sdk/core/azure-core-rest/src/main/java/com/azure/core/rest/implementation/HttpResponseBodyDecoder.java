@@ -36,12 +36,9 @@ import java.util.Set;
 
 /**
  * Decoder to decode body of HTTP response.
- * TODO (anuchan) turn back to pkg private once tests are moved
  */
-public final class HttpResponseBodyDecoder {
-    // TODO (jogiles) JavaDoc (even though it is non-public
-    // TODO (anuchan) turn back to pkg private once tests are moved
-    public static Mono<Object> decode(final String body,
+final class HttpResponseBodyDecoder {
+    static Mono<Object> decode(final String body,
         final HttpResponse httpResponse,
         final SerdeAdapter serdeAdapter,
         final HttpResponseDecodeData decodeData) {
@@ -103,7 +100,7 @@ public final class HttpResponseBodyDecoder {
                             serdeAdapter, SerdeEncoding.fromHeaders(httpResponse.getHeaders().toMap()));
 
                         return Mono.justOrEmpty(decodedSuccessEntity);
-                    } catch (MalformedValueException e) {
+                    } catch (SerdeParseException e) {
                         return Mono.error(new HttpResponseException("HTTP response has a malformed body.",
                             httpResponse, e));
                     } catch (IOException e) {
@@ -116,9 +113,8 @@ public final class HttpResponseBodyDecoder {
 
     /**
      * @return the decoded type used to decode the response body, null if the body is not decodable.
-     * TODO (anuchan) back to pkg pri once tests moved
      */
-    public static Type decodedType(final HttpResponse httpResponse, final HttpResponseDecodeData decodeData) {
+    static Type decodedType(final HttpResponse httpResponse, final HttpResponseDecodeData decodeData) {
         ensureRequestSet(httpResponse);
 
         if (isErrorStatus(httpResponse, decodeData)) {
