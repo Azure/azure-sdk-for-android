@@ -21,9 +21,8 @@ import java.util.function.Supplier;
 
 /**
  * A concurrent cache of {@link Response} constructors.
- * TODO: (anuchan) turn this back to pkg private once tests are moved
  */
-public final class ResponseConstructorsCache {
+final class ResponseConstructorsCache {
     private final ClientLogger logger = new ClientLogger(ResponseConstructorsCache.class);
     private final Map<Class<?>, Constructor<? extends Response<?>>> cache = new ConcurrentHashMap<>();
 
@@ -32,10 +31,8 @@ public final class ResponseConstructorsCache {
      *
      * @param responseClass the response class
      * @return identified constructor, null if there is no match
-     *
-     * TODO (anuchan) turn this back to pkg private once the tests are moved
      */
-    public Constructor<? extends Response<?>> get(Class<? extends Response<?>> responseClass) {
+    Constructor<? extends Response<?>> get(Class<? extends Response<?>> responseClass) {
         return this.cache.computeIfAbsent(responseClass, this::locateResponseConstructor);
     }
 
@@ -80,10 +77,8 @@ public final class ResponseConstructorsCache {
      * @param decodedResponse the decoded http response
      * @param bodyAsObject the http response content
      * @return an instance of a {@link Response} implementation
-     *
-     * TODO (anuchan) turn this back to pkg private once the tests are moved
      */
-    public Mono<Response<?>> invoke(final Constructor<? extends Response<?>> constructor,
+    Mono<Response<?>> invoke(final Constructor<? extends Response<?>> constructor,
                              final HttpResponseDecoder.HttpDecodedResponse decodedResponse,
                              final Object bodyAsObject) {
         final HttpResponse httpResponse = decodedResponse.getSourceResponse();

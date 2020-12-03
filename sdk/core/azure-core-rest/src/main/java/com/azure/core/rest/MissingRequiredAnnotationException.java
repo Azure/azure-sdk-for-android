@@ -9,9 +9,8 @@ import java.util.List;
 
 /**
  * An exception thrown when a Swagger interface is parsed and it is missing required annotations.
- * TODO (anuchan) turn this back to pkg private once tests are moved
  */
-public class MissingRequiredAnnotationException extends RuntimeException {
+final class MissingRequiredAnnotationException extends RuntimeException {
     /**
      * Create a new MissingRequiredAnnotationException for the provided missing required annotation on the provided
      * swaggerInterface.

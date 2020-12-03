@@ -92,10 +92,8 @@ public class SwaggerMethodParser implements HttpResponseDecodeData {
      * @param swaggerMethod the swagger method.
      * @param rawHost the raw host.
      * @param serdeAdapter the serde adapter.
-     *
-     * TODO (anuchan) turn this back to pkg private once tests are moved
      */
-    public SwaggerMethodParser(Method swaggerMethod, String rawHost, SerdeAdapter serdeAdapter) {
+    SwaggerMethodParser(Method swaggerMethod, String rawHost, SerdeAdapter serdeAdapter) {
         this.serdeAdapter = serdeAdapter;
         this.rawHost = rawHost;
 

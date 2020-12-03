@@ -22,10 +22,8 @@ import java.util.List;
  * }
  * or any other cases where the property names of that type are swapped
  * @param <T> The type of the object stored within the {@link ItemPage} instance
- *
- * TODO (anuchan) turn this back to pkg private once the tests are moved
  */
-public class ItemPage<T> implements Page<T> {
+class ItemPage<T> implements Page<T> {
     @SerdePropertyAlias({"items", "value"})
     private List<T> items;
 

@@ -60,7 +60,7 @@ public @interface SerdeTypeInfo {
      * and its subtypes; as well as what is expected during
      * deserialization.
      *
-     * @return todoa
+     * @return metadata type kind.
      */
     Id use();
 
@@ -69,14 +69,14 @@ public @interface SerdeTypeInfo {
      * {@link Id#NONE} nothing is included); used when serializing,
      * and expected when deserializing.
      *
-     * @return todoa
+     * @return metadata type inclusion mechanism.
      */
     As include() default As.PROPERTY;
 
     /**
      * Property names used when type inclusion method ({@link As#PROPERTY}).
      *
-     * @return todoa
+     * @return the property names used when type inclusion method.
      */
     String property() default "";
 
@@ -84,7 +84,7 @@ public @interface SerdeTypeInfo {
      * Optional property that can be used to specify default implementation
      * class to use for deserialization.
      *
-     * @return todoa
+     * @return the default implementation class for deserialization.
      */
     Class<?> defaultImpl() default SerdeTypeInfo.class;
 
@@ -100,7 +100,7 @@ public @interface SerdeTypeInfo {
      *
      * @since 2.0
      *
-     * @return todoa
+     * @return the visibility of the type identifier value.
      */
     boolean visible() default false;
 }
