@@ -3,82 +3,34 @@
 
 package com.azure.core.logging.implementation;
 
-import com.azure.core.logging.LogLevel;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import org.slf4j.helpers.FormattingTuple;
+import android.util.Log;
+
 import org.slf4j.helpers.MarkerIgnoringBase;
 import org.slf4j.helpers.MessageFormatter;
 
 /**
- * This class is an internal implementation of slf4j logger.
+ * This is a fluent logger helper class that implements the logging using the Android
+ * {@link Log} class and its methods.
  */
 public final class DefaultLogger extends MarkerIgnoringBase {
-    private static final long serialVersionUID = -144261058636441630L;
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS");
-
-    // The template for the log message:
-    // YYYY-MM-DD HH:MM:ss.SSS [thread] [level] classpath - message
-    // E.g: 2020-01-09 12:35:14.232 [main] [WARN] com.azure.core.DefaultLogger - This is my log message.
-    private static final String WHITESPACE = " ";
-    private static final String HYPHEN = " - ";
-    private static final String OPEN_BRACKET = " [";
-    private static final String CLOSE_BRACKET = "]";
-    public static final String WARN = "WARN";
-    public static final String DEBUG = "DEBUG";
-    public static final String INFO = "INFO";
-    public static final String ERROR = "ERROR";
-    public static final String TRACE = "TRACE";
-
-    private final String classPath;
-    private final boolean isTraceEnabled;
-    private final boolean isDebugEnabled;
-    private final boolean isInfoEnabled;
-    private final boolean isWarnEnabled;
-    private final boolean isErrorEnabled;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Construct DefaultLogger for the given class.
      *
      * @param clazz Class creating the logger.
-     * @param azureLogLevel The azure log level.
      */
-    public DefaultLogger(Class<?> clazz, LogLevel azureLogLevel) {
-        this(clazz.getName(), azureLogLevel);
+    public DefaultLogger(Class<?> clazz) {
+        this(clazz.getName());
     }
 
     /**
-     * Construct DefaultLogger for the given class name.
+     * Construct DefaultLogger.
      *
-     * @param className Class name creating the logger. Will use class canonical name if exists, otherwise use the
-     * class name passes in.
-     * @param azureLogLevel The azure log level.
+     * @param name The tag name.
      */
-    public DefaultLogger(String className, LogLevel azureLogLevel) {
-        String classPath;
-        try {
-            classPath = Class.forName(className).getCanonicalName();
-        } catch (ClassNotFoundException e) {
-            classPath = className;
-        }
-        this.classPath = classPath;
-        final int configuredLogLevel = azureLogLevel.getLogLevel();
-        isTraceEnabled = LogLevel.VERBOSE.getLogLevel() > configuredLogLevel;
-        isDebugEnabled = LogLevel.VERBOSE.getLogLevel() >= configuredLogLevel;
-        isInfoEnabled = LogLevel.INFORMATIONAL.getLogLevel() >= configuredLogLevel;
-        isWarnEnabled = LogLevel.WARNING.getLogLevel() >= configuredLogLevel;
-        isErrorEnabled = LogLevel.ERROR.getLogLevel() >= configuredLogLevel;
-
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return classPath;
+    public DefaultLogger(final String name) {
+        this.name = name;
     }
 
     /**
@@ -86,7 +38,7 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public boolean isTraceEnabled() {
-        return isTraceEnabled;
+        return Log.isLoggable(name, Log.VERBOSE);
     }
 
     /**
@@ -94,31 +46,31 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public void trace(final String msg) {
-        logMessageWithFormat(TRACE, msg);
+        Log.v(name, msg);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void trace(final String format, final Object arg1) {
-        logMessageWithFormat(TRACE, format, arg1);
+    public void trace(final String format, final Object param1) {
+        Log.v(name, format(format, param1, null));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void trace(final String format, final Object arg1, final Object arg2) {
-        logMessageWithFormat(TRACE, format, arg1, arg2);
+    public void trace(final String format, final Object param1, final Object param2) {
+        Log.v(name, format(format, param1, param2));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void trace(final String format, final Object... arguments) {
-        logMessageWithFormat(TRACE, format, arguments);
+    public void trace(final String format, final Object[] argArray) {
+        Log.v(name, format(format, argArray));
     }
 
     /**
@@ -126,7 +78,7 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public void trace(final String msg, final Throwable t) {
-        log(TRACE, msg, t);
+        Log.v(name, msg, t);
     }
 
     /**
@@ -134,36 +86,39 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public boolean isDebugEnabled() {
-        return isDebugEnabled;
+        return Log.isLoggable(name, Log.DEBUG);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void debug(final String msg) {
-        logMessageWithFormat(DEBUG, msg);
+        Log.d(name, msg);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void debug(String format, Object arg) {
-        logMessageWithFormat(DEBUG, format, arg);
+    public void debug(final String format, final Object arg1) {
+        Log.d(name, format(format, arg1, null));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void debug(final String format, final Object arg1, final Object arg2) {
-        logMessageWithFormat(DEBUG, format, arg1, arg2);
+    public void debug(final String format, final Object param1, final Object param2) {
+        Log.d(name, format(format, param1, param2));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void debug(String format, Object... args) {
-        logMessageWithFormat(DEBUG, format, args);
+    public void debug(final String format, final Object[] argArray) {
+        Log.d(name, format(format, argArray));
     }
 
     /**
@@ -171,7 +126,7 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public void debug(final String msg, final Throwable t) {
-        log(DEBUG, msg, t);
+        Log.d(name, msg, t);
     }
 
     /**
@@ -179,24 +134,23 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public boolean isInfoEnabled() {
-        return isInfoEnabled;
+        return Log.isLoggable(name, Log.INFO);
     }
-
 
     /**
      * {@inheritDoc}
      */
     @Override
     public void info(final String msg) {
-        logMessageWithFormat(INFO, msg);
+        Log.i(name, msg);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void info(String format, Object arg) {
-        logMessageWithFormat(INFO, format, arg);
+    public void info(final String format, final Object arg) {
+        Log.i(name, format(format, arg, null));
     }
 
     /**
@@ -204,15 +158,15 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public void info(final String format, final Object arg1, final Object arg2) {
-        logMessageWithFormat(INFO, format, arg1, arg2);
+        Log.i(name, format(format, arg1, arg2));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void info(String format, Object... args) {
-        logMessageWithFormat(INFO, format, args);
+    public void info(final String format, final Object[] argArray) {
+        Log.i(name, format(format, argArray));
     }
 
     /**
@@ -220,7 +174,7 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public void info(final String msg, final Throwable t) {
-        log(INFO, msg, t);
+        Log.i(name, msg, t);
     }
 
     /**
@@ -228,7 +182,7 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public boolean isWarnEnabled() {
-        return isWarnEnabled;
+        return Log.isLoggable(name, Log.WARN);
     }
 
     /**
@@ -236,15 +190,15 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public void warn(final String msg) {
-        logMessageWithFormat(WARN, msg);
+        Log.w(name, msg);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void warn(String format, Object arg) {
-        logMessageWithFormat(WARN, format, arg);
+    public void warn(final String format, final Object arg) {
+        Log.w(name, format(format, arg, null));
     }
 
     /**
@@ -252,15 +206,15 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public void warn(final String format, final Object arg1, final Object arg2) {
-        logMessageWithFormat(WARN, format, arg1, arg2);
+        Log.w(name, format(format, arg1, arg2));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void warn(String format, Object... args) {
-        logMessageWithFormat(WARN, format, args);
+    public void warn(final String format, final Object[] argArray) {
+        Log.w(name, format(format, argArray));
     }
 
     /**
@@ -268,7 +222,7 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public void warn(final String msg, final Throwable t) {
-        log(WARN, msg, t);
+        Log.w(name, msg, t);
     }
 
     /**
@@ -276,15 +230,7 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public boolean isErrorEnabled() {
-        return isErrorEnabled;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void error(String format, Object arg) {
-        logMessageWithFormat(ERROR, format, arg);
+        return Log.isLoggable(name, Log.ERROR);
     }
 
     /**
@@ -292,7 +238,15 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public void error(final String msg) {
-        logMessageWithFormat(ERROR, msg);
+        Log.e(name, msg);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void error(final String format, final Object arg) {
+        Log.e(name, format(format, arg, null));
     }
 
     /**
@@ -300,89 +254,30 @@ public final class DefaultLogger extends MarkerIgnoringBase {
      */
     @Override
     public void error(final String format, final Object arg1, final Object arg2) {
-        logMessageWithFormat(ERROR, format, arg1, arg2);
+        Log.e(name, format(format, arg1, arg2));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void error(String format, Object... args) {
-        logMessageWithFormat(ERROR, format, args);
+    public void error(final String format, final Object[] argArray) {
+        Log.e(name, format(format, argArray));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void error(final String msg, final Throwable t) {
-        log(ERROR, msg, t);
+    public void error(final String msg, final Throwable t)  {
+        Log.e(name, msg, t);
     }
 
-    /**
-     * Format and write the message according to the {@code MESSAGE_TEMPLATE}.
-     *
-     * @param levelName The level to log.
-     * @param format The log message format.
-     * @param arguments a list of arbitrary arguments taken in by format.
-     */
-    private void logMessageWithFormat(String levelName, String format, Object... arguments) {
-        FormattingTuple tp = MessageFormatter.arrayFormat(format, arguments);
-        log(levelName, tp.getMessage(), tp.getThrowable());
+    private String format(final String format, final Object arg1, final Object arg2) {
+        return MessageFormatter.format(format, arg1, arg2).getMessage();
     }
 
-    /**
-     * Format and write the message according to the {@code MESSAGE_TEMPLATE}.
-     *
-     * @param levelName log level
-     * @param message The message itself
-     * @param t The exception whose stack trace should be logged
-     */
-    private void log(String levelName, String message, Throwable t) {
-        String dateTime = getFormattedDate();
-        String threadName = Thread.currentThread().getName();
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder
-            .append(dateTime)
-            .append(OPEN_BRACKET)
-            .append(threadName)
-            .append(CLOSE_BRACKET)
-            .append(OPEN_BRACKET)
-            .append(levelName)
-            .append(CLOSE_BRACKET)
-            .append(WHITESPACE)
-            .append(classPath)
-            .append(HYPHEN)
-            .append(message)
-            .append(System.lineSeparator());
-
-        writeWithThrowable(stringBuilder, t);
-    }
-
-    /**
-     * Get the current time in Local time zone.
-     *
-     * @return The current time in {@code DATE_FORMAT}
-     */
-    private String getFormattedDate() {
-        LocalDateTime now = LocalDateTime.now();
-        return DATE_FORMAT.format(now);
-    }
-
-    /**
-     * Write the log message with throwable stack trace if any.
-     *
-     * @param stringBuilder Take the log messages.
-     * @param t The exception whose stack trace should be logged
-     */
-    void writeWithThrowable(StringBuilder stringBuilder, Throwable t) {
-        if (t != null) {
-            StringWriter sw = new StringWriter();
-            try (PrintWriter pw = new PrintWriter(sw)) {
-                t.printStackTrace(pw);
-                stringBuilder.append(sw.toString());
-            }
-        }
-        System.out.print(stringBuilder.toString());
+    private String format(final String format, final Object[] args) {
+        return MessageFormatter.arrayFormat(format, args).getMessage();
     }
 }

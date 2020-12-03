@@ -48,7 +48,7 @@ public class ClientLogger {
      */
     public ClientLogger(String className) {
         Logger initLogger = LoggerFactory.getLogger(className);
-        logger = initLogger instanceof NOPLogger ? new DefaultLogger(className, LogLevel.NOT_SET) : initLogger;
+        logger = initLogger instanceof NOPLogger ? new DefaultLogger(className) : initLogger;
     }
 
     /**
