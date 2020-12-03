@@ -10,15 +10,19 @@ buildscript {
     }
 
     ext {
-        androidBuildToolsVersion = "30.0.1"
-        androidGradlePluginVersion = "4.0.1"
-        androidJunitJacocoGradlePluginVersion = "0.16.0"
+        gradleAndroidBuildToolsPluginVersion = "30.0.1"
+        gradleAndroidToolsPluginVersion = "4.0.1"
+        gradleJunitJacocoPluginVersion = "0.16.0"
+        gradleDexcountPluginVersion = "2.0.0"
+        gradleSpotbugsPluginVersion = "4.6.0"
+        gradleAndroidJunit5PluginVersion = "1.6.2.0"
         jacocoVersion = "0.8.5"
         junitJupiterVersion = "5.7.0"
         mockitoVersion = "3.3.3"
         orgtestngVersion = "6.9.6"
         okHttpVersion = "4.8.1"
-        puppycrawlVersion = "8.29"
+        qualityReportsPuppycrawlVersion = "8.29"
+        qualityReportsJunitVersion = "4.13.1"
         reactorCoreVersion = "3.3.11.RELEASE"
         reactorTestVersion = "3.3.11.RELEASE"
         slf4jApiVersion = "1.7.30"
@@ -26,11 +30,11 @@ buildscript {
     }
 
     dependencies {
-        classpath "com.android.tools.build:gradle:${androidGradlePluginVersion}"
-        classpath "de.mannodermaus.gradle.plugins:android-junit5:1.6.2.0"
-        classpath "com.vanniktech:gradle-android-junit-jacoco-plugin:$androidJunitJacocoGradlePluginVersion"
-        classpath 'com.getkeepsafe.dexcount:dexcount-gradle-plugin:2.0.0'
-        classpath "gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:4.6.0"
+        classpath ("com.android.tools.build:gradle:$gradleAndroidToolsPluginVersion")
+        classpath ("de.mannodermaus.gradle.plugins:android-junit5:$gradleAndroidJunit5PluginVersion")
+        classpath ("com.getkeepsafe.dexcount:dexcount-gradle-plugin:$gradleDexcountPluginVersion")
+        classpath ("com.vanniktech:gradle-android-junit-jacoco-plugin:$gradleJunitJacocoPluginVersion")
+        classpath ("gradle.plugin.com.github.spotbugs.snom:spotbugs-gradle-plugin:$gradleSpotbugsPluginVersion")
     }
 }
 
@@ -47,7 +51,7 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
 
     android {
         compileSdkVersion 30
-        buildToolsVersion "$androidBuildToolsVersion"
+        buildToolsVersion ("$gradleAndroidBuildToolsPluginVersion")
 
         defaultConfig {
             minSdkVersion 29

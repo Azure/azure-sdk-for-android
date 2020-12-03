@@ -29,9 +29,8 @@ dependencies {
     // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->
-    testImplementation ("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
+    testImplementation ("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation ("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
-    testImplementation ("com.github.tomakehurst:wiremock-standalone:$wireMockVersion")
     // <!-- end: test Dependencies -->
 }

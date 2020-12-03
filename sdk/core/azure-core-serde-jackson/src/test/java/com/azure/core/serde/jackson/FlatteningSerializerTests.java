@@ -18,7 +18,6 @@ import java.util.Map;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import wiremock.com.google.common.collect.ImmutableList;
 
 public class FlatteningSerializerTests {
     @Test
@@ -379,7 +378,8 @@ public class FlatteningSerializerTests {
         meals.add("apple");
         AnimalWithTypeIdContainingDot animalToSerialize = new RabbitWithTypeIdContainingDot().withMeals(meals);
         FlattenableAnimalInfo animalInfoToSerialize = new FlattenableAnimalInfo().withAnimal(animalToSerialize);
-        List<FlattenableAnimalInfo> animalsInfoSerialized = ImmutableList.of(animalInfoToSerialize);
+        ArrayList<FlattenableAnimalInfo> animalsInfoSerialized = new ArrayList<>();
+        animalsInfoSerialized.add(animalInfoToSerialize);
         AnimalShelter animalShelterToSerialize = new AnimalShelter().withAnimalsInfo(animalsInfoSerialized);
         String serialized = adapter.serialize(animalShelterToSerialize, SerdeEncoding.JSON);
         String[] results = {
