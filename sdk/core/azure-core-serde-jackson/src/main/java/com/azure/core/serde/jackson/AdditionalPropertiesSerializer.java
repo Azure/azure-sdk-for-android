@@ -3,6 +3,7 @@
 
 package com.azure.core.serde.jackson;
 
+import com.azure.core.serde.SerdeProperty;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -79,8 +80,12 @@ final class AdditionalPropertiesSerializer extends StdSerializer<Object> impleme
                     Field[] fields = c.getDeclaredFields();
                     for (Field field : fields) {
                         if ("additionalProperties".equalsIgnoreCase(field.getName())) {
-                            JsonProperty property = field.getAnnotation(JsonProperty.class);
-                            if (property != null && property.value().isEmpty()) {
+                            SerdeProperty sProperty = field.getAnnotation(SerdeProperty.class);
+                            if (sProperty != null && sProperty.value().isEmpty()) {
+                                return new AdditionalPropertiesSerializer(beanDesc.getBeanClass(), serializer, mapper);
+                            }
+                            JsonProperty jProperty = field.getAnnotation(JsonProperty.class);
+                            if (jProperty != null && jProperty.value().isEmpty()) {
                                 return new AdditionalPropertiesSerializer(beanDesc.getBeanClass(), serializer, mapper);
                             }
                         }

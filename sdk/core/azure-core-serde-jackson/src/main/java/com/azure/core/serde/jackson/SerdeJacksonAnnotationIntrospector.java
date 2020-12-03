@@ -116,7 +116,7 @@ final class SerdeJacksonAnnotationIntrospector extends JacksonXmlAnnotationIntro
     public String findTypeName(AnnotatedClass ac) {
         SerdeTypeName tn = _findAnnotation(ac, SerdeTypeName.class);
         if (tn != null) {
-            tn.value();
+            return tn.value();
         }
         return super.findTypeName(ac);
     }

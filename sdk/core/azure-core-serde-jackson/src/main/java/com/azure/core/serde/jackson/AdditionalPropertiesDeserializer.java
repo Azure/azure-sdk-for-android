@@ -4,6 +4,7 @@
 package com.azure.core.serde.jackson;
 
 import com.azure.core.serde.JsonFlatten;
+import com.azure.core.serde.SerdeProperty;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
@@ -71,8 +72,13 @@ final class AdditionalPropertiesDeserializer extends StdDeserializer<Object> imp
                     Field[] fields = c.getDeclaredFields();
                     for (Field field : fields) {
                         if ("additionalProperties".equalsIgnoreCase(field.getName())) {
-                            JsonProperty property = field.getAnnotation(JsonProperty.class);
-                            if (property != null && property.value().isEmpty()) {
+                            SerdeProperty sProperty = field.getAnnotation(SerdeProperty.class);
+                            if (sProperty != null && sProperty.value().isEmpty()) {
+                                return new AdditionalPropertiesDeserializer(beanDesc.getBeanClass(), deserializer,
+                                    mapper);
+                            }
+                            JsonProperty jProperty = field.getAnnotation(JsonProperty.class);
+                            if (jProperty != null && jProperty.value().isEmpty()) {
                                 return new AdditionalPropertiesDeserializer(beanDesc.getBeanClass(), deserializer,
                                     mapper);
                             }
@@ -104,11 +110,22 @@ final class AdditionalPropertiesDeserializer extends StdDeserializer<Object> imp
                 if (field.isSynthetic()) {
                     continue;
                 }
-                JsonProperty property = field.getAnnotation(JsonProperty.class);
-                String key = isJsonFlatten ? property.value().split("((?<!\\\\))\\.")[0] : property.value();
-                if (!key.isEmpty()) {
-                    if (copy.has(key)) {
-                        copy.remove(key);
+                String value = null;
+                SerdeProperty sProperty = field.getAnnotation(SerdeProperty.class);
+                if (sProperty != null) {
+                    value = sProperty.value();
+                } else {
+                    JsonProperty jProperty = field.getAnnotation(JsonProperty.class);
+                    if (jProperty != null) {
+                        value = jProperty.value();
+                    }
+                }
+                if (value != null) {
+                    String key1 = isJsonFlatten ? sProperty.value().split("((?<!\\\\))\\.")[0] : sProperty.value();
+                    if (!key1.isEmpty()) {
+                        if (copy.has(key1)) {
+                            copy.remove(key1);
+                        }
                     }
                 }
             }
