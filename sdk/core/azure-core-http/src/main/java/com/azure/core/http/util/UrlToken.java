@@ -3,12 +3,11 @@
 
 package com.azure.core.http.util;
 
-public class UrlToken {
+class UrlToken {
     private final String text;
     private final UrlTokenType type;
 
-    // TODO (anuchan) back to package private once tests are moved
-    public UrlToken(String text, UrlTokenType type) {
+    UrlToken(String text, UrlTokenType type) {
         this.text = text;
         this.type = type;
     }
@@ -40,28 +39,23 @@ public class UrlToken {
         return (text == null ? 0 : text.hashCode()) ^ type.hashCode();
     }
 
-    // TODO (anuchan) back to package private once tests are moved
-    public static UrlToken scheme(String text) {
+    static UrlToken scheme(String text) {
         return new UrlToken(text, UrlTokenType.SCHEME);
     }
 
-    // TODO (anuchan) back to package private once tests are moved
-    public static UrlToken host(String text) {
+    static UrlToken host(String text) {
         return new UrlToken(text, UrlTokenType.HOST);
     }
 
-    // TODO (anuchan) back to package private once tests are moved
-    public static UrlToken port(String text) {
+    static UrlToken port(String text) {
         return new UrlToken(text, UrlTokenType.PORT);
     }
 
-    // TODO (anuchan) back to package private once tests are moved
-    public static UrlToken path(String text) {
+    static UrlToken path(String text) {
         return new UrlToken(text, UrlTokenType.PATH);
     }
 
-    // TODO (anuchan) back to package private once tests are moved
-    public static UrlToken query(String text) {
+    static UrlToken query(String text) {
         return new UrlToken(text, UrlTokenType.QUERY);
     }
 }

@@ -14,8 +14,7 @@ public class UrlTokenizer {
         this(text, UrlTokenizerState.SCHEME_OR_HOST);
     }
 
-    // TODO (anuchan) back to pkg private ctrs once tests moved
-    public UrlTokenizer(String text, UrlTokenizerState state) {
+    UrlTokenizer(String text, UrlTokenizerState state) {
         this.text = text;
         this.textLength = (text == null ? 0 : text.length());
         this.state = state;
@@ -49,13 +48,11 @@ public class UrlTokenizer {
         return text.substring(currentIndex, endIndex);
     }
 
-    // TODO (anuchan) back to package private once tests are moved
-    public UrlToken current() {
+    UrlToken current() {
         return currentToken;
     }
 
-    // TODO (anuchan) back to package private once tests are moved
-    public boolean next() {
+    boolean next() {
         if (!hasCurrentCharacter()) {
             currentToken = null;
         } else {
