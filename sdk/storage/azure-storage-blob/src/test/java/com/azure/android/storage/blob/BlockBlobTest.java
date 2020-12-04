@@ -36,7 +36,7 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-import static com.azure.android.core.common.TestUtils.awaitOnLatch;
+import static com.azure.android.storage.blob.common.TestUtils.awaitOnLatch;
 import static com.azure.android.storage.blob.BlobTestUtils.correctTagsCondition;
 import static com.azure.android.storage.blob.BlobTestUtils.enableFiddler;
 import static com.azure.android.storage.blob.BlobTestUtils.garbageEtag;

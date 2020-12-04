@@ -50,7 +50,7 @@ import java.util.concurrent.CountDownLatch;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
-import static com.azure.android.core.common.TestUtils.awaitOnLatch;
+import static com.azure.android.storage.blob.common.TestUtils.awaitOnLatch;
 import static com.azure.android.storage.blob.BlobTestUtils.correctTagsCondition;
 import static com.azure.android.storage.blob.BlobTestUtils.enableFiddler;
 import static com.azure.android.storage.blob.BlobTestUtils.garbageEtag;
