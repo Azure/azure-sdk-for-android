@@ -2,6 +2,6 @@
 // Licensed under the MIT License.
 
 /**
- * Common HTTP pipeline used by service clients.
+ * Common HTTP pipeline components used by service clients.
  */
 package com.azure.android.core.http;

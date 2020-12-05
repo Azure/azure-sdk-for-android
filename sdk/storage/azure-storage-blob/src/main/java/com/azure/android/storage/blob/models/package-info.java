@@ -2,6 +2,6 @@
 // Licensed under the MIT License.
 
 /**
- * Data models used when interacting with the Azure Blob storage.
+ * Data models used when interacting with the Azure Blob Storage.
  */
 package com.azure.android.storage.blob.models;

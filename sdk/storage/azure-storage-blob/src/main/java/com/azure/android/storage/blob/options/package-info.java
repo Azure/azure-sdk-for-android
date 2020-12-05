@@ -2,6 +2,6 @@
 // Licensed under the MIT License.
 
 /**
- * Options classes used with Azure Blob storage service clients and client methods.
+ * Options classes used with Azure Blob Storage service clients and client methods.
  */
 package com.azure.android.storage.blob.options;
