@@ -7,3 +7,4 @@
 AzureStorage will provide cloud storage functionality.  The current SDK for Azure Storage can be found [here](https://github.com/Azure/azure-storage-android). The intent is to migrate that SDK to this repository, update it, and refactor the API to ensure it works seamlessly with the other SDKs in this project to provide the best possible developer experience.
 
 More information on the features to be included in AzureStorage can be found the [Requirements](https://github.com/Azure/Azure.Android/wiki/Requirements-AzureStorage) wiki document.
+rtat.net
