@@ -1,5 +1,5 @@
 # Azure Storage Blobs client library for Android
-Azure Blob storage is Microsoft's object storage solution for the cloud. Blob
+Azure Blob Storage is Microsoft's object storage solution for the cloud. Blob
 storage is optimized for storing massive amounts of unstructured data, such as
 text or binary data.
 
@@ -187,8 +187,8 @@ Storage Blobs client library for Android samples are available to you in the SDK
     * Download blobs
 
 ### Additional documentation
-For more extensive documentation on Azure Blob storage, see the
-[Azure Blob storage documentation](https://docs.microsoft.com/azure/storage/blobs/) on docs.microsoft.com.
+For more extensive documentation on Azure Blob Storage, see the
+[Azure Blob Storage documentation](https://docs.microsoft.com/azure/storage/blobs/) on docs.microsoft.com.
 
 ## Contributing
 This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License

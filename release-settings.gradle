@@ -1,6 +1,3 @@
 include ':sdk:communication:azure-communication-chat'
 include ':sdk:communication:azure-communication-common'
 include ':sdk:core:azure-core'
-include ':sdk:storage:azure-storage-blob'
-include ':sdk:template:azure-sdk-template'
-include ':samples:sample-app-storage'

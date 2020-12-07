@@ -34,7 +34,7 @@ import java.util.concurrent.CountDownLatch;
 
 import okhttp3.Response;
 
-import static com.azure.android.core.common.TestUtils.awaitOnLatch;
+import static com.azure.android.storage.blob.common.TestUtils.awaitOnLatch;
 import static com.azure.android.storage.blob.BlobTestUtils.enableFiddler;
 import static com.azure.android.storage.blob.BlobTestUtils.generateResourceName;
 import static com.azure.android.storage.blob.BlobTestUtils.initializeDefaultAsyncBlobClientBuilder;

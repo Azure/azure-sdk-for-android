@@ -4,7 +4,7 @@
 
 package com.azure.android.storage.blob.interceptor;
 
-import com.azure.android.core.common.EnqueueMockResponse;
+import com.azure.android.storage.blob.common.EnqueueMockResponse;
 import com.azure.android.storage.blob.credential.SasTokenCredential;
 
 import org.junit.Rule;
@@ -16,9 +16,9 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.mockwebserver.MockWebServer;
 
-import static com.azure.android.core.common.TestUtils.buildOkHttpClientWithInterceptor;
-import static com.azure.android.core.common.TestUtils.getSimpleRequest;
-import static com.azure.android.core.common.TestUtils.getSimpleRequestWithQueryParam;
+import static com.azure.android.storage.blob.common.TestUtils.buildOkHttpClientWithInterceptor;
+import static com.azure.android.storage.blob.common.TestUtils.getSimpleRequest;
+import static com.azure.android.storage.blob.common.TestUtils.getSimpleRequestWithQueryParam;
 import static org.junit.Assert.assertEquals;
 
 public class SasTokenCredentialInterceptorTest {
