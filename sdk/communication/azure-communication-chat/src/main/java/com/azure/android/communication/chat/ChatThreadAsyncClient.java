@@ -301,6 +301,8 @@ public final class ChatThreadAsyncClient {
          */
         private Interceptor credentialInterceptor;
 
+        private Interceptor userAgentInterceptor;
+
         /**
          * Sets The Interceptor to set intercept request and set credentials.
          *
@@ -309,6 +311,11 @@ public final class ChatThreadAsyncClient {
          */
         public Builder credentialInterceptor(Interceptor credentialInterceptor) {
             this.credentialInterceptor = credentialInterceptor;
+            return this;
+        }
+
+        public Builder userAgentInterceptor(Interceptor userAgentInterceptor) {
+            this.userAgentInterceptor = userAgentInterceptor;
             return this;
         }
 
@@ -349,6 +356,9 @@ public final class ChatThreadAsyncClient {
             }
             if (credentialInterceptor != null) {
                 serviceClientBuilder.setCredentialsInterceptor(credentialInterceptor);
+            }
+            if (userAgentInterceptor != null) {
+                serviceClientBuilder.addInterceptor(userAgentInterceptor);
             }
             AzureCommunicationChatServiceImpl internalClient = new AzureCommunicationChatServiceImpl(serviceClientBuilder.build(), endpoint);
             return new ChatThreadAsyncClient(internalClient.getChatThreads());

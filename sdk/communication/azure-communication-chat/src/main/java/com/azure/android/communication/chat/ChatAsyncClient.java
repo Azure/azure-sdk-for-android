@@ -51,7 +51,7 @@ public final class ChatAsyncClient {
 
     /**
      * Creates a chat thread.
-     * 
+     *
      * @param createChatThreadRequest Request payload for creating a chat thread.
      * @param repeatabilityRequestID If specified, the client directs that the request is repeatable; that is, that the client can make the request multiple times with the same Repeatability-Request-ID and get back an appropriate response without the server executing the request multiple times. The value of the Repeatability-Request-ID is an opaque string representing a client-generated, globally unique for all time, identifier for the request. It is recommended to use version 4 (random) UUIDs.
      * @param callback the Callback that receives the response.
@@ -65,7 +65,7 @@ public final class ChatAsyncClient {
 
     /**
      * Creates a chat thread.
-     * 
+     *
      * @param createChatThreadRequest Request payload for creating a chat thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -78,7 +78,7 @@ public final class ChatAsyncClient {
 
     /**
      * Gets the list of chat threads of a user.
-     * 
+     *
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @param callback the Callback that receives the response collection.
@@ -92,7 +92,7 @@ public final class ChatAsyncClient {
 
     /**
      * Gets a chat thread.
-     * 
+     *
      * @param chatThreadId Thread id to get.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -105,7 +105,7 @@ public final class ChatAsyncClient {
 
     /**
      * Deletes a thread.
-     * 
+     *
      * @param chatThreadId Thread id to delete.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -127,7 +127,7 @@ public final class ChatAsyncClient {
 
         /**
          * Sets The endpoint of the Azure Communication resource.
-         * 
+         *
          * @param endpoint the endpoint value.
          * @return the Builder.
          */
@@ -143,7 +143,7 @@ public final class ChatAsyncClient {
 
         /**
          * Sets The Azure Core generic ServiceClient Builder.
-         * 
+         *
          * @param serviceClientBuilder the serviceClientBuilder value.
          * @return the Builder.
          */
@@ -157,14 +157,21 @@ public final class ChatAsyncClient {
          */
         private Interceptor credentialInterceptor;
 
+        private Interceptor userAgentInterceptor;
+
         /**
          * Sets The Interceptor to set intercept request and set credentials.
-         * 
+         *
          * @param credentialInterceptor the credentialInterceptor value.
          * @return the Builder.
          */
         public Builder credentialInterceptor(Interceptor credentialInterceptor) {
             this.credentialInterceptor = credentialInterceptor;
+            return this;
+        }
+
+        public Builder userAgentInterceptor(Interceptor userAgentInterceptor) {
+            this.userAgentInterceptor = userAgentInterceptor;
             return this;
         }
 
@@ -175,7 +182,7 @@ public final class ChatAsyncClient {
 
         /**
          * Sets base url of the service.
-         * 
+         *
          * @param baseUrl the baseUrl value.
          * @return the Builder.
          */
@@ -186,7 +193,7 @@ public final class ChatAsyncClient {
 
         /**
          * Builds an instance of ChatAsyncClient with the provided parameters.
-         * 
+         *
          * @return an instance of ChatAsyncClient.
          */
         public ChatAsyncClient build() {
@@ -205,6 +212,9 @@ public final class ChatAsyncClient {
             }
             if (credentialInterceptor != null) {
                 serviceClientBuilder.setCredentialsInterceptor(credentialInterceptor);
+            }
+            if (userAgentInterceptor != null) {
+                serviceClientBuilder.addInterceptor(userAgentInterceptor);
             }
             AzureCommunicationChatServiceImpl internalClient = new AzureCommunicationChatServiceImpl(serviceClientBuilder.build(), endpoint);
             return new ChatAsyncClient(internalClient.getChats());

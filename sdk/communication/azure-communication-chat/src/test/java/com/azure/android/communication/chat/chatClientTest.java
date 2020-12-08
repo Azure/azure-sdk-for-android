@@ -5,6 +5,7 @@ import com.azure.android.communication.chat.models.ChatThreadInfo;
 import com.azure.android.communication.chat.models.ChatParticipant;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
+import com.azure.android.core.http.interceptor.UserAgentInterceptor;
 import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
 import com.azure.android.core.util.paging.Page;
 import com.azure.android.core.util.paging.PagedDataCollection;
@@ -24,9 +25,17 @@ public class chatClientTest {
 
     private static final MockWebServer mockWebServer = new MockWebServer();
     private static final String BASE_URL = mockWebServer.url("/").toString();
+    private static UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(
+        null,
+        "android",
+        "1.0.0-beta.3",
+        null,
+        null,
+        null);
     private static ChatClient chatServiceClient =
         new ChatClient.Builder()
             .serviceClientBuilder(new ServiceClient.Builder().setBaseUrl(BASE_URL))
+            .userAgentInterceptor(userAgentInterceptor)
             .build();
 
     @After
