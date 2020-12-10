@@ -1,9 +1,9 @@
 package com.azure.android.storage.sample.kotlin.core.util.tokenrequest
 
+import com.azure.android.core.credential.AccessToken
 import org.threeten.bp.Duration
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import com.azure.android.storage.sample.kotlin.core.credential.AccessToken
 
 /**
  * A Handle that a background running thread (e.g. okhttp thread) uses to synchronously receives an

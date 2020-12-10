@@ -4,17 +4,17 @@ import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.azure.android.storage.blob.StorageBlobAsyncClient
 import com.azure.android.storage.blob.models.BlobItem
-import com.azure.android.storage.blob.transfer.TransferClient
 import com.azure.android.storage.sample.kotlin.core.util.paging.PageLoadState
 
-class ContainerBlobsPagedListAdapter(private val transferClient: TransferClient, private val retryRunnable: Runnable)
+class ContainerBlobsPagedListAdapter(private val storageBlobAsyncClient: StorageBlobAsyncClient, private val retryRunnable: Runnable)
     : PagedListAdapter<BlobItem, RecyclerView.ViewHolder>(BlobItemComparer()) {
     private var pageLoadState: PageLoadState? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            R.layout.blob_item -> BlobItemViewHolder.create(parent, transferClient)
+            R.layout.blob_item -> BlobItemViewHolder.create(parent, storageBlobAsyncClient)
             R.layout.load_state_item -> LoadingStateItemViewHolder.create(parent, retryRunnable)
             else -> throw IllegalArgumentException("unknown view type:$viewType")
         }

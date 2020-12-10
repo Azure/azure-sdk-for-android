@@ -5,8 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import androidx.paging.PagedList
-
-import com.azure.android.storage.sample.kotlin.core.util.tokenrequest.TokenRequestObservable
+import com.azure.android.core.credential.TokenRequestObservable
 
 /**
  * The default implementation of [ViewModel] that provide data for a View UI that render

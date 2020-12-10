@@ -10,33 +10,36 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import androidx.work.NetworkType
-import com.azure.android.storage.blob.StorageBlobClient
+import com.azure.android.core.credential.TokenRequestObservable
+import com.azure.android.core.credential.TokenRequestObservableAuthInterceptor
+import com.azure.android.core.credential.TokenRequestObserver
+import com.azure.android.core.credential.TokenResponseCallback
+import com.azure.android.storage.blob.StorageBlobAsyncClient
 import com.azure.android.storage.blob.transfer.TransferClient
+import com.azure.android.storage.sample.kotlin.config.StorageConfiguration
 import com.microsoft.identity.client.IMultipleAccountPublicClientApplication
 import com.microsoft.identity.client.IPublicClientApplication.IMultipleAccountApplicationCreatedListener
 import com.microsoft.identity.client.PublicClientApplication
 import com.microsoft.identity.client.exception.MsalException
 
-import com.azure.android.storage.sample.kotlin.config.StorageConfiguration
-import com.azure.android.storage.sample.kotlin.core.util.tokenrequest.TokenRequestObservableAuthInterceptor
-import com.azure.android.storage.sample.kotlin.core.util.tokenrequest.TokenRequestObservable
-import com.azure.android.storage.sample.kotlin.core.util.tokenrequest.TokenRequestObserver
-import com.azure.android.storage.sample.kotlin.core.util.tokenrequest.TokenResponseCallback
-
 class UploadFileActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
     private lateinit var storageConfiguration: StorageConfiguration
-    private lateinit var storageBlobClient: StorageBlobClient
+    private lateinit var storageBlobAsyncClient: StorageBlobAsyncClient
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_uploadfile)
         progressBar = findViewById(R.id.progressBar)
 
+        val initStorageBlobAsyncClient: StorageBlobAsyncClient = StorageBlobAsyncClient
+            .Builder("upload-file-activity")
+            .setBlobServiceUrl(storageConfiguration.blobServiceUrl)
+            .build()
+
         // Set up Login
         storageConfiguration = StorageConfiguration.create(applicationContext)
-        val blobEndpointScopes = ArrayList<String>()
-        blobEndpointScopes.add(storageConfiguration.blobServiceUrl + ".default")
+        val blobEndpointScopes = listOf(initStorageBlobAsyncClient.getBlobServiceUrl() + ".default")
         val authInterceptor = TokenRequestObservableAuthInterceptor(blobEndpointScopes)
         val tokenRequestObservable: TokenRequestObservable = authInterceptor.tokenRequestObservable
         val lifecycleOwner: LifecycleOwner = this
@@ -57,10 +60,13 @@ class UploadFileActivity : AppCompatActivity() {
                 }
             })
 
-        storageBlobClient = StorageBlobClient
-            .Builder()
+        // Create a new StorageBlobClient from the existing client with different base URL and credentials but sharing
+        // the underlying OkHttp Client.
+        storageBlobAsyncClient = storageBlobAsyncClient
+            .newBuilder("com.azure.android.storage.sample.upload")
             .setBlobServiceUrl(storageConfiguration.blobServiceUrl)
             .setCredentialInterceptor(authInterceptor)
+            .setTransferRequiredNetworkType(NetworkType.CONNECTED)
             .build()
     }
 
@@ -81,11 +87,7 @@ class UploadFileActivity : AppCompatActivity() {
         Log.d("Upload Content", "Blob name: $blobName")
         Log.d("Upload Content", "File size: $fileSize")
         try {
-            val transferClient = TransferClient.Builder(applicationContext)
-                .addStorageBlobClient(Constants.STORAGE_BLOB_CLIENT_ID, storageBlobClient)
-                .setRequiredNetworkType(NetworkType.CONNECTED)
-                .build()
-            transferClient.upload(Constants.STORAGE_BLOB_CLIENT_ID, containerName, blobName, fileUri)
+            storageBlobAsyncClient.upload(applicationContext, containerName, blobName, false, fileUri)
                 .observe(this, object : TransferObserver {
                     override fun onStart(transferId: Long) {
                         Log.i(TAG, "onStart()")

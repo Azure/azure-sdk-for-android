@@ -1,27 +1,30 @@
 package com.azure.android.storage.sample.kotlin
 
+import androidx.work.NetworkType
+import com.azure.android.core.credential.TokenRequestObservable
+import com.azure.android.core.credential.TokenRequestObservableAuthInterceptor
 import com.azure.android.core.http.Callback
-import com.azure.android.storage.blob.StorageBlobClient
+import com.azure.android.core.util.CancellationToken
+import com.azure.android.storage.blob.StorageBlobAsyncClient
 import com.azure.android.storage.blob.models.BlobItem
-import com.azure.android.storage.blob.models.ContainersListBlobFlatSegmentResponse
+import com.azure.android.storage.blob.models.BlobsPage
 import com.azure.android.storage.blob.models.ListBlobsOptions
+import com.azure.android.storage.sample.kotlin.core.util.paging.DefaultPaginationDescription
 import com.azure.android.storage.sample.kotlin.core.util.paging.PageItemsFetcher
 import com.azure.android.storage.sample.kotlin.core.util.paging.PaginationDescription
-import kotlin.collections.ArrayList
-import com.azure.android.storage.sample.kotlin.core.util.paging.DefaultPaginationDescription
-import com.azure.android.storage.sample.kotlin.core.util.paging.PaginationOptions
-import com.azure.android.storage.sample.kotlin.core.util.tokenrequest.TokenRequestObservableAuthInterceptor
 import com.azure.android.storage.sample.kotlin.core.util.paging.PaginationDescriptionRepository
-import com.azure.android.storage.sample.kotlin.core.util.tokenrequest.TokenRequestObservable
+import com.azure.android.storage.sample.kotlin.core.util.paging.PaginationOptions
+
+
+import okhttp3.Response
 
 /**
  * PACKAGE PRIVATE TYPE.
  */
-internal class ContainerBlobsPaginationRepository(storageBlobClient: StorageBlobClient,
-                                                  paginationOptions: PaginationOptions) : PaginationDescriptionRepository<BlobItem, String> {
-    val storageBlobClient: StorageBlobClient
+internal class ContainerBlobsPaginationRepository(storageBlobAsyncClient: StorageBlobAsyncClient,
+                                                  private val paginationOptions: PaginationOptions) : PaginationDescriptionRepository<BlobItem, String> {
+    val storageBlobAsyncClient: StorageBlobAsyncClient
     private val authInterceptor: TokenRequestObservableAuthInterceptor
-    private val paginationOptions: PaginationOptions = paginationOptions
 
     override val tokenRequestObservable: TokenRequestObservable
         get() = authInterceptor.tokenRequestObservable
@@ -33,25 +36,19 @@ internal class ContainerBlobsPaginationRepository(storageBlobClient: StorageBlob
                 if (pageSize != null && pageSize > 0) {
                     options.maxResultsPerPage = pageSize
                 }
-                storageBlobClient.getBlobsInPageWithRestResponse(pageIdentifier,
+                storageBlobAsyncClient.getBlobsInPage(pageIdentifier,
                     parameter, // container-name
                     options.prefix,
                     options.maxResultsPerPage,
                     options.details.toList(),
                     null,
-                    null,
-                    object : Callback<ContainersListBlobFlatSegmentResponse> {
-                        override fun onResponse(response: ContainersListBlobFlatSegmentResponse) {
-
-                            val items : java.util.ArrayList<BlobItem> = if (response.value.segment == null) {
-                                ArrayList(0)
-                            } else {
-                                ArrayList(response.value.segment.blobItems);
-                            }
-                            callback.onSuccess(items, response.value.marker, response.value.nextMarker)
+                    CancellationToken.NONE,
+                    object : Callback<BlobsPage> {
+                        override fun onSuccess(result: BlobsPage, response: Response) {
+                            callback.onSuccess(result.items, result.pageId, result.nextPageId)
                         }
 
-                        override fun onFailure(t: Throwable) {
+                        override fun onFailure(t: Throwable, r: Response) {
                             callback.onFailure(t)
                         }
                     })
@@ -61,12 +58,13 @@ internal class ContainerBlobsPaginationRepository(storageBlobClient: StorageBlob
     }
 
     init {
-        val blobEndpointScopes = java.util.ArrayList<String>()
-        blobEndpointScopes.add("$storageBlobClient.blobServiceUrl.default")
+        val storageBlobUrl = storageBlobAsyncClient.blobServiceUrl
+        val blobEndpointScopes = listOf("$storageBlobUrl.default")
         authInterceptor = TokenRequestObservableAuthInterceptor(blobEndpointScopes)
         //
-        this.storageBlobClient = storageBlobClient.newBuilder()
+        this.storageBlobAsyncClient = storageBlobAsyncClient.newBuilder("com.azure.android.storage.sample-kotlin.download")
             .setCredentialInterceptor(authInterceptor)
+            .setTransferRequiredNetworkType(NetworkType.CONNECTED)
             .build()
     }
 }

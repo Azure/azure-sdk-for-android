@@ -14,11 +14,10 @@ import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
+import com.azure.android.storage.blob.StorageBlobAsyncClient
 import com.azure.android.storage.blob.models.BlobItem
-import com.azure.android.storage.blob.transfer.TransferClient
-import java.io.File
-
 import com.azure.android.storage.sample.kotlin.config.StorageConfiguration
+import java.io.File
 
 class BlobItemViewHolder private constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
     private val blobName: TextView = itemView.findViewById(R.id.blob_name)
@@ -32,7 +31,7 @@ class BlobItemViewHolder private constructor(itemView: View) : RecyclerView.View
     companion object {
         private val TAG = BlobItemViewHolder::class.java.simpleName
 
-        fun create(parent: ViewGroup, transferClient: TransferClient): BlobItemViewHolder {
+        fun create(parent: ViewGroup, storageBlobAsyncClient: StorageBlobAsyncClient): BlobItemViewHolder {
             val storageConfiguration: StorageConfiguration = StorageConfiguration.create(parent.context)
             val blobItemView = LayoutInflater.from(parent.context).inflate(R.layout.blob_item, parent, false)
             blobItemView.setOnClickListener { view: View ->
@@ -47,13 +46,13 @@ class BlobItemViewHolder private constructor(itemView: View) : RecyclerView.View
                 val file = File(path, blobName)
                 try {
                     val containerName: String? = storageConfiguration.containerName
-                    transferClient.download(Constants.STORAGE_BLOB_CLIENT_ID, containerName, blobName, file)
+                    storageBlobAsyncClient.download(parent.context, containerName, blobName, file)
                         .observe((parent.context as LifecycleOwner), object : TransferObserver {
                             override fun onStart(transferId: Long) {
                                 Log.i(TAG, "onStart() for transfer with ID: $transferId")
                                 val cancelButton = mainActivityView.findViewById<Button>(R.id.cancel_button)
                                 cancelButton.setOnClickListener {
-                                    transferClient.cancel(transferId)
+                                    storageBlobAsyncClient.cancel(parent.context, transferId)
                                     hideProgress(mainActivityView)
                                     Toast.makeText(parent.context, "Download cancelled", Toast.LENGTH_SHORT)
                                         .show()

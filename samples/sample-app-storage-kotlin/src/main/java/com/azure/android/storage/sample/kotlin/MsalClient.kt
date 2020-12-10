@@ -2,6 +2,8 @@ package com.azure.android.storage.sample.kotlin
 
 import android.app.Activity
 import android.util.Log
+import com.azure.android.core.credential.AccessToken
+import com.azure.android.core.credential.TokenResponseCallback
 import com.microsoft.identity.client.*
 import com.microsoft.identity.client.IPublicClientApplication.LoadAccountsCallback
 import com.microsoft.identity.client.exception.MsalClientException
@@ -12,9 +14,6 @@ import org.threeten.bp.DateTimeUtils
 import org.threeten.bp.OffsetDateTime
 import org.threeten.bp.ZoneOffset
 import java.util.*
-
-import com.azure.android.storage.sample.kotlin.core.credential.AccessToken
-import com.azure.android.storage.sample.kotlin.core.util.tokenrequest.TokenResponseCallback
 
 internal object MsalClient {
     private val TAG = MsalClient::class.java.simpleName

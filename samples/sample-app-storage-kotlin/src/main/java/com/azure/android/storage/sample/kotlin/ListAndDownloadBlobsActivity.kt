@@ -12,21 +12,18 @@ import androidx.paging.PagedList
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-import androidx.work.NetworkType
+import com.azure.android.core.credential.TokenRequestObservable
+import com.azure.android.core.credential.TokenRequestObserver
+import com.azure.android.core.credential.TokenResponseCallback
 import com.azure.android.core.util.CoreUtil
-import com.azure.android.storage.blob.StorageBlobClient
+import com.azure.android.storage.blob.StorageBlobAsyncClient
 import com.azure.android.storage.blob.models.BlobItem
-import com.azure.android.storage.blob.transfer.TransferClient
 import com.azure.android.storage.sample.kotlin.config.StorageConfiguration
-import com.azure.android.storage.sample.kotlin.core.util.tokenrequest.TokenRequestObservable
+import com.azure.android.storage.sample.kotlin.core.util.paging.PageLoadState
 import com.microsoft.identity.client.IMultipleAccountPublicClientApplication
 import com.microsoft.identity.client.IPublicClientApplication.IMultipleAccountApplicationCreatedListener
 import com.microsoft.identity.client.PublicClientApplication
 import com.microsoft.identity.client.exception.MsalException
-
-import com.azure.android.storage.sample.kotlin.core.util.paging.PageLoadState
-import com.azure.android.storage.sample.kotlin.core.util.tokenrequest.TokenRequestObserver
-import com.azure.android.storage.sample.kotlin.core.util.tokenrequest.TokenResponseCallback
 
 class ListAndDownloadBlobsActivity : AppCompatActivity() {
     private lateinit var viewModel: ContainerBlobsPaginationViewModel
@@ -41,12 +38,12 @@ class ListAndDownloadBlobsActivity : AppCompatActivity() {
         searchText = findViewById(R.id.input_container_name)
 
         val storageConfiguration = StorageConfiguration.create(applicationContext)
-        val storageBlobClient : StorageBlobClient = StorageBlobClient
-            .Builder()
+        val initStorageBlobAsyncClient : StorageBlobAsyncClient = StorageBlobAsyncClient
+            .Builder("list-and-download-blobs-activity")
             .setBlobServiceUrl(storageConfiguration.blobServiceUrl)
             .build()
 
-        viewModel = ViewModelProvider(this, ContainerBlobsViewModelFactory(storageBlobClient))
+        viewModel = ViewModelProvider(this, ContainerBlobsViewModelFactory(initStorageBlobAsyncClient))
             .get(ContainerBlobsPaginationViewModel::class.java)
 
         // Set up Login
@@ -69,13 +66,10 @@ class ListAndDownloadBlobsActivity : AppCompatActivity() {
                 }
             })
         val repository: ContainerBlobsPaginationRepository = viewModel.repository as ContainerBlobsPaginationRepository
-        val transferClient = TransferClient.Builder(applicationContext)
-            .addStorageBlobClient(Constants.STORAGE_BLOB_CLIENT_ID, repository.storageBlobClient)
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
+        val storageBlobAsyncClient: StorageBlobAsyncClient = repository.storageBlobAsyncClient
 
         // Set up PagedList Adapter
-        val adapter = ContainerBlobsPagedListAdapter(transferClient, Runnable { viewModel.retry() })
+        val adapter = ContainerBlobsPagedListAdapter(storageBlobAsyncClient, Runnable { viewModel.retry() })
         recyclerView.adapter = adapter
         viewModel.getPagedListObservable().observe(this, getPagedListObserver(adapter, recyclerView))
         viewModel.getLoadStateObservable().observe(this, getPageLoadStateObserver(adapter))
@@ -132,9 +126,9 @@ class ListAndDownloadBlobsActivity : AppCompatActivity() {
     // Use a custom factory for ContainerBlobsPaginationViewModel, since the default Factory based ViewModelProviders
     // does not allow passing parameters to the ContainerBlobsPaginationViewModel constructor.
     @Suppress("UNCHECKED_CAST")
-    inner class ContainerBlobsViewModelFactory(private val storageBlobClient: StorageBlobClient?) : ViewModelProvider.Factory {
+    inner class ContainerBlobsViewModelFactory(private val storageBlobAsyncClient: StorageBlobAsyncClient?) : ViewModelProvider.Factory {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-            return this.storageBlobClient?.let { ContainerBlobsPaginationViewModel(it) } as T
+            return this.storageBlobAsyncClient?.let { ContainerBlobsPaginationViewModel(it) } as T
         }
 
     }

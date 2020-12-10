@@ -1,6 +1,6 @@
 package com.azure.android.storage.sample.kotlin.core.util.paging
 
-import com.azure.android.storage.sample.kotlin.core.util.tokenrequest.TokenRequestObservable
+import com.azure.android.core.credential.TokenRequestObservable
 
 /**
  * A repository that provide [PaginationDescription].
