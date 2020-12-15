@@ -8,17 +8,17 @@ import com.azure.android.core.util.CoreUtil;
 /**
  * Communication identifier for Communication Services representing a PhoneNumber
  */
-public class PhoneNumber extends CommunicationIdentifier {
+public class PhoneNumberIdentifier extends CommunicationIdentifier {
 
     private final String value;
 
     /**
-     * Creates a PhoneNumber object
+     * Creates a PhoneNumberIdentifier object
      *
-     * @param phoneNumber the string identifier representing the PhoneNumber
+     * @param phoneNumber the string identifier representing the phone number
      * @throws IllegalArgumentException thrown if phoneNumber parameter fail the validation.
      */
-    public PhoneNumber(String phoneNumber) {
+    public PhoneNumberIdentifier(String phoneNumber) {
         if (CoreUtil.isNullOrEmpty(phoneNumber)) {
             throw new IllegalArgumentException("The initialization parameter [phoneNumber] cannot be null or empty.");
         }
