@@ -5,6 +5,7 @@
     Renamed `PhoneNumber` to `PhoneNumberIdentifier`
     Renamed `CommunicationUser` to `CommunicationUserIdentifier `
     Renamed `CallingApplication` to `CallingApplicationIdentifier`
+    Renamed `CommunicationUserCredential` to `CommunicationTokenCredential`
 
 ## 1.0.0-beta.3 (Unreleased)
 
