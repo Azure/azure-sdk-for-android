@@ -2,7 +2,6 @@
 // Licensed under the MIT License.
 package com.azure.android.communication.common;
 
-import java.util.Objects;
 import java.util.concurrent.Callable;
 
 /**
@@ -29,7 +28,9 @@ public class CommunicationTokenRefreshOptions {
      *                           two minutes
      */
     public CommunicationTokenRefreshOptions(Callable<String> tokenRefresher, boolean refreshProactively) {
-        Objects.nonNull(tokenRefresher);
+        if (tokenRefresher == null) {
+            throw new IllegalArgumentException("Missing required parameters 'tokenRefresher'.");
+        }
         this.tokenRefresher = tokenRefresher;
         this.refreshProactively = refreshProactively;
         this.token = null;
@@ -49,8 +50,12 @@ public class CommunicationTokenRefreshOptions {
      * @param token the serialized JWT token, cannot be null
      */
     public CommunicationTokenRefreshOptions(Callable<String> tokenRefresher, boolean refreshProactively, String token) {
-        Objects.nonNull(tokenRefresher);
-        Objects.nonNull(token);
+        if (tokenRefresher == null) {
+            throw new IllegalArgumentException("Missing required parameters 'tokenRefresher'.");
+        }
+        if (token == null) {
+            throw new IllegalArgumentException("Missing required parameters 'token'.");
+        }
         this.tokenRefresher = tokenRefresher;
         this.refreshProactively = refreshProactively;
         this.token = token;
