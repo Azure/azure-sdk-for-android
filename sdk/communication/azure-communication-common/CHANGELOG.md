@@ -6,6 +6,7 @@
     Renamed `CommunicationUser` to `CommunicationUserIdentifier `
     Renamed `CallingApplication` to `CallingApplicationIdentifier`
     Renamed `CommunicationUserCredential` to `CommunicationTokenCredential`
+    Modified `CommunicationTokenCredential` constructor signatures to take new argument type 'CommunicationTokenRefreshOptions`
 
 ## 1.0.0-beta.3 (Unreleased)
 

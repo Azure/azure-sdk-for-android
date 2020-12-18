@@ -5,6 +5,8 @@ package com.azure.android.communication.common;
 
 import com.azure.android.core.credential.AccessToken;
 
+import java.time.OffsetDateTime;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
@@ -30,69 +32,38 @@ public class CommunicationTokenCredential {
     }
 
     /**
-     * Creates a {@link CommunicationTokenCredential} that automatically refreshes the token
+     * Creates a {@link CommunicationTokenCredential} that may automatically refresh the token
      * with a provided {@link java.util.concurrent.Callable} on a background thread.
      * <p>
-     * The cached token is updated if {@link #getToken()} is called and if the difference between the current time and token expiry time is less than 120s.
+     * If an initial token is supplied in the options, this token will be cached.     *
      *
-     * @param tokenRefresher Callable to supply fresh token string
-     */
-    public CommunicationTokenCredential(Callable<String> tokenRefresher) {
-        this.userCredential = new AutoRefreshUserCredential(tokenRefresher);
-    }
-
-    /**
-     * Creates a {@link CommunicationTokenCredential} that automatically refreshes the token
-     * with a provided {@link java.util.concurrent.Callable} on a background thread.
-     * <p>
-     * The cached token is updated if {@link #getToken()} is called and if the difference between the current time and token expiry time is less than 120s.
-     *
-     * @param tokenRefresher Callable to supply fresh token string
-     * @param initialToken   token string to initialize cache
-     */
-    public CommunicationTokenCredential(Callable<String> tokenRefresher, String initialToken) {
-        this.userCredential = new AutoRefreshUserCredential(tokenRefresher, initialToken);
-    }
-
-    /**
-     * Creates a {@link CommunicationTokenCredential} that automatically refreshes the token
-     * with a provided {@link java.util.concurrent.Callable} on a background thread.
-     * <p>
-     * The cached token is updated if {@link #getToken()} is called and if the difference between the current time and token expiry time is less than 120s.
-     * <p>
-     * If {@code refreshProactively} is {@code true}:
      * <ul>
-     *     <li>The cached token will be updated in the background when the difference between the current time and token expiry time is less than 600s.</li>
-     *     <li>The cached token will be updated immediately when the constructor is invoked.</li>
+     * <li>If {@Code refreshProactively} is {@code false}, When {@link #getToken()} is called:
+     *      <ul>
+     *          <li>If an initial token was supplied and it is not expired, the initial token will be returned</li>
+     *          <li>If an initial token was not supplied or it is expired, a new token will be fetched and returned.
+     *          Newly fetched token will be cached until its expiry.</li>
+     *      </ul>
+     * </li>
+     * <li>If {@Code refreshProactively} is {@code true}:
+     *      <ul>
+     *          <li>If an initial token was supplied, a background thread is scheduled to update the token
+     *          when the difference between the current time and token expiry time is less than 600s.</li>
+     *          <li>If an initial token was not supplied, a new token will be fetched and cached by a background thread.
+     *          A background thread is scheduled to update the token when the difference between the current time
+     *          and cached token expiry time is less than 600s.</li>
+     *      </ul>
+     * </li>
      * </ul>
      *
-     * @param tokenRefresher     Callable to supply fresh token string
-     * @param refreshProactively indicates if token should be refreshed in the background
+     * @param tokenRefreshOptions Token refresh options that contains a non-null {@link java.util.concurrent.Callable}
+     *          with optional initial token.
      */
-    public CommunicationTokenCredential(Callable<String> tokenRefresher, boolean refreshProactively) {
-        this.userCredential = new AutoRefreshUserCredential(tokenRefresher, refreshProactively);
+    public CommunicationTokenCredential(CommunicationTokenRefreshOptions tokenRefreshOptions) {
+        this.userCredential = new AutoRefreshUserCredential(tokenRefreshOptions.getTokenRefresher(),
+            tokenRefreshOptions.getRefreshProactively(),
+            tokenRefreshOptions.getToken());
     }
-
-    /**
-     * Creates a {@link CommunicationTokenCredential} that automatically refreshes the token
-     * with a provided {@link java.util.concurrent.Callable} on a background thread.
-     * <p>
-     * The cached token is updated if {@link #getToken()} is called and if the difference between the current time and token expiry time is less than 120s.
-     * <p>
-     * If {@code refreshProactively} is {@code true}:
-     * <ul>
-     *     <li>The cached token will be updated in the background when the difference between the current time and token expiry time is less than 600s.</li>
-     *     <li>The cached token will be updated immediately when the constructor is invoked and <code>initialToken</code> is expired</li>
-     * </ul>
-     *
-     * @param tokenRefresher     Callable to supply fresh token string
-     * @param refreshProactively indicates if token should be refreshed in the background
-     * @param initialToken       token string to initialize cache
-     */
-    public CommunicationTokenCredential(Callable<String> tokenRefresher, boolean refreshProactively, String initialToken) {
-        this.userCredential = new AutoRefreshUserCredential(tokenRefresher, refreshProactively, initialToken);
-    }
-
 
     /**
      * Get Azure core access token from credential
