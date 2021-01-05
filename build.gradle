@@ -8,7 +8,7 @@ buildscript {
 
     ext {
         androidBuildToolsVersion = "30.0.1"
-        androidGradlePluginVersion = '4.1.1'
+        androidGradlePluginVersion = '4.0.1'
         androidJunitJacocoGradlePluginVersion = "0.16.0"
         jacocoVersion = "0.8.5"
     }
