@@ -157,5 +157,49 @@
     <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON" />
   </Match>
 
+  <Match>
+    <Class name="com.azure.android.core.http.implementation.Util"/>
+    <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
+  </Match>
+
+  <!-- This is false positive, the method won't ignore exception parameter -->
+  <Match>
+    <Class name="com.azure.android.core.http.policy.RetryPolicy" />
+    <Bug pattern="DE_MIGHT_IGNORE" />
+  </Match>
+
+  <!-- This warning is due class member directly referencing the user provided byte[] (the request body),
+   we don't want to make a copy of the entire body in this case -->
+  <Match>
+    <Class name="com.azure.android.core.http.HttpRequest"/>
+    <Bug pattern="EI_EXPOSE_REP2,
+                  EI_EXPOSE_REP"/>
+  </Match>
+
+  <!-- FIXME: spotbugs issues in core test packages (same exists in azure-core java) -->
+  <Match>
+    <Or>
+      <Package name="com.azure.android.core.test"/>
+      <Package name="com.azure.android.core.test.implementation"/>
+      <Package name="com.azure.android.core.test.http"/>
+    </Or>
+    <Bug pattern="DM_BOXED_PRIMITIVE_FOR_PARSING,
+                  DM_CONVERT_CASE,
+                  EC_UNRELATED_TYPES,
+                  REC_CATCH_EXCEPTION,
+                  DM_DEFAULT_ENCODING,
+                  NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE,
+                  RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE,
+                  UPM_UNCALLED_PRIVATE_METHOD,
+                  DM_STRING_CTOR"/>
+  </Match>
+
+  <!-- FIXME: spotbugs issues in core test packages -->
+  <Match>
+    <Class name="com.azure.android.core.test.http.MockHttpResponse"/>
+    <Bug pattern="EI_EXPOSE_REP2,
+                  EI_EXPOSE_REP"/>
+  </Match>
+
 </FindBugsFilter>
 
