@@ -23,11 +23,8 @@ import java.util.Objects;
  */
 public class MockHttpResponse extends HttpResponse {
     private static final SerdeAdapter SERIALIZER = new JacksonSerderAdapter();
-
     private final int statusCode;
-
     private final HttpHeaders headers;
-
     private final byte[] bodyBytes;
 
     /**
