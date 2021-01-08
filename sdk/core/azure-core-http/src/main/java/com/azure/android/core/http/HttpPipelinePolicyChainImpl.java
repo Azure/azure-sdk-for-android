@@ -238,6 +238,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
         if (rootChain.reportedBypassedError) {
             // We processed escaped error once; after that, any more escaped errors will be rethrown.
             //
+            Log.e(TAG, "Error escaped.", bypassedError);
             throw logger.logExceptionAsError(new RuntimeException(bypassedError.getMessage(), bypassedError));
         } else {
             rootChain.reportedBypassedError = true;
