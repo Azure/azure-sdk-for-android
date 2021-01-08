@@ -15,6 +15,7 @@ import org.threeten.bp.Duration;
  * Options for configuring calls made by a {@link ServiceClient}.
  */
 public class TransportOptions {
+    // TODO: Implement timeout logic in CancellationToken.
     @NonNull
     private final Duration timeout;
     @Nullable
