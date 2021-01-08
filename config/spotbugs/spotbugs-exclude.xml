@@ -176,6 +176,12 @@
                   EI_EXPOSE_REP"/>
   </Match>
 
+  <Match>
+    <Class name="com.azure.android.core.http.implementation.BufferedHttpResponse"/>
+    <Bug pattern="EI_EXPOSE_REP2,
+                  EI_EXPOSE_REP"/>
+  </Match>
+
   <!-- FIXME: spotbugs issues in core test packages (same exists in azure-core java) -->
   <Match>
     <Or>
