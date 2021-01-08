@@ -118,18 +118,20 @@ public final class HttpCallDispatcher {
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
         Objects.requireNonNull(httpCallback, "'httpCallback' is required.");
 
-        // The most common use case of enqueue is to to perform the pipeline run for an HTTP request
-        // using the 'httpCallFunction'.
-        // Additionally, an HttpClient implementation that does not have native async support can
-        // also use HttpCallDispatcher::enqueue to enable async HTTP calls.
+        // 1]. The most common use case of 'enqueue' is to enable the async pipeline run for an HTTP request.
+        /** see {@link HttpPipelinePolicyChainImpl#beginPipelineExecution(HttpPipeline, HttpRequest, HttpCallback)} */
         //
-        // root-DispatchableCall:
-        //    - The DispatchableCall that when executes puts the pipeline in "run-mode" for the first time.
+        // 2]. Additionally, an HttpClient implementation that does not have native async support can
+        // use 'enqueue' to enable async HTTP calls.
+        //
+        // The DispatchableCall instance that when executes puts the pipeline in "run-mode" for the first time
+        // is called Root-DispatchableCall.
         //
         final DispatchableCall rootDispatchableCall = new DispatchableCall() {
             private static final String INCORRECT_POLICY_IMPL_ERROR_STR = "Error potentially due to an incorrect"
-                + " policy implementation - such as executing chain.proceed|completed multiple times or errors"
-                + " got escaped (directly thrown) from a policy along with the chain.proceed|completed execution. ";
+                + " policy implementation - such as executing chain.processNextPolicy|finishedProcessing multiple"
+                + " times or errors got escaped (directly thrown) from a policy along with "
+                + "the chain.processNextPolicy|finishedProcessing execution. ";
             private static final String MULTI_DELIVERY_ERROR_STR
                 = "The pipeline run attempted to deliver the result more than once. " + INCORRECT_POLICY_IMPL_ERROR_STR;
             private String callerIdTrace = "Code:";
@@ -202,33 +204,33 @@ public final class HttpCallDispatcher {
      * <p>
      * An execution of a DispatchableCall submitted by the enqueue(..) initiates a pipeline run;
      * Such a DispatchableCall that puts the pipeline in "running-mode" for the first time is
-     * called root-DispatchableCall.
+     * called Root-DispatchableCall.
      *
-     * When a policy (from a pipeline in "running-mode") successfully schedules "chain.proceed()"
+     * When a policy (from a pipeline in "running-mode") successfully schedules "chain.processNextPolicy()"
      * the pipeline switch to "pause-mode", the pipeline is back to "running-mode" when that scheduled
      * call runs in the future.
      *
-     * The Dispatching system uses the root-DispatchableCall (that initiated the pipeline run
+     * The Dispatching system uses the Root-DispatchableCall (that initiated the pipeline run
      * for the first time) to track whether the pipeline is in "running-mode" or not.
-     * When the pipeline switch to "pause-mode", the system uses the root-DispatchableCall to
+     * When the pipeline switch to "pause-mode", the system uses the Root-DispatchableCall to
      * yield thread to other executable calls waiting to run, in this way pipeline in "pause-mode"
      * won't be holding a thread.
      *
-     * Since chain.proceed() call is scheduled from a running call, we refer such scheduled
-     * call as nested-call.
+     * Since chain.processNextPolicy() call is scheduled from a running call, we refer such scheduled
+     * call as Nested-call.
      * </p>
      *
-     * @param chain The chain to invoke {@code proceed} call on.
-     * @param httpRequest The HTTP request parameter for the scheduled {@code proceed} call.
-     * @param httpCallback The HTTP callback parameter for the scheduled {@code proceed} call.
-     * @param delay The time from now to delay the execution of the {@code proceed} call.
+     * @param chain The chain to invoke {@code processNextPolicy} call on.
+     * @param httpRequest The HTTP request parameter for the scheduled {@code processNextPolicy} call.
+     * @param httpCallback The HTTP callback parameter for the scheduled {@code processNextPolicy} call.
+     * @param delay The time from now to delay the execution of the {@code processNextPolicy} call.
      * @param timeUnit The time unit of the {@code delay}.
      */
-    void scheduleChainProceed(HttpPipelinePolicyChainImpl chain,
-                              HttpRequest httpRequest,
-                              HttpCallback httpCallback,
-                              long delay,
-                              TimeUnit timeUnit) {
+    void scheduleProcessNextPolicy(HttpPipelinePolicyChainImpl chain,
+                                   HttpRequest httpRequest,
+                                   HttpCallback httpCallback,
+                                   long delay,
+                                   TimeUnit timeUnit) {
         Objects.requireNonNull(chain, "'chain' is required.");
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
         Objects.requireNonNull(httpCallback, "'httpCallback' is required.");
@@ -261,9 +263,9 @@ public final class HttpCallDispatcher {
         try {
             this.getScheduledExecutorService().schedule(() -> {
                 synchronized (HttpCallDispatcher.this) {
-                    // The HttpCallDispatcher::executorService executes both root-DispatchableCall and
-                    // nested-DispatchableCall calls. Using scheduledExecutorService to hand over
-                    // the nested-DispatchableCall to HttpCallDispatcher::executorService for execution.
+                    // The HttpCallDispatcher::executorService executes both Root-DispatchableCall and
+                    // Nested-DispatchableCall calls. Using scheduledExecutorService to hand over
+                    // the Nested-DispatchableCall to HttpCallDispatcher::executorService for execution.
                     HttpCallDispatcher.this.waitingNestedDispatchableCalls.add(nestedDispatchableCall);
                 }
                 HttpCallDispatcher.this.dispatchCalls();
@@ -314,19 +316,19 @@ public final class HttpCallDispatcher {
     }
 
     /**
-     * Given a chain instance of a pipeline run, return the root-DispatchableCall for the same pipeline run.
+     * Given a chain instance of a pipeline run, return the Root-DispatchableCall for the same pipeline run.
      *
      * <p>
      * The execution of a DispatchableCall submitted by the enqueue(..) initiates the pipeline run;
      * Such a DispatchableCall that puts the pipeline in "running-mode" for the first time is called
-     * it's root-DispatchableCall.
+     * it's Root-DispatchableCall.
      * </p>
      *
      * @param chain The chain belongs to a pipeline run.
-     * @return The root-DispatchableCall of the pipeline run.
+     * @return The Root-DispatchableCall of the pipeline run.
      */
     private DispatchableCall getRootDispatchableCall(HttpPipelinePolicyChainImpl chain) {
-        // The rootCallback is a callback decorated as root-DispatchableCall object.
+        // The rootCallback is a callback decorated as Root-DispatchableCall object.
         final HttpCallback rootCallback = chain.getRootCallback();
         assert rootCallback instanceof DispatchableCall;
         DispatchableCall rootDispatchableCall = (DispatchableCall) rootCallback;
@@ -344,8 +346,8 @@ public final class HttpCallDispatcher {
         synchronized (this) {
             // Collects the calls to dispatch.
 
-            // 1. Collects the executable nested-DispatchableCall calls.
-            //    Note: Collecting nested-DispatchableCall calls first to have them in front of executable queue.
+            // 1. Collects the executable Nested-DispatchableCall calls.
+            //    Note: Collecting Nested-DispatchableCall calls first to have them in front of executable queue.
             while (this.runningRootDispatchableCalls.size() < this.maxRunningCalls
                 && !this.waitingNestedDispatchableCalls.isEmpty()) {
                 final DispatchableCall nestedCall = this.waitingNestedDispatchableCalls.poll();
@@ -354,7 +356,7 @@ public final class HttpCallDispatcher {
                 executableCalls.add(nestedCall);
             }
 
-            // 2. Collects the executable root-DispatchableCall calls.
+            // 2. Collects the executable Root-DispatchableCall calls.
             while (this.runningRootDispatchableCalls.size() < this.maxRunningCalls
                 && !this.waitingRootDispatchableCalls.isEmpty()) {
                 final DispatchableCall rootCall = this.waitingRootDispatchableCalls.poll();
@@ -406,7 +408,7 @@ public final class HttpCallDispatcher {
         private final DispatchableCall rootDispatchableCall;
 
         /**
-         * Creates a root-DispatchableCall, a DispatchableCall that when executes puts the pipeline
+         * Creates a Root-DispatchableCall, a DispatchableCall that when executes puts the pipeline
          * in "running-mode" for the first time.
          */
         DispatchableCall() {
@@ -414,17 +416,17 @@ public final class HttpCallDispatcher {
         }
 
         /**
-         * Creates a nested-DispatchableCall, a DispatchableCall that when executes invokes
-         * a scheduled chain.proceed(..) call.
+         * Creates a Nested-DispatchableCall, a DispatchableCall that when executes invokes
+         * a scheduled chain.processNextPolicy(..) call.
          *
          * <p>
-         * The pipeline is considered as in "pause-mode" when a chain.proceed(..) call is successfully
-         * scheduled from the pipeline run. The pipeline switch to "run-mode" when the scheduled
-         * chain.proceed(..) call executes.
+         * The pipeline is considered as in "pause-mode" when a chain.processNextPolicy(..) call
+         * is successfully scheduled from the pipeline run. The pipeline switch to "run-mode"
+         * when the scheduled chain.processNextPolicy(..) call executes.
          * </p>
          *
-         * @param rootDispatchableCall The root-DispatchableCall representing the pipeline run
-         *     from which the chain.proceed(..) call (nested call) is scheduled.
+         * @param rootDispatchableCall The Root-DispatchableCall representing the pipeline run
+         *     from which the chain.processNextPolicy(..) call (nested call) is scheduled.
          */
         DispatchableCall(DispatchableCall rootDispatchableCall) {
             assert rootDispatchableCall != null;
@@ -438,14 +440,14 @@ public final class HttpCallDispatcher {
          * @param callerId The identifier of the caller, this is strictly for debugging purposes,
          *     to get an idea of the call traces when a buggy policy implementations violate single-shot-only
          *     signaling requirement in callback paradigm. Often these violations occur due to a policy
-         *     invoking chain.proceed|completed multiple times (some time serially, sometimes concurrently)
-         *     or due to (multiple) escaping of errors (direct throwing) combined with single|multiple signaling.
-         *     Due to the complex nature, the best we can give is a hint on incorrect user-code implementation.
-         *     The {@code callerId} series is mainly for the Fx author.
+         *     invoking chain.processNextPolicy|finishedProcessing multiple times (some time serially, sometimes
+         *     concurrently) or due to (multiple) escaping of errors (direct throwing) combined with single|multiple
+         *     signaling. Due to the complex nature, the best we can give is a hint on incorrect user-code
+         *     implementation. The {@code callerId} series is mainly for the Fx author.
          * <ul>
-         *   <li>callerId:0 Caller is dispatcher's root-DispatchableCall</li>
+         *   <li>callerId:0 Caller is dispatcher's Root-DispatchableCall</li>
          *   <li>callerId:1 Call was due to executor service rejecting work submission</li>
-         *   <li>callerId:2 Caller is the schedule(..) after successful scheduling of nested-DispatchableCall</li>
+         *   <li>callerId:2 Caller is the schedule(..) after successful scheduling of Nested-DispatchableCall</li>
          * </ul>
          */
         public abstract void markNotRunning(int callerId);

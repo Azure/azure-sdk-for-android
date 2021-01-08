@@ -78,7 +78,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
                                         HttpPipelinePolicyChainImpl prevChain,
                                         HttpCallback prevProceedCallback) {
         // Private Ctr, hence simple assertion.
-        // assert (httpPipeline != null && httpRequest != null && (prevChain != null || prevProceedCallback != null));
+        assert (httpPipeline != null && httpRequest != null && (prevChain != null || prevProceedCallback != null));
         this.index = index;
         this.httpPipeline = httpPipeline;
         this.httpRequest = httpRequest;
@@ -109,7 +109,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
         Objects.requireNonNull(timeUnit, "'timeUnit' is required.");
         this.httpPipeline.httpCallDispatcher
-            .scheduleChainProceed(this, httpRequest, new HttpCallback() {
+            .scheduleProcessNextPolicy(this, httpRequest, new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
                     HttpPipelinePolicyChainImpl.this.finishedProcessing(response);
@@ -127,7 +127,11 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
         Objects.requireNonNull(httpCallback, "'httpCallback' is required.");
         Objects.requireNonNull(timeUnit, "'timeUnit' is required.");
-        this.httpPipeline.httpCallDispatcher.scheduleChainProceed(this, httpRequest, httpCallback, delay, timeUnit);
+        this.httpPipeline.httpCallDispatcher.scheduleProcessNextPolicy(this,
+            httpRequest,
+            httpCallback,
+            delay,
+            timeUnit);
     }
 
     @Override
@@ -141,10 +145,10 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
             }
         } else {
             // A callback to notify the previous policy could be null if that policy
-            // implementation used 'proceed(HttpRequest httpRequest)'. A delegating
+            // implementation used 'processNextPolicy(HttpRequest httpRequest)'. A delegating
             // callback also works but avoiding an extra allocation by using previous
             // chain reference.
-            // assert (this.prevChain != null);
+            assert (this.prevChain != null);
             this.prevChain.finishedProcessing(httpResponse);
         }
     }
@@ -159,7 +163,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
                 this.reportBypassedError(t, true);
             }
         } else {
-            // assert (this.prevChain != null);
+            assert (this.prevChain != null);
             this.prevChain.finishedProcessing(error);
         }
     }
@@ -176,7 +180,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      */
     private void processNextPolicyIntern(HttpRequest httpRequest, HttpCallback proceedCallback) {
         final int nextIndex = this.index + 1;
-        // assert nextIndex >= 0;
+        assert nextIndex >= 0;
 
         // Create a chain for next policy.
         final HttpPipelinePolicyChain nextChain = new HttpPipelinePolicyChainImpl(nextIndex,
@@ -208,7 +212,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      * Bypassed error is an error directly 'thrown' from following sources:
      * <ul>
      *     <li> policy.process(..)
-     *     <li> onSuccess(..) or onError(..) methods of the callback provided to chain.proceed(..) call.
+     *     <li> onSuccess(..) or onError(..) methods of the callback provided to chain.processNextPolicy(..) call.
      * </ul>
      *
      * <p>
@@ -249,7 +253,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
                             new RuntimeException("Error escaped from RootCallback::onError(e).", t));
                     }
                 } else {
-                    // assert this.index == 0;
+                    assert this.index == 0;
                     // :( an error bypassed from the rootCallback.onError(e)|onSuccess(r)
                     Log.e(TAG, "Error escaped from RootCallback::onError(e)|onSuccess(r).",
                         bypassedError);
@@ -276,9 +280,9 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
         HttpPipelinePolicyChainImpl chain = this;
         while (chain.index != -1) {
             chain = chain.prevChain;
-            // assert chain != null;
+            assert chain != null;
         }
-        // assert chain.index == -1;
+        assert chain.index == -1;
         return chain;
     }
 
@@ -296,7 +300,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      * @return The "rootCallback".
      */
     HttpCallback getRootCallback() {
-        // assert this.index >= 0;
+        assert this.index >= 0;
         HttpPipelinePolicyChainImpl rootChain = this.getRootChain();
         return rootChain.prevProceedCallback;
     }
