@@ -198,5 +198,7 @@
   <!-- Some classes are named *Builder but are not @ServiceClientBuilder -->
   <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientBuilderCheck" files="com.azure.android.core.http.okhttp.OkHttpAsyncHttpClientBuilder"/>
 
+  <!-- Files licensed with alternate license in the header -->
+  <suppress checks="Header" files="com.azure.android.core.micro.util.CancellationToken.java"/>
 
 </suppressions>
