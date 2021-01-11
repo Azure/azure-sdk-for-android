@@ -207,5 +207,13 @@
                   EI_EXPOSE_REP"/>
   </Match>
 
+  <!-- RootDispatchableCall extends AtomicBoolean, which is serializable but we don't need the
+       internal RootDispatchableCall to be serializable. -->
+  <Match>
+    <Class name="com.azure.android.core.http.HttpCallDispatcher$RootDispatchableCall"/>
+    <Bug pattern="SE_BAD_FIELD,
+                  SE_NO_SERIALVERSIONID"/>
+  </Match>
+
 </FindBugsFilter>
 
