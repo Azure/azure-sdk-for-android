@@ -11,6 +11,7 @@ import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.http.HttpMethod;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.core.http.implementation.Util;
 import com.azure.core.logging.ClientLogger;
 
@@ -20,8 +21,8 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
-import okhttp3.Call;
 import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -80,15 +81,35 @@ class OkHttpAsyncHttpClient implements HttpClient {
         }
 
         final okhttp3.Request okHttpRequest = okhttpRequestBuilder.build();
-        final Call call = httpClient.newCall(okHttpRequest);
+        final okhttp3.Call call = httpClient.newCall(okHttpRequest);
+
+        final CancellationToken cancellationToken = httpRequest.getCancellationToken();
+        final String onCancelId = (cancellationToken == CancellationToken.NONE) ? null : UUID.randomUUID().toString();
+        if (onCancelId != null) {
+            // Register an identifiable Runnable to run on cancellationToken.cancel().
+            //
+            // This Runnable unregistered once the 'call' completes.
+            //
+            // We don't want a cancel on cancellationToken to call call.cancel()
+            // after the call completion (though call.cancel() after it's completion is nop).
+            //
+            cancellationToken.registerOnCancel(onCancelId, () -> call.cancel());
+        }
+
         call.enqueue(new okhttp3.Callback() {
             @Override
-            public void onFailure(Call call, IOException error) {
+            public void onFailure(okhttp3.Call call, IOException error) {
+                if (onCancelId != null) {
+                    cancellationToken.unregisterOnCancel(onCancelId);
+                }
                 httpCallback.onError(error);
             }
 
             @Override
-            public void onResponse(Call call, Response response) {
+            public void onResponse(okhttp3.Call call, Response response) {
+                if (onCancelId != null) {
+                    cancellationToken.unregisterOnCancel(onCancelId);
+                }
                 httpCallback.onSuccess(new HttpResponse(httpRequest) {
                     private final HttpHeaders headers = fromOkHttpHeaders(response.headers());
                     private final ResponseBody responseBody = response.body();
