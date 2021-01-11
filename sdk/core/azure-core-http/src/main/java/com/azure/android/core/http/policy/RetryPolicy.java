@@ -10,6 +10,7 @@ import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.implementation.Util;
 
+import java.io.IOException;
 import java.time.Duration; // TODO: anuchan: use threetenbp or old native time.
 import java.time.OffsetDateTime;
 import java.time.temporal.ChronoUnit;
@@ -80,6 +81,13 @@ public class RetryPolicy implements HttpPipelinePolicy {
 
     private void attempt(HttpPipelinePolicyChain chain, Duration delay, final int retryAttempts) {
         final HttpRequest httpRequest = chain.getRequest();
+
+        // Check for cancellation before Proceeding the chain.
+        if (httpRequest.getCancellationToken().isCancellationRequested()) {
+            chain.finishedProcessing(new IOException("Canceled."));
+            return;
+        }
+
         if (delay == null) {
             chain.processNextPolicy(httpRequest, new HttpCallback() {
                 @Override
@@ -111,7 +119,16 @@ public class RetryPolicy implements HttpPipelinePolicy {
                                  HttpResponse response,
                                  Throwable error,
                                  final int retryAttempts) {
-        // todo: anuchan: add chain.isCancelled() check once cancellation is enabled.
+        // Check for cancellation before retry.
+        if (chain.getRequest().getCancellationToken().isCancellationRequested()) {
+            if (response != null) {
+                // Close the current response before propagating Cancelled Error.
+                response.close();
+            }
+            chain.finishedProcessing(new IOException("Canceled."));
+            return;
+        }
+
         if (shouldRetry(response, error, retryAttempts)) {
             Duration delay = null;
             Throwable userError = null;

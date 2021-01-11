@@ -10,6 +10,7 @@ import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.http.HttpPipelineBuilder;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.android.core.test.http.NoOpHttpClient;
 
 import org.junit.jupiter.api.Assertions;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -90,39 +90,41 @@ public class RequestIdPolicyTests {
             .build();
 
         CountDownLatch latch1 = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, new URL("http://localhost/")), new HttpCallback() {
-            @Override
-            public void onSuccess(HttpResponse response) {
-                latch1.countDown();
-            }
-
-            @Override
-            public void onError(Throwable error) {
-                try {
-                    throw new RuntimeException(error);
-                } finally {
+        pipeline.send(new HttpRequest(HttpMethod.GET,"http://localhost/", CancellationToken.NONE),
+            new HttpCallback() {
+                @Override
+                public void onSuccess(HttpResponse response) {
                     latch1.countDown();
                 }
-            }
-        });
+
+                @Override
+                public void onError(Throwable error) {
+                    try {
+                        throw new RuntimeException(error);
+                    } finally {
+                        latch1.countDown();
+                    }
+                }
+            });
         awaitOnLatch(latch1, "newRequestIdForEachCall");
 
         CountDownLatch latch2 = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, new URL("http://localhost/")), new HttpCallback() {
-            @Override
-            public void onSuccess(HttpResponse response) {
-                latch2.countDown();
-            }
-
-            @Override
-            public void onError(Throwable error) {
-                try {
-                    throw new RuntimeException(error);
-                } finally {
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", CancellationToken.NONE),
+            new HttpCallback() {
+                @Override
+                public void onSuccess(HttpResponse response) {
                     latch2.countDown();
                 }
-            }
-        });
+
+                @Override
+                public void onError(Throwable error) {
+                    try {
+                        throw new RuntimeException(error);
+                    } finally {
+                        latch2.countDown();
+                    }
+                }
+            });
         awaitOnLatch(latch2, "newRequestIdForEachCall");
     }
 
@@ -168,22 +170,22 @@ public class RequestIdPolicyTests {
             .build();
 
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET,
-            new URL("http://localhost/")), new HttpCallback() {
-            @Override
-            public void onSuccess(HttpResponse response) {
-                latch.countDown();
-            }
-
-            @Override
-            public void onError(Throwable error) {
-                try {
-                    throw new RuntimeException(error);
-                } finally {
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", CancellationToken.NONE),
+            new HttpCallback() {
+                @Override
+                public void onSuccess(HttpResponse response) {
                     latch.countDown();
                 }
-            }
-        });
+
+                @Override
+                public void onError(Throwable error) {
+                    try {
+                        throw new RuntimeException(error);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
         awaitOnLatch(latch, "sameRequestIdForRetry");
     }
 

@@ -9,12 +9,12 @@ import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.http.HttpPipelineBuilder;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.android.core.test.http.NoOpHttpClient;
 
 import org.junit.jupiter.api.Test;
 
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -89,8 +89,8 @@ public class ProtocolPolicyTests {
             .build();
     }
 
-    private static HttpRequest createHttpRequest(String url) throws MalformedURLException {
-        return new HttpRequest(HttpMethod.GET, new URL(url));
+    private static HttpRequest createHttpRequest(String url) {
+        return new HttpRequest(HttpMethod.GET, url, CancellationToken.NONE);
     }
 
     private static void awaitOnLatch(CountDownLatch latch, String method) {

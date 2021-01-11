@@ -37,7 +37,7 @@ public class PortPolicy implements HttpPipelinePolicy {
         if (overwrite || urlBuilder.getPort() == null) {
             logger.info("Changing port to {}", port);
             try {
-                httpRequest.setUrl(urlBuilder.setPort(port).toUrl());
+                httpRequest.setUrl(urlBuilder.setPort(port).toUrl().toString());
             } catch (MalformedURLException error) {
                 chain.finishedProcessing(error);
                 return;

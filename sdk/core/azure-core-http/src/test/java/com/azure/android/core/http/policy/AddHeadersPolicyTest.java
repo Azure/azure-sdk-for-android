@@ -8,10 +8,9 @@ import com.azure.android.core.http.HttpHeaders;
 import com.azure.android.core.http.HttpMethod;
 import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.http.HttpPipelineBuilder;
-import com.azure.android.core.http.HttpPipelinePolicy;
-import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.android.core.test.http.NoOpHttpClient;
 
 import org.junit.jupiter.api.Assertions;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -88,22 +86,22 @@ public class AddHeadersPolicyTest {
             .build();
 
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET,
-            new URL("http://localhost/")), new HttpCallback() {
-            @Override
-            public void onSuccess(HttpResponse response) {
-                latch.countDown();
-            }
-
-            @Override
-            public void onError(Throwable error) {
-                try {
-                    throw new RuntimeException(error);
-                } finally {
+        pipeline.send(new HttpRequest(HttpMethod.GET,"http://localhost/", CancellationToken.NONE),
+            new HttpCallback() {
+                @Override
+                public void onSuccess(HttpResponse response) {
                     latch.countDown();
                 }
-            }
-        });
+
+                @Override
+                public void onError(Throwable error) {
+                    try {
+                        throw new RuntimeException(error);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
         awaitOnLatch(latch, "clientProvidedMultipleHeader");
 
 

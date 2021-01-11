@@ -12,6 +12,7 @@ import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.http.HttpPipelineBuilder;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.android.core.test.http.MockHttpResponse;
 import com.azure.android.core.test.http.NoOpHttpClient;
 import com.azure.core.http.ContentType;
@@ -28,8 +29,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.HashSet;
@@ -88,7 +87,7 @@ public class HttpLoggingPolicyTests {
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl), CONTEXT, new HttpCallback() {..})
         // TODO: enable context for HttpPipeline.send ^
-        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl), new HttpCallback() {
+        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, CancellationToken.NONE), new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 latch.countDown();
@@ -138,9 +137,8 @@ public class HttpLoggingPolicyTests {
     @ParameterizedTest(name = "[{index}] {displayName}")
     @MethodSource("validateLoggingDoesNotConsumeSupplier")
     @ResourceLock("SYSTEM_OUT")
-    public void validateLoggingDoesNotChangeRequest(byte[] content, byte[] data, int contentLength)
-        throws MalformedURLException {
-        URL requestUrl = new URL("https://test.com");
+    public void validateLoggingDoesNotChangeRequest(byte[] content, byte[] data, int contentLength) {
+        final String requestUrl = "https://test.com";
         HttpHeaders requestHeaders = new HttpHeaders()
             .put("Content-Type", ContentType.APPLICATION_JSON)
             .put("Content-Length", Integer.toString(contentLength));
@@ -154,7 +152,8 @@ public class HttpLoggingPolicyTests {
                 }
 
                 @Override
-                public void send(HttpRequest httpRequest, HttpCallback httpCallback) {
+                public void send(HttpRequest httpRequest,
+                                 HttpCallback httpCallback) {
                     assertArrayEquals(data, httpRequest.getBody());
                     httpCallback.onSuccess(new MockHttpResponse(httpRequest, 200));
                 }
@@ -164,21 +163,22 @@ public class HttpLoggingPolicyTests {
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content), CONTEXT)
         // TODO: enable context for HttpPipeline.send ^
-        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content), new HttpCallback() {
-            @Override
-            public void onSuccess(HttpResponse response) {
-                latch.countDown();
-            }
-
-            @Override
-            public void onError(Throwable error) {
-                try {
-                    assertTrue(false, "unexpected call to pipeline::send onError" + error.getMessage());
-                } finally {
+        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content, CancellationToken.NONE),
+            new HttpCallback() {
+                @Override
+                public void onSuccess(HttpResponse response) {
                     latch.countDown();
                 }
-            }
-        });
+
+                @Override
+                public void onError(Throwable error) {
+                    try {
+                        assertTrue(false, "unexpected call to pipeline::send onError" + error.getMessage());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
         awaitOnLatch(latch, "validateLoggingDoesNotChangeRequest");
 
         String logString = convertOutputStreamToString(logCaptureStream);
@@ -192,7 +192,7 @@ public class HttpLoggingPolicyTests {
     @MethodSource("validateLoggingDoesNotConsumeSupplier")
     @ResourceLock("SYSTEM_OUT")
     public void validateLoggingDoesNotChangeResponse(byte[] content, byte[] data, int contentLength) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, "https://test.com");
+        HttpRequest request = new HttpRequest(HttpMethod.GET, "https://test.com", CancellationToken.NONE);
         HttpHeaders responseHeaders = new HttpHeaders()
             .put("Content-Type", ContentType.APPLICATION_JSON)
             .put("Content-Length", Integer.toString(contentLength));
@@ -206,7 +206,8 @@ public class HttpLoggingPolicyTests {
                 }
 
                 @Override
-                public void send(HttpRequest httpRequest, HttpCallback httpCallback) {
+                public void send(HttpRequest httpRequest,
+                                 HttpCallback httpCallback) {
                     httpCallback.onSuccess(new MockHttpResponse(httpRequest, 200, responseHeaders, content));
                 }
             })

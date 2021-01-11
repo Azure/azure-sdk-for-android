@@ -3,6 +3,7 @@
 
 package com.azure.android.core.http;
 
+import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.core.logging.ClientLogger;
 
 import java.net.MalformedURLException;
@@ -11,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * The outgoing Http request. It provides ways to construct {@link HttpRequest} with {@link HttpMethod},
- * {@link URL}, {@link HttpHeader} and request body.
+ * {@code url}, {@link HttpHeader} request body and request {@link CancellationToken}.
  */
 public class HttpRequest {
     private final ClientLogger logger = new ClientLogger(HttpRequest.class);
@@ -20,27 +21,18 @@ public class HttpRequest {
     private URL url;
     private HttpHeaders headers;
     private byte[] body;
+    private final CancellationToken cancellationToken;
 
     /**
      * Create a new HttpRequest instance.
      *
-     * @param httpMethod the HTTP request method
-     * @param url the target address to send the request to
+     * @param httpMethod The HTTP request method.
+     * @param url The target address to send the request to.
+     * @param cancellationToken The cancellation token for this request, on which the caller
+     *     may request cancellation of this request execution.
+     * @throws IllegalArgumentException if the url is malformed.
      */
-    public HttpRequest(HttpMethod httpMethod, URL url) {
-        this.httpMethod = httpMethod;
-        this.url = url;
-        this.headers = new HttpHeaders();
-    }
-
-    /**
-     * Create a new HttpRequest instance.
-     *
-     * @param httpMethod the HTTP request method
-     * @param url the target address to send the request to
-     * @throws IllegalArgumentException if {@code url} is null or it cannot be parsed into a valid URL.
-     */
-    public HttpRequest(HttpMethod httpMethod, String url) {
+    public HttpRequest(HttpMethod httpMethod, String url, CancellationToken cancellationToken) {
         this.httpMethod = httpMethod;
         try {
             this.url = new URL(url);
@@ -48,21 +40,34 @@ public class HttpRequest {
             throw logger.logExceptionAsWarning(new IllegalArgumentException("'url' must be a valid URL", ex));
         }
         this.headers = new HttpHeaders();
+        this.cancellationToken = cancellationToken;
     }
 
     /**
      * Create a new HttpRequest instance.
      *
-     * @param httpMethod the HTTP request method
-     * @param url the target address to send the request to
-     * @param headers the HTTP headers to use with this request
-     * @param body the request content
+     * @param httpMethod The HTTP request method.
+     * @param url The target address to send the request to.
+     * @param headers The HTTP headers to use with this request.
+     * @param body The request content.
+     * @param cancellationToken The cancellation token for this request, on which the caller
+     *     may request cancellation of this request execution.
+     * @throws IllegalArgumentException if the url is malformed.
      */
-    public HttpRequest(HttpMethod httpMethod, URL url, HttpHeaders headers, byte[] body) {
+    public HttpRequest(HttpMethod httpMethod,
+                       String url,
+                       HttpHeaders headers,
+                       byte[] body,
+                       CancellationToken cancellationToken) {
         this.httpMethod = httpMethod;
-        this.url = url;
+        try {
+            this.url = new URL(url);
+        } catch (MalformedURLException ex) {
+            throw logger.logExceptionAsWarning(new IllegalArgumentException("'url' must be a valid URL", ex));
+        }
         this.headers = headers;
         this.body = body;
+        this.cancellationToken = cancellationToken;
     }
 
     /**
@@ -97,26 +102,15 @@ public class HttpRequest {
     /**
      * Set the target address to send the request to.
      *
-     * @param url target address as {@link URL}
+     * @param url target address.
      * @return this HttpRequest
-     */
-    public HttpRequest setUrl(URL url) {
-        this.url = url;
-        return this;
-    }
-
-    /**
-     * Set the target address to send the request to.
-     *
-     * @param url target address as a String
-     * @return this HttpRequest
-     * @throws IllegalArgumentException if {@code url} is null or it cannot be parsed into a valid URL.
+     * @throws IllegalArgumentException if the url is malformed.
      */
     public HttpRequest setUrl(String url) {
         try {
             this.url = new URL(url);
         } catch (MalformedURLException ex) {
-            throw logger.logExceptionAsWarning(new IllegalArgumentException("'url' must be a valid URL.", ex));
+            throw logger.logExceptionAsWarning(new IllegalArgumentException("'url' must be a valid URL", ex));
         }
         return this;
     }
@@ -188,6 +182,21 @@ public class HttpRequest {
     }
 
     /**
+     * Get the cancellation token assigned to the request, which can be used to cancel this request.
+     *
+     * <p>
+     *  Note that cancellation is the best effort; In HttpClient implementations, once the execution
+     *  passed the point of no-cancellation, it will not honor the cancel request. Where precisely
+     *  in the HTTP stack is this point of no-cancellation is depends on each HTTP Client implementation.
+     * </p>
+     *
+     * @return The cancellation token.
+     */
+    public CancellationToken getCancellationToken() {
+        return this.cancellationToken;
+    }
+
+    /**
      * Creates a copy of the request.
      *
      * The main purpose of this is so that this HttpRequest can be changed and the resulting
@@ -197,7 +206,11 @@ public class HttpRequest {
      * @return a new HTTP request instance with cloned instances of all mutable properties.
      */
     public HttpRequest copy() {
-        final HttpHeaders bufferedHeaders = new HttpHeaders(headers);
-        return new HttpRequest(httpMethod, url, bufferedHeaders, body);
+        final HttpHeaders bufferedHeaders = new HttpHeaders(this.headers);
+        return new HttpRequest(this.httpMethod,
+            this.url.toString(),
+            bufferedHeaders,
+            this.body,
+            this.cancellationToken);
     }
 }

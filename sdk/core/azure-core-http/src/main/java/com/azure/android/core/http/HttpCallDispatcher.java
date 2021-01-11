@@ -5,6 +5,7 @@ package com.azure.android.core.http;
 
 import com.azure.core.logging.ClientLogger;
 
+import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -379,7 +380,11 @@ public final class HttpCallDispatcher {
 
         @Override
         public void run() {
-            this.httpCallFunction.apply(httpRequest, this);
+            if (this.httpRequest.getCancellationToken().isCancellationRequested()) {
+                this.onError(new IOException("Canceled."));
+            } else {
+                this.httpCallFunction.apply(this.httpRequest, this);
+            }
         }
 
         @Override

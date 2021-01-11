@@ -46,8 +46,11 @@ class HttpUrlConnectionAsyncHttpClient implements HttpClient {
         if (isFromPipeline) {
             this.sendIntern(httpRequest, httpCallback);
         } else {
-            this.httpCallDispatcher.enqueue((httpRequest1, httpCallback1) -> {
-                sendIntern(httpRequest1, httpCallback1);
+            this.httpCallDispatcher.enqueue(new HttpCallDispatcher.HttpCallFunction() {
+                @Override
+                public void apply(HttpRequest request, HttpCallback httpCallback) {
+                    sendIntern(request, httpCallback);
+                }
             }, httpRequest, httpCallback);
         }
     }

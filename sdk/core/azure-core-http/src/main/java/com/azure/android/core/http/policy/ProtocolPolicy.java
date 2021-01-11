@@ -9,8 +9,6 @@ import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.util.UrlBuilder;
 import com.azure.core.logging.ClientLogger;
 
-import java.net.MalformedURLException;
-
 /**
  * The pipeline policy that adds a given protocol to each HttpRequest.
  */
@@ -38,8 +36,8 @@ public class ProtocolPolicy implements HttpPipelinePolicy {
             logger.info("Setting protocol to {}", protocol);
 
             try {
-                httpRequest.setUrl(urlBuilder.setScheme(protocol).toUrl());
-            } catch (MalformedURLException error) {
+                httpRequest.setUrl(urlBuilder.setScheme(protocol).toString());
+            } catch (IllegalArgumentException error) {
                 chain.finishedProcessing(error);
                 return;
             }
