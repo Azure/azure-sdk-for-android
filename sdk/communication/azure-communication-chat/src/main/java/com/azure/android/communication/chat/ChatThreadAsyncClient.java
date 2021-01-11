@@ -7,6 +7,7 @@ package com.azure.android.communication.chat;
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
 import com.azure.android.communication.chat.implementation.ChatThreadsImpl;
 import com.azure.android.communication.chat.models.AddChatParticipantsRequest;
+import com.azure.android.communication.chat.models.AddChatParticipantsResult;
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatMessageReadReceiptsCollection;
@@ -20,6 +21,7 @@ import com.azure.android.communication.chat.models.SendReadReceiptRequest;
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
 import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
 import com.azure.android.core.http.Callback;
+import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;
@@ -31,12 +33,8 @@ import com.azure.android.core.util.paging.PagedDataCollection;
 import com.azure.android.core.util.paging.PagedDataRetriever;
 import okhttp3.Interceptor;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.threeten.bp.OffsetDateTime;
-
-import java.util.ArrayList;
-
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -61,7 +59,7 @@ public final class ChatThreadAsyncClient {
 
     /**
      * Gets chat message read receipts for a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get the chat message read receipts for.
      * @param maxPageSize The maximum number of chat message read receipts to be returned per page.
      * @param skip Skips chat message read receipts up to a specified position in response.
@@ -76,7 +74,7 @@ public final class ChatThreadAsyncClient {
 
     /**
      * Sends a read receipt event to a thread, on behalf of a user.
-     *
+     * 
      * @param chatThreadId Thread id to send the read receipt event to.
      * @param sendReadReceiptRequest Request payload for sending a read receipt.
      * @param callback the Callback that receives the response.
@@ -90,7 +88,7 @@ public final class ChatThreadAsyncClient {
 
     /**
      * Sends a message to a thread.
-     *
+     * 
      * @param chatThreadId The thread id to send the message to.
      * @param sendChatMessageRequest Details of the message to send.
      * @param callback the Callback that receives the response.
@@ -98,30 +96,16 @@ public final class ChatThreadAsyncClient {
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void sendChatMessage(String chatThreadId, SendChatMessageRequest sendChatMessageRequest, final Callback<String> callback) {
-        Callback<SendChatMessageResult> proxyCallback = new Callback<SendChatMessageResult>() {
-            @Override
-            public void onSuccess(SendChatMessageResult result, Response response) {
-                if (result == null) {
-                    callback.onSuccess(null, response);
-                } else {
-                    callback.onSuccess(result.getId(), response);
-                }
-            }
-            @Override
-            public void onFailure(Throwable throwable, Response response) {
-                callback.onFailure(throwable, response);
-            }
-        };
-        this.serviceClient.sendChatMessage(chatThreadId, sendChatMessageRequest, proxyCallback);
+    public void sendChatMessage(String chatThreadId, SendChatMessageRequest sendChatMessageRequest, final Callback<SendChatMessageResult> callback) {
+        this.serviceClient.sendChatMessage(chatThreadId, sendChatMessageRequest, callback);
     }
 
     /**
      * Gets a list of messages from a thread.
-     *
+     * 
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
-     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get messages up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @param callback the Callback that receives the response collection.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -133,7 +117,7 @@ public final class ChatThreadAsyncClient {
 
     /**
      * Gets a message by id.
-     *
+     * 
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @param callback the Callback that receives the response.
@@ -147,10 +131,10 @@ public final class ChatThreadAsyncClient {
 
     /**
      * Updates a message.
-     *
+     * 
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
-     * @param updateChatMessageRequest Details of the request to update the message.
+     * @param updateChatMessageRequest Request payload for updating a chat message.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -162,7 +146,7 @@ public final class ChatThreadAsyncClient {
 
     /**
      * Deletes a message.
-     *
+     * 
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
      * @param callback the Callback that receives the response.
@@ -176,7 +160,7 @@ public final class ChatThreadAsyncClient {
 
     /**
      * Posts a typing event to a thread, on behalf of a user.
-     *
+     * 
      * @param chatThreadId Id of the thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -189,7 +173,7 @@ public final class ChatThreadAsyncClient {
 
     /**
      * Gets the participants of a thread.
-     *
+     * 
      * @param chatThreadId Thread id to get participants for.
      * @param maxPageSize The maximum number of participants to be returned per page.
      * @param skip Skips participants up to a specified position in response.
@@ -203,38 +187,8 @@ public final class ChatThreadAsyncClient {
     }
 
     /**
-     * Adds thread participants to a thread. If participants already exist, no change occurs.
-     *
-     * @param chatThreadId Id of the thread to add participants to.
-     * @param addChatParticipantsRequest Participants to be added to the thread.
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void addChatParticipants(String chatThreadId, AddChatParticipantsRequest addChatParticipantsRequest, final Callback<Void> callback) {
-        this.serviceClient.addChatParticipants(chatThreadId, addChatParticipantsRequest, callback);
-    }
-
-    /**
-     * Adds a thread participant to a thread. If the participant already exists, no change occurs.
-     *
-     * @param chatThreadId Id of the thread to add participants to.
-     * @param chatParticipant Participant to be added to the thread.
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void addChatParticipant(String chatThreadId, ChatParticipant chatParticipant, final Callback<Void> callback) {
-        ArrayList<ChatParticipant> participants = new ArrayList<ChatParticipant>();
-        participants.add(chatParticipant);
-        this.serviceClient.addChatParticipants(chatThreadId, new AddChatParticipantsRequest().setParticipants(participants), callback);
-    }
-
-    /**
      * Remove a participant from a thread.
-     *
+     * 
      * @param chatThreadId Thread id to remove the participant from.
      * @param chatParticipantId Id of the thread participant to remove from the thread.
      * @param callback the Callback that receives the response.
@@ -247,8 +201,22 @@ public final class ChatThreadAsyncClient {
     }
 
     /**
+     * Adds thread participants to a thread. If participants already exist, no change occurs.
+     * 
+     * @param chatThreadId Id of the thread to add participants to.
+     * @param addChatParticipantsRequest Participants to be added to the thread.
+     * @param callback the Callback that receives the response.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void addChatParticipants(String chatThreadId, AddChatParticipantsRequest addChatParticipantsRequest, final Callback<AddChatParticipantsResult> callback) {
+        this.serviceClient.addChatParticipants(chatThreadId, addChatParticipantsRequest, callback);
+    }
+
+    /**
      * Updates a thread's properties.
-     *
+     * 
      * @param chatThreadId The id of the thread to update.
      * @param updateChatThreadRequest Request payload for updating a chat thread.
      * @param callback the Callback that receives the response.
@@ -271,7 +239,7 @@ public final class ChatThreadAsyncClient {
 
         /**
          * Sets The endpoint of the Azure Communication resource.
-         *
+         * 
          * @param endpoint the endpoint value.
          * @return the Builder.
          */
@@ -287,7 +255,7 @@ public final class ChatThreadAsyncClient {
 
         /**
          * Sets The Azure Core generic ServiceClient Builder.
-         *
+         * 
          * @param serviceClientBuilder the serviceClientBuilder value.
          * @return the Builder.
          */
@@ -301,21 +269,14 @@ public final class ChatThreadAsyncClient {
          */
         private Interceptor credentialInterceptor;
 
-        private Interceptor userAgentInterceptor;
-
         /**
          * Sets The Interceptor to set intercept request and set credentials.
-         *
+         * 
          * @param credentialInterceptor the credentialInterceptor value.
          * @return the Builder.
          */
         public Builder credentialInterceptor(Interceptor credentialInterceptor) {
             this.credentialInterceptor = credentialInterceptor;
-            return this;
-        }
-
-        public Builder userAgentInterceptor(Interceptor userAgentInterceptor) {
-            this.userAgentInterceptor = userAgentInterceptor;
             return this;
         }
 
@@ -326,7 +287,7 @@ public final class ChatThreadAsyncClient {
 
         /**
          * Sets base url of the service.
-         *
+         * 
          * @param baseUrl the baseUrl value.
          * @return the Builder.
          */
@@ -337,7 +298,7 @@ public final class ChatThreadAsyncClient {
 
         /**
          * Builds an instance of ChatThreadAsyncClient with the provided parameters.
-         *
+         * 
          * @return an instance of ChatThreadAsyncClient.
          */
         public ChatThreadAsyncClient build() {
@@ -356,9 +317,6 @@ public final class ChatThreadAsyncClient {
             }
             if (credentialInterceptor != null) {
                 serviceClientBuilder.setCredentialsInterceptor(credentialInterceptor);
-            }
-            if (userAgentInterceptor != null) {
-                serviceClientBuilder.addInterceptor(userAgentInterceptor);
             }
             AzureCommunicationChatServiceImpl internalClient = new AzureCommunicationChatServiceImpl(serviceClientBuilder.build(), endpoint);
             return new ChatThreadAsyncClient(internalClient.getChatThreads());

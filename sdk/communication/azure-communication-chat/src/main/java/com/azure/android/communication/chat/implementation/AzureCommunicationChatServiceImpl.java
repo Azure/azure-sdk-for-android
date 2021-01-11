@@ -5,11 +5,8 @@
 package com.azure.android.communication.chat.implementation;
 
 import com.azure.android.core.http.ServiceClient;
-import com.azure.android.core.http.responsepaging.AsyncPagedDataRetriever;
-import com.azure.android.core.http.responsepaging.PagedDataResponseRetriever;
 import com.azure.android.core.internal.util.serializer.SerializerAdapter;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
-import com.azure.android.core.util.paging.PagedDataRetriever;
 
 /**
  * Initializes a new instance of the AzureCommunicationChatService type.

@@ -35,7 +35,7 @@ public class chatClientTest {
     private static ChatClient chatServiceClient =
         new ChatClient.Builder()
             .serviceClientBuilder(new ServiceClient.Builder().setBaseUrl(BASE_URL))
-            .userAgentInterceptor(userAgentInterceptor)
+            .credentialInterceptor(userAgentInterceptor)
             .build();
 
     @After

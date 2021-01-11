@@ -4,7 +4,7 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.core.annotation.Immutable;
+import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
@@ -12,12 +12,12 @@ import java.util.List;
 /**
  * The ChatThreadsInfoCollection model.
  */
-@Immutable
+@Fluent
 public final class ChatThreadsInfoCollection {
     /*
      * Collection of chat threads.
      */
-    @JsonProperty(value = "value", access = JsonProperty.Access.WRITE_ONLY)
+    @JsonProperty(value = "value", required = true)
     private List<ChatThreadInfo> value;
 
     /*
@@ -34,6 +34,17 @@ public final class ChatThreadsInfoCollection {
      */
     public List<ChatThreadInfo> getValue() {
         return this.value;
+    }
+
+    /**
+     * Set the value property: Collection of chat threads.
+     * 
+     * @param value the value value to set.
+     * @return the ChatThreadsInfoCollection object itself.
+     */
+    public ChatThreadsInfoCollection setValue(List<ChatThreadInfo> value) {
+        this.value = value;
+        return this;
     }
 
     /**
