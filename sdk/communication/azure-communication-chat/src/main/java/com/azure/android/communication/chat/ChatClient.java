@@ -51,7 +51,7 @@ public final class ChatClient {
 
     /**
      * Creates a chat thread.
-     * 
+     *
      * @param createChatThreadRequest Request payload for creating a chat thread.
      * @param repeatabilityRequestID If specified, the client directs that the request is repeatable; that is, that the client can make the request multiple times with the same Repeatability-Request-ID and get back an appropriate response without the server executing the request multiple times. The value of the Repeatability-Request-ID is an opaque string representing a client-generated, globally unique for all time, identifier for the request. It is recommended to use version 4 (random) UUIDs.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -65,7 +65,7 @@ public final class ChatClient {
 
     /**
      * Creates a chat thread.
-     * 
+     *
      * @param createChatThreadRequest Request payload for creating a chat thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -78,7 +78,7 @@ public final class ChatClient {
 
     /**
      * Gets the list of chat threads of a user.
-     * 
+     *
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -92,7 +92,7 @@ public final class ChatClient {
 
     /**
      * Gets the list of chat threads of a user.
-     * 
+     *
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
@@ -106,7 +106,7 @@ public final class ChatClient {
 
     /**
      * Gets a chat thread.
-     * 
+     *
      * @param chatThreadId Id of the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -119,7 +119,7 @@ public final class ChatClient {
 
     /**
      * Deletes a thread.
-     * 
+     *
      * @param chatThreadId Id of the thread to be deleted.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -141,7 +141,7 @@ public final class ChatClient {
 
         /**
          * Sets The endpoint of the Azure Communication resource.
-         * 
+         *
          * @param endpoint the endpoint value.
          * @return the Builder.
          */
@@ -157,7 +157,7 @@ public final class ChatClient {
 
         /**
          * Sets The Azure Core generic ServiceClient Builder.
-         * 
+         *
          * @param serviceClientBuilder the serviceClientBuilder value.
          * @return the Builder.
          */
@@ -171,14 +171,21 @@ public final class ChatClient {
          */
         private Interceptor credentialInterceptor;
 
+        private Interceptor userAgentInterceptor;
+
         /**
          * Sets The Interceptor to set intercept request and set credentials.
-         * 
+         *
          * @param credentialInterceptor the credentialInterceptor value.
          * @return the Builder.
          */
         public Builder credentialInterceptor(Interceptor credentialInterceptor) {
             this.credentialInterceptor = credentialInterceptor;
+            return this;
+        }
+
+        public Builder userAgentInterceptor(Interceptor userAgentInterceptor) {
+            this.userAgentInterceptor = userAgentInterceptor;
             return this;
         }
 
@@ -189,7 +196,7 @@ public final class ChatClient {
 
         /**
          * Sets base url of the service.
-         * 
+         *
          * @param baseUrl the baseUrl value.
          * @return the Builder.
          */
@@ -200,7 +207,7 @@ public final class ChatClient {
 
         /**
          * Builds an instance of ChatClient with the provided parameters.
-         * 
+         *
          * @return an instance of ChatClient.
          */
         public ChatClient build() {
@@ -220,6 +227,11 @@ public final class ChatClient {
             if (credentialInterceptor != null) {
                 serviceClientBuilder.setCredentialsInterceptor(credentialInterceptor);
             }
+
+            if (userAgentInterceptor != null) {
+                serviceClientBuilder.addInterceptor(userAgentInterceptor);
+            }
+
             AzureCommunicationChatServiceImpl internalClient = new AzureCommunicationChatServiceImpl(serviceClientBuilder.build(), endpoint);
             return new ChatClient(internalClient.getChats());
         }
