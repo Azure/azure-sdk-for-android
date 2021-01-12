@@ -1,6 +1,23 @@
 # Release History
 
+## 1.0.0-beta.4 (Unreleased)
+### Added
+- New classes
+    - ChatMessageContent
+    - ChatMessageType 
+    - AddChatParticipantsErrors
+    - AddChatParticipantsResult
+    - ChatMessageType
+- Support for Rich text content in ChatMessage
+    
+### Breaking Changes
+- ChatMessage properties are now all required
+- ChatMessage type is no longer a String type but an extendable Enum type, ChatMessageType
+- ChatMessage content is no longer a String type but an object of ChatMessageContent
+- All OffsetDateTime properties are now in RFC3339 format instead of ISO8601 format
+
 ## 1.0.0-beta.3 (Unreleased)
+
 
 ## 1.0.0-beta.2 (2020-10-06)
 This is the initial release of Azure Communication Services for chat. For more information, please see the [README][read_me] and [documentation][documentation].
