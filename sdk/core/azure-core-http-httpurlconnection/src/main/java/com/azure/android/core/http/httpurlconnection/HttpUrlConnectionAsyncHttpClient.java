@@ -11,15 +11,16 @@ import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.http.HttpMethod;
 import com.azure.android.core.http.HttpResponse;
-import com.azure.core.http.implementation.Util;
+import com.azure.android.core.http.implementation.Util;
 import com.azure.core.logging.ClientLogger;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
-import java.net.ProtocolException;
 import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.List;
@@ -56,6 +57,11 @@ class HttpUrlConnectionAsyncHttpClient implements HttpClient {
     }
 
     private void sendIntern(HttpRequest httpRequest, HttpCallback httpCallback) {
+        if (httpRequest.getCancellationToken().isCancellationRequested()) {
+            httpCallback.onError(new IOException("Canceled."));
+            return;
+        }
+
         final HttpURLConnection connection;
 
         try {
@@ -65,122 +71,207 @@ class HttpUrlConnectionAsyncHttpClient implements HttpClient {
             return;
         }
 
+        connection.setDoInput(true);
+
+        Throwable error = null;
+        HttpResponse httpResponse = null;
+        boolean hasResponseContent = false;
         try {
-            connection.setRequestMethod(httpRequest.getHttpMethod().toString());
-        } catch (ProtocolException pe) {
-            httpCallback.onError(pe);
+            // Request: headers
+            for (HttpHeader header : httpRequest.getHeaders()) {
+                connection.addRequestProperty(header.getName(), header.getValue());
+            }
+
+            // Request: method and content.
+            switch (httpRequest.getHttpMethod()) {
+                case GET:
+                case HEAD:
+                case OPTIONS:
+                case TRACE:
+                case DELETE:
+                    connection.setRequestMethod(httpRequest.getHttpMethod().toString());
+                    break;
+                case PUT:
+                case POST:
+                case PATCH:
+                    connection.setRequestMethod(httpRequest.getHttpMethod().toString());
+                    final byte[] requestContent = httpRequest.getBody();
+                    if (requestContent != null) {
+                        connection.setDoOutput(true);
+                        final OutputStream requestContentStream = connection.getOutputStream();
+                        try {
+                            requestContentStream.write(requestContent);
+                        } finally {
+                            requestContentStream.close();
+                        }
+                    }
+                    break;
+                default:
+                    throw logger.logExceptionAsError(new IllegalStateException("Unknown HTTP Method:"
+                        + httpRequest.getHttpMethod()));
+            }
+
+            // Response: StatusCode
+            final int statusCode = connection.getResponseCode();
+            if (statusCode == -1) {
+                final IOException ioException = new IOException("Retrieval of HTTP response code failed. "
+                    + "HttpUrlConnection::getResponseCode() returned -1");
+                throw logger.logExceptionAsError(new RuntimeException(ioException));
+            }
+
+            // Response: headers
+            final Map<String, List<String>> connHeaderMap = connection.getHeaderFields();
+            final HttpHeaders headers = new HttpHeaders();
+            for (Map.Entry<String, List<String>> entry : connHeaderMap.entrySet()) {
+                if (entry.getKey() == null) {
+                    continue;
+                }
+                final String headerName = entry.getKey();
+                final String headerValue;
+                Iterator<String> hdrValueItr = entry.getValue().iterator();
+                if (hdrValueItr.hasNext()) {
+                    headerValue = hdrValueItr.next();
+                } else {
+                    headerValue = null;
+                }
+                headers.put(headerName, headerValue);
+            }
+
+            // Response: Content
+            hasResponseContent = statusCode != HttpURLConnection.HTTP_NO_CONTENT
+                && statusCode != HttpURLConnection.HTTP_NOT_MODIFIED
+                && statusCode >= HttpURLConnection.HTTP_OK
+                && httpRequest.getHttpMethod() != HttpMethod.HEAD;
+
+            final InputStream responseContentStream = hasResponseContent
+                ? new ResponseContentStream(connection)
+                : new ByteArrayInputStream(new byte[0]);
+
+            httpResponse = new UrlConnectionResponse(logger,
+                httpRequest,
+                statusCode,
+                headers,
+                responseContentStream);
+        } catch (Throwable e) {
+            error = e;
+        } finally {
+            if (error != null || !hasResponseContent) {
+                connection.disconnect();
+            }
+        }
+
+        if (error != null) {
+            httpCallback.onError(error);
             return;
+        } else {
+            httpCallback.onSuccess(httpResponse);
+        }
+    }
+
+    private static class ResponseContentStream extends FilterInputStream {
+        private final HttpURLConnection innerConnection;
+
+        ResponseContentStream(HttpURLConnection connection) {
+            super(innerInputStream(connection));
+            this.innerConnection = connection;
         }
 
-        connection.setDoOutput(true);
-        for (HttpHeader header : httpRequest.getHeaders()) {
-            connection.addRequestProperty(header.getName(), header.getValue());
+        @Override
+        public void close() throws IOException {
+            super.close();
+            this.innerConnection.disconnect();
         }
 
-        if (httpRequest.getHttpMethod() != HttpMethod.GET || httpRequest.getHttpMethod() == HttpMethod.HEAD) {
+        private static InputStream innerInputStream(HttpURLConnection connection) {
             try {
-                OutputStream outputStream = connection.getOutputStream();
-                outputStream.write(httpRequest.getBody());
-                outputStream.flush();
-                outputStream.close();
+                // try reading from input-stream..
+                return connection.getInputStream();
             } catch (IOException ioe) {
-                httpCallback.onError(ioe);
-                return;
+                // input-stream read can throw IOE for responses with error HTTP code (e.g. 400), try error-stream..
+                return connection.getErrorStream();
             }
         }
+    }
 
-        final int statusCode;
-        try {
-            statusCode = connection.getResponseCode();
-        } catch (IOException ioe) {
-            httpCallback.onError(ioe);
-            return;
+    private static class UrlConnectionResponse extends HttpResponse {
+        private final ClientLogger logger;
+        private final int statusCode;
+        private final HttpHeaders headers;
+        private final InputStream contentStream;
+
+        UrlConnectionResponse(ClientLogger logger,
+                              HttpRequest request,
+                              int statusCode,
+                              HttpHeaders headers,
+                              InputStream contentStream) {
+            super(request);
+            this.logger = logger;
+            this.statusCode = statusCode;
+            this.headers = headers;
+            this.contentStream = contentStream;
         }
 
-        final Map<String, List<String>> map = connection.getHeaderFields();
-        final HttpHeaders headers = new HttpHeaders();
-        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
-            if (entry.getKey() == null) {
-                continue;
-            }
-            final String headerName = entry.getKey();
-            final String headerValue;
-            Iterator<String> hdrValueItr = entry.getValue().iterator();
-            if (hdrValueItr.hasNext()) {
-                headerValue = hdrValueItr.next();
-            } else {
-                headerValue = null;
-            }
-            headers.put(headerName, headerValue);
+        @Override
+        public int getStatusCode() {
+            return this.statusCode;
         }
 
-        httpCallback.onSuccess(new HttpResponse(httpRequest) {
-            @Override
-            public int getStatusCode() {
-                return statusCode;
-            }
+        @Override
+        public String getHeaderValue(String name) {
+            return this.headers.getValue(name);
+        }
 
-            @Override
-            public String getHeaderValue(String name) {
-                return headers.getValue(name);
-            }
+        @Override
+        public HttpHeaders getHeaders() {
+            return this.headers;
+        }
 
-            @Override
-            public HttpHeaders getHeaders() {
-                return headers;
-            }
+        @Override
+        public InputStream getBody() {
+            return this.contentStream;
+        }
 
-            @Override
-            public InputStream getBody() {
+        @Override
+        public byte[] getBodyAsByteArray() {
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            int nRead;
+            byte[] data = new byte[1024];
+            InputStream is = this.getBody();
+            try {
+                while ((nRead = is.read(data, 0, data.length)) != -1) {
+                    buffer.write(data, 0, nRead);
+                }
+                buffer.flush();
+            } catch (IOException ioe) {
+                throw logger.logExceptionAsError(new RuntimeException(ioe));
+            } finally {
                 try {
-                    return connection.getInputStream();
+                    is.close();
                 } catch (IOException ioe) {
                     throw logger.logExceptionAsError(new RuntimeException(ioe));
                 }
             }
+            return buffer.toByteArray();
+        }
 
-            @Override
-            public byte[] getBodyAsByteArray() {
-                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-                int nRead;
-                byte[] data = new byte[1024];
-                InputStream is = this.getBody();
-                try {
-                    while ((nRead = is.read(data, 0, data.length)) != -1) {
-                        buffer.write(data, 0, nRead);
-                    }
-                    buffer.flush();
-                } catch (IOException ioe) {
-                    throw logger.logExceptionAsError(new RuntimeException(ioe));
-                } finally {
-                    try {
-                        is.close();
-                    } catch (IOException ioe) {
-                        throw logger.logExceptionAsError(new RuntimeException(ioe));
-                    }
-                }
-                return buffer.toByteArray();
-            }
+        @Override
+        public String getBodyAsString() {
+            return Util.bomAwareToString(this.getBodyAsByteArray(),
+                headers.getValue("Content-Type"));
+        }
 
-            @Override
-            public String getBodyAsString() {
-                return Util.bomAwareToString(this.getBodyAsByteArray(),
-                    headers.getValue("Content-Type"));
-            }
+        @Override
+        public String getBodyAsString(Charset charset) {
+            return new String(this.getBodyAsByteArray(), charset);
+        }
 
-            @Override
-            public String getBodyAsString(Charset charset) {
-                return new String(this.getBodyAsByteArray(), charset);
+        @Override
+        public void close() {
+            try {
+                getBody().close();
+            } catch (IOException ioe) {
+                throw logger.logExceptionAsError(new RuntimeException(ioe));
             }
-
-            @Override
-            public void close() {
-                try {
-                    getBody().close();
-                } catch (IOException ioe) {
-                    throw logger.logExceptionAsError(new RuntimeException(ioe));
-                }
-            }
-        });
+        }
     }
 }
