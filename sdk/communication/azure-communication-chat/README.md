@@ -299,10 +299,7 @@ client.deleteChatThread(threadId, new Callback<Void>() {
 Use the `send` method to send a message to a thread.
 ```java
 // The chat message content, required.
-final ChatMessageContent content = new ChatMessageContent();
-content.setTopic("Vacation")
-    .setMessage("Test message 1")
-    .setInitiator("Me");
+final ChatMessageContent content = "Test message 1");
 // The display name of the sender, if null (i.e. not specified), an empty name will be set.
 final String senderDisplayName = "An important person";
 // The message priority level, such as 'NORMAL' or 'HIGH', 
@@ -310,7 +307,6 @@ final String senderDisplayName = "An important person";
 final ChatMessagePriority priority = ChatMessagePriority.HIGH;
 SendChatMessageRequest message = new SendChatMessageRequest()
     .setPriority(priority)
-    .setType(ChatMessageType.TEXT)
     .setContent(content)
     .setSenderDisplayName(senderDisplayName);
 

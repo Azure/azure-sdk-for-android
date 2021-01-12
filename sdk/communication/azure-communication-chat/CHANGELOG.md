@@ -8,7 +8,6 @@
     - AddChatParticipantsErrors
     - AddChatParticipantsResult
     - ChatMessageType
-- Support for Rich text content in ChatMessage
     
 ### Breaking Changes
 - ChatMessage properties are now all required
