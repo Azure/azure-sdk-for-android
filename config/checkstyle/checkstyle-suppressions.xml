@@ -201,4 +201,8 @@
   <!-- Files licensed with alternate license in the header -->
   <suppress checks="Header" files="com.azure.android.core.micro.util.CancellationToken.java"/>
 
+  <!-- Don't enforce non-static ClientLogger instances in com.azure.core.util.Option types-->
+  <suppress checks="com\.azure\.tools\.checkstyle\.checks\.(ThrowFromClientLoggerCheck|GoodLoggingCheck)"
+      files="com.azure.android.core.micro.util.Option.java"/>
+
 </suppressions>
