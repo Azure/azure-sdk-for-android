@@ -16,7 +16,7 @@ import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.android.core.test.http.MockHttpResponse;
 import com.azure.android.core.test.http.NoOpHttpClient;
 import com.azure.core.http.ContentType;
-import com.azure.core.micro.util.Context;
+import com.azure.android.core.micro.util.Context;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -87,7 +87,7 @@ public class HttpLoggingPolicyTests {
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl), CONTEXT, new HttpCallback() {..})
         // TODO: enable context for HttpPipeline.send ^
-        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, CancellationToken.NONE), new HttpCallback() {
+        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, Context.NONE, CancellationToken.NONE), new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 latch.countDown();
@@ -163,7 +163,7 @@ public class HttpLoggingPolicyTests {
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content), CONTEXT)
         // TODO: enable context for HttpPipeline.send ^
-        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content, CancellationToken.NONE),
+        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content, com.azure.android.core.micro.util.Context.NONE, CancellationToken.NONE),
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -192,7 +192,7 @@ public class HttpLoggingPolicyTests {
     @MethodSource("validateLoggingDoesNotConsumeSupplier")
     @ResourceLock("SYSTEM_OUT")
     public void validateLoggingDoesNotChangeResponse(byte[] content, byte[] data, int contentLength) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, "https://test.com", CancellationToken.NONE);
+        HttpRequest request = new HttpRequest(HttpMethod.GET, "https://test.com", Context.NONE, CancellationToken.NONE);
         HttpHeaders responseHeaders = new HttpHeaders()
             .put("Content-Type", ContentType.APPLICATION_JSON)
             .put("Content-Length", Integer.toString(contentLength));

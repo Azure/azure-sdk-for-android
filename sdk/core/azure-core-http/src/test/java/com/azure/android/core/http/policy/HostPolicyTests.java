@@ -10,6 +10,7 @@ import com.azure.android.core.http.HttpPipelineBuilder;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.micro.util.CancellationToken;
+import com.azure.android.core.micro.util.Context;
 import com.azure.android.core.test.http.NoOpHttpClient;
 
 import org.junit.jupiter.api.Test;
@@ -79,7 +80,7 @@ public class HostPolicyTests {
     }
 
     private static HttpRequest createHttpRequest(String url) throws MalformedURLException {
-        return new HttpRequest(HttpMethod.GET, url, CancellationToken.NONE);
+        return new HttpRequest(HttpMethod.GET, url, Context.NONE, CancellationToken.NONE);
     }
 
     private static void awaitOnLatch(CountDownLatch latch, String method) {
