@@ -19,10 +19,21 @@ public class MessagesMocker {
         StringBuilder jsonBuilder = new StringBuilder();
         jsonBuilder.append("{");
         jsonBuilder.append(String.format("\"id\": \"id%s\", ", i));
-        jsonBuilder.append(String.format("\"priority\": \"Normal\", \"version\": \"1\", \"content\": \"content%s\",", i));
-        jsonBuilder.append(String.format("\"type\": \"type%s\",", i));
+        jsonBuilder.append(String.format("\"priority\": \"Normal\", \"version\": \"1\", \"content\": %s,", mockMessageContent(i)));
+        jsonBuilder.append("\"type\": \"text\",");
         jsonBuilder.append(String.format("\"senderDisplayName\": \"sender%s\", ", i));
         jsonBuilder.append(String.format("\"senderId\":\"sender%s\" }", i));
         return jsonBuilder.toString();
+    }
+
+    private static String mockMessageContent(int index) {
+        StringBuilder contentBuilder = new StringBuilder();
+        contentBuilder.append("{");
+        contentBuilder.append("\"topic\": \"topic\",");
+        contentBuilder.append(String.format("\"message\": \"message%s\",", index));
+        contentBuilder.append("\"initiator\": \"initiator\",");
+        contentBuilder.append("\"participants\": []");
+        contentBuilder.append("}");
+        return contentBuilder.toString();
     }
 }

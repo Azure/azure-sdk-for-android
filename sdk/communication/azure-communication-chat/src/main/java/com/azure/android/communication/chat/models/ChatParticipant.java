@@ -28,9 +28,9 @@ public final class ChatParticipant {
 
     /*
      * Time from which the chat history is shared with the participant. The
-     * timestamp is in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * timestamp is in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      */
-    @JsonProperty(value = "shareHistoryTime")
+    @JsonProperty(value = "shareHistoryTime", required = true)
     private OffsetDateTime shareHistoryTime;
 
     /**
@@ -75,7 +75,7 @@ public final class ChatParticipant {
 
     /**
      * Get the shareHistoryTime property: Time from which the chat history is
-     * shared with the participant. The timestamp is in ISO8601 format:
+     * shared with the participant. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      * 
      * @return the shareHistoryTime value.
@@ -86,7 +86,7 @@ public final class ChatParticipant {
 
     /**
      * Set the shareHistoryTime property: Time from which the chat history is
-     * shared with the participant. The timestamp is in ISO8601 format:
+     * shared with the participant. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
      * 
      * @param shareHistoryTime the shareHistoryTime value to set.

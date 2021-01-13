@@ -7,6 +7,7 @@ package com.azure.android.communication.chat;
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
 import com.azure.android.communication.chat.implementation.ChatThreadsImpl;
 import com.azure.android.communication.chat.models.AddChatParticipantsRequest;
+import com.azure.android.communication.chat.models.AddChatParticipantsResult;
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatMessageReadReceiptsCollection;
@@ -20,6 +21,7 @@ import com.azure.android.communication.chat.models.SendReadReceiptRequest;
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
 import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
 import com.azure.android.core.http.Callback;
+import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;
@@ -31,12 +33,8 @@ import com.azure.android.core.util.paging.PagedDataCollection;
 import com.azure.android.core.util.paging.PagedDataRetriever;
 import okhttp3.Interceptor;
 import okhttp3.RequestBody;
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.threeten.bp.OffsetDateTime;
-
-import java.util.ArrayList;
-
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -101,15 +99,16 @@ public final class ChatThreadAsyncClient {
     public void sendChatMessage(String chatThreadId, SendChatMessageRequest sendChatMessageRequest, final Callback<String> callback) {
         Callback<SendChatMessageResult> proxyCallback = new Callback<SendChatMessageResult>() {
             @Override
-            public void onSuccess(SendChatMessageResult result, Response response) {
+            public void onSuccess(SendChatMessageResult result, okhttp3.Response response) {
                 if (result == null) {
                     callback.onSuccess(null, response);
                 } else {
                     callback.onSuccess(result.getId(), response);
                 }
             }
+
             @Override
-            public void onFailure(Throwable throwable, Response response) {
+            public void onFailure(Throwable throwable, okhttp3.Response response) {
                 callback.onFailure(throwable, response);
             }
         };
@@ -121,7 +120,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
-     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get messages up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @param callback the Callback that receives the response collection.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -150,7 +149,7 @@ public final class ChatThreadAsyncClient {
      *
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
-     * @param updateChatMessageRequest Details of the request to update the message.
+     * @param updateChatMessageRequest Request payload for updating a chat message.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -203,36 +202,6 @@ public final class ChatThreadAsyncClient {
     }
 
     /**
-     * Adds thread participants to a thread. If participants already exist, no change occurs.
-     *
-     * @param chatThreadId Id of the thread to add participants to.
-     * @param addChatParticipantsRequest Participants to be added to the thread.
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void addChatParticipants(String chatThreadId, AddChatParticipantsRequest addChatParticipantsRequest, final Callback<Void> callback) {
-        this.serviceClient.addChatParticipants(chatThreadId, addChatParticipantsRequest, callback);
-    }
-
-    /**
-     * Adds a thread participant to a thread. If the participant already exists, no change occurs.
-     *
-     * @param chatThreadId Id of the thread to add participants to.
-     * @param chatParticipant Participant to be added to the thread.
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void addChatParticipant(String chatThreadId, ChatParticipant chatParticipant, final Callback<Void> callback) {
-        ArrayList<ChatParticipant> participants = new ArrayList<ChatParticipant>();
-        participants.add(chatParticipant);
-        this.serviceClient.addChatParticipants(chatThreadId, new AddChatParticipantsRequest().setParticipants(participants), callback);
-    }
-
-    /**
      * Remove a participant from a thread.
      *
      * @param chatThreadId Thread id to remove the participant from.
@@ -244,6 +213,20 @@ public final class ChatThreadAsyncClient {
      */
     public void removeChatParticipant(String chatThreadId, String chatParticipantId, final Callback<Void> callback) {
         this.serviceClient.removeChatParticipant(chatThreadId, chatParticipantId, callback);
+    }
+
+    /**
+     * Adds thread participants to a thread. If participants already exist, no change occurs.
+     *
+     * @param chatThreadId Id of the thread to add participants to.
+     * @param addChatParticipantsRequest Participants to be added to the thread.
+     * @param callback the Callback that receives the response.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void addChatParticipants(String chatThreadId, AddChatParticipantsRequest addChatParticipantsRequest, final Callback<AddChatParticipantsResult> callback) {
+        this.serviceClient.addChatParticipants(chatThreadId, addChatParticipantsRequest, callback);
     }
 
     /**

@@ -7,6 +7,7 @@ package com.azure.android.communication.chat;
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
 import com.azure.android.communication.chat.implementation.ChatThreadsImpl;
 import com.azure.android.communication.chat.models.AddChatParticipantsRequest;
+import com.azure.android.communication.chat.models.AddChatParticipantsResult;
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatMessageReadReceiptsCollection;
@@ -34,10 +35,6 @@ import okhttp3.Interceptor;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.threeten.bp.OffsetDateTime;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -126,7 +123,7 @@ public final class ChatThreadClient {
      *
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
-     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get messages up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -141,7 +138,7 @@ public final class ChatThreadClient {
      *
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
-     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get messages up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -170,7 +167,7 @@ public final class ChatThreadClient {
      *
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
-     * @param updateChatMessageRequest Details of the request to update the message.
+     * @param updateChatMessageRequest Request payload for updating a chat message.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -238,36 +235,6 @@ public final class ChatThreadClient {
     }
 
     /**
-     * Adds thread participants to a thread. If participants already exist, no change occurs.
-     *
-     * @param chatThreadId Id of the thread to add participants to.
-     * @param addChatParticipantsRequest Participants to be added to the thread.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the completion.
-     */
-    public Response<Void> addChatParticipantsWithRestResponse(String chatThreadId, AddChatParticipantsRequest addChatParticipantsRequest) {
-        return this.serviceClient.addChatParticipantsWithRestResponse(chatThreadId, addChatParticipantsRequest);
-    }
-
-    /**
-     * Adds a thread participant to a thread. If the participant already exists, no change occurs.
-     *
-     * @param chatThreadId Id of the thread to add participants to.
-     * @param chatParticipant Participant to be added to the thread.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the completion.
-     */
-    public Response<Void> addChatParticipantWithRestResponse(String chatThreadId, ChatParticipant chatParticipant) {
-        ArrayList<ChatParticipant> participants = new ArrayList<ChatParticipant>();
-        participants.add(chatParticipant);
-        return this.serviceClient.addChatParticipantsWithRestResponse(chatThreadId, new AddChatParticipantsRequest().setParticipants(participants));
-    }
-
-    /**
      * Remove a participant from a thread.
      *
      * @param chatThreadId Thread id to remove the participant from.
@@ -279,6 +246,20 @@ public final class ChatThreadClient {
      */
     public Response<Void> removeChatParticipantWithRestResponse(String chatThreadId, String chatParticipantId) {
         return this.serviceClient.removeChatParticipantWithRestResponse(chatThreadId, chatParticipantId);
+    }
+
+    /**
+     * Adds thread participants to a thread. If participants already exist, no change occurs.
+     *
+     * @param chatThreadId Id of the thread to add participants to.
+     * @param addChatParticipantsRequest Participants to be added to the thread.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return result of the add chat participants operation.
+     */
+    public Response<AddChatParticipantsResult> addChatParticipantsWithRestResponse(String chatThreadId, AddChatParticipantsRequest addChatParticipantsRequest) {
+        return this.serviceClient.addChatParticipantsWithRestResponse(chatThreadId, addChatParticipantsRequest);
     }
 
     /**

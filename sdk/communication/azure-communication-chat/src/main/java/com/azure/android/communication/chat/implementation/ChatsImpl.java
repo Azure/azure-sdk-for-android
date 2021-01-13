@@ -152,7 +152,7 @@ public final class ChatsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return result of the create chat thread operation.
      */
     public Response<CreateChatThreadResult> createChatThreadWithRestResponse(CreateChatThreadRequest createChatThreadRequest, String repeatabilityRequestID) {
         final okhttp3.RequestBody okHttp3RequestBody;
@@ -185,7 +185,7 @@ public final class ChatsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return result of the create chat thread operation.
      */
     public CreateChatThreadResult createChatThread(CreateChatThreadRequest createChatThreadRequest) {
         final String repeatabilityRequestID = null;
@@ -196,7 +196,7 @@ public final class ChatsImpl {
      * Gets the list of chat threads of a user.
      * 
      * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -235,72 +235,6 @@ public final class ChatsImpl {
         call.enqueue(retrofitCallback);
     }
 
-    private static final class ChatThreadInfoPageAsyncRetriever extends AsyncPagedDataRetriever<ChatThreadInfo, Page<ChatThreadInfo>> {
-        private final Integer maxPageSize;
-
-        private final OffsetDateTime startTime;
-
-        private final ChatsImpl serviceClient;
-
-        public ChatThreadInfoPageAsyncRetriever(Integer maxPageSize, OffsetDateTime startTime, ChatsImpl serviceClient) {
-            this.maxPageSize = maxPageSize;
-            this.startTime = startTime;
-            this.serviceClient = serviceClient;
-        }
-
-        public void getFirstPage(Callback<Page<ChatThreadInfo>> callback) {
-            serviceClient.listChatThreads(maxPageSize, startTime, callback);
-        }
-
-        public void getPage(String pageId, Callback<Page<ChatThreadInfo>> callback) {
-            serviceClient.listChatThreadsNext(pageId, callback);
-        }
-    }
-
-    private static final class ChatThreadInfoPageResponseRetriever extends PagedDataResponseRetriever<ChatThreadInfo, Page<ChatThreadInfo>> {
-        private final Integer maxPageSize;
-
-        private final OffsetDateTime startTime;
-
-        private final ChatsImpl serviceClient;
-
-        public ChatThreadInfoPageResponseRetriever(Integer maxPageSize, OffsetDateTime startTime, ChatsImpl serviceClient) {
-            this.maxPageSize = maxPageSize;
-            this.startTime = startTime;
-            this.serviceClient = serviceClient;
-        }
-
-        public Response<Page<ChatThreadInfo>> getFirstPage() {
-             return serviceClient.listChatThreadsWithRestResponse(maxPageSize, startTime);
-        }
-
-        public Response<Page<ChatThreadInfo>> getPage(String pageId) {
-            return serviceClient.listChatThreadsNextWithRestResponse(pageId);
-        }
-    }
-
-    private static final class ChatThreadInfoPageRetriever extends PagedDataRetriever<ChatThreadInfo, Page<ChatThreadInfo>> {
-        private final Integer maxPageSize;
-
-        private final OffsetDateTime startTime;
-
-        private final ChatsImpl serviceClient;
-
-        public ChatThreadInfoPageRetriever(Integer maxPageSize, OffsetDateTime startTime, ChatsImpl serviceClient) {
-            this.maxPageSize = maxPageSize;
-            this.startTime = startTime;
-            this.serviceClient = serviceClient;
-        }
-
-        public Page<ChatThreadInfo> getFirstPage() {
-             return serviceClient.listChatThreadsWithRestResponse(maxPageSize, startTime).getValue();
-        }
-
-        public Page<ChatThreadInfo> getPage(String pageId) {
-            return serviceClient.listChatThreadsNextWithRestResponse(pageId).getValue();
-        }
-    }
-
     /**
      * Gets the list of chat threads of a user.
      * 
@@ -319,7 +253,7 @@ public final class ChatsImpl {
      * Gets the list of chat threads of a user.
      * 
      * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -350,33 +284,77 @@ public final class ChatsImpl {
         }
     }
 
-    /**
-     * Gets the list of chat threads of a user.
-     * 
-     * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the list of chat threads of a user.
-     */
-    public PagedDataResponseCollection<ChatThreadInfo, Page<ChatThreadInfo>> listChatThreadsWithPageResponse(Integer maxPageSize, OffsetDateTime startTime) {
-        ChatThreadInfoPageResponseRetriever retriever = new ChatThreadInfoPageResponseRetriever(maxPageSize, startTime, this);
-        return new PagedDataResponseCollection<ChatThreadInfo, Page<ChatThreadInfo>>(retriever);
+    private static final class ListChatThreadsWithPageResponseRetriever extends PagedDataResponseRetriever<ChatThreadInfo, Page<ChatThreadInfo>> {
+        private final Integer maxPageSize;
+
+        private final OffsetDateTime startTime;
+
+        private final ChatsImpl serviceClient;
+
+        public ListChatThreadsWithPageResponseRetriever(Integer maxPageSize, OffsetDateTime startTime, ChatsImpl serviceClient) {
+            this.maxPageSize = maxPageSize;
+            this.startTime = startTime;
+            this.serviceClient = serviceClient;
+        }
+
+        public Response<Page<ChatThreadInfo>> getFirstPage() {
+             return serviceClient.listChatThreadsWithRestResponse(maxPageSize, startTime);
+        }
+
+        public Response<Page<ChatThreadInfo>> getPage(String nextLink) {
+             return serviceClient.listChatThreadsNextWithRestResponse(nextLink);
+        }
     }
 
     /**
      * Gets the list of chat threads of a user.
      * 
      * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the list of chat threads of a user.
+     */
+    public PagedDataResponseCollection<ChatThreadInfo, Page<ChatThreadInfo>> listChatThreadsWithPageResponse(Integer maxPageSize, OffsetDateTime startTime) {
+        ListChatThreadsWithPageResponseRetriever retriever = new ListChatThreadsWithPageResponseRetriever(maxPageSize, startTime, this);
+        return new PagedDataResponseCollection<ChatThreadInfo, Page<ChatThreadInfo>>(retriever);
+    }
+
+    private static final class ListChatThreadsWithPageRetriever extends PagedDataRetriever<ChatThreadInfo, Page<ChatThreadInfo>> {
+        private final Integer maxPageSize;
+
+        private final OffsetDateTime startTime;
+
+        private final ChatsImpl serviceClient;
+
+        public ListChatThreadsWithPageRetriever(Integer maxPageSize, OffsetDateTime startTime, ChatsImpl serviceClient) {
+            this.maxPageSize = maxPageSize;
+            this.startTime = startTime;
+            this.serviceClient = serviceClient;
+        }
+
+        public Page<ChatThreadInfo> getFirstPage() {
+             return serviceClient.listChatThreadsWithRestResponse(maxPageSize, startTime).getValue();
+        }
+
+        public Page<ChatThreadInfo> getPage(String nextLink) {
+             return serviceClient.listChatThreadsNextWithRestResponse(nextLink).getValue();
+        }
+    }
+
+    /**
+     * Gets the list of chat threads of a user.
+     * 
+     * @param maxPageSize The maximum number of chat threads returned per page.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the list of chat threads of a user.
      */
     public PagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>> listChatThreadsWithPage(Integer maxPageSize, OffsetDateTime startTime) {
-        ChatThreadInfoPageRetriever retriever = new ChatThreadInfoPageRetriever(maxPageSize, startTime, this);
+        ListChatThreadsWithPageRetriever retriever = new ListChatThreadsWithPageRetriever(maxPageSize, startTime, this);
         return new PagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>(retriever);
     }
 
@@ -393,25 +371,47 @@ public final class ChatsImpl {
         return listChatThreadsWithRestResponse(maxPageSize, startTime).getValue();
     }
 
+    private static final class ListChatThreadsPagesAsyncRetriever extends AsyncPagedDataRetriever<ChatThreadInfo, Page<ChatThreadInfo>> {
+        private final Integer maxPageSize;
+
+        private final OffsetDateTime startTime;
+
+        private final ChatsImpl serviceClient;
+
+        public ListChatThreadsPagesAsyncRetriever(Integer maxPageSize, OffsetDateTime startTime, ChatsImpl serviceClient) {
+            this.maxPageSize = maxPageSize;
+            this.startTime = startTime;
+            this.serviceClient = serviceClient;
+        }
+
+        public void getFirstPage(Callback<Page<ChatThreadInfo>> callback) {
+            serviceClient.listChatThreads(maxPageSize, startTime, callback);
+        }
+
+        public void getPage(String nextLink, Callback<Page<ChatThreadInfo>> callback) {
+            serviceClient.listChatThreadsNext(nextLink, callback);
+        }
+    }
+
     /**
      * Gets the list of chat threads of a user.
      * 
      * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @param callback the Callback that receives the response collection.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void listChatThreadsPagesAsync(Integer maxPageSize, OffsetDateTime startTime, final Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>> callback) {
-        ChatThreadInfoPageAsyncRetriever retriever = new ChatThreadInfoPageAsyncRetriever(maxPageSize, startTime, this);
+        ListChatThreadsPagesAsyncRetriever retriever = new ListChatThreadsPagesAsyncRetriever(maxPageSize, startTime, this);
         callback.onSuccess(new AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>(retriever), null);
     }
 
     /**
      * Gets a chat thread.
      * 
-     * @param chatThreadId Thread id to get.
+     * @param chatThreadId Id of the thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -453,7 +453,7 @@ public final class ChatsImpl {
     /**
      * Gets a chat thread.
      * 
-     * @param chatThreadId Thread id to get.
+     * @param chatThreadId Id of the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -480,7 +480,7 @@ public final class ChatsImpl {
     /**
      * Deletes a thread.
      * 
-     * @param chatThreadId Thread id to delete.
+     * @param chatThreadId Id of the thread to be deleted.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -522,7 +522,7 @@ public final class ChatsImpl {
     /**
      * Deletes a thread.
      * 
-     * @param chatThreadId Thread id to delete.
+     * @param chatThreadId Id of the thread to be deleted.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
