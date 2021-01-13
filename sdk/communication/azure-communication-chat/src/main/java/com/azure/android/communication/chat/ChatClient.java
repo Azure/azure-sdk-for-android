@@ -229,9 +229,16 @@ public final class ChatClient {
                 serviceClientBuilder.setCredentialsInterceptor(credentialInterceptor);
             }
 
-            if (userAgentInterceptor != null) {
-                serviceClientBuilder.addInterceptor(userAgentInterceptor);
+            if (userAgentInterceptor == null) {
+                userAgentInterceptor = new UserAgentInterceptor(
+                    null,
+                    "azure-communication-chat",
+                    "1.0.0-beta.3",
+                    null,
+                    null,
+                    null);
             }
+            serviceClientBuilder.addInterceptor(userAgentInterceptor);
 
             AzureCommunicationChatServiceImpl internalClient = new AzureCommunicationChatServiceImpl(serviceClientBuilder.build(), endpoint);
             return new ChatClient(internalClient.getChats());

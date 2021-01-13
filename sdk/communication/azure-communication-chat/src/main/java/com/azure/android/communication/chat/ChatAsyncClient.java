@@ -16,6 +16,7 @@ import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.exception.HttpResponseException;
+import com.azure.android.core.http.interceptor.UserAgentInterceptor;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataRetriever;
 import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
@@ -213,9 +214,17 @@ public final class ChatAsyncClient {
             if (credentialInterceptor != null) {
                 serviceClientBuilder.setCredentialsInterceptor(credentialInterceptor);
             }
-            if (userAgentInterceptor != null) {
-                serviceClientBuilder.addInterceptor(userAgentInterceptor);
+            if (userAgentInterceptor == null) {
+                userAgentInterceptor = new UserAgentInterceptor(
+                    null,
+                    "azure-communication-chat",
+                    "1.0.0-beta.3",
+                    null,
+                    null,
+                    null);
             }
+            serviceClientBuilder.addInterceptor(userAgentInterceptor);
+
             AzureCommunicationChatServiceImpl internalClient = new AzureCommunicationChatServiceImpl(serviceClientBuilder.build(), endpoint);
             return new ChatAsyncClient(internalClient.getChats());
         }
