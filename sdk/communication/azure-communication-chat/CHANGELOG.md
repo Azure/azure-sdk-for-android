@@ -2,6 +2,7 @@
 
 ## 1.0.0-beta.4 (Unreleased)
 ### Added
+- Support for Rich Text Chat message content
 - New classes
     - ChatMessageContent
     - ChatMessageType 
@@ -16,7 +17,6 @@
 - All OffsetDateTime properties are now in RFC3339 format instead of ISO8601 format
 
 ## 1.0.0-beta.3 (Unreleased)
-
 
 ## 1.0.0-beta.2 (2020-10-06)
 This is the initial release of Azure Communication Services for chat. For more information, please see the [README][read_me] and [documentation][documentation].
