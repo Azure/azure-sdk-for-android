@@ -8,6 +8,7 @@ import com.azure.android.core.http.HttpHeaders;
 import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
+import com.azure.android.core.micro.util.Context;
 
 /**
  * The pipeline policy that adds a particular set of headers to HTTP requests.
@@ -25,7 +26,7 @@ public class AddHeadersPolicy implements HttpPipelinePolicy {
     }
 
     @Override
-    public void process(HttpPipelinePolicyChain chain) {
+    public void process(HttpPipelinePolicyChain chain, Context context) {
         HttpRequest httpRequest = chain.getRequest();
         for (HttpHeader header : headers) {
             httpRequest.setHeader(header.getName(), header.getValue());

@@ -6,8 +6,8 @@ package com.azure.android.core.http.policy;
 import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
+import com.azure.android.core.micro.util.Context;
 import com.azure.core.micro.util.Configuration;
-import com.azure.core.micro.util.Context;
 
 /**
  * Pipeline policy that adds "User-Agent" header to a request.
@@ -82,7 +82,7 @@ public class UserAgentPolicy implements HttpPipelinePolicy {
      * {@code Append-User-Agent} will be appended to the value supplied in the policy.</p>
      */
     @Override
-    public void process(HttpPipelinePolicyChain chain) {
+    public void process(HttpPipelinePolicyChain chain, Context context) {
         // TODO: anuchan: enable context in request
         //
         //  HttpRequest httpRequest = chain.getRequest();

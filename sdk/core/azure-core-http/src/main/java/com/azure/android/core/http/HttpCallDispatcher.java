@@ -3,6 +3,7 @@
 
 package com.azure.android.core.http;
 
+import com.azure.android.core.micro.util.Context;
 import com.azure.core.logging.ClientLogger;
 
 import java.io.IOException;
@@ -169,17 +170,20 @@ public final class HttpCallDispatcher {
      *
      * @param chain The chain to invoke {@code processNextPolicy} call on.
      * @param httpRequest The HTTP request parameter for the scheduled {@code processNextPolicy} call.
+     * @param context The context parameter for the scheduled {@code processNextPolicy} call.
      * @param httpCallback The HTTP callback parameter for the scheduled {@code processNextPolicy} call.
      * @param delay The time from now to delay the execution of the {@code processNextPolicy} call.
      * @param timeUnit The time unit of the {@code delay}.
      */
     void scheduleProcessNextPolicy(HttpPipelinePolicyChainImpl chain,
                                    HttpRequest httpRequest,
+                                   Context context,
                                    HttpCallback httpCallback,
                                    long delay,
                                    TimeUnit timeUnit) {
         Objects.requireNonNull(chain, "'chain' is required.");
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
+        Objects.requireNonNull(context, "'context' is required.");
         Objects.requireNonNull(httpCallback, "'httpCallback' is required.");
         Objects.requireNonNull(timeUnit, "'timeUnit' is required.");
 
@@ -190,6 +194,7 @@ public final class HttpCallDispatcher {
                 final NestedDispatchableCall nestedDispatchableCall = new NestedDispatchableCall(rootDispatchableCall,
                     chain,
                     httpRequest,
+                    context,
                     httpCallback);
 
                 synchronized (HttpCallDispatcher.this) {
@@ -445,6 +450,7 @@ public final class HttpCallDispatcher {
         private final RootDispatchableCall rootDispatchableCall;
         private final HttpPipelinePolicyChain chain;
         private final HttpRequest httpRequest;
+        private final Context context;
         private final HttpCallback httpCallback;
 
         /**
@@ -461,21 +467,24 @@ public final class HttpCallDispatcher {
          *     belongs to.
          * @param chain The chain to invoke {@code processNextPolicy} call on.
          * @param httpRequest The HTTP request parameter for the scheduled {@code processNextPolicy} call.
+         * @param context The context parameter for the scheduled {@code processNextPolicy} call.
          * @param httpCallback The HTTP callback parameter for the scheduled {@code processNextPolicy} call.
          */
         NestedDispatchableCall(RootDispatchableCall rootDispatchableCall,
                                HttpPipelinePolicyChain chain,
                                HttpRequest httpRequest,
+                               Context context,
                                HttpCallback httpCallback) {
             this.rootDispatchableCall = rootDispatchableCall;
             this.chain = chain;
             this.httpRequest = httpRequest;
+            this.context = context;
             this.httpCallback = httpCallback;
         }
 
         @Override
         public void run() {
-            this.chain.processNextPolicy(httpRequest, this);
+            this.chain.processNextPolicy(httpRequest, this.context, this);
         }
 
         @Override

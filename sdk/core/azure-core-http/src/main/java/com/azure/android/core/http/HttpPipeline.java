@@ -3,6 +3,8 @@
 
 package com.azure.android.core.http;
 
+import com.azure.android.core.micro.util.Context;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -24,7 +26,7 @@ public final class HttpPipeline {
 
     /**
      * Creates a HttpPipeline holding array of policies that gets applied to all request initiated through {@link
-     * HttpPipeline#send(HttpRequest, HttpCallback)} and it's response.
+     * HttpPipeline#send(HttpRequest, Context, HttpCallback)} and it's response.
      *
      * @param httpClient the http client to write request to wire and receive response from wire.
      * @param pipelinePolicies pipeline policies in the order they need to applied, a copy of this array will be made
@@ -62,10 +64,14 @@ public final class HttpPipeline {
      * Execute an HTTP call by sending the {@code request} through the HTTP pipeline.
      *
      * @param httpRequest The HTTP request to send.
+     * @param context The context that is passed through the HTTP pipeline.
+     *     The pipeline policies may inspect the context for any settings specific to the policy.
+     *     The policies that want to make Azure SDK API calls may have to provide this context
+     *     or a context derived from it (via {@link Context#addData(Object, Object)}) to the API.
      * @param httpCallback The HTTP callback to notify the result of the HTTP call.
      */
-    public void send(HttpRequest httpRequest, HttpCallback httpCallback) {
-        HttpPipelinePolicyChainImpl.beginPipelineExecution(this, httpRequest, httpCallback);
+    public void send(HttpRequest httpRequest, Context context, HttpCallback httpCallback) {
+        HttpPipelinePolicyChainImpl.beginPipelineExecution(this, httpRequest, context, httpCallback);
     }
 
     /**

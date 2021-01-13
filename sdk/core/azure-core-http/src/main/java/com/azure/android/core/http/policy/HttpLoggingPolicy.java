@@ -12,10 +12,10 @@ import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.http.util.UrlBuilder;
+import com.azure.android.core.micro.util.Context;
 import com.azure.core.http.ContentType;
 import com.azure.core.logging.ClientLogger;
 import com.azure.core.logging.LogLevel;
-import com.azure.core.micro.util.Context;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
@@ -66,7 +66,7 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
     }
 
     @Override
-    public void process(HttpPipelinePolicyChain chain) {
+    public void process(HttpPipelinePolicyChain chain, Context contextn) {
         // No logging will be performed, trigger a no-op.
         if (httpLogDetailLevel == HttpLogDetailLevel.NONE) {
             chain.processNextPolicy(chain.getRequest());

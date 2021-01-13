@@ -5,6 +5,7 @@ package com.azure.android.core.http;
 
 import android.util.Log;
 
+import com.azure.android.core.micro.util.Context;
 import com.azure.core.logging.ClientLogger;
 
 import java.util.Objects;
@@ -20,6 +21,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
     private final int index;
     private final HttpPipeline httpPipeline;
     private final HttpRequest httpRequest;
+    private final Context context;
     private final HttpPipelinePolicyChainImpl prevChain;
     private final HttpCallback prevProceedCallback;
     private volatile boolean reportedBypassedError;
@@ -31,10 +33,12 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      *
      * @param httpPipeline The HTTP pipeline.
      * @param httpRequest The HTTP request to flow through the pipeline.
+     * @param context The context to flow through the pipeline.
      * @param pipelineSendCallback The callback to invoke once the execution of the pipeline completes.
      */
     static void beginPipelineExecution(HttpPipeline httpPipeline,
                                        HttpRequest httpRequest,
+                                       Context context,
                                        HttpCallback pipelineSendCallback) {
         Objects.requireNonNull(httpPipeline, "'httpPipeline' is required.");
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
@@ -47,9 +51,10 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
             final HttpPipelinePolicyChainImpl rootChain = new HttpPipelinePolicyChainImpl(-1,
                 httpPipeline,
                 request,
+                context,
                 null,
                 rootCallback);
-            rootChain.processNextPolicyIntern(request, rootCallback);
+            rootChain.processNextPolicyIntern(request, rootChain.context, rootCallback);
         };
 
         httpPipeline.httpCallDispatcher.enqueue(httpCallFunction, httpRequest, pipelineSendCallback);
@@ -68,6 +73,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      * @param index The index of the policy that uses this chain.
      * @param httpPipeline The HTTP Pipeline.
      * @param httpRequest The HTTP request to flow through the pipeline.
+     * @param context The context to flow through the pipeline.
      * @param prevChain The reference to previous chain (chain for the policy at {@code index - 1}).
      * @param prevProceedCallback The reference to the callback provided to the {@code proceed(..)} method
      *     of the previous policy.
@@ -75,13 +81,19 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
     private HttpPipelinePolicyChainImpl(int index,
                                         HttpPipeline httpPipeline,
                                         HttpRequest httpRequest,
+                                        Context context,
                                         HttpPipelinePolicyChainImpl prevChain,
                                         HttpCallback prevProceedCallback) {
         // Private Ctr, hence simple assertion.
-        assert (httpPipeline != null && httpRequest != null && (prevChain != null || prevProceedCallback != null));
+        assert (httpPipeline != null
+            && httpRequest != null
+            && context != null
+            && (prevChain != null || prevProceedCallback != null));
+
         this.index = index;
         this.httpPipeline = httpPipeline;
         this.httpRequest = httpRequest;
+        this.context = context;
         this.prevChain = prevChain;
         this.prevProceedCallback = prevProceedCallback;
     }
@@ -94,41 +106,48 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
     @Override
     public void processNextPolicy(HttpRequest httpRequest) {
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
-        this.processNextPolicyIntern(httpRequest, null);
+        this.processNextPolicyIntern(httpRequest, this.context, null);
     }
 
     @Override
     public void processNextPolicy(HttpRequest httpRequest, HttpCallback httpCallback) {
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
         Objects.requireNonNull(httpCallback, "'httpCallback' is required.");
-        this.processNextPolicyIntern(httpRequest, httpCallback);
+        this.processNextPolicyIntern(httpRequest, this.context, httpCallback);
     }
 
     @Override
-    public void processNextPolicy(HttpRequest httpRequest, long delay, TimeUnit timeUnit) {
+    public void processNextPolicy(HttpRequest request, Context context, HttpCallback httpCallback) {
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
-        Objects.requireNonNull(timeUnit, "'timeUnit' is required.");
-        this.httpPipeline.httpCallDispatcher
-            .scheduleProcessNextPolicy(this, httpRequest, new HttpCallback() {
-                @Override
-                public void onSuccess(HttpResponse response) {
-                    HttpPipelinePolicyChainImpl.this.finishedProcessing(response);
-                }
-
-                @Override
-                public void onError(Throwable error) {
-                    HttpPipelinePolicyChainImpl.this.finishedProcessing(error);
-                }
-            }, delay, timeUnit);
+        Objects.requireNonNull(context, "'context' is required.");
+        Objects.requireNonNull(httpCallback, "'httpCallback' is required.");
+        this.processNextPolicyIntern(httpRequest, context, httpCallback);
     }
 
     @Override
-    public void processNextPolicy(HttpRequest httpRequest, HttpCallback httpCallback, long delay, TimeUnit timeUnit) {
+    public void processNextPolicy(HttpRequest httpRequest, HttpCallback httpCallback,
+                                  long delay, TimeUnit timeUnit) {
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
         Objects.requireNonNull(httpCallback, "'httpCallback' is required.");
         Objects.requireNonNull(timeUnit, "'timeUnit' is required.");
         this.httpPipeline.httpCallDispatcher.scheduleProcessNextPolicy(this,
             httpRequest,
+            this.context,
+            httpCallback,
+            delay,
+            timeUnit);
+    }
+
+    @Override
+    public void processNextPolicy(HttpRequest httpRequest, Context context, HttpCallback httpCallback,
+                                  long delay, TimeUnit timeUnit) {
+        Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
+        Objects.requireNonNull(context, "'context' is required.");
+        Objects.requireNonNull(httpCallback, "'httpCallback' is required.");
+        Objects.requireNonNull(timeUnit, "'timeUnit' is required.");
+        this.httpPipeline.httpCallDispatcher.scheduleProcessNextPolicy(this,
+            httpRequest,
+            context,
             httpCallback,
             delay,
             timeUnit);
@@ -175,31 +194,34 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      * given to the HTTP Client for execution.
      * </p>
      *
-     * @param httpRequest The HTTP request to intercept.
-     * @param proceedCallback The current policy callback (policy at {@code index}) to notify the result.
+     * @param httpRequest The HTTP request for the next policy.
+     * @param context The HTTP context for the next policy.
+     * @param proceedCallback The current policy's callback (policy at {@code index})
+     *     that next policy notify results to.
      */
-    private void processNextPolicyIntern(HttpRequest httpRequest, HttpCallback proceedCallback) {
+    private void processNextPolicyIntern(HttpRequest httpRequest, Context context, HttpCallback proceedCallback) {
         final int nextIndex = this.index + 1;
         assert nextIndex >= 0;
 
         // Create a chain for next policy.
-        final HttpPipelinePolicyChain nextChain = new HttpPipelinePolicyChainImpl(nextIndex,
+        final HttpPipelinePolicyChainImpl nextChain = new HttpPipelinePolicyChainImpl(nextIndex,
             this.httpPipeline,
             httpRequest,
+            context,
             this,
             proceedCallback);
 
         if (nextIndex == this.httpPipeline.size) {
             try {
                 // No more policies, invoke the network-policy to write the request to the wire.
-                this.httpPipeline.networkPolicy.process(nextChain);
+                this.httpPipeline.networkPolicy.process(nextChain, nextChain.context);
             } catch (Throwable t) {
                 this.reportBypassedError(t, false);
             }
         } else {
             try {
                 // Invoke the next pipeline policy at this.index + 1.
-                this.httpPipeline.getPolicy(nextIndex).process(nextChain);
+                this.httpPipeline.getPolicy(nextIndex).process(nextChain, nextChain.context);
             } catch (Throwable t) {
                 this.reportBypassedError(t, false);
             }
@@ -223,8 +245,9 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      * The "rootCallback" is the callback that receives result from the first policy when that policy call
      * chain.complete(..). If a bypassed error appears in the pipeline, we "short circuit" the pipeline chain
      * and report error to "rootCallback". The "rootCallback" is designed to delegates the received result
-     * (response|error) to the callback that was provided to {@link HttpPipeline#send(HttpRequest, HttpCallback)}
-     * and to take care of dispatcher specific housekeeping.
+     * (response|error) to the callback that was provided to
+     * {@link HttpPipeline#send(HttpRequest, Context, HttpCallback)} and to take care of dispatcher specific
+     * housekeeping.
      *
      * If an attempt to report a bypassed error e1 results in another bypassed error e2, we log e2 and re-throw e2.
      * </p>
@@ -294,7 +317,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      * the first policy when that policy call chain.complete(..).
      * <p>
      * The "rootCallback" is designed to delegates the received result (response|error) to
-     * the callback that was provided to {@link HttpPipeline#send(HttpRequest, HttpCallback)}
+     * the callback that was provided to {@link HttpPipeline#send(HttpRequest, Context, HttpCallback)}
      * and to take care of dispatcher specific housekeeping.
      * </p>
      *

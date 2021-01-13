@@ -87,7 +87,7 @@ public class HttpLoggingPolicyTests {
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl), CONTEXT, new HttpCallback() {..})
         // TODO: enable context for HttpPipeline.send ^
-        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, Context.NONE, CancellationToken.NONE), new HttpCallback() {
+        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, CancellationToken.NONE), Context.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 latch.countDown();
@@ -163,7 +163,7 @@ public class HttpLoggingPolicyTests {
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content), CONTEXT)
         // TODO: enable context for HttpPipeline.send ^
-        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content, com.azure.android.core.micro.util.Context.NONE, CancellationToken.NONE),
+        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content, CancellationToken.NONE), Context.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -192,7 +192,7 @@ public class HttpLoggingPolicyTests {
     @MethodSource("validateLoggingDoesNotConsumeSupplier")
     @ResourceLock("SYSTEM_OUT")
     public void validateLoggingDoesNotChangeResponse(byte[] content, byte[] data, int contentLength) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, "https://test.com", Context.NONE, CancellationToken.NONE);
+        HttpRequest request = new HttpRequest(HttpMethod.GET, "https://test.com", CancellationToken.NONE);
         HttpHeaders responseHeaders = new HttpHeaders()
             .put("Content-Type", ContentType.APPLICATION_JSON)
             .put("Content-Length", Integer.toString(contentLength));
@@ -216,7 +216,7 @@ public class HttpLoggingPolicyTests {
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(request, CONTEXT)
         // TODO: enable context for HttpPipeline.send ^
-        pipeline.send(request, new HttpCallback() {
+        pipeline.send(request, Context.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 try {

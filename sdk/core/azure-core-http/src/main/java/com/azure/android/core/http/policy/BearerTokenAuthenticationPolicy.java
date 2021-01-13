@@ -8,6 +8,7 @@ import com.azure.android.core.credential.TokenCredential;
 import com.azure.android.core.credential.TokenRequestContext;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpPipelinePolicy;
+import com.azure.android.core.micro.util.Context;
 
 import java.util.Objects;
 
@@ -38,7 +39,7 @@ public class BearerTokenAuthenticationPolicy implements HttpPipelinePolicy {
     }
 
     @Override
-    public void process(HttpPipelinePolicyChain chain) {
+    public void process(HttpPipelinePolicyChain chain, Context context) {
         if ("http".equals(chain.getRequest().getUrl().getProtocol())) {
             chain.finishedProcessing(
                 new IllegalStateException("Token credentials require HTTPS to prevent leaking the key."));

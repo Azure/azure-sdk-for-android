@@ -55,7 +55,7 @@ public class RetryPolicyTests {
 
         final HttpResponse[] httpResponse = new HttpResponse[1];
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", Context.NONE, CancellationToken.NONE),
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", CancellationToken.NONE), Context.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -96,7 +96,7 @@ public class RetryPolicyTests {
 
         final HttpResponse[] httpResponse = new HttpResponse[1];
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", Context.NONE, CancellationToken.NONE),
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", CancellationToken.NONE), Context.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -142,7 +142,7 @@ public class RetryPolicyTests {
             .build();
 
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", Context.NONE, CancellationToken.NONE),
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", CancellationToken.NONE), Context.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -186,7 +186,7 @@ public class RetryPolicyTests {
             .build();
 
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", Context.NONE, CancellationToken.NONE),
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", CancellationToken.NONE), Context.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -267,7 +267,7 @@ public class RetryPolicyTests {
             .build();
 
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "https://example.com", Context.NONE, CancellationToken.NONE),
+        pipeline.send(new HttpRequest(HttpMethod.GET, "https://example.com", CancellationToken.NONE), Context.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {

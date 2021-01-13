@@ -28,7 +28,7 @@ public class ProtocolPolicyTests {
     public void withOverwrite() throws MalformedURLException {
         final HttpPipeline pipeline = createPipeline("ftp", "ftp://www.bing.com");
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(createHttpRequest("http://www.bing.com"), new HttpCallback() {
+        pipeline.send(createHttpRequest("http://www.bing.com"), Context.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 latch.countDown();
@@ -50,7 +50,7 @@ public class ProtocolPolicyTests {
     public void withNoOverwrite() throws MalformedURLException {
         final HttpPipeline pipeline = createPipeline("ftp", false, "https://www.bing.com");
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(createHttpRequest("https://www.bing.com"), new HttpCallback() {
+        pipeline.send(createHttpRequest("https://www.bing.com"), Context.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 latch.countDown();
@@ -72,7 +72,7 @@ public class ProtocolPolicyTests {
         return new HttpPipelineBuilder()
             .httpClient(new NoOpHttpClient())
             .policies(new ProtocolPolicy(protocol, true),
-                chain -> {
+                (chain, context) -> {
                     assertEquals(expectedUrl, chain.getRequest().getUrl().toString());
                     chain.processNextPolicy(chain.getRequest());
                 })
@@ -83,7 +83,7 @@ public class ProtocolPolicyTests {
         return new HttpPipelineBuilder()
             .httpClient(new NoOpHttpClient())
             .policies(new ProtocolPolicy(protocol, overwrite),
-                chain -> {
+                (chain, context) -> {
                     assertEquals(expectedUrl, chain.getRequest().getUrl().toString());
                     chain.processNextPolicy(chain.getRequest());
                 })
@@ -91,7 +91,7 @@ public class ProtocolPolicyTests {
     }
 
     private static HttpRequest createHttpRequest(String url) {
-        return new HttpRequest(HttpMethod.GET, url, Context.NONE, CancellationToken.NONE);
+        return new HttpRequest(HttpMethod.GET, url, CancellationToken.NONE);
     }
 
     private static void awaitOnLatch(CountDownLatch latch, String method) {

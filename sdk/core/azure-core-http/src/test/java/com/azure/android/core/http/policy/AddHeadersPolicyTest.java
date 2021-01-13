@@ -87,7 +87,8 @@ public class AddHeadersPolicyTest {
             .build();
 
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET,"http://localhost/", Context.NONE, CancellationToken.NONE),
+        pipeline.send(new HttpRequest(HttpMethod.GET,"http://localhost/", CancellationToken.NONE),
+            Context.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {

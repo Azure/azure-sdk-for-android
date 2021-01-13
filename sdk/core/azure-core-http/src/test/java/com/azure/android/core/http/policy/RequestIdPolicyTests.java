@@ -91,7 +91,7 @@ public class RequestIdPolicyTests {
             .build();
 
         CountDownLatch latch1 = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET,"http://localhost/", Context.NONE, CancellationToken.NONE),
+        pipeline.send(new HttpRequest(HttpMethod.GET,"http://localhost/", CancellationToken.NONE), Context.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -110,7 +110,7 @@ public class RequestIdPolicyTests {
         awaitOnLatch(latch1, "newRequestIdForEachCall");
 
         CountDownLatch latch2 = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", Context.NONE, CancellationToken.NONE),
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", CancellationToken.NONE), Context.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -171,7 +171,7 @@ public class RequestIdPolicyTests {
             .build();
 
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", Context.NONE, CancellationToken.NONE),
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", CancellationToken.NONE), Context.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {

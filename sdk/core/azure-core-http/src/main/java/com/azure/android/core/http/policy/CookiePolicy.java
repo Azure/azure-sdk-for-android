@@ -9,6 +9,7 @@ import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.micro.util.Context;
 
 import java.io.IOException;
 import java.net.CookieHandler;
@@ -28,7 +29,7 @@ public class CookiePolicy implements HttpPipelinePolicy {
     private final CookieHandler cookies = new CookieManager();
 
     @Override
-    public void process(HttpPipelinePolicyChain chain) {
+    public void process(HttpPipelinePolicyChain chain, Context context) {
         HttpRequest httpRequest = chain.getRequest();
 
         final URI uri;

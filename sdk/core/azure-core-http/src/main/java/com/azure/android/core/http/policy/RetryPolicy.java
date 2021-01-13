@@ -9,6 +9,7 @@ import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.implementation.Util;
+import com.azure.android.core.micro.util.Context;
 
 import java.io.IOException;
 import java.time.Duration; // TODO: anuchan: use threetenbp or old native time.
@@ -75,7 +76,7 @@ public class RetryPolicy implements HttpPipelinePolicy {
      * @param chain Provides access to the request to send.
      */
     @Override
-    public void process(HttpPipelinePolicyChain chain) {
+    public void process(HttpPipelinePolicyChain chain, Context context) {
         this.attempt(chain, null, 0);
     }
 

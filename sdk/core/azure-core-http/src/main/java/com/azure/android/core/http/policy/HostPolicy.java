@@ -7,6 +7,7 @@ import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.util.UrlBuilder;
+import com.azure.android.core.micro.util.Context;
 
 /**
  * The pipeline policy that adds the given host to each HttpRequest.
@@ -24,7 +25,7 @@ public class HostPolicy implements HttpPipelinePolicy {
     }
 
     @Override
-    public void process(HttpPipelinePolicyChain chain) {
+    public void process(HttpPipelinePolicyChain chain, Context contextn) {
         HttpRequest httpRequest = chain.getRequest();
         final UrlBuilder urlBuilder = UrlBuilder.parse(httpRequest.getUrl());
         try {

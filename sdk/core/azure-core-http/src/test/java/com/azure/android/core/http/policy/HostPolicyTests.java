@@ -27,7 +27,7 @@ public class HostPolicyTests {
     public void withNoPort() throws MalformedURLException {
         final HttpPipeline pipeline = createPipeline("localhost", "ftp://localhost");
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(createHttpRequest("ftp://www.example.com"), new HttpCallback() {
+        pipeline.send(createHttpRequest("ftp://www.example.com"), Context.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 latch.countDown();
@@ -49,7 +49,7 @@ public class HostPolicyTests {
     public void withPort() throws MalformedURLException {
         final HttpPipeline pipeline = createPipeline("localhost", "ftp://localhost:1234");
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(createHttpRequest("ftp://www.example.com:1234"), new HttpCallback() {
+        pipeline.send(createHttpRequest("ftp://www.example.com:1234"), Context.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 latch.countDown();
@@ -71,7 +71,7 @@ public class HostPolicyTests {
         return new HttpPipelineBuilder()
             .httpClient(new NoOpHttpClient())
             .policies(new HostPolicy(host),
-                chain -> {
+                (chain, context) -> {
                     assertEquals(expectedUrl, chain.getRequest().getUrl().toString());
                     chain.processNextPolicy(chain.getRequest());
                 }
@@ -80,7 +80,7 @@ public class HostPolicyTests {
     }
 
     private static HttpRequest createHttpRequest(String url) throws MalformedURLException {
-        return new HttpRequest(HttpMethod.GET, url, Context.NONE, CancellationToken.NONE);
+        return new HttpRequest(HttpMethod.GET, url, CancellationToken.NONE);
     }
 
     private static void awaitOnLatch(CountDownLatch latch, String method) {
