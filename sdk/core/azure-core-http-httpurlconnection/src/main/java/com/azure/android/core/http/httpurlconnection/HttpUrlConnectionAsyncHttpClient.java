@@ -42,9 +42,7 @@ class HttpUrlConnectionAsyncHttpClient implements HttpClient {
 
     @Override
     public void send(HttpRequest httpRequest, HttpCallback httpCallback) {
-        boolean isFromPipeline = true; // TODO: read this flag from httpRequest.context.
-
-        if (isFromPipeline) {
+        if (httpRequest.getTags().containsKey("prefer-running-http-in-calling-thread")) {
             this.sendIntern(httpRequest, httpCallback);
         } else {
             this.httpCallDispatcher.enqueue(new HttpCallDispatcher.HttpCallFunction() {

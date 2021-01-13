@@ -3,18 +3,20 @@
 
 package com.azure.android.core.http;
 
+import android.util.ArrayMap;
+
 import com.azure.android.core.micro.util.CancellationToken;
-import com.azure.android.core.micro.util.Context;
 import com.azure.core.logging.ClientLogger;
 
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * The outgoing Http request. It provides ways to construct {@link HttpRequest} with {@link HttpMethod},
- * {@code url}, {@link HttpHeader} request body, request {@link Context} and {@link CancellationToken}.
+ * {@code url}, {@link HttpHeader} request body and request {@link CancellationToken}.
  */
 public class HttpRequest {
     private final ClientLogger logger = new ClientLogger(HttpRequest.class);
@@ -23,7 +25,7 @@ public class HttpRequest {
     private URL url;
     private HttpHeaders headers;
     private byte[] body;
-    private final Context context;
+    private Map<Object, Object> tags;
     private final CancellationToken cancellationToken;
 
     /**
@@ -31,14 +33,12 @@ public class HttpRequest {
      *
      * @param httpMethod The HTTP request method.
      * @param url The target address to send the request to.
-     * @param context The thread safe and immutable key-value store containing contextual information for the request.
      * @param cancellationToken The cancellation token for this request, on which the caller
      *     may request cancellation of this request execution.
      * @throws IllegalArgumentException if the url is malformed.
      */
     public HttpRequest(HttpMethod httpMethod,
                        String url,
-                       Context context,
                        CancellationToken cancellationToken) {
         this.httpMethod = Objects.requireNonNull(httpMethod, "'httpMethod' is required.");
         Objects.requireNonNull(url, "'url' is required.");
@@ -48,8 +48,8 @@ public class HttpRequest {
             throw logger.logExceptionAsWarning(new IllegalArgumentException("'url' must be a valid URL", ex));
         }
         this.headers = new HttpHeaders();
-        this.context = Objects.requireNonNull(context, "'context' is required.");
-        this.cancellationToken =  Objects.requireNonNull(cancellationToken, "'cancellationToken' is required.");
+        this.cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+        this.tags = new ArrayMap<>(0);
     }
 
     /**
@@ -59,7 +59,6 @@ public class HttpRequest {
      * @param url The target address to send the request to.
      * @param headers The HTTP headers to use with this request.
      * @param body The request content.
-     * @param context The thread safe and immutable key-value store containing contextual information for the request.
      * @param cancellationToken The cancellation token for this request, on which the caller
      *     may request cancellation of this request execution.
      * @throws IllegalArgumentException if the url is malformed.
@@ -68,7 +67,6 @@ public class HttpRequest {
                        String url,
                        HttpHeaders headers,
                        byte[] body,
-                       Context context,
                        CancellationToken cancellationToken) {
         this.httpMethod = Objects.requireNonNull(httpMethod, "'httpMethod' is required.");
         Objects.requireNonNull(url, "'url' is required.");
@@ -79,8 +77,8 @@ public class HttpRequest {
         }
         this.headers = Objects.requireNonNull(headers, "'headers' is required.");
         this.body = Objects.requireNonNull(body, "'body' is required.");
-        this.context = Objects.requireNonNull(context, "'context' is required.");
-        this.cancellationToken = Objects.requireNonNull(cancellationToken, "'cancellationToken' is required.");
+        this.cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
+        this.tags = new ArrayMap<>(0);
     }
 
     /**
@@ -195,15 +193,6 @@ public class HttpRequest {
     }
 
     /**
-     * The thread safe and immutable key-value store to carry the contextual information for the request.
-     *
-     * @return The request context.
-     */
-    public Context getContext() {
-        return this.context;
-    }
-
-    /**
      * Get the cancellation token assigned to the request, which can be used to cancel this request.
      *
      * <p>
@@ -219,6 +208,21 @@ public class HttpRequest {
     }
 
     /**
+     * Gets the tags-store associated with the request.
+     *
+     * <p>
+     * Tags are key-value data stored in a map and carried with the request.
+     * Use it to store any arbitrary data (such as debugging info) that you want to access
+     * from the request later in the call stack.
+     * </p>
+     *
+     * @return The tags.
+     */
+    public Map<Object, Object> getTags() {
+        return this.tags;
+    }
+
+    /**
      * Creates a copy of the request.
      *
      * The main purpose of this is so that this HttpRequest can be changed and the resulting
@@ -228,12 +232,18 @@ public class HttpRequest {
      * @return a new HTTP request instance with cloned instances of all mutable properties.
      */
     public HttpRequest copy() {
-        final HttpHeaders bufferedHeaders = new HttpHeaders(this.headers);
-        return new HttpRequest(this.httpMethod,
+        HttpRequest requestCopy = new HttpRequest(this.httpMethod,
             this.url.toString(),
-            bufferedHeaders,
+            new HttpHeaders(this.headers),
             this.body,
-            this.context,
             this.cancellationToken);
+
+        // shallow-copy the tags.
+        requestCopy.tags = new ArrayMap<>(this.tags.size());
+        for (Map.Entry<Object, Object> entry : this.tags.entrySet()) {
+            requestCopy.tags.put(entry.getKey(), entry.getValue());
+        }
+
+        return requestCopy;
     }
 }

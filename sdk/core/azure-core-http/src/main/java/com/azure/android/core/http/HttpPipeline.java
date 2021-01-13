@@ -39,7 +39,10 @@ public final class HttpPipeline {
         this.size = this.pipelinePolicies.length;
         this.networkPolicy = new HttpPipelinePolicy() {
             @Override
-            public void process(HttpPipelinePolicyChain chain) {
+            public void process(HttpPipelinePolicyChain chain, Context context) {
+                // Indicate the HttpClient to prefer the calling thread for sending request.
+                chain.getRequest().getTags().put("prefer-running-http-in-calling-thread", null);
+
                 HttpPipeline.this.httpClient.send(chain.getRequest(), new HttpCallback() {
                     @Override
                     public void onSuccess(HttpResponse response) {
