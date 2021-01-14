@@ -48,7 +48,7 @@ class OkHttpAsyncHttpClient implements HttpClient {
     }
 
     @Override
-    public void send(HttpRequest httpRequest, HttpCallback httpCallback) {
+    public void send(HttpRequest httpRequest, CancellationToken cancellationToken, HttpCallback httpCallback) {
         okhttp3.Request.Builder okhttpRequestBuilder = new okhttp3.Request.Builder();
 
         okhttpRequestBuilder.url(httpRequest.getUrl());
@@ -83,7 +83,6 @@ class OkHttpAsyncHttpClient implements HttpClient {
         final okhttp3.Request okHttpRequest = okhttpRequestBuilder.build();
         final okhttp3.Call call = httpClient.newCall(okHttpRequest);
 
-        final CancellationToken cancellationToken = httpRequest.getCancellationToken();
         final String onCancelId = (cancellationToken == CancellationToken.NONE) ? null : UUID.randomUUID().toString();
         if (onCancelId != null) {
             // Register an identifiable Runnable to run on cancellationToken.cancel().

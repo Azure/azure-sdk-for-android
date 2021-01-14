@@ -3,6 +3,7 @@
 
 package com.azure.android.core.http;
 
+import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.android.core.micro.util.Context;
 
 import java.util.concurrent.TimeUnit;
@@ -21,11 +22,25 @@ import java.util.concurrent.TimeUnit;
  */
 public interface HttpPipelinePolicyChain {
     /**
-     * Gets the {@link HttpRequest} object.
+     * Gets the {@link HttpRequest} for the policy too intercept.
      *
      * @return The HTTP request object.
      */
     HttpRequest getRequest();
+
+    /**
+     * Gets the {@link CancellationToken} associated with the pipeline run.
+     *
+     * <p>
+     * In policy implementation, before starting a potentially time and resource-consuming work,
+     * it is recommended to check {@link CancellationToken#isCancellationRequested()} to see the user
+     * expressed lost interest in the result; if so, the implementation can finish the execution
+     * by calling {@code HttpPipelinePolicyChain#finishedProcessing(new IOException("Canceled."))}.
+     * </p>
+     *
+     * @return The cancellation token.
+     */
+    CancellationToken getCancellationToken();
 
     /**
      * Signal that the pipeline can proceed with the execution of the next policy.

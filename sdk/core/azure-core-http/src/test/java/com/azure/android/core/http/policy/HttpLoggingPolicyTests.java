@@ -87,21 +87,24 @@ public class HttpLoggingPolicyTests {
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl), CONTEXT, new HttpCallback() {..})
         // TODO: enable context for HttpPipeline.send ^
-        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, CancellationToken.NONE), Context.NONE, new HttpCallback() {
-            @Override
-            public void onSuccess(HttpResponse response) {
-                latch.countDown();
-            }
-
-            @Override
-            public void onError(Throwable error) {
-                try {
-                    assertTrue(false, "unexpected call to pipeline::send onError" + error.getMessage());
-                } finally {
+        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl),
+            Context.NONE,
+            CancellationToken.NONE,
+            new HttpCallback() {
+                @Override
+                public void onSuccess(HttpResponse response) {
                     latch.countDown();
                 }
-            }
-        });
+
+                @Override
+                public void onError(Throwable error) {
+                    try {
+                        assertTrue(false, "unexpected call to pipeline::send onError" + error.getMessage());
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
         awaitOnLatch(latch, "redactQueryParameters");
 
         assertTrue(convertOutputStreamToString(logCaptureStream).contains(expectedQueryString));
@@ -153,6 +156,7 @@ public class HttpLoggingPolicyTests {
 
                 @Override
                 public void send(HttpRequest httpRequest,
+                                 CancellationToken cancellationToken,
                                  HttpCallback httpCallback) {
                     assertArrayEquals(data, httpRequest.getBody());
                     httpCallback.onSuccess(new MockHttpResponse(httpRequest, 200));
@@ -163,7 +167,9 @@ public class HttpLoggingPolicyTests {
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content), CONTEXT)
         // TODO: enable context for HttpPipeline.send ^
-        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content, CancellationToken.NONE), Context.NONE,
+        pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content),
+            Context.NONE,
+            CancellationToken.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -192,7 +198,7 @@ public class HttpLoggingPolicyTests {
     @MethodSource("validateLoggingDoesNotConsumeSupplier")
     @ResourceLock("SYSTEM_OUT")
     public void validateLoggingDoesNotChangeResponse(byte[] content, byte[] data, int contentLength) {
-        HttpRequest request = new HttpRequest(HttpMethod.GET, "https://test.com", CancellationToken.NONE);
+        HttpRequest request = new HttpRequest(HttpMethod.GET, "https://test.com");
         HttpHeaders responseHeaders = new HttpHeaders()
             .put("Content-Type", ContentType.APPLICATION_JSON)
             .put("Content-Length", Integer.toString(contentLength));
@@ -207,6 +213,7 @@ public class HttpLoggingPolicyTests {
 
                 @Override
                 public void send(HttpRequest httpRequest,
+                                 CancellationToken cancellationToken,
                                  HttpCallback httpCallback) {
                     httpCallback.onSuccess(new MockHttpResponse(httpRequest, 200, responseHeaders, content));
                 }
@@ -216,7 +223,7 @@ public class HttpLoggingPolicyTests {
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(request, CONTEXT)
         // TODO: enable context for HttpPipeline.send ^
-        pipeline.send(request, Context.NONE, new HttpCallback() {
+        pipeline.send(request, Context.NONE, CancellationToken.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
                 try {

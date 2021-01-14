@@ -27,21 +27,24 @@ public class HostPolicyTests {
     public void withNoPort() throws MalformedURLException {
         final HttpPipeline pipeline = createPipeline("localhost", "ftp://localhost");
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(createHttpRequest("ftp://www.example.com"), Context.NONE, new HttpCallback() {
-            @Override
-            public void onSuccess(HttpResponse response) {
-                latch.countDown();
-            }
-
-            @Override
-            public void onError(Throwable error) {
-                try {
-                    throw new RuntimeException(error);
-                } finally {
+        pipeline.send(createHttpRequest("ftp://www.example.com"),
+            Context.NONE,
+            CancellationToken.NONE,
+            new HttpCallback() {
+                @Override
+                public void onSuccess(HttpResponse response) {
                     latch.countDown();
                 }
-            }
-        });
+
+                @Override
+                public void onError(Throwable error) {
+                    try {
+                        throw new RuntimeException(error);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
         awaitOnLatch(latch, "withNoPort");
     }
 
@@ -49,21 +52,24 @@ public class HostPolicyTests {
     public void withPort() throws MalformedURLException {
         final HttpPipeline pipeline = createPipeline("localhost", "ftp://localhost:1234");
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(createHttpRequest("ftp://www.example.com:1234"), Context.NONE, new HttpCallback() {
-            @Override
-            public void onSuccess(HttpResponse response) {
-                latch.countDown();
-            }
-
-            @Override
-            public void onError(Throwable error) {
-                try {
-                    throw new RuntimeException(error);
-                } finally {
+        pipeline.send(createHttpRequest("ftp://www.example.com:1234"),
+            Context.NONE,
+            CancellationToken.NONE,
+            new HttpCallback() {
+                @Override
+                public void onSuccess(HttpResponse response) {
                     latch.countDown();
                 }
-            }
-        });
+
+                @Override
+                public void onError(Throwable error) {
+                    try {
+                        throw new RuntimeException(error);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
         awaitOnLatch(latch, "withPort");
     }
 
@@ -80,7 +86,7 @@ public class HostPolicyTests {
     }
 
     private static HttpRequest createHttpRequest(String url) throws MalformedURLException {
-        return new HttpRequest(HttpMethod.GET, url, CancellationToken.NONE);
+        return new HttpRequest(HttpMethod.GET, url);
     }
 
     private static void awaitOnLatch(CountDownLatch latch, String method) {

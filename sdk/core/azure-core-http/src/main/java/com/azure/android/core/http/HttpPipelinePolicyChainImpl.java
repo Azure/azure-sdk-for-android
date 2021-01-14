@@ -5,6 +5,7 @@ package com.azure.android.core.http;
 
 import android.util.Log;
 
+import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.android.core.micro.util.Context;
 import com.azure.core.logging.ClientLogger;
 
@@ -22,6 +23,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
     private final HttpPipeline httpPipeline;
     private final HttpRequest httpRequest;
     private final Context context;
+    private final CancellationToken cancellationToken;
     private final HttpPipelinePolicyChainImpl prevChain;
     private final HttpCallback prevProceedCallback;
     private volatile boolean reportedBypassedError;
@@ -34,14 +36,18 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      * @param httpPipeline The HTTP pipeline.
      * @param httpRequest The HTTP request to flow through the pipeline.
      * @param context The context to flow through the pipeline.
+     * @param cancellationToken The cancellation token for the pipeline execution.
      * @param pipelineSendCallback The callback to invoke once the execution of the pipeline completes.
      */
     static void beginPipelineExecution(HttpPipeline httpPipeline,
                                        HttpRequest httpRequest,
                                        Context context,
+                                       CancellationToken cancellationToken,
                                        HttpCallback pipelineSendCallback) {
         Objects.requireNonNull(httpPipeline, "'httpPipeline' is required.");
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
+        Objects.requireNonNull(context, "'context' is required.");
+        Objects.requireNonNull(cancellationToken, "'cancellationToken' is required.");
         Objects.requireNonNull(pipelineSendCallback, "'pipelineSendCallback' is required.");
 
         final HttpCallDispatcher.HttpCallFunction httpCallFunction = (request, rootCallback) -> {
@@ -52,12 +58,16 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
                 httpPipeline,
                 request,
                 context,
+                cancellationToken,
                 null,
                 rootCallback);
             rootChain.processNextPolicyIntern(request, rootChain.context, rootCallback);
         };
 
-        httpPipeline.httpCallDispatcher.enqueue(httpCallFunction, httpRequest, pipelineSendCallback);
+        httpPipeline.httpCallDispatcher.enqueue(httpCallFunction,
+            httpRequest,
+            cancellationToken,
+            pipelineSendCallback);
     }
 
     /**
@@ -74,6 +84,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      * @param httpPipeline The HTTP Pipeline.
      * @param httpRequest The HTTP request to flow through the pipeline.
      * @param context The context to flow through the pipeline.
+     * @param cancellationToken cancellationToken for the pipeline run this chain belongs to.
      * @param prevChain The reference to previous chain (chain for the policy at {@code index - 1}).
      * @param prevProceedCallback The reference to the callback provided to the {@code proceed(..)} method
      *     of the previous policy.
@@ -82,18 +93,21 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
                                         HttpPipeline httpPipeline,
                                         HttpRequest httpRequest,
                                         Context context,
+                                        CancellationToken cancellationToken,
                                         HttpPipelinePolicyChainImpl prevChain,
                                         HttpCallback prevProceedCallback) {
         // Private Ctr, hence simple assertion.
         assert (httpPipeline != null
             && httpRequest != null
             && context != null
+            && cancellationToken != null
             && (prevChain != null || prevProceedCallback != null));
 
         this.index = index;
         this.httpPipeline = httpPipeline;
         this.httpRequest = httpRequest;
         this.context = context;
+        this.cancellationToken = cancellationToken;
         this.prevChain = prevChain;
         this.prevProceedCallback = prevProceedCallback;
     }
@@ -101,6 +115,11 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
     @Override
     public HttpRequest getRequest() {
         return this.httpRequest;
+    }
+
+    @Override
+    public CancellationToken getCancellationToken() {
+        return this.cancellationToken;
     }
 
     @Override
@@ -208,6 +227,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
             this.httpPipeline,
             httpRequest,
             context,
+            this.cancellationToken,
             this,
             proceedCallback);
 
@@ -246,8 +266,8 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      * chain.complete(..). If a bypassed error appears in the pipeline, we "short circuit" the pipeline chain
      * and report error to "rootCallback". The "rootCallback" is designed to delegates the received result
      * (response|error) to the callback that was provided to
-     * {@link HttpPipeline#send(HttpRequest, Context, HttpCallback)} and to take care of dispatcher specific
-     * housekeeping.
+     * {@link HttpPipeline#send(HttpRequest, Context, CancellationToken, HttpCallback)} and
+     * to take care of dispatcher specific housekeeping.
      *
      * If an attempt to report a bypassed error e1 results in another bypassed error e2, we log e2 and re-throw e2.
      * </p>
@@ -316,8 +336,8 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
      * Retrieve the "rootCallback". The "rootCallback" is the callback that receives result from
      * the first policy when that policy call chain.complete(..).
      * <p>
-     * The "rootCallback" is designed to delegates the received result (response|error) to
-     * the callback that was provided to {@link HttpPipeline#send(HttpRequest, Context, HttpCallback)}
+     * The "rootCallback" is designed to delegates the received result (response|error) to the callback
+     * that was provided to {@link HttpPipeline#send(HttpRequest, Context, CancellationToken, HttpCallback)}
      * and to take care of dispatcher specific housekeeping.
      * </p>
      *

@@ -12,6 +12,7 @@ import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.http.HttpMethod;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.implementation.Util;
+import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.core.logging.ClientLogger;
 
 import java.io.ByteArrayInputStream;
@@ -41,21 +42,21 @@ class HttpUrlConnectionAsyncHttpClient implements HttpClient {
     }
 
     @Override
-    public void send(HttpRequest httpRequest, HttpCallback httpCallback) {
+    public void send(HttpRequest httpRequest, CancellationToken cancellationToken, HttpCallback httpCallback) {
         if (httpRequest.getTags().containsKey("prefer-running-http-in-calling-thread")) {
-            this.sendIntern(httpRequest, httpCallback);
+            this.sendIntern(httpRequest, cancellationToken, httpCallback);
         } else {
             this.httpCallDispatcher.enqueue(new HttpCallDispatcher.HttpCallFunction() {
                 @Override
                 public void apply(HttpRequest request, HttpCallback httpCallback) {
-                    sendIntern(request, httpCallback);
+                    sendIntern(request, cancellationToken, httpCallback);
                 }
-            }, httpRequest, httpCallback);
+            }, httpRequest, cancellationToken, httpCallback);
         }
     }
 
-    private void sendIntern(HttpRequest httpRequest, HttpCallback httpCallback) {
-        if (httpRequest.getCancellationToken().isCancellationRequested()) {
+    private void sendIntern(HttpRequest httpRequest, CancellationToken cancellationToken, HttpCallback httpCallback) {
+        if (cancellationToken.isCancellationRequested()) {
             httpCallback.onError(new IOException("Canceled."));
             return;
         }

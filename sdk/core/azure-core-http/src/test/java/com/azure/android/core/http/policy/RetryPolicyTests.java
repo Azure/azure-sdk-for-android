@@ -45,7 +45,7 @@ public class RetryPolicyTests {
                 private int count = 0;
 
                 @Override
-                public void send(HttpRequest httpRequest, HttpCallback httpCallback) {
+                public void send(HttpRequest httpRequest, CancellationToken cancellationToken, HttpCallback httpCallback) {
                     httpCallback.onSuccess(new MockHttpResponse(httpRequest, codes[count++]));
                 }
             })
@@ -55,7 +55,7 @@ public class RetryPolicyTests {
 
         final HttpResponse[] httpResponse = new HttpResponse[1];
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", CancellationToken.NONE), Context.NONE,
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/"), Context.NONE, CancellationToken.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -86,7 +86,7 @@ public class RetryPolicyTests {
                 int count = -1;
 
                 @Override
-                public void send(HttpRequest httpRequest, HttpCallback httpCallback) {
+                public void send(HttpRequest httpRequest, CancellationToken cancellationToken, HttpCallback httpCallback) {
                     Assertions.assertTrue(count++ < maxRetries);
                     httpCallback.onSuccess(new MockHttpResponse(httpRequest, 500));
                 }
@@ -96,7 +96,7 @@ public class RetryPolicyTests {
 
         final HttpResponse[] httpResponse = new HttpResponse[1];
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", CancellationToken.NONE), Context.NONE,
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/"), Context.NONE, CancellationToken.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -129,7 +129,7 @@ public class RetryPolicyTests {
                 long previousAttemptMadeAt = -1;
 
                 @Override
-                public void send(HttpRequest httpRequest, HttpCallback httpCallback) {
+                public void send(HttpRequest httpRequest, CancellationToken cancellationToken, HttpCallback httpCallback) {
                     if (count > 0) {
                         Assertions.assertTrue(System.currentTimeMillis() >= previousAttemptMadeAt + delayMillis);
                     }
@@ -142,7 +142,7 @@ public class RetryPolicyTests {
             .build();
 
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", CancellationToken.NONE), Context.NONE,
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/"), Context.NONE, CancellationToken.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -170,7 +170,7 @@ public class RetryPolicyTests {
                 long previousAttemptMadeAt = -1;
 
                 @Override
-                public void send(HttpRequest httpRequest, HttpCallback httpCallback) {
+                public void send(HttpRequest httpRequest, CancellationToken cancellationToken, HttpCallback httpCallback) {
                     if (count > 0) {
                         long requestMadeAt = System.currentTimeMillis();
                         long expectedToBeMadeAt =
@@ -186,7 +186,7 @@ public class RetryPolicyTests {
             .build();
 
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", CancellationToken.NONE), Context.NONE,
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/"), Context.NONE, CancellationToken.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -216,7 +216,7 @@ public class RetryPolicyTests {
             .policies(new RetryPolicy(new FixedDelay(2, Duration.ofMillis(1))))
             .httpClient(new NoOpHttpClient() {
                 @Override
-                public void send(HttpRequest httpRequest, HttpCallback httpCallback) {
+                public void send(HttpRequest httpRequest, CancellationToken cancellationToken, HttpCallback httpCallback) {
                     httpCallback.onSuccess(new HttpResponse(httpRequest) {
                         @Override
                         public int getStatusCode() {
@@ -267,7 +267,7 @@ public class RetryPolicyTests {
             .build();
 
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "https://example.com", CancellationToken.NONE), Context.NONE,
+        pipeline.send(new HttpRequest(HttpMethod.GET, "https://example.com"), Context.NONE, CancellationToken.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {

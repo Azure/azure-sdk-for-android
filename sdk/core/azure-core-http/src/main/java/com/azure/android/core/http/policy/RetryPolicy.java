@@ -84,7 +84,7 @@ public class RetryPolicy implements HttpPipelinePolicy {
         final HttpRequest httpRequest = chain.getRequest();
 
         // Check for cancellation before Proceeding the chain.
-        if (httpRequest.getCancellationToken().isCancellationRequested()) {
+        if (chain.getCancellationToken().isCancellationRequested()) {
             chain.finishedProcessing(new IOException("Canceled."));
             return;
         }
@@ -121,7 +121,7 @@ public class RetryPolicy implements HttpPipelinePolicy {
                                  Throwable error,
                                  final int retryAttempts) {
         // Check for cancellation before retry.
-        if (chain.getRequest().getCancellationToken().isCancellationRequested()) {
+        if (chain.getCancellationToken().isCancellationRequested()) {
             if (response != null) {
                 // Close the current response before propagating Cancelled Error.
                 response.close();

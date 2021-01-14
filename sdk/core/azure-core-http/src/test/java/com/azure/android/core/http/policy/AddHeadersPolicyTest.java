@@ -75,7 +75,7 @@ public class AddHeadersPolicyTest {
         final HttpPipeline pipeline = new HttpPipelineBuilder()
             .httpClient(new NoOpHttpClient() {
                 @Override
-                public void send(HttpRequest httpRequest, HttpCallback httpCallback) {
+                public void send(HttpRequest httpRequest, CancellationToken cancellationToken, HttpCallback httpCallback) {
                     Assertions.assertEquals(httpRequest.getHeaders().getValue("x-ms-client-request-id"), customRequestId);
                     Assertions.assertEquals(httpRequest.getHeaders().getValue("my-header1"), "my-header1-value");
                     Assertions.assertEquals(httpRequest.getHeaders().getValue("my-header2"), "my-header2-value");
@@ -87,8 +87,9 @@ public class AddHeadersPolicyTest {
             .build();
 
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET,"http://localhost/", CancellationToken.NONE),
+        pipeline.send(new HttpRequest(HttpMethod.GET,"http://localhost/"),
             Context.NONE,
+            CancellationToken.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {

@@ -73,7 +73,7 @@ public class RequestIdPolicyTests {
             .httpClient(new NoOpHttpClient() {
                 String firstRequestId = null;
                 @Override
-                public void send(HttpRequest request, HttpCallback httpCallback) {
+                public void send(HttpRequest request, CancellationToken cancellationToken, HttpCallback httpCallback) {
                     if (firstRequestId != null) {
                         String newRequestId = request.getHeaders().getValue(REQUEST_ID_HEADER);
                         Assertions.assertNotNull(newRequestId, "newRequestId should not be null");
@@ -91,7 +91,7 @@ public class RequestIdPolicyTests {
             .build();
 
         CountDownLatch latch1 = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET,"http://localhost/", CancellationToken.NONE), Context.NONE,
+        pipeline.send(new HttpRequest(HttpMethod.GET,"http://localhost/"), Context.NONE, CancellationToken.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -110,7 +110,7 @@ public class RequestIdPolicyTests {
         awaitOnLatch(latch1, "newRequestIdForEachCall");
 
         CountDownLatch latch2 = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", CancellationToken.NONE), Context.NONE,
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/"), Context.NONE, CancellationToken.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {
@@ -136,7 +136,7 @@ public class RequestIdPolicyTests {
                 String firstRequestId = null;
 
                 @Override
-                public void send(HttpRequest request, HttpCallback httpCallback) {
+                public void send(HttpRequest request, CancellationToken cancellationToken, HttpCallback httpCallback) {
                     if (firstRequestId != null) {
                         String newRequestId = request.getHeaders().getValue(REQUEST_ID_HEADER);
                         Assertions.assertNotNull(newRequestId, "newRequestId should not be null");
@@ -171,7 +171,7 @@ public class RequestIdPolicyTests {
             .build();
 
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/", CancellationToken.NONE), Context.NONE,
+        pipeline.send(new HttpRequest(HttpMethod.GET, "http://localhost/"), Context.NONE, CancellationToken.NONE,
             new HttpCallback() {
                 @Override
                 public void onSuccess(HttpResponse response) {

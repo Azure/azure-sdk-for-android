@@ -28,21 +28,24 @@ public class ProtocolPolicyTests {
     public void withOverwrite() throws MalformedURLException {
         final HttpPipeline pipeline = createPipeline("ftp", "ftp://www.bing.com");
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(createHttpRequest("http://www.bing.com"), Context.NONE, new HttpCallback() {
-            @Override
-            public void onSuccess(HttpResponse response) {
-                latch.countDown();
-            }
-
-            @Override
-            public void onError(Throwable error) {
-                try {
-                    throw new RuntimeException(error);
-                } finally {
+        pipeline.send(createHttpRequest("http://www.bing.com"),
+            Context.NONE,
+            CancellationToken.NONE,
+            new HttpCallback() {
+                @Override
+                public void onSuccess(HttpResponse response) {
                     latch.countDown();
                 }
-            }
-        });
+
+                @Override
+                public void onError(Throwable error) {
+                    try {
+                        throw new RuntimeException(error);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
         awaitOnLatch(latch, "withOverwrite");
     }
 
@@ -50,21 +53,24 @@ public class ProtocolPolicyTests {
     public void withNoOverwrite() throws MalformedURLException {
         final HttpPipeline pipeline = createPipeline("ftp", false, "https://www.bing.com");
         CountDownLatch latch = new CountDownLatch(1);
-        pipeline.send(createHttpRequest("https://www.bing.com"), Context.NONE, new HttpCallback() {
-            @Override
-            public void onSuccess(HttpResponse response) {
-                latch.countDown();
-            }
-
-            @Override
-            public void onError(Throwable error) {
-                try {
-                    throw new RuntimeException(error);
-                } finally {
+        pipeline.send(createHttpRequest("https://www.bing.com"),
+            Context.NONE,
+            CancellationToken.NONE,
+            new HttpCallback() {
+                @Override
+                public void onSuccess(HttpResponse response) {
                     latch.countDown();
                 }
-            }
-        });
+
+                @Override
+                public void onError(Throwable error) {
+                    try {
+                        throw new RuntimeException(error);
+                    } finally {
+                        latch.countDown();
+                    }
+                }
+            });
         awaitOnLatch(latch, "withNoOverwrite");
     }
 
@@ -91,7 +97,7 @@ public class ProtocolPolicyTests {
     }
 
     private static HttpRequest createHttpRequest(String url) {
-        return new HttpRequest(HttpMethod.GET, url, CancellationToken.NONE);
+        return new HttpRequest(HttpMethod.GET, url);
     }
 
     private static void awaitOnLatch(CountDownLatch latch, String method) {

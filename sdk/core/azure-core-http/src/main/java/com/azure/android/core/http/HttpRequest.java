@@ -5,7 +5,6 @@ package com.azure.android.core.http;
 
 import android.util.ArrayMap;
 
-import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.core.logging.ClientLogger;
 
 import java.net.MalformedURLException;
@@ -16,7 +15,7 @@ import java.util.Objects;
 
 /**
  * The outgoing Http request. It provides ways to construct {@link HttpRequest} with {@link HttpMethod},
- * {@code url}, {@link HttpHeader} request body and request {@link CancellationToken}.
+ * {@code url}, {@link HttpHeader} and request body.
  */
 public class HttpRequest {
     private final ClientLogger logger = new ClientLogger(HttpRequest.class);
@@ -26,20 +25,16 @@ public class HttpRequest {
     private HttpHeaders headers;
     private byte[] body;
     private Map<Object, Object> tags;
-    private final CancellationToken cancellationToken;
 
     /**
      * Create a new HttpRequest instance.
      *
      * @param httpMethod The HTTP request method.
      * @param url The target address to send the request to.
-     * @param cancellationToken The cancellation token for this request, on which the caller
-     *     may request cancellation of this request execution.
      * @throws IllegalArgumentException if the url is malformed.
      */
     public HttpRequest(HttpMethod httpMethod,
-                       String url,
-                       CancellationToken cancellationToken) {
+                       String url) {
         this.httpMethod = Objects.requireNonNull(httpMethod, "'httpMethod' is required.");
         Objects.requireNonNull(url, "'url' is required.");
         try {
@@ -48,7 +43,6 @@ public class HttpRequest {
             throw logger.logExceptionAsWarning(new IllegalArgumentException("'url' must be a valid URL", ex));
         }
         this.headers = new HttpHeaders();
-        this.cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         this.tags = new ArrayMap<>(0);
     }
 
@@ -59,15 +53,12 @@ public class HttpRequest {
      * @param url The target address to send the request to.
      * @param headers The HTTP headers to use with this request.
      * @param body The request content.
-     * @param cancellationToken The cancellation token for this request, on which the caller
-     *     may request cancellation of this request execution.
      * @throws IllegalArgumentException if the url is malformed.
      */
     public HttpRequest(HttpMethod httpMethod,
                        String url,
                        HttpHeaders headers,
-                       byte[] body,
-                       CancellationToken cancellationToken) {
+                       byte[] body) {
         this.httpMethod = Objects.requireNonNull(httpMethod, "'httpMethod' is required.");
         Objects.requireNonNull(url, "'url' is required.");
         try {
@@ -77,7 +68,6 @@ public class HttpRequest {
         }
         this.headers = Objects.requireNonNull(headers, "'headers' is required.");
         this.body = Objects.requireNonNull(body, "'body' is required.");
-        this.cancellationToken = cancellationToken == null ? CancellationToken.NONE : cancellationToken;
         this.tags = new ArrayMap<>(0);
     }
 
@@ -193,21 +183,6 @@ public class HttpRequest {
     }
 
     /**
-     * Get the cancellation token assigned to the request, which can be used to cancel this request.
-     *
-     * <p>
-     *  Note that cancellation is the best effort; In HttpClient implementations, once the execution
-     *  passed the point of no-cancellation, it will not honor the cancel request. Where precisely
-     *  in the HTTP stack is this point of no-cancellation is depends on each HTTP Client implementation.
-     * </p>
-     *
-     * @return The cancellation token.
-     */
-    public CancellationToken getCancellationToken() {
-        return this.cancellationToken;
-    }
-
-    /**
      * Gets the tags-store associated with the request.
      *
      * <p>
@@ -235,8 +210,7 @@ public class HttpRequest {
         HttpRequest requestCopy = new HttpRequest(this.httpMethod,
             this.url.toString(),
             new HttpHeaders(this.headers),
-            this.body,
-            this.cancellationToken);
+            this.body);
 
         // shallow-copy the tags.
         requestCopy.tags = new ArrayMap<>(this.tags.size());

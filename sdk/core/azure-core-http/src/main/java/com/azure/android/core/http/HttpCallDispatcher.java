@@ -3,6 +3,7 @@
 
 package com.azure.android.core.http;
 
+import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.android.core.micro.util.Context;
 import com.azure.core.logging.ClientLogger;
 
@@ -109,20 +110,22 @@ public final class HttpCallDispatcher {
      * @param httpCallFunction The function that perform the HTTP call when invoked.
      * @param httpRequest The HTTP request to be given to {@code httpCallFunction} when the function
      *     is invoked.
+     * @param cancellationToken The cancellation token for dispatcher to check whether the function is cancelled.
      * @param httpCallback The HTTP callback to be given to {@code httpCallFunction} to notify the
      *     result of the HTTP call.
      */
     public void enqueue(HttpCallFunction httpCallFunction,
                         HttpRequest httpRequest,
+                        CancellationToken cancellationToken,
                         HttpCallback httpCallback) {
         Objects.requireNonNull(httpCallFunction, "'httpCallFunction' is required.");
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
+        Objects.requireNonNull(cancellationToken, "'cancellationToken' is required.");
         Objects.requireNonNull(httpCallback, "'httpCallback' is required.");
 
         // 1]. The most common use case of 'enqueue' is to enable the async pipeline run for an HTTP request.
-        /** see {@link HttpPipelinePolicyChainImpl#beginPipelineExecution(HttpPipeline,
-         *     HttpRequest,
-         *     HttpCallback)} */
+        /** see {@link HttpPipelinePolicyChainImpl#beginPipelineExecution(HttpPipeline,  HttpRequest,
+         * Context, CancellationToken, HttpCallback)} */
         //
         // 2]. Additionally, an HttpClient implementation that does not have native async support can
         // use 'enqueue' to enable async HTTP calls.
@@ -134,6 +137,7 @@ public final class HttpCallDispatcher {
         final RootDispatchableCall rootDispatchableCall = new RootDispatchableCall(this,
             httpCallFunction,
             httpRequest,
+            cancellationToken,
             httpCallback);
 
         // Enqueue the RootDispatchableCall for this.executorService to execute.
@@ -370,22 +374,25 @@ public final class HttpCallDispatcher {
         private final HttpCallDispatcher httpCallDispatcher;
         private final HttpCallFunction httpCallFunction;
         private final HttpRequest httpRequest;
+        private final CancellationToken cancellationToken;
         private final HttpCallback httpCallback;
         private String callerIdTrace = "Code:";
 
         RootDispatchableCall(HttpCallDispatcher httpCallDispatcher,
                              HttpCallFunction httpCallFunction,
                              HttpRequest httpRequest,
+                             CancellationToken cancellationToken,
                              HttpCallback httpCallback) {
             this.httpCallDispatcher = httpCallDispatcher;
             this.httpCallFunction = httpCallFunction;
             this.httpRequest = httpRequest;
+            this.cancellationToken = cancellationToken;
             this.httpCallback = httpCallback;
         }
 
         @Override
         public void run() {
-            if (this.httpRequest.getCancellationToken().isCancellationRequested()) {
+            if (this.cancellationToken.isCancellationRequested()) {
                 this.onError(new IOException("Canceled."));
             } else {
                 this.httpCallFunction.apply(this.httpRequest, this);

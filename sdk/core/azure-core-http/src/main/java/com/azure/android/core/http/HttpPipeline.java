@@ -3,6 +3,7 @@
 
 package com.azure.android.core.http;
 
+import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.android.core.micro.util.Context;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public final class HttpPipeline {
 
     /**
      * Creates a HttpPipeline holding array of policies that gets applied to all request initiated through {@link
-     * HttpPipeline#send(HttpRequest, Context, HttpCallback)} and it's response.
+     * HttpPipeline#send(HttpRequest, Context, CancellationToken, HttpCallback)} and it's response.
      *
      * @param httpClient the http client to write request to wire and receive response from wire.
      * @param pipelinePolicies pipeline policies in the order they need to applied, a copy of this array will be made
@@ -45,17 +46,18 @@ public final class HttpPipeline {
                 // Indicate the HttpClient to prefer the calling thread for sending request.
                 chain.getRequest().getTags().put("prefer-running-http-in-calling-thread", null);
 
-                HttpPipeline.this.httpClient.send(chain.getRequest(), new HttpCallback() {
-                    @Override
-                    public void onSuccess(HttpResponse response) {
-                        chain.finishedProcessing(response);
-                    }
+                HttpPipeline.this.httpClient.send(chain.getRequest(), chain.getCancellationToken(),
+                    new HttpCallback() {
+                        @Override
+                        public void onSuccess(HttpResponse response) {
+                            chain.finishedProcessing(response);
+                        }
 
-                    @Override
-                    public void onError(Throwable error) {
-                        chain.finishedProcessing(error);
-                    }
-                });
+                        @Override
+                        public void onError(Throwable error) {
+                            chain.finishedProcessing(error);
+                        }
+                    });
             }
         };
     }
@@ -68,10 +70,20 @@ public final class HttpPipeline {
      *     The pipeline policies may inspect the context for any settings specific to the policy.
      *     The policies that want to make Azure SDK API calls may have to provide this context
      *     or a context derived from it (via {@link Context#addData(Object, Object)}) to the API.
+     * @param cancellationToken The cancellation token for the HTTP call, on which the caller
+     *     may request cancellation of this HTTP call execution. Note that cancellation is best
+     *     effort hence not guaranteed.
      * @param httpCallback The HTTP callback to notify the result of the HTTP call.
      */
-    public void send(HttpRequest httpRequest, Context context, HttpCallback httpCallback) {
-        HttpPipelinePolicyChainImpl.beginPipelineExecution(this, httpRequest, context, httpCallback);
+    public void send(HttpRequest httpRequest,
+                     Context context,
+                     CancellationToken cancellationToken,
+                     HttpCallback httpCallback) {
+        HttpPipelinePolicyChainImpl.beginPipelineExecution(this,
+            httpRequest,
+            context,
+            cancellationToken,
+            httpCallback);
     }
 
     /**
