@@ -2,6 +2,10 @@
 
 ## 1.0.0-beta.3 (Unreleased)
 
+### New Features
+
+- Added `ClientOptions`, `RequestOptions` and `TransportOptions`.
+
 ## 1.0.0-beta.2 (2020-10-05)
 
 ### New Features
