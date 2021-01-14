@@ -307,6 +307,7 @@ final String senderDisplayName = "An important person";
 final ChatMessagePriority priority = ChatMessagePriority.HIGH;
 SendChatMessageRequest message = new SendChatMessageRequest()
     .setPriority(priority)
+    .setType(ChatMessageType.TEXT)
     .setContent(content)
     .setSenderDisplayName(senderDisplayName);
 
@@ -342,7 +343,7 @@ client.getChatMessage(threadId, chatMessageId, new Callback<ChatMessage>() {
     @Override
     public void onSuccess(ChatMessage result, Response response) {
         // `ChatMessage` is the response returned from getting a message.
-        final String content = result.getContent();
+        final ChatMessageContent content = result.getContent();
         // Take further action.
     }
 

@@ -16,7 +16,6 @@ import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.exception.HttpResponseException;
-import com.azure.android.core.http.interceptor.UserAgentInterceptor;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataRetriever;
 import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
@@ -58,7 +57,7 @@ public final class ChatClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return result of the create chat thread operation.
      */
     public Response<CreateChatThreadResult> createChatThreadWithRestResponse(CreateChatThreadRequest createChatThreadRequest, String repeatabilityRequestID) {
         return this.serviceClient.createChatThreadWithRestResponse(createChatThreadRequest, repeatabilityRequestID);
@@ -71,7 +70,7 @@ public final class ChatClient {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return result of the create chat thread operation.
      */
     public CreateChatThreadResult createChatThread(CreateChatThreadRequest createChatThreadRequest) {
         return this.serviceClient.createChatThread(createChatThreadRequest);
@@ -81,7 +80,7 @@ public final class ChatClient {
      * Gets the list of chat threads of a user.
      *
      * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -95,7 +94,7 @@ public final class ChatClient {
      * Gets the list of chat threads of a user.
      *
      * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -108,7 +107,7 @@ public final class ChatClient {
     /**
      * Gets a chat thread.
      *
-     * @param chatThreadId Thread id to get.
+     * @param chatThreadId Id of the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -121,7 +120,7 @@ public final class ChatClient {
     /**
      * Deletes a thread.
      *
-     * @param chatThreadId Thread id to delete.
+     * @param chatThreadId Id of the thread to be deleted.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -229,16 +228,9 @@ public final class ChatClient {
                 serviceClientBuilder.setCredentialsInterceptor(credentialInterceptor);
             }
 
-            if (userAgentInterceptor == null) {
-                userAgentInterceptor = new UserAgentInterceptor(
-                    null,
-                    "azure-communication-chat",
-                    "1.0.0-beta.3",
-                    null,
-                    null,
-                    null);
+            if (userAgentInterceptor != null) {
+                serviceClientBuilder.addInterceptor(userAgentInterceptor);
             }
-            serviceClientBuilder.addInterceptor(userAgentInterceptor);
 
             AzureCommunicationChatServiceImpl internalClient = new AzureCommunicationChatServiceImpl(serviceClientBuilder.build(), endpoint);
             return new ChatClient(internalClient.getChats());

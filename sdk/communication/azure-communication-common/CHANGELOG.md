@@ -1,5 +1,13 @@
 # Release History
 
+## 1.0.0-beta.4 (Unreleased)
+### Breaking Changes
+    Renamed `PhoneNumber` to `PhoneNumberIdentifier`
+    Renamed `CommunicationUser` to `CommunicationUserIdentifier `
+    Renamed `CallingApplication` to `CallingApplicationIdentifier`
+    Renamed `CommunicationUserCredential` to `CommunicationTokenCredential`
+    Modified `CommunicationTokenCredential` constructor signatures to take new argument type 'CommunicationTokenRefreshOptions`
+
 ## 1.0.0-beta.3 (Unreleased)
 
 ## 1.0.0-beta.1 (2020-09-22)

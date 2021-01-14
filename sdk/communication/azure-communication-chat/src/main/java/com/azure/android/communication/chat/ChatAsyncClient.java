@@ -16,7 +16,6 @@ import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.exception.HttpResponseException;
-import com.azure.android.core.http.interceptor.UserAgentInterceptor;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataRetriever;
 import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
@@ -81,7 +80,7 @@ public final class ChatAsyncClient {
      * Gets the list of chat threads of a user.
      *
      * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @param callback the Callback that receives the response collection.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -94,7 +93,7 @@ public final class ChatAsyncClient {
     /**
      * Gets a chat thread.
      *
-     * @param chatThreadId Thread id to get.
+     * @param chatThreadId Id of the thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -107,7 +106,7 @@ public final class ChatAsyncClient {
     /**
      * Deletes a thread.
      *
-     * @param chatThreadId Thread id to delete.
+     * @param chatThreadId Id of the thread to be deleted.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -214,17 +213,9 @@ public final class ChatAsyncClient {
             if (credentialInterceptor != null) {
                 serviceClientBuilder.setCredentialsInterceptor(credentialInterceptor);
             }
-            if (userAgentInterceptor == null) {
-                userAgentInterceptor = new UserAgentInterceptor(
-                    null,
-                    "azure-communication-chat",
-                    "1.0.0-beta.3",
-                    null,
-                    null,
-                    null);
+            if (userAgentInterceptor != null) {
+                serviceClientBuilder.addInterceptor(userAgentInterceptor);
             }
-            serviceClientBuilder.addInterceptor(userAgentInterceptor);
-
             AzureCommunicationChatServiceImpl internalClient = new AzureCommunicationChatServiceImpl(serviceClientBuilder.build(), endpoint);
             return new ChatAsyncClient(internalClient.getChats());
         }

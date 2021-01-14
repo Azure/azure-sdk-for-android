@@ -27,7 +27,7 @@ public class chatClientTest {
     private static final String BASE_URL = mockWebServer.url("/").toString();
     private static UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(
         null,
-        "azure-communication-chat",
+        "android",
         "1.0.0-beta.3",
         null,
         null,

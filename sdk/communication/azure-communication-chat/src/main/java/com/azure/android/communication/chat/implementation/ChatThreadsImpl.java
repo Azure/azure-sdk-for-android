@@ -5,6 +5,7 @@
 package com.azure.android.communication.chat.implementation;
 
 import com.azure.android.communication.chat.models.AddChatParticipantsRequest;
+import com.azure.android.communication.chat.models.AddChatParticipantsResult;
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatMessageReadReceiptsCollection;
@@ -71,10 +72,10 @@ public final class ChatThreadsImpl {
      * to perform REST calls.
      */
     private interface ChatThreadsService {
-        @GET("/chat/threads/{chatThreadId}/readreceipts")
+        @GET("/chat/threads/{chatThreadId}/readReceipts")
         Call<ResponseBody> listChatReadReceipts(@Path("chatThreadId") String chatThreadId, @Query("maxPageSize") Integer maxPageSize, @Query("skip") Integer skip, @Query("api-version") String apiVersion);
 
-        @POST("/chat/threads/{chatThreadId}/readreceipts")
+        @POST("/chat/threads/{chatThreadId}/readReceipts")
         Call<ResponseBody> sendChatReadReceipt(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion, @Body RequestBody sendReadReceiptRequest);
 
         @POST("/chat/threads/{chatThreadId}/messages")
@@ -98,11 +99,11 @@ public final class ChatThreadsImpl {
         @GET("/chat/threads/{chatThreadId}/participants")
         Call<ResponseBody> listChatParticipants(@Path("chatThreadId") String chatThreadId, @Query("maxPageSize") Integer maxPageSize, @Query("skip") Integer skip, @Query("api-version") String apiVersion);
 
-        @POST("/chat/threads/{chatThreadId}/participants")
-        Call<ResponseBody> addChatParticipants(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion, @Body RequestBody addChatParticipantsRequest);
-
         @DELETE("/chat/threads/{chatThreadId}/participants/{chatParticipantId}")
         Call<ResponseBody> removeChatParticipant(@Path("chatThreadId") String chatThreadId, @Path("chatParticipantId") String chatParticipantId, @Query("api-version") String apiVersion);
+
+        @POST("/chat/threads/{chatThreadId}/participants/:add")
+        Call<ResponseBody> addChatParticipants(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion, @Body RequestBody addChatParticipantsRequest);
 
         @PATCH("/chat/threads/{chatThreadId}")
         Call<ResponseBody> updateChatThread(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion, @Body RequestBody updateChatThreadRequest);
@@ -161,81 +162,6 @@ public final class ChatThreadsImpl {
         call.enqueue(retrofitCallback);
     }
 
-    private static final class ChatMessageReadReceiptPageAsyncRetriever extends AsyncPagedDataRetriever<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> {
-        private final String chatThreadId;
-
-        private final Integer maxPageSize;
-
-        private final Integer skip;
-
-        private final ChatThreadsImpl serviceClient;
-
-        public ChatMessageReadReceiptPageAsyncRetriever(String chatThreadId, Integer maxPageSize, Integer skip, ChatThreadsImpl serviceClient) {
-            this.chatThreadId = chatThreadId;
-            this.maxPageSize = maxPageSize;
-            this.skip = skip;
-            this.serviceClient = serviceClient;
-        }
-
-        public void getFirstPage(Callback<Page<ChatMessageReadReceipt>> callback) {
-            serviceClient.listChatReadReceipts(chatThreadId, maxPageSize, skip, callback);
-        }
-
-        public void getPage(String pageId, Callback<Page<ChatMessageReadReceipt>> callback) {
-            serviceClient.listChatReadReceiptsNext(pageId, callback);
-        }
-    }
-
-    private static final class ChatMessageReadReceiptPageResponseRetriever extends PagedDataResponseRetriever<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> {
-        private final String chatThreadId;
-
-        private final Integer maxPageSize;
-
-        private final Integer skip;
-
-        private final ChatThreadsImpl serviceClient;
-
-        public ChatMessageReadReceiptPageResponseRetriever(String chatThreadId, Integer maxPageSize, Integer skip, ChatThreadsImpl serviceClient) {
-            this.chatThreadId = chatThreadId;
-            this.maxPageSize = maxPageSize;
-            this.skip = skip;
-            this.serviceClient = serviceClient;
-        }
-
-        public Response<Page<ChatMessageReadReceipt>> getFirstPage() {
-             return serviceClient.listChatReadReceiptsWithRestResponse(chatThreadId, maxPageSize, skip);
-        }
-
-        public Response<Page<ChatMessageReadReceipt>> getPage(String pageId) {
-            return serviceClient.listChatReadReceiptsNextWithRestResponse(pageId);
-        }
-    }
-
-    private static final class ChatMessageReadReceiptPageRetriever extends PagedDataRetriever<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> {
-        private final String chatThreadId;
-
-        private final Integer maxPageSize;
-
-        private final Integer skip;
-
-        private final ChatThreadsImpl serviceClient;
-
-        public ChatMessageReadReceiptPageRetriever(String chatThreadId, Integer maxPageSize, Integer skip, ChatThreadsImpl serviceClient) {
-            this.chatThreadId = chatThreadId;
-            this.maxPageSize = maxPageSize;
-            this.skip = skip;
-            this.serviceClient = serviceClient;
-        }
-
-        public Page<ChatMessageReadReceipt> getFirstPage() {
-             return serviceClient.listChatReadReceiptsWithRestResponse(chatThreadId, maxPageSize, skip).getValue();
-        }
-
-        public Page<ChatMessageReadReceipt> getPage(String pageId) {
-            return serviceClient.listChatReadReceiptsNextWithRestResponse(pageId).getValue();
-        }
-    }
-
     /**
      * Gets chat message read receipts for a thread.
      * 
@@ -287,6 +213,31 @@ public final class ChatThreadsImpl {
         }
     }
 
+    private static final class ListChatReadReceiptsWithPageResponseRetriever extends PagedDataResponseRetriever<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> {
+        private final String chatThreadId;
+
+        private final Integer maxPageSize;
+
+        private final Integer skip;
+
+        private final ChatThreadsImpl serviceClient;
+
+        public ListChatReadReceiptsWithPageResponseRetriever(String chatThreadId, Integer maxPageSize, Integer skip, ChatThreadsImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.maxPageSize = maxPageSize;
+            this.skip = skip;
+            this.serviceClient = serviceClient;
+        }
+
+        public Response<Page<ChatMessageReadReceipt>> getFirstPage() {
+             return serviceClient.listChatReadReceiptsWithRestResponse(chatThreadId, maxPageSize, skip);
+        }
+
+        public Response<Page<ChatMessageReadReceipt>> getPage(String nextLink) {
+             return serviceClient.listChatReadReceiptsNextWithRestResponse(nextLink);
+        }
+    }
+
     /**
      * Gets chat message read receipts for a thread.
      * 
@@ -299,8 +250,33 @@ public final class ChatThreadsImpl {
      * @return chat message read receipts for a thread.
      */
     public PagedDataResponseCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> listChatReadReceiptsWithPageResponse(String chatThreadId, Integer maxPageSize, Integer skip) {
-        ChatMessageReadReceiptPageResponseRetriever retriever = new ChatMessageReadReceiptPageResponseRetriever(chatThreadId, maxPageSize, skip, this);
+        ListChatReadReceiptsWithPageResponseRetriever retriever = new ListChatReadReceiptsWithPageResponseRetriever(chatThreadId, maxPageSize, skip, this);
         return new PagedDataResponseCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>>(retriever);
+    }
+
+    private static final class ListChatReadReceiptsWithPageRetriever extends PagedDataRetriever<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> {
+        private final String chatThreadId;
+
+        private final Integer maxPageSize;
+
+        private final Integer skip;
+
+        private final ChatThreadsImpl serviceClient;
+
+        public ListChatReadReceiptsWithPageRetriever(String chatThreadId, Integer maxPageSize, Integer skip, ChatThreadsImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.maxPageSize = maxPageSize;
+            this.skip = skip;
+            this.serviceClient = serviceClient;
+        }
+
+        public Page<ChatMessageReadReceipt> getFirstPage() {
+             return serviceClient.listChatReadReceiptsWithRestResponse(chatThreadId, maxPageSize, skip).getValue();
+        }
+
+        public Page<ChatMessageReadReceipt> getPage(String nextLink) {
+             return serviceClient.listChatReadReceiptsNextWithRestResponse(nextLink).getValue();
+        }
     }
 
     /**
@@ -315,7 +291,7 @@ public final class ChatThreadsImpl {
      * @return chat message read receipts for a thread.
      */
     public PagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> listChatReadReceiptsWithPage(String chatThreadId, Integer maxPageSize, Integer skip) {
-        ChatMessageReadReceiptPageRetriever retriever = new ChatMessageReadReceiptPageRetriever(chatThreadId, maxPageSize, skip, this);
+        ListChatReadReceiptsWithPageRetriever retriever = new ListChatReadReceiptsWithPageRetriever(chatThreadId, maxPageSize, skip, this);
         return new PagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>>(retriever);
     }
 
@@ -334,6 +310,31 @@ public final class ChatThreadsImpl {
         return listChatReadReceiptsWithRestResponse(chatThreadId, maxPageSize, skip).getValue();
     }
 
+    private static final class ListChatReadReceiptsPagesAsyncRetriever extends AsyncPagedDataRetriever<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> {
+        private final String chatThreadId;
+
+        private final Integer maxPageSize;
+
+        private final Integer skip;
+
+        private final ChatThreadsImpl serviceClient;
+
+        public ListChatReadReceiptsPagesAsyncRetriever(String chatThreadId, Integer maxPageSize, Integer skip, ChatThreadsImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.maxPageSize = maxPageSize;
+            this.skip = skip;
+            this.serviceClient = serviceClient;
+        }
+
+        public void getFirstPage(Callback<Page<ChatMessageReadReceipt>> callback) {
+            serviceClient.listChatReadReceipts(chatThreadId, maxPageSize, skip, callback);
+        }
+
+        public void getPage(String nextLink, Callback<Page<ChatMessageReadReceipt>> callback) {
+            serviceClient.listChatReadReceiptsNext(nextLink, callback);
+        }
+    }
+
     /**
      * Gets chat message read receipts for a thread.
      * 
@@ -346,7 +347,7 @@ public final class ChatThreadsImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void listChatReadReceiptsPagesAsync(String chatThreadId, Integer maxPageSize, Integer skip, final Callback<AsyncPagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>>> callback) {
-        ChatMessageReadReceiptPageAsyncRetriever retriever = new ChatMessageReadReceiptPageAsyncRetriever(chatThreadId, maxPageSize, skip, this);
+        ListChatReadReceiptsPagesAsyncRetriever retriever = new ListChatReadReceiptsPagesAsyncRetriever(chatThreadId, maxPageSize, skip, this);
         callback.onSuccess(new AsyncPagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>>(retriever), null);
     }
 
@@ -373,7 +374,7 @@ public final class ChatThreadsImpl {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
                 if (response.isSuccessful()) {
-                    if (response.code() == 201) {
+                    if (response.code() == 200) {
                         final Void decodedResult;
                         try {
                             decodedResult = client.deserializeContent(response.headers(), response.body(), Void.class);
@@ -419,7 +420,7 @@ public final class ChatThreadsImpl {
         }
         final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.sendChatReadReceipt(chatThreadId, this.client.getApiVersion(), okHttp3RequestBody));
         if (response.isSuccessful()) {
-            if (response.code() == 201) {
+            if (response.code() == 200) {
                 return new Response<>(response.raw().request(),
                                         response.code(),
                                         response.headers(),
@@ -523,7 +524,7 @@ public final class ChatThreadsImpl {
      * 
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
-     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get messages up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -562,81 +563,6 @@ public final class ChatThreadsImpl {
         call.enqueue(retrofitCallback);
     }
 
-    private static final class ChatMessagePageAsyncRetriever extends AsyncPagedDataRetriever<ChatMessage, Page<ChatMessage>> {
-        private final String chatThreadId;
-
-        private final Integer maxPageSize;
-
-        private final OffsetDateTime startTime;
-
-        private final ChatThreadsImpl serviceClient;
-
-        public ChatMessagePageAsyncRetriever(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, ChatThreadsImpl serviceClient) {
-            this.chatThreadId = chatThreadId;
-            this.maxPageSize = maxPageSize;
-            this.startTime = startTime;
-            this.serviceClient = serviceClient;
-        }
-
-        public void getFirstPage(Callback<Page<ChatMessage>> callback) {
-            serviceClient.listChatMessages(chatThreadId, maxPageSize, startTime, callback);
-        }
-
-        public void getPage(String pageId, Callback<Page<ChatMessage>> callback) {
-            serviceClient.listChatMessagesNext(pageId, callback);
-        }
-    }
-
-    private static final class ChatMessagePageResponseRetriever extends PagedDataResponseRetriever<ChatMessage, Page<ChatMessage>> {
-        private final String chatThreadId;
-
-        private final Integer maxPageSize;
-
-        private final OffsetDateTime startTime;
-
-        private final ChatThreadsImpl serviceClient;
-
-        public ChatMessagePageResponseRetriever(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, ChatThreadsImpl serviceClient) {
-            this.chatThreadId = chatThreadId;
-            this.maxPageSize = maxPageSize;
-            this.startTime = startTime;
-            this.serviceClient = serviceClient;
-        }
-
-        public Response<Page<ChatMessage>> getFirstPage() {
-             return serviceClient.listChatMessagesWithRestResponse(chatThreadId, maxPageSize, startTime);
-        }
-
-        public Response<Page<ChatMessage>> getPage(String pageId) {
-            return serviceClient.listChatMessagesNextWithRestResponse(pageId);
-        }
-    }
-
-    private static final class ChatMessagePageRetriever extends PagedDataRetriever<ChatMessage, Page<ChatMessage>> {
-        private final String chatThreadId;
-
-        private final Integer maxPageSize;
-
-        private final OffsetDateTime startTime;
-
-        private final ChatThreadsImpl serviceClient;
-
-        public ChatMessagePageRetriever(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, ChatThreadsImpl serviceClient) {
-            this.chatThreadId = chatThreadId;
-            this.maxPageSize = maxPageSize;
-            this.startTime = startTime;
-            this.serviceClient = serviceClient;
-        }
-
-        public Page<ChatMessage> getFirstPage() {
-             return serviceClient.listChatMessagesWithRestResponse(chatThreadId, maxPageSize, startTime).getValue();
-        }
-
-        public Page<ChatMessage> getPage(String pageId) {
-            return serviceClient.listChatMessagesNextWithRestResponse(pageId).getValue();
-        }
-    }
-
     /**
      * Gets a list of messages from a thread.
      * 
@@ -657,7 +583,7 @@ public final class ChatThreadsImpl {
      * 
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
-     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get messages up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -688,20 +614,29 @@ public final class ChatThreadsImpl {
         }
     }
 
-    /**
-     * Gets a list of messages from a thread.
-     * 
-     * @param chatThreadId The thread id of the message.
-     * @param maxPageSize The maximum number of messages to be returned per page.
-     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return a list of messages from a thread.
-     */
-    public PagedDataResponseCollection<ChatMessage, Page<ChatMessage>> listChatMessagesWithPageResponse(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime) {
-        ChatMessagePageResponseRetriever retriever = new ChatMessagePageResponseRetriever(chatThreadId, maxPageSize, startTime, this);
-        return new PagedDataResponseCollection<ChatMessage, Page<ChatMessage>>(retriever);
+    private static final class ListChatMessagesWithPageResponseRetriever extends PagedDataResponseRetriever<ChatMessage, Page<ChatMessage>> {
+        private final String chatThreadId;
+
+        private final Integer maxPageSize;
+
+        private final OffsetDateTime startTime;
+
+        private final ChatThreadsImpl serviceClient;
+
+        public ListChatMessagesWithPageResponseRetriever(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, ChatThreadsImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.maxPageSize = maxPageSize;
+            this.startTime = startTime;
+            this.serviceClient = serviceClient;
+        }
+
+        public Response<Page<ChatMessage>> getFirstPage() {
+             return serviceClient.listChatMessagesWithRestResponse(chatThreadId, maxPageSize, startTime);
+        }
+
+        public Response<Page<ChatMessage>> getPage(String nextLink) {
+             return serviceClient.listChatMessagesNextWithRestResponse(nextLink);
+        }
     }
 
     /**
@@ -709,14 +644,55 @@ public final class ChatThreadsImpl {
      * 
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
-     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get messages up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return a list of messages from a thread.
+     */
+    public PagedDataResponseCollection<ChatMessage, Page<ChatMessage>> listChatMessagesWithPageResponse(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime) {
+        ListChatMessagesWithPageResponseRetriever retriever = new ListChatMessagesWithPageResponseRetriever(chatThreadId, maxPageSize, startTime, this);
+        return new PagedDataResponseCollection<ChatMessage, Page<ChatMessage>>(retriever);
+    }
+
+    private static final class ListChatMessagesWithPageRetriever extends PagedDataRetriever<ChatMessage, Page<ChatMessage>> {
+        private final String chatThreadId;
+
+        private final Integer maxPageSize;
+
+        private final OffsetDateTime startTime;
+
+        private final ChatThreadsImpl serviceClient;
+
+        public ListChatMessagesWithPageRetriever(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, ChatThreadsImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.maxPageSize = maxPageSize;
+            this.startTime = startTime;
+            this.serviceClient = serviceClient;
+        }
+
+        public Page<ChatMessage> getFirstPage() {
+             return serviceClient.listChatMessagesWithRestResponse(chatThreadId, maxPageSize, startTime).getValue();
+        }
+
+        public Page<ChatMessage> getPage(String nextLink) {
+             return serviceClient.listChatMessagesNextWithRestResponse(nextLink).getValue();
+        }
+    }
+
+    /**
+     * Gets a list of messages from a thread.
+     * 
+     * @param chatThreadId The thread id of the message.
+     * @param maxPageSize The maximum number of messages to be returned per page.
+     * @param startTime The earliest point in time to get messages up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a list of messages from a thread.
      */
     public PagedDataCollection<ChatMessage, Page<ChatMessage>> listChatMessagesWithPage(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime) {
-        ChatMessagePageRetriever retriever = new ChatMessagePageRetriever(chatThreadId, maxPageSize, startTime, this);
+        ListChatMessagesWithPageRetriever retriever = new ListChatMessagesWithPageRetriever(chatThreadId, maxPageSize, startTime, this);
         return new PagedDataCollection<ChatMessage, Page<ChatMessage>>(retriever);
     }
 
@@ -735,19 +711,44 @@ public final class ChatThreadsImpl {
         return listChatMessagesWithRestResponse(chatThreadId, maxPageSize, startTime).getValue();
     }
 
+    private static final class ListChatMessagesPagesAsyncRetriever extends AsyncPagedDataRetriever<ChatMessage, Page<ChatMessage>> {
+        private final String chatThreadId;
+
+        private final Integer maxPageSize;
+
+        private final OffsetDateTime startTime;
+
+        private final ChatThreadsImpl serviceClient;
+
+        public ListChatMessagesPagesAsyncRetriever(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, ChatThreadsImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.maxPageSize = maxPageSize;
+            this.startTime = startTime;
+            this.serviceClient = serviceClient;
+        }
+
+        public void getFirstPage(Callback<Page<ChatMessage>> callback) {
+            serviceClient.listChatMessages(chatThreadId, maxPageSize, startTime, callback);
+        }
+
+        public void getPage(String nextLink, Callback<Page<ChatMessage>> callback) {
+            serviceClient.listChatMessagesNext(nextLink, callback);
+        }
+    }
+
     /**
      * Gets a list of messages from a thread.
      * 
      * @param chatThreadId The thread id of the message.
      * @param maxPageSize The maximum number of messages to be returned per page.
-     * @param startTime The earliest point in time to get messages up to. The timestamp should be in ISO8601 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param startTime The earliest point in time to get messages up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @param callback the Callback that receives the response collection.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void listChatMessagesPagesAsync(String chatThreadId, Integer maxPageSize, OffsetDateTime startTime, final Callback<AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>> callback) {
-        ChatMessagePageAsyncRetriever retriever = new ChatMessagePageAsyncRetriever(chatThreadId, maxPageSize, startTime, this);
+        ListChatMessagesPagesAsyncRetriever retriever = new ListChatMessagesPagesAsyncRetriever(chatThreadId, maxPageSize, startTime, this);
         callback.onSuccess(new AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>(retriever), null);
     }
 
@@ -827,7 +828,7 @@ public final class ChatThreadsImpl {
      * 
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
-     * @param updateChatMessageRequest Details of the request to update the message.
+     * @param updateChatMessageRequest Request payload for updating a chat message.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
@@ -878,7 +879,7 @@ public final class ChatThreadsImpl {
      * 
      * @param chatThreadId The thread id to which the message was sent.
      * @param chatMessageId The message id.
-     * @param updateChatMessageRequest Details of the request to update the message.
+     * @param updateChatMessageRequest Request payload for updating a chat message.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
@@ -1092,81 +1093,6 @@ public final class ChatThreadsImpl {
         call.enqueue(retrofitCallback);
     }
 
-    private static final class ChatParticipantPageAsyncRetriever extends AsyncPagedDataRetriever<ChatParticipant, Page<ChatParticipant>> {
-        private final String chatThreadId;
-
-        private final Integer maxPageSize;
-
-        private final Integer skip;
-
-        private final ChatThreadsImpl serviceClient;
-
-        public ChatParticipantPageAsyncRetriever(String chatThreadId, Integer maxPageSize, Integer skip, ChatThreadsImpl serviceClient) {
-            this.chatThreadId = chatThreadId;
-            this.maxPageSize = maxPageSize;
-            this.skip = skip;
-            this.serviceClient = serviceClient;
-        }
-
-        public void getFirstPage(Callback<Page<ChatParticipant>> callback) {
-            serviceClient.listChatParticipants(chatThreadId, maxPageSize, skip, callback);
-        }
-
-        public void getPage(String pageId, Callback<Page<ChatParticipant>> callback) {
-            serviceClient.listChatParticipantsNext(pageId, callback);
-        }
-    }
-
-    private static final class ChatParticipantPageResponseRetriever extends PagedDataResponseRetriever<ChatParticipant, Page<ChatParticipant>> {
-        private final String chatThreadId;
-
-        private final Integer maxPageSize;
-
-        private final Integer skip;
-
-        private final ChatThreadsImpl serviceClient;
-
-        public ChatParticipantPageResponseRetriever(String chatThreadId, Integer maxPageSize, Integer skip, ChatThreadsImpl serviceClient) {
-            this.chatThreadId = chatThreadId;
-            this.maxPageSize = maxPageSize;
-            this.skip = skip;
-            this.serviceClient = serviceClient;
-        }
-
-        public Response<Page<ChatParticipant>> getFirstPage() {
-             return serviceClient.listChatParticipantsWithRestResponse(chatThreadId, maxPageSize, skip);
-        }
-
-        public Response<Page<ChatParticipant>> getPage(String pageId) {
-            return serviceClient.listChatParticipantsNextWithRestResponse(pageId);
-        }
-    }
-
-    private static final class ChatParticipantPageRetriever extends PagedDataRetriever<ChatParticipant, Page<ChatParticipant>> {
-        private final String chatThreadId;
-
-        private final Integer maxPageSize;
-
-        private final Integer skip;
-
-        private final ChatThreadsImpl serviceClient;
-
-        public ChatParticipantPageRetriever(String chatThreadId, Integer maxPageSize, Integer skip, ChatThreadsImpl serviceClient) {
-            this.chatThreadId = chatThreadId;
-            this.maxPageSize = maxPageSize;
-            this.skip = skip;
-            this.serviceClient = serviceClient;
-        }
-
-        public Page<ChatParticipant> getFirstPage() {
-             return serviceClient.listChatParticipantsWithRestResponse(chatThreadId, maxPageSize, skip).getValue();
-        }
-
-        public Page<ChatParticipant> getPage(String pageId) {
-            return serviceClient.listChatParticipantsNextWithRestResponse(pageId).getValue();
-        }
-    }
-
     /**
      * Gets the participants of a thread.
      * 
@@ -1218,6 +1144,31 @@ public final class ChatThreadsImpl {
         }
     }
 
+    private static final class ListChatParticipantsWithPageResponseRetriever extends PagedDataResponseRetriever<ChatParticipant, Page<ChatParticipant>> {
+        private final String chatThreadId;
+
+        private final Integer maxPageSize;
+
+        private final Integer skip;
+
+        private final ChatThreadsImpl serviceClient;
+
+        public ListChatParticipantsWithPageResponseRetriever(String chatThreadId, Integer maxPageSize, Integer skip, ChatThreadsImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.maxPageSize = maxPageSize;
+            this.skip = skip;
+            this.serviceClient = serviceClient;
+        }
+
+        public Response<Page<ChatParticipant>> getFirstPage() {
+             return serviceClient.listChatParticipantsWithRestResponse(chatThreadId, maxPageSize, skip);
+        }
+
+        public Response<Page<ChatParticipant>> getPage(String nextLink) {
+             return serviceClient.listChatParticipantsNextWithRestResponse(nextLink);
+        }
+    }
+
     /**
      * Gets the participants of a thread.
      * 
@@ -1230,8 +1181,33 @@ public final class ChatThreadsImpl {
      * @return the participants of a thread.
      */
     public PagedDataResponseCollection<ChatParticipant, Page<ChatParticipant>> listChatParticipantsWithPageResponse(String chatThreadId, Integer maxPageSize, Integer skip) {
-        ChatParticipantPageResponseRetriever retriever = new ChatParticipantPageResponseRetriever(chatThreadId, maxPageSize, skip, this);
+        ListChatParticipantsWithPageResponseRetriever retriever = new ListChatParticipantsWithPageResponseRetriever(chatThreadId, maxPageSize, skip, this);
         return new PagedDataResponseCollection<ChatParticipant, Page<ChatParticipant>>(retriever);
+    }
+
+    private static final class ListChatParticipantsWithPageRetriever extends PagedDataRetriever<ChatParticipant, Page<ChatParticipant>> {
+        private final String chatThreadId;
+
+        private final Integer maxPageSize;
+
+        private final Integer skip;
+
+        private final ChatThreadsImpl serviceClient;
+
+        public ListChatParticipantsWithPageRetriever(String chatThreadId, Integer maxPageSize, Integer skip, ChatThreadsImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.maxPageSize = maxPageSize;
+            this.skip = skip;
+            this.serviceClient = serviceClient;
+        }
+
+        public Page<ChatParticipant> getFirstPage() {
+             return serviceClient.listChatParticipantsWithRestResponse(chatThreadId, maxPageSize, skip).getValue();
+        }
+
+        public Page<ChatParticipant> getPage(String nextLink) {
+             return serviceClient.listChatParticipantsNextWithRestResponse(nextLink).getValue();
+        }
     }
 
     /**
@@ -1246,7 +1222,7 @@ public final class ChatThreadsImpl {
      * @return the participants of a thread.
      */
     public PagedDataCollection<ChatParticipant, Page<ChatParticipant>> listChatParticipantsWithPage(String chatThreadId, Integer maxPageSize, Integer skip) {
-        ChatParticipantPageRetriever retriever = new ChatParticipantPageRetriever(chatThreadId, maxPageSize, skip, this);
+        ListChatParticipantsWithPageRetriever retriever = new ListChatParticipantsWithPageRetriever(chatThreadId, maxPageSize, skip, this);
         return new PagedDataCollection<ChatParticipant, Page<ChatParticipant>>(retriever);
     }
 
@@ -1265,6 +1241,31 @@ public final class ChatThreadsImpl {
         return listChatParticipantsWithRestResponse(chatThreadId, maxPageSize, skip).getValue();
     }
 
+    private static final class ListChatParticipantsPagesAsyncRetriever extends AsyncPagedDataRetriever<ChatParticipant, Page<ChatParticipant>> {
+        private final String chatThreadId;
+
+        private final Integer maxPageSize;
+
+        private final Integer skip;
+
+        private final ChatThreadsImpl serviceClient;
+
+        public ListChatParticipantsPagesAsyncRetriever(String chatThreadId, Integer maxPageSize, Integer skip, ChatThreadsImpl serviceClient) {
+            this.chatThreadId = chatThreadId;
+            this.maxPageSize = maxPageSize;
+            this.skip = skip;
+            this.serviceClient = serviceClient;
+        }
+
+        public void getFirstPage(Callback<Page<ChatParticipant>> callback) {
+            serviceClient.listChatParticipants(chatThreadId, maxPageSize, skip, callback);
+        }
+
+        public void getPage(String nextLink, Callback<Page<ChatParticipant>> callback) {
+            serviceClient.listChatParticipantsNext(nextLink, callback);
+        }
+    }
+
     /**
      * Gets the participants of a thread.
      * 
@@ -1277,92 +1278,8 @@ public final class ChatThreadsImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void listChatParticipantsPagesAsync(String chatThreadId, Integer maxPageSize, Integer skip, final Callback<AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>>> callback) {
-        ChatParticipantPageAsyncRetriever retriever = new ChatParticipantPageAsyncRetriever(chatThreadId, maxPageSize, skip, this);
+        ListChatParticipantsPagesAsyncRetriever retriever = new ListChatParticipantsPagesAsyncRetriever(chatThreadId, maxPageSize, skip, this);
         callback.onSuccess(new AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>>(retriever), null);
-    }
-
-    /**
-     * Adds thread participants to a thread. If participants already exist, no change occurs.
-     * 
-     * @param chatThreadId Id of the thread to add participants to.
-     * @param addChatParticipantsRequest Participants to be added to the thread.
-     * @param callback the Callback that receives the response.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     */
-    public void addChatParticipants(String chatThreadId, AddChatParticipantsRequest addChatParticipantsRequest, final Callback<Void> callback) {
-        final okhttp3.RequestBody okHttp3RequestBody;
-        try {
-            okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), client.serializerAdapter.serialize(addChatParticipantsRequest, client.resolveSerializerFormat("application/json")));
-        } catch(java.io.IOException ioe) {
-            callback.onFailure(new RuntimeException(ioe), null);
-            return;
-        }
-        Call<ResponseBody> call = service.addChatParticipants(chatThreadId, this.client.getApiVersion(), okHttp3RequestBody);
-        retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
-            @Override
-            public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
-                if (response.isSuccessful()) {
-                    if (response.code() == 201) {
-                        final Void decodedResult;
-                        try {
-                            decodedResult = client.deserializeContent(response.headers(), response.body(), Void.class);
-                        } catch(Exception ex) {
-                            callback.onFailure(ex, response.raw());
-                            return;
-                        }
-                        callback.onSuccess(decodedResult, response.raw());
-                    } else {
-                        final String strContent = client.readAsString(response.body());
-                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
-                    }
-                } else {
-                    final String strContent = client.readAsString(response.errorBody());
-                    callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ResponseBody> call, Throwable t) {
-                callback.onFailure(t, null);
-            }
-        };
-        call.enqueue(retrofitCallback);
-    }
-
-    /**
-     * Adds thread participants to a thread. If participants already exist, no change occurs.
-     * 
-     * @param chatThreadId Id of the thread to add participants to.
-     * @param addChatParticipantsRequest Participants to be added to the thread.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the completion.
-     */
-    public Response<Void> addChatParticipantsWithRestResponse(String chatThreadId, AddChatParticipantsRequest addChatParticipantsRequest) {
-        final okhttp3.RequestBody okHttp3RequestBody;
-        try {
-            okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.client.serializerAdapter.serialize(addChatParticipantsRequest, this.client.resolveSerializerFormat("application/json")));
-        } catch(java.io.IOException ioe) {
-            throw new RuntimeException(ioe);
-        }
-        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.addChatParticipants(chatThreadId, this.client.getApiVersion(), okHttp3RequestBody));
-        if (response.isSuccessful()) {
-            if (response.code() == 201) {
-                return new Response<>(response.raw().request(),
-                                        response.code(),
-                                        response.headers(),
-                                        this.client.deserializeContent(response.headers(), response.body(), Void.class));
-            } else {
-                final String strContent = this.client.readAsString(response.body());
-                throw new ErrorException(strContent, response.raw());
-            }
-        } else {
-            final String strContent = this.client.readAsString(response.errorBody());
-            throw new HttpResponseException(strContent, response.raw());
-        }
     }
 
     /**
@@ -1426,6 +1343,90 @@ public final class ChatThreadsImpl {
                                         response.code(),
                                         response.headers(),
                                         this.client.deserializeContent(response.headers(), response.body(), Void.class));
+            } else {
+                final String strContent = this.client.readAsString(response.body());
+                throw new ErrorException(strContent, response.raw());
+            }
+        } else {
+            final String strContent = this.client.readAsString(response.errorBody());
+            throw new HttpResponseException(strContent, response.raw());
+        }
+    }
+
+    /**
+     * Adds thread participants to a thread. If participants already exist, no change occurs.
+     * 
+     * @param chatThreadId Id of the thread to add participants to.
+     * @param addChatParticipantsRequest Participants to be added to the thread.
+     * @param callback the Callback that receives the response.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void addChatParticipants(String chatThreadId, AddChatParticipantsRequest addChatParticipantsRequest, final Callback<AddChatParticipantsResult> callback) {
+        final okhttp3.RequestBody okHttp3RequestBody;
+        try {
+            okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), client.serializerAdapter.serialize(addChatParticipantsRequest, client.resolveSerializerFormat("application/json")));
+        } catch(java.io.IOException ioe) {
+            callback.onFailure(new RuntimeException(ioe), null);
+            return;
+        }
+        Call<ResponseBody> call = service.addChatParticipants(chatThreadId, this.client.getApiVersion(), okHttp3RequestBody);
+        retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    if (response.code() == 201) {
+                        final AddChatParticipantsResult decodedResult;
+                        try {
+                            decodedResult = client.deserializeContent(response.headers(), response.body(), AddChatParticipantsResult.class);
+                        } catch(Exception ex) {
+                            callback.onFailure(ex, response.raw());
+                            return;
+                        }
+                        callback.onSuccess(decodedResult, response.raw());
+                    } else {
+                        final String strContent = client.readAsString(response.body());
+                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
+                    }
+                } else {
+                    final String strContent = client.readAsString(response.errorBody());
+                    callback.onFailure(new HttpResponseException(strContent, response.raw()), response.raw());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                callback.onFailure(t, null);
+            }
+        };
+        call.enqueue(retrofitCallback);
+    }
+
+    /**
+     * Adds thread participants to a thread. If participants already exist, no change occurs.
+     * 
+     * @param chatThreadId Id of the thread to add participants to.
+     * @param addChatParticipantsRequest Participants to be added to the thread.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return result of the add chat participants operation.
+     */
+    public Response<AddChatParticipantsResult> addChatParticipantsWithRestResponse(String chatThreadId, AddChatParticipantsRequest addChatParticipantsRequest) {
+        final okhttp3.RequestBody okHttp3RequestBody;
+        try {
+            okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.client.serializerAdapter.serialize(addChatParticipantsRequest, this.client.resolveSerializerFormat("application/json")));
+        } catch(java.io.IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
+        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.addChatParticipants(chatThreadId, this.client.getApiVersion(), okHttp3RequestBody));
+        if (response.isSuccessful()) {
+            if (response.code() == 201) {
+                return new Response<>(response.raw().request(),
+                                        response.code(),
+                                        response.headers(),
+                                        this.client.deserializeContent(response.headers(), response.body(), AddChatParticipantsResult.class));
             } else {
                 final String strContent = this.client.readAsString(response.body());
                 throw new ErrorException(strContent, response.raw());
@@ -1569,7 +1570,7 @@ public final class ChatThreadsImpl {
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws ErrorException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the response.
+     * @return a paged collection of chat message read receipts.
      */
     public Response<Page<ChatMessageReadReceipt>> listChatReadReceiptsNextWithRestResponse(String nextLink) {
         final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.listChatReadReceiptsNext(nextLink));
