@@ -78,7 +78,7 @@ public class ProtocolPolicyTests {
         return new HttpPipelineBuilder()
             .httpClient(new NoOpHttpClient())
             .policies(new ProtocolPolicy(protocol, true),
-                (chain, context) -> {
+                (chain) -> {
                     assertEquals(expectedUrl, chain.getRequest().getUrl().toString());
                     chain.processNextPolicy(chain.getRequest());
                 })
@@ -89,7 +89,7 @@ public class ProtocolPolicyTests {
         return new HttpPipelineBuilder()
             .httpClient(new NoOpHttpClient())
             .policies(new ProtocolPolicy(protocol, overwrite),
-                (chain, context) -> {
+                (chain) -> {
                     assertEquals(expectedUrl, chain.getRequest().getUrl().toString());
                     chain.processNextPolicy(chain.getRequest());
                 })

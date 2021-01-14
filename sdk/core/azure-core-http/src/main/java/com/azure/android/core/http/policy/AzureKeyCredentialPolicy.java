@@ -6,7 +6,6 @@ package com.azure.android.core.http.policy;
 import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
-import com.azure.android.core.micro.util.Context;
 import com.azure.core.credential.AzureKeyCredential;
 import com.azure.core.logging.ClientLogger;
 
@@ -44,7 +43,7 @@ public class AzureKeyCredentialPolicy implements HttpPipelinePolicy {
     }
 
     @Override
-    public void process(HttpPipelinePolicyChain chain, Context context) {
+    public void process(HttpPipelinePolicyChain chain) {
         if ("http".equals(chain.getRequest().getUrl().getProtocol())) {
             chain.finishedProcessing(
                 new IllegalStateException("Key credentials require HTTPS to prevent leaking the key."));

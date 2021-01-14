@@ -66,7 +66,7 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
     }
 
     @Override
-    public void process(HttpPipelinePolicyChain chain, Context contextn) {
+    public void process(HttpPipelinePolicyChain chain) {
         // No logging will be performed, trigger a no-op.
         if (httpLogDetailLevel == HttpLogDetailLevel.NONE) {
             chain.processNextPolicy(chain.getRequest());

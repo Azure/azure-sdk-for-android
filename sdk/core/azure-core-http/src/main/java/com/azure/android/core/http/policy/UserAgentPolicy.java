@@ -82,7 +82,7 @@ public class UserAgentPolicy implements HttpPipelinePolicy {
      * {@code Append-User-Agent} will be appended to the value supplied in the policy.</p>
      */
     @Override
-    public void process(HttpPipelinePolicyChain chain, Context context) {
+    public void process(HttpPipelinePolicyChain chain) {
         // TODO: anuchan: enable context in request
         //
         //  HttpRequest httpRequest = chain.getRequest();

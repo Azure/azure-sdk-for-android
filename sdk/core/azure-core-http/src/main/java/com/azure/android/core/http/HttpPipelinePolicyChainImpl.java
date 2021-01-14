@@ -123,6 +123,11 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
     }
 
     @Override
+    public Context getContext() {
+        return this.context;
+    }
+
+    @Override
     public void processNextPolicy(HttpRequest httpRequest) {
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
         this.processNextPolicyIntern(httpRequest, this.context, null);
@@ -136,14 +141,6 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
     }
 
     @Override
-    public void processNextPolicy(HttpRequest request, Context context, HttpCallback httpCallback) {
-        Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
-        Objects.requireNonNull(context, "'context' is required.");
-        Objects.requireNonNull(httpCallback, "'httpCallback' is required.");
-        this.processNextPolicyIntern(httpRequest, context, httpCallback);
-    }
-
-    @Override
     public void processNextPolicy(HttpRequest httpRequest, HttpCallback httpCallback,
                                   long delay, TimeUnit timeUnit) {
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
@@ -152,21 +149,6 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
         this.httpPipeline.httpCallDispatcher.scheduleProcessNextPolicy(this,
             httpRequest,
             this.context,
-            httpCallback,
-            delay,
-            timeUnit);
-    }
-
-    @Override
-    public void processNextPolicy(HttpRequest httpRequest, Context context, HttpCallback httpCallback,
-                                  long delay, TimeUnit timeUnit) {
-        Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
-        Objects.requireNonNull(context, "'context' is required.");
-        Objects.requireNonNull(httpCallback, "'httpCallback' is required.");
-        Objects.requireNonNull(timeUnit, "'timeUnit' is required.");
-        this.httpPipeline.httpCallDispatcher.scheduleProcessNextPolicy(this,
-            httpRequest,
-            context,
             httpCallback,
             delay,
             timeUnit);
@@ -234,14 +216,14 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
         if (nextIndex == this.httpPipeline.size) {
             try {
                 // No more policies, invoke the network-policy to write the request to the wire.
-                this.httpPipeline.networkPolicy.process(nextChain, nextChain.context);
+                this.httpPipeline.networkPolicy.process(nextChain);
             } catch (Throwable t) {
                 this.reportBypassedError(t, false);
             }
         } else {
             try {
                 // Invoke the next pipeline policy at this.index + 1.
-                this.httpPipeline.getPolicy(nextIndex).process(nextChain, nextChain.context);
+                this.httpPipeline.getPolicy(nextIndex).process(nextChain);
             } catch (Throwable t) {
                 this.reportBypassedError(t, false);
             }

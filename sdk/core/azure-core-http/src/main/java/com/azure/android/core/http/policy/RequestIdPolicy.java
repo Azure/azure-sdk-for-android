@@ -6,7 +6,6 @@ package com.azure.android.core.http.policy;
 import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
-import com.azure.android.core.micro.util.Context;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -37,7 +36,7 @@ public class RequestIdPolicy implements HttpPipelinePolicy {
     }
 
     @Override
-    public void process(HttpPipelinePolicyChain chain, Context context) {
+    public void process(HttpPipelinePolicyChain chain) {
         HttpRequest httpRequest = chain.getRequest();
         String requestId = httpRequest.getHeaders().getValue(requestIdHeaderName);
         if (requestId == null) {

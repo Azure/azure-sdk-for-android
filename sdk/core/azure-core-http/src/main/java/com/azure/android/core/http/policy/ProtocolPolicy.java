@@ -7,7 +7,6 @@ import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.util.UrlBuilder;
-import com.azure.android.core.micro.util.Context;
 import com.azure.core.logging.ClientLogger;
 
 /**
@@ -30,7 +29,7 @@ public class ProtocolPolicy implements HttpPipelinePolicy {
     }
 
     @Override
-    public void process(HttpPipelinePolicyChain chain, Context context) {
+    public void process(HttpPipelinePolicyChain chain) {
         HttpRequest httpRequest = chain.getRequest();
         final UrlBuilder urlBuilder = UrlBuilder.parse(httpRequest.getUrl());
         if (overwrite || urlBuilder.getScheme() == null) {

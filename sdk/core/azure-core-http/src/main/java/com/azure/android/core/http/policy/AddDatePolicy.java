@@ -6,7 +6,6 @@ package com.azure.android.core.http.policy;
 import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
-import com.azure.android.core.micro.util.Context;
 
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -23,7 +22,7 @@ public class AddDatePolicy implements HttpPipelinePolicy {
         .withLocale(Locale.US);
 
     @Override
-    public void process(HttpPipelinePolicyChain chain, Context context) {
+    public void process(HttpPipelinePolicyChain chain) {
         HttpRequest httpRequest = chain.getRequest();
         httpRequest.getHeaders().put("Date", format.format(OffsetDateTime.now()));
         chain.processNextPolicy(httpRequest);

@@ -198,7 +198,6 @@ public final class HttpCallDispatcher {
                 final NestedDispatchableCall nestedDispatchableCall = new NestedDispatchableCall(rootDispatchableCall,
                     chain,
                     httpRequest,
-                    context,
                     httpCallback);
 
                 synchronized (HttpCallDispatcher.this) {
@@ -457,7 +456,6 @@ public final class HttpCallDispatcher {
         private final RootDispatchableCall rootDispatchableCall;
         private final HttpPipelinePolicyChain chain;
         private final HttpRequest httpRequest;
-        private final Context context;
         private final HttpCallback httpCallback;
 
         /**
@@ -474,24 +472,21 @@ public final class HttpCallDispatcher {
          *     belongs to.
          * @param chain The chain to invoke {@code processNextPolicy} call on.
          * @param httpRequest The HTTP request parameter for the scheduled {@code processNextPolicy} call.
-         * @param context The context parameter for the scheduled {@code processNextPolicy} call.
          * @param httpCallback The HTTP callback parameter for the scheduled {@code processNextPolicy} call.
          */
         NestedDispatchableCall(RootDispatchableCall rootDispatchableCall,
                                HttpPipelinePolicyChain chain,
                                HttpRequest httpRequest,
-                               Context context,
                                HttpCallback httpCallback) {
             this.rootDispatchableCall = rootDispatchableCall;
             this.chain = chain;
             this.httpRequest = httpRequest;
-            this.context = context;
             this.httpCallback = httpCallback;
         }
 
         @Override
         public void run() {
-            this.chain.processNextPolicy(httpRequest, this.context, this);
+            this.chain.processNextPolicy(httpRequest, this);
         }
 
         @Override

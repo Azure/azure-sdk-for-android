@@ -32,15 +32,32 @@ public interface HttpPipelinePolicyChain {
      * Gets the {@link CancellationToken} associated with the pipeline run.
      *
      * <p>
-     * In policy implementation, before starting a potentially time and resource-consuming work,
-     * it is recommended to check {@link CancellationToken#isCancellationRequested()} to see the user
-     * expressed lost interest in the result; if so, the implementation can finish the execution
+     * In policy implementation, before starting any potentially time and resource-consuming work,
+     * it is recommended to check {@link CancellationToken#isCancellationRequested()} to see that
+     * the user expressed lost interest in the result; if so, the implementation can finish the execution
      * by calling {@code HttpPipelinePolicyChain#finishedProcessing(new IOException("Canceled."))}.
      * </p>
      *
      * @return The cancellation token.
      */
     CancellationToken getCancellationToken();
+
+    /**
+     * Gets the context that was given to
+     * {@link HttpPipeline#send(HttpRequest, Context, CancellationToken, HttpCallback)} call,
+     * the send call that initiated the pipeline run.
+     *
+     * <p>
+     * The policy implementation may inspect the context for any known settings specific to the policy.
+     *
+     * If the policy calls into Azure SDK API that accept context, then this context
+     * or a new immutable context object obtained by calling the {@link Context#addData(Object, Object)}
+     * on this context should be provided to the API.
+     * </p>
+     *
+     * @return The context.
+     */
+    Context getContext();
 
     /**
      * Signal that the pipeline can proceed with the execution of the next policy.
@@ -69,24 +86,6 @@ public interface HttpPipelinePolicyChain {
     void processNextPolicy(HttpRequest request, HttpCallback callback);
 
     /**
-     * Signal that the pipeline can proceed with the execution of the next policy.
-     *
-     * <p>
-     * A policy implementation calls this method to indicate its completion of request
-     * interception and to signal that the next policy can be executed.
-     * </p>
-     *
-     * @param request The HTTP Request.
-     * @param context The context for the next policy. This context must be either the same context object
-     *     that the policy received from {@link HttpPipelinePolicy#process(HttpPipelinePolicyChain, Context)}
-     *     or a new immutable context object obtained by calling the {@link Context#addData(Object, Object)}
-     *     method on the received context.
-     * @param callback The callback to receive the {@link HttpResponse} or the error from
-     *     the next policy once its completes the execution.
-     */
-    void processNextPolicy(HttpRequest request, Context context, HttpCallback callback);
-
-    /**
      * Signal that, after the specified delay the pipeline can proceed with the execution of the next policy.
      *
      * <p>
@@ -101,26 +100,6 @@ public interface HttpPipelinePolicyChain {
      * @param timeUnit The time unit of the {@code delay}.
      */
     void processNextPolicy(HttpRequest request, HttpCallback callback, long delay, TimeUnit timeUnit);
-
-    /**
-     * Signal that, after the specified delay the pipeline can proceed with the execution of the next policy.
-     *
-     * <p>
-     * A policy implementation calls this method to indicate its completion of request
-     * interception and to signal that the next policy can be executed.
-     * </p>
-     *
-     * @param request The HTTP Request.
-     * @param context The context for the next policy. This context must be either the same context object
-     *     that the policy received from {@link HttpPipelinePolicy#process(HttpPipelinePolicyChain, Context)}
-     *     or a new immutable context object obtained by calling the {@link Context#addData(Object, Object)}
-     *     method on the received context.
-     * @param callback The callback to receive the {@link HttpResponse} or the error from
-     *     the next policy once its completes the execution.
-     * @param delay The time from now to delay the execution of next policy.
-     * @param timeUnit The time unit of the {@code delay}.
-     */
-    void processNextPolicy(HttpRequest request, Context context, HttpCallback callback, long delay, TimeUnit timeUnit);
 
     /**
      * Signal that the policy execution is successfully finished.

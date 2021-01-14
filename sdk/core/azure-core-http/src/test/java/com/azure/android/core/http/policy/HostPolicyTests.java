@@ -77,7 +77,7 @@ public class HostPolicyTests {
         return new HttpPipelineBuilder()
             .httpClient(new NoOpHttpClient())
             .policies(new HostPolicy(host),
-                (chain, context) -> {
+                (chain) -> {
                     assertEquals(expectedUrl, chain.getRequest().getUrl().toString());
                     chain.processNextPolicy(chain.getRequest());
                 }
