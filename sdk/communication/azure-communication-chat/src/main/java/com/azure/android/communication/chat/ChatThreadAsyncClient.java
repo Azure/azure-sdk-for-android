@@ -4,6 +4,8 @@
 
 package com.azure.android.communication.chat;
 
+import android.content.Context;
+
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
 import com.azure.android.communication.chat.implementation.ChatThreadsImpl;
 import com.azure.android.communication.chat.models.AddChatParticipantsRequest;
@@ -24,6 +26,7 @@ import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.exception.HttpResponseException;
+import com.azure.android.core.http.interceptor.UserAgentInterceptor;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataRetriever;
 import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
@@ -43,6 +46,9 @@ import retrofit2.http.PATCH;
 import retrofit2.http.Path;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
+
+import static com.azure.android.communication.chat.ChatConfig.chatSDKName;
+import static com.azure.android.communication.chat.ChatConfig.chatSDKVersion;
 
 /**
  * Initializes a new instance of the asynchronous AzureCommunicationChatService type.
@@ -294,6 +300,14 @@ public final class ChatThreadAsyncClient {
          */
         public Builder credentialInterceptor(Interceptor credentialInterceptor) {
             this.credentialInterceptor = credentialInterceptor;
+            return this;
+        }
+
+        public Builder userAgentInterceptor(Context context) {
+            this.userAgentInterceptor = new UserAgentInterceptor(
+                context,
+                chatSDKName,
+                chatSDKVersion);
             return this;
         }
 

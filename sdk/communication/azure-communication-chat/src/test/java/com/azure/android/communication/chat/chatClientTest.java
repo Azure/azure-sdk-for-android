@@ -6,6 +6,7 @@ import com.azure.android.communication.chat.models.ChatParticipant;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.UserAgentInterceptor;
+import com.azure.android.core.http.options.TelemetryOptions;
 import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
 import com.azure.android.core.util.paging.Page;
 import com.azure.android.core.util.paging.PagedDataCollection;
@@ -19,16 +20,19 @@ import java.util.concurrent.TimeUnit;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 
+import static com.azure.android.communication.chat.ChatConfig.chatSDKName;
+import static com.azure.android.communication.chat.ChatConfig.chatSDKVersion;
 import static junit.framework.TestCase.assertEquals;
 
 public class chatClientTest {
 
     private static final MockWebServer mockWebServer = new MockWebServer();
     private static final String BASE_URL = mockWebServer.url("/").toString();
+    private static final String userApplicationId = "AcsAndroid";
     private static UserAgentInterceptor userAgentInterceptor = new UserAgentInterceptor(
-        null,
-        "android",
-        "1.0.0-beta.3",
+        new TelemetryOptions(false, userApplicationId),
+        chatSDKName,
+        chatSDKVersion,
         null,
         null,
         null);
