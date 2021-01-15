@@ -124,7 +124,7 @@ public final class HttpCallDispatcher {
         Objects.requireNonNull(httpCallback, "'httpCallback' is required.");
 
         // 1]. The most common use case of 'enqueue' is to enable the async pipeline run for an HTTP request.
-        /** see {@link HttpPipelinePolicyChainImpl#beginPipelineExecution(HttpPipeline,  HttpRequest,
+        /** see {@link HttpPipelinePolicyChainImpl#beginPipelineExecution(HttpPipeline, HttpRequest,
          * Context, CancellationToken, HttpCallback)} */
         //
         // 2]. Additionally, an HttpClient implementation that does not have native async support can
@@ -140,7 +140,7 @@ public final class HttpCallDispatcher {
             cancellationToken,
             httpCallback);
 
-        // Enqueue the RootDispatchableCall for this.executorService to execute.
+        // Enqueue the 'RootDispatchableCall' for this.executorService to execute.
         synchronized (this) {
             this.waitingRootDispatchableCalls.add(rootDispatchableCall);
         }
@@ -150,7 +150,7 @@ public final class HttpCallDispatcher {
     /**
      * package-private.
      *
-     * Schedule a {@link HttpPipelinePolicyChain#processNextPolicy(HttpRequest, HttpCallback)} call to
+     * Schedule a {@link HttpPipelinePolicyChain#processNextPolicy(HttpRequest, NextPolicyCallback)} call to
      * run in the future (in any dispatcher thread).
      *
      * <p>
@@ -175,42 +175,43 @@ public final class HttpCallDispatcher {
      * @param chain The chain to invoke {@code processNextPolicy} call on.
      * @param httpRequest The HTTP request parameter for the scheduled {@code processNextPolicy} call.
      * @param context The context parameter for the scheduled {@code processNextPolicy} call.
-     * @param httpCallback The HTTP callback parameter for the scheduled {@code processNextPolicy} call.
+     * @param callback The HTTP callback parameter for the scheduled {@code processNextPolicy} call.
      * @param delay The time from now to delay the execution of the {@code processNextPolicy} call.
      * @param timeUnit The time unit of the {@code delay}.
      */
     void scheduleProcessNextPolicy(HttpPipelinePolicyChainImpl chain,
                                    HttpRequest httpRequest,
                                    Context context,
-                                   HttpCallback httpCallback,
+                                   NextPolicyCallback callback,
                                    long delay,
                                    TimeUnit timeUnit) {
         Objects.requireNonNull(chain, "'chain' is required.");
         Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
         Objects.requireNonNull(context, "'context' is required.");
-        Objects.requireNonNull(httpCallback, "'httpCallback' is required.");
+        Objects.requireNonNull(callback, "'httpCallback' is required.");
         Objects.requireNonNull(timeUnit, "'timeUnit' is required.");
 
         final RootDispatchableCall rootDispatchableCall = this.getRootDispatchableCall(chain);
+        final NestedDispatchableCall nestedDispatchableCall = new NestedDispatchableCall(rootDispatchableCall,
+            chain,
+            httpRequest,
+            callback);
         boolean scheduled = false;
         try {
             this.getScheduledExecutorService().schedule(() -> {
-                final NestedDispatchableCall nestedDispatchableCall = new NestedDispatchableCall(rootDispatchableCall,
-                    chain,
-                    httpRequest,
-                    httpCallback);
-
                 synchronized (HttpCallDispatcher.this) {
-                    // The HttpCallDispatcher::executorService executes both RootDispatchableCall and
-                    // NestedDispatchableCall calls. Using scheduledExecutorService to hand over
-                    // the NestedDispatchableCall to HttpCallDispatcher::executorService for execution.
+                    // The HttpCallDispatcher::executorService executes both 'RootDispatchableCall'
+                    // and 'NestedDispatchableCall' calls.
+                    // Using HttpCallDispatcher::scheduledExecutorService to hand over
+                    // the 'NestedDispatchableCall' to HttpCallDispatcher::executorService.
                     HttpCallDispatcher.this.waitingNestedDispatchableCalls.add(nestedDispatchableCall);
                 }
                 HttpCallDispatcher.this.dispatchCalls();
             }, delay, timeUnit);
             scheduled = true;
         } catch (RejectedExecutionException e) {
-            httpCallback.onError(new InterruptedIOException("scheduled executor rejected").initCause(e));
+            nestedDispatchableCall
+                .onError(new InterruptedIOException("scheduled executor rejected").initCause(e));
         } catch (Throwable t) {
             // The ScheduledExecutorService::execute() is not supposed to throw any exception
             // other than RejectedExecutionException, but if it ever throws other exceptions,
@@ -313,7 +314,7 @@ public final class HttpCallDispatcher {
      */
     private RootDispatchableCall getRootDispatchableCall(HttpPipelinePolicyChainImpl chain) {
         // The rootCallback is a callback decorated as RootDispatchableCall object.
-        final HttpCallback rootCallback = chain.getRootCallback();
+        final HttpCallback rootCallback = chain.rootHttpCallback;
         assert rootCallback instanceof RootDispatchableCall;
         return (RootDispatchableCall) rootCallback;
     }
@@ -454,9 +455,9 @@ public final class HttpCallDispatcher {
      */
     private static class NestedDispatchableCall implements DispatchableCall {
         private final RootDispatchableCall rootDispatchableCall;
-        private final HttpPipelinePolicyChain chain;
+        private final HttpPipelinePolicyChainImpl chain;
         private final HttpRequest httpRequest;
-        private final HttpCallback httpCallback;
+        private final NextPolicyCallback callback;
 
         /**
          * Creates a NestedDispatchableCall, a DispatchableCall that when executes invokes
@@ -468,35 +469,37 @@ public final class HttpCallDispatcher {
          * when the scheduled chain.processNextPolicy(..) call executes.
          * </p>
          *
-         * @param rootDispatchableCall The RootDispatchableCall that initiate the pipeline run that this nested call
-         *     belongs to.
+         * @param rootDispatchableCall The RootDispatchableCall that initiate the pipeline run that this
+         *     nested call belongs to.
          * @param chain The chain to invoke {@code processNextPolicy} call on.
          * @param httpRequest The HTTP request parameter for the scheduled {@code processNextPolicy} call.
-         * @param httpCallback The HTTP callback parameter for the scheduled {@code processNextPolicy} call.
+         * @param callback The callback parameter for the scheduled {@code processNextPolicy} call.
          */
         NestedDispatchableCall(RootDispatchableCall rootDispatchableCall,
-                               HttpPipelinePolicyChain chain,
+                               HttpPipelinePolicyChainImpl chain,
                                HttpRequest httpRequest,
-                               HttpCallback httpCallback) {
+                               NextPolicyCallback callback) {
             this.rootDispatchableCall = rootDispatchableCall;
             this.chain = chain;
             this.httpRequest = httpRequest;
-            this.httpCallback = httpCallback;
+            this.callback = callback;
         }
 
         @Override
         public void run() {
-            this.chain.processNextPolicy(httpRequest, this);
+            this.chain.processNextPolicy(this.httpRequest, this.callback);
         }
 
         @Override
         public void onSuccess(HttpResponse response) {
-            this.httpCallback.onSuccess(response);
+            this.callback.onSuccess(response,
+                new NextPolicyCallback.NotifyCompletion(this.chain.prevChain));
         }
 
         @Override
         public void onError(Throwable error) {
-            this.httpCallback.onError(error);
+            this.callback.onError(error,
+                new NextPolicyCallback.NotifyCompletion(this.chain.prevChain));
         }
 
         @Override

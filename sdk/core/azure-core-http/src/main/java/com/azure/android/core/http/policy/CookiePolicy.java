@@ -3,12 +3,12 @@
 
 package com.azure.android.core.http.policy;
 
-import com.azure.android.core.http.HttpCallback;
 import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.http.NextPolicyCallback;
 
 import java.io.IOException;
 import java.net.CookieHandler;
@@ -35,7 +35,7 @@ public class CookiePolicy implements HttpPipelinePolicy {
         try {
             uri = httpRequest.getUrl().toURI();
         } catch (URISyntaxException error) {
-            chain.finishedProcessing(error);
+            chain.onCompleted(error);
             return;
         }
 
@@ -49,7 +49,7 @@ public class CookiePolicy implements HttpPipelinePolicy {
         try {
             requestCookies = cookies.get(uri, cookieHeaders);
         } catch (IOException error) {
-            chain.finishedProcessing(error);
+            chain.onCompleted(error);
             return;
         }
 
@@ -57,9 +57,9 @@ public class CookiePolicy implements HttpPipelinePolicy {
             httpRequest.getHeaders().put(entry.getKey(), String.join(",", entry.getValue()));
         }
 
-        chain.processNextPolicy(httpRequest, new HttpCallback() {
+        chain.processNextPolicy(httpRequest, new NextPolicyCallback() {
             @Override
-            public void onSuccess(HttpResponse response) {
+            public void onSuccess(HttpResponse response, NotifyCompletion notifyCompletion) {
                 Map<String, List<String>> responseHeaders = new HashMap<>();
                 for (HttpHeader header : response.getHeaders()) {
                     responseHeaders.put(header.getName(), Collections.singletonList(header.getValue()));
@@ -68,15 +68,15 @@ public class CookiePolicy implements HttpPipelinePolicy {
                 try {
                     cookies.put(uri, responseHeaders);
                 } catch (IOException error) {
-                    chain.finishedProcessing(error);
+                    notifyCompletion.onCompleted(error);
                     return;
                 }
-                chain.finishedProcessing(response);
+                notifyCompletion.onCompleted(response);
             }
 
             @Override
-            public void onError(Throwable error) {
-                chain.finishedProcessing(error);
+            public void onError(Throwable error, NotifyCompletion notifyCompletion) {
+                notifyCompletion.onCompleted(error);
             }
         });
     }

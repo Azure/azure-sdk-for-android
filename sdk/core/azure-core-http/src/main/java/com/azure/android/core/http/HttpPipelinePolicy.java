@@ -3,6 +3,8 @@
 
 package com.azure.android.core.http;
 
+import com.azure.android.core.http.NextPolicyCallback.NotifyCompletion;
+
 /**
  * A policy within the {@link HttpPipeline}.
  *
@@ -15,16 +17,18 @@ public interface HttpPipelinePolicy {
      * <p>
      * Policy implementations are expected to use {@link HttpPipelinePolicyChain#getRequest()}
      * to access and intercept the request, then proceed to next policy by calling
-     * {@link HttpPipelinePolicyChain#processNextPolicy(HttpRequest, HttpCallback)}.
+     * {@link HttpPipelinePolicyChain#processNextPolicy(HttpRequest)} or
+     * {@link HttpPipelinePolicyChain#processNextPolicy(HttpRequest, NextPolicyCallback)}.
      *
-     * The policy can intercept the resulting response or error notified to the {@code HttpCallback}
+     * The policy can intercept the resulting response notified to
+     * {@link NextPolicyCallback#onSuccess(HttpResponse, NotifyCompletion)}
+     *  or error notified to {@link NextPolicyCallback#onError(Throwable, NotifyCompletion)}
      * and must signal the completion of the policy by calling
-     * {@link HttpPipelinePolicyChain#finishedProcessing(HttpResponse)} or
-     * {@link HttpPipelinePolicyChain#finishedProcessing(Throwable)}.
+     * {@link NotifyCompletion#onCompleted(HttpResponse)} or
+     * {@link NotifyCompletion#onCompleted(Throwable)}.
      * </p>
      *
-     * @param chain The chain for the policy to access the request, response and notify the completion
-     *     of request and response interception.
+     * @param chain The chain for the policy to access the request and response.
      */
     void process(HttpPipelinePolicyChain chain);
 }

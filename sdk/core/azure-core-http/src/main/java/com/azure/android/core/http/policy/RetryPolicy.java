@@ -3,11 +3,11 @@
 
 package com.azure.android.core.http.policy;
 
-import com.azure.android.core.http.HttpCallback;
 import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.http.NextPolicyCallback;
 import com.azure.android.core.http.implementation.Util;
 
 import java.io.IOException;
@@ -84,38 +84,39 @@ public class RetryPolicy implements HttpPipelinePolicy {
 
         // Check for cancellation before Proceeding the chain.
         if (chain.getCancellationToken().isCancellationRequested()) {
-            chain.finishedProcessing(new IOException("Canceled."));
+            chain.onCompleted(new IOException("Canceled."));
             return;
         }
 
         if (delay == null) {
-            chain.processNextPolicy(httpRequest, new HttpCallback() {
+            chain.processNextPolicy(httpRequest, new NextPolicyCallback() {
                 @Override
-                public void onSuccess(HttpResponse response) {
-                    retryIfRequired(chain, response, null, retryAttempts);
+                public void onSuccess(HttpResponse response, NotifyCompletion notifyCompletion) {
+                    retryIfRequired(chain, notifyCompletion, response, null, retryAttempts);
                 }
 
                 @Override
-                public void onError(Throwable error) {
-                    retryIfRequired(chain, null, error, retryAttempts);
+                public void onError(Throwable error, NotifyCompletion notifyCompletion) {
+                    retryIfRequired(chain, notifyCompletion, null, error, retryAttempts);
                 }
             });
         } else {
-            chain.processNextPolicy(httpRequest, new HttpCallback() {
+            chain.processNextPolicy(httpRequest, new NextPolicyCallback() {
                 @Override
-                public void onSuccess(HttpResponse response) {
-                    retryIfRequired(chain, response, null, retryAttempts);
+                public void onSuccess(HttpResponse response, NotifyCompletion notifyCompletion) {
+                    retryIfRequired(chain, notifyCompletion, response, null, retryAttempts);
                 }
 
                 @Override
-                public void onError(Throwable error) {
-                    retryIfRequired(chain, null, error, retryAttempts);
+                public void onError(Throwable error, NotifyCompletion notifyCompletion) {
+                    retryIfRequired(chain,  notifyCompletion, null, error, retryAttempts);
                 }
             }, delay.toMillis(), TimeUnit.MILLISECONDS);
         }
     }
 
     private void retryIfRequired(HttpPipelinePolicyChain chain,
+                                 NextPolicyCallback.NotifyCompletion notifyCompletion,
                                  HttpResponse response,
                                  Throwable error,
                                  final int retryAttempts) {
@@ -125,7 +126,7 @@ public class RetryPolicy implements HttpPipelinePolicy {
                 // Close the current response before propagating Cancelled Error.
                 response.close();
             }
-            chain.finishedProcessing(new IOException("Canceled."));
+            notifyCompletion.onCompleted(new IOException("Canceled."));
             return;
         }
 
@@ -143,13 +144,13 @@ public class RetryPolicy implements HttpPipelinePolicy {
             }
 
             if (userError != null) {
-                chain.finishedProcessing(userError);
+                chain.onCompleted(userError);
             } else {
                 attempt(chain, delay, retryAttempts + 1);
             }
         } else {
             if (response != null) {
-                chain.finishedProcessing(response);
+                chain.onCompleted(response);
             } else {
                 if (retryAttempts >= this.retryStrategy.getMaxRetries()) {
                     final RuntimeException maxRetriedError = new RuntimeException(
@@ -158,9 +159,9 @@ public class RetryPolicy implements HttpPipelinePolicy {
                     if (error != null) {
                         maxRetriedError.addSuppressed(error);
                     }
-                    chain.finishedProcessing(maxRetriedError);
+                    notifyCompletion.onCompleted(maxRetriedError);
                 } else {
-                    chain.finishedProcessing(error);
+                    notifyCompletion.onCompleted(error);
                 }
             }
         }

@@ -38,7 +38,7 @@ public class ProtocolPolicy implements HttpPipelinePolicy {
             try {
                 httpRequest.setUrl(urlBuilder.setScheme(protocol).toString());
             } catch (IllegalArgumentException error) {
-                chain.finishedProcessing(error);
+                chain.onCompleted(error);
                 return;
             }
             chain.processNextPolicy(httpRequest);

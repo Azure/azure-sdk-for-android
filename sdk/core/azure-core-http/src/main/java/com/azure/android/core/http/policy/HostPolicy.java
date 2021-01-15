@@ -30,7 +30,7 @@ public class HostPolicy implements HttpPipelinePolicy {
         try {
             httpRequest.setUrl(urlBuilder.setHost(host).toString());
         } catch (IllegalArgumentException error) {
-            chain.finishedProcessing(error);
+            chain.onCompleted(error);
             return;
         }
         chain.processNextPolicy(httpRequest);

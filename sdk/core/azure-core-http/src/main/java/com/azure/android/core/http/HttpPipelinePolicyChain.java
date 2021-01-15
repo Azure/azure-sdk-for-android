@@ -83,7 +83,7 @@ public interface HttpPipelinePolicyChain {
      * @param callback The callback to receive the {@link HttpResponse} or the error from
      *     the next policy once its completes the execution.
      */
-    void processNextPolicy(HttpRequest request, HttpCallback callback);
+    void processNextPolicy(HttpRequest request, NextPolicyCallback callback);
 
     /**
      * Signal that, after the specified delay the pipeline can proceed with the execution of the next policy.
@@ -99,10 +99,10 @@ public interface HttpPipelinePolicyChain {
      * @param delay The time from now to delay the execution of next policy.
      * @param timeUnit The time unit of the {@code delay}.
      */
-    void processNextPolicy(HttpRequest request, HttpCallback callback, long delay, TimeUnit timeUnit);
+    void processNextPolicy(HttpRequest request, NextPolicyCallback callback, long delay, TimeUnit timeUnit);
 
     /**
-     * Signal that the policy execution is successfully finished.
+     * Signal that the policy execution is successfully completed.
      *
      * <p>
      * A policy implementation calls this method to indicate its completion of response
@@ -112,10 +112,10 @@ public interface HttpPipelinePolicyChain {
      *
      * @param response The HTTP Response.
      */
-    void finishedProcessing(HttpResponse response);
+    void onCompleted(HttpResponse response);
 
     /**
-     * Signal that the policy execution is finished with failure.
+     * Signal that the policy execution is completed with failure.
      *
      * <p>
      * A policy implementation calls this method to signal that its execution is failed
@@ -124,5 +124,5 @@ public interface HttpPipelinePolicyChain {
      *
      * @param error The failure.
      */
-    void finishedProcessing(Throwable error);
+    void onCompleted(Throwable error);
 }

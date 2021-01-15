@@ -3,13 +3,13 @@
 
 package com.azure.android.core.http.policy;
 
-import com.azure.android.core.http.HttpCallback;
 import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.http.HttpHeaders;
 import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.http.NextPolicyCallback;
 import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.http.util.UrlBuilder;
 import com.azure.android.core.micro.util.Context;
@@ -133,9 +133,9 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
 
         logger.info(requestLogMessage.toString());
 
-        chain.processNextPolicy(httpRequest, new HttpCallback() {
+        chain.processNextPolicy(httpRequest, new NextPolicyCallback() {
             @Override
-            public void onSuccess(HttpResponse response) {
+            public void onSuccess(HttpResponse response, NotifyCompletion notifyCompletion) {
                 long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
 
                 final String contentLengthHeaderValue = response.getHeaderValue("Content-Length");
@@ -180,13 +180,13 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
                     responseLogMessage.append("<-- END HTTP");
                 }
                 logger.info(responseLogMessage.toString());
-                chain.finishedProcessing(httpResponse);
+                notifyCompletion.onCompleted(httpResponse);
             }
 
             @Override
-            public void onError(Throwable error) {
+            public void onError(Throwable error, NotifyCompletion notifyCompletion) {
                 logger.warning("<-- HTTP FAILED: ", error);
-                chain.finishedProcessing(error);
+                notifyCompletion.onCompleted(error);
             }
         });
     }
