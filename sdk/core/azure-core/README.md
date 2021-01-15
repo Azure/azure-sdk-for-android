@@ -23,7 +23,7 @@ library as an example of how to use the shared azure-core components in your cli
 * You must have an [Azure subscription](https://azure.microsoft.com/free/) to use this library.
 
 ### Versions available
-The current version of this library is **1.0.0-beta.2**.
+The current version of this library is **1.0.0-beta.3**.
 
 > Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
@@ -41,13 +41,13 @@ Add an `implementation` configuration to the `dependencies` block of your app's 
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-core:1.0.0-beta.2"
+    implementation "com.azure.android:azure-core:1.0.0-beta.3"
 }
 
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-core:1.0.0-beta.2")
+    implementation("com.azure.android:azure-core:1.0.0-beta.3")
 }
 ```
 
@@ -58,7 +58,7 @@ To import the library into your project using the [Maven](https://maven.apache.o
 <dependency>
   <groupId>com.azure.android</groupId>
   <artifactId>azure-core</artifactId>
-  <version>1.0.0-beta.2</version>
+  <version>1.0.0-beta.3</version>
 </dependency>
 ```
 
