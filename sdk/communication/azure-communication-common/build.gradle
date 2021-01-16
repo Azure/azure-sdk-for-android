@@ -11,7 +11,7 @@ android {
 }
 
 dependencies {
-    api "com.azure.android:azure-core:1.0.0-beta.2"
+    api "com.azure.android:azure-core:1.0.0-beta.3"
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
     testImplementation "junit:junit:$jUnitVersion"
