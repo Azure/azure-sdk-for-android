@@ -40,7 +40,7 @@ public class BearerTokenAuthenticationPolicy implements HttpPipelinePolicy {
     @Override
     public void process(HttpPipelinePolicyChain chain) {
         if ("http".equals(chain.getRequest().getUrl().getProtocol())) {
-            chain.onCompleted(
+            chain.completedError(
                 new IllegalStateException("Token credentials require HTTPS to prevent leaking the key."));
         } else {
             this.credential.getToken(new TokenRequestContext().addScopes(scopes),
@@ -63,7 +63,7 @@ public class BearerTokenAuthenticationPolicy implements HttpPipelinePolicy {
 
         @Override
         public void onError(Throwable error) {
-            chain.onCompleted(error);
+            chain.completedError(error);
         }
     }
 }

@@ -492,14 +492,12 @@ public final class HttpCallDispatcher {
 
         @Override
         public void onSuccess(HttpResponse response) {
-            this.callback.onSuccess(response,
-                new NextPolicyCallback.NotifyCompletion(this.chain.prevChain));
+            this.callback.onSuccess(response, new PolicyCompleter(this.chain.prevChain));
         }
 
         @Override
         public void onError(Throwable error) {
-            this.callback.onError(error,
-                new NextPolicyCallback.NotifyCompletion(this.chain.prevChain));
+            this.callback.onError(error, new PolicyCompleter(this.chain.prevChain));
         }
 
         @Override

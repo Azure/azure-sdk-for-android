@@ -9,6 +9,7 @@ import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.NextPolicyCallback;
+import com.azure.android.core.http.PolicyCompleter;
 
 import java.io.IOException;
 import java.net.CookieHandler;
@@ -35,7 +36,7 @@ public class CookiePolicy implements HttpPipelinePolicy {
         try {
             uri = httpRequest.getUrl().toURI();
         } catch (URISyntaxException error) {
-            chain.onCompleted(error);
+            chain.completedError(error);
             return;
         }
 
@@ -49,7 +50,7 @@ public class CookiePolicy implements HttpPipelinePolicy {
         try {
             requestCookies = cookies.get(uri, cookieHeaders);
         } catch (IOException error) {
-            chain.onCompleted(error);
+            chain.completedError(error);
             return;
         }
 
@@ -59,7 +60,7 @@ public class CookiePolicy implements HttpPipelinePolicy {
 
         chain.processNextPolicy(httpRequest, new NextPolicyCallback() {
             @Override
-            public void onSuccess(HttpResponse response, NotifyCompletion notifyCompletion) {
+            public PolicyCompleter.CompletionState onSuccess(HttpResponse response, PolicyCompleter completer) {
                 Map<String, List<String>> responseHeaders = new HashMap<>();
                 for (HttpHeader header : response.getHeaders()) {
                     responseHeaders.put(header.getName(), Collections.singletonList(header.getValue()));
@@ -68,15 +69,14 @@ public class CookiePolicy implements HttpPipelinePolicy {
                 try {
                     cookies.put(uri, responseHeaders);
                 } catch (IOException error) {
-                    notifyCompletion.onCompleted(error);
-                    return;
+                    return completer.completedError(error);
                 }
-                notifyCompletion.onCompleted(response);
+                return completer.completed(response);
             }
 
             @Override
-            public void onError(Throwable error, NotifyCompletion notifyCompletion) {
-                notifyCompletion.onCompleted(error);
+            public PolicyCompleter.CompletionState onError(Throwable error, PolicyCompleter completer) {
+                return completer.completedError(error);
             }
         });
     }

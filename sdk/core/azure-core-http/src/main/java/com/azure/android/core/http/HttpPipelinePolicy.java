@@ -3,8 +3,6 @@
 
 package com.azure.android.core.http;
 
-import com.azure.android.core.http.NextPolicyCallback.NotifyCompletion;
-
 /**
  * A policy within the {@link HttpPipeline}.
  *
@@ -21,11 +19,11 @@ public interface HttpPipelinePolicy {
      * {@link HttpPipelinePolicyChain#processNextPolicy(HttpRequest, NextPolicyCallback)}.
      *
      * The policy can intercept the resulting response notified to
-     * {@link NextPolicyCallback#onSuccess(HttpResponse, NotifyCompletion)}
-     *  or error notified to {@link NextPolicyCallback#onError(Throwable, NotifyCompletion)}
+     * {@link NextPolicyCallback#onSuccess(HttpResponse, PolicyCompleter)}
+     *  or error notified to {@link NextPolicyCallback#onError(Throwable, PolicyCompleter)}
      * and must signal the completion of the policy by calling
-     * {@link NotifyCompletion#onCompleted(HttpResponse)} or
-     * {@link NotifyCompletion#onCompleted(Throwable)}.
+     * {@link PolicyCompleter#completed(HttpResponse)} or
+     * {@link PolicyCompleter#completedError(Throwable)}.
      * </p>
      *
      * @param chain The chain for the policy to access the request and response.

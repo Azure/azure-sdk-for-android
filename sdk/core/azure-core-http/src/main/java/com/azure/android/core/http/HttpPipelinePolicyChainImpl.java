@@ -62,13 +62,16 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
                 null,
                 new NextPolicyCallback() {
                     @Override
-                    public void onSuccess(HttpResponse response, NotifyCompletion nc) {
+                    public PolicyCompleter.CompletionState onSuccess(HttpResponse response, PolicyCompleter completer) {
                         rootHttpCallback.onSuccess(response);
+                        return PolicyCompleter.CompletionState.INSTANCE;
+
                     }
 
                     @Override
-                    public void onError(Throwable error, NotifyCompletion nc) {
+                    public PolicyCompleter.CompletionState onError(Throwable error, PolicyCompleter completer) {
                         rootHttpCallback.onError(error);
+                        return PolicyCompleter.CompletionState.INSTANCE;
                     }
                 });
 
@@ -172,13 +175,13 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
     }
 
     @Override
-    public void onCompleted(HttpResponse httpResponse) {
+    public void completed(HttpResponse httpResponse) {
         Objects.requireNonNull(httpResponse, "'httpResponse' is required.");
         assert (this.prevChain != null);
         if (this.prevPolicyCallback != null) {
             try {
                 this.prevPolicyCallback.onSuccess(httpResponse,
-                    new NextPolicyCallback.NotifyCompletion(this.prevChain));
+                    new PolicyCompleter(this.prevChain));
             } catch (Throwable t) {
                 this.reportBypassedError(t, true);
             }
@@ -187,22 +190,22 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
             // implementation used 'processNextPolicy(HttpRequest httpRequest)'. A delegating
             // callback also works but avoiding an extra allocation by using previous
             // chain reference.
-            this.prevChain.onCompleted(httpResponse);
+            this.prevChain.completed(httpResponse);
         }
     }
 
     @Override
-    public void onCompleted(Throwable error) {
+    public void completedError(Throwable error) {
         Objects.requireNonNull(error, "'throwable' is required.");
         if (this.prevPolicyCallback != null) {
             try {
                 this.prevPolicyCallback.onError(error,
-                    new NextPolicyCallback.NotifyCompletion(this.prevChain));
+                    new PolicyCompleter(this.prevChain));
             } catch (Throwable t) {
                 this.reportBypassedError(t, true);
             }
         } else {
-            this.prevChain.onCompleted(error);
+            this.prevChain.completedError(error);
         }
     }
 

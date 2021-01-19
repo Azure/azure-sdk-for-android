@@ -39,7 +39,7 @@ public class PortPolicy implements HttpPipelinePolicy {
             try {
                 httpRequest.setUrl(urlBuilder.setPort(port).toUrl().toString());
             } catch (MalformedURLException error) {
-                chain.onCompleted(error);
+                chain.completedError(error);
                 return;
             }
             chain.processNextPolicy(httpRequest);

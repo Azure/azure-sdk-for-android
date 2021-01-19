@@ -112,7 +112,7 @@ public interface HttpPipelinePolicyChain {
      *
      * @param response The HTTP Response.
      */
-    void onCompleted(HttpResponse response);
+    void completed(HttpResponse response);
 
     /**
      * Signal that the policy execution is completed with failure.
@@ -124,5 +124,5 @@ public interface HttpPipelinePolicyChain {
      *
      * @param error The failure.
      */
-    void onCompleted(Throwable error);
+    void completedError(Throwable error);
 }

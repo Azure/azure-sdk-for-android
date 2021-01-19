@@ -50,12 +50,12 @@ public final class HttpPipeline {
                     new HttpCallback() {
                         @Override
                         public void onSuccess(HttpResponse response) {
-                            chain.onCompleted(response);
+                            chain.completed(response);
                         }
 
                         @Override
                         public void onError(Throwable error) {
-                            chain.onCompleted(error);
+                            chain.completedError(error);
                         }
                     });
             }
