@@ -9,7 +9,7 @@ jobs:
       - template: ../variables/globals.yml
 
     pool:
-      vmImage: '$(OSVmImage)'
+      name: '$(Pool)'
 
     steps:
       - script: |
@@ -33,7 +33,7 @@ jobs:
       - template: ../variables/globals.yml
 
     pool:
-      vmImage: '$(OSVmImage)'
+      name: '$(Pool)'
 
     steps:
 
@@ -72,7 +72,7 @@ jobs:
       - template: ../variables/globals.yml
 
     pool:
-      vmImage: '$(OSVmImage)'
+      name: '$(Pool)'
 
     steps:
       - script: |
