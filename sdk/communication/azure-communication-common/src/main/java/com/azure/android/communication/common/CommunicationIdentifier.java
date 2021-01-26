@@ -8,4 +8,9 @@ package com.azure.android.communication.common;
  * Common Communication Identifier for Communication Services
  */
 public abstract class CommunicationIdentifier {
+    /**
+     * Get string representation of the identifier
+     * @return string representation of the identifier
+     */
+    public abstract String getId();
 }
