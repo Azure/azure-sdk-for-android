@@ -11,9 +11,9 @@ import com.azure.android.core.http.ServiceClient;
  * Options for configuring telemetry sent by a {@link ServiceClient}.
  */
 public class TelemetryOptions {
-    boolean telemetryDisabled;
+    private final boolean telemetryDisabled;
     @Nullable
-    String applicationId;
+    private final String applicationId;
 
     /**
      * Creates an instance of {@link TelemetryOptions}.
