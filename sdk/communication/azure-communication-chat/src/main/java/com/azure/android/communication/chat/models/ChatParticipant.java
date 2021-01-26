@@ -30,7 +30,7 @@ public final class ChatParticipant {
      * Time from which the chat history is shared with the participant. The
      * timestamp is in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      */
-    @JsonProperty(value = "shareHistoryTime", required = true)
+    @JsonProperty(value = "shareHistoryTime")
     private OffsetDateTime shareHistoryTime;
 
     /**

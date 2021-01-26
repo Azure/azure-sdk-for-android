@@ -1,5 +1,13 @@
 # Release History
 
+## 1.0.0-beta.5 (Unreleased)
+### Added
+- Support for three more types of chat message content
+- New classes
+    - CommunicationError
+    - CommunicationErrorResponse
+    - CommunicationErrorResponseException
+
 ## 1.0.0-beta.4 (Unreleased)
 ### Added
 - Support for Rich Text Chat message content

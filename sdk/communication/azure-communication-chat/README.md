@@ -17,7 +17,7 @@ This package contains the Chat client library for Azure Communication Services.
 ### Versions available
 The current Azure Communication Chat Service Version is **2020-11-01-preview3**.
 
-The current Azure Communication Chat SDK Version is **1.0.0-beta.3**.
+The current Azure Communication Chat SDK Version is **1.0.0-beta.5**.
 
 > Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
@@ -35,13 +35,13 @@ Add an `implementation` configuration to the `dependencies` block of your app's 
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-communication-chat:1.0.0-beta.2"
+    implementation "com.azure.android:azure-communication-chat:1.0.0-beta.5"
 }
 
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-communication-chat:1.0.0-beta.2")
+    implementation("com.azure.android:azure-communication-chat:1.0.0-beta.5")
 }
 ```
 
@@ -52,7 +52,7 @@ To import the library into your project using the [Maven](https://maven.apache.o
 <dependency>
   <groupId>com.azure.android</groupId>
   <artifactId>azure-communication-chat</artifactId>
-  <version>1.0.0-beta.3</version>
+  <version>1.0.0-beta.5</version>
 </dependency>
 ```
 
@@ -302,11 +302,7 @@ Use the `send` method to send a message to a thread.
 final String content = "Test message 1";
 // The display name of the sender, if null (i.e. not specified), an empty name will be set.
 final String senderDisplayName = "An important person";
-// The message priority level, such as 'NORMAL' or 'HIGH', 
-// if null (i.e. not specified), 'NORMAL' will be set.
-final ChatMessagePriority priority = ChatMessagePriority.HIGH;
 SendChatMessageRequest message = new SendChatMessageRequest()
-    .setPriority(priority)
     .setType(ChatMessageType.TEXT)
     .setContent(content)
     .setSenderDisplayName(senderDisplayName);
@@ -424,13 +420,9 @@ Use the `update` method to update a message in a thread.
 ```java
 // The message content to be updated.
 final String content = "updated message";
-// The message priority level, such as 'NORMAL' or 'HIGH', if null (i.e. not specified), 
-// 'NORMAL' will be set.
-final ChatMessagePriority priority = ChatMessagePriority.HIGH;
 //  The model to pass to the update method.
 UpdateChatMessageRequest message = new UpdateChatMessageRequest()
     .setContent(content)
-    .setPriority(priority);
 
 // The unique ID of the thread.
 final String threadId = "<thread_id>";

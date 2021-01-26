@@ -7,9 +7,9 @@ package com.azure.android.communication.chat.implementation;
 import com.azure.android.communication.chat.models.ChatThread;
 import com.azure.android.communication.chat.models.ChatThreadInfo;
 import com.azure.android.communication.chat.models.ChatThreadsInfoCollection;
+import com.azure.android.communication.chat.models.CommunicationErrorResponseException;
 import com.azure.android.communication.chat.models.CreateChatThreadRequest;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
-import com.azure.android.communication.chat.models.ErrorException;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.exception.HttpResponseException;
@@ -21,6 +21,7 @@ import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.paging.Page;
 import com.azure.android.core.util.paging.PagedDataCollection;
 import com.azure.android.core.util.paging.PagedDataRetriever;
+
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.threeten.bp.OffsetDateTime;
@@ -50,7 +51,7 @@ public final class ChatsImpl {
 
     /**
      * Initializes an instance of ChatsImpl.
-     * 
+     *
      * @param client the instance of the service client containing this operation class.
      */
     ChatsImpl(AzureCommunicationChatServiceImpl client) {
@@ -65,32 +66,33 @@ public final class ChatsImpl {
      */
     private interface ChatsService {
         @POST("/chat/threads")
-        Call<ResponseBody> createChatThread(@Header("repeatability-Request-ID") String repeatabilityRequestID, @Query("api-version") String apiVersion, @Body RequestBody createChatThreadRequest);
+        Call<ResponseBody> createChatThread(@Header("repeatability-Request-ID") String repeatabilityRequestID, @Header("Accept") String accept, @Query("api-version") String apiVersion, @Body RequestBody createChatThreadRequest);
 
         @GET("/chat/threads")
-        Call<ResponseBody> listChatThreads(@Query("maxPageSize") Integer maxPageSize, @Query("startTime") OffsetDateTime startTime, @Query("api-version") String apiVersion);
+        Call<ResponseBody> listChatThreads(@Header("Accept") String accept, @Query("maxPageSize") Integer maxPageSize, @Query("startTime") OffsetDateTime startTime, @Query("api-version") String apiVersion);
 
         @GET("/chat/threads/{chatThreadId}")
-        Call<ResponseBody> getChatThread(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion);
+        Call<ResponseBody> getChatThread(@Header("Accept") String accept, @Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion);
 
         @DELETE("/chat/threads/{chatThreadId}")
-        Call<ResponseBody> deleteChatThread(@Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion);
+        Call<ResponseBody> deleteChatThread(@Header("Accept") String accept, @Path("chatThreadId") String chatThreadId, @Query("api-version") String apiVersion);
 
         @GET("{nextLink}")
-        Call<ResponseBody> listChatThreadsNext(@Path(value = "nextLink", encoded = true) String nextLink);
+        Call<ResponseBody> listChatThreadsNext(@Header("Accept") String accept, @Path(value = "nextLink", encoded = true) String nextLink);
     }
 
     /**
      * Creates a chat thread.
-     * 
+     *
      * @param createChatThreadRequest Request payload for creating a chat thread.
      * @param repeatabilityRequestID If specified, the client directs that the request is repeatable; that is, that the client can make the request multiple times with the same Repeatability-Request-ID and get back an appropriate response without the server executing the request multiple times. The value of the Repeatability-Request-ID is an opaque string representing a client-generated, globally unique for all time, identifier for the request. It is recommended to use version 4 (random) UUIDs.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void createChatThread(CreateChatThreadRequest createChatThreadRequest, String repeatabilityRequestID, final Callback<CreateChatThreadResult> callback) {
+        final String accept = "application/json";
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), client.serializerAdapter.serialize(createChatThreadRequest, client.resolveSerializerFormat("application/json")));
@@ -98,7 +100,7 @@ public final class ChatsImpl {
             callback.onFailure(new RuntimeException(ioe), null);
             return;
         }
-        Call<ResponseBody> call = service.createChatThread(repeatabilityRequestID, this.client.getApiVersion(), okHttp3RequestBody);
+        Call<ResponseBody> call = service.createChatThread(repeatabilityRequestID, accept, this.client.getApiVersion(), okHttp3RequestBody);
         retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
@@ -114,7 +116,7 @@ public final class ChatsImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = client.readAsString(response.body());
-                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new CommunicationErrorResponseException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = client.readAsString(response.errorBody());
@@ -132,11 +134,11 @@ public final class ChatsImpl {
 
     /**
      * Creates a chat thread.
-     * 
+     *
      * @param createChatThreadRequest Request payload for creating a chat thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void createChatThread(CreateChatThreadRequest createChatThreadRequest, final Callback<CreateChatThreadResult> callback) {
@@ -146,22 +148,23 @@ public final class ChatsImpl {
 
     /**
      * Creates a chat thread.
-     * 
+     *
      * @param createChatThreadRequest Request payload for creating a chat thread.
      * @param repeatabilityRequestID If specified, the client directs that the request is repeatable; that is, that the client can make the request multiple times with the same Repeatability-Request-ID and get back an appropriate response without the server executing the request multiple times. The value of the Repeatability-Request-ID is an opaque string representing a client-generated, globally unique for all time, identifier for the request. It is recommended to use version 4 (random) UUIDs.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the create chat thread operation.
      */
     public Response<CreateChatThreadResult> createChatThreadWithRestResponse(CreateChatThreadRequest createChatThreadRequest, String repeatabilityRequestID) {
+        final String accept = "application/json";
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.client.serializerAdapter.serialize(createChatThreadRequest, this.client.resolveSerializerFormat("application/json")));
         } catch(java.io.IOException ioe) {
             throw new RuntimeException(ioe);
         }
-        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.createChatThread(repeatabilityRequestID, this.client.getApiVersion(), okHttp3RequestBody));
+        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.createChatThread(repeatabilityRequestID, accept, this.client.getApiVersion(), okHttp3RequestBody));
         if (response.isSuccessful()) {
             if (response.code() == 201) {
                 return new Response<>(response.raw().request(),
@@ -170,7 +173,7 @@ public final class ChatsImpl {
                                         this.client.deserializeContent(response.headers(), response.body(), CreateChatThreadResult.class));
             } else {
                 final String strContent = this.client.readAsString(response.body());
-                throw new ErrorException(strContent, response.raw());
+                throw new CommunicationErrorResponseException(strContent, response.raw());
             }
         } else {
             final String strContent = this.client.readAsString(response.errorBody());
@@ -180,10 +183,10 @@ public final class ChatsImpl {
 
     /**
      * Creates a chat thread.
-     * 
+     *
      * @param createChatThreadRequest Request payload for creating a chat thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the create chat thread operation.
      */
@@ -194,16 +197,17 @@ public final class ChatsImpl {
 
     /**
      * Gets the list of chat threads of a user.
-     * 
+     *
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void listChatThreads(Integer maxPageSize, OffsetDateTime startTime, final Callback<Page<ChatThreadInfo>> callback) {
-        Call<ResponseBody> call = service.listChatThreads(maxPageSize, startTime, this.client.getApiVersion());
+        final String accept = "application/json";
+        Call<ResponseBody> call = service.listChatThreads(accept, maxPageSize, startTime, this.client.getApiVersion());
         retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
@@ -219,7 +223,7 @@ public final class ChatsImpl {
                         callback.onSuccess(new Page<ChatThreadInfo>(response.raw().request().url().toString(), decodedResult.getValue(), decodedResult.getNextLink()), response.raw());
                     } else {
                         final String strContent = client.readAsString(response.body());
-                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new CommunicationErrorResponseException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = client.readAsString(response.errorBody());
@@ -237,10 +241,10 @@ public final class ChatsImpl {
 
     /**
      * Gets the list of chat threads of a user.
-     * 
+     *
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void listChatThreads(final Callback<Page<ChatThreadInfo>> callback) {
@@ -251,16 +255,17 @@ public final class ChatsImpl {
 
     /**
      * Gets the list of chat threads of a user.
-     * 
+     *
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the list of chat threads of a user.
      */
     public Response<Page<ChatThreadInfo>> listChatThreadsWithRestResponse(Integer maxPageSize, OffsetDateTime startTime) {
-        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.listChatThreads(maxPageSize, startTime, this.client.getApiVersion()));
+        final String accept = "application/json";
+        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.listChatThreads(accept, maxPageSize, startTime, this.client.getApiVersion()));
         if (response.isSuccessful()) {
             if (response.code() == 200) {
                 final ChatThreadsInfoCollection decodedResult;
@@ -268,7 +273,7 @@ public final class ChatsImpl {
                     decodedResult = this.client.deserializeContent(response.headers(), response.body(), ChatThreadsInfoCollection.class);
                 } catch(Exception ex) {
                     final String strContent = this.client.readAsString(response.body());
-                    throw new ErrorException(strContent, response.raw());
+                    throw new CommunicationErrorResponseException(strContent, response.raw());
                 }
                 return new Response<>(response.raw().request(),
                                         response.code(),
@@ -276,7 +281,7 @@ public final class ChatsImpl {
                                         new Page<ChatThreadInfo>(response.raw().request().url().toString(), decodedResult.getValue(), decodedResult.getNextLink()));
             } else {
                 final String strContent = this.client.readAsString(response.body());
-                throw new ErrorException(strContent, response.raw());
+                throw new CommunicationErrorResponseException(strContent, response.raw());
             }
         } else {
             final String strContent = this.client.readAsString(response.errorBody());
@@ -306,29 +311,51 @@ public final class ChatsImpl {
         }
     }
 
-    /**
-     * Gets the list of chat threads of a user.
-     * 
-     * @param maxPageSize The maximum number of chat threads returned per page.
-     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
-     * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
-     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
-     * @return the list of chat threads of a user.
-     */
-    public PagedDataResponseCollection<ChatThreadInfo, Page<ChatThreadInfo>> listChatThreadsWithPageResponse(Integer maxPageSize, OffsetDateTime startTime) {
-        ListChatThreadsWithPageResponseRetriever retriever = new ListChatThreadsWithPageResponseRetriever(maxPageSize, startTime, this);
-        return new PagedDataResponseCollection<ChatThreadInfo, Page<ChatThreadInfo>>(retriever);
-    }
-
-    private static final class ListChatThreadsWithPageRetriever extends PagedDataRetriever<ChatThreadInfo, Page<ChatThreadInfo>> {
+    private static final class ChatThreadInfoPageResponseRetriever extends PagedDataResponseRetriever<ChatThreadInfo, Page<ChatThreadInfo>> {
         private final Integer maxPageSize;
 
         private final OffsetDateTime startTime;
 
         private final ChatsImpl serviceClient;
 
-        public ListChatThreadsWithPageRetriever(Integer maxPageSize, OffsetDateTime startTime, ChatsImpl serviceClient) {
+        public ChatThreadInfoPageResponseRetriever(Integer maxPageSize, OffsetDateTime startTime, ChatsImpl serviceClient) {
+            this.maxPageSize = maxPageSize;
+            this.startTime = startTime;
+            this.serviceClient = serviceClient;
+        }
+
+        public Response<Page<ChatThreadInfo>> getFirstPage() {
+            return serviceClient.listChatThreadsWithRestResponse(maxPageSize, startTime);
+        }
+
+        public Response<Page<ChatThreadInfo>> getPage(String nextLink) {
+            return serviceClient.listChatThreadsNextWithRestResponse(nextLink);
+        }
+    }
+
+    /**
+     * Gets the list of chat threads of a user.
+     *
+     * @param maxPageSize The maximum number of chat threads returned per page.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     * @return the list of chat threads of a user.
+     */
+    public PagedDataResponseCollection<ChatThreadInfo, Page<ChatThreadInfo>> listChatThreadsWithPageResponse(Integer maxPageSize, OffsetDateTime startTime) {
+        ChatThreadInfoPageResponseRetriever retriever = new ChatThreadInfoPageResponseRetriever(maxPageSize, startTime, this);
+        return new PagedDataResponseCollection<ChatThreadInfo, Page<ChatThreadInfo>>(retriever);
+    }
+
+    private static final class ChatThreadInfoPageRetriever extends PagedDataRetriever<ChatThreadInfo, Page<ChatThreadInfo>> {
+        private final Integer maxPageSize;
+
+        private final OffsetDateTime startTime;
+
+        private final ChatsImpl serviceClient;
+
+        public ChatThreadInfoPageRetriever(Integer maxPageSize, OffsetDateTime startTime, ChatsImpl serviceClient) {
             this.maxPageSize = maxPageSize;
             this.startTime = startTime;
             this.serviceClient = serviceClient;
@@ -345,23 +372,23 @@ public final class ChatsImpl {
 
     /**
      * Gets the list of chat threads of a user.
-     * 
+     *
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the list of chat threads of a user.
      */
     public PagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>> listChatThreadsWithPage(Integer maxPageSize, OffsetDateTime startTime) {
-        ListChatThreadsWithPageRetriever retriever = new ListChatThreadsWithPageRetriever(maxPageSize, startTime, this);
+        ChatThreadInfoPageRetriever retriever = new ChatThreadInfoPageRetriever(maxPageSize, startTime, this);
         return new PagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>(retriever);
     }
 
     /**
      * Gets the list of chat threads of a user.
-     * 
-     * @throws ErrorException thrown if the request is rejected by server.
+     *
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the list of chat threads of a user.
      */
@@ -371,14 +398,14 @@ public final class ChatsImpl {
         return listChatThreadsWithRestResponse(maxPageSize, startTime).getValue();
     }
 
-    private static final class ListChatThreadsPagesAsyncRetriever extends AsyncPagedDataRetriever<ChatThreadInfo, Page<ChatThreadInfo>> {
+    private static final class ChatThreadInfoPageAsyncRetriever extends AsyncPagedDataRetriever<ChatThreadInfo, Page<ChatThreadInfo>> {
         private final Integer maxPageSize;
 
         private final OffsetDateTime startTime;
 
         private final ChatsImpl serviceClient;
 
-        public ListChatThreadsPagesAsyncRetriever(Integer maxPageSize, OffsetDateTime startTime, ChatsImpl serviceClient) {
+        public ChatThreadInfoPageAsyncRetriever(Integer maxPageSize, OffsetDateTime startTime, ChatsImpl serviceClient) {
             this.maxPageSize = maxPageSize;
             this.startTime = startTime;
             this.serviceClient = serviceClient;
@@ -395,30 +422,31 @@ public final class ChatsImpl {
 
     /**
      * Gets the list of chat threads of a user.
-     * 
+     *
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @param callback the Callback that receives the response collection.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void listChatThreadsPagesAsync(Integer maxPageSize, OffsetDateTime startTime, final Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>> callback) {
-        ListChatThreadsPagesAsyncRetriever retriever = new ListChatThreadsPagesAsyncRetriever(maxPageSize, startTime, this);
+        ChatThreadInfoPageAsyncRetriever retriever = new ChatThreadInfoPageAsyncRetriever(maxPageSize, startTime, this);
         callback.onSuccess(new AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>(retriever), null);
     }
 
     /**
      * Gets a chat thread.
-     * 
+     *
      * @param chatThreadId Id of the thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void getChatThread(String chatThreadId, final Callback<ChatThread> callback) {
-        Call<ResponseBody> call = service.getChatThread(chatThreadId, this.client.getApiVersion());
+        final String accept = "application/json";
+        Call<ResponseBody> call = service.getChatThread(accept, chatThreadId, this.client.getApiVersion());
         retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
@@ -434,7 +462,7 @@ public final class ChatsImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = client.readAsString(response.body());
-                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new CommunicationErrorResponseException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = client.readAsString(response.errorBody());
@@ -452,15 +480,16 @@ public final class ChatsImpl {
 
     /**
      * Gets a chat thread.
-     * 
+     *
      * @param chatThreadId Id of the thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return a chat thread.
      */
     public Response<ChatThread> getChatThreadWithRestResponse(String chatThreadId) {
-        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.getChatThread(chatThreadId, this.client.getApiVersion()));
+        final String accept = "application/json";
+        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.getChatThread(accept, chatThreadId, this.client.getApiVersion()));
         if (response.isSuccessful()) {
             if (response.code() == 200) {
                 return new Response<>(response.raw().request(),
@@ -469,7 +498,7 @@ public final class ChatsImpl {
                                         this.client.deserializeContent(response.headers(), response.body(), ChatThread.class));
             } else {
                 final String strContent = this.client.readAsString(response.body());
-                throw new ErrorException(strContent, response.raw());
+                throw new CommunicationErrorResponseException(strContent, response.raw());
             }
         } else {
             final String strContent = this.client.readAsString(response.errorBody());
@@ -479,15 +508,16 @@ public final class ChatsImpl {
 
     /**
      * Deletes a thread.
-     * 
+     *
      * @param chatThreadId Id of the thread to be deleted.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void deleteChatThread(String chatThreadId, final Callback<Void> callback) {
-        Call<ResponseBody> call = service.deleteChatThread(chatThreadId, this.client.getApiVersion());
+        final String accept = "application/json";
+        Call<ResponseBody> call = service.deleteChatThread(accept, chatThreadId, this.client.getApiVersion());
         retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
@@ -503,7 +533,7 @@ public final class ChatsImpl {
                         callback.onSuccess(decodedResult, response.raw());
                     } else {
                         final String strContent = client.readAsString(response.body());
-                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new CommunicationErrorResponseException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = client.readAsString(response.errorBody());
@@ -521,15 +551,16 @@ public final class ChatsImpl {
 
     /**
      * Deletes a thread.
-     * 
+     *
      * @param chatThreadId Id of the thread to be deleted.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
     public Response<Void> deleteChatThreadWithRestResponse(String chatThreadId) {
-        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.deleteChatThread(chatThreadId, this.client.getApiVersion()));
+        final String accept = "application/json";
+        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.deleteChatThread(accept, chatThreadId, this.client.getApiVersion()));
         if (response.isSuccessful()) {
             if (response.code() == 204) {
                 return new Response<>(response.raw().request(),
@@ -538,7 +569,7 @@ public final class ChatsImpl {
                                         this.client.deserializeContent(response.headers(), response.body(), Void.class));
             } else {
                 final String strContent = this.client.readAsString(response.body());
-                throw new ErrorException(strContent, response.raw());
+                throw new CommunicationErrorResponseException(strContent, response.raw());
             }
         } else {
             final String strContent = this.client.readAsString(response.errorBody());
@@ -548,15 +579,16 @@ public final class ChatsImpl {
 
     /**
      * Get the next page of items.
-     * 
+     *
      * @param nextLink The nextLink parameter.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void listChatThreadsNext(String nextLink, final Callback<Page<ChatThreadInfo>> callback) {
-        Call<ResponseBody> call = service.listChatThreadsNext(nextLink);
+        final String accept = "application/json";
+        Call<ResponseBody> call = service.listChatThreadsNext(accept, nextLink);
         retrofit2.Callback<ResponseBody> retrofitCallback = new retrofit2.Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<okhttp3.ResponseBody> call, retrofit2.Response<ResponseBody> response) {
@@ -572,7 +604,7 @@ public final class ChatsImpl {
                         callback.onSuccess(new Page<ChatThreadInfo>(nextLink, decodedResult.getValue(), decodedResult.getNextLink()), response.raw());
                     } else {
                         final String strContent = client.readAsString(response.body());
-                        callback.onFailure(new ErrorException(strContent, response.raw()), response.raw());
+                        callback.onFailure(new CommunicationErrorResponseException(strContent, response.raw()), response.raw());
                     }
                 } else {
                     final String strContent = client.readAsString(response.errorBody());
@@ -590,15 +622,16 @@ public final class ChatsImpl {
 
     /**
      * Get the next page of items.
-     * 
+     *
      * @param nextLink The nextLink parameter.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return collection of chat threads.
      */
     public Response<Page<ChatThreadInfo>> listChatThreadsNextWithRestResponse(String nextLink) {
-        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.listChatThreadsNext(nextLink));
+        final String accept = "application/json";
+        final retrofit2.Response<ResponseBody> response = this.client.executeRetrofitCall(service.listChatThreadsNext(accept, nextLink));
         if (response.isSuccessful()) {
             if (response.code() == 200) {
                 final ChatThreadsInfoCollection decodedResult;
@@ -606,7 +639,7 @@ public final class ChatsImpl {
                     decodedResult = this.client.deserializeContent(response.headers(), response.body(), ChatThreadsInfoCollection.class);
                 } catch(Exception ex) {
                     final String strContent = this.client.readAsString(response.body());
-                    throw new ErrorException(strContent, response.raw());
+                    throw new CommunicationErrorResponseException(strContent, response.raw());
                 }
                 return new Response<>(response.raw().request(),
                                         response.code(),
@@ -614,7 +647,7 @@ public final class ChatsImpl {
                                         new Page<ChatThreadInfo>(nextLink, decodedResult.getValue(), decodedResult.getNextLink()));
             } else {
                 final String strContent = this.client.readAsString(response.body());
-                throw new ErrorException(strContent, response.raw());
+                throw new CommunicationErrorResponseException(strContent, response.raw());
             }
         } else {
             final String strContent = this.client.readAsString(response.errorBody());

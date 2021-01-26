@@ -14,12 +14,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Fluent
 public final class SendChatMessageRequest {
     /*
-     * The chat message priority.
-     */
-    @JsonProperty(value = "priority")
-    private ChatMessagePriority priority;
-
-    /*
      * Chat message content.
      */
     @JsonProperty(value = "content", required = true)
@@ -37,26 +31,6 @@ public final class SendChatMessageRequest {
      */
     @JsonProperty(value = "type")
     private ChatMessageType type;
-
-    /**
-     * Get the priority property: The chat message priority.
-     * 
-     * @return the priority value.
-     */
-    public ChatMessagePriority getPriority() {
-        return this.priority;
-    }
-
-    /**
-     * Set the priority property: The chat message priority.
-     * 
-     * @param priority the priority value to set.
-     * @return the SendChatMessageRequest object itself.
-     */
-    public SendChatMessageRequest setPriority(ChatMessagePriority priority) {
-        this.priority = priority;
-        return this;
-    }
 
     /**
      * Get the content property: Chat message content.
