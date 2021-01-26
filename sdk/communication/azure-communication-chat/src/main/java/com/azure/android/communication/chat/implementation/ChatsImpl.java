@@ -25,6 +25,9 @@ import com.azure.android.core.util.paging.PagedDataRetriever;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.threeten.bp.OffsetDateTime;
+
+import java.util.UUID;
+
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.DELETE;
@@ -94,6 +97,8 @@ public final class ChatsImpl {
     public void createChatThread(CreateChatThreadRequest createChatThreadRequest, String repeatabilityRequestID, final Callback<CreateChatThreadResult> callback) {
         final String accept = "application/json";
         final okhttp3.RequestBody okHttp3RequestBody;
+        if (repeatabilityRequestID == null)
+            repeatabilityRequestID = UUID.randomUUID().toString();
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), client.serializerAdapter.serialize(createChatThreadRequest, client.resolveSerializerFormat("application/json")));
         } catch(java.io.IOException ioe) {
@@ -142,7 +147,7 @@ public final class ChatsImpl {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void createChatThread(CreateChatThreadRequest createChatThreadRequest, final Callback<CreateChatThreadResult> callback) {
-        final String repeatabilityRequestID = null;
+        final String repeatabilityRequestID = UUID.randomUUID().toString();
         createChatThread(createChatThreadRequest, repeatabilityRequestID, callback);
     }
 
@@ -159,6 +164,8 @@ public final class ChatsImpl {
     public Response<CreateChatThreadResult> createChatThreadWithRestResponse(CreateChatThreadRequest createChatThreadRequest, String repeatabilityRequestID) {
         final String accept = "application/json";
         final okhttp3.RequestBody okHttp3RequestBody;
+        if (repeatabilityRequestID == null)
+            repeatabilityRequestID = UUID.randomUUID().toString();
         try {
             okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/json"), this.client.serializerAdapter.serialize(createChatThreadRequest, this.client.resolveSerializerFormat("application/json")));
         } catch(java.io.IOException ioe) {
@@ -191,7 +198,7 @@ public final class ChatsImpl {
      * @return result of the create chat thread operation.
      */
     public CreateChatThreadResult createChatThread(CreateChatThreadRequest createChatThreadRequest) {
-        final String repeatabilityRequestID = null;
+        final String repeatabilityRequestID = UUID.randomUUID().toString();;
         return createChatThreadWithRestResponse(createChatThreadRequest, repeatabilityRequestID).getValue();
     }
 
