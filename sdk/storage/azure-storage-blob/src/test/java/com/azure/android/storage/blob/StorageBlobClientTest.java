@@ -36,6 +36,8 @@ import com.azure.android.storage.blob.models.ContainerCreateHeaders;
 import com.azure.android.storage.blob.models.ContainerCreateResponse;
 import com.azure.android.storage.blob.models.ContainerDeleteHeaders;
 import com.azure.android.storage.blob.models.ContainerDeleteResponse;
+import com.azure.android.storage.blob.options.ContainerCreateOptions;
+import com.azure.android.storage.blob.options.ContainerDeleteOptions;
 
 import org.junit.After;
 import org.junit.Test;
@@ -160,11 +162,8 @@ public class StorageBlobClientTest {
 
         // Then the client will return an object that contains the details of the REST response.
         ContainerCreateResponse response =
-            storageBlobClient.createContainerWithRestResponse("container",
-                null,
-                null,
-                null,
-                CancellationToken.NONE);
+            storageBlobClient.createContainerWithResponse(new ContainerCreateOptions("container")
+                .setCancellationToken(CancellationToken.NONE));
 
         assertEquals(201, response.getStatusCode());
     }
@@ -181,13 +180,8 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.createContainer("container",
-            null,
-            null,
-            null,
-            CancellationToken.NONE,
-            new CallbackWithHeader<Void, ContainerCreateHeaders>() {
-
+        storageBlobAsyncClient.createContainer(new ContainerCreateOptions("container")
+                .setCancellationToken(CancellationToken.NONE), new CallbackWithHeader<Void, ContainerCreateHeaders>() {
                 @Override
                 public void onSuccess(Void result, ContainerCreateHeaders header, Response response) {
                     try {
@@ -1486,10 +1480,8 @@ public class StorageBlobClientTest {
 
         // Then a response without body and status code 202 will be returned by the server.
         ContainerDeleteResponse response =
-            storageBlobClient.deleteContainerWithRestResponse("container",
-                null,
-                null,
-                CancellationToken.NONE);
+            storageBlobClient.deleteContainerWithResponse(new ContainerDeleteOptions("container")
+                .setCancellationToken(CancellationToken.NONE));
 
         assertEquals(202, response.getStatusCode());
     }
@@ -1506,10 +1498,8 @@ public class StorageBlobClientTest {
 
         CountDownLatch latch = new CountDownLatch(1);
 
-        storageBlobAsyncClient.deleteContainer("container",
-            null,
-            null,
-            CancellationToken.NONE,
+        storageBlobAsyncClient.deleteContainer(new ContainerDeleteOptions("container")
+                .setCancellationToken(CancellationToken.NONE),
             new CallbackWithHeader<Void, ContainerDeleteHeaders>() {
                 @Override
                 public void onSuccess(Void result, ContainerDeleteHeaders header, Response response) {

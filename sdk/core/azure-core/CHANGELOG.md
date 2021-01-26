@@ -1,6 +1,13 @@
 # Release History
 
-## 1.0.0-beta.3 (Unreleased)
+## 1.0.0-beta.4 (Unreleased)
+
+
+## 1.0.0-beta.3 (2021-01-15)
+
+### New Features
+
+- Added `ClientOptions`, `RequestOptions` and `TransportOptions`.
 
 ## 1.0.0-beta.2 (2020-10-05)
 

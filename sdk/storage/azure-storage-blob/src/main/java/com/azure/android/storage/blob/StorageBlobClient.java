@@ -6,6 +6,9 @@ package com.azure.android.storage.blob;
 import android.content.Context;
 import android.net.Uri;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
 import com.azure.android.core.http.interceptor.AddDateInterceptor;
@@ -18,12 +21,12 @@ import com.azure.android.storage.blob.models.AccessTier;
 import com.azure.android.storage.blob.models.BlobDeleteResponse;
 import com.azure.android.storage.blob.models.BlobDownloadResponse;
 import com.azure.android.storage.blob.models.BlobGetPropertiesHeaders;
+import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobGetTagsResponse;
 import com.azure.android.storage.blob.models.BlobHttpHeaders;
 import com.azure.android.storage.blob.models.BlobItem;
 import com.azure.android.storage.blob.models.BlobRange;
 import com.azure.android.storage.blob.models.BlobRequestConditions;
-import com.azure.android.storage.blob.models.BlobGetPropertiesResponse;
 import com.azure.android.storage.blob.models.BlobSetHttpHeadersResponse;
 import com.azure.android.storage.blob.models.BlobSetMetadataResponse;
 import com.azure.android.storage.blob.models.BlobSetTagsResponse;
@@ -44,7 +47,9 @@ import com.azure.android.storage.blob.models.ListBlobsFlatSegmentResponse;
 import com.azure.android.storage.blob.models.ListBlobsIncludeItem;
 import com.azure.android.storage.blob.models.ListBlobsOptions;
 import com.azure.android.storage.blob.models.RehydratePriority;
-import com.azure.android.storage.blob.models.PublicAccessType;
+import com.azure.android.storage.blob.options.ContainerCreateOptions;
+import com.azure.android.storage.blob.options.ContainerDeleteOptions;
+import com.azure.android.storage.blob.options.ContainerGetPropertiesOptions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -91,38 +96,87 @@ public class StorageBlobClient {
     /**
      * Creates a new container within a storage account. If a container with the same name already exists, the operation
      * fails.
+     * For more information, see the <a href="https://docs.microsoft.com/rest/api/storageservices/create-container">Azure Docs</a>.
      *
      * @param containerName The container name.
      */
-    public Void createContainer(String containerName) {
-        return storageBlobServiceClient.createContainer(containerName);
+    @Nullable
+    public Void createContainer(@NonNull String containerName) {
+        return this.createContainerWithResponse(new ContainerCreateOptions(containerName)).getValue();
     }
 
     /**
      * Creates a new container within a storage account. If a container with the same name already exists, the operation
      * fails.
+     * For more information, see the <a href="https://docs.microsoft.com/rest/api/storageservices/create-container">Azure Docs</a>.
      *
-     * @param containerName     The container name.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param metadata          Metadata to associate with the container.
-     * @param publicAccessType  Specifies how the data in this container is available to the public. See the
-     *                          x-ms-blob-public-access header in the Azure Docs for more information. Pass null
-     *                          for no public access.
-     * @param cancellationToken The token to request cancellation.
+     * @param options {@link ContainerCreateOptions}
      * @return The response information returned from the server when creating a container.
      */
-    public ContainerCreateResponse createContainerWithRestResponse(String containerName,
-                                                                   Integer timeout,
-                                                                   Map<String, String> metadata,
-                                                                   PublicAccessType publicAccessType,
-                                                                   CancellationToken cancellationToken) {
+    @NonNull
+    public ContainerCreateResponse createContainerWithResponse(@NonNull ContainerCreateOptions options) {
+        Objects.requireNonNull(options);
+        return storageBlobServiceClient.createContainerWithRestResponse(options.getContainerName(),
+            options.getTimeout(), options.getMetadata(), options.getPublicAccessType(), options.getCancellationToken());
+    }
 
-        return storageBlobServiceClient.createContainerWithRestResponse(containerName,
-            timeout,
-            metadata,
-            publicAccessType,
-            cancellationToken);
+    /**
+     * Marks the specified container for deletion. The container and any blobs contained within it are later deleted
+     * during garbage collection. For more information, see the
+     * <a href="https://docs.microsoft.com/rest/api/storageservices/delete-container">Azure Docs</a>.
+     *
+     * @param containerName The container name.
+     */
+    @Nullable
+    public Void deleteContainer(@NonNull String containerName) {
+        return this.deleteContainerWithResponse(new ContainerDeleteOptions(containerName)).getValue();
+    }
+
+    /**
+     * Marks the specified container for deletion. The container and any blobs contained within it are later deleted
+     * during garbage collection. For more information, see the
+     * <a href="https://docs.microsoft.com/rest/api/storageservices/delete-container">Azure Docs</a>.
+     *
+     * @param options {@link ContainerDeleteOptions}
+     * @return The response information returned from the server when deleting a container.
+     */
+    @NonNull
+    public ContainerDeleteResponse deleteContainerWithResponse(@NonNull ContainerDeleteOptions options) {
+        Objects.requireNonNull(options);
+        ModelHelper.validateRequestConditions(options.getRequestConditions(), false, true, true, false);
+        return storageBlobServiceClient.deleteContainerWithRestResponse(options.getContainerName(),
+            options.getTimeout(), options.getRequestConditions(), options.getCancellationToken());
+    }
+
+    /**
+     * Returns the container's metadata and system properties. For more information, see the
+     * <a href="https://docs.microsoft.com/rest/api/storageservices/get-container-metadata">Azure Docs</a>.
+     *
+     * @param containerName The container name.
+     * @return The container's properties.
+     */
+    /* TODO: (gapra) This should probably return a handwrapped type? */
+    @NonNull
+    public ContainerGetPropertiesHeaders getContainerProperties(@NonNull String containerName) {
+        return this.getContainerPropertiesWithResponse(new ContainerGetPropertiesOptions(containerName)).getDeserializedHeaders();
+    }
+
+    /**
+     * Returns the container's metadata and system properties. For more information, see the
+     * <a href="https://docs.microsoft.com/rest/api/storageservices/get-container-metadata">Azure Docs</a>.
+     *
+     * @param options {@link ContainerGetPropertiesOptions}
+     * @return The response information returned from the server when getting a container's properties.
+     */
+    @NonNull
+    public ContainerGetPropertiesResponse getContainerPropertiesWithResponse(@NonNull ContainerGetPropertiesOptions options) {
+        Objects.requireNonNull(options);
+        ModelHelper.validateRequestConditions(options.getRequestConditions(), false, false, true, false);
+        BlobRequestConditions requestConditions = options.getRequestConditions() == null ? new BlobRequestConditions()
+            : options.getRequestConditions();
+
+        return storageBlobServiceClient.getContainerPropertiesWithResponse(options.getContainerName(),
+            options.getTimeout(), requestConditions.getLeaseId(), options.getCancellationToken());
     }
 
     /**
@@ -367,40 +421,6 @@ public class StorageBlobClient {
             rehydratePriority,
             leaseId,
             tagsConditions,
-            cancellationToken);
-    }
-
-    /**
-     * Gets the container's properties.
-     *
-     * @param containerName The container name.
-     * @return The container's properties
-     */
-    public ContainerGetPropertiesHeaders getContainerProperties(String containerName) {
-        return storageBlobServiceClient.getContainerProperties(containerName);
-    }
-
-    /**
-     * Gets the container's properties.
-     *
-     * @param containerName         The container name.
-     * @param timeout               The timeout parameter is expressed in seconds. For more information, see
-     *                              &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param blobRequestConditions Object that contains values which will restrict the successful operation of a
-     *                              variety of requests to the conditions present. These conditions are entirely
-     *                              optional.
-     * @param cancellationToken     The token to request cancellation.
-     * @return The response information returned from the server when getting a container's properties.
-     */
-    public ContainerGetPropertiesResponse getContainerPropertiesWithRestResponse(String containerName,
-                                                                                 Integer timeout,
-                                                                                 BlobRequestConditions blobRequestConditions,
-                                                                                 CancellationToken cancellationToken) {
-        blobRequestConditions = blobRequestConditions == null ? new BlobRequestConditions() : blobRequestConditions;
-
-        return storageBlobServiceClient.getContainerPropertiesWithResponse(containerName,
-            timeout,
-            blobRequestConditions.getLeaseId(),
             cancellationToken);
     }
 
@@ -673,35 +693,6 @@ public class StorageBlobClient {
             snapshot,
             timeout,
             deleteSnapshots,
-            requestConditions,
-            cancellationToken);
-    }
-
-    /**
-     * Deletes a container.
-     *
-     * @param containerName The container name.
-     */
-    public Void deleteContainer(String containerName) {
-        return storageBlobServiceClient.deleteContainer(containerName);
-    }
-
-    /**
-     * Deletes a container
-     *
-     * @param containerName     The container name.
-     * @param timeout           The timeout parameter is expressed in seconds. For more information, see
-     *                          &lt;a href="https://docs.microsoft.com/en-us/rest/api/storageservices/fileservices/setting-timeouts-for-blob-service-operations"&gt;Setting Timeouts for Blob Service Operations.&lt;/a&gt;.
-     * @param requestConditions {@link BlobRequestConditions}
-     * @param cancellationToken The token to request cancellation.
-     * @return A response object containing the details of the delete operation.
-     */
-    public ContainerDeleteResponse deleteContainerWithRestResponse(String containerName,
-                                                                   Integer timeout,
-                                                                   BlobRequestConditions requestConditions,
-                                                                   CancellationToken cancellationToken) {
-        return storageBlobServiceClient.deleteContainerWithRestResponse(containerName,
-            timeout,
             requestConditions,
             cancellationToken);
     }

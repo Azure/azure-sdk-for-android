@@ -11,7 +11,7 @@
 # Service teams
 
 # PRLabel: %Communication
-/sdk/communication/                                 @RezaJooyandeh @JianpingChen
+/sdk/communication/                                 @JianpingChen @Azure/azure-sdk-communication-code-reviewers
 
 # PRLabel: %Azure.Core
 /sdk/core/                                          @bsiegel @vcolin7 @anuchandy
