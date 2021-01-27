@@ -26,9 +26,7 @@ public class UnknownIdentifier extends CommunicationIdentifier {
     }
 
     /**
-     * Gets the string identifier representing the object identity
-     *
-     * @return the string identifier representing the object identity
+     * Get the full id of the identifier
      */
      @Override
     public String getId() {

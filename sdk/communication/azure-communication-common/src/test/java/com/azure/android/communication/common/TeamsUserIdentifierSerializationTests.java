@@ -14,14 +14,14 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
-public class teamsUserIdentifierSerializationTests {
+public class TeamsUserIdentifierSerializationTests {
     final String someId = "some id";
     final String teamsUserId = "Teams user id";
     final String fullId = "some lengthy id string";
 
     private final boolean isAnonymous;
 
-    public teamsUserIdentifierSerializationTests(boolean isAnonymous) {
+    public TeamsUserIdentifierSerializationTests(boolean isAnonymous) {
         this.isAnonymous = isAnonymous;
     }
 

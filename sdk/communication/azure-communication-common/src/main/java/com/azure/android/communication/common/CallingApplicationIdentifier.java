@@ -25,6 +25,9 @@ public class CallingApplicationIdentifier extends CommunicationIdentifier {
         this.id = id;
     }
 
+    /**
+     * Get the full id of the identifier
+     */
     @Override
     public String getId() {
         return id;

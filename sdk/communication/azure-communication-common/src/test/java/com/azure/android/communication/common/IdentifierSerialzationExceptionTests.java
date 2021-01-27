@@ -16,7 +16,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
 @RunWith(Parameterized.class)
-public class identifierSerialzationExceptionTests {
+public class IdentifierSerialzationExceptionTests {
     static final String someId = "some id";
     static final String teamsUserId = "Teams user id";
     static final String fullId = "some lengthy id string";
@@ -25,7 +25,7 @@ public class identifierSerialzationExceptionTests {
     public ExpectedException expectedException = ExpectedException.none();
 
     private final CommunicationIdentifierModel identifierModel;
-    public identifierSerialzationExceptionTests(CommunicationIdentifierModel identifierModel) {
+    public IdentifierSerialzationExceptionTests(CommunicationIdentifierModel identifierModel) {
         this.identifierModel = identifierModel;
     }
 

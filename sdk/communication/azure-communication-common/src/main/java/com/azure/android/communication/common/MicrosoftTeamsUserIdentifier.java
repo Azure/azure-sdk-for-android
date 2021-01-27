@@ -6,7 +6,7 @@ package com.azure.android.communication.common;
 import com.azure.android.core.util.CoreUtil;
 
 /**
- * Communication identifier for Microsoft Teams User
+ * Communication identifier for a Microsoft Teams User
  */
 public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
 
@@ -71,7 +71,7 @@ public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
     }
 
     /**
-     * Get full id of the Microsoft Teams user
+     * Get the optional full id of the Microsoft Teams User identifier. This id can be null.
      */
     @Override
     public String getId() {
@@ -93,7 +93,7 @@ public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
      * @param cloudEnvironment the cloud environment in which this identifier is created
      * @return this object
      */
-    public MicrosoftTeamsUserIdentifier setCloudEnvironment(CommunicationCloudEnvironment  cloudEnvironment) {
+    public MicrosoftTeamsUserIdentifier setCloudEnvironment(CommunicationCloudEnvironment cloudEnvironment) {
         this.cloudEnvironment = cloudEnvironment;
         return this;
     }

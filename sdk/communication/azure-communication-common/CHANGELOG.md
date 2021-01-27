@@ -1,5 +1,15 @@
 # Release History
 
+## 1.0.0-beta.4 (Unreleased)
+### Breaking Changes
+- Renamed `CommunicationUserCredential` to `CommunicationTokenCredential`
+- Renamed `PhoneNumber` to `PhoneNumberIdentifier`
+- Renamed `CommunicationUser` to `CommunicationUserIdentifier `
+- Renamed `CallingApplication` to `CallingApplicationIdentifier`
+
+### Added
+- Added `MicrosoftTeamsUserIdentifier`
+
 ## 1.0.0-beta.3 (Unreleased)
 
 ## 1.0.0-beta.1 (2020-09-22)

@@ -16,7 +16,7 @@ public class PhoneNumberIdentifier extends CommunicationIdentifier {
     /**
      * Creates a PhoneNumber object
      *
-     * @param phoneNumber the string identifier representing the PhoneNumber
+     * @param phoneNumber the phone number in E.164 format.
      * @throws IllegalArgumentException thrown if phoneNumber parameter fail the validation.
      */
     public PhoneNumberIdentifier(String phoneNumber) {
@@ -27,22 +27,25 @@ public class PhoneNumberIdentifier extends CommunicationIdentifier {
     }
 
     /**
-     * Gets the string identifier representing the object identity
+     * Gets the phone number in E.164 format.
      *
-     * @return the string identifier representing the object identity
+     * @return the phone number in E.164 format.
      */
     public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    @Override
+    /**
+     * Get the full id of the identifier
+     */
+     @Override
     public String getId() {
         return id;
     }
 
     /**
-     * Set the string representation of this identifier
-     * @param id the string representation of this identifier
+     * Set the full id of this identifier
+     * @param id the full id of this identifier
      * @return the PhoneNumberIdentifier object itself
      */
     public PhoneNumberIdentifier setId(String id) {

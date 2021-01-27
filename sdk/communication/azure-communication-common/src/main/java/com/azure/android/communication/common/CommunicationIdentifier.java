@@ -9,8 +9,8 @@ package com.azure.android.communication.common;
  */
 public abstract class CommunicationIdentifier {
     /**
-     * Get string representation of the identifier
-     * @return string representation of the identifier
+     * Get full id of the identifier
+     * @return full id of the identifier
      */
     public abstract String getId();
 }
