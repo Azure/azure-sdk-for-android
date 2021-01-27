@@ -43,7 +43,10 @@ public class identifierSerialzationExceptionTests {
                 .setCloudEnvironmentModel(CommunicationCloudEnvironmentModel.PUBLIC), // Missing MicrosoftTeamsUserId
             new CommunicationIdentifierModel().setKind(CommunicationIdentifierKind.MICROSOFT_TEAMS_USER)
                 .setId(someId)
-                .setMicrosoftTeamsUserId(teamsUserId) // Missing Cloud
+                .setMicrosoftTeamsUserId(teamsUserId), // Missing Cloud
+            new CommunicationIdentifierModel().setKind(CommunicationIdentifierKind.MICROSOFT_TEAMS_USER)
+                .setCloudEnvironmentModel(CommunicationCloudEnvironmentModel.PUBLIC)
+                .setMicrosoftTeamsUserId(teamsUserId) // Missing id
         );
     }
 
