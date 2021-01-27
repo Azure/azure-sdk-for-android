@@ -5,7 +5,6 @@
 package com.azure.android.communication.chat.models;
 
 import com.azure.android.communication.common.CommunicationUserIdentifier;
-import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

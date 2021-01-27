@@ -39,7 +39,7 @@ public final class ChatMessageContent {
      * participantRemoved.
      */
     @JsonProperty(value = "initiator")
-    private String initiator;
+    private CommunicationUserIdentifier initiator;
 
     /**
      * Get the message property: Chat message content for messages of types
