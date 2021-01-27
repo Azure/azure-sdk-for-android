@@ -5,8 +5,11 @@
 package com.azure.android.communication.chat.implementation;
 
 import com.azure.android.core.http.ServiceClient;
+import com.azure.android.core.http.responsepaging.AsyncPagedDataRetriever;
+import com.azure.android.core.http.responsepaging.PagedDataResponseRetriever;
 import com.azure.android.core.internal.util.serializer.SerializerAdapter;
 import com.azure.android.core.internal.util.serializer.SerializerFormat;
+import com.azure.android.core.util.paging.PagedDataRetriever;
 
 /**
  * Initializes a new instance of the AzureCommunicationChatService type.
@@ -115,16 +118,6 @@ public final class AzureCommunicationChatServiceImpl {
     }
 
     <T> T deserializeContent(okhttp3.Headers headers, okhttp3.ResponseBody body, java.lang.reflect.Type type) {
-        if (type.equals(byte[].class)) {
-            try {
-                if (body.contentLength() == 0) {
-                    return null;
-                }
-                return (T) body.bytes();
-            } catch(java.io.IOException ex) {
-                throw new RuntimeException(ex);
-            }
-        }
         final String str = readAsString(body);
         try {
             final String mimeContentType = headers.get(CONTENT_TYPE);

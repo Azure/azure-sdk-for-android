@@ -9,9 +9,9 @@ import com.azure.android.communication.chat.implementation.ChatsImpl;
 import com.azure.android.communication.chat.models.ChatThread;
 import com.azure.android.communication.chat.models.ChatThreadInfo;
 import com.azure.android.communication.chat.models.ChatThreadsInfoCollection;
+import com.azure.android.communication.chat.models.CommunicationErrorResponseException;
 import com.azure.android.communication.chat.models.CreateChatThreadRequest;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
-import com.azure.android.communication.chat.models.ErrorException;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
@@ -56,7 +56,7 @@ public final class ChatAsyncClient {
      * @param repeatabilityRequestID If specified, the client directs that the request is repeatable; that is, that the client can make the request multiple times with the same Repeatability-Request-ID and get back an appropriate response without the server executing the request multiple times. The value of the Repeatability-Request-ID is an opaque string representing a client-generated, globally unique for all time, identifier for the request. It is recommended to use version 4 (random) UUIDs.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void createChatThread(CreateChatThreadRequest createChatThreadRequest, String repeatabilityRequestID, final Callback<CreateChatThreadResult> callback) {
@@ -69,7 +69,7 @@ public final class ChatAsyncClient {
      * @param createChatThreadRequest Request payload for creating a chat thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void createChatThread(CreateChatThreadRequest createChatThreadRequest, final Callback<CreateChatThreadResult> callback) {
@@ -81,9 +81,35 @@ public final class ChatAsyncClient {
      *
      * @param maxPageSize The maximum number of chat threads returned per page.
      * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
+     * @param callback the Callback that receives the response.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void listChatThreads(Integer maxPageSize, OffsetDateTime startTime, final Callback<Page<ChatThreadInfo>> callback) {
+        this.serviceClient.listChatThreads(maxPageSize, startTime, callback);
+    }
+
+    /**
+     * Gets the list of chat threads of a user.
+     *
+     * @param callback the Callback that receives the response.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void listChatThreads(final Callback<Page<ChatThreadInfo>> callback) {
+        this.serviceClient.listChatThreads(callback);
+    }
+
+    /**
+     * Gets the list of chat threads of a user.
+     *
+     * @param maxPageSize The maximum number of chat threads returned per page.
+     * @param startTime The earliest point in time to get chat threads up to. The timestamp should be in RFC3339 format: `yyyy-MM-ddTHH:mm:ssZ`.
      * @param callback the Callback that receives the response collection.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void listChatThreadsPages(Integer maxPageSize, OffsetDateTime startTime, final Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>> callback) {
@@ -96,7 +122,7 @@ public final class ChatAsyncClient {
      * @param chatThreadId Id of the thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void getChatThread(String chatThreadId, final Callback<ChatThread> callback) {
@@ -109,11 +135,24 @@ public final class ChatAsyncClient {
      * @param chatThreadId Id of the thread to be deleted.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
-     * @throws ErrorException thrown if the request is rejected by server.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
     public void deleteChatThread(String chatThreadId, final Callback<Void> callback) {
         this.serviceClient.deleteChatThread(chatThreadId, callback);
+    }
+
+    /**
+     * Get the next page of items.
+     *
+     * @param nextLink null
+     * @param callback the Callback that receives the response.
+     * @throws IllegalArgumentException thrown if parameters fail the validation.
+     * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
+     * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
+     */
+    public void listChatThreadsNext(String nextLink, final Callback<Page<ChatThreadInfo>> callback) {
+        this.serviceClient.listChatThreadsNext(nextLink, callback);
     }
 
     /**
@@ -175,31 +214,12 @@ public final class ChatAsyncClient {
             return this;
         }
 
-        /*
-         * base url of the service
-         */
-        private String baseUrl;
-
-        /**
-         * Sets base url of the service.
-         *
-         * @param baseUrl the baseUrl value.
-         * @return the Builder.
-         */
-        public Builder baseUrl(String baseUrl) {
-            this.baseUrl = baseUrl;
-            return this;
-        }
-
         /**
          * Builds an instance of ChatAsyncClient with the provided parameters.
          *
          * @return an instance of ChatAsyncClient.
          */
         public ChatAsyncClient build() {
-            if (baseUrl == null) {
-                this.baseUrl = "{endpoint}";
-            }
             if (serviceClientBuilder == null) {
                 if (endpoint == null) {
                     throw new IllegalArgumentException("Missing required parameters 'endpoint'.");
@@ -207,7 +227,7 @@ public final class ChatAsyncClient {
                 this.serviceClientBuilder = new ServiceClient.Builder();
             }
             if (endpoint != null) {
-                final String retrofitBaseUrl = baseUrl.replace("{endpoint}", endpoint);
+                final String retrofitBaseUrl = endpoint;
                 serviceClientBuilder.setBaseUrl(retrofitBaseUrl);
             }
             if (credentialInterceptor != null) {

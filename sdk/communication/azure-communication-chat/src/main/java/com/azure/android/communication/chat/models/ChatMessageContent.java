@@ -15,34 +15,34 @@ import java.util.List;
 @Fluent
 public final class ChatMessageContent {
     /*
-     * Chat message content for type "text" or "html" messages.
+     * Chat message content for messages of types text or html.
      */
     @JsonProperty(value = "message")
     private String message;
 
     /*
-     * Chat message content for type "topicUpdated" messages.
+     * Chat message content for messages of type topicUpdated.
      */
     @JsonProperty(value = "topic")
     private String topic;
 
     /*
-     * Chat message content for type "participantAdded" or "participantRemoved"
-     * messages.
+     * Chat message content for messages of types participantAdded or
+     * participantRemoved.
      */
     @JsonProperty(value = "participants")
     private List<ChatParticipant> participants;
 
     /*
-     * Chat message content for type "participantAdded" or "participantRemoved"
-     * messages.
+     * Chat message content for messages of types participantAdded or
+     * participantRemoved.
      */
     @JsonProperty(value = "initiator")
     private String initiator;
 
     /**
-     * Get the message property: Chat message content for type "text" or "html"
-     * messages.
+     * Get the message property: Chat message content for messages of types
+     * text or html.
      * 
      * @return the message value.
      */
@@ -51,8 +51,8 @@ public final class ChatMessageContent {
     }
 
     /**
-     * Set the message property: Chat message content for type "text" or "html"
-     * messages.
+     * Set the message property: Chat message content for messages of types
+     * text or html.
      * 
      * @param message the message value to set.
      * @return the ChatMessageContent object itself.
@@ -63,8 +63,8 @@ public final class ChatMessageContent {
     }
 
     /**
-     * Get the topic property: Chat message content for type "topicUpdated"
-     * messages.
+     * Get the topic property: Chat message content for messages of type
+     * topicUpdated.
      * 
      * @return the topic value.
      */
@@ -73,8 +73,8 @@ public final class ChatMessageContent {
     }
 
     /**
-     * Set the topic property: Chat message content for type "topicUpdated"
-     * messages.
+     * Set the topic property: Chat message content for messages of type
+     * topicUpdated.
      * 
      * @param topic the topic value to set.
      * @return the ChatMessageContent object itself.
@@ -85,8 +85,8 @@ public final class ChatMessageContent {
     }
 
     /**
-     * Get the participants property: Chat message content for type
-     * "participantAdded" or "participantRemoved" messages.
+     * Get the participants property: Chat message content for messages of
+     * types participantAdded or participantRemoved.
      * 
      * @return the participants value.
      */
@@ -95,8 +95,8 @@ public final class ChatMessageContent {
     }
 
     /**
-     * Set the participants property: Chat message content for type
-     * "participantAdded" or "participantRemoved" messages.
+     * Set the participants property: Chat message content for messages of
+     * types participantAdded or participantRemoved.
      * 
      * @param participants the participants value to set.
      * @return the ChatMessageContent object itself.
@@ -107,8 +107,8 @@ public final class ChatMessageContent {
     }
 
     /**
-     * Get the initiator property: Chat message content for type
-     * "participantAdded" or "participantRemoved" messages.
+     * Get the initiator property: Chat message content for messages of types
+     * participantAdded or participantRemoved.
      * 
      * @return the initiator value.
      */
@@ -117,8 +117,8 @@ public final class ChatMessageContent {
     }
 
     /**
-     * Set the initiator property: Chat message content for type
-     * "participantAdded" or "participantRemoved" messages.
+     * Set the initiator property: Chat message content for messages of types
+     * participantAdded or participantRemoved.
      * 
      * @param initiator the initiator value to set.
      * @return the ChatMessageContent object itself.
