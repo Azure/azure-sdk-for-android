@@ -25,11 +25,6 @@ public class CallingApplicationIdentifier extends CommunicationIdentifier {
         this.id = id;
     }
 
-    /**
-     * Gets the string identifier representing the object identity
-     *
-     * @return the string identifier representing the object identity
-     */
     @Override
     public String getId() {
         return id;

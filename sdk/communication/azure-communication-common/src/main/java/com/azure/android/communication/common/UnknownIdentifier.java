@@ -30,6 +30,7 @@ public class UnknownIdentifier extends CommunicationIdentifier {
      *
      * @return the string identifier representing the object identity
      */
+     @Override
     public String getId() {
         return id;
     }

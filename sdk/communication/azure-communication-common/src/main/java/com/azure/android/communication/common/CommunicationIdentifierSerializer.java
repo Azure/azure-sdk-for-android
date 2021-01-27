@@ -3,6 +3,7 @@
 
 package com.azure.android.communication.common;
 
+import java.security.InvalidParameterException;
 import java.util.Objects;
 
 class CommunicationIdentifierSerializer {
@@ -34,8 +35,12 @@ class CommunicationIdentifierSerializer {
                 .setCloudEnvironment(CommunicationCloudEnvironment.fromModel(identifier.getCloudEnvironmentModel()));
         }
 
-        Objects.requireNonNull(id);
-        return new UnknownIdentifier(id);
+        if (kind == CommunicationIdentifierKind.UNKNOWN) {
+            Objects.requireNonNull(id);
+            return new UnknownIdentifier(id);
+        }
+
+        throw new IllegalArgumentException(String.format("Unknown identifier kind '%s'", kind));
     }
 
     public static CommunicationIdentifierModel serialize(CommunicationIdentifier identifier) {
@@ -68,8 +73,12 @@ class CommunicationIdentifierSerializer {
                 .setCloudEnvironmentModel(new CommunicationCloudEnvironmentModel(teamsUserIdentifier.getCloudEnvironment().toString()));
         }
 
-        return new CommunicationIdentifierModel()
-            .setKind(CommunicationIdentifierKind.UNKNOWN)
-            .setId(((UnknownIdentifier) identifier).getId());
+        if (identifier instanceof  UnknownIdentifier) {
+            return new CommunicationIdentifierModel()
+                .setKind(CommunicationIdentifierKind.UNKNOWN)
+                .setId(((UnknownIdentifier) identifier).getId());
+        }
+
+        throw new IllegalArgumentException(String.format("Unknown identifier class '%s'", identifier.getClass().getName()));
     }
 }

@@ -3,8 +3,14 @@
 
 package com.azure.android.communication.common;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import java.security.InvalidParameterException;
+
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.assertEquals;
 
 public class CommunicationIdentifierSerializerTests {
@@ -12,6 +18,9 @@ public class CommunicationIdentifierSerializerTests {
     final String someId = "some id";
     final String teamsUserId = "Teams user id";
     final String fullId = "some lengthy id string";
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Test
     public void serializeCommunicationUser() {
@@ -52,13 +61,24 @@ public class CommunicationIdentifierSerializerTests {
     }
 
     @Test
-    public void deserializeFutureType() {
+    public void deserializeFutureTypeShouldThrow() {
         final String futureType = "NewKind";
-        CommunicationIdentifier unknownIdentifier = CommunicationIdentifierSerializer.deserialize(
+        expectedException.expect(is(instanceOf(IllegalArgumentException.class)));
+        CommunicationIdentifierSerializer.deserialize(
             new CommunicationIdentifierModel().setKind(CommunicationIdentifierKind.fromString(futureType))
                 .setId(someId));
-        assertEquals(UnknownIdentifier.class, unknownIdentifier.getClass());
-        assertEquals(someId, ((UnknownIdentifier) unknownIdentifier).getId());
+    }
+
+    @Test
+    public void serializeFutureTypeShouldThrow() {
+        expectedException.expect(is(instanceOf(IllegalArgumentException.class)));
+        CommunicationIdentifierSerializer.serialize(
+            new CommunicationIdentifier() {
+                @Override
+                public String getId() {
+                    return someId;
+                }
+            });
     }
 
     @Test
