@@ -20,6 +20,7 @@ dependencies {
     implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation project(path: ':sdk:communication:azure-communication-common')
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "com.squareup.okhttp3:mockwebserver:$okHttpVersion"
     testImplementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"

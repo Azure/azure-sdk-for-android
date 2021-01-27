@@ -4,6 +4,7 @@
 
 package com.azure.android.communication.chat.models;
 
+import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -18,7 +19,7 @@ public final class ChatParticipant {
      * The id of the chat participant.
      */
     @JsonProperty(value = "id", required = true)
-    private String id;
+    private CommunicationUserIdentifier id;
 
     /*
      * Display name for the chat participant.
@@ -35,27 +36,27 @@ public final class ChatParticipant {
 
     /**
      * Get the id property: The id of the chat participant.
-     * 
+     *
      * @return the id value.
      */
-    public String getId() {
+    public CommunicationUserIdentifier getId() {
         return this.id;
     }
 
     /**
      * Set the id property: The id of the chat participant.
-     * 
+     *
      * @param id the id value to set.
      * @return the ChatParticipant object itself.
      */
-    public ChatParticipant setId(String id) {
+    public ChatParticipant setId(CommunicationUserIdentifier id) {
         this.id = id;
         return this;
     }
 
     /**
      * Get the displayName property: Display name for the chat participant.
-     * 
+     *
      * @return the displayName value.
      */
     public String getDisplayName() {
@@ -64,7 +65,7 @@ public final class ChatParticipant {
 
     /**
      * Set the displayName property: Display name for the chat participant.
-     * 
+     *
      * @param displayName the displayName value to set.
      * @return the ChatParticipant object itself.
      */
@@ -77,7 +78,7 @@ public final class ChatParticipant {
      * Get the shareHistoryTime property: Time from which the chat history is
      * shared with the participant. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     * 
+     *
      * @return the shareHistoryTime value.
      */
     public OffsetDateTime getShareHistoryTime() {
@@ -88,7 +89,7 @@ public final class ChatParticipant {
      * Set the shareHistoryTime property: Time from which the chat history is
      * shared with the participant. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     * 
+     *
      * @param shareHistoryTime the shareHistoryTime value to set.
      * @return the ChatParticipant object itself.
      */
