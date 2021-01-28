@@ -41,9 +41,8 @@ public class CommunicationTokenCredentialTest {
         MockTokenRefresher mockTokenRefresher = new MockTokenRefresher();
 
         expectedException.expect(is(instanceOf(IllegalArgumentException.class)));
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, false, "This is an invalid token string");
-        new CommunicationTokenCredential(options);
+
+        new CommunicationTokenCredential(mockTokenRefresher, "This is an invalid token string");
     }
 
     @Test
@@ -54,9 +53,7 @@ public class CommunicationTokenCredentialTest {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         mockTokenRefresher.setOnCallReturn(countDownLatch::countDown);
 
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, true);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher, true);
         countDownLatch.await();
 
         AccessToken accessToken = credential.getToken().get();
@@ -72,9 +69,7 @@ public class CommunicationTokenCredentialTest {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         mockTokenRefresher.setOnCallReturn(countDownLatch::countDown);
 
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, true, tokenString);
-        new CommunicationTokenCredential(options);
+        new CommunicationTokenCredential(mockTokenRefresher, true, tokenString);
         countDownLatch.await();
 
         assertEquals(1, mockTokenRefresher.getCallCount());
@@ -85,9 +80,7 @@ public class CommunicationTokenCredentialTest {
         String tokenString = TokenStubHelper.createTokenStringForOffset(700);
         MockTokenRefresher mockTokenRefresher = new MockTokenRefresher();
 
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, true, tokenString);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher, true, tokenString);
         AccessToken accessToken = credential.getToken().get();
 
         assertEquals(tokenString, accessToken.getToken());
@@ -98,9 +91,7 @@ public class CommunicationTokenCredentialTest {
     public void constructor_withTokenRefresher_proactiveRefresh_withInitialTokenInvalid() {
         MockTokenRefresher mockTokenRefresher = new MockTokenRefresher();
         expectedException.expect(is(instanceOf(IllegalArgumentException.class)));
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, true, "This is an invalid token string");
-        new CommunicationTokenCredential(options);
+        new CommunicationTokenCredential(mockTokenRefresher, true, "This is an invalid token string");
     }
 
     @Test
@@ -122,9 +113,7 @@ public class CommunicationTokenCredentialTest {
             countDownLatch.countDown();
         });
 
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, true);
-        new CommunicationTokenCredential(options);
+        new CommunicationTokenCredential(mockTokenRefresher, true);
         countDownLatch.await();
 
         assertEquals(numRepeats, mockTokenRefresher.getCallCount());
@@ -175,9 +164,7 @@ public class CommunicationTokenCredentialTest {
         MockTokenRefresher mockTokenRefresher = new MockTokenRefresher();
         String refreshedToken = TokenStubHelper.createTokenStringForOffset(300);
         mockTokenRefresher.setToken(refreshedToken);
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, false);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher);
 
         AccessToken accessToken = credential.getToken().get();
 
@@ -195,9 +182,7 @@ public class CommunicationTokenCredentialTest {
         mockTokenRefresher.setOnCallReturn(() -> {
             throw mockTokenRefresherException;
         });
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, false);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher);
 
         try {
             expectedException.expectCause(is(mockTokenRefresherException));
@@ -212,9 +197,7 @@ public class CommunicationTokenCredentialTest {
         MockTokenRefresher mockTokenRefresher = new MockTokenRefresher();
         String refreshedToken = TokenStubHelper.createTokenStringForOffset(300);
         mockTokenRefresher.setToken(refreshedToken);
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, false);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher);
 
         // Set up blocked multithreaded calls
         Runnable blockedRefresh = this.arrangeBlockedRefresh(mockTokenRefresher);
@@ -242,9 +225,7 @@ public class CommunicationTokenCredentialTest {
     public void getToken_onDemandAutoRefresh_tokenWithinThresholdNotRefreshed_singleCall() throws ExecutionException, InterruptedException {
         String tokenString = TokenStubHelper.createTokenStringForOffset(130);
         MockTokenRefresher mockTokenRefresher = new MockTokenRefresher();
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, false, tokenString);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher, tokenString);
 
         AccessToken accessToken = credential.getToken().get();
 
@@ -256,9 +237,7 @@ public class CommunicationTokenCredentialTest {
     public void getToken_onDemandAutoRefresh_tokenWithinThresholdNotRefreshed_multithreadedCalls() throws ExecutionException, InterruptedException {
         String tokenString = TokenStubHelper.createTokenStringForOffset(130);
         MockTokenRefresher mockTokenRefresher = new MockTokenRefresher();
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, false, tokenString);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher, tokenString);
 
         // Set up blocked multithreaded calls
         Runnable blockedRefresh = this.arrangeBlockedRefresh(mockTokenRefresher);
@@ -289,9 +268,7 @@ public class CommunicationTokenCredentialTest {
         MockTokenRefresher mockTokenRefresher = new MockTokenRefresher();
         String refreshedToken = TokenStubHelper.createTokenStringForOffset(300);
         mockTokenRefresher.setToken(refreshedToken);
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, false, tokenString);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher, tokenString);
         AccessToken accessToken = credential.getToken().get();
 
         assertNotEquals(tokenString, accessToken.getToken());
@@ -307,9 +284,7 @@ public class CommunicationTokenCredentialTest {
         mockTokenRefresher.setOnCallReturn(() -> {
             throw mockTokenRefresherException;
         });
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, false, tokenString);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher, tokenString);
 
         try {
             expectedException.expectCause(is(mockTokenRefresherException));
@@ -325,9 +300,7 @@ public class CommunicationTokenCredentialTest {
         MockTokenRefresher mockTokenRefresher = new MockTokenRefresher();
         String refreshedToken = TokenStubHelper.createTokenStringForOffset(300);
         mockTokenRefresher.setToken(refreshedToken);
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, false, tokenString);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher, tokenString);
 
         Set<AccessToken> accessTokens = new HashSet<>();
         int numCalls = 3;
@@ -348,9 +321,7 @@ public class CommunicationTokenCredentialTest {
         MockTokenRefresher mockTokenRefresher = new MockTokenRefresher();
         String refreshedToken = TokenStubHelper.createTokenStringForOffset(300);
         mockTokenRefresher.setToken(refreshedToken);
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, false, tokenString);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher, tokenString);
 
         // Set up blocked multithreaded calls
         Runnable blockedRefresh = this.arrangeBlockedRefresh(mockTokenRefresher);
@@ -379,9 +350,7 @@ public class CommunicationTokenCredentialTest {
     @Test
     public void getToken_onDemandAutoRefresh_isDisposed_cancelledFuture() throws ExecutionException, InterruptedException {
         MockTokenRefresher mockTokenRefresher = new MockTokenRefresher();
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, false);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher);
 
         credential.dispose();
         Future<AccessToken> accessTokenFuture = credential.getToken();
@@ -398,9 +367,7 @@ public class CommunicationTokenCredentialTest {
         String refreshedToken = TokenStubHelper.createTokenStringForOffset(1200);
         mockTokenRefresher.setToken(refreshedToken);
         Runnable blockedRefresh = this.arrangeBlockedRefresh(mockTokenRefresher);
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, true);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher, true);
 
         Future<AccessToken> accessTokenFuture = credential.getToken();
         blockedRefresh.run();
@@ -419,9 +386,7 @@ public class CommunicationTokenCredentialTest {
         mockTokenRefresher.setToken(refreshedToken);
         Runnable blockedRefresh = this.arrangeBlockedRefresh(mockTokenRefresher);
 
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, false, tokenString);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher, tokenString);
         Future<AccessToken> accessTokenFuture = credential.getToken();
         credential.dispose();
         blockedRefresh.run();
@@ -440,9 +405,7 @@ public class CommunicationTokenCredentialTest {
         mockTokenRefresher.setToken(refreshedToken);
         Runnable blockedRefresh = this.arrangeBlockedRefresh(mockTokenRefresher);
 
-        CommunicationTokenRefreshOptions options = new CommunicationTokenRefreshOptions(
-            mockTokenRefresher, true);
-        CommunicationTokenCredential credential = new CommunicationTokenCredential(options);
+        CommunicationTokenCredential credential = new CommunicationTokenCredential(mockTokenRefresher, true);
         Future<AccessToken> accessTokenFuture = credential.getToken();
         credential.dispose();
         blockedRefresh.run();

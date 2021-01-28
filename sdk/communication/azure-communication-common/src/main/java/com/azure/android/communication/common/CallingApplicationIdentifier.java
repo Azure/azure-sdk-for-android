@@ -6,7 +6,7 @@ package com.azure.android.communication.common;
 import com.azure.android.core.util.CoreUtil;
 
 /**
- * Communication identifier for Communication Services Applications
+ * Communication identifier for Communication Calling Services Applications
  */
 public class CallingApplicationIdentifier extends CommunicationIdentifier {
 
@@ -26,11 +26,29 @@ public class CallingApplicationIdentifier extends CommunicationIdentifier {
     }
 
     /**
-     * Gets the string identifier representing the object identity
-     *
-     * @return the string identifier representing the object identity
+     * Get the full id of the identifier
      */
+    @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        if (this == that) {
+            return true;
+        }
+
+        if (!(that instanceof CallingApplicationIdentifier)) {
+            return false;
+        }
+
+        return ((CallingApplicationIdentifier) that).getId().equals(id);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
     }
 }
