@@ -10,7 +10,9 @@
 ### Added
 - Added `MicrosoftTeamsUserIdentifier`
 
-## 1.0.0-beta.3 (Unreleased)
+## 1.0.0-beta.3 (Skipped)
+
+## 1.0.0-beta.2 (Skipped)
 
 ## 1.0.0-beta.1 (2020-09-22)
 This package contains common code for Azure Communication Service libraries. For more information, please see the [README][read_me] and [documentation][documentation].
