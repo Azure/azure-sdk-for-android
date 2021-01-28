@@ -26,11 +26,29 @@ public class UnknownIdentifier extends CommunicationIdentifier {
     }
 
     /**
-     * Gets the string identifier representing the object identity
-     *
-     * @return the string identifier representing the object identity
+     * Get the full id of the identifier
      */
+     @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        if (this == that) {
+            return true;
+        }
+
+        if (!(that instanceof UnknownIdentifier)) {
+            return false;
+        }
+
+        UnknownIdentifier thatId = (UnknownIdentifier) that;
+        return this.id.equals(thatId.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return id.hashCode();
     }
 }

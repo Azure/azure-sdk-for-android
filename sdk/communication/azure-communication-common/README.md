@@ -61,16 +61,16 @@ To import the library into your project using the [Maven](https://maven.apache.o
 
 ### Key concepts
 
-### CommunicationUserCredential
+### CommunicationTokenCredential
 
-A `CommunicationUserCredential` authenticates a user with Communication Services, such as Chat or Calling. It optionally
+A `CommunicationTokenCredential` authenticates a user with Communication Services, such as Chat or Calling. It optionally
 provides an auto-refresh mechanism to ensure a continuously stable authentication state during communications. User
 tokens are created by the application developer using the Communication Administration SDK - once created, they are
-provided to the various Communication Services client libraries by way of a `CommunicationUserCredential` object.
+provided to the various Communication Services client libraries by way of a `CommunicationTokenCredential` object.
 
 ## Examples
 
-The following sections provide several code snippets showing different ways to use a `CommunicationUserCredential`:
+The following sections provide several code snippets showing different ways to use a `CommunicationTokenCredential`:
 
 * [Creating a credential with a static token](#creating-a-credential-with-a-static-token)
 * [Creating a credential that refreshes with a Callable](#creating-a-credential-that-refreshes-with-a-callable)
@@ -82,7 +82,7 @@ The following sections provide several code snippets showing different ways to u
 ### Creating a credential with a static token
 
 ```java
-CommunicationUserCredential userCredential = new CommunicationUserCredential("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDB9.adM-ddBZZlQ1WlN3pdPBOF5G4Wh9iZpxNP_fSvpF4cWs");
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDB9.adM-ddBZZlQ1WlN3pdPBOF5G4Wh9iZpxNP_fSvpF4cWs");
 ```
 
 ### Creating a credential that refreshes with a Callable
@@ -94,7 +94,7 @@ Callable<String> tokenRefresher = () -> {
   return fetchtoken();
 };
 
-CommunicationUserCredential userCredential = new CommunicationUserCredential(tokenRefresher);
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential(tokenRefresher);
 ```
 
 ### Creating a credential that refreshes proactively
@@ -102,7 +102,7 @@ CommunicationUserCredential userCredential = new CommunicationUserCredential(tok
 Setting `isProactiveRefresh` to true will call your `Callable<String> tokenRefresher` when the token is close to expiry.
 
 ```java
-CommunicationUserCredential userCredential = new CommunicationUserCredential(tokenRefresher, true);
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential(tokenRefresher, true);
 ```
 
 ### Creating a credential with an initial value that refreshes proactively
@@ -110,7 +110,7 @@ CommunicationUserCredential userCredential = new CommunicationUserCredential(tok
 Passing `initialToken` is an optional optimization to skip the first call to `Callable<String> tokenRefresher`. You can use this to separate the boot from your application from subsequent token refresh cycles.
 
 ```java
-CommunicationUserCredential userCredential = new CommunicationUserCredential(tokenRefresher, true, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDB9.adM-ddBZZlQ1WlN3pdPBOF5G4Wh9iZpxNP_fSvpF4cWs");
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential(tokenRefresher, true, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDB9.adM-ddBZZlQ1WlN3pdPBOF5G4Wh9iZpxNP_fSvpF4cWs");
 ```
 
 ### Getting a token asynchronously
@@ -118,13 +118,13 @@ CommunicationUserCredential userCredential = new CommunicationUserCredential(tok
 Calling `getToken()` will return a `Future<AccessToken>`
 
 ```java
-CommunicationUserCredential userCredential = new CommunicationUserCredential(tokenRefresher);
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential(tokenRefresher);
 Future<AccessToken> accessTokenFuture = userCredential.getToken();
 ```
 
 ### Invalidating a credential
 
-Each `CommunicationUserCredential` instance uses a background thread for refreshing the cached token. To free up resources and facilitate garbage collection, `dispose()` must be called when the `CommunicationUserCredential` instance is no longer used.
+Each `CommunicationTokenCredential` instance uses a background thread for refreshing the cached token. To free up resources and facilitate garbage collection, `dispose()` must be called when the `CommunicationTokenCredential` instance is no longer used.
 
 ```java
 userCredential.dispose();

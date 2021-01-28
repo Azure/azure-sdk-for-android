@@ -8,7 +8,7 @@ import com.azure.android.core.util.CoreUtil;
 /**
  * Communication identifier for Communication Services Users
  */
-public class CommunicationUser extends CommunicationIdentifier {
+public class CommunicationUserIdentifier extends CommunicationIdentifier {
 
     private final String id;
 
@@ -18,7 +18,7 @@ public class CommunicationUser extends CommunicationIdentifier {
      * @param id the string identifier representing the identity
      * @throws IllegalArgumentException thrown if id parameter fail the validation.
      */
-    public CommunicationUser(String id) {
+    public CommunicationUserIdentifier(String id) {
         if (CoreUtil.isNullOrEmpty(id)) {
             throw new IllegalArgumentException("The initialization parameter [id] cannot be null or empty.");
         }
@@ -26,11 +26,28 @@ public class CommunicationUser extends CommunicationIdentifier {
     }
 
     /**
-     * Gets the string identifier representing the object identity
-     *
-     * @return the string identifier representing the object identity
+     * Get the full id of the identifier
      */
+    @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        if (this == that) {
+            return true;
+        }
+
+        if (!(that instanceof CommunicationUserIdentifier)) {
+            return false;
+        }
+
+        return ((CommunicationUserIdentifier) that).getId().equals(id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
     }
 }
