@@ -1,6 +1,6 @@
 # Release History
 
-## 1.0.0-beta.4 (Unreleased)
+## 1.0.0-beta.4 (2021-01-28)
 ### Breaking Changes
 - Renamed `CommunicationUserCredential` to `CommunicationTokenCredential`
 - Renamed `PhoneNumber` to `PhoneNumberIdentifier`
