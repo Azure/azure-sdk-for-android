@@ -25,6 +25,18 @@ class AutoRefreshUserCredential extends UserCredential {
     private Timer timer;
     private TimerTask proactiveRefreshTask;
 
+    AutoRefreshUserCredential(Callable<String> tokenRefresher) {
+        this(tokenRefresher, false);
+    }
+
+    AutoRefreshUserCredential(Callable<String> tokenRefresher, String initialToken) {
+        this(tokenRefresher, false, initialToken);
+    }
+
+    AutoRefreshUserCredential(Callable<String> tokenRefresher, boolean refreshProactively) {
+        this(tokenRefresher, refreshProactively, null);
+    }
+
     AutoRefreshUserCredential(Callable<String> tokenRefresher, boolean refreshProactively, String initialToken) {
         this.tokenRefresher = tokenRefresher;
         this.timer = new Timer();
