@@ -10,27 +10,71 @@ import com.azure.android.core.util.CoreUtil;
  */
 public class PhoneNumberIdentifier extends CommunicationIdentifier {
 
-    private final String value;
+    private final String phoneNumber;
+    private String id;
 
     /**
-     * Creates a PhoneNumberIdentifier object
+     * Creates a PhoneNumber object
      *
-     * @param phoneNumber the string identifier representing the phone number
+     * @param phoneNumber the phone number in E.164 format.
      * @throws IllegalArgumentException thrown if phoneNumber parameter fail the validation.
      */
     public PhoneNumberIdentifier(String phoneNumber) {
         if (CoreUtil.isNullOrEmpty(phoneNumber)) {
             throw new IllegalArgumentException("The initialization parameter [phoneNumber] cannot be null or empty.");
         }
-        this.value = phoneNumber;
+        this.phoneNumber = phoneNumber;
     }
 
     /**
-     * Gets the string identifier representing the object identity
+     * Gets the phone number in E.164 format.
      *
-     * @return the string identifier representing the object identity
+     * @return the phone number in E.164 format.
      */
-    public String getValue() {
-        return value;
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    /**
+     * Get the full id of the identifier
+     */
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * Set the full id of this identifier
+     * @param id the full id of this identifier
+     * @return the PhoneNumberIdentifier object itself
+     */
+    public PhoneNumberIdentifier setId(String id) {
+        this.id = id;
+        return this;
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        if (this == that) {
+            return true;
+        }
+
+        if (!(that instanceof PhoneNumberIdentifier)) {
+            return false;
+        }
+
+        PhoneNumberIdentifier phoneId = (PhoneNumberIdentifier) that;
+        if (!phoneNumber.equals(phoneId.phoneNumber)) {
+            return false;
+        }
+
+        return id == null
+            || phoneId.id == null
+            || id.equals(phoneId.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return phoneNumber.hashCode();
     }
 }

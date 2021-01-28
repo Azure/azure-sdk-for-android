@@ -26,11 +26,28 @@ public class CommunicationUserIdentifier extends CommunicationIdentifier {
     }
 
     /**
-     * Gets the string identifier representing the object identity
-     *
-     * @return the string identifier representing the object identity
+     * Get the full id of the identifier
      */
+    @Override
     public String getId() {
         return id;
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        if (this == that) {
+            return true;
+        }
+
+        if (!(that instanceof CommunicationUserIdentifier)) {
+            return false;
+        }
+
+        return ((CommunicationUserIdentifier) that).getId().equals(id);
+    }
+
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
     }
 }
