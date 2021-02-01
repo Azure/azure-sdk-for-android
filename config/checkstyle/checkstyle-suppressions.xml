@@ -208,4 +208,7 @@
   <!-- false positive, the field needs to be non-final for copy api to work -->
   <suppress checks="EnforceFinalFields" files="com.azure.android.core.http.HttpRequest.java"/>
 
+  <!-- Azure Search test models -->
+  <suppress checks="VisibilityModifier" files="com.azure.android.core.rest.implementation/HttpResponseExceptionInfo.java"/>
+
 </suppressions>
