@@ -215,5 +215,10 @@
                   SE_NO_SERIALVERSIONID"/>
   </Match>
 
+  <Match>
+    <Class name="com.azure.android.core.rest.implementation.TypeUtil"/>
+    <Bug pattern="BC_UNCONFIRMED_CAST"/>
+  </Match>
+
 </FindBugsFilter>
 
