@@ -6,7 +6,7 @@
 ###########
 
 # Catch all
-/sdk/                                               @mayurid @jonathangiles @bsiegel
+/sdk/                                               @mayurid @jonathangiles
 
 # Service teams
 
@@ -14,10 +14,10 @@
 /sdk/communication/                                 @JianpingChen @Azure/azure-sdk-communication-code-reviewers
 
 # PRLabel: %Azure.Core
-/sdk/core/                                          @bsiegel @vcolin7 @anuchandy
+/sdk/core/                                          @vcolin7 @anuchandy
 
 # PRLabel: %Storage
-/sdk/storage/                                       @bsiegel @vcolin7 @anuchandy
+/sdk/storage/                                       @vcolin7 @anuchandy
 
 # PRLabel: %EngSys
 /sdk/template/                                      @Azure/azure-sdk-eng

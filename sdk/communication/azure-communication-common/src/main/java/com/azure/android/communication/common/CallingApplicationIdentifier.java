@@ -13,7 +13,7 @@ public class CallingApplicationIdentifier extends CommunicationIdentifier {
     private final String id;
 
     /**
-     * Creates a CallingApplicationIdentifier object
+     * Creates a CallingApplication.java object
      *
      * @param id the string identifier representing the identity
      * @throws IllegalArgumentException thrown if id parameter fail the validation.

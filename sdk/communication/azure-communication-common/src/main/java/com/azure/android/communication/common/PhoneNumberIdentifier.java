@@ -38,7 +38,7 @@ public class PhoneNumberIdentifier extends CommunicationIdentifier {
     /**
      * Get the full id of the identifier
      */
-    @Override
+     @Override
     public String getId() {
         return id;
     }
