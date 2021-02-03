@@ -14,12 +14,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Fluent
 public final class SendChatMessageRequest {
     /*
-     * The chat message priority.
-     */
-    @JsonProperty(value = "priority")
-    private ChatMessagePriority priority;
-
-    /*
      * Chat message content.
      */
     @JsonProperty(value = "content", required = true)
@@ -32,25 +26,11 @@ public final class SendChatMessageRequest {
     @JsonProperty(value = "senderDisplayName")
     private String senderDisplayName;
 
-    /**
-     * Get the priority property: The chat message priority.
-     * 
-     * @return the priority value.
+    /*
+     * The chat message type.
      */
-    public ChatMessagePriority getPriority() {
-        return this.priority;
-    }
-
-    /**
-     * Set the priority property: The chat message priority.
-     * 
-     * @param priority the priority value to set.
-     * @return the SendChatMessageRequest object itself.
-     */
-    public SendChatMessageRequest setPriority(ChatMessagePriority priority) {
-        this.priority = priority;
-        return this;
-    }
+    @JsonProperty(value = "type")
+    private ChatMessageType type;
 
     /**
      * Get the content property: Chat message content.
@@ -93,6 +73,26 @@ public final class SendChatMessageRequest {
      */
     public SendChatMessageRequest setSenderDisplayName(String senderDisplayName) {
         this.senderDisplayName = senderDisplayName;
+        return this;
+    }
+
+    /**
+     * Get the type property: The chat message type.
+     * 
+     * @return the type value.
+     */
+    public ChatMessageType getType() {
+        return this.type;
+    }
+
+    /**
+     * Set the type property: The chat message type.
+     * 
+     * @param type the type value to set.
+     * @return the SendChatMessageRequest object itself.
+     */
+    public SendChatMessageRequest setType(ChatMessageType type) {
+        this.type = type;
         return this;
     }
 }

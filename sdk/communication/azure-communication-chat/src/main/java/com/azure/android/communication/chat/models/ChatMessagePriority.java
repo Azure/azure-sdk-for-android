@@ -13,14 +13,14 @@ import java.util.Collection;
  */
 public final class ChatMessagePriority extends ExpandableStringEnum<ChatMessagePriority> {
     /**
-     * Static value Normal for ChatMessagePriority.
+     * Static value normal for ChatMessagePriority.
      */
-    public static final ChatMessagePriority NORMAL = fromString("Normal");
+    public static final ChatMessagePriority NORMAL = fromString("normal");
 
     /**
-     * Static value High for ChatMessagePriority.
+     * Static value high for ChatMessagePriority.
      */
-    public static final ChatMessagePriority HIGH = fromString("High");
+    public static final ChatMessagePriority HIGH = fromString("high");
 
     /**
      * Creates or finds a ChatMessagePriority from its string representation.

@@ -24,7 +24,7 @@ import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 import static org.junit.Assert.*;
 
-public class CommunicationUserCredentialTest {
+public class CommunicationTokenCredentialTest {
 
     @Rule
     public ExpectedException expectedException = ExpectedException.none();

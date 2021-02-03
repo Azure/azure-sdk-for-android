@@ -10,46 +10,46 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /**
- * The ChatMessagesCollection model.
+ * The ChatMessageReadReceiptsCollection model.
  */
 @Fluent
-public final class ChatMessagesCollection {
+public final class ChatMessageReadReceiptsCollection {
     /*
-     * Collection of chat messages.
+     * Collection of chat message read receipts.
      */
     @JsonProperty(value = "value", required = true)
-    private List<ChatMessage> value;
+    private List<ChatMessageReadReceipt> value;
 
     /*
-     * If there are more chat messages that can be retrieved, the next link
-     * will be populated.
+     * If there are more chat message read receipts that can be retrieved, the
+     * next link will be populated.
      */
     @JsonProperty(value = "nextLink", access = JsonProperty.Access.WRITE_ONLY)
     private String nextLink;
 
     /**
-     * Get the value property: Collection of chat messages.
+     * Get the value property: Collection of chat message read receipts.
      * 
      * @return the value value.
      */
-    public List<ChatMessage> getValue() {
+    public List<ChatMessageReadReceipt> getValue() {
         return this.value;
     }
 
     /**
-     * Set the value property: Collection of chat messages.
+     * Set the value property: Collection of chat message read receipts.
      * 
      * @param value the value value to set.
-     * @return the ChatMessagesCollection object itself.
+     * @return the ChatMessageReadReceiptsCollection object itself.
      */
-    public ChatMessagesCollection setValue(List<ChatMessage> value) {
+    public ChatMessageReadReceiptsCollection setValue(List<ChatMessageReadReceipt> value) {
         this.value = value;
         return this;
     }
 
     /**
-     * Get the nextLink property: If there are more chat messages that can be
-     * retrieved, the next link will be populated.
+     * Get the nextLink property: If there are more chat message read receipts
+     * that can be retrieved, the next link will be populated.
      * 
      * @return the nextLink value.
      */
