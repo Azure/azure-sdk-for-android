@@ -229,4 +229,7 @@
   <!-- Do not worry about throwing from azure-core-test -->
   <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger" files="com.azure.android.core.test.*"/>
 
+  <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
+      files=".*[/\\]com[/\\]azure[/\\]android[/\\]core[/\\]test[/\\].*"/>
+
 </suppressions>
