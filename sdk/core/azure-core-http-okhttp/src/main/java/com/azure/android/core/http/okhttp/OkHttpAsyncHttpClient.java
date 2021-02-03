@@ -70,13 +70,16 @@ class OkHttpAsyncHttpClient implements HttpClient {
         } else if (httpRequest.getHttpMethod() == HttpMethod.HEAD) {
             okhttpRequestBuilder.head();
         } else {
+            byte[] content = httpRequest.getBody();
+            content = content == null ? new byte[0] : content;
+
             final String contentType = httpRequest.getHeaders().getValue("Content-Type");
             if (contentType == null) {
                 okhttpRequestBuilder.method(httpRequest.getHttpMethod().toString(),
-                    RequestBody.create(null, httpRequest.getBody()));
+                    RequestBody.create(null, content));
             } else {
                 okhttpRequestBuilder.method(httpRequest.getHttpMethod().toString(),
-                    RequestBody.create(MediaType.parse(contentType), httpRequest.getBody()));
+                    RequestBody.create(MediaType.parse(contentType), content));
             }
         }
 
