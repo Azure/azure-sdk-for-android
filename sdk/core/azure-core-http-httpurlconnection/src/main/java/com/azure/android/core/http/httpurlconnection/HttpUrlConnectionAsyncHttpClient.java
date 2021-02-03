@@ -87,12 +87,12 @@ class HttpUrlConnectionAsyncHttpClient implements HttpClient {
                 case HEAD:
                 case OPTIONS:
                 case TRACE:
-                case DELETE:
                     connection.setRequestMethod(httpRequest.getHttpMethod().toString());
                     break;
                 case PUT:
                 case POST:
                 case PATCH:
+                case DELETE:
                     connection.setRequestMethod(httpRequest.getHttpMethod().toString());
                     final byte[] requestContent = httpRequest.getBody();
                     if (requestContent != null) {
