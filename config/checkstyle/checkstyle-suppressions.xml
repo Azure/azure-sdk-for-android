@@ -208,7 +208,25 @@
   <!-- false positive, the field needs to be non-final for copy api to work -->
   <suppress checks="EnforceFinalFields" files="com.azure.android.core.http.HttpRequest.java"/>
 
-  <!-- Azure Search test models -->
   <suppress checks="VisibilityModifier" files="com.azure.android.core.rest.implementation/HttpResponseExceptionInfo.java"/>
+
+  <!-- Do not worry about leaking implementation API out of azure-core-test -->
+  <suppress checks="com.azure.tools.checkstyle.checks.NoImplInPublicAPI" files="com.azure.android.core.test.*"/>
+  <!-- The mock android util types in azure-core-test -->
+  <suppress checks="com.azure.tools.checkstyle.checks.NoImplInPublicAPI" files="android.util.*"/>
+
+  <!-- Files licensed with alternate license in the header and package names -->
+  <suppress checks="Header" files="android.util.ArrayMap.java"/>
+  <suppress checks="Header" files="android.util.Log.java"/>
+  <suppress checks="Header" files="android.util.Pair.java"/>
+  <suppress checks="PackageName" files="android.util.ArrayMap.java"/>
+  <suppress checks="PackageName" files="android.util.Log.java"/>
+  <suppress checks="PackageName" files="android.util.Pair.java"/>
+  <suppress checks="PackageName" files="android.util.package-info.java"/>
+  <suppress checks="GoodLogging" files="android.util.Log.java"/>
+  <suppress checks="VisibilityModifier" files="android.util.Pair.java"/>
+
+  <!-- Do not worry about throwing from azure-core-test -->
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger" files="com.azure.android.core.test.*"/>
 
 </suppressions>

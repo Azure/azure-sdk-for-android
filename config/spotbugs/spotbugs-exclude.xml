@@ -185,6 +185,7 @@
   <!-- FIXME: spotbugs issues in core test packages (same exists in azure-core java) -->
   <Match>
     <Or>
+      <Package name="android.util"/>
       <Package name="com.azure.android.core.test"/>
       <Package name="com.azure.android.core.test.implementation"/>
       <Package name="com.azure.android.core.test.http"/>
@@ -197,7 +198,11 @@
                   NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE,
                   RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE,
                   UPM_UNCALLED_PRIVATE_METHOD,
-                  DM_STRING_CTOR"/>
+                  DM_STRING_CTOR,
+                  RV_RETURN_VALUE_IGNORED,
+                  SIC_INNER_SHOULD_BE_STATIC_ANON,
+                  SE_NO_SERIALVERSIONID,
+                  RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
   </Match>
 
   <!-- FIXME: spotbugs issues in core test packages -->
