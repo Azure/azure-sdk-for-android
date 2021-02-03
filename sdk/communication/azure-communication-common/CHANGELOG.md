@@ -9,7 +9,7 @@
 - Renamed `CommunicationUser` to `CommunicationUserIdentifier `
 - Renamed `CallingApplication` to `CallingApplicationIdentifier`
 
-### New Features
+### Added
 - Added class `MicrosoftTeamsUserIdentifier`
 
 ## 1.0.0-beta.1 (2020-09-22)
