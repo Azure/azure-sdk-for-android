@@ -92,12 +92,15 @@ public final class RestProxy implements InvocationHandler {
 
         @Override
         public void onSuccess(HttpResponse httpResponse) {
+            final Response<?> restResponse;
             try {
-                final Response<?> restResponse = methodParser.mapToRestResponse(httpResponse);
-                this.restCallback.onSuccess(restResponse);
+                restResponse = methodParser.mapToRestResponse(httpResponse);
             } catch (Throwable e) {
                 this.restCallback.onFailure(e);
+                return;
             }
+
+            this.restCallback.onSuccess(restResponse);
         }
 
         @Override
