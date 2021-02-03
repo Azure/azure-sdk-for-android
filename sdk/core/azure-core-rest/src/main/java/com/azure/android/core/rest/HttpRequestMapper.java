@@ -204,9 +204,7 @@ final class HttpRequestMapper {
                     request.setBody((byte[]) content);
                 } else if (content instanceof String) {
                     final String contentString = (String) content;
-                    if (!contentString.isEmpty()) {
-                        request.setBody(contentString);
-                    }
+                    request.setBody(contentString);
                 } else {
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
                     this.serdeAdapter.serialize(content,
