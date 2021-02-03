@@ -1,14 +1,22 @@
 # Release History
 
-## 1.0.0-beta.5 (Unreleased)
+## 1.0.0-beta.5 (2021-02-03)
 ### Added
 - Support for three more types of chat message content
+- Support adding user agent http header in chat client
 - New classes
     - CommunicationError
     - CommunicationErrorResponse
     - CommunicationErrorResponseException
 
-## 1.0.0-beta.4 (Unreleased)
+### Breaking Changes
+- Chat client is split into chatClient and chatThreadClient
+- Rename member and threadMember to participant
+- Add participants API changed with a /:add at the end
+- Remove priority in message
+
+
+## 1.0.0-beta.4 (Skipped)
 ### Added
 - Support for Rich Text Chat message content
 - New classes
@@ -24,7 +32,7 @@
 - ChatMessage content is no longer a String type but an object of ChatMessageContent
 - All OffsetDateTime properties are now in RFC3339 format instead of ISO8601 format
 
-## 1.0.0-beta.3 (Unreleased)
+## 1.0.0-beta.3 (Skipped)
 
 ## 1.0.0-beta.2 (2020-10-06)
 This is the initial release of Azure Communication Services for chat. For more information, please see the [README][read_me] and [documentation][documentation].

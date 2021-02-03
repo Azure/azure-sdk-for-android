@@ -311,10 +311,10 @@ SendChatMessageRequest message = new SendChatMessageRequest()
 final String threadId = "<thread_id>";
 client.sendChatMessage(threadId, message, new Callback<SendChatMessageResult>() {
     @Override
-    public void onSuccess(String result, Response response) {
+    public void onSuccess(String messageId, Response response) {
         // A string is the response returned from sending a message, it is an id, 
         // which is the unique ID of the message.
-        final String chatMessageId = result;
+        final String chatMessageId = messageId;
         // Take further action.
     }
 
@@ -337,7 +337,7 @@ final String chatMessageId = "<message_id>";
 
 client.getChatMessage(threadId, chatMessageId, new Callback<ChatMessage>() {
     @Override
-    public void onSuccess(ChatMessage result, Response response) {
+    public void onSuccess(ChatMessage chatMessage, Response response) {
         // `ChatMessage` is the response returned from getting a message.
         final ChatMessageContent content = result.getContent();
         // Take further action.
