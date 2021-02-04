@@ -5,7 +5,7 @@ package com.azure.android.core.rest;
 
 import com.azure.android.core.rest.annotation.Host;
 import com.azure.android.core.rest.annotation.ServiceInterface;
-import com.azure.core.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 import com.azure.core.micro.util.CoreUtils;
 import com.azure.core.serde.SerdeAdapter;
 

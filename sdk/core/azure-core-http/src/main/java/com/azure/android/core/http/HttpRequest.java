@@ -5,7 +5,7 @@ package com.azure.android.core.http;
 
 import android.util.ArrayMap;
 
-import com.azure.core.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 
 import java.net.MalformedURLException;
 import java.net.URL;

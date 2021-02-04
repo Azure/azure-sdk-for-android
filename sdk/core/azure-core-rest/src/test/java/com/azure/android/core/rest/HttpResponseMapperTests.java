@@ -15,7 +15,7 @@ import com.azure.android.core.rest.annotation.Get;
 import com.azure.android.core.rest.annotation.ReturnValueWireType;
 import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionType;
 import com.azure.android.core.rest.implementation.TypeUtil;
-import com.azure.core.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 import com.azure.core.micro.util.Base64Url;
 import com.azure.core.micro.util.DateTimeRfc1123;
 import com.azure.core.micro.util.UnixTime;

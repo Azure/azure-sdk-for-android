@@ -7,7 +7,7 @@ import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.util.UrlBuilder;
-import com.azure.core.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 
 /**
  * The pipeline policy that adds a given protocol to each HttpRequest.

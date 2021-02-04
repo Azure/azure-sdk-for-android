@@ -8,7 +8,7 @@ import com.azure.android.core.rest.annotation.ExpectedResponses;
 import com.azure.android.core.rest.annotation.Get;
 import com.azure.android.core.rest.annotation.Host;
 import com.azure.android.core.rest.annotation.ServiceInterface;
-import com.azure.core.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 import com.azure.core.serde.jackson.JacksonSerderAdapter;
 
 import org.junit.jupiter.api.Assertions;

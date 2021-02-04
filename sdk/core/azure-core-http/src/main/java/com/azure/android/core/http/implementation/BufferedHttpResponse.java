@@ -5,7 +5,7 @@ package com.azure.android.core.http.implementation;
 
 import com.azure.android.core.http.HttpHeaders;
 import com.azure.android.core.http.HttpResponse;
-import com.azure.core.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

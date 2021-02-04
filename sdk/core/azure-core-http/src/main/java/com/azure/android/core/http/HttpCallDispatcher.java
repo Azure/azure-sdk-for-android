@@ -5,7 +5,7 @@ package com.azure.android.core.http;
 
 import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.android.core.micro.util.Context;
-import com.azure.core.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;

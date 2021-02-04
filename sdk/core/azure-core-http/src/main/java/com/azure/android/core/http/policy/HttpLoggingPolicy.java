@@ -15,8 +15,8 @@ import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.http.util.UrlBuilder;
 import com.azure.android.core.micro.util.Context;
 import com.azure.core.http.ContentType;
-import com.azure.core.logging.ClientLogger;
-import com.azure.core.logging.LogLevel;
+import com.azure.android.core.logging.ClientLogger;
+import com.azure.android.core.logging.LogLevel;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URL;

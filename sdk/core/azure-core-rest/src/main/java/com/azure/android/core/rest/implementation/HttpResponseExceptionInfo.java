@@ -5,7 +5,7 @@ package com.azure.android.core.rest.implementation;
 
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.exception.HttpResponseException;
-import com.azure.core.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 import com.azure.core.serde.SerdeAdapter;
 import com.azure.core.serde.SerdeEncoding;
 import com.azure.core.serde.SerdeParseException;

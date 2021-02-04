@@ -4,7 +4,7 @@
 package com.azure.android.core.http.policy;
 
 import com.azure.android.core.http.HttpResponse;
-import com.azure.core.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 
 import java.time.Duration;
 import java.util.Objects;

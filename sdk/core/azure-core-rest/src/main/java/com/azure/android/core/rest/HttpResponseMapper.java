@@ -11,7 +11,7 @@ import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.rest.implementation.HttpResponseExceptionInfo;
-import com.azure.core.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 import com.azure.core.micro.util.Base64Url;
 import com.azure.core.micro.util.DateTimeRfc1123;
 import com.azure.core.micro.util.UnixTime;
