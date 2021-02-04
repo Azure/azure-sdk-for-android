@@ -100,9 +100,7 @@ final class HttpResponseMapper {
                 }
             }
 
-            if (httpResponse.getRequest().getHttpMethod() == HttpMethod.HEAD
-                && (TypeUtil.isTypeOrSubTypeOf(this.contentType, Boolean.TYPE)
-                || TypeUtil.isTypeOrSubTypeOf(this.contentType, Boolean.class))) {
+            if (isBooleanResponseForHead(httpResponse)) {
                 final boolean isSuccess = (httpResponse.getStatusCode() / 100) == 2;
                 httpResponse.close();
                 return instantiateResponse(this.responseCtr,
@@ -196,6 +194,12 @@ final class HttpResponseMapper {
         } else {
             return this.defaultExceptionInfo;
         }
+    }
+
+    private boolean isBooleanResponseForHead(HttpResponse httpResponse) {
+        return httpResponse.getRequest().getHttpMethod() == HttpMethod.HEAD
+            && (TypeUtil.isTypeOrSubTypeOf(this.contentType, Boolean.TYPE)
+            || TypeUtil.isTypeOrSubTypeOf(this.contentType, Boolean.class));
     }
 
     private Object deserializeHttpBody(SerdeAdapter serdeAdapter, HttpResponse httpResponse, Type bodyType) {

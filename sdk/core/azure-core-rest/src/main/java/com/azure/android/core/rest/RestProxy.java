@@ -103,7 +103,7 @@ public final class RestProxy implements InvocationHandler {
         public void onSuccess(HttpResponse httpResponse) {
             final Response<?> restResponse;
             try {
-                restResponse = methodParser.mapToRestResponse(httpResponse);
+                restResponse = this.methodParser.mapToRestResponse(httpResponse);
             } catch (Throwable e) {
                 this.restCallback.onFailure(e);
                 return;
