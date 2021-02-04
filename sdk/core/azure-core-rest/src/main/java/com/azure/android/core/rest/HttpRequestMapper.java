@@ -36,8 +36,8 @@ import java.util.regex.Pattern;
 final class HttpRequestMapper {
     private static final Pattern PATTERN_COLON_SLASH_SLASH = Pattern.compile("://");
 
-    private final SerdeAdapter serdeAdapter;
     private final String rawHost;
+    private final SerdeAdapter serdeAdapter;
     private final HttpMethod httpMethod;
     private final String relativePath;
     private final List<MethodParameterMapping> hostMappings = new ArrayList<>();
@@ -45,11 +45,11 @@ final class HttpRequestMapper {
     private final List<MethodParameterMapping> queryMappings = new ArrayList<>();
     private final List<MethodParameterMapping> headerMappings = new ArrayList<>();
     private final List<MethodParameterMapping> formDataEntriesMapping = new ArrayList<>();
-    private final Integer contentParameterIndex;
+    private final Integer contentArgIndex;
     private final String contentType;
     private final HttpHeaders headers = new HttpHeaders();
 
-    HttpRequestMapper(Method swaggerMethod, String rawHost, SerdeAdapter serdeAdapter) {
+    HttpRequestMapper(String rawHost, Method swaggerMethod, SerdeAdapter serdeAdapter) {
         this.rawHost = rawHost;
         this.serdeAdapter = serdeAdapter;
 
@@ -95,7 +95,7 @@ final class HttpRequestMapper {
             }
         }
 
-        Integer contentParameterIndex = null;
+        Integer contentArgIndex = null;
         String contentType = null;
         final Annotation[][] allParametersAnnotations = swaggerMethod.getParameterAnnotations();
         for (int parameterIndex = 0; parameterIndex < allParametersAnnotations.length; parameterIndex++) {
@@ -123,31 +123,31 @@ final class HttpRequestMapper {
                     this.formDataEntriesMapping.add(new MethodParameterMapping(parameterIndex, formAnnotation.value(),
                         !formAnnotation.encoded()));
                 } else if (annotationType.equals(BodyParam.class)) {
-                    contentParameterIndex = parameterIndex;
+                    contentArgIndex = parameterIndex;
                     contentType = ((BodyParam) annotation).value();
                 }
             }
         }
 
-        if (!this.formDataEntriesMapping.isEmpty() && contentParameterIndex != null) {
+        if (!this.formDataEntriesMapping.isEmpty() && contentArgIndex != null) {
             throw new RuntimeException("'FormParam' and 'BodyParam' are mutually exclusive, but the method "
                 + swaggerMethod.getDeclaringClass().getName() + "." + swaggerMethod.getName() + "() "
                 + "has both the annotations.");
         }
 
-        this.contentParameterIndex = contentParameterIndex;
+        this.contentArgIndex = contentArgIndex;
         this.contentType = contentType;
     }
 
-    HttpRequest map(Object[] methodArguments) throws IOException {
-        final String path = this.applyPathMappings(methodArguments);
+    HttpRequest map(Object[] swaggerMethodArgs) throws IOException {
+        final String path = this.applyPathMappings(swaggerMethodArgs);
         UrlBuilder urlBuilder = UrlBuilder.parse(path);
 
         // Sometimes a full URL will be provided as the value of PathParam annotated argument.
         // This mainly happens in paging scenarios, in such cases, we use the full URL
         // (a simple scheme presence check to determine full URL) and ignore the Host annotation.
         if (urlBuilder.getScheme() == null) {
-            urlBuilder = this.applySchemeAndHostMapping(methodArguments, new UrlBuilder());
+            urlBuilder = this.applySchemeAndHostMapping(swaggerMethodArgs, new UrlBuilder());
             // Set the path after host, concatenating the path segment in the host.
             if (path != null && !path.isEmpty() && !"/".equals(path)) {
                 String hostPath = urlBuilder.getPath();
@@ -159,12 +159,12 @@ final class HttpRequestMapper {
             }
         }
 
-        this.applyQueryMappings(methodArguments, urlBuilder);
+        this.applyQueryMappings(swaggerMethodArgs, urlBuilder);
 
         final HttpRequest request = new HttpRequest(this.httpMethod, urlBuilder.toString());
 
         if (!this.formDataEntriesMapping.isEmpty()) {
-            final String formData = this.applyFormDataMapping(methodArguments);
+            final String formData = this.applyFormDataMapping(swaggerMethodArgs);
             if (formData == null) {
                 request.getHeaders().put("Content-Length", "0");
             } else {
@@ -172,7 +172,7 @@ final class HttpRequestMapper {
                 request.setBody(formData);
             }
         } else {
-            final Object content = this.retrieveContentValue(methodArguments);
+            final Object content = this.retrieveContentArg(swaggerMethodArgs);
             if (content == null) {
                 request.getHeaders().put("Content-Length", "0");
             } else {
@@ -218,7 +218,7 @@ final class HttpRequestMapper {
 
         // Headers from Swagger method arguments always take precedence over inferred headers from body types.
         HttpHeaders httpHeaders = request.getHeaders();
-        this.applyHeaderMappings(methodArguments, httpHeaders);
+        this.applyHeaderMappings(swaggerMethodArgs, httpHeaders);
 
         return request;
     }
@@ -227,8 +227,8 @@ final class HttpRequestMapper {
         return this.httpMethod;
     }
 
-    UrlBuilder applySchemeAndHostMapping(Object[] methodArguments, UrlBuilder urlBuilder) {
-        final String substitutedHost = this.applyUrlMapping(this.rawHost, this.hostMappings, methodArguments);
+    UrlBuilder applySchemeAndHostMapping(Object[] swaggerMethodArgs, UrlBuilder urlBuilder) {
+        final String substitutedHost = this.applyUrlMapping(this.rawHost, this.hostMappings, swaggerMethodArgs);
         final String[] substitutedHostParts = PATTERN_COLON_SLASH_SLASH.split(substitutedHost);
 
         if (substitutedHostParts.length >= 2) {
@@ -243,16 +243,16 @@ final class HttpRequestMapper {
         return urlBuilder;
     }
 
-    String applyPathMappings(Object[] methodArguments) {
-        return this.applyUrlMapping(this.relativePath, this.pathMappings, methodArguments);
+    String applyPathMappings(Object[] swaggerMethodArgs) {
+        return this.applyUrlMapping(this.relativePath, this.pathMappings, swaggerMethodArgs);
     }
 
-    UrlBuilder applyQueryMappings(Object[] methodArguments, UrlBuilder urlBuilder) {
-        if (methodArguments != null) {
+    UrlBuilder applyQueryMappings(Object[] swaggerMethodArgs, UrlBuilder urlBuilder) {
+        if (swaggerMethodArgs != null) {
             for (MethodParameterMapping queryParameterMapping : this.queryMappings) {
-                if (queryParameterMapping.index < methodArguments.length) {
-                    final Object methodArgument = methodArguments[queryParameterMapping.index];
-                    String parameterValue = this.serialize(methodArgument);
+                if (queryParameterMapping.argIndex < swaggerMethodArgs.length) {
+                    final Object methodArg = swaggerMethodArgs[queryParameterMapping.argIndex];
+                    String parameterValue = this.serialize(methodArg);
                     if (parameterValue != null) {
                         if (queryParameterMapping.shouldEncode) {
                             parameterValue = UrlEscapers.QUERY_ESCAPER.escape(parameterValue);
@@ -265,17 +265,17 @@ final class HttpRequestMapper {
         return urlBuilder;
     }
 
-    HttpHeaders applyHeaderMappings(Object[] swaggerMethodArguments, HttpHeaders httpHeaders) {
+    HttpHeaders applyHeaderMappings(Object[] swaggerMethodArgs, HttpHeaders httpHeaders) {
         for (HttpHeader header : this.headers) {
             httpHeaders.put(header.getName(), header.getValue());
         }
-        if (swaggerMethodArguments != null) {
+        if (swaggerMethodArgs != null) {
             for (MethodParameterMapping headerParameterMapping : this.headerMappings) {
-                if (headerParameterMapping.index < swaggerMethodArguments.length) {
-                    final Object methodArgument = swaggerMethodArguments[headerParameterMapping.index];
-                    if (methodArgument instanceof Map) {
+                if (headerParameterMapping.argIndex < swaggerMethodArgs.length) {
+                    final Object methodArg = swaggerMethodArgs[headerParameterMapping.argIndex];
+                    if (methodArg instanceof Map) {
                         @SuppressWarnings("unchecked")
-                        final Map<String, ?> headerCollection = (Map<String, ?>) methodArgument;
+                        final Map<String, ?> headerCollection = (Map<String, ?>) methodArg;
                         final String headerCollectionPrefix = headerParameterMapping.mapToName;
                         for (final Map.Entry<String, ?> headerCollectionEntry : headerCollection.entrySet()) {
                             final String headerName = headerCollectionPrefix + headerCollectionEntry.getKey();
@@ -285,7 +285,7 @@ final class HttpRequestMapper {
                             }
                         }
                     } else {
-                        final String headerValue = this.serialize(methodArgument);
+                        final String headerValue = this.serialize(methodArg);
                         if (headerValue != null) {
                             httpHeaders.put(headerParameterMapping.mapToName, headerValue);
                         }
@@ -296,14 +296,14 @@ final class HttpRequestMapper {
         return httpHeaders;
     }
 
-    String applyFormDataMapping(Object[] swaggerMethodArguments) {
-        if (swaggerMethodArguments == null || this.formDataEntriesMapping.isEmpty()) {
+    String applyFormDataMapping(Object[] swaggerMethodArgs) {
+        if (swaggerMethodArgs == null || this.formDataEntriesMapping.isEmpty()) {
             return null;
         }
         StringBuilder formDataBuilder = new StringBuilder();
         for (MethodParameterMapping formParameterMapping : this.formDataEntriesMapping) {
             final String formDataEntry = this.serializeFormDataEntry(formParameterMapping.mapToName,
-                swaggerMethodArguments[formParameterMapping.index],
+                swaggerMethodArgs[formParameterMapping.argIndex],
                 formParameterMapping.shouldEncode);
             if (formDataEntry != null) {
                 formDataBuilder.append(formDataEntry);
@@ -321,13 +321,13 @@ final class HttpRequestMapper {
         }
     }
 
-    Object retrieveContentValue(Object[] swaggerMethodArguments) {
-        if (swaggerMethodArguments == null
-            || this.contentParameterIndex == null
-            || this.contentParameterIndex >= swaggerMethodArguments.length) {
+    Object retrieveContentArg(Object[] swaggerMethodArgs) {
+        if (swaggerMethodArgs == null
+            || this.contentArgIndex == null
+            || this.contentArgIndex >= swaggerMethodArgs.length) {
             return null;
         } else {
-            return swaggerMethodArguments[this.contentParameterIndex];
+            return swaggerMethodArgs[this.contentArgIndex];
         }
     }
 
@@ -335,11 +335,12 @@ final class HttpRequestMapper {
         if (entryValue == null) {
             return null;
         }
+
         final String encodedEntryKey = UrlEscapers.FORM_ESCAPER.escape(entryKey);
         if (entryValue instanceof List<?>) {
             StringBuilder formDataEntryBuilder = new StringBuilder();
-            final List<?> elements = (List<?>) entryValue;
-            for (Object element : elements) {
+            final List<?> listElements = (List<?>) entryValue;
+            for (Object element : listElements) {
                 if (element != null) {
                     String serializedElement = this.serdeAdapter.serializeRaw(element);
                     if (serializedElement != null) {
@@ -378,14 +379,14 @@ final class HttpRequestMapper {
 
     String applyUrlMapping(String urlTemplate,
                            Iterable<MethodParameterMapping> urlParameterMappings,
-                           Object[] methodArguments) {
+                           Object[] swaggerMethodArgs) {
         String mappedUrl = urlTemplate;
-        if (methodArguments != null) {
+        if (swaggerMethodArgs != null) {
             for (MethodParameterMapping urlParameterMapping : urlParameterMappings) {
-                if (urlParameterMapping.index < methodArguments.length) {
-                    final Object methodArgument = methodArguments[urlParameterMapping.index];
+                if (urlParameterMapping.argIndex < swaggerMethodArgs.length) {
+                    final Object methodArg = swaggerMethodArgs[urlParameterMapping.argIndex];
 
-                    String value = this.serialize(methodArgument);
+                    String value = this.serialize(methodArg);
                     if (value != null && !value.isEmpty() && urlParameterMapping.shouldEncode) {
                         value = UrlEscapers.PATH_ESCAPER.escape(value);
                     }
@@ -421,14 +422,14 @@ final class HttpRequestMapper {
      * </p>
      */
     private static final class MethodParameterMapping {
-        final int index;
+        final int argIndex;
         final String mapToName;
         final boolean shouldEncode;
 
         /**
          * For a swagger interface method, creates a mapping for the parameter at position {@code index}.
          *
-         * @param index The index of the parameter in the swagger interface method.
+         * @param argIndex The index of the parameter in the swagger interface method.
          * @param mapToName identifies where in the HTTP message to map the actual value for the parameter
          *     at {@code index}. If the parameter represents a query or header value then {@code mapToName} is
          *     the query or header name, if the parameter represents host or path segment value then
@@ -436,8 +437,8 @@ final class HttpRequestMapper {
          * @param shouldEncode Indicate while mapping should the actual value for the parameter at {@code index}
          *     needs to be encoded or not.
          */
-        MethodParameterMapping(int index, String mapToName, boolean shouldEncode) {
-            this.index = index;
+        MethodParameterMapping(int argIndex, String mapToName, boolean shouldEncode) {
+            this.argIndex = argIndex;
             this.mapToName = mapToName;
             this.shouldEncode = shouldEncode;
         }

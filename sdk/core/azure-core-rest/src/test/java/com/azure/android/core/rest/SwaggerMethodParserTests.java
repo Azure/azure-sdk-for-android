@@ -38,8 +38,8 @@ public class SwaggerMethodParserTests {
 
         IllegalStateException ex0 = null;
         try {
-            new SwaggerMethodParser(missingCallbackParamMethod,
-                "https://raw.host.com",
+            new SwaggerMethodParser("https://raw.host.com",
+                missingCallbackParamMethod,
                 new JacksonSerderAdapter(),
                 this.logger);
         } catch (IllegalStateException e) {
@@ -53,8 +53,8 @@ public class SwaggerMethodParserTests {
 
         IllegalStateException ex1 = null;
         try {
-            new SwaggerMethodParser(callbackMissingTypeArgMethod,
-                "https://raw.host.com",
+            new SwaggerMethodParser("https://raw.host.com",
+                callbackMissingTypeArgMethod,
                 new JacksonSerderAdapter(),
                 this.logger);
         } catch (IllegalStateException e) {
@@ -88,23 +88,23 @@ public class SwaggerMethodParserTests {
         Method cancellationTokenCorrectIndexMethod = clazz.getDeclaredMethod("cancellationTokenCorrectIndex",
             Integer.class, CancellationToken.class, Callback.class);
 
-        SwaggerMethodParser methodParser0 = new SwaggerMethodParser(cancellationTokenCorrectIndexMethod,
-            "https://raw.host.com",
+        SwaggerMethodParser methodParser0 = new SwaggerMethodParser("https://raw.host.com",
+            cancellationTokenCorrectIndexMethod,
             new JacksonSerderAdapter(),
             this.logger);
 
-        Assertions.assertEquals(1, methodParser0.cancellationTokenParamIndex);
+        Assertions.assertEquals(1, methodParser0.cancellationTokenArgIndex);
 
         Method cancellationTokenIncorrectIndexMethod = clazz.getDeclaredMethod("cancellationTokenIncorrectIndex",
             CancellationToken.class, Integer.class, Callback.class);
 
-        SwaggerMethodParser methodParser1 = new SwaggerMethodParser(cancellationTokenIncorrectIndexMethod,
-            "https://raw.host.com",
+        SwaggerMethodParser methodParser1 = new SwaggerMethodParser("https://raw.host.com",
+            cancellationTokenIncorrectIndexMethod,
             new JacksonSerderAdapter(),
             this.logger);
 
         // CancellationToken when present must be second last arg, its the contract, presence of
         // it in any other index (like in this case) is ignored.
-        Assertions.assertEquals(-1,  methodParser1.cancellationTokenParamIndex);
+        Assertions.assertEquals(-1,  methodParser1.cancellationTokenArgIndex);
     }
 }

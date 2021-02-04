@@ -72,7 +72,7 @@ public class HttpRequestMapperTests {
         Method noHttpMethodAnnotation = OperationMethods.class.getDeclaredMethod("noMethod");
         Exception ex = null;
         try {
-            new HttpRequestMapper(noHttpMethodAnnotation, "s://raw.host.com", new JacksonSerderAdapter());
+            new HttpRequestMapper("s://raw.host.com", noHttpMethodAnnotation, new JacksonSerderAdapter());
         } catch (RuntimeException e) {
             ex = e;
         }
@@ -105,7 +105,7 @@ public class HttpRequestMapperTests {
     public void httpMethod(Method method, HttpMethod expectedMethod, String expectedRelativePath,
                            String expectedFullyQualifiedName) {
 
-        HttpRequestMapper mapper = new HttpRequestMapper(method, "https://raw.host.com", new JacksonSerderAdapter());
+        HttpRequestMapper mapper = new HttpRequestMapper("https://raw.host.com", method, new JacksonSerderAdapter());
         assertEquals(expectedMethod, mapper.getHttpMethod());
         assertEquals(expectedRelativePath, mapper.applyPathMappings(null));
     }
@@ -141,7 +141,7 @@ public class HttpRequestMapperTests {
     @ParameterizedTest
     @MethodSource("headersSupplier")
     public void headers(Method method, HttpHeaders expectedHeaders) {
-        HttpRequestMapper mapper = new HttpRequestMapper(method, "https://raw.host.com", new JacksonSerderAdapter());
+        HttpRequestMapper mapper = new HttpRequestMapper("https://raw.host.com", method, new JacksonSerderAdapter());
 
         HttpHeaders actual = new HttpHeaders();
         mapper.applyHeaderMappings(null, actual);
@@ -190,7 +190,7 @@ public class HttpRequestMapperTests {
     @ParameterizedTest
     @MethodSource("hostSubstitutionSupplier")
     public void hostSubstitution(Method method, String rawHost, Object[] arguments, String expectedUrl) {
-        HttpRequestMapper mapper = new HttpRequestMapper(method, rawHost, new JacksonSerderAdapter());
+        HttpRequestMapper mapper = new HttpRequestMapper(rawHost, method, new JacksonSerderAdapter());
         UrlBuilder urlBuilder = new UrlBuilder();
         mapper.applySchemeAndHostMapping(arguments, urlBuilder);
         assertEquals(expectedUrl, urlBuilder.toString());
@@ -224,7 +224,7 @@ public class HttpRequestMapperTests {
     @ParameterizedTest
     @MethodSource("schemeSubstitutionSupplier")
     public void schemeSubstitution(Method method, String rawHost, Object[] arguments, String expectedUrl) {
-        HttpRequestMapper mapper = new HttpRequestMapper(method, rawHost, new JacksonSerderAdapter());
+        HttpRequestMapper mapper = new HttpRequestMapper(rawHost, method, new JacksonSerderAdapter());
         UrlBuilder urlBuilder = new UrlBuilder();
         mapper.applySchemeAndHostMapping(arguments, urlBuilder);
         assertEquals(expectedUrl, urlBuilder.toString());
@@ -261,7 +261,7 @@ public class HttpRequestMapperTests {
     @ParameterizedTest
     @MethodSource("pathSubstitutionSupplier")
     public void pathSubstitution(Method method, Object[] arguments, String expectedPath) {
-        HttpRequestMapper mapper = new HttpRequestMapper(method, "https://raw.host.com", new JacksonSerderAdapter());
+        HttpRequestMapper mapper = new HttpRequestMapper("https://raw.host.com", method, new JacksonSerderAdapter());
         assertEquals(expectedPath, mapper.applyPathMappings(arguments));
     }
 
@@ -296,7 +296,7 @@ public class HttpRequestMapperTests {
     @ParameterizedTest
     @MethodSource("querySubstitutionSupplier")
     public void querySubstitution(Method method, Object[] arguments, String expectedUrl) {
-        HttpRequestMapper mapper = new HttpRequestMapper(method, "https://raw.host.com", new JacksonSerderAdapter());
+        HttpRequestMapper mapper = new HttpRequestMapper("https://raw.host.com", method, new JacksonSerderAdapter());
         UrlBuilder urlBuilder = UrlBuilder.parse("https://raw.host.com");
         mapper.applyQueryMappings(arguments, urlBuilder);
         assertEquals(expectedUrl, urlBuilder.toString());
@@ -344,7 +344,7 @@ public class HttpRequestMapperTests {
     @ParameterizedTest
     @MethodSource("headerSubstitutionSupplier")
     public void headerSubstitution(Method method, Object[] arguments, Map<String, String> expectedHeaders) {
-        HttpRequestMapper mapper = new HttpRequestMapper(method, "https://raw.host.com", new JacksonSerderAdapter());
+        HttpRequestMapper mapper = new HttpRequestMapper("https://raw.host.com", method, new JacksonSerderAdapter());
         HttpHeaders actual = new HttpHeaders();
         mapper.applyHeaderMappings(arguments, actual);
         for (HttpHeader header : actual) {
@@ -420,7 +420,7 @@ public class HttpRequestMapperTests {
                                  Object[] arguments,
                                  String expectedBodyContentType,
                                  Object expectedBody) {
-        HttpRequestMapper mapper = new HttpRequestMapper(method, "https://raw.host.com", new JacksonSerderAdapter());
+        HttpRequestMapper mapper = new HttpRequestMapper("https://raw.host.com", method, new JacksonSerderAdapter());
         assertEquals(expectedBody, mapper.applyFormDataMapping(arguments));
     }
 
@@ -472,8 +472,8 @@ public class HttpRequestMapperTests {
                                      Object[] arguments,
                                      String expectedBodyContentType,
                                      Object expectedBody) throws IOException {
-        HttpRequestMapper mapper = new HttpRequestMapper(method,
-            "https://raw.host.com",
+        HttpRequestMapper mapper = new HttpRequestMapper("https://raw.host.com",
+            method,
             new JacksonSerderAdapter());
 
         HttpRequest httpRequest = mapper.map(arguments);
@@ -500,7 +500,7 @@ public class HttpRequestMapperTests {
 
         RuntimeException ex = null;
         try {
-            new HttpRequestMapper(formAndBodyMethod, "https://raw.host.com", new JacksonSerderAdapter());
+            new HttpRequestMapper("https://raw.host.com", formAndBodyMethod, new JacksonSerderAdapter());
 
         } catch (RuntimeException e) {
             ex = e;
@@ -522,8 +522,8 @@ public class HttpRequestMapperTests {
 
         Method byteBodyMethod = clazz.getDeclaredMethod("byteBody", (new byte[0]).getClass(), Callback.class);
         Method stringBodyMethod = clazz.getDeclaredMethod("stringBody", String.class, Callback.class);
-        HttpRequestMapper requestMapper = new HttpRequestMapper(byteBodyMethod,
-            "https://raw.host.com",
+        HttpRequestMapper requestMapper = new HttpRequestMapper("https://raw.host.com",
+            byteBodyMethod,
             new JacksonSerderAdapter());
 
         byte[] bytesBody = new byte[2];
@@ -534,8 +534,8 @@ public class HttpRequestMapperTests {
         assertEquals("application/octet-stream", httpRequest.getHeaders().getValue("Content-Type"));
         assertArrayEquals(bytesBody, httpRequest.getBody());
 
-        requestMapper = new HttpRequestMapper(stringBodyMethod,
-            "https://raw.host.com",
+        requestMapper = new HttpRequestMapper("https://raw.host.com",
+            stringBodyMethod,
             new JacksonSerderAdapter());
         httpRequest = requestMapper.map(toObjectArray("hello"));
         assertEquals("application/octet-stream", httpRequest.getHeaders().getValue("Content-Type"));

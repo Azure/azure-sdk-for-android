@@ -28,13 +28,13 @@ final class SwaggerMethodParser {
 
     private final String methodFullName;
     private final Type callbackType;
-    final int callbackParamIndex;
-    final Integer cancellationTokenParamIndex;
+    final int callbackArgIndex;
+    final Integer cancellationTokenArgIndex;
     private final HttpRequestMapper httpRequestMapper;
     private volatile HttpResponseMapper httpResponseMapper;
 
-    SwaggerMethodParser(Method swaggerMethod,
-                        String rawHost,
+    SwaggerMethodParser(String rawHost,
+                        Method swaggerMethod,
                         SerdeAdapter serdeAdapter,
                         ClientLogger logger) {
         this.swaggerMethod = swaggerMethod;
@@ -44,10 +44,10 @@ final class SwaggerMethodParser {
 
         final Type[] methodParamTypes = swaggerMethod.getGenericParameterTypes();
         this.callbackType = extractCallbackType(methodParamTypes);
-        this.callbackParamIndex = methodParamTypes.length - 1;
-        this.cancellationTokenParamIndex = extractCancellationTokenIndex(methodParamTypes);
+        this.callbackArgIndex = methodParamTypes.length - 1;
+        this.cancellationTokenArgIndex = extractCancellationTokenIndex(methodParamTypes);
 
-        this.httpRequestMapper = new HttpRequestMapper(swaggerMethod, rawHost, serdeAdapter);
+        this.httpRequestMapper = new HttpRequestMapper(rawHost, swaggerMethod, serdeAdapter);
     }
 
     String getMethodFullName() {

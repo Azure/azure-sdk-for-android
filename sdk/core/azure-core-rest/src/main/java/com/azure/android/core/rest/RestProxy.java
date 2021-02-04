@@ -50,22 +50,26 @@ public final class RestProxy implements InvocationHandler {
     }
 
     @Override
-    public Object invoke(Object proxy, final Method method, Object[] args) {
-        final SwaggerMethodParser methodParser = this.interfaceParser.getMethodParser(method, this.logger);
+    public Object invoke(final Object restProxy,
+                         final Method swaggerMethod,
+                         final Object[] swaggerMethodArgs) {
 
-        final Callback<Response<?>> restCallback = (Callback<Response<?>>) args[methodParser.callbackParamIndex];
+        final SwaggerMethodParser methodParser = this.interfaceParser.getMethodParser(swaggerMethod, this.logger);
+
+        final Callback<Response<?>> restCallback
+            = (Callback<Response<?>>) swaggerMethodArgs[methodParser.callbackArgIndex];
         Objects.requireNonNull(restCallback);
 
         final CancellationToken cancellationToken;
-        if (methodParser.cancellationTokenParamIndex == -1) {
+        if (methodParser.cancellationTokenArgIndex == -1) {
             cancellationToken = CancellationToken.NONE;
         } else {
-            cancellationToken = (CancellationToken) args[methodParser.cancellationTokenParamIndex];
+            cancellationToken = (CancellationToken) swaggerMethodArgs[methodParser.cancellationTokenArgIndex];
         }
 
         final HttpRequest httpRequest;
         try {
-            httpRequest = methodParser.mapToHttpRequest(args);
+            httpRequest = methodParser.mapToHttpRequest(swaggerMethodArgs);
         } catch (IOException e) {
             restCallback.onFailure(e);
             return null;

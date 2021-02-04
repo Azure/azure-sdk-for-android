@@ -77,7 +77,7 @@ final class SwaggerInterfaceParser {
         synchronized (METHOD_PARSERS_LOCK) {
             SwaggerMethodParser methodParser = METHOD_PARSERS.get(swaggerMethod);
             if (methodParser == null) {
-                methodParser = new SwaggerMethodParser(swaggerMethod, this.host, this.serdeAdapter, logger);
+                methodParser = new SwaggerMethodParser(this.host, swaggerMethod, this.serdeAdapter, logger);
                 METHOD_PARSERS.put(swaggerMethod, methodParser);
             }
             return methodParser;
