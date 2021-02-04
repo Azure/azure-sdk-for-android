@@ -51,12 +51,17 @@ public final class RestProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, final Method method, Object[] args) {
-        // Method parser does basic validations on args such as presence of callback arg,
-        // so let's get parser first.
         final SwaggerMethodParser methodParser = this.interfaceParser.getMethodParser(method, this.logger);
 
-        final Callback<Response<?>> restCallback = (Callback<Response<?>>) args[args.length - 1];
+        final Callback<Response<?>> restCallback = (Callback<Response<?>>) args[methodParser.callbackParamIndex];
         Objects.requireNonNull(restCallback);
+
+        final CancellationToken cancellationToken;
+        if (methodParser.cancellationTokenParamIndex == -1) {
+            cancellationToken = CancellationToken.NONE;
+        } else {
+            cancellationToken = (CancellationToken) args[methodParser.cancellationTokenParamIndex];
+        }
 
         final HttpRequest httpRequest;
         try {
@@ -70,7 +75,7 @@ public final class RestProxy implements InvocationHandler {
         }
 
         this.httpPipeline.send(httpRequest, Context.NONE,
-            CancellationToken.NONE,
+            cancellationToken,
             new HttpPipelineCallback(methodParser, restCallback));
         return null;
     }

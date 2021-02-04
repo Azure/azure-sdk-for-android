@@ -5,6 +5,7 @@ package com.azure.android.core.rest;
 
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.android.core.rest.implementation.TypeUtil;
 import com.azure.core.logging.ClientLogger;
 import com.azure.core.serde.SerdeAdapter;
@@ -27,6 +28,8 @@ final class SwaggerMethodParser {
 
     private final String methodFullName;
     private final Type callbackType;
+    final int callbackParamIndex;
+    final Integer cancellationTokenParamIndex;
     private final HttpRequestMapper httpRequestMapper;
     private volatile HttpResponseMapper httpResponseMapper;
 
@@ -38,7 +41,12 @@ final class SwaggerMethodParser {
         this.serdeAdapter = serdeAdapter;
         this.logger = logger;
         this.methodFullName = swaggerMethod.getDeclaringClass().getName() + "." + swaggerMethod.getName();
-        this.callbackType = extractCallbackType(swaggerMethod);
+
+        final Type[] methodParamTypes = swaggerMethod.getGenericParameterTypes();
+        this.callbackType = extractCallbackType(methodParamTypes);
+        this.callbackParamIndex = methodParamTypes.length - 1;
+        this.cancellationTokenParamIndex = extractCancellationTokenIndex(methodParamTypes);
+
         this.httpRequestMapper = new HttpRequestMapper(swaggerMethod, rawHost, serdeAdapter);
     }
 
@@ -57,8 +65,7 @@ final class SwaggerMethodParser {
         return this.httpResponseMapper.map(httpResponse, this.serdeAdapter);
     }
 
-    private Type extractCallbackType(Method swaggerMethod) {
-        final Type[] methodParamTypes = swaggerMethod.getGenericParameterTypes();
+    private Type extractCallbackType(Type[] methodParamTypes) {
         final Type methodLastParamType = methodParamTypes.length > 0
             ? methodParamTypes[methodParamTypes.length - 1]
             : null;
@@ -78,5 +85,18 @@ final class SwaggerMethodParser {
                 Callback.class.getTypeName())));
         }
         return callbackType;
+    }
+
+    private Integer extractCancellationTokenIndex(Type[] methodParamTypes) {
+        if (methodParamTypes.length < 2) {
+            return -1;
+        } else {
+            final Type methodSecondLastParamType = methodParamTypes[methodParamTypes.length - 2];
+            if (TypeUtil.isTypeOrSubTypeOf(methodSecondLastParamType, CancellationToken.class)) {
+                return methodParamTypes.length - 2;
+            } else {
+                return -1;
+            }
+        }
     }
 }
