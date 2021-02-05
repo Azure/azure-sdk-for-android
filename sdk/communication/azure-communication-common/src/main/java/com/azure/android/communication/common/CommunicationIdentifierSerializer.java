@@ -26,7 +26,7 @@ class CommunicationIdentifierSerializer {
 
         if (identifier.getPhoneNumber() != null) {
             PhoneNumberIdentifierModel phoneNumberModel = identifier.getPhoneNumber();
-            Objects.requireNonNull(phoneNumberModel.getValue(), "'phoneNumber' cannot be null");
+            Objects.requireNonNull(phoneNumberModel.getValue(), "'phoneNumber.value' cannot be null");
             Objects.requireNonNull(rawId, "'rawId' cannot be null");
             return new PhoneNumberIdentifier(phoneNumberModel.getValue()).setRawId(rawId);
         }
