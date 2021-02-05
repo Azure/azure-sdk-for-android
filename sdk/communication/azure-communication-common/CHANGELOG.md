@@ -1,6 +1,15 @@
 # Release History
 
-## 1.0.0-beta.5 (Unreleased)
+## 1.0.0-beta.5 (2021-02-08)
+### Breaking Changes
+- Deleted CallingApplicationIdentifier
+- Deleted getId function from CommunicationIdentifier class
+- MicrosoftTeamsUserIdentifier constructor requires a non-null CommunicationCloudEnvironment parameter if supplied
+
+### Added
+- Added class CommunicationCloudEnvironment
+- Added class CommunicationCloudEnvironmentModel
+- Added class 
 
 ## 1.0.0-beta.4 (2021-01-28)
 ### Breaking Changes
