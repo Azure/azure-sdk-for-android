@@ -3,17 +3,19 @@
 
 package com.azure.android.communication.common;
 
+
 import com.azure.android.core.util.CoreUtil;
 
 /**
- * Communication identifier for a Microsoft Teams User
+ * Communication identifier for Microsoft Teams User
  */
 public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
 
     private final String userId;
     private final boolean isAnonymous;
-    private String id;
     private CommunicationCloudEnvironment cloudEnvironment = CommunicationCloudEnvironment.PUBLIC;
+
+    private String rawId;
 
     /**
      * Creates a MicrosoftTeamsUserIdentifier object
@@ -36,7 +38,7 @@ public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
      * @param isAnonymous set this to true if the user is anonymous,
      *                    for example when joining a meeting with a share link
      * @throws IllegalArgumentException thrown if userId parameter fail the validation.
-     */
+    */
     public MicrosoftTeamsUserIdentifier(String userId, boolean isAnonymous) {
         if (CoreUtil.isNullOrEmpty(userId)) {
             throw new IllegalArgumentException("The initialization parameter [userId] cannot be null or empty.");
@@ -50,14 +52,14 @@ public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
      *
      * @param userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object id of the user.
      * @throws IllegalArgumentException thrown if userId parameter fail the validation.
-     */
+    */
     public MicrosoftTeamsUserIdentifier(String userId) {
         this(userId, false);
     }
 
     /**
-    * Get Id of the Microsoft Teams user.
-     * @return Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object id of the user.
+     * Get Teams User Id
+     * @return userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object id of the user.
      */
     public String getUserId() {
         return this.userId;
@@ -71,29 +73,11 @@ public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
     }
 
     /**
-     * Get the optional full id of the Microsoft Teams User identifier. This id can be null.
-     */
-    @Override
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * Set the full id of the Microsoft Teams user
-     * @param id the full id of the Microsoft Teams user
-     * @return the MicrosoftTeamsUserIdentifier object itself
-     */
-    public MicrosoftTeamsUserIdentifier setId(String id) {
-        this.id = id;
-        return this;
-    }
-
-    /**
      * Set cloud environment of the Teams user identifier
      * @param cloudEnvironment the cloud environment in which this identifier is created
      * @return this object
      */
-    public MicrosoftTeamsUserIdentifier setCloudEnvironment(CommunicationCloudEnvironment cloudEnvironment) {
+    public MicrosoftTeamsUserIdentifier setCloudEnvironment(CommunicationCloudEnvironment  cloudEnvironment) {
         this.cloudEnvironment = cloudEnvironment;
         return this;
     }
@@ -104,6 +88,24 @@ public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
      */
     public CommunicationCloudEnvironment getCloudEnvironment() {
         return cloudEnvironment;
+    }
+
+    /**
+     * Get full id of the identifier. This id is optional.
+     * @return full id of the identifier
+     */
+    public String getRawId() {
+        return rawId;
+    }
+
+    /**
+     * Set full id of the identifier
+     * @param rawId full id of the identifier
+     * @return CommunicationIdentifier object itself
+     */
+    public MicrosoftTeamsUserIdentifier setRawId(String rawId) {
+        this.rawId = rawId;
+        return this;
     }
 
     @Override
@@ -130,9 +132,9 @@ public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
             return false;
         }
 
-        return id == null
-            || thatId.id == null
-            || thatId.id.equals(this.id);
+        return getRawId() == null
+            || thatId.getRawId() == null
+            || thatId.getRawId().equals(this.getRawId());
     }
 
 
