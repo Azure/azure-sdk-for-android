@@ -15,6 +15,7 @@ class CommunicationIdentifierSerializer {
      * @return deserialized CommunicationIdentifier
      */
     public static CommunicationIdentifier deserialize(CommunicationIdentifierModel identifier) {
+        Objects.requireNonNull(identifier, "'identifier' cannot be null");
         assertSingleType(identifier);
         String rawId = identifier.getRawId();
 
