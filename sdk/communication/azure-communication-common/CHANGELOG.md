@@ -3,10 +3,10 @@
 ## 1.0.0-beta.5 (2021-02-08)
 ### Breaking Changes
 - Removed 'CallingApplicationIdentifier'.
-- Removed 'getId' method in 'CommunicationIdentifier' class is removed.
+- Removed 'getId' method in 'CommunicationIdentifier' class.
 
 ### New Features
-- Addded a new 'MicrosoftTeamsUserIdentifier' constructor that takes a non-null CommunicationCloudEnvironment parameter.
+- Added a new 'MicrosoftTeamsUserIdentifier' constructor that takes a non-null CommunicationCloudEnvironment parameter.
 - Added class 'CommunicationCloudEnvironment'.
 - Added class 'CommunicationCloudEnvironmentModel'.
 - Added class 'CommunicationIdentifierSerializer'.
