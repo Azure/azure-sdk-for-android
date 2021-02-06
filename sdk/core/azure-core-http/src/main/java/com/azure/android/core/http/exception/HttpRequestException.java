@@ -4,7 +4,7 @@
 package com.azure.android.core.http.exception;
 
 import com.azure.android.core.http.HttpRequest;
-import com.azure.core.exception.AzureException;
+import com.azure.android.core.exception.AzureException;
 
 /**
  * The exception when an HTTP request fails.
