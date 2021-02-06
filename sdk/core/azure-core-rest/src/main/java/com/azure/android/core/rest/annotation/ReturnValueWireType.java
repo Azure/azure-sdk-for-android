@@ -3,9 +3,9 @@
 
 package com.azure.android.core.rest.annotation;
 
-import com.azure.core.util.Base64Url;
-import com.azure.core.util.DateTimeRfc1123;
-import com.azure.core.util.UnixTime;
+import com.azure.android.core.util.Base64Url;
+import com.azure.android.core.util.DateTimeRfc1123;
+import com.azure.android.core.util.UnixTime;
 import com.azure.core.rest.Page;
 
 import java.lang.annotation.Retention;

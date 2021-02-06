@@ -34,10 +34,10 @@ public class HttpUrlConnectionAsyncHttpClientBuilder {
     }
 
     /**
-     * Creates a new HttpUrlConnection-backed {@link com.azure.core.http.HttpClient} instance on every call,
+     * Creates a new HttpUrlConnection-backed {@link com.azure.android.core.http.HttpClient} instance on every call,
      * using the configuration set in the builder at the time of the build method call.
      *
-     * @return A new HttpUrlConnection-backed {@link com.azure.core.http.HttpClient} instance.
+     * @return A new HttpUrlConnection-backed {@link com.azure.android.core.http.HttpClient} instance.
      */
     public HttpClient build() {
         final HttpCallDispatcher httpCallDispatcher = this.httpCallDispatcher == null

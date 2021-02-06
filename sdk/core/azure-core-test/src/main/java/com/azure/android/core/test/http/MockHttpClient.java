@@ -11,8 +11,8 @@ import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.test.implementation.entities.HttpBinFormDataJSON;
 import com.azure.android.core.test.implementation.entities.HttpBinJSON;
-import com.azure.core.util.Base64Url;
-import com.azure.core.util.DateTimeRfc1123;
+import com.azure.android.core.util.Base64Url;
+import com.azure.android.core.util.DateTimeRfc1123;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;

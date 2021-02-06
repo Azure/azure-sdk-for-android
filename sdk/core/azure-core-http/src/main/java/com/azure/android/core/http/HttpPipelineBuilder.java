@@ -33,7 +33,7 @@ import java.util.List;
  *     .build();
  * </pre>
  *
- * @see com.azure.core.http.HttpPipeline
+ * @see com.azure.android.core.http.HttpPipeline
  */
 public class HttpPipelineBuilder {
     private HttpClient httpClient;

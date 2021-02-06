@@ -3,7 +3,7 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.core.util.UnixTime;
+import com.azure.android.core.util.UnixTime;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;

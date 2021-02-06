@@ -246,5 +246,10 @@
     <Bug pattern="BC_UNCONFIRMED_CAST"/>
   </Match>
 
+  <Match>
+    <Class name="com.azure.android.core.util.Base64Url"/>
+    <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
+  </Match>
+
 </FindBugsFilter>
 

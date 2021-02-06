@@ -3,7 +3,7 @@
 
 package com.azure.android.core.http;
 
-import com.azure.core.util.Header;
+import com.azure.android.core.util.Header;
 
 /**
  * A single header within a HTTP request or response.

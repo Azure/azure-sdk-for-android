@@ -55,7 +55,7 @@ public class HttpLogOptions {
     /**
      * Gets the level of detail to log on HTTP messages.
      *
-     * @return The {@link com.azure.core.http.policy.HttpLogDetailLevel}.
+     * @return The {@link com.azure.android.core.http.policy.HttpLogDetailLevel}.
      */
     public HttpLogDetailLevel getLogLevel() {
         return logLevel;
@@ -64,10 +64,10 @@ public class HttpLogOptions {
     /**
      * Sets the level of detail to log on Http messages.
      *
-     * <p>If logLevel is not provided, default value of {@link com.azure.core.http.policy.HttpLogDetailLevel#NONE}
-     * is set.</p>
+     * <p>If logLevel is not provided, default value of
+     * {@link com.azure.android.core.http.policy.HttpLogDetailLevel#NONE} is set.</p>
      *
-     * @param logLevel The {@link com.azure.core.http.policy.HttpLogDetailLevel}.
+     * @param logLevel The {@link com.azure.android.core.http.policy.HttpLogDetailLevel}.
      * @return The updated HttpLogOptions object.
      */
     public HttpLogOptions setLogLevel(final HttpLogDetailLevel logLevel) {

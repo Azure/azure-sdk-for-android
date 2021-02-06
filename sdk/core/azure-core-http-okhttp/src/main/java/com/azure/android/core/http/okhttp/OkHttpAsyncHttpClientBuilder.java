@@ -33,10 +33,10 @@ public class OkHttpAsyncHttpClientBuilder {
     }
 
     /**
-     * Creates a new OkHttp-backed {@link com.azure.core.http.HttpClient} instance on every call, using the
+     * Creates a new OkHttp-backed {@link com.azure.android.core.http.HttpClient} instance on every call, using the
      * configuration set in the builder at the time of the build method call.
      *
-     * @return A new OkHttp-backed {@link com.azure.core.http.HttpClient} instance.
+     * @return A new OkHttp-backed {@link com.azure.android.core.http.HttpClient} instance.
      */
     public HttpClient build() {
         OkHttpClient.Builder httpClientBuilder = this.okHttpClient == null
