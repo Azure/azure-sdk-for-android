@@ -14,7 +14,7 @@ public class TypeUtilTests {
     @Test
     public void testGetClasses() {
         Puppy puppy = new Puppy();
-        List<Class<?>> classes = com.azure.core.rest.implementation.TypeUtil.getAllClasses(puppy.getClass());
+        List<Class<?>> classes = TypeUtil.getAllClasses(puppy.getClass());
         Assertions.assertEquals(4, classes.size());
         Assertions.assertTrue(classes.contains(Puppy.class));
         Assertions.assertTrue(classes.contains(Dog.class));
@@ -24,9 +24,9 @@ public class TypeUtilTests {
 
     @Test
     public void testGetTypeArguments() {
-        Type[] puppyArgs = com.azure.core.rest.implementation.TypeUtil.getTypeArguments(Puppy.class);
-        Type[] dogArgs = com.azure.core.rest.implementation.TypeUtil.getTypeArguments(Puppy.class.getGenericSuperclass());
-        Type[] petArgs = com.azure.core.rest.implementation.TypeUtil.getTypeArguments(Dog.class.getGenericSuperclass());
+        Type[] puppyArgs = TypeUtil.getTypeArguments(Puppy.class);
+        Type[] dogArgs = TypeUtil.getTypeArguments(Puppy.class.getGenericSuperclass());
+        Type[] petArgs = TypeUtil.getTypeArguments(Dog.class.getGenericSuperclass());
 
         Assertions.assertEquals(0, puppyArgs.length);
         Assertions.assertEquals(1, dogArgs.length);
@@ -35,22 +35,22 @@ public class TypeUtilTests {
 
     @Test
     public void testGetTypeArgument() {
-        Type dogArgs = com.azure.core.rest.implementation.TypeUtil.getTypeArgument(Puppy.class.getGenericSuperclass());
+        Type dogArgs = TypeUtil.getTypeArgument(Puppy.class.getGenericSuperclass());
         Assertions.assertEquals(Kid.class, dogArgs);
     }
 
     @Test
     public void testGetRawClass() {
         Type petType = Puppy.class.getSuperclass().getGenericSuperclass();
-        Assertions.assertEquals(Pet.class, com.azure.core.rest.implementation.TypeUtil.getRawClass(petType));
+        Assertions.assertEquals(Pet.class, TypeUtil.getRawClass(petType));
     }
 
     @Test
     public void testGetSuperType() {
-        Type dogType = com.azure.core.rest.implementation.TypeUtil.getSuperType(Puppy.class);
-        Type petType = com.azure.core.rest.implementation.TypeUtil.getSuperType(dogType);
+        Type dogType = TypeUtil.getSuperType(Puppy.class);
+        Type petType = TypeUtil.getSuperType(dogType);
 
-        Type[] arguments = com.azure.core.rest.implementation.TypeUtil.getTypeArguments(petType);
+        Type[] arguments = TypeUtil.getTypeArguments(petType);
         Assertions.assertEquals(2, arguments.length);
         Assertions.assertEquals(Kid.class, arguments[0]);
         Assertions.assertEquals(String.class, arguments[1]);
@@ -58,9 +58,9 @@ public class TypeUtilTests {
 
     @Test
     public void testGetTopSuperType() {
-        Type petType = com.azure.core.rest.implementation.TypeUtil.getSuperType(Puppy.class, Pet.class);
+        Type petType = TypeUtil.getSuperType(Puppy.class, Pet.class);
 
-        Type[] arguments = com.azure.core.rest.implementation.TypeUtil.getTypeArguments(petType);
+        Type[] arguments = TypeUtil.getTypeArguments(petType);
         Assertions.assertEquals(2, arguments.length);
         Assertions.assertEquals(Kid.class, arguments[0]);
         Assertions.assertEquals(String.class, arguments[1]);
@@ -68,25 +68,25 @@ public class TypeUtilTests {
 
     @Test
     public void testIsTypeOrSubTypeOf() {
-        Type dogType = com.azure.core.rest.implementation.TypeUtil.getSuperType(Puppy.class);
-        Type petType = com.azure.core.rest.implementation.TypeUtil.getSuperType(dogType);
+        Type dogType = TypeUtil.getSuperType(Puppy.class);
+        Type petType = TypeUtil.getSuperType(dogType);
 
-        Assertions.assertTrue(com.azure.core.rest.implementation.TypeUtil.isTypeOrSubTypeOf(Puppy.class, dogType));
-        Assertions.assertTrue(com.azure.core.rest.implementation.TypeUtil.isTypeOrSubTypeOf(Puppy.class, Puppy.class));
-        Assertions.assertTrue(com.azure.core.rest.implementation.TypeUtil.isTypeOrSubTypeOf(Puppy.class, petType));
-        Assertions.assertTrue(com.azure.core.rest.implementation.TypeUtil.isTypeOrSubTypeOf(dogType, petType));
-        Assertions.assertTrue(com.azure.core.rest.implementation.TypeUtil.isTypeOrSubTypeOf(dogType, dogType));
-        Assertions.assertTrue(com.azure.core.rest.implementation.TypeUtil.isTypeOrSubTypeOf(petType, petType));
+        Assertions.assertTrue(TypeUtil.isTypeOrSubTypeOf(Puppy.class, dogType));
+        Assertions.assertTrue(TypeUtil.isTypeOrSubTypeOf(Puppy.class, Puppy.class));
+        Assertions.assertTrue(TypeUtil.isTypeOrSubTypeOf(Puppy.class, petType));
+        Assertions.assertTrue(TypeUtil.isTypeOrSubTypeOf(dogType, petType));
+        Assertions.assertTrue(TypeUtil.isTypeOrSubTypeOf(dogType, dogType));
+        Assertions.assertTrue(TypeUtil.isTypeOrSubTypeOf(petType, petType));
     }
 
     @Test
     public void testCreateParameterizedType() {
-        Type dogType = com.azure.core.rest.implementation.TypeUtil.getSuperType(Puppy.class);
-        Type petType = com.azure.core.rest.implementation.TypeUtil.getSuperType(dogType);
+        Type dogType = TypeUtil.getSuperType(Puppy.class);
+        Type petType = TypeUtil.getSuperType(dogType);
 
-        Type createdType = com.azure.core.rest.implementation.TypeUtil.createParameterizedType(Pet.class, Kid.class, String.class);
-        Assertions.assertEquals(com.azure.core.rest.implementation.TypeUtil.getRawClass(petType), com.azure.core.rest.implementation.TypeUtil.getRawClass(createdType));
-        Assertions.assertArrayEquals(com.azure.core.rest.implementation.TypeUtil.getTypeArguments(petType), TypeUtil.getTypeArguments(createdType));
+        Type createdType = TypeUtil.createParameterizedType(Pet.class, Kid.class, String.class);
+        Assertions.assertEquals(TypeUtil.getRawClass(petType), TypeUtil.getRawClass(createdType));
+        Assertions.assertArrayEquals(TypeUtil.getTypeArguments(petType), TypeUtil.getTypeArguments(createdType));
     }
 
     private abstract static class Pet<T extends Human, V> {
