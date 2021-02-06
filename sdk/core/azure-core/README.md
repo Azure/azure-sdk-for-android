@@ -12,11 +12,11 @@ Azure Core Micro provides shared primitives, abstractions, and helpers for moder
 
 ### Include the package
 
-[//]: # ({x-version-update-start;com.azure:azure-core-micro;current})
+[//]: # ({x-version-update-start;com.azure:azure-core;current})
 ```xml
 <dependency>
   <groupId>com.azure</groupId>
-  <artifactId>azure-core-micro</artifactId>
+  <artifactId>azure-core</artifactId>
   <version>1.0.0-beta.1</version>
 </dependency>
 ```

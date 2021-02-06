@@ -14,7 +14,7 @@ dependencies {
     // <!-- begin: api Dependencies -->
     api project (":sdk:core:azure-core-serde-jackson")
     api project (":sdk:core:azure-core-rest")
-    api project (":sdk:core:azure-core-micro")
+    api project (":sdk:core:azure-core")
     api ("io.projectreactor:reactor-core:$reactorCoreVersion")
     api ("io.projectreactor:reactor-test:$reactorTestVersion")
     // <!-- end: api Dependencies -->

@@ -5,7 +5,7 @@ jobs:
     parameters:
       ServiceDirectory: core
       Artifacts:
-        - name: azure-core-micro
+        - name: azure-core
           groupId: com.azure
           safeName: azurecore
         - name: azure-core-credential

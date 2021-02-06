@@ -13,7 +13,8 @@ android {
 dependencies {
     // <!-- begin: api Dependencies -->
     api project (":sdk:core:azure-core-serde")
-    compileOnly project (":sdk:core:azure-core-micro") // provided scope
+
+    compileOnly project (":sdk:core:azure-core") // provided scope
     // <!-- end: api Dependencies -->
 
     // <!-- begin: implementation Dependencies -->

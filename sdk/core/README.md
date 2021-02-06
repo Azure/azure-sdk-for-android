@@ -8,6 +8,6 @@ Azure Core provides shared primitives, abstractions, and helpers for modern Andr
 
 Azure Core is split into a number of sub-components:
 
-- [https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/core/azure-core-micro](https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/core/azure-core-micro) is the primary library, used by all client libraries to offer the functionality outlined above.
+- [https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/core/azure-core](https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/core/azure-core) is the primary library, used by all client libraries to offer the functionality outlined above.
 
 - TODO

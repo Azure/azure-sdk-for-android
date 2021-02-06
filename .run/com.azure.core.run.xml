@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="com.azure.core.micro" type="AndroidJUnit" factoryName="Android JUnit">
-    <module name="az-android-vnext.sdk.core.azure-core-micro" />
+  <configuration default="false" name="com.azure.core" type="AndroidJUnit" factoryName="Android JUnit">
+    <module name="az-android-vnext.sdk.core.azure-core" />
     <useClassPathOnly />
-    <option name="PACKAGE_NAME" value="com.azure.core.micro" />
+    <option name="PACKAGE_NAME" value="com.azure.core" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
     <option name="TEST_OBJECT" value="package" />
