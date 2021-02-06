@@ -5,15 +5,15 @@
 - CallingApplicationIdentifier is removed.
 - The getId function in CommunicationIdentifier class is removed.
 
-### Added
-- New MicrosoftTeamsUserIdentifier constructor that takes a non-null CommunicationCloudEnvironment parameter.
-- Added class CommunicationCloudEnvironment.
-- Added class CommunicationCloudEnvironmentModel.
-- Added class CommunicationIdentifierSerializer.
-- Added class CommunicationIdentifierModel.
-- Added class MicrosoftTeamsUserIdentifierModel.
-- Added class PhoneNumberIdentifierModel.
-- Added class CommunicationUserIdentifierModel.
+### New Features
+- Addded a new 'MicrosoftTeamsUserIdentifier' constructor that takes a non-null CommunicationCloudEnvironment parameter.
+- Added class 'CommunicationCloudEnvironment'.
+- Added class 'CommunicationCloudEnvironmentModel'.
+- Added class 'CommunicationIdentifierSerializer'.
+- Added class 'CommunicationIdentifierModel'.
+- Added class 'MicrosoftTeamsUserIdentifierModel'.
+- Added class 'PhoneNumberIdentifierModel'.
+- Added class 'CommunicationUserIdentifierModel'.
 
 ## 1.0.0-beta.4 (2021-01-28)
 ### Breaking Changes
