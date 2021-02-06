@@ -42,7 +42,6 @@ import com.azure.core.serde.SerdeAdapter;
 import com.azure.core.serde.jackson.JacksonSerderAdapter;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -3308,7 +3307,6 @@ public abstract class RestProxyTests {
     }
 
     @Test
-    @Disabled("fix type resolution bug in azure-core-rest module")
     public void unexpectedHTTPOK() {
         CountDownLatch latch = new CountDownLatch(1);
         CallbackResult<InputStream> cbResult = new CallbackResult<>();
@@ -3391,7 +3389,6 @@ public abstract class RestProxyTests {
     }
 
     @Test
-    @Disabled("fix type resolution bug in azure-core-rest module")
     public void simpleDownloadStreamResponseTest() {
         CountDownLatch latch = new CountDownLatch(1);
         CallbackResult<InputStream> cbResult = new CallbackResult<>();

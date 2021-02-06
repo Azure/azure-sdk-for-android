@@ -32,6 +32,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Comparator;
@@ -46,11 +47,9 @@ final class HttpResponseMapper {
 
     private static final String NON_PARAMETERIZED_RESPONSE
         = "The %s type argument of the %s parameter in the method %s must be parameterized as %s.";
-    private static final int CATEGORY_RESPONSE_BASE = 0;
-    private static final int CATEGORY_RESPONSE_INTERFACE = 1;
 
-    final Type headerType;
-    final Type contentType;
+    final Type headerDecodeType;
+    final Type contentDecodeType;
     final Type contentEncodedType;
     final Type expandedContentEncodedType;
     private final BitSet expectedStatusCodes;
@@ -62,13 +61,13 @@ final class HttpResponseMapper {
         this.logger = logger;
         final String methodFullName = swaggerMethod.getDeclaringClass().getName() + "." + swaggerMethod.getName();
 
-        final Pair<Type, Type> headerAndContentType = extractHeaderAndContentType(callbackType, methodFullName);
-        this.headerType = headerAndContentType.first;
-        this.contentType = headerAndContentType.second;
+        final Pair<Type, Type> decodeTypes = extractContentAndHeaderDecodeType(callbackType, methodFullName);
+        this.headerDecodeType = decodeTypes.first;
+        this.contentDecodeType = decodeTypes.second;
 
         this.contentEncodedType = extractContentEncodedType(swaggerMethod);
         if (this.contentEncodedType != null && !TypeUtil.isTypeOrSubTypeOf(this.contentEncodedType, Page.class)) {
-            this.expandedContentEncodedType = expandContentEncodedType(this.contentEncodedType, this.contentType);
+            this.expandedContentEncodedType = expandContentEncodedType(this.contentEncodedType, this.contentDecodeType);
         } else {
             this.expandedContentEncodedType = null;
         }
@@ -91,9 +90,9 @@ final class HttpResponseMapper {
                 logger)));
         } else {
             Object headerObject = null;
-            if (this.headerType != null) {
+            if (this.headerDecodeType != null) {
                 try {
-                    headerObject = serdeAdapter.deserialize(httpResponse.getHeaders().toMap(), headerType);
+                    headerObject = serdeAdapter.deserialize(httpResponse.getHeaders().toMap(), headerDecodeType);
                 } catch (IOException ioe) {
                     throw logger.logExceptionAsError(
                         new HttpResponseException("HTTP response has malformed headers", httpResponse, ioe));
@@ -108,14 +107,14 @@ final class HttpResponseMapper {
                     httpResponse,
                     headerObject,
                     isSuccess);
-            } else if (TypeUtil.isTypeOrSubTypeOf(this.contentType, Void.class)) {
+            } else if (TypeUtil.isTypeOrSubTypeOf(this.contentDecodeType, Void.class)) {
                 httpResponse.close();
                 return instantiateResponse(this.responseCtr,
                     httpResponse.getRequest(),
                     httpResponse,
                     headerObject,
                     null);
-            } else if (TypeUtil.isTypeOrSubTypeOf(this.contentType, InputStream.class)) {
+            } else if (TypeUtil.isTypeOrSubTypeOf(this.contentDecodeType, InputStream.class)) {
                 return instantiateResponse(this.responseCtr,
                     httpResponse.getRequest(),
                     httpResponse,
@@ -123,7 +122,7 @@ final class HttpResponseMapper {
                     httpResponse.getBody());
             } else {
                 if (this.contentEncodedType == null) {
-                    if (TypeUtil.isTypeOrSubTypeOf(this.contentType, byte[].class)) {
+                    if (TypeUtil.isTypeOrSubTypeOf(this.contentDecodeType, byte[].class)) {
                         return instantiateResponse(this.responseCtr,
                             httpResponse.getRequest(),
                             httpResponse,
@@ -132,7 +131,7 @@ final class HttpResponseMapper {
                     } else {
                         final Object decodedContent = deserializeHttpBody(serdeAdapter,
                             httpResponse,
-                            this.contentType);
+                            this.contentDecodeType);
                         return instantiateResponse(this.responseCtr,
                             httpResponse.getRequest(),
                             httpResponse,
@@ -142,7 +141,7 @@ final class HttpResponseMapper {
                 } else {
                     if (TypeUtil.isTypeOrSubTypeOf(this.contentEncodedType, Page.class)) {
                         final Type pageType = (this.contentEncodedType == Page.class)
-                            ? TypeUtil.createParameterizedType(ItemPage.class, this.contentType)
+                            ? TypeUtil.createParameterizedType(ItemPage.class, this.contentDecodeType)
                             : this.contentEncodedType;
 
                         final Object decodedContent = deserializeHttpBody(serdeAdapter, httpResponse, pageType);
@@ -155,7 +154,7 @@ final class HttpResponseMapper {
                         Objects.requireNonNull(this.expandedContentEncodedType);
 
                         if (this.expandedContentEncodedType == Base64Url.class
-                            && TypeUtil.isTypeOrSubTypeOf(this.contentType, byte[].class)) {
+                            && TypeUtil.isTypeOrSubTypeOf(this.contentDecodeType, byte[].class)) {
                             final byte[] encodedContent = httpResponse.getBodyAsByteArray();
                             final byte[] decodedContent = new Base64Url(encodedContent).decodedBytes();
                             return instantiateResponse(this.responseCtr,
@@ -169,7 +168,7 @@ final class HttpResponseMapper {
                                 this.expandedContentEncodedType);
                             final Object decodedContent = decodeContent(encodedContent,
                                 this.contentEncodedType,
-                                this.contentType);
+                                this.contentDecodeType);
 
                             return instantiateResponse(this.responseCtr,
                                 httpResponse.getRequest(),
@@ -198,8 +197,8 @@ final class HttpResponseMapper {
 
     private boolean isBooleanResponseForHead(HttpResponse httpResponse) {
         return httpResponse.getRequest().getHttpMethod() == HttpMethod.HEAD
-            && (TypeUtil.isTypeOrSubTypeOf(this.contentType, Boolean.TYPE)
-            || TypeUtil.isTypeOrSubTypeOf(this.contentType, Boolean.class));
+            && (TypeUtil.isTypeOrSubTypeOf(this.contentDecodeType, Boolean.TYPE)
+            || TypeUtil.isTypeOrSubTypeOf(this.contentDecodeType, Boolean.class));
     }
 
     private Object deserializeHttpBody(SerdeAdapter serdeAdapter, HttpResponse httpResponse, Type bodyType) {
@@ -281,102 +280,134 @@ final class HttpResponseMapper {
         }
     }
 
-    private Pair<Type, Type> extractHeaderAndContentType(Type callbackType, String swaggerMethodName) {
-        final int category = identifyResponseCategory(callbackType, swaggerMethodName);
-        if (category == CATEGORY_RESPONSE_BASE) {
+    private Pair<Type, Type> extractContentAndHeaderDecodeType(Type callbackType, String swaggerMethodName) {
+        final Type callbackTypeArgument = TypeUtil.getTypeArgument(callbackType);
 
-            Type userHeaderType = null;
-            Type userContentType = null;
-            Type responseTypeItr = TypeUtil.getTypeArgument(callbackType);
-            do {
-                final Type[] responseArgTypes = TypeUtil.getTypeArguments(responseTypeItr);
-                if (responseArgTypes != null && responseArgTypes.length > 0) {
-                    if (responseArgTypes.length >= 2) {
-                        if (userHeaderType == null) {
-                            userHeaderType = responseArgTypes[responseArgTypes.length - 2];
-                        }
-                    }
-                    if (userContentType == null) {
-                        userContentType = responseArgTypes[responseArgTypes.length - 1];
-                    }
-                }
-                responseTypeItr = TypeUtil.getSuperType(responseTypeItr);
-            } while (userHeaderType == null || userContentType == null);
-            return Pair.create(userHeaderType, userContentType);
+        // Pair<Type:HeaderDecodeType, Type:ContentDecodeType>
+        Pair<Type, Type> decodeTypes;
 
-        } else if (category == CATEGORY_RESPONSE_INTERFACE) {
+        decodeTypes = tryExtractContentAndHeaderDecodeType(callbackTypeArgument,
+            ResponseBase.class,
+            swaggerMethodName);
 
-            Type userContentType = null;
-            Type responseTypeItr = TypeUtil.getTypeArgument(callbackType);
-            do {
-                final Type[] responseArgTypes = TypeUtil.getTypeArguments(responseTypeItr);
-                if (responseArgTypes != null && responseArgTypes.length > 0) {
-                    userContentType = responseArgTypes[responseArgTypes.length - 1];
-                }
-                responseTypeItr = TypeUtil.getSuperType(responseTypeItr);
-            } while (userContentType == null);
-
-            return Pair.create(null, userContentType);
-
-        } else {
-            throw logger.logExceptionAsError(new IllegalStateException("The type argument of "
-                + Callback.class.getTypeName()
-                + " in the method " + swaggerMethodName
-                + " must either ResponseBase<H, C>, PagedResponseBase<H, C>, PagedResponse<C> or Response<C>"));
+        if (decodeTypes != null) {
+            return decodeTypes;
         }
+
+        decodeTypes = tryExtractContentAndHeaderDecodeType(callbackTypeArgument,
+            PagedResponseBase.class,
+            swaggerMethodName);
+
+        if (decodeTypes != null) {
+            return decodeTypes;
+        }
+
+        Type decodeType;
+
+        decodeType = tryExtractContentDecodeType(callbackTypeArgument,
+            PagedResponse.class,
+            swaggerMethodName);
+
+        if (decodeType != null) {
+            return Pair.create(null, decodeType);
+        }
+
+        decodeType = tryExtractContentDecodeType(callbackTypeArgument,
+            Response.class,
+            swaggerMethodName);
+
+        if (decodeType != null) {
+            return Pair.create(null, decodeType);
+        }
+
+        throw logger.logExceptionAsError(new IllegalStateException("The type argument of "
+            + Callback.class.getTypeName()
+            + " in the method " + swaggerMethodName
+            + " must either ResponseBase<H, C>, PagedResponseBase<H, C>, PagedResponse<C> or Response<C>"));
     }
 
-    private int identifyResponseCategory(Type callbackType, String swaggerMethodName) {
-        final Type callbackTypeArgument = TypeUtil.getTypeArgument(callbackType);
-        final boolean isResponseBase = TypeUtil.isTypeOrSubTypeOf(callbackTypeArgument, ResponseBase.class);
-        if (isResponseBase) {
-            final Type responseBaseType = TypeUtil.getSuperType(callbackTypeArgument, ResponseBase.class);
-            if (!(responseBaseType instanceof ParameterizedType)) {
-                throw logger.logExceptionAsError(new IllegalStateException(String.format(
-                    NON_PARAMETERIZED_RESPONSE,
-                    ResponseBase.class.getTypeName(), Callback.class.getTypeName(),
-                    swaggerMethodName, "ResponseBase<FooHeader, Foo>>")));
-            }
-            return CATEGORY_RESPONSE_BASE;
+    private Pair<Type, Type> tryExtractContentAndHeaderDecodeType(Type callbackTypeArg,
+                                                                  Type responseBaseType,
+                                                                  String swaggerMethodName) {
+        if (!responseBaseType.equals(ResponseBase.class) && !responseBaseType.equals(PagedResponseBase.class)) {
+            throw logger.logExceptionAsError(
+                new IllegalArgumentException("responseBaseType must be 'ResponseBase' or 'PagedResponseBase'"));
         }
 
-        final boolean isPagedResponseBase = TypeUtil.isTypeOrSubTypeOf(callbackTypeArgument, PagedResponseBase.class);
-        if (isPagedResponseBase) {
-            final Type responseBaseType = TypeUtil.getSuperType(callbackTypeArgument, PagedResponseBase.class);
-            if (!(responseBaseType instanceof ParameterizedType)) {
-                throw logger.logExceptionAsError(new IllegalStateException(String.format(
-                    NON_PARAMETERIZED_RESPONSE,
-                    PagedResponseBase.class.getTypeName(), Callback.class.getTypeName(),
-                    swaggerMethodName, "PagedResponseBase<FooHeader, Foo>>")));
-            }
-            return CATEGORY_RESPONSE_BASE;
+        if (!TypeUtil.isTypeOrSubTypeOf(callbackTypeArg, responseBaseType)) {
+            return null;
         }
 
-        final boolean isPagedResponseInterface = TypeUtil.isTypeOrSubTypeOf(callbackTypeArgument, PagedResponse.class);
-        if (isPagedResponseInterface) {
-            final Type responseInterfaceType = TypeUtil.getSuperType(callbackTypeArgument, PagedResponse.class);
-            if (!(responseInterfaceType instanceof ParameterizedType)) {
-                throw logger.logExceptionAsError(new IllegalStateException(String.format(
-                    NON_PARAMETERIZED_RESPONSE,
-                    PagedResponse.class.getTypeName(), Callback.class.getTypeName(),
-                    swaggerMethodName, "PagedResponse<Foo>")));
-            }
-            return CATEGORY_RESPONSE_INTERFACE;
+        Type responseTypeItr = callbackTypeArg;
+        List<Type> responseTypeHierarchy = new ArrayList<>();
+
+        responseTypeHierarchy.add(responseTypeItr);
+
+        while (!TypeUtil.getRawClass(responseTypeItr).equals(responseBaseType)) {
+            responseTypeItr = TypeUtil.getSuperType(responseTypeItr);
+            responseTypeHierarchy.add(responseTypeItr);
         }
 
-        final boolean isResponseInterface = TypeUtil.isTypeOrSubTypeOf(callbackTypeArgument, Response.class);
-        if (isResponseInterface) {
-            final Type responseInterfaceType = TypeUtil.getSuperType(callbackTypeArgument, Response.class);
-            if (!(responseInterfaceType instanceof ParameterizedType)) {
-                throw logger.logExceptionAsError(new IllegalStateException(String.format(
-                    NON_PARAMETERIZED_RESPONSE,
-                    Response.class.getTypeName(), Callback.class.getTypeName(),
-                    swaggerMethodName, "Response<Foo>")));
-            }
-            return CATEGORY_RESPONSE_INTERFACE;
+        // responseTypeItr == Ref to 'ResponseBase' or 'PagedResponseBase' in the response type hierarchy.
+        //
+        if (!(responseTypeItr instanceof ParameterizedType)) {
+            throw logger.logExceptionAsError(new IllegalStateException(String.format(
+                NON_PARAMETERIZED_RESPONSE,
+                responseBaseType.getTypeName(), Callback.class.getTypeName(),
+                swaggerMethodName, responseBaseType.getTypeName() + "<FooHeader, Foo>>")));
         }
 
-        return -1;
+        Type headerDecodeType = null;
+        Type contentDecodeType = null;
+        for (Type responseType : responseTypeHierarchy) {
+            final Type[] responseArgTypes = TypeUtil.getTypeArguments(responseType);
+            if (responseArgTypes != null && responseArgTypes.length > 0) {
+                if (responseArgTypes.length >= 2) {
+                    if (contentDecodeType == null) {
+                        contentDecodeType = responseArgTypes[responseArgTypes.length - 1];
+                    }
+                    if (headerDecodeType == null) {
+                        headerDecodeType = responseArgTypes[responseArgTypes.length - 2];
+                    }
+                } else {
+                    if (headerDecodeType == null) {
+                        headerDecodeType = responseArgTypes[responseArgTypes.length - 1];
+                    }
+                }
+
+            }
+        }
+        return Pair.create(headerDecodeType, contentDecodeType);
+    }
+
+    private Type tryExtractContentDecodeType(Type callbackTypeArg,
+                                             Type responseInterfaceType,
+                                             String swaggerMethodName) {
+        if (!responseInterfaceType.equals(Response.class) && !responseInterfaceType.equals(PagedResponse.class)) {
+            throw logger.logExceptionAsError(
+                new IllegalArgumentException("responseInterfaceType must be 'Response' or 'PagedResponse'"));
+        }
+
+        if (!TypeUtil.isTypeOrSubTypeOf(callbackTypeArg, responseInterfaceType)) {
+            return null;
+        }
+
+        Type responseTypeItr = callbackTypeArg;
+        while (!TypeUtil.getRawClass(responseTypeItr).equals(Object.class)) {
+            final Type[] responseArgTypes = TypeUtil.getTypeArguments(responseTypeItr);
+            if (responseArgTypes != null && responseArgTypes.length > 0) {
+                return responseArgTypes[responseArgTypes.length - 1];
+            }
+            if (TypeUtil.getRawClass(responseTypeItr).isInterface()) {
+                break;
+            }
+            responseTypeItr = TypeUtil.getSuperType(responseTypeItr);
+        }
+
+        throw logger.logExceptionAsError(new IllegalStateException(String.format(
+            NON_PARAMETERIZED_RESPONSE,
+            responseInterfaceType.getTypeName(), Callback.class.getTypeName(),
+            swaggerMethodName, responseInterfaceType .getTypeName() + "<Foo>")));
     }
 
     private Type expandContentEncodedType(Type contentEncodedType, Type contentType) {

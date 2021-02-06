@@ -285,8 +285,8 @@ public class HttpResponseMapperTests {
     public void responseTypeArgs(Method method, Class<?> headerType, Class<?> contentType) {
         Type callbackType = extractCallbackType(method);
         HttpResponseMapper mapper = new HttpResponseMapper(method, callbackType, logger);
-        assertEquals(contentType, mapper.contentType);
-        assertEquals(headerType, mapper.headerType);
+        assertEquals(contentType, mapper.contentDecodeType);
+        assertEquals(headerType, mapper.headerDecodeType);
     }
 
     interface ResponseMissingTypeArgsMethods {
