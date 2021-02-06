@@ -56,8 +56,8 @@ public final class RestProxy implements InvocationHandler {
 
         final SwaggerMethodParser methodParser = this.interfaceParser.getMethodParser(swaggerMethod, this.logger);
 
-        final Callback<Response<?>> restCallback
-            = (Callback<Response<?>>) swaggerMethodArgs[methodParser.callbackArgIndex];
+        final Callback<Response<?>> restCallback;
+        restCallback = (Callback<Response<?>>) swaggerMethodArgs[methodParser.callbackArgIndex];
         Objects.requireNonNull(restCallback);
 
         final CancellationToken cancellationToken;

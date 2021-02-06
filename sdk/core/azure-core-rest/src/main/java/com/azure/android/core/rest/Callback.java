@@ -14,7 +14,13 @@ public interface Callback<T> {
      */
     void onSuccess(T response);
     /**
-     * Called when the REST call could not be executed due an error.
+     * Called when the REST call is failed.
+     *
+     * <p>
+     * The client-side error, error response from the network layer or REST endpoint
+     * is reported as REST call failure. Examples of client-side errors include
+     * input validation error, cancellation of the request, the response read timeout, etc.
+     * </p>
      *
      * @param error The reason for call failure.
      */

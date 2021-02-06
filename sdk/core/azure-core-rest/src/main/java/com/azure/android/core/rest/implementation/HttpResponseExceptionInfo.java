@@ -27,7 +27,7 @@ public class HttpResponseExceptionInfo {
     public final Class<?> exceptionBodyType;
 
     /**
-     * Creates an UnexpectedExceptionInformation object with the given exception type and expected response body.
+     * Creates an HttpResponseExceptionInfo object with the given exception type and expected response body.
      *
      * @param exceptionType Exception type to be thrown.
      */
