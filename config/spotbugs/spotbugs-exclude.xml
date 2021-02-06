@@ -102,11 +102,6 @@
   </Match>
 
   <Match>
-    <Class name="com.azure.core.serde.Base64Url"/>
-    <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
-  </Match>
-
-  <Match>
     <Class name="com.azure.core.rest.RestProxy"/>
     <Method name="endTracingSpan"/>
     <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
@@ -222,6 +217,32 @@
 
   <Match>
     <Class name="com.azure.android.core.rest.implementation.TypeUtil"/>
+    <Bug pattern="BC_UNCONFIRMED_CAST"/>
+  </Match>
+
+  <Match>
+    <Bug pattern="EI_EXPOSE_REP"/>
+    <Class name="com.azure.android.core.serde.jackson.AccessibleByteArrayOutputStream"/>
+  </Match>
+
+  <Match>
+    <Class
+        name="~com\.azure\.android\.core\.serde\.jackson\.(AdditionalPropertiesDeserializer|AdditionalPropertiesSerializer|FlatteningDeserializer|FlatteningSerializer)"/>
+    <Bug pattern="SE_NO_SERIALVERSIONID"/>
+  </Match>
+
+  <Match>
+    <Or>
+      <Class name="com.azure.android.core.serde.jackson.FlatteningSerializer"/>
+      <Class name="com.azure.android.core.serde.jackson.FlatteningDeserializer"/>
+      <Class name="com.azure.android.core.serde.jackson.AdditionalPropertiesSerializer"/>
+      <Class name="com.azure.android.core.serde.jackson.AdditionalPropertiesDeserializer"/>
+    </Or>
+    <Bug pattern="SE_BAD_FIELD"/>
+  </Match>
+
+  <Match>
+    <Class name="com.azure.android.core.serde.jackson.TypeUtil"/>
     <Bug pattern="BC_UNCONFIRMED_CAST"/>
   </Match>
 

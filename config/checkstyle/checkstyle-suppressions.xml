@@ -232,4 +232,13 @@
   <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
       files=".*[/\\]com[/\\]azure[/\\]android[/\\]core[/\\]test[/\\].*"/>
 
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
+      files="com.azure.android.core.serde.jackson.FlatteningSerializer.java"/>
+
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
+      files="com.azure.android.core.serde.jackson.JacksonSerderAdapter.java"/>
+
+  <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
+      files="com.azure.android.core.serde.jackson.JacksonSerderAdapter"/>
+
 </suppressions>
