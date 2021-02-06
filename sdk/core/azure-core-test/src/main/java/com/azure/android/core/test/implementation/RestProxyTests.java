@@ -38,8 +38,8 @@ import com.azure.android.core.test.MyRestException;
 import com.azure.android.core.test.implementation.entities.HttpBinFormDataJSON;
 import com.azure.android.core.test.implementation.entities.HttpBinHeaders;
 import com.azure.android.core.test.implementation.entities.HttpBinJSON;
-import com.azure.core.serde.SerdeAdapter;
-import com.azure.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.SerdeAdapter;
+import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

@@ -7,9 +7,9 @@ import com.azure.android.core.http.HttpHeaders;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.core.micro.util.CoreUtils;
-import com.azure.core.serde.SerdeAdapter;
-import com.azure.core.serde.SerdeEncoding;
-import com.azure.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.SerdeAdapter;
+import com.azure.android.core.serde.SerdeEncoding;
+import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

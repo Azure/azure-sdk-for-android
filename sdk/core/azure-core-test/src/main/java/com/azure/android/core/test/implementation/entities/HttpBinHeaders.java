@@ -4,7 +4,7 @@
 package com.azure.android.core.test.implementation.entities;
 
 import com.azure.core.micro.util.DateTimeRfc1123;
-import com.azure.core.serde.SerdeProperty;
+import com.azure.android.core.serde.SerdeProperty;
 
 /**
  * Defines headers for httpbin.org operations.

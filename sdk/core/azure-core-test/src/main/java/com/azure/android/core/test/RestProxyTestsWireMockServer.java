@@ -4,8 +4,8 @@
 package com.azure.android.core.test;
 
 import com.azure.core.micro.util.DateTimeRfc1123;
-import com.azure.core.serde.SerdeEncoding;
-import com.azure.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.SerdeEncoding;
+import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
 import com.azure.android.core.test.implementation.entities.HttpBinFormDataJSON;
 import com.azure.android.core.test.implementation.entities.HttpBinJSON;
 import com.github.tomakehurst.wiremock.WireMockServer;

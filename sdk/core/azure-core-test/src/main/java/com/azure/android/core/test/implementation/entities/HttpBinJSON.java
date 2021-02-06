@@ -3,7 +3,7 @@
 
 package com.azure.android.core.test.implementation.entities;
 
-import com.azure.core.serde.SerdeProperty;
+import com.azure.android.core.serde.SerdeProperty;
 
 import java.util.Map;
 
