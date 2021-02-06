@@ -9,7 +9,7 @@ import com.azure.core.http.policy.AddHeadersFromContextPolicy;
 import com.azure.core.http.policy.FixedDelay;
 import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.rest.Response;
-import com.azure.core.micro.util.Context;
+import com.azure.core.util.Context;
 import com.azure.search.documents.indexes.SearchIndexAsyncClient;
 import com.azure.search.documents.indexes.SearchIndexClient;
 import com.azure.search.documents.indexes.SearchIndexerAsyncClient;

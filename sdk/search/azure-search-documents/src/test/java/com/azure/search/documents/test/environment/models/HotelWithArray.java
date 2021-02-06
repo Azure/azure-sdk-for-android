@@ -3,7 +3,7 @@
 
 package com.azure.search.documents.test.environment.models;
 
-import com.azure.core.micro.util.CoreUtils;
+import com.azure.core.util.CoreUtils;
 import com.azure.search.documents.indexes.SearchableField;
 import com.azure.search.documents.indexes.SimpleField;
 

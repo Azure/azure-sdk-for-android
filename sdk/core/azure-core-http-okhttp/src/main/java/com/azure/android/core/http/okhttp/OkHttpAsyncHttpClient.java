@@ -11,7 +11,7 @@ import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.http.HttpMethod;
 import com.azure.android.core.http.HttpResponse;
-import com.azure.android.core.micro.util.CancellationToken;
+import com.azure.android.core.util.CancellationToken;
 import com.azure.core.http.implementation.Util;
 import com.azure.android.core.logging.ClientLogger;
 

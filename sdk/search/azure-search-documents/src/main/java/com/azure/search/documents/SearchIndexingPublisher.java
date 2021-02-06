@@ -5,8 +5,8 @@ package com.azure.search.documents;
 
 import com.azure.core.http.exception.HttpResponseException;
 import com.azure.core.logging.ClientLogger;
-import com.azure.core.micro.util.Context;
-import com.azure.core.micro.util.CoreUtils;
+import com.azure.core.util.Context;
+import com.azure.core.util.CoreUtils;
 import com.azure.search.documents.implementation.converters.IndexActionConverter;
 import com.azure.search.documents.models.IndexAction;
 import com.azure.search.documents.models.IndexBatchException;

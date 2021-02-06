@@ -3,7 +3,7 @@
 
 package com.azure.core.rest;
 
-import com.azure.core.micro.util.UnixTime;
+import com.azure.core.util.UnixTime;
 import com.azure.core.rest.annotation.BodyParam;
 import com.azure.core.rest.annotation.Delete;
 import com.azure.core.rest.annotation.ExpectedResponses;
@@ -29,10 +29,10 @@ import com.azure.core.http.util.UrlBuilder;
 import com.azure.core.rest.implementation.TypeUtil;
 import com.azure.core.rest.implementation.UnexpectedExceptionInformation;
 import com.azure.core.rest.implementation.HttpResponseDecodeData;
-import com.azure.core.micro.util.Context;
-import com.azure.core.micro.util.CoreUtils;
-import com.azure.core.micro.util.Base64Url;
-import com.azure.core.micro.util.DateTimeRfc1123;
+import com.azure.core.util.Context;
+import com.azure.core.util.CoreUtils;
+import com.azure.core.util.Base64Url;
+import com.azure.core.util.DateTimeRfc1123;
 import com.azure.core.serde.SerdeAdapter;
 
 import java.lang.annotation.Annotation;

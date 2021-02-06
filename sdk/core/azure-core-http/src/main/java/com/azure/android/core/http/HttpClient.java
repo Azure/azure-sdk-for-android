@@ -4,7 +4,7 @@
 package com.azure.android.core.http;
 
 import com.azure.android.core.http.implementation.HttpClientProviders;
-import com.azure.android.core.micro.util.CancellationToken;
+import com.azure.android.core.util.CancellationToken;
 
 /**
  * A generic interface for sending HTTP requests and getting responses.

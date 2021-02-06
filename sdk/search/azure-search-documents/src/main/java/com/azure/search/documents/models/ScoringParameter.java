@@ -4,7 +4,7 @@
 package com.azure.search.documents.models;
 
 import com.azure.core.logging.ClientLogger;
-import com.azure.core.micro.util.CoreUtils;
+import com.azure.core.util.CoreUtils;
 import com.azure.core.serde.SerdeFromPojo;
 import com.azure.core.serde.SerdeToPojo;
 import com.azure.core.serde.SerdeProperty;

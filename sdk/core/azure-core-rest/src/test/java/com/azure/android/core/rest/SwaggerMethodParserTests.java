@@ -3,7 +3,7 @@
 
 package com.azure.android.core.rest;
 
-import com.azure.android.core.micro.util.CancellationToken;
+import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.rest.annotation.ExpectedResponses;
 import com.azure.android.core.rest.annotation.Get;
 import com.azure.android.core.rest.annotation.Host;

@@ -3,7 +3,7 @@
 
 package com.azure.search.documents.models;
 
-import com.azure.core.micro.exception.AzureException;
+import com.azure.core.exception.AzureException;
 import com.azure.search.documents.SearchDocument;
 
 import java.util.ArrayList;

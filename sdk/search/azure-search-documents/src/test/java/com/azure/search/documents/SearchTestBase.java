@@ -8,7 +8,7 @@ import com.azure.core.http.policy.ExponentialBackoff;
 import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.logging.ClientLogger;
-import com.azure.core.micro.util.Configuration;
+import com.azure.core.util.Configuration;
 import com.azure.core.serde.jackson.JacksonSerderAdapter;
 import com.azure.core.test.TestBase;
 import com.azure.core.test.TestMode;

@@ -3,7 +3,7 @@
 
 package com.azure.search.documents.indexes;
 
-import com.azure.core.micro.util.CoreUtils;
+import com.azure.core.util.CoreUtils;
 import com.azure.search.documents.indexes.models.DataChangeDetectionPolicy;
 import com.azure.search.documents.indexes.models.DataDeletionDetectionPolicy;
 import com.azure.search.documents.indexes.models.HighWaterMarkChangeDetectionPolicy;

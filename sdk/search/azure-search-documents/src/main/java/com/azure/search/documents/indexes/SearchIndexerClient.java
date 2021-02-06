@@ -9,7 +9,7 @@ import com.azure.core.rest.annotation.ServiceMethod;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.rest.PagedIterable;
 import com.azure.core.rest.Response;
-import com.azure.core.micro.util.Context;
+import com.azure.core.util.Context;
 import com.azure.search.documents.indexes.models.SearchIndexer;
 import com.azure.search.documents.indexes.models.SearchIndexerDataSourceConnection;
 import com.azure.search.documents.indexes.models.SearchIndexerSkillset;

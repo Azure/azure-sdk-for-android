@@ -14,7 +14,7 @@ import com.azure.core.http.implementation.Util;
 import com.azure.core.http.util.UrlBuilder;
 import com.azure.core.logging.ClientLogger;
 import com.azure.core.logging.LogLevel;
-import com.azure.core.micro.util.Context;
+import com.azure.core.util.Context;
 import reactor.core.publisher.Mono;
 
 import java.io.ByteArrayOutputStream;

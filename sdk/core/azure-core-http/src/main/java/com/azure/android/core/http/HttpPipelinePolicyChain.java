@@ -3,8 +3,8 @@
 
 package com.azure.android.core.http;
 
-import com.azure.android.core.micro.util.CancellationToken;
-import com.azure.android.core.micro.util.Context;
+import com.azure.android.core.util.CancellationToken;
+import com.azure.android.core.util.Context;
 
 import java.util.concurrent.TimeUnit;
 

@@ -3,7 +3,7 @@
 
 package com.azure.search.documents;
 
-import com.azure.core.micro.util.Context;
+import com.azure.core.util.Context;
 import com.azure.search.documents.models.IndexAction;
 import com.azure.search.documents.models.IndexActionType;
 import reactor.core.publisher.Mono;

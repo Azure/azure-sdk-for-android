@@ -2,17 +2,17 @@
 
 <FindBugsFilter>
   <Match>
-    <Class name="com.azure.core.micro.util.Base64Url"/>
+    <Class name="com.azure.core.util.Base64Url"/>
     <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
   </Match>
 
   <Match>
-    <Class name="com.azure.core.micro.util.Configuration"/>
+    <Class name="com.azure.core.util.Configuration"/>
     <Bug pattern="CN_IDIOM_NO_SUPER_CALL"/>
   </Match>
 
   <Match>
-    <Class name="com.azure.core.micro.util.CoreUtils"/>
+    <Class name="com.azure.core.util.CoreUtils"/>
     <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
   </Match>
 

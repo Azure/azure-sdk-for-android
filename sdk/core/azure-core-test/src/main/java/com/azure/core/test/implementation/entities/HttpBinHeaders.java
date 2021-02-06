@@ -3,7 +3,7 @@
 
 package com.azure.core.test.implementation.entities;
 
-import com.azure.core.micro.util.DateTimeRfc1123;
+import com.azure.core.util.DateTimeRfc1123;
 import com.azure.core.serde.SerdeProperty;
 
 /**

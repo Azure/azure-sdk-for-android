@@ -3,7 +3,7 @@
 
 package com.azure.core.http;
 
-import com.azure.core.micro.util.Context;
+import com.azure.core.util.Context;
 
 import java.util.Objects;
 import java.util.Optional;

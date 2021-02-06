@@ -34,7 +34,7 @@ import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.http.policy.HttpLogOptions;
 import com.azure.core.http.policy.HttpLoggingPolicy;
 import com.azure.core.http.policy.PortPolicy;
-import com.azure.core.micro.exception.UnexpectedLengthException;
+import com.azure.core.exception.UnexpectedLengthException;
 import com.azure.core.serde.SerdeAdapter;
 import com.azure.core.serde.jackson.JacksonSerderAdapter;
 import com.azure.core.test.MyRestException;

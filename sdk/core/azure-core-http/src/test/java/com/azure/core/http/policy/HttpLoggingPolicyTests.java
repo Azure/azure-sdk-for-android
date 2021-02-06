@@ -10,8 +10,8 @@ import com.azure.core.http.HttpPipeline;
 import com.azure.core.http.HttpPipelineBuilder;
 import com.azure.core.http.HttpRequest;
 import com.azure.core.http.HttpResponse;
-import com.azure.core.micro.util.Context;
-import com.azure.core.micro.util.FluxUtil;
+import com.azure.core.util.Context;
+import com.azure.core.util.FluxUtil;
 import com.azure.core.test.http.NoOpHttpClient;
 
 import org.junit.jupiter.api.AfterEach;

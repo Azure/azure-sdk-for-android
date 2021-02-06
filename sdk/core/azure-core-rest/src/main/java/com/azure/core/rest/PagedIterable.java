@@ -3,7 +3,7 @@
 
 package com.azure.core.rest;
 
-import com.azure.core.micro.util.IterableStream;
+import com.azure.core.util.IterableStream;
 
 import java.util.function.Function;
 import java.util.stream.Stream;

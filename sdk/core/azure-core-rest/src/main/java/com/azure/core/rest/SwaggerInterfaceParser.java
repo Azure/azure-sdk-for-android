@@ -5,7 +5,7 @@ package com.azure.core.rest;
 
 import com.azure.core.rest.annotation.Host;
 import com.azure.core.rest.annotation.ServiceInterface;
-import com.azure.core.micro.util.CoreUtils;
+import com.azure.core.util.CoreUtils;
 import com.azure.core.serde.SerdeAdapter;
 
 import java.lang.reflect.Method;

@@ -3,7 +3,7 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.core.micro.util.Base64Url;
+import com.azure.core.util.Base64Url;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;

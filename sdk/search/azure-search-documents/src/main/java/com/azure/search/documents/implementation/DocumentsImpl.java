@@ -21,7 +21,7 @@ import com.azure.core.rest.annotation.ServiceMethod;
 import com.azure.core.rest.annotation.UnexpectedResponseExceptionType;
 import com.azure.core.rest.Response;
 import com.azure.core.rest.RestProxy;
-import com.azure.core.micro.util.Context;
+import com.azure.core.util.Context;
 import com.azure.core.serde.SerdeCollectionFormat;
 import com.azure.core.serde.jackson.JacksonSerderAdapter;
 import com.azure.search.documents.implementation.models.AutocompleteOptions;

@@ -5,8 +5,8 @@ package com.azure.android.core.http;
 
 import android.util.Log;
 
-import com.azure.android.core.micro.util.CancellationToken;
-import com.azure.android.core.micro.util.Context;
+import com.azure.android.core.util.CancellationToken;
+import com.azure.android.core.util.Context;
 import com.azure.android.core.logging.ClientLogger;
 
 import java.util.Objects;

@@ -23,7 +23,7 @@ import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
 import com.azure.core.rest.Response;
 import com.azure.core.rest.RestProxy;
-import com.azure.core.micro.util.Context;
+import com.azure.core.util.Context;
 import com.azure.core.serde.SerdeAdapter;
 import com.azure.core.serde.jackson.JacksonSerderAdapter;
 import com.azure.search.documents.indexes.implementation.models.RequestOptions;

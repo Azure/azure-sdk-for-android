@@ -3,7 +3,7 @@
 
 package com.azure.core.test.models;
 
-import com.azure.core.micro.exception.UnexpectedLengthException;
+import com.azure.core.exception.UnexpectedLengthException;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.net.UnknownHostException;

@@ -17,7 +17,7 @@ import com.azure.core.http.policy.HttpPipelinePolicy;
 import com.azure.core.http.policy.HttpPolicyProviders;
 import com.azure.core.http.policy.RetryPolicy;
 import com.azure.core.http.policy.UserAgentPolicy;
-import com.azure.core.micro.util.Configuration;
+import com.azure.core.util.Configuration;
 import com.azure.core.serde.SerdeAdapter;
 import com.azure.core.serde.jackson.JacksonSerderAdapter;
 

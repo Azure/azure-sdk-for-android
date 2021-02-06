@@ -3,7 +3,7 @@
 
 package com.azure.core.test.models;
 
-import com.azure.core.micro.util.CoreUtils;
+import com.azure.core.util.CoreUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;

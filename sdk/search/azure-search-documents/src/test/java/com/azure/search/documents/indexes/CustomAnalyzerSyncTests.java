@@ -4,8 +4,8 @@ package com.azure.search.documents.indexes;
 
 import com.azure.core.http.exception.HttpResponseException;
 import com.azure.core.rest.PagedIterable;
-import com.azure.core.micro.util.Context;
-import com.azure.core.micro.util.ExpandableStringEnum;
+import com.azure.core.util.Context;
+import com.azure.core.util.ExpandableStringEnum;
 import com.azure.search.documents.SearchClient;
 import com.azure.search.documents.SearchDocument;
 import com.azure.search.documents.SearchTestBase;

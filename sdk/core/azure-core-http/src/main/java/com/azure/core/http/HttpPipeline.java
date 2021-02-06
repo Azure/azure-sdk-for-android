@@ -4,7 +4,7 @@
 package com.azure.core.http;
 
 import com.azure.core.http.policy.HttpPipelinePolicy;
-import com.azure.core.micro.util.Context;
+import com.azure.core.util.Context;
 import reactor.core.publisher.Mono;
 
 import java.util.List;

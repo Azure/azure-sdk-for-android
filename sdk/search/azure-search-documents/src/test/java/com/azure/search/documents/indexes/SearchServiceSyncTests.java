@@ -3,7 +3,7 @@
 package com.azure.search.documents.indexes;
 
 import com.azure.core.rest.Response;
-import com.azure.core.micro.util.Context;
+import com.azure.core.util.Context;
 import com.azure.search.documents.SearchTestBase;
 import com.azure.search.documents.indexes.models.SearchServiceCounters;
 import com.azure.search.documents.indexes.models.SearchServiceStatistics;

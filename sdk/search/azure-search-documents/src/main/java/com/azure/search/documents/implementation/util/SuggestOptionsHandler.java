@@ -3,7 +3,7 @@
 
 package com.azure.search.documents.implementation.util;
 
-import com.azure.core.micro.util.CoreUtils;
+import com.azure.core.util.CoreUtils;
 import com.azure.search.documents.models.SuggestOptions;
 
 /**

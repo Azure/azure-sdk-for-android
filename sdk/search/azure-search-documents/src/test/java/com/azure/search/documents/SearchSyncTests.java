@@ -3,8 +3,8 @@
 
 package com.azure.search.documents;
 
-import com.azure.core.micro.util.Context;
-import com.azure.core.micro.util.CoreUtils;
+import com.azure.core.util.Context;
+import com.azure.core.util.CoreUtils;
 import com.azure.core.test.TestBase;
 import com.azure.core.test.TestMode;
 import com.azure.search.documents.indexes.SearchIndexClient;

@@ -4,7 +4,7 @@
 package com.azure.android.core.rest;
 
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.core.micro.util.CoreUtils;
+import com.azure.core.util.CoreUtils;
 
 import java.util.HashSet;
 import java.util.Set;

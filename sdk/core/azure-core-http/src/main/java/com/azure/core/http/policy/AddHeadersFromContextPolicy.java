@@ -9,7 +9,7 @@ import com.azure.core.http.HttpPipelineCallContext;
 import com.azure.core.http.HttpPipelineNextPolicy;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.http.HttpRequest;
-import com.azure.core.micro.util.Context;
+import com.azure.core.util.Context;
 import reactor.core.publisher.Mono;
 
 import java.util.Objects;

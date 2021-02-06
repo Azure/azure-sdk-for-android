@@ -4,7 +4,7 @@
 package com.azure.core.rest;
 
 import com.azure.core.http.HttpRequest;
-import com.azure.core.micro.util.paging.PageRetriever;
+import com.azure.core.util.paging.PageRetriever;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

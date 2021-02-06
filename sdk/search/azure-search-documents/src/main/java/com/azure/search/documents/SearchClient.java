@@ -8,7 +8,7 @@ import com.azure.core.rest.annotation.ServiceClient;
 import com.azure.core.rest.annotation.ServiceMethod;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.rest.Response;
-import com.azure.core.micro.util.Context;
+import com.azure.core.util.Context;
 import com.azure.search.documents.indexes.models.IndexDocumentsBatch;
 import com.azure.search.documents.models.AutocompleteOptions;
 import com.azure.search.documents.models.IndexBatchException;

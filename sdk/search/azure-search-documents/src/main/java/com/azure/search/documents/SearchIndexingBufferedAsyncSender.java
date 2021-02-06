@@ -4,7 +4,7 @@
 package com.azure.search.documents;
 
 import com.azure.core.logging.ClientLogger;
-import com.azure.core.micro.util.Context;
+import com.azure.core.util.Context;
 import com.azure.search.documents.models.IndexAction;
 import com.azure.search.documents.models.IndexActionType;
 import reactor.core.publisher.Mono;
@@ -15,7 +15,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
-import static com.azure.core.micro.util.FluxUtil.withContext;
+import static com.azure.core.util.FluxUtil.withContext;
 
 /**
  * This class provides a buffered sender that contains operations for conveniently indexing documents to an Azure Search

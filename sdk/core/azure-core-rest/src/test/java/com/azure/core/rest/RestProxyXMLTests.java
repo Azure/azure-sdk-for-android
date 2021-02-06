@@ -3,7 +3,7 @@
 
 package com.azure.core.rest;
 
-import com.azure.core.micro.util.FluxUtil;
+import com.azure.core.util.FluxUtil;
 import com.azure.core.rest.annotation.BodyParam;
 import com.azure.core.rest.annotation.Get;
 import com.azure.core.rest.annotation.Host;

@@ -6,7 +6,7 @@ package com.azure.android.core.test.http;
 import com.azure.android.core.http.HttpHeaders;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
-import com.azure.core.micro.util.CoreUtils;
+import com.azure.core.util.CoreUtils;
 import com.azure.android.core.serde.SerdeAdapter;
 import com.azure.android.core.serde.SerdeEncoding;
 import com.azure.android.core.serde.jackson.JacksonSerderAdapter;

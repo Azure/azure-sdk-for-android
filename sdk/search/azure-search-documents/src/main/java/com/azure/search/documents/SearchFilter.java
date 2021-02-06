@@ -4,7 +4,7 @@
 package com.azure.search.documents;
 
 import com.azure.core.logging.ClientLogger;
-import com.azure.core.micro.util.CoreUtils;
+import com.azure.core.util.CoreUtils;
 import com.azure.search.documents.models.SearchOptions;
 
 import java.time.OffsetDateTime;

@@ -6,7 +6,7 @@ package com.azure.core.test.http;
 import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.HttpRequest;
 import com.azure.core.http.HttpResponse;
-import com.azure.core.micro.util.CoreUtils;
+import com.azure.core.util.CoreUtils;
 import com.azure.core.serde.SerdeAdapter;
 import com.azure.core.serde.SerdeEncoding;
 import com.azure.core.serde.jackson.JacksonSerderAdapter;

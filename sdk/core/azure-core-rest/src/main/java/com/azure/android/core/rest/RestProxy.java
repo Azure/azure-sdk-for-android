@@ -9,8 +9,8 @@ import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.exception.HttpResponseException;
-import com.azure.android.core.micro.util.CancellationToken;
-import com.azure.android.core.micro.util.Context;
+import com.azure.android.core.util.CancellationToken;
+import com.azure.android.core.util.Context;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.serde.SerdeAdapter;
 

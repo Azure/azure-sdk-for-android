@@ -5,7 +5,7 @@ package com.azure.core.rest;
 
 import com.azure.core.http.HttpHeaders;
 import com.azure.core.http.HttpRequest;
-import com.azure.core.micro.util.IterableStream;
+import com.azure.core.util.IterableStream;
 
 import java.util.List;
 

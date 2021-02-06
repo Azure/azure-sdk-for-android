@@ -3,7 +3,7 @@
 
 package com.azure.search.documents;
 
-import com.azure.core.micro.util.ServiceVersion;
+import com.azure.core.util.ServiceVersion;
 
 /**
  * The versions of Azure Cognitive Search supported by this client library.

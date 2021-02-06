@@ -7,8 +7,8 @@ import com.azure.core.rest.annotation.ReturnType;
 import com.azure.core.rest.annotation.ServiceMethod;
 import com.azure.core.http.HttpPipeline;
 import com.azure.core.logging.ClientLogger;
-import com.azure.core.micro.util.Context;
-import com.azure.core.micro.util.ServiceVersion;
+import com.azure.core.util.Context;
+import com.azure.core.util.ServiceVersion;
 import com.azure.core.rest.Response;
 import com.azure.core.rest.SimpleResponse;
 import com.azure.core.rest.annotation.ServiceClient;
@@ -63,8 +63,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.azure.core.customserde.TypeReference.createInstance;
-import static com.azure.core.micro.util.FluxUtil.monoError;
-import static com.azure.core.micro.util.FluxUtil.withContext;
+import static com.azure.core.util.FluxUtil.monoError;
+import static com.azure.core.util.FluxUtil.withContext;
 import static com.azure.search.documents.implementation.util.Utility.initializeSerdeAdapter;
 
 /**

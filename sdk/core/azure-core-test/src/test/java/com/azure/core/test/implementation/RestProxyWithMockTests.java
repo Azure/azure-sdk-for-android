@@ -3,7 +3,7 @@
 
 package com.azure.core.test.implementation;
 
-import com.azure.core.micro.util.IterableStream;
+import com.azure.core.util.IterableStream;
 import com.azure.core.rest.Page;
 import com.azure.core.rest.PagedResponse;
 import com.azure.core.rest.Response;
@@ -23,11 +23,11 @@ import com.azure.core.http.HttpPipelineBuilder;
 import com.azure.core.http.HttpRequest;
 import com.azure.core.http.HttpResponse;
 import com.azure.core.http.exception.HttpResponseException;
-import com.azure.core.micro.util.Base64Url;
-import com.azure.core.micro.util.DateTimeRfc1123;
+import com.azure.core.util.Base64Url;
+import com.azure.core.util.DateTimeRfc1123;
 import com.azure.core.serde.HeaderCollection;
 import com.azure.core.serde.jackson.JacksonSerderAdapter;
-import com.azure.core.micro.util.UnixTime;
+import com.azure.core.util.UnixTime;
 import com.azure.core.test.http.MockHttpClient;
 import com.azure.core.test.http.MockHttpResponse;
 import com.azure.core.test.http.NoOpHttpClient;

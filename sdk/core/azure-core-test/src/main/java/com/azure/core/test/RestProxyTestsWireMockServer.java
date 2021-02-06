@@ -4,7 +4,7 @@
 package com.azure.core.test;
 
 import com.azure.core.http.ContentType;
-import com.azure.core.micro.util.DateTimeRfc1123;
+import com.azure.core.util.DateTimeRfc1123;
 import com.azure.core.serde.SerdeEncoding;
 import com.azure.core.serde.jackson.JacksonSerderAdapter;
 import com.azure.core.test.implementation.entities.HttpBinFormDataJSON;

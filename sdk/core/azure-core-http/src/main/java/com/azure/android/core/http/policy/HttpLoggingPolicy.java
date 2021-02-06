@@ -13,7 +13,7 @@ import com.azure.android.core.http.NextPolicyCallback;
 import com.azure.android.core.http.PolicyCompleter;
 import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.http.util.UrlBuilder;
-import com.azure.android.core.micro.util.Context;
+import com.azure.android.core.util.Context;
 import com.azure.core.http.ContentType;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.logging.LogLevel;

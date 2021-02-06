@@ -3,8 +3,8 @@
 
 package com.azure.core.rest;
 
-import com.azure.core.micro.util.IterableStream;
-import com.azure.core.micro.util.paging.ContinuablePage;
+import com.azure.core.util.IterableStream;
+import com.azure.core.util.paging.ContinuablePage;
 
 import java.util.ArrayList;
 import java.util.List;

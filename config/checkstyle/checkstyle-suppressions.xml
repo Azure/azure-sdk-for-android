@@ -173,14 +173,14 @@
 
   <!-- suppress the runtime exception in the POC class-->
   <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
-            files="com.azure.core.micro.util.Context.java"/>
+            files="com.azure.core.util.Context.java"/>
 
   <suppress checks="MissingJavadocMethod" files="com.azure.core.http.util.UrlTokenizer.java"/>
   <suppress checks="MissingJavadocMethod" files="com.azure.core.http.util.UrlToken.java"/>
   <suppress checks="MissingJavadocType" files="com.azure.core.http.util.UrlTokenizer.java"/>
   <suppress checks="MissingJavadocType" files="com.azure.core.http.util.UrlToken.java"/>
-  <suppress checks="MissingJavadocType" files="com.azure.core.micro.util.Configuration.java"/>
-  <suppress checks="MissingJavadocMethod" files="com.azure.core.micro.util.Configuration.java"/>
+  <suppress checks="MissingJavadocType" files="com.azure.core.util.Configuration.java"/>
+  <suppress checks="MissingJavadocMethod" files="com.azure.core.util.Configuration.java"/>
   <suppress checks="JavadocThrowsChecks" files="com.azure.core.rest.SwaggerMethodParser.java"/>
   <suppress checks="JavadocThrowsChecks" files="com.azure.core.rest.SwaggerMethodParser.java"/>
 
@@ -199,11 +199,11 @@
   <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientBuilderCheck" files="com.azure.android.core.http.okhttp.OkHttpAsyncHttpClientBuilder"/>
 
   <!-- Files licensed with alternate license in the header -->
-  <suppress checks="Header" files="com.azure.android.core.micro.util.CancellationToken.java"/>
+  <suppress checks="Header" files="com.azure.android.core.util.CancellationToken.java"/>
 
   <!-- Don't enforce non-static ClientLogger instances in com.azure.core.util.Option types-->
   <suppress checks="com\.azure\.tools\.checkstyle\.checks\.(ThrowFromClientLoggerCheck|GoodLoggingCheck)"
-      files="com.azure.android.core.micro.util.Option.java"/>
+      files="com.azure.android.core.util.Option.java"/>
 
   <!-- false positive, the field needs to be non-final for copy api to work -->
   <suppress checks="EnforceFinalFields" files="com.azure.android.core.http.HttpRequest.java"/>

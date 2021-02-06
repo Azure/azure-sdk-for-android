@@ -5,8 +5,8 @@ package com.azure.core.rest;
 
 import com.azure.core.http.HttpMethod;
 import com.azure.core.http.HttpRequest;
-import com.azure.core.micro.exception.UnexpectedLengthException;
-import com.azure.core.micro.util.FluxUtil;
+import com.azure.core.exception.UnexpectedLengthException;
+import com.azure.core.util.FluxUtil;
 
 import org.junit.jupiter.api.Test;
 import reactor.core.publisher.Flux;

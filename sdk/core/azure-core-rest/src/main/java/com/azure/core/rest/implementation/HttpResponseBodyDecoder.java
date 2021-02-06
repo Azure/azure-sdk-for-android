@@ -3,7 +3,7 @@
 
 package com.azure.core.rest.implementation;
 
-import com.azure.core.micro.util.UnixTime;
+import com.azure.core.util.UnixTime;
 import com.azure.core.rest.annotation.ReturnValueWireType;
 import com.azure.core.http.HttpMethod;
 import com.azure.core.http.HttpResponse;
@@ -12,8 +12,8 @@ import com.azure.core.rest.Page;
 import com.azure.core.rest.Response;
 import com.azure.core.rest.ResponseBase;
 import com.azure.core.logging.ClientLogger;
-import com.azure.core.micro.util.Base64Url;
-import com.azure.core.micro.util.DateTimeRfc1123;
+import com.azure.core.util.Base64Url;
+import com.azure.core.util.DateTimeRfc1123;
 import com.azure.core.serde.SerdeAdapter;
 import com.azure.core.serde.SerdeEncoding;
 import com.azure.core.serde.SerdeParseException;

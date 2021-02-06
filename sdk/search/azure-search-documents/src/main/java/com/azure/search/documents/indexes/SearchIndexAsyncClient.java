@@ -10,7 +10,7 @@ import com.azure.core.rest.PagedFlux;
 import com.azure.core.rest.PagedResponse;
 import com.azure.core.rest.Response;
 import com.azure.core.logging.ClientLogger;
-import com.azure.core.micro.util.Context;
+import com.azure.core.util.Context;
 import com.azure.core.customserde.JsonSerializer;
 import com.azure.search.documents.SearchAsyncClient;
 import com.azure.search.documents.SearchClientBuilder;
@@ -39,8 +39,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
-import static com.azure.core.micro.util.FluxUtil.monoError;
-import static com.azure.core.micro.util.FluxUtil.withContext;
+import static com.azure.core.util.FluxUtil.monoError;
+import static com.azure.core.util.FluxUtil.withContext;
 
 /**
  * This class provides a client that contains the operations for creating, getting, listing, updating, or deleting

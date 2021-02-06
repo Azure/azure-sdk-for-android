@@ -2,7 +2,7 @@
 // Licensed under the MIT License.
 package com.azure.core.rest;
 
-import com.azure.core.micro.util.IterableStream;
+import com.azure.core.util.IterableStream;
 
 import java.io.Closeable;
 import java.util.ArrayList;

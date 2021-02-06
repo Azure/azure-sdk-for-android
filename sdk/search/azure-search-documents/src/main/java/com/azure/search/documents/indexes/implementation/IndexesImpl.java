@@ -25,7 +25,7 @@ import com.azure.core.rest.PagedResponse;
 import com.azure.core.rest.PagedResponseBase;
 import com.azure.core.rest.Response;
 import com.azure.core.rest.RestProxy;
-import com.azure.core.micro.util.Context;
+import com.azure.core.util.Context;
 import com.azure.search.documents.indexes.implementation.models.AnalyzeRequest;
 import com.azure.search.documents.indexes.implementation.models.AnalyzeResult;
 import com.azure.search.documents.indexes.implementation.models.GetIndexStatisticsResult;

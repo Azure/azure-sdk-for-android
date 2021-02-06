@@ -7,7 +7,7 @@ import com.azure.android.core.http.HttpCallDispatcher;
 import com.azure.android.core.http.HttpCallback;
 import com.azure.android.core.http.HttpClient;
 import com.azure.android.core.http.HttpRequest;
-import com.azure.android.core.micro.util.CancellationToken;
+import com.azure.android.core.util.CancellationToken;
 
 /**
  * An HttpClient instance that returns statusCode 200 with empty/no content.

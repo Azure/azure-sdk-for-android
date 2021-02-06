@@ -7,7 +7,7 @@ import com.azure.core.http.HttpMethod;
 import com.azure.core.http.implementation.Util;
 import com.azure.core.http.util.AuthorizationChallengeHandler;
 import com.azure.core.logging.ClientLogger;
-import com.azure.core.micro.util.CoreUtils;
+import com.azure.core.util.CoreUtils;
 import okhttp3.Authenticator;
 import okhttp3.Challenge;
 import okhttp3.Interceptor;

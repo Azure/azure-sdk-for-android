@@ -4,7 +4,7 @@
 package com.azure.core.http.exception;
 
 import com.azure.core.http.HttpResponse;
-import com.azure.core.micro.exception.AzureException;
+import com.azure.core.exception.AzureException;
 
 /**
  * The exception thrown when an unsuccessful response is received with http status code (e.g. 3XX, 4XX, 5XX) from the

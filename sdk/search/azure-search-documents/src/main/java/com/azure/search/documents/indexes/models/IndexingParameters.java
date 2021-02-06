@@ -4,7 +4,7 @@
 package com.azure.search.documents.indexes.models;
 
 import com.azure.core.rest.annotation.Fluent;
-import com.azure.core.micro.util.CoreUtils;
+import com.azure.core.util.CoreUtils;
 import com.azure.core.serde.SerdeProperty;
 
 import java.util.HashMap;

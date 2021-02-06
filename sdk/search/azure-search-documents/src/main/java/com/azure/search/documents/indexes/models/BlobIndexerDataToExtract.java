@@ -7,7 +7,7 @@
 package com.azure.search.documents.indexes.models;
 
 import com.azure.core.serde.SerdeFromPojo;
-import com.azure.core.micro.util.ExpandableStringEnum;
+import com.azure.core.util.ExpandableStringEnum;
 import com.azure.core.serde.SerdeToPojo;
 import com.fasterxml.jackson.annotation.JsonValue;
 

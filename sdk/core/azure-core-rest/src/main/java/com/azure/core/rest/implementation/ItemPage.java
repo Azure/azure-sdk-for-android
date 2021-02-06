@@ -4,7 +4,7 @@
 package com.azure.core.rest.implementation;
 
 import com.azure.core.rest.Page;
-import com.azure.core.micro.util.IterableStream;
+import com.azure.core.util.IterableStream;
 import com.azure.core.serde.SerdePropertyAlias;
 
 import java.util.List;

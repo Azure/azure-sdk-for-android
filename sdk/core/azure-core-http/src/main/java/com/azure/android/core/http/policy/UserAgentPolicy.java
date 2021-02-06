@@ -6,8 +6,8 @@ package com.azure.android.core.http.policy;
 import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
-import com.azure.android.core.micro.util.Context;
-import com.azure.core.micro.util.Configuration;
+import com.azure.android.core.util.Context;
+import com.azure.core.util.Configuration;
 
 /**
  * Pipeline policy that adds "User-Agent" header to a request.
