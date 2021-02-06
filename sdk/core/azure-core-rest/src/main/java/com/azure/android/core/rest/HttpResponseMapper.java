@@ -20,9 +20,9 @@ import com.azure.android.core.rest.annotation.ReturnValueWireType;
 import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionType;
 import com.azure.android.core.rest.implementation.ItemPage;
 import com.azure.android.core.rest.implementation.TypeUtil;
-import com.azure.core.serde.SerdeAdapter;
-import com.azure.core.serde.SerdeEncoding;
-import com.azure.core.serde.SerdeParseException;
+import com.azure.android.core.serde.SerdeAdapter;
+import com.azure.android.core.serde.SerdeEncoding;
+import com.azure.android.core.serde.SerdeParseException;
 
 import java.io.IOException;
 import java.io.InputStream;

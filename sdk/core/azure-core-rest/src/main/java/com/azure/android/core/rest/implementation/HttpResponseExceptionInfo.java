@@ -6,9 +6,9 @@ package com.azure.android.core.rest.implementation;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.core.serde.SerdeAdapter;
-import com.azure.core.serde.SerdeEncoding;
-import com.azure.core.serde.SerdeParseException;
+import com.azure.android.core.serde.SerdeAdapter;
+import com.azure.android.core.serde.SerdeEncoding;
+import com.azure.android.core.serde.SerdeParseException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

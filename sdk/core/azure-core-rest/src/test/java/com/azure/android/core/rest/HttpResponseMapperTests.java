@@ -20,9 +20,9 @@ import com.azure.core.micro.util.Base64Url;
 import com.azure.core.micro.util.DateTimeRfc1123;
 import com.azure.core.micro.util.UnixTime;
 import com.azure.core.rest.annotation.Head;
-import com.azure.core.serde.SerdeAdapter;
-import com.azure.core.serde.SerdeEncoding;
-import com.azure.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.SerdeAdapter;
+import com.azure.android.core.serde.SerdeEncoding;
+import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

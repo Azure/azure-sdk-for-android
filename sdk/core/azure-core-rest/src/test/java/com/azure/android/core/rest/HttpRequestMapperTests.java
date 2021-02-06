@@ -21,7 +21,7 @@ import com.azure.android.core.http.HttpMethod;
 import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.http.HttpHeaders;
 import com.azure.android.core.rest.annotation.QueryParam;
-import com.azure.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

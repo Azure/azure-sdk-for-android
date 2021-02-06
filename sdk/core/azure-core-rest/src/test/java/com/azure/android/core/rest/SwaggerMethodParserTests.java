@@ -9,7 +9,7 @@ import com.azure.android.core.rest.annotation.Get;
 import com.azure.android.core.rest.annotation.Host;
 import com.azure.android.core.rest.annotation.ServiceInterface;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

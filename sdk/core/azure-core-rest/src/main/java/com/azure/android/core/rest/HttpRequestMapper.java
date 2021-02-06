@@ -21,8 +21,8 @@ import com.azure.android.core.rest.annotation.Post;
 import com.azure.android.core.rest.annotation.Put;
 import com.azure.android.core.rest.annotation.QueryParam;
 import com.azure.android.core.http.HttpRequest;
-import com.azure.core.serde.SerdeAdapter;
-import com.azure.core.serde.SerdeEncoding;
+import com.azure.android.core.serde.SerdeAdapter;
+import com.azure.android.core.serde.SerdeEncoding;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -4,7 +4,7 @@
 package com.azure.android.core.rest.implementation;
 
 import com.azure.android.core.rest.Page;
-import com.azure.core.serde.SerdePropertyAlias;
+import com.azure.android.core.serde.SerdePropertyAlias;
 
 import java.util.Collections;
 import java.util.List;

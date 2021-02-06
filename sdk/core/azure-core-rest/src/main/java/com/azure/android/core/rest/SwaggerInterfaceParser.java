@@ -7,7 +7,7 @@ import com.azure.android.core.rest.annotation.Host;
 import com.azure.android.core.rest.annotation.ServiceInterface;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.core.micro.util.CoreUtils;
-import com.azure.core.serde.SerdeAdapter;
+import com.azure.android.core.serde.SerdeAdapter;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;

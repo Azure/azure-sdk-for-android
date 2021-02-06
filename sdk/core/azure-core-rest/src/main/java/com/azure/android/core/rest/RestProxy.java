@@ -12,7 +12,7 @@ import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.micro.util.CancellationToken;
 import com.azure.android.core.micro.util.Context;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.core.serde.SerdeAdapter;
+import com.azure.android.core.serde.SerdeAdapter;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
