@@ -120,63 +120,58 @@ final class HttpResponseMapper {
                     httpResponse,
                     headerObject,
                     httpResponse.getBody());
-            } else {
-                if (this.contentEncodedType == null) {
-                    if (TypeUtil.isTypeOrSubTypeOf(this.contentDecodeType, byte[].class)) {
-                        return instantiateResponse(this.responseCtr,
-                            httpResponse.getRequest(),
-                            httpResponse,
-                            headerObject,
-                            httpResponse.getBodyAsByteArray());
-                    } else {
-                        final Object decodedContent = deserializeHttpBody(serdeAdapter,
-                            httpResponse,
-                            this.contentDecodeType);
-                        return instantiateResponse(this.responseCtr,
-                            httpResponse.getRequest(),
-                            httpResponse,
-                            headerObject,
-                            decodedContent);
-                    }
+            } else if (TypeUtil.isTypeOrSubTypeOf(this.contentDecodeType, byte[].class)) {
+                if (this.contentEncodedType == Base64Url.class) {
+                    final byte[] encodedContent = httpResponse.getBodyAsByteArray();
+                    final byte[] decodedContent = new Base64Url(encodedContent).decodedBytes();
+                    return instantiateResponse(this.responseCtr,
+                        httpResponse.getRequest(),
+                        httpResponse,
+                        headerObject,
+                        decodedContent);
                 } else {
-                    if (TypeUtil.isTypeOrSubTypeOf(this.contentEncodedType, Page.class)) {
-                        final Type pageType = (this.contentEncodedType == Page.class)
-                            ? TypeUtil.createParameterizedType(ItemPage.class, this.contentDecodeType)
-                            : this.contentEncodedType;
+                    return instantiateResponse(this.responseCtr,
+                        httpResponse.getRequest(),
+                        httpResponse,
+                        headerObject,
+                        httpResponse.getBodyAsByteArray());
+                }
+            } else if (this.contentEncodedType == null) {
+                final Object decodedContent = deserializeHttpBody(serdeAdapter,
+                    httpResponse,
+                    this.contentDecodeType);
+                return instantiateResponse(this.responseCtr,
+                    httpResponse.getRequest(),
+                    httpResponse,
+                    headerObject,
+                    decodedContent);
+            } else {
+                Objects.requireNonNull(this.contentEncodedType);
+                if (TypeUtil.isTypeOrSubTypeOf(this.contentEncodedType, Page.class)) {
+                    final Type pageType = (this.contentEncodedType == Page.class)
+                        ? TypeUtil.createParameterizedType(ItemPage.class, this.contentDecodeType)
+                        : this.contentEncodedType;
 
-                        final Object decodedContent = deserializeHttpBody(serdeAdapter, httpResponse, pageType);
-                        return instantiateResponse(this.responseCtr,
-                            httpResponse.getRequest(),
-                            httpResponse,
-                            headerObject,
-                            decodedContent);
-                    } else {
-                        Objects.requireNonNull(this.expandedContentEncodedType);
+                    final Object decodedContent = deserializeHttpBody(serdeAdapter, httpResponse, pageType);
+                    return instantiateResponse(this.responseCtr,
+                        httpResponse.getRequest(),
+                        httpResponse,
+                        headerObject,
+                        decodedContent);
+                } else {
+                    Objects.requireNonNull(this.expandedContentEncodedType);
+                    final Object encodedContent = deserializeHttpBody(serdeAdapter,
+                        httpResponse,
+                        this.expandedContentEncodedType);
+                    final Object decodedContent = decodeContent(encodedContent,
+                        this.contentEncodedType,
+                        this.contentDecodeType);
 
-                        if (this.expandedContentEncodedType == Base64Url.class
-                            && TypeUtil.isTypeOrSubTypeOf(this.contentDecodeType, byte[].class)) {
-                            final byte[] encodedContent = httpResponse.getBodyAsByteArray();
-                            final byte[] decodedContent = new Base64Url(encodedContent).decodedBytes();
-                            return instantiateResponse(this.responseCtr,
-                                httpResponse.getRequest(),
-                                httpResponse,
-                                headerObject,
-                                decodedContent);
-                        } else {
-                            final Object encodedContent = deserializeHttpBody(serdeAdapter,
-                                httpResponse,
-                                this.expandedContentEncodedType);
-                            final Object decodedContent = decodeContent(encodedContent,
-                                this.contentEncodedType,
-                                this.contentDecodeType);
-
-                            return instantiateResponse(this.responseCtr,
-                                httpResponse.getRequest(),
-                                httpResponse,
-                                headerObject,
-                                decodedContent);
-                        }
-                    }
+                    return instantiateResponse(this.responseCtr,
+                        httpResponse.getRequest(),
+                        httpResponse,
+                        headerObject,
+                        decodedContent);
                 }
             }
         }
@@ -254,30 +249,30 @@ final class HttpResponseMapper {
         final UnexpectedResponseExceptionType[] unexpectedResponseExceptionTypes
             = swaggerMethod.getAnnotationsByType(UnexpectedResponseExceptionType.class);
 
-        if (unexpectedResponseExceptionTypes != null && unexpectedResponseExceptionTypes.length > 0) {
-
-            Map<Integer, HttpResponseExceptionInfo> statusCodeToKnownExceptionInfo
-                = new HashMap<>(unexpectedResponseExceptionTypes.length);
-            HttpResponseExceptionInfo defaultExceptionInfo = null;
-
-            for (UnexpectedResponseExceptionType exceptionAnnotation : unexpectedResponseExceptionTypes) {
-                if (exceptionAnnotation.code().length == 0) {
-                    defaultExceptionInfo = new HttpResponseExceptionInfo(exceptionAnnotation.value());
-                } else {
-                    final HttpResponseExceptionInfo knownExceptionInfo
-                        = new HttpResponseExceptionInfo(exceptionAnnotation.value());
-                    for (int statusCode : exceptionAnnotation.code()) {
-                        statusCodeToKnownExceptionInfo.put(statusCode, knownExceptionInfo);
-                    }
-                }
-            }
-            if (defaultExceptionInfo == null) {
-                defaultExceptionInfo = new HttpResponseExceptionInfo(HttpResponseException.class);
-            }
-            return Pair.create(defaultExceptionInfo, statusCodeToKnownExceptionInfo);
-        } else {
+        if (unexpectedResponseExceptionTypes == null || unexpectedResponseExceptionTypes.length == 0) {
             return Pair.create(new HttpResponseExceptionInfo(HttpResponseException.class), null);
         }
+
+        Map<Integer, HttpResponseExceptionInfo> statusCodeToKnownExceptionInfo
+            = new HashMap<>(unexpectedResponseExceptionTypes.length);
+        HttpResponseExceptionInfo defaultExceptionInfo = null;
+
+        for (UnexpectedResponseExceptionType exceptionAnnotation : unexpectedResponseExceptionTypes) {
+            if (exceptionAnnotation.code().length == 0) {
+                defaultExceptionInfo = new HttpResponseExceptionInfo(exceptionAnnotation.value());
+            } else {
+                final HttpResponseExceptionInfo knownExceptionInfo
+                    = new HttpResponseExceptionInfo(exceptionAnnotation.value());
+                for (int statusCode : exceptionAnnotation.code()) {
+                    statusCodeToKnownExceptionInfo.put(statusCode, knownExceptionInfo);
+                }
+            }
+        }
+        if (defaultExceptionInfo == null) {
+            defaultExceptionInfo = new HttpResponseExceptionInfo(HttpResponseException.class);
+        }
+
+        return Pair.create(defaultExceptionInfo, statusCodeToKnownExceptionInfo);
     }
 
     private Pair<Type, Type> extractContentAndHeaderDecodeType(Type callbackType, String swaggerMethodName) {
@@ -377,6 +372,7 @@ final class HttpResponseMapper {
 
             }
         }
+
         return Pair.create(headerDecodeType, contentDecodeType);
     }
 
@@ -410,34 +406,35 @@ final class HttpResponseMapper {
             swaggerMethodName, responseInterfaceType .getTypeName() + "<Foo>")));
     }
 
-    private Type expandContentEncodedType(Type contentEncodedType, Type contentType) {
+    private Type expandContentEncodedType(Type contentEncodedType, Type contentDecodeType) {
         Objects.requireNonNull(contentEncodedType);
 
-        if (contentType == byte[].class) {
+        if (contentDecodeType == byte[].class) {
             if (contentEncodedType == Base64Url.class) {
                 return Base64Url.class;
             }
-        } else if (contentType == OffsetDateTime.class) {
+        } else if (contentDecodeType == OffsetDateTime.class) {
             if (contentEncodedType == DateTimeRfc1123.class) {
                 return DateTimeRfc1123.class;
             } else if (contentEncodedType == UnixTime.class) {
                 return UnixTime.class;
             }
-        } else if (TypeUtil.isTypeOrSubTypeOf(contentType, List.class)) {
-            final Type resultElementType = TypeUtil.getTypeArgument(contentType);
+        } else if (TypeUtil.isTypeOrSubTypeOf(contentDecodeType, List.class)) {
+            final Type resultElementType = TypeUtil.getTypeArgument(contentDecodeType);
             final Type wireResponseElementType = expandContentEncodedType(contentEncodedType, resultElementType);
 
-            return TypeUtil.createParameterizedType(((ParameterizedType) contentType).getRawType(),
+            return TypeUtil.createParameterizedType(((ParameterizedType) contentDecodeType).getRawType(),
                 wireResponseElementType);
-        } else if (TypeUtil.isTypeOrSubTypeOf(contentType, Map.class)) {
-            final Type[] typeArguments = TypeUtil.getTypeArguments(contentType);
+        } else if (TypeUtil.isTypeOrSubTypeOf(contentDecodeType, Map.class)) {
+            final Type[] typeArguments = TypeUtil.getTypeArguments(contentDecodeType);
             final Type resultValueType = typeArguments[1];
             final Type wireResponseValueType = expandContentEncodedType(contentEncodedType, resultValueType);
 
-            return TypeUtil.createParameterizedType(((ParameterizedType) contentType).getRawType(),
+            return TypeUtil.createParameterizedType(((ParameterizedType) contentDecodeType).getRawType(),
                 typeArguments[0], wireResponseValueType);
         }
-        return contentType;
+
+        return contentDecodeType;
     }
 
     private Object decodeContent(final Object encodedContent,
@@ -515,12 +512,13 @@ final class HttpResponseMapper {
                 }
             }
         }
+
         throw logger.logExceptionAsError(new IllegalStateException(
             "Cannot find suitable constructor for the response class "
                 + responseCls));
     }
 
-    private Response<?> instantiateResponse(Constructor<? extends Response<?>> constructor,
+    private Response<?> instantiateResponse(Constructor<? extends Response<?>> responseCtr,
                                             HttpRequest httpRequest,
                                             HttpResponse httpResponse,
                                             Object headerAsObject,
@@ -528,11 +526,11 @@ final class HttpResponseMapper {
         final int responseStatusCode = httpResponse.getStatusCode();
         final HttpHeaders responseHeaders = httpResponse.getHeaders();
 
-        final int paramCount = constructor.getParameterCount();
+        final int paramCount = responseCtr.getParameterCount();
         switch (paramCount) {
             case 3:
                 try {
-                    return constructor.newInstance(httpRequest,
+                    return responseCtr.newInstance(httpRequest,
                         responseStatusCode,
                         responseHeaders);
                 } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
@@ -541,7 +539,7 @@ final class HttpResponseMapper {
                 }
             case 4:
                 try {
-                    return constructor.newInstance(httpRequest,
+                    return responseCtr.newInstance(httpRequest,
                         responseStatusCode,
                         responseHeaders,
                         bodyAsObject);
@@ -551,7 +549,7 @@ final class HttpResponseMapper {
                 }
             case 5:
                 try {
-                    return constructor.newInstance(httpRequest,
+                    return responseCtr.newInstance(httpRequest,
                         responseStatusCode,
                         responseHeaders,
                         bodyAsObject,
