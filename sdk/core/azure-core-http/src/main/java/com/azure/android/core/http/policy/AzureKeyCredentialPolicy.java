@@ -6,7 +6,7 @@ package com.azure.android.core.http.policy;
 import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
-import com.azure.core.credential.AzureKeyCredential;
+import com.azure.android.core.credential.AzureKeyCredential;
 import com.azure.android.core.logging.ClientLogger;
 
 import java.util.Objects;

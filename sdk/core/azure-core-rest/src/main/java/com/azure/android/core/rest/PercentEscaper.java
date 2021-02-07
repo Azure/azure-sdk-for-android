@@ -4,7 +4,6 @@
 package com.azure.android.core.rest;
 
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.core.util.CoreUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -50,7 +49,7 @@ final class PercentEscaper {
      */
     public String escape(String original) {
         // String is either null or empty, just return it as is.
-        if (CoreUtils.isNullOrEmpty(original)) {
+        if (original == null || original.length() == 0) {
             return original;
         }
 

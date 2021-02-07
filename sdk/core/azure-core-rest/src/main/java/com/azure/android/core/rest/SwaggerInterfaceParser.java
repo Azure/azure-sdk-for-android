@@ -6,7 +6,6 @@ package com.azure.android.core.rest;
 import com.azure.android.core.rest.annotation.Host;
 import com.azure.android.core.rest.annotation.ServiceInterface;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.core.util.CoreUtils;
 import com.azure.android.core.serde.SerdeAdapter;
 
 import java.lang.reflect.Method;
@@ -44,7 +43,7 @@ final class SwaggerInterfaceParser {
     SwaggerInterfaceParser(Class<?> swaggerInterface, SerdeAdapter serdeAdapter, String host) {
         this.serdeAdapter = serdeAdapter;
 
-        if (!CoreUtils.isNullOrEmpty(host)) {
+        if (host != null && host.length() != 0) {
             this.host = host;
         } else {
             final Host hostAnnotation = swaggerInterface.getAnnotation(Host.class);
