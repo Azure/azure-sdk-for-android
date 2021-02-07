@@ -8,11 +8,11 @@ import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.NextPolicyCallback;
 import com.azure.android.core.http.PolicyCompleter;
-import com.azure.android.core.http.implementation.Util;
 
 import java.io.IOException;
 import java.time.Duration; // TODO: anuchan: use threetenbp or old native time.
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
@@ -181,7 +181,8 @@ public class RetryPolicy implements HttpPipelinePolicy {
                 final String retryAfterHeader = response.getHeaderValue("Retry-After");
                 if (retryAfterHeader != null) {
                     try {
-                        return Duration.between(OffsetDateTime.now(), Util.parseRfc1123Time(retryAfterHeader));
+                        return Duration.between(OffsetDateTime.now(),
+                            OffsetDateTime.parse(retryAfterHeader, DateTimeFormatter.RFC_1123_DATE_TIME));
                     } catch (Exception ignored) {
                         return Duration.of(Integer.parseInt(retryAfterHeader), ChronoUnit.SECONDS);
                     }

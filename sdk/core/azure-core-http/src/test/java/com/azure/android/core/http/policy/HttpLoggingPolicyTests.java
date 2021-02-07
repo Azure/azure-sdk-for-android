@@ -15,7 +15,6 @@ import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.test.http.MockHttpResponse;
 import com.azure.android.core.test.http.NoOpHttpClient;
-import com.azure.core.http.ContentType;
 import com.azure.android.core.util.Context;
 
 import org.junit.jupiter.api.AfterEach;
@@ -143,7 +142,7 @@ public class HttpLoggingPolicyTests {
     public void validateLoggingDoesNotChangeRequest(byte[] content, byte[] data, int contentLength) {
         final String requestUrl = "https://test.com";
         HttpHeaders requestHeaders = new HttpHeaders()
-            .put("Content-Type", ContentType.APPLICATION_JSON)
+            .put("Content-Type", "application/json")
             .put("Content-Length", Integer.toString(contentLength));
 
         HttpPipeline pipeline = new HttpPipelineBuilder()
@@ -200,7 +199,7 @@ public class HttpLoggingPolicyTests {
     public void validateLoggingDoesNotChangeResponse(byte[] content, byte[] data, int contentLength) {
         HttpRequest request = new HttpRequest(HttpMethod.GET, "https://test.com");
         HttpHeaders responseHeaders = new HttpHeaders()
-            .put("Content-Type", ContentType.APPLICATION_JSON)
+            .put("Content-Type", "application/json")
             .put("Content-Length", Integer.toString(contentLength));
 
         HttpPipeline pipeline = new HttpPipelineBuilder()

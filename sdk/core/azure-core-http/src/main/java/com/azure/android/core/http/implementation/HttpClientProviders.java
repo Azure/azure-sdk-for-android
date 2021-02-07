@@ -15,8 +15,8 @@ public final class HttpClientProviders {
     private static HttpClientProvider defaultProvider;
     private static final String CANNOT_FIND_HTTP_CLIENT = "A request was made to load the default HttpClient provider "
         + "but one could not be found on the classpath. If you are using a dependency manager, consider including a "
-        + "dependency on azure-core-http-okhttp. Depending on your existing dependencies, you "
-        + "have the choice of Netty or OkHttp implementations. Additionally, refer to "
+        + "dependency on azure-core-http-okhttp or azure-core-http-httpurlconnection. Depending on your existing "
+        + "dependencies, you have the choice of OkHttp or HttpUrlConnection implementations. Additionally, refer to "
         + "https://aka.ms/azsdk/java/docs/custom-httpclient to learn about writing your own implementation.";
 
     static {

@@ -11,10 +11,8 @@ import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.NextPolicyCallback;
 import com.azure.android.core.http.PolicyCompleter;
-import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.http.util.UrlBuilder;
 import com.azure.android.core.util.Context;
-import com.azure.core.http.ContentType;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.logging.LogLevel;
 
@@ -140,7 +138,8 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
                 long tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs);
 
                 final String contentLengthHeaderValue = response.getHeaderValue("Content-Length");
-                final String contentLengthMessage = (Util.isNullOrEmpty(contentLengthHeaderValue))
+                final String contentLengthMessage
+                    = (contentLengthHeaderValue == null || contentLengthHeaderValue.length() == 0)
                     ? "unknown-length body"
                     : contentLengthHeaderValue + "-byte body";
 
@@ -211,7 +210,7 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
      * @return A query parameter string redacted based on the configurations in this policy.
      */
     private String getAllowedQueryString(String queryString) {
-        if (Util.isNullOrEmpty(queryString)) {
+        if (queryString == null || queryString.length() == 0) {
             return "";
         }
 
@@ -274,7 +273,7 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
         long contentLength = 0;
 
         String contentLengthString = headers.getValue("Content-Length");
-        if (Util.isNullOrEmpty(contentLengthString)) {
+        if (contentLengthString == null || contentLengthString.length() == 0) {
             return contentLength;
         }
 
@@ -299,7 +298,7 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
      * @return A flag indicating if the request or response body should be logged.
      */
     private boolean isContentLoggable(String contentTypeHeader, long contentLength) {
-        return !ContentType.APPLICATION_OCTET_STREAM.equalsIgnoreCase(contentTypeHeader)
+        return !"application/octet-stream".equalsIgnoreCase(contentTypeHeader)
             && contentLength != 0
             && contentLength < MAX_BODY_LOG_SIZE;
     }

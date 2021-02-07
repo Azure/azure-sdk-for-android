@@ -3,8 +3,6 @@
 
 package com.azure.android.core.http.util;
 
-import com.azure.core.http.implementation.Util;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -214,7 +212,7 @@ public class AuthorizationChallengeHandler {
      * server split into its key-value pair pieces.
      */
     public final void consumeAuthenticationInfoHeader(Map<String, String> authenticationInfoMap) {
-        if (Util.isNullOrEmpty(authenticationInfoMap)) {
+        if (authenticationInfoMap == null || authenticationInfoMap.isEmpty()) {
             return;
         }
 
@@ -236,7 +234,7 @@ public class AuthorizationChallengeHandler {
      * @return The Authorization or Authentication header split into its key-value pairs.
      */
     public static Map<String, String> parseAuthenticationOrAuthorizationHeader(String header) {
-        if (Util.isNullOrEmpty(header)) {
+        if (header == null || header.length() == 0) {
             return Collections.emptyMap();
         }
 
@@ -312,7 +310,7 @@ public class AuthorizationChallengeHandler {
      * be returned, otherwise the preference is 'auth' followed by 'auth-int'.
      */
     private String getQop(String qopHeader) {
-        if (Util.isNullOrEmpty(qopHeader)) {
+        if (qopHeader == null || qopHeader.length() == 0) {
             return null;
         } else if (qopHeader.equalsIgnoreCase(AUTH)) {
             return AUTH;
@@ -478,19 +476,19 @@ public class AuthorizationChallengeHandler {
             .append("uri=\"").append(uri).append("\", ")
             .append("response=\"").append(response).append("\"");
 
-        if (!Util.isNullOrEmpty(algorithm)) {
+        if (algorithm != null && algorithm.length() != 0) {
             authorizationBuilder.append(", ").append("algorithm=").append(algorithm);
         }
 
-        if (!Util.isNullOrEmpty(cnonce)) {
+        if (cnonce != null && cnonce.length() != 0) {
             authorizationBuilder.append(", ").append("cnonce=\"").append(cnonce).append("\"");
         }
 
-        if (!Util.isNullOrEmpty(opaque)) {
+        if (opaque != null && opaque.length() != 0) {
             authorizationBuilder.append(", ").append("opaque=\"").append(opaque).append("\"");
         }
 
-        if (!Util.isNullOrEmpty(qop)) {
+        if (qop != null && qop.length() != 0) {
             authorizationBuilder.append(", ").append("qop=").append(qop);
             authorizationBuilder.append(", ").append("nc=").append(String.format("%08X", nc));
         }

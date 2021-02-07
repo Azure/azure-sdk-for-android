@@ -152,11 +152,6 @@
     <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON" />
   </Match>
 
-  <Match>
-    <Class name="com.azure.android.core.http.implementation.Util"/>
-    <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
-  </Match>
-
   <!-- This is false positive, the method won't ignore exception parameter -->
   <Match>
     <Class name="com.azure.android.core.http.policy.RetryPolicy" />

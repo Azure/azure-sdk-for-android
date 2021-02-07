@@ -11,7 +11,6 @@ import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.http.HttpMethod;
 import com.azure.android.core.http.HttpResponse;
-import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.logging.ClientLogger;
 
@@ -23,12 +22,20 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class HttpUrlConnectionAsyncHttpClient implements HttpClient {
     private final ClientLogger logger = new ClientLogger(HttpUrlConnectionAsyncHttpClient.class);
+
+    private static final Pattern CHARSET_PATTERN
+        = Pattern.compile("charset=([\\S]+)\\b", Pattern.CASE_INSENSITIVE);
 
     private final HttpCallDispatcher httpCallDispatcher;
 
@@ -255,7 +262,7 @@ class HttpUrlConnectionAsyncHttpClient implements HttpClient {
 
         @Override
         public String getBodyAsString() {
-            return Util.bomAwareToString(this.getBodyAsByteArray(),
+            return bomAwareToString(this.getBodyAsByteArray(),
                 headers.getValue("Content-Type"));
         }
 
@@ -270,6 +277,72 @@ class HttpUrlConnectionAsyncHttpClient implements HttpClient {
                 getBody().close();
             } catch (IOException ioe) {
                 throw logger.logExceptionAsError(new RuntimeException(ioe));
+            }
+        }
+
+        /**
+         * Attempts to convert a byte stream into the properly encoded String.
+         * <p>
+         * The method will attempt to find the encoding for the String in this order.
+         * <ol>
+         *     <li>Find the byte order mark in the byte array.</li>
+         *     <li>Find the {@code charset} in the {@code Content-Type} header.</li>
+         *     <li>Default to {@code UTF-8}.</li>
+         * </ol>
+         *
+         * @param bytes Byte array.
+         * @param contentType {@code Content-Type} header value.
+         * @return A string representation of the byte array encoded to the found encoding.
+         */
+        private String bomAwareToString(byte[] bytes, String contentType) {
+            if (bytes == null) {
+                return null;
+            }
+
+            if (bytes.length >= 3
+                && bytes[0] == (byte) 0xEF
+                && bytes[1] == (byte) 0xBB
+                && bytes[2] == (byte) 0xBF) {
+                return new String(bytes, 3, bytes.length - 3, StandardCharsets.UTF_8);
+            } else if (bytes.length >= 4
+                && bytes[0] == (byte) 0x00
+                && bytes[1] == (byte) 0x00
+                && bytes[2] == (byte) 0xFE
+                && bytes[3] == (byte) 0xFF) {
+                return new String(bytes, 4, bytes.length - 4, Charset.forName("UTF-32BE"));
+            } else if (bytes.length >= 4
+                && bytes[0] == (byte) 0xFF
+                && bytes[1] == (byte) 0xFE
+                && bytes[2] == (byte) 0x00
+                && bytes[3] == (byte) 0x00) {
+                return new String(bytes, 4, bytes.length - 4, Charset.forName("UTF-32LE"));
+            } else if (bytes.length >= 2
+                && bytes[0] == (byte) 0xFE
+                && bytes[1] == (byte) 0xFF) {
+                return new String(bytes, 2, bytes.length - 2, StandardCharsets.UTF_16BE);
+            } else if (bytes.length >= 2
+                && bytes[0] == (byte) 0xFF
+                && bytes[1] == (byte) 0xFE) {
+                return new String(bytes, 2, bytes.length - 2, StandardCharsets.UTF_16LE);
+            } else {
+                /*
+                 * Attempt to retrieve the default charset from the 'Content-Encoding' header,
+                 * if the value isn't present or invalid fallback to 'UTF-8' for the default charset.
+                 */
+                if (contentType != null && contentType.length() != 0) {
+                    try {
+                        Matcher charsetMatcher = CHARSET_PATTERN.matcher(contentType);
+                        if (charsetMatcher.find()) {
+                            return new String(bytes, Charset.forName(charsetMatcher.group(1)));
+                        } else {
+                            return new String(bytes, StandardCharsets.UTF_8);
+                        }
+                    } catch (IllegalCharsetNameException | UnsupportedCharsetException ex) {
+                        return new String(bytes, StandardCharsets.UTF_8);
+                    }
+                } else {
+                    return new String(bytes, StandardCharsets.UTF_8);
+                }
             }
         }
     }
