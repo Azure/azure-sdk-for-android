@@ -125,8 +125,23 @@ public final class ChatThreadAsyncClient {
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void sendChatMessage(String chatThreadId, SendChatMessageRequest sendChatMessageRequest, final Callback<SendChatMessageResult> callback) {
-        this.serviceClient.sendChatMessage(chatThreadId, sendChatMessageRequest, callback);
+    public void sendChatMessage(String chatThreadId, SendChatMessageRequest sendChatMessageRequest, final Callback<String> callback) {
+        Callback<SendChatMessageResult> proxyCallback = new Callback<SendChatMessageResult>() {
+            @Override
+            public void onSuccess(SendChatMessageResult result, okhttp3.Response response) {
+                if (result == null) {
+                    callback.onSuccess(null, response);
+                } else {
+                    callback.onSuccess(result.getId(), response);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable throwable, okhttp3.Response response) {
+                callback.onFailure(throwable, response);
+            }
+        };
+        this.serviceClient.sendChatMessage(chatThreadId, sendChatMessageRequest, proxyCallback);
     }
 
     /**
@@ -309,7 +324,7 @@ public final class ChatThreadAsyncClient {
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void updateChatThread(String chatThreadId, UpdateChatThreadRequest updateChatThreadRequest, final Callback<Void> callback) {
+    public void updateTopic(String chatThreadId, UpdateChatThreadRequest updateChatThreadRequest, final Callback<Void> callback) {
         this.serviceClient.updateChatThread(chatThreadId, updateChatThreadRequest, callback);
     }
 

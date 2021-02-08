@@ -140,8 +140,11 @@ public final class ChatThreadClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the send message operation.
      */
-    public Response<SendChatMessageResult> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageRequest sendChatMessageRequest) {
-        return this.serviceClient.sendChatMessageWithRestResponse(chatThreadId, sendChatMessageRequest);
+    public Response<String> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageRequest sendChatMessageRequest) {
+        Response<SendChatMessageResult> sendResult = this.serviceClient.sendChatMessageWithRestResponse(chatThreadId, sendChatMessageRequest);
+        if (sendResult.getValue() == null)
+            return new Response<String>(null, sendResult.getStatusCode(), sendResult.getHeaders(), null);
+        return new Response<String>(null, sendResult.getStatusCode(), sendResult.getHeaders(), sendResult.getValue().getId());
     }
 
     /**
@@ -354,7 +357,7 @@ public final class ChatThreadClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
-    public Response<Void> updateChatThreadWithRestResponse(String chatThreadId, UpdateChatThreadRequest updateChatThreadRequest) {
+    public Response<Void> updateTopicWithRestResponse(String chatThreadId, UpdateChatThreadRequest updateChatThreadRequest) {
         return this.serviceClient.updateChatThreadWithRestResponse(chatThreadId, updateChatThreadRequest);
     }
 
