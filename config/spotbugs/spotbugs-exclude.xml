@@ -246,5 +246,10 @@
     <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
   </Match>
 
+  <Match>
+    <Class name="com.azure.android.core.test.http.MockHttpResponse"/>
+    <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
+  </Match>
+
 </FindBugsFilter>
 
