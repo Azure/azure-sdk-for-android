@@ -47,6 +47,7 @@
 - Return messageId instead of SendChatMessageResult
 - Rename ReadReceipt to ChatMessageReadReceipt
 - Rename updateChatThread to updateTopic
+- Rename UpdateChatThreadRequest to UpdateTopicRequest
 - Rename member and threadMember to participant
 
 ## 1.0.0-beta.2 (2020-10-06)

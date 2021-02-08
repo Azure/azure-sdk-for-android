@@ -17,7 +17,7 @@ import com.azure.android.communication.chat.models.SendChatMessageRequest;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.SendReadReceiptRequest;
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
-import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
+import com.azure.android.communication.chat.models.UpdateTopicRequest;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.exception.HttpResponseException;
@@ -25,7 +25,6 @@ import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataRetriever;
 import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
 import com.azure.android.core.http.responsepaging.PagedDataResponseRetriever;
-import com.azure.android.core.internal.util.serializer.SerializerFormat;
 import com.azure.android.core.util.paging.Page;
 import com.azure.android.core.util.paging.PagedDataCollection;
 import com.azure.android.core.util.paging.PagedDataRetriever;
@@ -1465,17 +1464,17 @@ public final class ChatThreadsImpl {
      * Updates a thread's properties.
      *
      * @param chatThreadId The id of the thread to update.
-     * @param updateChatThreadRequest Request payload for updating a chat thread.
+     * @param updateTopicRequest Request payload for updating a chat thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void updateChatThread(String chatThreadId, UpdateChatThreadRequest updateChatThreadRequest, final Callback<Void> callback) {
+    public void updateChatThread(String chatThreadId, UpdateTopicRequest updateTopicRequest, final Callback<Void> callback) {
         final String accept = "application/json";
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
-            okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/merge-patch+json"), client.serializerAdapter.serialize(updateChatThreadRequest, client.resolveSerializerFormat("application/merge-patch+json")));
+            okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/merge-patch+json"), client.serializerAdapter.serialize(updateTopicRequest, client.resolveSerializerFormat("application/merge-patch+json")));
         } catch(java.io.IOException ioe) {
             callback.onFailure(new RuntimeException(ioe), null);
             return;
@@ -1516,17 +1515,17 @@ public final class ChatThreadsImpl {
      * Updates a thread's properties.
      *
      * @param chatThreadId The id of the thread to update.
-     * @param updateChatThreadRequest Request payload for updating a chat thread.
+     * @param updateTopicRequest Request payload for updating a chat thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
-    public Response<Void> updateChatThreadWithRestResponse(String chatThreadId, UpdateChatThreadRequest updateChatThreadRequest) {
+    public Response<Void> updateChatThreadWithRestResponse(String chatThreadId, UpdateTopicRequest updateTopicRequest) {
         final String accept = "application/json";
         final okhttp3.RequestBody okHttp3RequestBody;
         try {
-            okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/merge-patch+json"), this.client.serializerAdapter.serialize(updateChatThreadRequest, this.client.resolveSerializerFormat("application/merge-patch+json")));
+            okHttp3RequestBody = RequestBody.create(okhttp3.MediaType.get("application/merge-patch+json"), this.client.serializerAdapter.serialize(updateTopicRequest, this.client.resolveSerializerFormat("application/merge-patch+json")));
         } catch(java.io.IOException ioe) {
             throw new RuntimeException(ioe);
         }
