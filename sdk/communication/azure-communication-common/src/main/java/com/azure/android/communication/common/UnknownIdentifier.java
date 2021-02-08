@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-
 package com.azure.android.communication.common;
+
 
 import com.azure.android.core.util.CoreUtil;
 
@@ -26,9 +26,9 @@ public class UnknownIdentifier extends CommunicationIdentifier {
     }
 
     /**
-     * Get the full id of the identifier
+     * Get id of this identifier
+     * @return id of this identifier
      */
-     @Override
     public String getId() {
         return id;
     }

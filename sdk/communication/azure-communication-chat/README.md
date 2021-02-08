@@ -255,7 +255,7 @@ Use the `update` method to update a thread's properties.
 // The new topic for the thread.
 final String topic = "updated topic";
 // The model to pass to the update method.
-    UpdateChatThreadRequest thread = new UpdateChatThreadRequest()
+UpdateTopicRequest thread = new UpdateTopicRequest()
     .setTopic(topic);
 
 // The unique ID of the thread.

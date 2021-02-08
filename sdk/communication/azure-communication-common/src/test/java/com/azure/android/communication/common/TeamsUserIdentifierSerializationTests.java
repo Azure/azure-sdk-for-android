@@ -11,13 +11,14 @@ import org.junit.runners.Parameterized.Parameters;
 import java.util.Arrays;
 import java.util.List;
 
+import static junit.framework.TestCase.assertNotNull;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 public class TeamsUserIdentifierSerializationTests {
     final String someId = "some id";
     final String teamsUserId = "Teams user id";
-    final String fullId = "some lengthy id string";
+    final String rawId = "some lengthy id string";
 
     private final boolean isAnonymous;
 
@@ -34,29 +35,27 @@ public class TeamsUserIdentifierSerializationTests {
     public void serializeMicrosoftTeamsUser() {
         CommunicationIdentifierModel model = CommunicationIdentifierSerializer.serialize(
             new MicrosoftTeamsUserIdentifier(teamsUserId, isAnonymous)
-                .setId(someId)
+                .setRawId(rawId)
                 .setCloudEnvironment(CommunicationCloudEnvironment.DOD));
 
-        assertEquals(CommunicationIdentifierKind.MICROSOFT_TEAMS_USER, model.getKind());
-        assertEquals(teamsUserId, model.getMicrosoftTeamsUserId());
-        assertEquals(someId, model.getId());
-        assertEquals(CommunicationCloudEnvironmentModel.DOD, model.getCloudEnvironmentModel());
-        assertEquals(isAnonymous, model.isAnonymous());
+        assertNotNull(model.getMicrosoftTeamsUser());
+        assertEquals(teamsUserId, model.getMicrosoftTeamsUser().getUserId());
+        assertEquals(rawId, model.getRawId());
+        assertEquals(CommunicationCloudEnvironmentModel.DOD, model.getMicrosoftTeamsUser().getCloud());
+        assertEquals(isAnonymous, model.getMicrosoftTeamsUser().isAnonymous());
     }
 
     @Test
-    public void deserializerMicrosoftTeamsUser() {
+    public void deserializeMicrosoftTeamsUser() {
         MicrosoftTeamsUserIdentifier identifier = (MicrosoftTeamsUserIdentifier) CommunicationIdentifierSerializer.deserialize(
             new CommunicationIdentifierModel()
-                .setMicrosoftTeamsUserId(teamsUserId)
-                .setId(someId)
-                .setKind(CommunicationIdentifierKind.MICROSOFT_TEAMS_USER)
-                .setCloudEnvironmentModel(CommunicationCloudEnvironmentModel.GCCH)
-                .setIsAnonymous(isAnonymous));
+                .setRawId(rawId)
+                .setMicrosoftTeamsUser(new MicrosoftTeamsUserIdentifierModel()
+                    .setUserId(teamsUserId).setIsAnonymous(isAnonymous).setCloud(CommunicationCloudEnvironmentModel.GCCH)));
 
         assertEquals(MicrosoftTeamsUserIdentifier.class, identifier.getClass());
         assertEquals(teamsUserId, identifier.getUserId());
-        assertEquals(someId, identifier.getId());
+        assertEquals(rawId, identifier.getRawId());
         assertEquals(CommunicationCloudEnvironment.GCCH, identifier.getCloudEnvironment());
         assertEquals(isAnonymous, identifier.isAnonymous());
     }
