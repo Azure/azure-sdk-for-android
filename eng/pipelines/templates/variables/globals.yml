@@ -1,3 +1,4 @@
 variables:
     Pool: azsdk-pool-mms-ubuntu-2004-general
+    OSVmImage: MMSUbuntu20.04
     DocWardenVersion: '0.4.2'

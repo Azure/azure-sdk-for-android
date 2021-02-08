@@ -9,7 +9,8 @@ jobs:
       - template: ../variables/globals.yml
 
     pool:
-      name: '$(Pool)'
+      name: $(Pool)
+      vmImage: $(OSVmImage)
 
     steps:
       - script: |
@@ -33,7 +34,8 @@ jobs:
       - template: ../variables/globals.yml
 
     pool:
-      name: '$(Pool)'
+      name: $(Pool)
+      vmImage: $(OSVmImage)
 
     steps:
 
@@ -72,9 +74,15 @@ jobs:
       - template: ../variables/globals.yml
 
     pool:
-      name: '$(Pool)'
+      name: $(Pool)
+      vmImage: $(OSVmImage)
 
     steps:
+      - template: /eng/common/pipelines/templates/steps/verify-agent-os.yml
+        parameters:
+          AgentPool: $(Pool)
+          AgentImage: $(OSVmImage)
+
       - script: |
           ./gradlew sdk:${{parameters.ServiceDirectory}}:jacocoTestReportDebug
         displayName: Build and test
