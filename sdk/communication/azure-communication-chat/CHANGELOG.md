@@ -1,6 +1,6 @@
 # Release History
 
-## 1.0.0-beta.5 (2021-02-03)
+## 1.0.0-beta.5 (2021-02-08)
 ### Added
 - Support for three more types of chat message content
 - Support adding user agent http header in chat client

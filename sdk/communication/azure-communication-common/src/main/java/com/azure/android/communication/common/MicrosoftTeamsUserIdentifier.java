@@ -6,6 +6,8 @@ package com.azure.android.communication.common;
 
 import com.azure.android.core.util.CoreUtil;
 
+import java.util.Objects;
+
 /**
  * Communication identifier for Microsoft Teams User
  */
@@ -26,8 +28,9 @@ public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
      * @param cloudEnvironment the cloud environment in which this identifier is created
      * @throws IllegalArgumentException thrown if userId parameter fail the validation.
      */
-    public MicrosoftTeamsUserIdentifier(String userId, boolean isAnonymous, CommunicationCloudEnvironment  cloudEnvironment) {
+    public MicrosoftTeamsUserIdentifier(String userId, boolean isAnonymous, CommunicationCloudEnvironment cloudEnvironment) {
         this(userId, isAnonymous);
+        Objects.requireNonNull(cloudEnvironment);
         this.cloudEnvironment = cloudEnvironment;
     }
 
