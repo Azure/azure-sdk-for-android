@@ -10,7 +10,7 @@ buildscript {
     }
 
     ext {
-        gradleAndroidBuildToolsPluginVersion = "30.0.1"
+        gradleAndroidBuildToolsPluginVersion = "30.0.3"
         gradleAndroidToolsPluginVersion = "4.0.1"
         gradleJunitJacocoPluginVersion = "0.16.0"
         gradleDexcountPluginVersion = "2.0.0"
