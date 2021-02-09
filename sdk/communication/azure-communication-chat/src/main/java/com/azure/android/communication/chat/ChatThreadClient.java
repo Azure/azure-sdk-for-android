@@ -10,40 +10,22 @@ import com.azure.android.communication.chat.models.AddChatParticipantsRequest;
 import com.azure.android.communication.chat.models.AddChatParticipantsResult;
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
-import com.azure.android.communication.chat.models.ChatMessageReadReceiptsCollection;
-import com.azure.android.communication.chat.models.ChatMessagesCollection;
 import com.azure.android.communication.chat.models.ChatParticipant;
-import com.azure.android.communication.chat.models.ChatParticipantsCollection;
 import com.azure.android.communication.chat.models.CommunicationErrorResponseException;
 import com.azure.android.communication.chat.models.SendChatMessageRequest;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.SendReadReceiptRequest;
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
-import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
-import com.azure.android.core.http.Callback;
+import com.azure.android.communication.chat.models.UpdateTopicRequest;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
-import com.azure.android.core.http.exception.HttpResponseException;
-import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;
-import com.azure.android.core.http.responsepaging.AsyncPagedDataRetriever;
 import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
-import com.azure.android.core.http.responsepaging.PagedDataResponseRetriever;
 import com.azure.android.core.util.paging.Page;
 import com.azure.android.core.util.paging.PagedDataCollection;
-import com.azure.android.core.util.paging.PagedDataRetriever;
+
 import okhttp3.Interceptor;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
+
 import org.threeten.bp.OffsetDateTime;
-import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.DELETE;
-import retrofit2.http.GET;
-import retrofit2.http.Header;
-import retrofit2.http.PATCH;
-import retrofit2.http.Path;
-import retrofit2.http.POST;
-import retrofit2.http.Query;
 
 /**
  * Initializes a new instance of the synchronous AzureCommunicationChatService type.
@@ -140,8 +122,11 @@ public final class ChatThreadClient {
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return result of the send message operation.
      */
-    public Response<SendChatMessageResult> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageRequest sendChatMessageRequest) {
-        return this.serviceClient.sendChatMessageWithRestResponse(chatThreadId, sendChatMessageRequest);
+    public Response<String> sendChatMessageWithRestResponse(String chatThreadId, SendChatMessageRequest sendChatMessageRequest) {
+        Response<SendChatMessageResult> sendResult = this.serviceClient.sendChatMessageWithRestResponse(chatThreadId, sendChatMessageRequest);
+        if (sendResult.getValue() == null)
+            return new Response<String>(null, sendResult.getStatusCode(), sendResult.getHeaders(), null);
+        return new Response<String>(null, sendResult.getStatusCode(), sendResult.getHeaders(), sendResult.getValue().getId());
     }
 
     /**
@@ -348,14 +333,14 @@ public final class ChatThreadClient {
      * Updates a thread's properties.
      *
      * @param chatThreadId The id of the thread to update.
-     * @param updateChatThreadRequest Request payload for updating a chat thread.
+     * @param updateTopicRequest Request payload for updating a chat thread.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      * @return the completion.
      */
-    public Response<Void> updateChatThreadWithRestResponse(String chatThreadId, UpdateChatThreadRequest updateChatThreadRequest) {
-        return this.serviceClient.updateChatThreadWithRestResponse(chatThreadId, updateChatThreadRequest);
+    public Response<Void> updateTopicWithRestResponse(String chatThreadId, UpdateTopicRequest updateTopicRequest) {
+        return this.serviceClient.updateChatThreadWithRestResponse(chatThreadId, updateTopicRequest);
     }
 
     /**

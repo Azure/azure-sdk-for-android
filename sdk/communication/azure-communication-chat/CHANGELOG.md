@@ -11,9 +11,19 @@
 
 ### Breaking Changes
 - Chat client is split into chatClient and chatThreadClient
-- Rename member and threadMember to participant
 - Add participants API changed with a /:add at the end
 - Remove priority in message
+- Change request and response types to more specific types
+- listChatParticipantsPages takes two more parameters: maxPageSize and skip
+- listChatReadReceiptsPages takes two more parameters: maxPageSize and skip
+
+### Renamed
+- Rename retrieveNextThreadPages to listChatThreadsNext
+- Rename retrieveNextThreadPages to listChatThreadsNext
+- Rename retrieveNextMessagePages to listChatMessagesNext
+- Rename retrieveNextParticipantsPages to listChatParticipantsNext
+- Rename retrieveNextReceiptsPages to listChatReadReceiptsNext
+
 
 
 ## 1.0.0-beta.4 (Skipped)
@@ -33,6 +43,12 @@
 - All OffsetDateTime properties are now in RFC3339 format instead of ISO8601 format
 
 ## 1.0.0-beta.3 (Skipped)
+### Breaking Changes
+- Return messageId instead of SendChatMessageResult
+- Rename ReadReceipt to ChatMessageReadReceipt
+- Rename updateChatThread to updateTopic
+- Rename UpdateChatThreadRequest to UpdateTopicRequest
+- Rename member and threadMember to participant
 
 ## 1.0.0-beta.2 (2020-10-06)
 This is the initial release of Azure Communication Services for chat. For more information, please see the [README][read_me] and [documentation][documentation].

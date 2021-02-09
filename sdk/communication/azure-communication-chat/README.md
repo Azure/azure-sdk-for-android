@@ -145,8 +145,11 @@ CreateChatThreadRequest thread = new CreateChatThreadRequest()
     .setTopic(topic)
     .setParticipants(participants);
 
-client.createChatThread(thread, new Callback<MultiStatusResponse>() {
-    public void onSuccess(MultiStatusResponse result, okhttp3.Response response) {
+// optional, set a repeat request ID 
+final String repeatabilityRequestID = '123';
+
+client.createChatThread(thread, repeatabilityRequestID, new Callback<CreateChatThreadResult>() {
+    public void onSuccess(CreateChatThreadResult result, okhttp3.Response response) {
         // MultiStatusResponse is the result returned from creating a thread.
         // It has a 'multipleStatus' property which represents a list of IndividualStatusResponse.
         String threadId;
@@ -225,9 +228,8 @@ client.listChatThreadsPages(maxPageSize, startTime,
     }
 });
 
-void retrieveNextThreadPages(String nextPageId,
-    AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>> pageCollection) {
-    pageCollection.getPage(nextPageId, new Callback<Page<ChatThreadInfo>>() {
+void listChatThreadsNext(String nextLink,
+    AsyncPagedDataCollection<Page<ChatThreadInfo>> pageCollection) {
         @Override
         public void onSuccess(Page<ChatThreadInfo> nextPage, Response response) {
             for (ChatThreadInfo thread : nextPage.getItems()) {
@@ -242,7 +244,6 @@ void retrieveNextThreadPages(String nextPageId,
         public void onFailure(Throwable throwable, Response response) {
             // Handle error.
         }
-    });
 }
 ```
 
@@ -309,7 +310,7 @@ SendChatMessageRequest message = new SendChatMessageRequest()
 
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-client.sendChatMessage(threadId, message, new Callback<SendChatMessageResult>() {
+client.sendChatMessage(threadId, message, new Callback<String>() {
     @Override
     public void onSuccess(String messageId, Response response) {
         // A string is the response returned from sending a message, it is an id, 
@@ -392,9 +393,8 @@ client.listChatMessagesPages(threadId,
         }
 });
 
-void retrieveNextMessagePages(String nextPageId,
-    AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>> pageCollection) {
-    pageCollection.getPage(nextPageId, new Callback<Page<ChatMessage>>() {
+void listChatMessagesNext(String nextLink,
+    AsyncPagedDataCollection<Page<ChatMessage>> pageCollection) {
         @Override
         public void onSuccess(Page<ChatMessage> nextPage, Response response) {
             for (ChatMessage thread : nextPage.getItems()) {
@@ -409,7 +409,6 @@ void retrieveNextMessagePages(String nextPageId,
         public void onFailure(Throwable throwable, Response response) {
             // Handle error.
         }
-    });
 }
 ```
 
@@ -472,7 +471,16 @@ Use the `listChatParticipants` method to retrieve the participants participating
 ```java
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
+
+// The maximum number of participants to be returned per page, optional.
+final int maxPageSize = 10;
+
+// Skips participants up to a specified position in response.
+final int skip = 0;
+
 client.listChatParticipantsPages(threadId,
+    maxPageSize,
+    skip,
     new Callback<AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>>>() {
     @Override
     public void onSuccess(AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>> firstPage,
@@ -500,9 +508,8 @@ client.listChatParticipantsPages(threadId,
     }
 });
 
-void retrieveNextParticipantsPages(String nextPageId,
-    AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>> pageCollection) {
-    pageCollection.getPage(nextPageId, new Callback<Page<ChatParticipant>>() {
+void listChatParticipantsNext(String nextLink,
+    AsyncPagedDataCollection<Page<ChatParticipant>> pageCollection) {
         @Override
         public void onSuccess(Page<ChatParticipant> nextPage, Response response) {
             for (ChatParticipant participant : nextPage.getItems()) {
@@ -517,7 +524,6 @@ void retrieveNextParticipantsPages(String nextPageId,
         public void onFailure(Throwable throwable, Response response) {
             // Handle error.
         }
-    });
 }
 ```
 
@@ -629,15 +635,24 @@ Use the `listChatReadReceipts` method to retrieve read receipts for a thread.
 ```java
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
+
+// The maximum number of participants to be returned per page, optional.
+final int maxPageSize = 10;
+
+// Skips participants up to a specified position in response.
+final int skip = 0;
+
 client.listChatReadReceiptsPages(threadId,
-    new Callback<AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>>>() {
+    maxPageSize,
+    skip,
+    new Callback<AsyncPagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>>>() {
     @Override
-    public void onSuccess(AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>> result,
+    public void onSuccess(AsyncPagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> result,
         Response response) {
         // pageCollection enables enumerating list of chat participants.
-        pageCollection.getFirstPage(new Callback<Page<ReadReceipt>>() {
+        pageCollection.getFirstPage(new Callback<Page<ChatMessageReadReceipt>>() {
             @Override
-            public void onSuccess(Page<ReadReceipt> firstPage, Response response) {
+            public void onSuccess(Page<ChatMessageReadReceipt> firstPage, Response response) {
                 for (ReadReceipt receipt : firstPage.getItems()) {
                     // Take further action.
                 }
@@ -657,11 +672,10 @@ client.listChatReadReceiptsPages(threadId,
     }
 });
 
-void retrieveNextReceiptsPages(String nextPageId,
-    AsyncPagedDataCollection<ReadReceipt, Page<ReadReceipt>> pageCollection) {
-    pageCollection.getPage(nextPageId, new Callback<Page<ReadReceipt>>() {
+void listChatReadReceiptsNext(String nextLink,
+    AsyncPagedDataCollection<Page<ChatMessageReadReceipt>> pageCollection) {
         @Override
-        public void onSuccess(Page<ReadReceipt> nextPage, Response response) {
+        public void onSuccess(Page<ChatMessageReadReceipt> nextPage, Response response) {
             for (ReadReceipt receipt : nextPage.getItems()) {
                 // Take further action.
             }
@@ -674,7 +688,6 @@ void retrieveNextReceiptsPages(String nextPageId,
         public void onFailure(Throwable throwable, Response response) {
             // Handle error.
         }
-    });
 }
 ```
 
@@ -683,7 +696,7 @@ void retrieveNextReceiptsPages(String nextPageId,
 When an error occurs, the client calls the callback's `onFailure` method. You can use the provided `Throwable` to act upon the failure.
 
 ```java
-client.createChatThread(thread, new Callback<MultiStatusResponse>() {
+client.createChatThread(thread, new Callback<CreateChatThreadResult>() {
     public void onFailure(Throwable throwable, okhttp3.Response response) {
         // Handle error.
     }
