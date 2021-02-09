@@ -1,5 +1,7 @@
 # Release History
 
+## 1.0.0-beta.6 (Unreleased)
+
 ## 1.0.0-beta.5 (2021-02-08)
 ### Added
 - Support for three more types of chat message content
