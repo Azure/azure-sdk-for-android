@@ -3,7 +3,7 @@
 
 package com.azure.android.core.util;
 
-import com.azure.core.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 
 import java.util.Objects;
 

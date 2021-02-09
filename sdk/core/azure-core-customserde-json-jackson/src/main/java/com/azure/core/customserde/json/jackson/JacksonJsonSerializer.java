@@ -6,7 +6,7 @@ package com.azure.core.customserde.json.jackson;
 import com.azure.core.customserde.JsonSerializer;
 import com.azure.core.customserde.MemberNameConverter;
 import com.azure.core.customserde.TypeReference;
-import com.azure.core.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.introspect.AnnotatedMethod;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.databind.util.BeanUtil;
-import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -59,11 +58,6 @@ public final class JacksonJsonSerializer implements JsonSerializer, MemberNameCo
     }
 
     @Override
-    public <T> Mono<T> deserializeAsync(InputStream stream, TypeReference<T> typeReference) {
-        return Mono.fromCallable(() -> deserialize(stream, typeReference));
-    }
-
-    @Override
     public void serialize(OutputStream stream, Object value) {
         try {
             mapper.writeValue(stream, value);
@@ -71,12 +65,6 @@ public final class JacksonJsonSerializer implements JsonSerializer, MemberNameCo
             throw logger.logExceptionAsError(new UncheckedIOException(ex));
         }
     }
-
-    @Override
-    public Mono<Void> serializeAsync(OutputStream stream, Object value) {
-        return Mono.fromRunnable(() -> serialize(stream, value));
-    }
-
 
     @Override
     public String convertMemberName(Member member) {

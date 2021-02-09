@@ -3,7 +3,7 @@
 
 package com.azure.core.customserde;
 
-import com.azure.core.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
