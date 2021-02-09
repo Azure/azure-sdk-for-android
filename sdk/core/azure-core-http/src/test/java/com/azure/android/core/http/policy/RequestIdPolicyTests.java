@@ -68,7 +68,7 @@ public class RequestIdPolicyTests {
     private static final String REQUEST_ID_HEADER = "x-ms-client-request-id";
 
     @Test
-    public void newRequestIdForEachCall() throws Exception {
+    public void newRequestIdForEachCall() {
         HttpPipeline pipeline = new HttpPipelineBuilder()
             .httpClient(new NoOpHttpClient() {
                 String firstRequestId = null;
@@ -130,7 +130,7 @@ public class RequestIdPolicyTests {
     }
 
     @Test
-    public void sameRequestIdForRetry() throws Exception {
+    public void sameRequestIdForRetry() {
         final HttpPipeline pipeline = new HttpPipelineBuilder()
             .httpClient(new NoOpHttpClient() {
                 String firstRequestId = null;

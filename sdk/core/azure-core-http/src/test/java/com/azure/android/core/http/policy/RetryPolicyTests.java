@@ -37,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class RetryPolicyTests {
 
     @Test
-    public void retryEndOn501() throws Exception {
+    public void retryEndOn501() {
         final HttpPipeline pipeline = new HttpPipelineBuilder()
             .httpClient(new NoOpHttpClient() {
                 // Send 408, 500, 502, all retried, with a 501 ending
@@ -79,7 +79,7 @@ public class RetryPolicyTests {
     }
 
     @Test
-    public void retryMax() throws Exception {
+    public void retryMax() {
         final int maxRetries = 5;
         final HttpPipeline pipeline = new HttpPipelineBuilder()
             .httpClient(new NoOpHttpClient() {
@@ -120,7 +120,7 @@ public class RetryPolicyTests {
     }
 
     @Test
-    public void fixedDelayRetry() throws Exception {
+    public void fixedDelayRetry() {
         final int maxRetries = 5;
         final long delayMillis = 500;
         final HttpPipeline pipeline = new HttpPipelineBuilder()
@@ -158,7 +158,7 @@ public class RetryPolicyTests {
     }
 
     @Test
-    public void exponentialDelayRetry() throws Exception {
+    public void exponentialDelayRetry() {
         final int maxRetries = 5;
         final long baseDelayMillis = 100;
         final long maxDelayMillis = 1000;

@@ -15,7 +15,6 @@ import com.azure.android.core.test.http.NoOpHttpClient;
 
 import org.junit.jupiter.api.Test;
 
-import java.net.MalformedURLException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -25,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 public class ProtocolPolicyTests {
 
     @Test
-    public void withOverwrite() throws MalformedURLException {
+    public void withOverwrite() {
         final HttpPipeline pipeline = createPipeline("ftp", "ftp://www.bing.com");
         CountDownLatch latch = new CountDownLatch(1);
         pipeline.send(createHttpRequest("http://www.bing.com"),
@@ -50,7 +49,7 @@ public class ProtocolPolicyTests {
     }
 
     @Test
-    public void withNoOverwrite() throws MalformedURLException {
+    public void withNoOverwrite() {
         final HttpPipeline pipeline = createPipeline("ftp", false, "https://www.bing.com");
         CountDownLatch latch = new CountDownLatch(1);
         pipeline.send(createHttpRequest("https://www.bing.com"),
