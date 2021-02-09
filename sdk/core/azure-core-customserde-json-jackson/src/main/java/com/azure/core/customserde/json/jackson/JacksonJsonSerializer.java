@@ -6,7 +6,7 @@ package com.azure.core.customserde.json.jackson;
 import com.azure.core.customserde.JsonSerializer;
 import com.azure.core.customserde.MemberNameConverter;
 import com.azure.core.customserde.TypeReference;
-import com.azure.core.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;

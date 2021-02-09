@@ -69,7 +69,7 @@ public final class Base64Url {
         if (bytes == null) {
             return new Base64Url((String) null);
         } else {
-            return new Base64Url(com.azure.core.util.Base64Util.encodeURLWithoutPadding(bytes));
+            return new Base64Url(Base64Util.encodeURLWithoutPadding(bytes));
         }
     }
 
