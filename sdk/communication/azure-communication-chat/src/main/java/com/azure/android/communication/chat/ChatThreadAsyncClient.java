@@ -10,40 +10,21 @@ import com.azure.android.communication.chat.models.AddChatParticipantsRequest;
 import com.azure.android.communication.chat.models.AddChatParticipantsResult;
 import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
-import com.azure.android.communication.chat.models.ChatMessageReadReceiptsCollection;
-import com.azure.android.communication.chat.models.ChatMessagesCollection;
 import com.azure.android.communication.chat.models.ChatParticipant;
-import com.azure.android.communication.chat.models.ChatParticipantsCollection;
 import com.azure.android.communication.chat.models.CommunicationErrorResponseException;
 import com.azure.android.communication.chat.models.SendChatMessageRequest;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.SendReadReceiptRequest;
 import com.azure.android.communication.chat.models.UpdateChatMessageRequest;
-import com.azure.android.communication.chat.models.UpdateChatThreadRequest;
+import com.azure.android.communication.chat.models.UpdateTopicRequest;
 import com.azure.android.core.http.Callback;
-import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
-import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.http.responsepaging.AsyncPagedDataCollection;
-import com.azure.android.core.http.responsepaging.AsyncPagedDataRetriever;
-import com.azure.android.core.http.responsepaging.PagedDataResponseCollection;
-import com.azure.android.core.http.responsepaging.PagedDataResponseRetriever;
 import com.azure.android.core.util.paging.Page;
-import com.azure.android.core.util.paging.PagedDataCollection;
-import com.azure.android.core.util.paging.PagedDataRetriever;
+
 import okhttp3.Interceptor;
-import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
+
 import org.threeten.bp.OffsetDateTime;
-import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.DELETE;
-import retrofit2.http.GET;
-import retrofit2.http.Header;
-import retrofit2.http.PATCH;
-import retrofit2.http.Path;
-import retrofit2.http.POST;
-import retrofit2.http.Query;
 
 /**
  * Initializes a new instance of the asynchronous AzureCommunicationChatService type.
@@ -125,8 +106,23 @@ public final class ChatThreadAsyncClient {
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void sendChatMessage(String chatThreadId, SendChatMessageRequest sendChatMessageRequest, final Callback<SendChatMessageResult> callback) {
-        this.serviceClient.sendChatMessage(chatThreadId, sendChatMessageRequest, callback);
+    public void sendChatMessage(String chatThreadId, SendChatMessageRequest sendChatMessageRequest, final Callback<String> callback) {
+        Callback<SendChatMessageResult> proxyCallback = new Callback<SendChatMessageResult>() {
+            @Override
+            public void onSuccess(SendChatMessageResult result, okhttp3.Response response) {
+                if (result == null) {
+                    callback.onSuccess(null, response);
+                } else {
+                    callback.onSuccess(result.getId(), response);
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable throwable, okhttp3.Response response) {
+                callback.onFailure(throwable, response);
+            }
+        };
+        this.serviceClient.sendChatMessage(chatThreadId, sendChatMessageRequest, proxyCallback);
     }
 
     /**
@@ -303,14 +299,14 @@ public final class ChatThreadAsyncClient {
      * Updates a thread's properties.
      *
      * @param chatThreadId The id of the thread to update.
-     * @param updateChatThreadRequest Request payload for updating a chat thread.
+     * @param updateTopicRequest Request payload for updating a chat thread.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void updateChatThread(String chatThreadId, UpdateChatThreadRequest updateChatThreadRequest, final Callback<Void> callback) {
-        this.serviceClient.updateChatThread(chatThreadId, updateChatThreadRequest, callback);
+    public void updateTopic(String chatThreadId, UpdateTopicRequest updateTopicRequest, final Callback<Void> callback) {
+        this.serviceClient.updateChatThread(chatThreadId, updateTopicRequest, callback);
     }
 
     /**
