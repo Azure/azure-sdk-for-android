@@ -13,7 +13,6 @@ android {
 dependencies {
     // <!-- begin: api Dependencies -->
     api project (":sdk:core:azure-core")
-    api ("io.projectreactor:reactor-core:$reactorCoreVersion")
     compileOnly project (":sdk:core:azure-core-credential") // provided scope
     // <!-- end: api Dependencies -->
 
@@ -24,7 +23,6 @@ dependencies {
     // <!-- begin: test Dependencies -->
     testImplementation project (":sdk:core:azure-core-test")
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
-    testImplementation ("io.projectreactor:reactor-test:$reactorTestVersion")
     testImplementation ("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation ("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testImplementation ("org.mockito:mockito-core:$mockitoVersion")

@@ -23,8 +23,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import reactor.core.Exceptions;
-
 /**
  * HTTP client that plays back {@link NetworkCallRecord NetworkCallRecords}.
  */
@@ -84,7 +82,7 @@ public class PlaybackClient implements HttpClient {
         }
 
         if (networkCallRecord.getException() != null) {
-            throw logger.logExceptionAsWarning(Exceptions.propagate(networkCallRecord.getException().get()));
+            throw logger.logExceptionAsWarning(new RuntimeException(networkCallRecord.getException().get()));
         }
 
         // Overwrite the request header if any.

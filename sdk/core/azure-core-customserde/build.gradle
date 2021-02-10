@@ -11,10 +11,6 @@ android {
 }
 
 dependencies {
-    // <!-- begin: api Dependencies -->
-    api ("io.projectreactor:reactor-core:$reactorCoreVersion")
-    // <!-- end: api Dependencies -->
-
     // <!-- begin: implementation Dependencies -->
     implementation project (":sdk:core:azure-core-logging")
     // <!-- end: implementation Dependencies -->

@@ -15,8 +15,6 @@ import java.util.List;
  * <p>A pipeline is configured with a HttpClient that sends the request, if no client is set a default is used.
  * A pipeline may be configured with a list of policies that are applied to each request.</p>
  *
- * <p><strong>Code Samples</strong></p>
- *
  * <p>Create a pipeline without configuration</p>
  *
  * <pre>
