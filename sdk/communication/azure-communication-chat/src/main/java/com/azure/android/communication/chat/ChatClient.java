@@ -4,6 +4,8 @@
 
 package com.azure.android.communication.chat;
 
+import android.content.Context;
+
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImpl;
 import com.azure.android.communication.chat.implementation.ChatsImpl;
 import com.azure.android.communication.chat.models.ChatThread;
@@ -12,6 +14,9 @@ import com.azure.android.communication.chat.models.ChatThreadsInfoCollection;
 import com.azure.android.communication.chat.models.CommunicationErrorResponseException;
 import com.azure.android.communication.chat.models.CreateChatThreadRequest;
 import com.azure.android.communication.chat.models.CreateChatThreadResult;
+import com.azure.android.communication.chat.signaling.CommunicationSignalingClient;
+import com.azure.android.communication.chat.signaling.RealTimeNotificationCallback;
+import com.azure.android.communication.chat.signaling.SignalingClient;
 import com.azure.android.core.http.Callback;
 import com.azure.android.core.http.Response;
 import com.azure.android.core.http.ServiceClient;
@@ -41,12 +46,16 @@ import retrofit2.http.Query;
  */
 public final class ChatClient {
     private ChatsImpl serviceClient;
+    private SignalingClient signalingClient;
+    private boolean isRealtimeNotificationsStarted;
 
     /**
      * Initializes an instance of Chats client.
      */
-    ChatClient(ChatsImpl serviceClient) {
+    ChatClient(ChatsImpl serviceClient, SignalingClient signalingClient) {
         this.serviceClient = serviceClient;
+        this.signalingClient = signalingClient;
+        this.isRealtimeNotificationsStarted = false;
     }
 
     /**
@@ -169,6 +178,62 @@ public final class ChatClient {
     }
 
     /**
+     * Receive real-time messages and notifications.
+     */
+    public void startRealtimeNotifications() {
+        if (this.signalingClient == null) {
+            throw new Error("Signaling client not initialized");
+        }
+
+        if (this.isRealtimeNotificationsStarted) {
+            return;
+        }
+
+        this.isRealtimeNotificationsStarted = true;
+        this.signalingClient.start();
+    }
+
+    /**
+     * Stop receiving real-time messages and notifications.
+     */
+    public void stopRealtimeNotifications() {
+        if (this.signalingClient == null) {
+            throw new Error("Signaling client not initialized");
+        }
+
+        this.isRealtimeNotificationsStarted = false;
+        this.signalingClient.stop();
+    }
+
+    /**
+     * Listen to a chat event.
+     */
+    public void on(String chatEventId, RealTimeNotificationCallback listener) {
+        if (this.signalingClient == null) {
+            throw new Error("Signaling client not initialized");
+        }
+
+        if (!this.isRealtimeNotificationsStarted) {
+            throw new Error(
+                "You must call startRealtimeNotifications before you can subscribe to events."
+            );
+        }
+
+        this.signalingClient.on(chatEventId, listener);
+    }
+
+    /**
+     * Stop listening to a chat event.
+     */
+    public void off(String chatEventId, RealTimeNotificationCallback listener) {
+        if (this.signalingClient == null) {
+            throw new Error("Signaling client not initialized");
+        }
+
+        this.signalingClient.off(chatEventId, listener);
+    }
+
+    /**
      * A builder for creating a new instance of the ChatClient type.
      */
     public static final class Builder {
@@ -211,6 +276,12 @@ public final class ChatClient {
 
         private Interceptor userAgentInterceptor;
 
+        private Context context;
+
+        private String userToken;
+
+        private CommunicationSignalingClient communicationSignalingClient;
+
         /**
          * Sets The Interceptor to set intercept request and set credentials.
          *
@@ -224,6 +295,16 @@ public final class ChatClient {
 
         public Builder userAgentInterceptor(Interceptor userAgentInterceptor) {
             this.userAgentInterceptor = userAgentInterceptor;
+            return this;
+        }
+
+        public Builder context(Context context) {
+            this.context = context;
+            return this;
+        }
+
+        public Builder userToken(String userToken) {
+            this.userToken = userToken;
             return this;
         }
 
@@ -251,8 +332,12 @@ public final class ChatClient {
                 serviceClientBuilder.addInterceptor(userAgentInterceptor);
             }
 
+            if (context != null && userToken != null) {
+                communicationSignalingClient = new CommunicationSignalingClient(userToken, context);
+            }
+
             AzureCommunicationChatServiceImpl internalClient = new AzureCommunicationChatServiceImpl(serviceClientBuilder.build(), endpoint);
-            return new ChatClient(internalClient.getChats());
+            return new ChatClient(internalClient.getChats(), communicationSignalingClient);
         }
     }
 }
