@@ -24,9 +24,8 @@ dependencies {
     // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->
-    testImplementation project (":sdk:core:azure-core-test")
+    testImplementation project (":sdk:core:azure-core-http")
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
-    testImplementation ("io.projectreactor:reactor-test:$reactorTestVersion")
     testImplementation ("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation ("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testImplementation ("org.mockito:mockito-core:$mockitoVersion")

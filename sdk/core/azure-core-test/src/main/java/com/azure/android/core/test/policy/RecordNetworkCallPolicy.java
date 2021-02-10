@@ -28,8 +28,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 
-import reactor.core.Exceptions;
-
 /**
  * HTTP Pipeline policy that keeps track of each HTTP request and response that flows through the pipeline. Data is
  * recorded into {@link RecordedData}.
@@ -194,7 +192,7 @@ public class RecordNetworkCallPolicy implements HttpPipelinePolicy {
 
                     content = output.toString("UTF-8");
                 } catch (IOException e) {
-                    throw logger.logExceptionAsWarning(Exceptions.propagate(e));
+                    throw logger.logExceptionAsWarning(new RuntimeException(e));
                 }
             } else {
                 content = new String(bytes, StandardCharsets.UTF_8);
