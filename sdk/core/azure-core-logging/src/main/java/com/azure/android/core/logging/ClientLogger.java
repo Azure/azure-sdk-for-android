@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.helpers.NOPLogger;
 
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.regex.Pattern;
 
 /**
@@ -29,7 +28,17 @@ import java.util.regex.Pattern;
  */
 public class ClientLogger {
     private static final Pattern CRLF_PATTERN = Pattern.compile("[\r\n]");
+    private static final String LINE_SEPARATOR;
     private final Logger logger;
+
+    static {
+        final String lineSeparator = System.getProperty("line.separator");
+        if (lineSeparator ==  null || lineSeparator.length() == 0) {
+            LINE_SEPARATOR = lineSeparator;
+        } else {
+            LINE_SEPARATOR = "\n";
+        }
+    }
 
     /**
      * Retrieves a logger for the passed class using the {@link LoggerFactory}.
@@ -158,7 +167,7 @@ public class ClientLogger {
      * @throws NullPointerException If {@code runtimeException} is {@code null}.
      */
     public RuntimeException logExceptionAsWarning(RuntimeException runtimeException) {
-        Objects.requireNonNull(runtimeException, "'runtimeException' cannot be null.");
+        requireNonNull(runtimeException, "'runtimeException' cannot be null.");
 
         return logThrowableAsWarning(runtimeException);
     }
@@ -173,32 +182,9 @@ public class ClientLogger {
      * @param <T> Type of the Throwable being logged.
      * @return The passed {@link Throwable}.
      * @throws NullPointerException If {@code throwable} is {@code null}.
-     * @deprecated Use {@link #logThrowableAsWarning(Throwable)} instead.
-     */
-    @Deprecated
-    public <T extends Throwable> T logThowableAsWarning(T throwable) {
-        Objects.requireNonNull(throwable, "'throwable' cannot be null.");
-        if (!logger.isWarnEnabled()) {
-            return throwable;
-        }
-
-        performLogging(LogLevel.WARNING, true, throwable.getMessage(), throwable);
-        return throwable;
-    }
-
-    /**
-     * Logs the {@link Throwable} at the warning level and returns it to be thrown.
-     * <p>
-     * This API covers the cases where a checked exception type needs to be thrown and logged. If a {@link
-     * RuntimeException} is being logged use {@link #logExceptionAsWarning(RuntimeException)} instead.
-     *
-     * @param throwable Throwable to be logged and returned.
-     * @param <T> Type of the Throwable being logged.
-     * @return The passed {@link Throwable}.
-     * @throws NullPointerException If {@code throwable} is {@code null}.
      */
     public <T extends Throwable> T logThrowableAsWarning(T throwable) {
-        Objects.requireNonNull(throwable, "'throwable' cannot be null.");
+        requireNonNull(throwable, "'throwable' cannot be null.");
         if (!logger.isWarnEnabled()) {
             return throwable;
         }
@@ -218,7 +204,7 @@ public class ClientLogger {
      * @throws NullPointerException If {@code runtimeException} is {@code null}.
      */
     public RuntimeException logExceptionAsError(RuntimeException runtimeException) {
-        Objects.requireNonNull(runtimeException, "'runtimeException' cannot be null.");
+        requireNonNull(runtimeException, "'runtimeException' cannot be null.");
 
         return logThrowableAsError(runtimeException);
     }
@@ -235,7 +221,7 @@ public class ClientLogger {
      * @throws NullPointerException If {@code throwable} is {@code null}.
      */
     public <T extends Throwable> T logThrowableAsError(T throwable) {
-        Objects.requireNonNull(throwable, "'throwable' cannot be null.");
+        requireNonNull(throwable, "'throwable' cannot be null.");
         if (!logger.isErrorEnabled()) {
             return throwable;
         }
@@ -283,13 +269,13 @@ public class ClientLogger {
                 break;
             case WARNING:
                 if (throwableMessage != null && throwableMessage.length() != 0) {
-                    format += System.lineSeparator() + throwableMessage;
+                    format += LINE_SEPARATOR + throwableMessage;
                 }
                 logger.warn(format, args);
                 break;
             case ERROR:
                 if (throwableMessage != null && throwableMessage.length() != 0) {
-                    format += System.lineSeparator() + throwableMessage;
+                    format += LINE_SEPARATOR + throwableMessage;
                 }
                 logger.error(format, args);
                 break;
@@ -324,7 +310,7 @@ public class ClientLogger {
         }
     }
 
-    /*
+    /**
      * Determines if the arguments contains a throwable that would be logged, SLF4J logs a throwable if it is the last
      * element in the argument list.
      *
@@ -339,7 +325,7 @@ public class ClientLogger {
         return args[args.length - 1] instanceof Throwable;
     }
 
-    /*
+    /**
      * Removes the last element from the arguments as it is a throwable.
      *
      * @param args The arguments passed to format the log message.
@@ -357,5 +343,21 @@ public class ClientLogger {
      */
     private static String sanitizeLogMessageInput(String logMessage) {
         return CRLF_PATTERN.matcher(logMessage).replaceAll("");
+    }
+
+    /**
+     * If the {@code obj} is null then throw a {@link NullPointerException} with the provided {@code message}.
+     *
+     * @param obj The object to check.
+     * @param message The message for the NullPointerException if it's thrown.
+     * @param <T> The type of {@code obj}.
+     * @return The {@code obj} if not null
+     */
+    private static <T> T requireNonNull(T obj, String message) {
+        if (obj == null) {
+            throw new NullPointerException(message);
+        } else {
+            return obj;
+        }
     }
 }
