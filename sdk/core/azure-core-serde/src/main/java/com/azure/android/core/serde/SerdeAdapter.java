@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +40,7 @@ public interface SerdeAdapter {
         String serializedObject = serialize(object, encoding);
 
         if (serializedObject != null) {
-            outputStream.write(serializedObject.getBytes(StandardCharsets.UTF_8));
+            outputStream.write(serializedObject.getBytes(Charset.forName("UTF-8")));
         }
     }
 
