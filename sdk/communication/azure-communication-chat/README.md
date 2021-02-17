@@ -15,9 +15,9 @@ This package contains the Chat client library for Azure Communication Services.
 * The library is written in Java 8. Your application must be built with Android Gradle plugin 3.0.0 or later, and must be configured to [enable Java 8 language desugaring](https://developer.android.com/studio/write/java8-support.html#supported_features) to use this library. Java 8 language features that require a target API level > 21 are not used, nor are any Java 8+ APIs that would require the Java 8+ API desugaring provided by Android Gradle plugin 4.0.0.
 
 ### Versions available
-The current Azure Communication Chat Service Version is **2020-11-01-preview3**.
+The current Azure Communication Chat Service Version is **2021-01-27-preview4**.
 
-The current Azure Communication Chat SDK Version is **1.0.0-beta.5**.
+The current Azure Communication Chat SDK Version is **1.0.0-beta.6**.
 
 > Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
@@ -35,13 +35,13 @@ Add an `implementation` configuration to the `dependencies` block of your app's 
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-communication-chat:1.0.0-beta.5"
+    implementation "com.azure.android:azure-communication-chat:1.0.0-beta.6"
 }
 
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-communication-chat:1.0.0-beta.5")
+    implementation("com.azure.android:azure-communication-chat:1.0.0-beta.6")
 }
 ```
 
@@ -52,7 +52,7 @@ To import the library into your project using the [Maven](https://maven.apache.o
 <dependency>
   <groupId>com.azure.android</groupId>
   <artifactId>azure-communication-chat</artifactId>
-  <version>1.0.0-beta.5</version>
+  <version>1.0.0-beta.6</version>
 </dependency>
 ```
 
@@ -565,9 +565,19 @@ Use the `removeChatParticipant` method to remove a participant from a thread.
 ```java
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-// The unique ID of the participant.
-final String participantId = "<participant_id>";
-client.removeChatParticipant(threadId, participantId, new Callback<Void>() {
+final CommunicationUserIdentifierModel userIdentifier = new CommunicationUserIdentifierModel().setId(<participant_id>);
+final PhoneNumberIdentifierModel phoneIdentifier = new PhoneNumberIdentifierModel();
+final MicrosoftTeamsUserIdentifierModel teamsUserIdentifier = new MicrosoftTeamsUserIdentifierModel();
+final CommunicationIdentifierModel participantIdentifier = new CommunicationIdentifierModel()
+    .setRawId("string")
+    // optional
+    .setCommunicationUser(userIdentifier)
+    // optional
+    .setPhoneNumber(phoneIdentifier)
+    // optional
+    setMicrosoftTeamsUser(teamsUserIdentifier)
+    
+client.removeChatParticipant(threadId, userIdentifier, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.

@@ -20,7 +20,7 @@ autorest --android --use=C:/work/autorest.java
 
 ### Code generation settings
 ``` yaml
-input-file: swagger.json
+input-file: https://int.chatgateway.trafficmanager.net/swagger/2021-01-27-preview4/swagger.json
 java: true
 output-folder: ..\
 generate-client-as-impl: false
