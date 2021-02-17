@@ -13,7 +13,7 @@ import java.util.concurrent.Callable;
 public class CommunicationTokenRefreshOptions {
     private final Callable<String> tokenRefresher;
     private final boolean refreshProactively;
-    private final String initialToken;
+    private final String token;
 
     /**
      * Creates a {@link CommunicationTokenRefreshOptions} object
@@ -33,7 +33,7 @@ public class CommunicationTokenRefreshOptions {
         }
         this.tokenRefresher = tokenRefresher;
         this.refreshProactively = refreshProactively;
-        this.initialToken = null;
+        this.token = null;
     }
 
     /**
@@ -47,18 +47,18 @@ public class CommunicationTokenRefreshOptions {
      *                           tokenRefresher before token expiry by minutes set
      *                           with setCallbackOffsetMinutes or default value of
      *                           two minutes
-     * @param initialToken the serialized JWT token, cannot be null
+     * @param token the serialized JWT token, cannot be null
      */
-    public CommunicationTokenRefreshOptions(Callable<String> tokenRefresher, boolean refreshProactively, String initialToken) {
+    public CommunicationTokenRefreshOptions(Callable<String> tokenRefresher, boolean refreshProactively, String token) {
         if (tokenRefresher == null) {
             throw new IllegalArgumentException("Missing required parameters 'tokenRefresher'.");
         }
-        if (initialToken == null) {
-            throw new IllegalArgumentException("Missing required parameters 'initialToken'.");
+        if (token == null) {
+            throw new IllegalArgumentException("Missing required parameters 'token'.");
         }
         this.tokenRefresher = tokenRefresher;
         this.refreshProactively = refreshProactively;
-        this.initialToken = initialToken;
+        this.token = token;
     }
 
     /**
@@ -79,6 +79,6 @@ public class CommunicationTokenRefreshOptions {
      * @return the serialized JWT token
      */
     public String getToken() {
-        return initialToken;
+        return token;
     }
 }
