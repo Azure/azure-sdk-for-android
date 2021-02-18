@@ -80,7 +80,7 @@ ChatAsyncClient client = new ChatAsyncClient.Builder()
 Now that we've created a Chat thread we'll obtain a `ChatThreadClient` to perform operations within the thread.
 
 ```
-ChatThreadClient threadClient =
+ChatThreadClient chatThreadClient =
         new ChatThreadClient.Builder()
             .endpoint(<endpoint>))
             .build();
@@ -322,7 +322,7 @@ SendChatMessageRequest message = new SendChatMessageRequest()
 
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-client.sendChatMessage(threadId, message, new Callback<String>() {
+chatThreadClient.sendChatMessage(threadId, message, new Callback<String>() {
     @Override
     public void onSuccess(String messageId, Response response) {
         // A string is the response returned from sending a message, it is an id, 
@@ -348,7 +348,7 @@ final String threadId = "<thread_id>";
 // The unique ID of the message.
 final String chatMessageId = "<message_id>";
 
-client.getChatMessage(threadId, chatMessageId, new Callback<ChatMessage>() {
+chatThreadClient.getChatMessage(threadId, chatMessageId, new Callback<ChatMessage>() {
     @Override
     public void onSuccess(ChatMessage chatMessage, Response response) {
         // `ChatMessage` is the response returned from getting a message.
@@ -375,7 +375,7 @@ final OffsetDateTime startTime = OffsetDateTime.parse("2020-09-08T00:00:00Z");
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
         
-client.listChatMessagesPages(threadId,
+chatThreadClient.listChatMessagesPages(threadId,
     maxPageSize,
     startTime,
     new Callback<AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>>() {
@@ -439,7 +439,7 @@ UpdateChatMessageRequest message = new UpdateChatMessageRequest()
 final String threadId = "<thread_id>";
 // The unique ID of the message.
 final String messageId = "<message_id>";
-client.updateChatMessage(threadId, messageId, message, new Callback<Void>() {
+chatThreadClient.updateChatMessage(threadId, messageId, message, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
@@ -461,7 +461,7 @@ Use the `deleteChatMessage` method to delete a message in a thread.
 final String threadId = "<thread_id>";
 // The unique ID of the message.
 final String messageId = "<message_id>";
-client.deleteChatMessage(threadId, messageId, new Callback<Void>() {
+chatThreadClient.deleteChatMessage(threadId, messageId, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
@@ -490,7 +490,7 @@ final int maxPageSize = 10;
 // Skips participants up to a specified position in response.
 final int skip = 0;
 
-client.listChatParticipantsPages(threadId,
+chatThreadClient.listChatParticipantsPages(threadId,
     maxPageSize,
     skip,
     new Callback<AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>>>() {
@@ -557,7 +557,7 @@ AddChatParticipantsRequest participants = new AddChatParticipantsRequest()
 
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-client.addChatParticipants(threadId, participants, new Callback<Void>() {
+chatThreadClient.addChatParticipants(threadId, participants, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
@@ -579,7 +579,7 @@ Use the `removeChatParticipant` method to remove a participant from a thread.
 final String threadId = "<thread_id>";
 // The unique ID of the participant.
 final String participantId = "<participant_id>";
-client.removeChatParticipant(threadId, participantId, new Callback<Void>() {
+chatThreadClient.removeChatParticipant(threadId, participantId, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
@@ -601,7 +601,7 @@ Use the `sendTypingNotification` method to post a typing notification event to a
 ```java
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-client.sendTypingNotification(threadId, new Callback<Void>() {
+chatThreadClient.sendTypingNotification(threadId, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
@@ -627,7 +627,7 @@ SendReadReceiptRequest readReceipt = new SendReadReceiptRequest()
 
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-client.sendChatReadReceipt(threadId, readReceipt, new Callback<Void>() {
+chatThreadClient.sendChatReadReceipt(threadId, readReceipt, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
@@ -654,7 +654,7 @@ final int maxPageSize = 10;
 // Skips participants up to a specified position in response.
 final int skip = 0;
 
-client.listChatReadReceiptsPages(threadId,
+chatThreadClient.listChatReadReceiptsPages(threadId,
     maxPageSize,
     skip,
     new Callback<AsyncPagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>>>() {
