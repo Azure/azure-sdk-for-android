@@ -198,7 +198,7 @@ public final class ChatClient {
      */
     public void stopRealtimeNotifications() {
         if (this.signalingClient == null) {
-            throw new Error("Signaling client not initialized");
+            throw new Error("Realtime notification parameters (context, userToken) are not set");
         }
 
         this.isRealtimeNotificationsStarted = false;
@@ -298,12 +298,8 @@ public final class ChatClient {
             return this;
         }
 
-        public Builder context(Context context) {
+        public Builder realtimeNotificationParams(Context context, String userToken) {
             this.context = context;
-            return this;
-        }
-
-        public Builder userToken(String userToken) {
             this.userToken = userToken;
             return this;
         }

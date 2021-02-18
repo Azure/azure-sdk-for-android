@@ -1,6 +1,10 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.communication.chat.signaling;
 
 import com.azure.android.communication.chat.signaling.properties.ChatEventId;
+import com.azure.android.core.util.logging.ClientLogger;
 import com.microsoft.trouterclient.ITrouterResponse;
 
 import org.json.JSONArray;
@@ -11,7 +15,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TrouterUtils {
+class TrouterUtils {
+
+    private static ClientLogger logger = ClientLogger.getDefault(TrouterUtils.class);
+    /**
+     * Mapping chat event id to trouter event id code
+     */
     static Map<ChatEventId, Integer> eventIdsMapping = new HashMap<ChatEventId, Integer>() {{
         put(ChatEventId.chatMessageReceived, 200);
         put(ChatEventId.typingIndicatorReceived, 245);
@@ -32,7 +41,7 @@ public class TrouterUtils {
             eventId = eventIdsMapping.get(chatEventId);
             genericPayload = new JSONObject(iTrouterResponse.getBody());
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
 
         try {
@@ -40,7 +49,7 @@ public class TrouterUtils {
                 return null;
             }
         } catch (JSONException e) {
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
 
         return toEventPayload(chatEventId, genericPayload);
@@ -69,7 +78,7 @@ public class TrouterUtils {
                 eventPayload.put("content", payload.get("messageBody"));
                 eventPayload.put("priority", payload.get("priority"));
             } catch (JSONException e) {
-                System.out.println(e.getMessage());
+                logger.error(e.getMessage());
             }
 
             return eventPayload;
@@ -96,7 +105,7 @@ public class TrouterUtils {
                 eventPayload.put("content", payload.get("messageBody"));
                 eventPayload.put("editedOn", payload.get("edittime"));
             } catch (JSONException e) {
-                System.out.println(e.getMessage());
+                logger.error(e.getMessage());
             }
 
             return eventPayload;
@@ -122,7 +131,7 @@ public class TrouterUtils {
                 eventPayload.put("version", payload.get("version"));
                 eventPayload.put("deletedOn", payload.get("deletetime"));
             } catch (JSONException e) {
-                System.out.println(e.getMessage());
+                logger.error(e.getMessage());
             }
 
             return eventPayload;
@@ -145,7 +154,7 @@ public class TrouterUtils {
                 eventPayload.put("receivedOn", payload.get("originalArrivalTime"));
                 eventPayload.put("version", payload.get("version"));
             } catch (JSONException e) {
-                System.out.println(e.getMessage());
+                logger.error(e.getMessage());
             }
 
             return eventPayload;
@@ -168,7 +177,7 @@ public class TrouterUtils {
                 eventPayload.put("chatMessageId", payload.get("messageId"));
                 eventPayload.put("readOn", new Date().toString());
             } catch (JSONException e) {
-                System.out.println(e.getMessage());
+                logger.error(e.getMessage());
             }
 
             return eventPayload;
@@ -207,7 +216,7 @@ public class TrouterUtils {
                 eventPayload.put("participants", chatParticipants);
                 eventPayload.put("properties", payload.getJSONObject("properties"));
             } catch (JSONException e) {
-                System.out.println(e.getMessage());
+                logger.error(e.getMessage());
             }
 
             return eventPayload;
@@ -231,7 +240,7 @@ public class TrouterUtils {
                 eventPayload.put("version", payload.get("version"));
                 eventPayload.put("properties", payload.getJSONObject("properties"));
             } catch (JSONException e) {
-                System.out.println(e.getMessage());
+                logger.error(e.getMessage());
             }
 
             return eventPayload;
@@ -254,7 +263,7 @@ public class TrouterUtils {
                 eventPayload.put("deletedBy", deletedBy);
                 eventPayload.put("version", payload.get("version"));
             } catch (JSONException e) {
-                System.out.println(e.getMessage());
+                logger.error(e.getMessage());
             }
 
             return eventPayload;
@@ -293,7 +302,7 @@ public class TrouterUtils {
                 eventPayload.put("version", payload.get("version"));
                 eventPayload.put("participantsAdded", chatParticipants);
             } catch (JSONException e) {
-                System.out.println(e.getMessage());
+                logger.error(e.getMessage());
             }
 
             return eventPayload;
@@ -332,7 +341,7 @@ public class TrouterUtils {
                 eventPayload.put("version", payload.get("version"));
                 eventPayload.put("participantsRemoved", chatParticipants);
             } catch (JSONException e) {
-                System.out.println(e.getMessage());
+                logger.error(e.getMessage());
             }
 
             return eventPayload;

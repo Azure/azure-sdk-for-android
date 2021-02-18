@@ -1,7 +1,7 @@
-package com.azure.android.communication.chat.signaling;
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
 
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT license.
+package com.azure.android.communication.chat.signaling;
 
 class BasePayload {
     long _eventId;

@@ -1,8 +1,12 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 package com.azure.android.communication.chat.signaling;
 
 import android.content.Context;
 
 import com.azure.android.communication.chat.signaling.properties.ChatEventId;
+import com.azure.android.core.util.logging.ClientLogger;
 import com.microsoft.trouterclient.ISelfHostedTrouterClient;
 import com.microsoft.trouterclient.ITrouterAuthHeadersProvider;
 import com.microsoft.trouterclient.ITrouterConnectionDataCache;
@@ -15,26 +19,22 @@ import com.microsoft.trouterclient.registration.TrouterUrlRegistrationData;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.azure.android.communication.chat.signaling.SignalingConfig.defaultRegistrarHostnameAndBasePath;
-import static com.azure.android.communication.chat.signaling.SignalingConfig.defaultTrouterHostname;
-import static com.azure.android.communication.chat.signaling.SignalingConfig.platform;
-import static com.azure.android.communication.chat.signaling.SignalingConfig.platformUiVersion;
-import static com.azure.android.communication.chat.signaling.SignalingConfig.testApplicationId;
-import static com.azure.android.communication.chat.signaling.SignalingConfig.testTemplateKey;
-import static com.azure.android.communication.chat.signaling.SignalingConfig.trouterClientVersion;
+import static com.azure.android.communication.chat.signaling.SignalingConfig.*;
 
 public class CommunicationSignalingClient implements SignalingClient {
+    private ClientLogger logger;
     private TrouterClientHost trouterClientHost;
     private ISelfHostedTrouterClient trouter;
-    String userToken;
-    Set<CommunicationListener> trouterListeners;
+    private String userToken;
+    private Set<CommunicationListener> trouterListeners;
 
     public CommunicationSignalingClient(String userToken, Context context) {
+        this.logger = ClientLogger.getDefault(this.getClass());
         try {
             this.userToken = userToken;
-            trouterClientHost = TrouterClientHost.initialize(context, trouterClientVersion);
+            trouterClientHost = TrouterClientHost.initialize(context, TROUTER_CLIENT_VERSION);
         } catch (Throwable t) {
-            System.out.println(t.getMessage());
+           logger.error(t.getMessage());
         }
         trouterListeners = new HashSet<>();
     }
@@ -66,26 +66,26 @@ public class CommunicationSignalingClient implements SignalingClient {
 
         TrouterUrlRegistrationData registrationData = new TrouterUrlRegistrationData(
             null,
-            testApplicationId,
-            platform,
-            platformUiVersion,
-            testTemplateKey,
+            TEST_APPLICATION_ID,
+            PLATFORM,
+            PLATFORM_UI_VERSION,
+            TEST_TEMPLATE_KEY,
             null,
             ""
         );
         final TrouterUrlRegistrar registrar = new TrouterUrlRegistrar(
             skypetokenProvider,
             registrationData,
-            defaultRegistrarHostnameAndBasePath,
-            3600
+            DEFAULT_REGISTRATION_HOSTNAME_AND_BASE_PATH,
+            DEFAULT_MAX_REGISTRATION_TTLS
         );
 
         try {
-            trouter = trouterClientHost.createTrouterClient(trouterAuthHeadersProvider, new InMemoryConnectionDataCache(), defaultTrouterHostname);
+            trouter = trouterClientHost.createTrouterClient(trouterAuthHeadersProvider, new InMemoryConnectionDataCache(), DEFAULT_TROUTER_HOSTNAME);
             trouter.withRegistrar(registrar);
             trouter.start();
         } catch (Throwable e) {
-            System.out.println(e.getMessage());
+            logger.error(e.getMessage());
         }
     }
 
