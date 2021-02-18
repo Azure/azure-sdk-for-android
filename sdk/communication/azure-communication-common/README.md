@@ -94,15 +94,15 @@ Callable<String> tokenRefresher = () -> {
   return fetchtoken();
 };
 
-CommunicationTokenCredential userCredential = new CommunicationTokenCredential(tokenRefresher);
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, false, null));
 ```
 
 ### Creating a credential that refreshes proactively
 
-Setting `isProactiveRefresh` to true will call your `Callable<String> tokenRefresher` when the token is close to expiry.
+Setting `refreshProactively` to true will call your `Callable<String> tokenRefresher` when the token is close to expiry.
 
 ```java
-CommunicationTokenCredential userCredential = new CommunicationTokenCredential(tokenRefresher, true);
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, true, null));
 ```
 
 ### Creating a credential with an initial value that refreshes proactively
@@ -110,7 +110,7 @@ CommunicationTokenCredential userCredential = new CommunicationTokenCredential(t
 Passing `initialToken` is an optional optimization to skip the first call to `Callable<String> tokenRefresher`. You can use this to separate the boot from your application from subsequent token refresh cycles.
 
 ```java
-CommunicationTokenCredential userCredential = new CommunicationTokenCredential(tokenRefresher, true, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDB9.adM-ddBZZlQ1WlN3pdPBOF5G4Wh9iZpxNP_fSvpF4cWs");
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, true, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjM2MDB9.adM-ddBZZlQ1WlN3pdPBOF5G4Wh9iZpxNP_fSvpF4cWs"));
 ```
 
 ### Getting a token asynchronously
@@ -118,7 +118,7 @@ CommunicationTokenCredential userCredential = new CommunicationTokenCredential(t
 Calling `getToken()` will return a `Future<AccessToken>`
 
 ```java
-CommunicationTokenCredential userCredential = new CommunicationTokenCredential(tokenRefresher);
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, false, null));
 Future<AccessToken> accessTokenFuture = userCredential.getToken();
 ```
 
