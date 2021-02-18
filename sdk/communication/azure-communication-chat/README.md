@@ -56,24 +56,36 @@ To import the library into your project using the [Maven](https://maven.apache.o
 </dependency>
 ```
 
-### Create the AzureCommunicationChatClient
+### Create the ChatClient
 
-Use the `AzureCommunicationChatServiceAsyncClient.Builder` to configure and create an instance of `AzureCommunicationChatClient`.
+Use the `ChatAsyncClient.Builder` to configure and create an instance of `ChatAsyncClient`.
 
 ```java
-import com.azure.android.communication.chat.AzureCommunicationChatServiceAsyncClient;
+import com.azure.android.communication.chat.ChatAsyncClient;
 import com.azure.android.core.http.HttpHeader;
 
 final String endpoint = "https://<resource>.communication.azure.com";
 final String userAccessToken = "<user_access_token>";
 
-AzureCommunicationChatServiceAsyncClient client = new AzureCommunicationChatServiceAsyncClient.Builder()
+ChatAsyncClient client = new ChatAsyncClient.Builder()
     .endpoint(endpoint)
     .credentialInterceptor(chain -> chain.proceed(chain.request()
         .newBuilder()
         .header(HttpHeader.AUTHORIZATION, userAccessToken)
         .build());
 ```
+
+### Create the ChatThreadClient
+
+Now that we've created a Chat thread we'll obtain a `ChatThreadClient` to perform operations within the thread. Replace the comment `<CREATE A CHAT THREAD CLIENT>` with the following code:
+
+```
+ChatThreadClient threadClient =
+        new ChatThreadClient.Builder()
+            .endpoint(<endpoint>))
+            .build();
+```
+
 
 ## Key concepts
 
