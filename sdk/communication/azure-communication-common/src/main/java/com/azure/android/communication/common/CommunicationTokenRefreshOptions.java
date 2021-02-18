@@ -47,11 +47,14 @@ public class CommunicationTokenRefreshOptions {
      *                           tokenRefresher before token expiry by minutes set
      *                           with setCallbackOffsetMinutes or default value of
      *                           two minutes
-     * @param initialToken the serialized JWT token, cannot be null
+     * @param token the serialized JWT token, cannot be null
      */
     public CommunicationTokenRefreshOptions(Callable<String> tokenRefresher, boolean refreshProactively, String initialToken) {
         if (tokenRefresher == null) {
             throw new IllegalArgumentException("Missing required parameters 'tokenRefresher'.");
+        }
+        if (initialToken == null) {
+            throw new IllegalArgumentException("Missing required parameters 'initialToken'.");
         }
         this.tokenRefresher = tokenRefresher;
         this.refreshProactively = refreshProactively;

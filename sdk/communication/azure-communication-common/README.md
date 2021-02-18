@@ -94,7 +94,7 @@ Callable<String> tokenRefresher = () -> {
   return fetchtoken();
 };
 
-CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, false, null));
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, false));
 ```
 
 ### Creating a credential that refreshes proactively
@@ -102,7 +102,7 @@ CommunicationTokenCredential userCredential = new CommunicationTokenCredential(n
 Setting `refreshProactively` to true will call your `Callable<String> tokenRefresher` when the token is close to expiry.
 
 ```java
-CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, true, null));
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, true));
 ```
 
 ### Creating a credential with an initial value that refreshes proactively
@@ -118,7 +118,7 @@ CommunicationTokenCredential userCredential = new CommunicationTokenCredential(n
 Calling `getToken()` will return a `Future<AccessToken>`
 
 ```java
-CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, false, null));
+CommunicationTokenCredential userCredential = new CommunicationTokenCredential(new CommunicationTokenRefreshOptions(tokenRefresher, false));
 Future<AccessToken> accessTokenFuture = userCredential.getToken();
 ```
 
