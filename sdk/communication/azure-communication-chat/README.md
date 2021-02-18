@@ -77,7 +77,7 @@ ChatAsyncClient client = new ChatAsyncClient.Builder()
 
 ### Create the ChatThreadClient
 
-Now that we've created a Chat thread we'll obtain a `ChatThreadClient` to perform operations within the thread. Replace the comment `<CREATE A CHAT THREAD CLIENT>` with the following code:
+Now that we've created a Chat thread we'll obtain a `ChatThreadClient` to perform operations within the thread.
 
 ```
 ChatThreadClient threadClient =
@@ -85,7 +85,7 @@ ChatThreadClient threadClient =
             .endpoint(<endpoint>))
             .build();
 ```
-
+Replace `<endpoint>` with your Communication Services endpoint.
 
 ## Key concepts
 
