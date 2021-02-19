@@ -19,6 +19,7 @@ Azure SDK for Android is licensed under the [MIT](https://github.com/Azure/azure
 MD file used to present the journey from v1 (master) to v2 (this branch), and design choices made.
 
 #n | presentation | Link
+-- | --- | --- 
 1 | talk 1 | [reference](https://gist.github.com/anuchandy/6d960e29e66d9574e7cf5c9731037cb1)
 
 ![Impressions](https://azure-sdk-impressions.azurewebsites.net/api/impressions/azure-sdk-for-java%2FREADME.png)
