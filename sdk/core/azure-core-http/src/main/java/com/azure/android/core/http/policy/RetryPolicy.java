@@ -9,11 +9,12 @@ import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.NextPolicyCallback;
 import com.azure.android.core.http.PolicyCompleter;
 
+import org.threeten.bp.Duration;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
+import org.threeten.bp.temporal.ChronoUnit;
+
 import java.io.IOException;
-import java.time.Duration; // TODO: anuchan: use threetenbp or old native time.
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
 /**

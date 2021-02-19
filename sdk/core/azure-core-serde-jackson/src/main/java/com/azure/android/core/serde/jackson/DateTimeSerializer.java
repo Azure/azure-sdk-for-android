@@ -10,9 +10,9 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import java.io.IOException;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneOffset;
+import org.threeten.bp.format.DateTimeFormatter;
 
 /**
  * Custom serializer for serializing {@link OffsetDateTime} object into ISO8601 formats.

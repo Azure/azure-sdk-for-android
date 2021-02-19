@@ -3,7 +3,7 @@
 
 package com.azure.android.core.credential;
 
-import java.time.OffsetDateTime;
+import org.threeten.bp.OffsetDateTime;
 
 /**
  * Represents an immutable access token with a token string and an expiration time.

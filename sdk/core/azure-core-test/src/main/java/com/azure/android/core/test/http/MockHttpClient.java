@@ -14,11 +14,12 @@ import com.azure.android.core.test.implementation.entities.HttpBinJSON;
 import com.azure.android.core.util.Base64Url;
 import com.azure.android.core.util.DateTimeRfc1123;
 
+import org.threeten.bp.Instant;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneOffset;
+
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;

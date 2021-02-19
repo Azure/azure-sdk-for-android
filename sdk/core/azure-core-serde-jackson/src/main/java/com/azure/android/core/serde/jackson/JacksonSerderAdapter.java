@@ -8,6 +8,7 @@ import com.azure.android.core.serde.SerdeAdapter;
 import com.azure.android.core.serde.SerdeCollectionFormat;
 import com.azure.android.core.serde.SerdeEncoding;
 import com.azure.android.core.serde.SerdeParseException;
+import com.azure.android.core.serde.jackson.implementation.threeten.ThreeTenModule;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
@@ -18,7 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -124,10 +124,10 @@ public class JacksonSerderAdapter implements SerdeAdapter {
             return null;
         }
 
-        ByteArrayOutputStream stream = new AccessibleByteArrayOutputStream();
-        serialize(object, encoding, stream);
+        ByteArrayOutputStream outStream = new AccessibleByteArrayOutputStream();
+        serialize(object, encoding, outStream);
 
-        return new String(stream.toByteArray(), 0, stream.size(), StandardCharsets.UTF_8);
+        return new String(outStream.toByteArray(), 0, outStream.size(), StandardCharsets.UTF_8);
     }
 
     @Override
@@ -286,7 +286,7 @@ public class JacksonSerderAdapter implements SerdeAdapter {
             .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
             .configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true)
             .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-            .registerModule(new JavaTimeModule())
+            .registerModule(new ThreeTenModule())
             .registerModule(ByteArraySerializer.getModule())
             .registerModule(Base64UrlSerializer.getModule())
             .registerModule(DateTimeSerializer.getModule())

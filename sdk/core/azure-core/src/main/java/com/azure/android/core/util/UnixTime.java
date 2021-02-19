@@ -3,12 +3,12 @@
 
 package com.azure.android.core.util;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import org.threeten.bp.Instant;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneOffset;
 
 /**
- * A wrapper over java.time.OffsetDateTime used for specifying unix seconds format during serialization and
+ * A wrapper over org.threeten.bp.OffsetDateTime used for specifying unix seconds format during serialization and
  * deserialization.
  */
 public final class UnixTime {

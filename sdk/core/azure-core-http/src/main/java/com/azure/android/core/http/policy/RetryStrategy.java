@@ -5,9 +5,10 @@ package com.azure.android.core.http.policy;
 
 import com.azure.android.core.http.HttpResponse;
 
+import org.threeten.bp.Duration;
+
 import java.io.IOException;
 import java.net.HttpURLConnection;
-import java.time.Duration; // TODO: use threetenbp or old native time.
 import java.util.concurrent.TimeoutException;
 
 /**

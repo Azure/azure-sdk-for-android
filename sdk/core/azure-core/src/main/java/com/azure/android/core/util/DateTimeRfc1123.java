@@ -3,13 +3,15 @@
 
 package com.azure.android.core.util;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneId;
+import org.threeten.bp.format.DateTimeFormatter;
+
 import java.util.Locale;
 
 /**
- * Wrapper over java.time.OffsetDateTime used for specifying RFC1123 format during serialization and deserialization.
+ * Wrapper over org.threeten.bp.OffsetDateTime used for specifying RFC1123 format
+ * during serialization and deserialization.
  */
 public final class DateTimeRfc1123 {
     /**
