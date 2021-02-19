@@ -17,7 +17,7 @@ import java.util.Map;
 
 class TrouterUtils {
 
-    private static ClientLogger logger = ClientLogger.getDefault(TrouterUtils.class);
+    private static final ClientLogger logger = ClientLogger.getDefault(TrouterUtils.class);
     /**
      * Mapping chat event id to trouter event id code
      */
