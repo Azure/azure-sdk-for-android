@@ -8,10 +8,10 @@ import com.fasterxml.jackson.core.JsonParser;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneOffset;
 
 import java.io.IOException;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +27,6 @@ public class DateTimeDeserializerTests {
     public void deserializeJson(String offsetDateTimeString, OffsetDateTime expected) throws IOException {
         JsonParser parser = mock(JsonParser.class);
         when(parser.getValueAsString()).thenReturn(offsetDateTimeString);
-
         assertEquals(expected, new DateTimeDeserializer().deserialize(parser, null));
     }
 

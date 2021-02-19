@@ -27,6 +27,7 @@ import com.azure.android.core.test.implementation.entities.Slideshow;
 import com.azure.android.core.test.implementation.entities.AccessPolicy;
 
 import org.junit.jupiter.api.Test;
+import org.threeten.bp.OffsetDateTime;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -34,7 +35,6 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;

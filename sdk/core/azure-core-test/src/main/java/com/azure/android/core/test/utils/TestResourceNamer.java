@@ -7,8 +7,9 @@ import com.azure.android.core.test.TestContextManager;
 import com.azure.android.core.test.TestMode;
 import com.azure.android.core.test.models.RecordedData;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneOffset;
+
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;

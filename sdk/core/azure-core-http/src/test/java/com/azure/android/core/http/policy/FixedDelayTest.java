@@ -4,8 +4,7 @@
 package com.azure.android.core.http.policy;
 
 import org.junit.jupiter.api.Test;
-
-import java.time.Duration;
+import org.threeten.bp.Duration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

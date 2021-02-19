@@ -6,7 +6,8 @@ package com.azure.android.core.http.policy;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.logging.ClientLogger;
 
-import java.time.Duration;
+import org.threeten.bp.Duration;
+
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 

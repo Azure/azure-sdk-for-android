@@ -107,5 +107,16 @@
     <Bug pattern="PZLA_PREFER_ZERO_LENGTH_ARRAYS"/>
   </Match>
 
+  <Match>
+    <Or>
+      <Class name="com.azure.android.core.serde.jackson.implementation.threeten.DurationDeserializer"/>
+      <Class name="com.azure.android.core.serde.jackson.implementation.threeten.InstantDeserializer"/>
+      <Class name="com.azure.android.core.serde.jackson.implementation.threeten.ThreeTenFormattedSerializerBase"/>
+    </Or>
+    <Bug pattern="SIC_INNER_SHOULD_BE_STATIC_ANON,
+                 SE_BAD_FIELD,
+                 RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN"/>
+  </Match>
+
 </FindBugsFilter>
 

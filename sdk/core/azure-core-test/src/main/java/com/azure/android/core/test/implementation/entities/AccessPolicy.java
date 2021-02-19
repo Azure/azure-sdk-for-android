@@ -5,7 +5,7 @@ package com.azure.android.core.test.implementation.entities;
 
 import com.azure.android.core.serde.SerdeProperty;
 
-import java.time.OffsetDateTime;
+import org.threeten.bp.OffsetDateTime;
 
 /**
  * An Access policy.

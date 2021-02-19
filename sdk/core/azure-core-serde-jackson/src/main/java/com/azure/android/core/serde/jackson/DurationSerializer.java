@@ -9,7 +9,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import java.io.IOException;
-import java.time.Duration;
+import org.threeten.bp.Duration;
 
 /**
  * Custom serializer for serializing {@link Duration} object into ISO8601 formats.
