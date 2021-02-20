@@ -96,9 +96,11 @@
 
   <!-- Files licensed with alternate license in the header and package names -->
   <suppress checks="Header" files="android.util.ArrayMap.java"/>
+  <suppress checks="Header" files="android.util.Base64.java"/>
   <suppress checks="Header" files="android.util.Log.java"/>
   <suppress checks="Header" files="android.util.Pair.java"/>
   <suppress checks="PackageName" files="android.util.ArrayMap.java"/>
+  <suppress checks="PackageName" files="android.util.Base64.java"/>
   <suppress checks="PackageName" files="android.util.Log.java"/>
   <suppress checks="PackageName" files="android.util.Pair.java"/>
   <suppress checks="PackageName" files="android.util.package-info.java"/>
