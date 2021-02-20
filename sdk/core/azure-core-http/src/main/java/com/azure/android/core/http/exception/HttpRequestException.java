@@ -63,21 +63,6 @@ public class HttpRequestException extends AzureException {
     }
 
     /**
-     * Initializes a new instance of the HttpRequestException class.
-     *
-     * @param message The exception message.
-     * @param request The {@link HttpRequest} being sent when the exception occurred.
-     * @param cause The {@link Throwable} which caused the creation of this HttpRequestException.
-     * @param enableSuppression Whether suppression is enabled or disabled.
-     * @param writableStackTrace Whether the exception stack trace will be filled in.
-     */
-    public HttpRequestException(final String message, final HttpRequest request, final Throwable cause,
-        final boolean enableSuppression, final boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
-        this.request = request;
-    }
-
-    /**
      * @return The {@link HttpRequest} being sent when the exception occurred.
      */
     public HttpRequest getRequest() {

@@ -139,4 +139,9 @@
   <suppress checks="[a-zA-Z0-9]*"
       files=".*[/\\]com[/\\]azure[/\\]android[/\\]core[/\\]serde[/\\]jackson[/\\]implementation[/\\]threeten[/\\].*"/>
 
+  <!-- Replacing Objects.requireNonNull with explicit null check -->
+  <suppress
+      checks="com.azure.tools.checkstyle.checks.JavadocThrowsChecks"
+      files="com.azure.android.core.util.Context"/>
+
 </suppressions>

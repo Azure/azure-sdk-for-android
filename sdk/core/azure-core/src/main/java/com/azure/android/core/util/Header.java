@@ -3,8 +3,6 @@
 
 package com.azure.android.core.util;
 
-import java.util.Objects;
-
 /**
  * Represents a single header to be set on a request.
  *<p>
@@ -23,7 +21,9 @@ public class Header {
      * @throws NullPointerException if {@code name} is null.
      */
     public Header(String name, String value) {
-        Objects.requireNonNull(name, "'name' cannot be null.");
+        if (name == null) {
+            throw new NullPointerException("'name' cannot be null.");
+        }
         this.name = name;
         this.value = value;
     }
