@@ -28,7 +28,6 @@
 
 package com.azure.android.core.util;
 
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReferenceFieldUpdater;
 
@@ -312,7 +311,10 @@ public final class CancellationToken {
          * @param onCancel The onCancel Callback to wrap.
          */
         OnCancelNode(String id, Runnable onCancel) {
-            this.id = Objects.requireNonNull(id, "'id' is required and cannot be null.");
+            if (id == null) {
+                throw new NullPointerException("'id' is required and cannot be null.");
+            }
+            this.id = id;
             this.onCancel = onCancel;
         }
 

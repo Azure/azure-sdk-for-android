@@ -5,8 +5,6 @@ package com.azure.android.core.util;
 
 import com.azure.android.core.logging.ClientLogger;
 
-import java.util.Objects;
-
 /**
  * {@code Context} offers a means of passing arbitrary data (key-value pairs) to pipeline policies.
  * Most applications do not need to pass arbitrary data to the pipeline and can pass {@code Context.NONE} or
@@ -38,7 +36,10 @@ public class Context {
      */
     public Context(Object key, Object value) {
         this.parent = null;
-        this.key = Objects.requireNonNull(key, "'key' cannot be null.");
+        if (key == null) {
+            throw new NullPointerException("'key' cannot be null.");
+        }
+        this.key = key;
         this.value = value;
     }
 

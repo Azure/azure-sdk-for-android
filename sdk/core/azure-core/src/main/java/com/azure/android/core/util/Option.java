@@ -4,7 +4,6 @@
 package com.azure.android.core.util;
 
 import java.util.NoSuchElementException;
-import java.util.Objects;
 
 /**
  * The Option type to describe tri-state. Every Option instance is in one of the three states: a state representing a
@@ -104,7 +103,7 @@ public final class Option<T> {
             return false;
         }
         // both are 'initialized' or 'not-initialized'.
-        return Objects.equals(value, other.value);
+        return (value == other.value) || (value != null && value.equals(other.value));
     }
 
     /**
@@ -120,7 +119,8 @@ public final class Option<T> {
         if (!this.isInitialized) {
             return -1;
         }
-        return Objects.hashCode(value);
+
+        return value != null ? value.hashCode() : 0;
     }
 
 

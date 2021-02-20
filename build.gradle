@@ -225,6 +225,7 @@ allprojects {
         archCoreTestVersion = "2.1.0"
         concurrentFuturesVersion = "1.0.0"
         jUnitVersion = "5.7.0"
+        androidxTestVersion = "1.3.0"
         jacksonVersion = "2.11.2"
         lifecycleVersion = "2.2.0"
         okHttpVersion = "3.14.9"

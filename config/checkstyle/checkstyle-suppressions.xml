@@ -96,9 +96,11 @@
 
   <!-- Files licensed with alternate license in the header and package names -->
   <suppress checks="Header" files="android.util.ArrayMap.java"/>
+  <suppress checks="Header" files="android.util.Base64.java"/>
   <suppress checks="Header" files="android.util.Log.java"/>
   <suppress checks="Header" files="android.util.Pair.java"/>
   <suppress checks="PackageName" files="android.util.ArrayMap.java"/>
+  <suppress checks="PackageName" files="android.util.Base64.java"/>
   <suppress checks="PackageName" files="android.util.Log.java"/>
   <suppress checks="PackageName" files="android.util.Pair.java"/>
   <suppress checks="PackageName" files="android.util.package-info.java"/>
@@ -138,5 +140,10 @@
   <!-- Suppress checkstyle for vendor-ed 310bp package -->
   <suppress checks="[a-zA-Z0-9]*"
       files=".*[/\\]com[/\\]azure[/\\]android[/\\]core[/\\]serde[/\\]jackson[/\\]implementation[/\\]threeten[/\\].*"/>
+
+  <!-- Replacing Objects.requireNonNull with explicit null check -->
+  <suppress
+      checks="com.azure.tools.checkstyle.checks.JavadocThrowsChecks"
+      files="com.azure.android.core.util.Context"/>
 
 </suppressions>
