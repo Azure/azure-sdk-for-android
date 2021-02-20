@@ -3,7 +3,7 @@
 
 package com.azure.android.core.util;
 
-import java.util.Base64;
+import android.util.Base64;
 
 /**
  * Utility type exposing Base64 encoding and decoding methods.
@@ -15,7 +15,7 @@ public final class Base64Util {
      * @return the base64 encoded bytes
      */
     public static byte[] encode(byte[] src) {
-        return src == null ? null : Base64.getEncoder().encode(src);
+        return src == null ? null : Base64.encode(src, Base64.DEFAULT | Base64.NO_WRAP);
     }
 
     /**
@@ -24,7 +24,8 @@ public final class Base64Util {
      * @return the base64 URL encoded bytes
      */
     public static byte[] encodeURLWithoutPadding(byte[] src) {
-        return src == null ? null : Base64.getUrlEncoder().withoutPadding().encode(src);
+        int flags = Base64.URL_SAFE | Base64.NO_PADDING | Base64.NO_WRAP;
+        return src == null ? null : Base64.encode(src, flags);
     }
 
     /**
@@ -33,7 +34,7 @@ public final class Base64Util {
      * @return the base64 encoded string
      */
     public static String encodeToString(byte[] src) {
-        return src == null ? null : Base64.getEncoder().encodeToString(src);
+        return src == null ? null : Base64.encodeToString(src,  Base64.DEFAULT | Base64.NO_WRAP);
     }
 
     /**
@@ -42,7 +43,7 @@ public final class Base64Util {
      * @return the decoded byte array
      */
     public static byte[] decode(byte[] encoded) {
-        return encoded == null ? null : Base64.getDecoder().decode(encoded);
+        return encoded == null ? null : Base64.decode(encoded, Base64.DEFAULT | Base64.NO_WRAP);
     }
 
     /**
@@ -51,7 +52,7 @@ public final class Base64Util {
      * @return the decoded byte array
      */
     public static byte[] decodeURL(byte[] src) {
-        return src == null ? null : Base64.getUrlDecoder().decode(src);
+        return src == null ? null : Base64.decode(src, Base64.URL_SAFE | Base64.NO_WRAP);
     }
 
     /**
@@ -60,7 +61,7 @@ public final class Base64Util {
      * @return the decoded byte array
      */
     public static byte[] decodeString(String encoded) {
-        return encoded == null ? null : Base64.getDecoder().decode(encoded);
+        return encoded == null ? null : Base64.decode(encoded, Base64.DEFAULT | Base64.NO_WRAP);
     }
 
     // Private Ctr

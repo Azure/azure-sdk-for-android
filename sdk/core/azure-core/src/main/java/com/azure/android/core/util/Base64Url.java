@@ -3,7 +3,7 @@
 
 package com.azure.android.core.util;
 
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 /**
@@ -25,7 +25,7 @@ public final class Base64Url {
             this.bytes = null;
         } else {
             string = unquote(string);
-            this.bytes = string.getBytes(StandardCharsets.UTF_8);
+            this.bytes = string.getBytes(Charset.forName("UTF-8"));
         }
     }
 
@@ -40,7 +40,7 @@ public final class Base64Url {
 
     private static byte[] unquote(byte[] bytes) {
         if (bytes != null && bytes.length > 1) {
-            bytes = unquote(new String(bytes, StandardCharsets.UTF_8)).getBytes(StandardCharsets.UTF_8);
+            bytes = unquote(new String(bytes, Charset.forName("UTF-8"))).getBytes(Charset.forName("UTF-8"));
         }
         return bytes;
     }
@@ -102,7 +102,7 @@ public final class Base64Url {
 
     @Override
     public String toString() {
-        return bytes == null ? "" : new String(bytes, StandardCharsets.UTF_8);
+        return bytes == null ? "" : new String(bytes, Charset.forName("UTF-8"));
     }
 
     @Override
