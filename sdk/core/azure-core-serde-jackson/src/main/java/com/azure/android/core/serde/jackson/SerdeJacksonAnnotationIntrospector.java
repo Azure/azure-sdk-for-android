@@ -31,12 +31,12 @@ import com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder;
 import com.fasterxml.jackson.databind.util.ClassUtil;
 import com.fasterxml.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * {@link JacksonAnnotationIntrospector} implementation to map serde annotation to
@@ -47,19 +47,20 @@ final class SerdeJacksonAnnotationIntrospector extends JacksonXmlAnnotationIntro
 
     @Override
     public String[] findEnumValues(Class<?> enumType, Enum<?>[] enumValues, String[] names) {
-        Map<String, String> overrides = Stream.of(ClassUtil.getDeclaredFields(enumType))
-            .filter(it -> it.isEnumConstant() && it.getAnnotation(SerdeProperty.class) != null)
-            .collect(Collectors.toMap(
-                it -> it.getName(),
-                it -> it.getAnnotation(SerdeProperty.class).value()
-            ));
+        Map<String, String> overrides = new HashMap<>();
+        for (Field field : ClassUtil.getDeclaredFields(enumType)) {
+            if (field.isEnumConstant() && field.getAnnotation(SerdeProperty.class) != null) {
+                overrides.put(field.getName(), field.getAnnotation(SerdeProperty.class).value());
+            }
+        }
 
         if (overrides.isEmpty()) {
             return super.findEnumValues(enumType, enumValues, names);
         }
 
         for (int i = 0; i < enumValues.length; ++i) {
-            names[i] = overrides.getOrDefault(enumValues[i].name(), names[i]);
+            final String serdeName = overrides.get(enumValues[i].name());
+            names[i] = (serdeName != null) ? serdeName : names[i];
         }
         return names;
     }

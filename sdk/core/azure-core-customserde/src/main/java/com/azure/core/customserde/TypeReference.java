@@ -7,8 +7,8 @@ import com.azure.android.core.logging.ClientLogger;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class represents a generic Java type, retaining information about generics.
@@ -19,7 +19,8 @@ public abstract class TypeReference<T> {
     private static final ClientLogger LOGGER = new ClientLogger(TypeReference.class);
     private static final String MISSING_TYPE = "Type constructed without type information.";
 
-    private static final Map<Class<?>, TypeReference<?>> CACHE = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, TypeReference<?>> CACHE = new HashMap<>();
+    private static final Object CACHE_LOCK = new Object();
 
     private final Type javaType;
 
@@ -63,10 +64,13 @@ public abstract class TypeReference<T> {
      */
     @SuppressWarnings("unchecked")
     public static <T> TypeReference<T> createInstance(Class<T> clazz) {
-        /*
-         * When computing the TypeReference if the key is absent ignore the parameter from the compute function. The
-         * compute function wildcards to T type which causes the type system to breakdown.
-         */
-        return (TypeReference<T>) CACHE.computeIfAbsent(clazz, c -> new TypeReference<T>(clazz) { });
+        synchronized (CACHE_LOCK) {
+            TypeReference<T> typeReference = (TypeReference<T>) CACHE.get(clazz);
+            if (typeReference == null) {
+                typeReference = new TypeReference<T>(clazz) { };
+                CACHE.put(clazz, typeReference);
+            }
+            return typeReference;
+        }
     }
 }
