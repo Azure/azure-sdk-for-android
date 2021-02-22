@@ -19,10 +19,11 @@ import com.azure.android.core.logging.LogLevel;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * The pipeline policy that handles logging of HTTP requests and responses.
@@ -30,10 +31,20 @@ import java.util.stream.Collectors;
 public class HttpLoggingPolicy implements HttpPipelinePolicy {
     private static final int MAX_BODY_LOG_SIZE = 1024 * 16;
     private static final String REDACTED_PLACEHOLDER = "REDACTED";
+    private static final String LINE_SEPARATOR;
 
     private final HttpLogDetailLevel httpLogDetailLevel;
     private final Set<String> allowedHeaderNames;
     private final Set<String> allowedQueryParameterNames;
+
+    static {
+        final String lineSeparator = System.getProperty("line.separator");
+        if (lineSeparator ==  null || lineSeparator.length() == 0) {
+            LINE_SEPARATOR = lineSeparator;
+        } else {
+            LINE_SEPARATOR = "\n";
+        }
+    }
 
     /**
      * Key for {@link Context} to pass request retry count metadata for logging.
@@ -52,14 +63,16 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
             this.allowedQueryParameterNames = Collections.emptySet();
         } else {
             this.httpLogDetailLevel = httpLogOptions.getLogLevel();
-            this.allowedHeaderNames = httpLogOptions.getAllowedHeaderNames()
-                .stream()
-                .map(headerName -> headerName.toLowerCase(Locale.ROOT))
-                .collect(Collectors.toSet());
-            this.allowedQueryParameterNames = httpLogOptions.getAllowedQueryParamNames()
-                .stream()
-                .map(queryParamName -> queryParamName.toLowerCase(Locale.ROOT))
-                .collect(Collectors.toSet());
+            this.allowedHeaderNames = new HashSet<>(httpLogOptions.getAllowedHeaderNames().size());
+            final Iterator<String> headerItr = httpLogOptions.getAllowedHeaderNames().iterator();
+            while (headerItr.hasNext()) {
+                this.allowedHeaderNames.add(headerItr.next().toLowerCase(Locale.ROOT));
+            }
+            this.allowedQueryParameterNames = new HashSet<>(httpLogOptions.getAllowedQueryParamNames().size());
+            final Iterator<String> queryItr = httpLogOptions.getAllowedQueryParamNames().iterator();
+            while (queryItr.hasNext()) {
+                this.allowedQueryParameterNames.add(queryItr.next().toLowerCase(Locale.ROOT));
+            }
             // this.prettyPrintBody = httpLogOptions.isPrettyPrintBody();
         }
     }
@@ -90,10 +103,10 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
                 .append(httpRequest.getHttpMethod())
                 .append(" ")
                 .append(this.getRedactedUrl(httpRequest.getUrl()))
-                .append(System.lineSeparator());
+                .append(LINE_SEPARATOR);
 
             // if (retryCount != null) {
-            //     requestLogMessage.append(retryCount).append(System.lineSeparator());
+            //     requestLogMessage.append(retryCount).append(LINE_SEPARATOR);
             // }
         }
 
@@ -102,10 +115,10 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
         if (httpLogDetailLevel.shouldLogBody()) {
             if (httpRequest.getBody() == null) {
                 requestLogMessage.append("(empty body)")
-                    .append(System.lineSeparator())
+                    .append(LINE_SEPARATOR)
                     .append("--> END ")
                     .append(httpRequest.getHttpMethod())
-                    .append(System.lineSeparator());
+                    .append(LINE_SEPARATOR);
             } else {
                 final String requestContentType = httpRequest.getHeaders().getValue("Content-Type");
                 final long requestContentLength = this.getContentLength(logger, httpRequest.getHeaders());
@@ -113,19 +126,19 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
                     final String content = this.convertBytesToString(httpRequest.getBody(), logger);
                     requestLogMessage.append(requestContentLength)
                         .append("-byte body:")
-                        .append(System.lineSeparator())
+                        .append(LINE_SEPARATOR)
                         .append(content)
-                        .append(System.lineSeparator())
+                        .append(LINE_SEPARATOR)
                         .append("--> END ")
                         .append(httpRequest.getHttpMethod())
-                        .append(System.lineSeparator());
+                        .append(LINE_SEPARATOR);
                 } else {
                     requestLogMessage.append(requestContentLength)
                         .append("-byte body: (content not logged)")
-                        .append(System.lineSeparator())
+                        .append(LINE_SEPARATOR)
                         .append("--> END ")
                         .append(httpRequest.getHttpMethod())
-                        .append(System.lineSeparator());
+                        .append(LINE_SEPARATOR);
                 }
             }
         }
@@ -154,7 +167,7 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
                         .append(" ms, ")
                         .append(contentLengthMessage)
                         .append(")")
-                        .append(System.lineSeparator());
+                        .append(LINE_SEPARATOR);
                 }
 
                 appendHeaders(logger, response.getHeaders(), responseLogMessage);
@@ -167,13 +180,13 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
                         httpResponse = response.buffer();
                         final String content = convertBytesToString(httpResponse.getBodyAsByteArray(), logger);
                         responseLogMessage.append("Response body:")
-                            .append(System.lineSeparator())
+                            .append(LINE_SEPARATOR)
                             .append(content)
-                            .append(System.lineSeparator())
+                            .append(LINE_SEPARATOR)
                             .append("<-- END HTTP");
                     } else {
                         responseLogMessage.append("(body content not logged)")
-                            .append(System.lineSeparator())
+                            .append(LINE_SEPARATOR)
                             .append("<-- END HTTP");
                     }
                 } else {
@@ -258,7 +271,7 @@ public class HttpLoggingPolicy implements HttpPipelinePolicy {
             } else {
                 logMessage.append(REDACTED_PLACEHOLDER);
             }
-            logMessage.append(System.lineSeparator());
+            logMessage.append(LINE_SEPARATOR);
         }
     }
 

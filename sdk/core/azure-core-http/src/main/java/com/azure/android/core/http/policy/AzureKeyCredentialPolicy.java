@@ -7,9 +7,8 @@ import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.credential.AzureKeyCredential;
+import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.logging.ClientLogger;
-
-import java.util.Objects;
 
 /**
  * Pipeline policy that uses an {@link AzureKeyCredential} to set the authorization key for a request.
@@ -32,8 +31,8 @@ public class AzureKeyCredentialPolicy implements HttpPipelinePolicy {
      * @throws IllegalArgumentException If {@code name} is empty.
      */
     public AzureKeyCredentialPolicy(String name, AzureKeyCredential credential) {
-        Objects.requireNonNull(credential, "'credential' cannot be null.");
-        Objects.requireNonNull(name, "'name' cannot be null.");
+        Util.requireNonNull(credential, "'credential' cannot be null.");
+        Util.requireNonNull(name, "'name' cannot be null.");
         if (name.isEmpty()) {
             throw logger.logExceptionAsError(new IllegalArgumentException("'name' cannot be empty."));
         }

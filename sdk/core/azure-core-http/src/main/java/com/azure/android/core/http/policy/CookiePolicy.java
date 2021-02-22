@@ -3,6 +3,8 @@
 
 package com.azure.android.core.http.policy;
 
+import android.text.TextUtils;
+
 import com.azure.android.core.http.HttpHeader;
 import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
@@ -55,7 +57,7 @@ public class CookiePolicy implements HttpPipelinePolicy {
         }
 
         for (Map.Entry<String, List<String>> entry : requestCookies.entrySet()) {
-            httpRequest.getHeaders().put(entry.getKey(), String.join(",", entry.getValue()));
+            httpRequest.getHeaders().put(entry.getKey(), TextUtils.join(",", entry.getValue()));
         }
 
         chain.processNextPolicy(httpRequest, new NextPolicyCallback() {

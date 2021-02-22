@@ -4,11 +4,10 @@
 package com.azure.android.core.http.policy;
 
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.logging.ClientLogger;
 
 import org.threeten.bp.Duration;
-
-import java.util.Objects;
 
 /**
  * The retry strategy with fixed backoff delay.
@@ -31,7 +30,7 @@ public class FixedDelay implements RetryStrategy {
             throw logger.logExceptionAsError(new IllegalArgumentException("'maxRetries' cannot be less than 0."));
         }
         this.maxRetries = maxRetries;
-        this.delay = Objects.requireNonNull(delay, "'delay' cannot be null.");
+        this.delay = Util.requireNonNull(delay, "'delay' cannot be null.");
     }
 
     @Override

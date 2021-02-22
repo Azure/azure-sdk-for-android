@@ -3,6 +3,7 @@
 
 package com.azure.android.core.http;
 
+import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.Context;
 import com.azure.android.core.logging.ClientLogger;
@@ -11,7 +12,6 @@ import java.io.IOException;
 import java.io.InterruptedIOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -52,7 +52,7 @@ public final class HttpCallDispatcher {
      * @param executorService The executor service.
      */
     public HttpCallDispatcher(ExecutorService executorService) {
-        this.executorService = Objects.requireNonNull(executorService, "'executorService' is required.");
+        this.executorService = Util.requireNonNull(executorService, "'executorService' is required.");
         this.scheduledExecutorService = null;
     }
 
@@ -66,8 +66,8 @@ public final class HttpCallDispatcher {
      */
     public HttpCallDispatcher(ExecutorService executorService,
                               ScheduledExecutorService scheduledExecutorService) {
-        this.executorService = Objects.requireNonNull(executorService, "'executorService' is required.");
-        this.scheduledExecutorService = Objects.requireNonNull(scheduledExecutorService,
+        this.executorService = Util.requireNonNull(executorService, "'executorService' is required.");
+        this.scheduledExecutorService = Util.requireNonNull(scheduledExecutorService,
             "'scheduledExecutorService' is required.");
     }
 
@@ -118,10 +118,10 @@ public final class HttpCallDispatcher {
                         HttpRequest httpRequest,
                         CancellationToken cancellationToken,
                         HttpCallback httpCallback) {
-        Objects.requireNonNull(httpCallFunction, "'httpCallFunction' is required.");
-        Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
-        Objects.requireNonNull(cancellationToken, "'cancellationToken' is required.");
-        Objects.requireNonNull(httpCallback, "'httpCallback' is required.");
+        Util.requireNonNull(httpCallFunction, "'httpCallFunction' is required.");
+        Util.requireNonNull(httpRequest, "'httpRequest' is required.");
+        Util.requireNonNull(cancellationToken, "'cancellationToken' is required.");
+        Util.requireNonNull(httpCallback, "'httpCallback' is required.");
 
         // 1]. The most common use case of 'enqueue' is to enable the async pipeline run for an HTTP request.
         /** see {@link HttpPipelinePolicyChainImpl#beginPipelineExecution(HttpPipeline, HttpRequest,
@@ -185,11 +185,11 @@ public final class HttpCallDispatcher {
                                    NextPolicyCallback callback,
                                    long delay,
                                    TimeUnit timeUnit) {
-        Objects.requireNonNull(chain, "'chain' is required.");
-        Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
-        Objects.requireNonNull(context, "'context' is required.");
-        Objects.requireNonNull(callback, "'httpCallback' is required.");
-        Objects.requireNonNull(timeUnit, "'timeUnit' is required.");
+        Util.requireNonNull(chain, "'chain' is required.");
+        Util.requireNonNull(httpRequest, "'httpRequest' is required.");
+        Util.requireNonNull(context, "'context' is required.");
+        Util.requireNonNull(callback, "'httpCallback' is required.");
+        Util.requireNonNull(timeUnit, "'timeUnit' is required.");
 
         final RootDispatchableCall rootDispatchableCall = this.getRootDispatchableCall(chain);
         final NestedDispatchableCall nestedDispatchableCall = new NestedDispatchableCall(rootDispatchableCall,

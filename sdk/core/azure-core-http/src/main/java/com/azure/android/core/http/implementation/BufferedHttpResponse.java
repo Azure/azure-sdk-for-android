@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
-import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -129,7 +128,7 @@ public final class BufferedHttpResponse extends HttpResponse {
             && bytes[0] == (byte) 0xEF
             && bytes[1] == (byte) 0xBB
             && bytes[2] == (byte) 0xBF) {
-            return new String(bytes, 3, bytes.length - 3, StandardCharsets.UTF_8);
+            return new String(bytes, 3, bytes.length - 3, Charset.forName("UTF-8"));
         } else if (bytes.length >= 4
             && bytes[0] == (byte) 0x00
             && bytes[1] == (byte) 0x00
@@ -145,11 +144,11 @@ public final class BufferedHttpResponse extends HttpResponse {
         } else if (bytes.length >= 2
             && bytes[0] == (byte) 0xFE
             && bytes[1] == (byte) 0xFF) {
-            return new String(bytes, 2, bytes.length - 2, StandardCharsets.UTF_16BE);
+            return new String(bytes, 2, bytes.length - 2, Charset.forName("UTF-16BE"));
         } else if (bytes.length >= 2
             && bytes[0] == (byte) 0xFF
             && bytes[1] == (byte) 0xFE) {
-            return new String(bytes, 2, bytes.length - 2, StandardCharsets.UTF_16LE);
+            return new String(bytes, 2, bytes.length - 2, Charset.forName("UTF-16LE"));
         } else {
             /*
              * Attempt to retrieve the default charset from the 'Content-Encoding' header,
@@ -161,13 +160,13 @@ public final class BufferedHttpResponse extends HttpResponse {
                     if (charsetMatcher.find()) {
                         return new String(bytes, Charset.forName(charsetMatcher.group(1)));
                     } else {
-                        return new String(bytes, StandardCharsets.UTF_8);
+                        return new String(bytes, Charset.forName("UTF-8"));
                     }
                 } catch (IllegalCharsetNameException | UnsupportedCharsetException ex) {
-                    return new String(bytes, StandardCharsets.UTF_8);
+                    return new String(bytes, Charset.forName("UTF-8"));
                 }
             } else {
-                return new String(bytes, StandardCharsets.UTF_8);
+                return new String(bytes, Charset.forName("UTF-8"));
             }
         }
     }

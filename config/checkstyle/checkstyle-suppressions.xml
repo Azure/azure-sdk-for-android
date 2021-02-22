@@ -152,4 +152,7 @@
   <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
       files="com.azure.android.core.credential.TokenRequestContext.java"/>
 
+  <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
+      files="com.azure.android.core.http.implementation.Util.java"/>
+
 </suppressions>

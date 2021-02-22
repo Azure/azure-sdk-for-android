@@ -7,8 +7,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * A collection of headers on an HTTP request or response.
@@ -140,19 +138,17 @@ public class HttpHeaders implements Iterable<HttpHeader> {
         return headers.values().iterator();
     }
 
-    /**
-     * Get a {@link Stream} representation of the HttpHeader values in this instance.
-     *
-     * @return A {@link Stream} of all header values in this instance.
-     */
-    public Stream<HttpHeader> stream() {
-        return headers.values().stream();
-    }
-
     @Override
     public String toString() {
-        return this.stream()
-            .map(header -> header.getName() + "=" + header.getValue())
-            .collect(Collectors.joining(", "));
+        final StringBuilder stringBuilder = new StringBuilder();
+        Iterator<HttpHeader> iterator = this.iterator();
+        while (iterator.hasNext()) {
+            final HttpHeader header = iterator.next();
+            stringBuilder.append(header.getName() + "=" + header.getValue());
+            if (iterator.hasNext()) {
+                stringBuilder.append(", ");
+            }
+        }
+        return stringBuilder.toString();
     }
 }
