@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.util.BeanUtil;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.UncheckedIOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
@@ -53,7 +52,7 @@ public final class JacksonJsonSerializer implements JsonSerializer, MemberNameCo
         try {
             return mapper.readValue(stream, typeFactory.constructType(typeReference.getJavaType()));
         } catch (IOException ex) {
-            throw logger.logExceptionAsError(new UncheckedIOException(ex));
+            throw logger.logExceptionAsError(new RuntimeException(ex));
         }
     }
 
@@ -62,7 +61,7 @@ public final class JacksonJsonSerializer implements JsonSerializer, MemberNameCo
         try {
             mapper.writeValue(stream, value);
         } catch (IOException ex) {
-            throw logger.logExceptionAsError(new UncheckedIOException(ex));
+            throw logger.logExceptionAsError(new RuntimeException(ex));
         }
     }
 
@@ -85,7 +84,7 @@ public final class JacksonJsonSerializer implements JsonSerializer, MemberNameCo
             }
 
             if (f.isAnnotationPresent(JsonProperty.class)) {
-                String propertyName = f.getDeclaredAnnotation(JsonProperty.class).value();
+                String propertyName = f.getAnnotation(JsonProperty.class).value();
                 return (propertyName == null || propertyName.length() == 0) ? f.getName() : propertyName;
             }
 
@@ -115,12 +114,12 @@ public final class JacksonJsonSerializer implements JsonSerializer, MemberNameCo
              * Prefer JsonGetter over JsonProperty as it is the more targeted annotation.
              */
             if (m.isAnnotationPresent(JsonGetter.class)) {
-                String propertyName = m.getDeclaredAnnotation(JsonGetter.class).value();
+                String propertyName = m.getAnnotation(JsonGetter.class).value();
                 return (propertyName == null || propertyName.length() == 0) ? methodNameWithoutJavaBeans : propertyName;
             }
 
             if (m.isAnnotationPresent(JsonProperty.class)) {
-                String propertyName = m.getDeclaredAnnotation(JsonProperty.class).value();
+                String propertyName = m.getAnnotation(JsonProperty.class).value();
                 return (propertyName == null || propertyName.length() == 0) ? methodNameWithoutJavaBeans : propertyName;
             }
 
@@ -137,7 +136,7 @@ public final class JacksonJsonSerializer implements JsonSerializer, MemberNameCo
     private static boolean verifyGetter(Method method) {
         Class<?> returnType = method.getReturnType();
 
-        return method.getParameterCount() == 0
+        return method.getParameterTypes().length == 0
             && returnType != void.class
             && returnType != Void.class;
     }

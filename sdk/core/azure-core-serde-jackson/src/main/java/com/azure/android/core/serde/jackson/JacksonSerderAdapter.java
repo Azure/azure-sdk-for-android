@@ -3,6 +3,8 @@
 
 package com.azure.android.core.serde.jackson;
 
+import android.text.TextUtils;
+
 import com.azure.android.core.serde.HeaderCollection;
 import com.azure.android.core.serde.SerdeAdapter;
 import com.azure.android.core.serde.SerdeCollectionFormat;
@@ -27,7 +29,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
@@ -127,7 +129,7 @@ public class JacksonSerderAdapter implements SerdeAdapter {
         ByteArrayOutputStream outStream = new AccessibleByteArrayOutputStream();
         serialize(object, encoding, outStream);
 
-        return new String(outStream.toByteArray(), 0, outStream.size(), StandardCharsets.UTF_8);
+        return new String(outStream.toByteArray(), 0, outStream.size(), Charset.forName("UTF-8"));
     }
 
     @Override
@@ -166,7 +168,7 @@ public class JacksonSerderAdapter implements SerdeAdapter {
             String raw = serializeRaw(element);
             serialized.add(raw != null ? raw : "");
         }
-        return String.join(format.getDelimiter(), serialized);
+        return TextUtils.join(format.getDelimiter(), serialized);
     }
 
     @Override
