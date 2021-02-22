@@ -5,8 +5,6 @@ package com.azure.android.core.credential;
 
 import com.azure.android.core.logging.ClientLogger;
 
-import java.util.Objects;
-
 /**
  * Represents a credential that uses a key to authenticate to an Azure Service.
  */
@@ -22,7 +20,9 @@ public final class AzureKeyCredential {
      * @throws IllegalArgumentException If {@code key} is an empty string.
      */
     public AzureKeyCredential(String key) {
-        Objects.requireNonNull(key, "'key' cannot be null.");
+        if (key == null) {
+            throw new NullPointerException("'key' cannot be null.");
+        }
         if (key.isEmpty()) {
             throw logger.logExceptionAsError(new IllegalArgumentException("'key' cannot be empty."));
         }
@@ -48,7 +48,9 @@ public final class AzureKeyCredential {
      * @throws IllegalArgumentException If {@code key} is an empty string.
      */
     public AzureKeyCredential update(String key) {
-        Objects.requireNonNull(key, "'key' cannot be null.");
+        if (key == null) {
+            throw new NullPointerException("'key' cannot be null.");
+        }
         if (key.isEmpty()) {
             throw logger.logExceptionAsError(new IllegalArgumentException("'key' cannot be empty."));
         }
