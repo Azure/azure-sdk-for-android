@@ -1,5 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.azure.core.http.okhttp">
+    package="com.azure.core.http.okhttp"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- The azure-core-test module not a real android package to deploy to any device; it's use is limited
+          to unit-test (i.e. non-instrumentation); its marked as android-lib only to ease the reference to it
+          from the unit-test of other android packages; hence the override for minSdkVersion.
+      -->
+    <!-- The override for com.azure.core.serde.jackson & com.azure.core.rest will be removed once we complete
+         the baseline work for these two modules. -->
+    <uses-sdk tools:overrideLibrary="com.azure.core.test, com.azure.core.serde.jackson, com.azure.core.rest" />
 </manifest>
+

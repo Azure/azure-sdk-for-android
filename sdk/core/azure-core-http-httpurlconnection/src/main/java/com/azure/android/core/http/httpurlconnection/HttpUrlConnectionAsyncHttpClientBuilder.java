@@ -6,8 +6,6 @@ package com.azure.android.core.http.httpurlconnection;
 import com.azure.android.core.http.HttpCallDispatcher;
 import com.azure.android.core.http.HttpClient;
 
-import java.util.Objects;
-
 /**
  * Builder class responsible for creating instances of {@link com.azure.android.core.http.HttpClient}
  * backed by HttpUrlConnection.
@@ -26,10 +24,13 @@ public class HttpUrlConnectionAsyncHttpClientBuilder {
      *
      * @param httpCallDispatcher The HTTP call dispatcher
      * @return The updated HttpUrlConnectionAsyncHttpClientBuilder object.
+     * @throws NullPointerException if the httpCallDispatcher parameter is null.
      */
     public HttpUrlConnectionAsyncHttpClientBuilder setHttpCallDispatcher(HttpCallDispatcher httpCallDispatcher) {
-        this.httpCallDispatcher
-            = Objects.requireNonNull(httpCallDispatcher, "'httpCallDispatcher' is required.");
+        if (httpCallDispatcher == null) {
+            throw new NullPointerException("'httpCallDispatcher' is required.");
+        }
+        this.httpCallDispatcher = httpCallDispatcher;
         return this;
     }
 
