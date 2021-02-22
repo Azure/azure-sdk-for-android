@@ -12,8 +12,6 @@ import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.Context;
-import com.azure.android.core.test.http.MockHttpResponse;
-import com.azure.android.core.test.http.NoOpHttpClient;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
