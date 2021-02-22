@@ -8,8 +8,7 @@ import com.azure.android.core.credential.TokenCredential;
 import com.azure.android.core.credential.TokenRequestContext;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpPipelinePolicy;
-
-import java.util.Objects;
+import com.azure.android.core.http.implementation.Util;
 
 /**
  * The pipeline policy that applies a token credential to an HTTP request
@@ -30,8 +29,8 @@ public class BearerTokenAuthenticationPolicy implements HttpPipelinePolicy {
      * @param scopes the scopes of authentication the credential should get token for
      */
     public BearerTokenAuthenticationPolicy(TokenCredential credential, String... scopes) {
-        Objects.requireNonNull(credential);
-        Objects.requireNonNull(scopes);
+        Util.requireNonNull(credential, "'credential' cannot be null.");
+        Util.requireNonNull(scopes, "'scopes' cannot be null.");
         assert scopes.length > 0;
         this.credential = credential;
         this.scopes = scopes;

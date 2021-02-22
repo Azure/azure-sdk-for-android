@@ -6,7 +6,6 @@ package com.azure.android.core.credential;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Contains details of a request to get a token.
@@ -33,9 +32,12 @@ public class TokenRequestContext {
      * Sets the scopes required for the token.
      * @param scopes the scopes required for the token
      * @return the TokenRequestContext itself
+     * @throws NullPointerException if {@code scopes} is null
      */
     public TokenRequestContext setScopes(List<String> scopes) {
-        Objects.requireNonNull(scopes, "'scopes' cannot be null.");
+        if (scopes == null) {
+            throw new NullPointerException("'scopes' cannot be null.");
+        }
         this.scopes.clear();
         this.scopes.addAll(scopes);
         return this;

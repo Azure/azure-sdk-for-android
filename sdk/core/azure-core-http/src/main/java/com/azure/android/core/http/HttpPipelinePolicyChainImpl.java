@@ -5,11 +5,11 @@ package com.azure.android.core.http;
 
 import android.util.Log;
 
+import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.Context;
 import com.azure.android.core.logging.ClientLogger;
 
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,11 +46,11 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
                                        Context context,
                                        CancellationToken cancellationToken,
                                        HttpCallback pipelineSendCallback) {
-        Objects.requireNonNull(httpPipeline, "'httpPipeline' is required.");
-        Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
-        Objects.requireNonNull(context, "'context' is required.");
-        Objects.requireNonNull(cancellationToken, "'cancellationToken' is required.");
-        Objects.requireNonNull(pipelineSendCallback, "'pipelineSendCallback' is required.");
+        Util.requireNonNull(httpPipeline, "'httpPipeline' is required.");
+        Util.requireNonNull(httpRequest, "'httpRequest' is required.");
+        Util.requireNonNull(context, "'context' is required.");
+        Util.requireNonNull(cancellationToken, "'cancellationToken' is required.");
+        Util.requireNonNull(pipelineSendCallback, "'pipelineSendCallback' is required.");
 
         final HttpCallDispatcher.HttpCallFunction httpCallFunction = (request, rootHttpCallback) -> {
             final HttpPipelinePolicyChainImpl rootChain = new HttpPipelinePolicyChainImpl(-1,
@@ -149,23 +149,23 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
 
     @Override
     public void processNextPolicy(HttpRequest httpRequest) {
-        Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
+        Util.requireNonNull(httpRequest, "'httpRequest' is required.");
         this.processNextPolicyIntern(httpRequest, this.context, null);
     }
 
     @Override
     public void processNextPolicy(HttpRequest httpRequest, NextPolicyCallback callback) {
-        Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
-        Objects.requireNonNull(callback, "'callback' is required.");
+        Util.requireNonNull(httpRequest, "'httpRequest' is required.");
+        Util.requireNonNull(callback, "'callback' is required.");
         this.processNextPolicyIntern(httpRequest, this.context, callback);
     }
 
     @Override
     public void processNextPolicy(HttpRequest httpRequest, NextPolicyCallback callback,
                                   long delay, TimeUnit timeUnit) {
-        Objects.requireNonNull(httpRequest, "'httpRequest' is required.");
-        Objects.requireNonNull(callback, "'callback' is required.");
-        Objects.requireNonNull(timeUnit, "'timeUnit' is required.");
+        Util.requireNonNull(httpRequest, "'httpRequest' is required.");
+        Util.requireNonNull(callback, "'callback' is required.");
+        Util.requireNonNull(timeUnit, "'timeUnit' is required.");
         this.httpPipeline.httpCallDispatcher.scheduleProcessNextPolicy(this,
             httpRequest,
             this.context,
@@ -176,7 +176,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
 
     @Override
     public void completed(HttpResponse httpResponse) {
-        Objects.requireNonNull(httpResponse, "'httpResponse' is required.");
+        Util.requireNonNull(httpResponse, "'httpResponse' is required.");
         assert (this.prevChain != null);
         if (this.prevPolicyCallback != null) {
             try {
@@ -196,7 +196,7 @@ final class HttpPipelinePolicyChainImpl implements HttpPipelinePolicyChain {
 
     @Override
     public void completedError(Throwable error) {
-        Objects.requireNonNull(error, "'throwable' is required.");
+        Util.requireNonNull(error, "'throwable' is required.");
         if (this.prevPolicyCallback != null) {
             try {
                 this.prevPolicyCallback.onError(error,

@@ -3,25 +3,24 @@
 
 package com.azure.android.core.http.util;
 
-import java.nio.charset.StandardCharsets;
+import android.util.Base64;
+
+import com.azure.android.core.http.implementation.Util;
+
+import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * This class handles Basic and Digest authorization challenges, complying to RFC 2617 and RFC 7616.
@@ -116,8 +115,8 @@ public class AuthorizationChallengeHandler {
      * @throws NullPointerException If {@code username} or {@code password} are {@code null}.
      */
     public AuthorizationChallengeHandler(String username, String password) {
-        this.username = Objects.requireNonNull(username, "'username' cannot be null.");
-        this.password = Objects.requireNonNull(password, "'password' cannot be null.");
+        this.username = Util.requireNonNull(username, "'username' cannot be null.");
+        this.password = Util.requireNonNull(password, "'password' cannot be null.");
     }
 
     /**
@@ -128,7 +127,9 @@ public class AuthorizationChallengeHandler {
     public final String handleBasic() {
         authorizationPipeliningType.set(BASIC);
         String token = username + ":" + password;
-        return BASIC + Base64.getEncoder().encodeToString(token.getBytes(StandardCharsets.UTF_8));
+
+        return BASIC + Base64.encodeToString(token.getBytes(Charset.forName("UTF-8")),
+            android.util.Base64.DEFAULT | android.util.Base64.NO_WRAP);
     }
 
     /**
@@ -242,11 +243,13 @@ public class AuthorizationChallengeHandler {
             header = header.split(" ", 2)[1];
         }
 
-        return Stream.of(header.split(","))
-            .map(String::trim)
-            .map(kvp -> kvp.split("=", 2))
-            .collect(Collectors.toMap(kvpPieces -> kvpPieces[0].toLowerCase(Locale.ROOT),
-                kvpPieces -> kvpPieces[1].replace("\"", "")));
+        final String[] kvArray = header.split(",");
+        final Map<String, String> headers = new HashMap<>(kvArray.length * 2);
+        for (String kv : kvArray) {
+            String[] kvpPieces = kv.trim().split("=", 2);
+            headers.put(kvpPieces[0].toLowerCase(Locale.ROOT), kvpPieces[1].replace("\"", ""));
+        }
+        return headers;
     }
 
     /*
@@ -330,7 +333,7 @@ public class AuthorizationChallengeHandler {
      */
     private String calculateHa1NoSess(Function<byte[], byte[]> digestFunction, String realm) {
         return hexStringOf(digestFunction.apply(String.format("%s:%s:%s", username, realm, password)
-            .getBytes(StandardCharsets.UTF_8)));
+            .getBytes(Charset.forName("UTF-8"))));
     }
 
     /*
@@ -345,7 +348,7 @@ public class AuthorizationChallengeHandler {
     private String calculateHa1Sess(Function<byte[], byte[]> digestFunction, String realm, String nonce,
         String cnonce) {
         return hexStringOf(digestFunction.apply(String.format("%s:%s:%s", calculateHa1NoSess(digestFunction, realm),
-            nonce, cnonce).getBytes(StandardCharsets.UTF_8)));
+            nonce, cnonce).getBytes(Charset.forName("UTF-8"))));
     }
 
     /*
@@ -357,7 +360,7 @@ public class AuthorizationChallengeHandler {
      */
     private String calculateHa2AuthQopOrEmpty(Function<byte[], byte[]> digestFunction, String httpMethod, String uri) {
         return hexStringOf(digestFunction.apply(String.format("%s:%s", httpMethod, uri)
-            .getBytes(StandardCharsets.UTF_8)));
+            .getBytes(Charset.forName("UTF-8"))));
     }
 
     /*
@@ -377,7 +380,7 @@ public class AuthorizationChallengeHandler {
     private String calculateHa2AuthIntQop(Function<byte[], byte[]> digestFunction, String httpMethod, String uri,
         byte[] requestEntityBody) {
         return hexStringOf(digestFunction.apply(String.format("%s:%s:%s", httpMethod, uri,
-            hexStringOf(digestFunction.apply(requestEntityBody))).getBytes(StandardCharsets.UTF_8)));
+            hexStringOf(digestFunction.apply(requestEntityBody))).getBytes(Charset.forName("UTF-8"))));
     }
 
     /*
@@ -390,7 +393,7 @@ public class AuthorizationChallengeHandler {
     private String calculateResponseUnknownQop(Function<byte[], byte[]> digestFunction, String ha1, String nonce,
         String ha2) {
         return hexStringOf(digestFunction.apply(String.format("%s:%s:%s", ha1, nonce, ha2)
-            .getBytes(StandardCharsets.UTF_8)));
+            .getBytes(Charset.forName("UTF-8"))));
     }
 
     /*
@@ -405,7 +408,7 @@ public class AuthorizationChallengeHandler {
     private String calculateResponseKnownQop(Function<byte[], byte[]> digestFunction, String ha1, String nonce, int nc,
         String cnonce, String qop, String ha2) {
         return hexStringOf(digestFunction.apply(String.format("%s:%s:%08X:%s:%s:%s", ha1, nonce, nc, cnonce, qop, ha2)
-            .getBytes(StandardCharsets.UTF_8)));
+            .getBytes(Charset.forName("UTF-8"))));
     }
 
     /*
@@ -413,7 +416,7 @@ public class AuthorizationChallengeHandler {
      */
     private String calculateUserhash(Function<byte[], byte[]> digestFunction, String realm) {
         return hexStringOf(digestFunction.apply(String.format("%s:%s", username, realm)
-            .getBytes(StandardCharsets.UTF_8)));
+            .getBytes(Charset.forName("UTF-8"))));
     }
 
     /*
@@ -446,12 +449,19 @@ public class AuthorizationChallengeHandler {
      */
     private static Map<String, List<Map<String, String>>> partitionByChallengeType(
         List<Map<String, String>> challenges) {
-        return challenges.stream().collect(Collectors.groupingBy(headers -> {
-            String algorithmHeader = headers.get(ALGORITHM);
 
+        final Map<String, List<Map<String, String>>> groupedChallenges = new HashMap<>();
+        for (Map<String, String> challengesMap : challenges) {
+            String algorithmHeader = challengesMap.get(ALGORITHM);
             // RFC7616 specifies that is the "algorithm" header is null it defaults to MD5.
-            return (algorithmHeader == null) ? MD5 : algorithmHeader.toUpperCase(Locale.ROOT);
-        }));
+            algorithmHeader = (algorithmHeader == null) ? MD5 : algorithmHeader.toUpperCase(Locale.ROOT);
+
+            if (!groupedChallenges.containsKey(algorithmHeader)) {
+                groupedChallenges.put(algorithmHeader, new ArrayList<>());
+            }
+            groupedChallenges.get(algorithmHeader).add(challengesMap);
+        }
+        return groupedChallenges;
     }
 
     /*
@@ -519,5 +529,13 @@ public class AuthorizationChallengeHandler {
         }
 
         return new String(hexCharacters);
+    }
+
+    private interface Supplier<T> {
+        T get();
+    }
+
+    private interface Function<T, R> {
+        R apply(T t);
     }
 }

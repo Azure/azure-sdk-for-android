@@ -13,8 +13,6 @@ import com.azure.android.core.http.HttpPipelineBuilder;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.util.CancellationToken;
-import com.azure.android.core.test.http.MockHttpResponse;
-import com.azure.android.core.test.http.NoOpHttpClient;
 import com.azure.android.core.util.Context;
 
 import org.junit.jupiter.api.AfterEach;
@@ -85,7 +83,6 @@ public class HttpLoggingPolicyTests {
 
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl), CONTEXT, new HttpCallback() {..})
-        // TODO: enable context for HttpPipeline.send ^
         pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl),
             Context.NONE,
             CancellationToken.NONE,
@@ -165,7 +162,6 @@ public class HttpLoggingPolicyTests {
 
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content), CONTEXT)
-        // TODO: enable context for HttpPipeline.send ^
         pipeline.send(new HttpRequest(HttpMethod.POST, requestUrl, requestHeaders, content),
             Context.NONE,
             CancellationToken.NONE,
@@ -221,7 +217,6 @@ public class HttpLoggingPolicyTests {
 
         CountDownLatch latch = new CountDownLatch(1);
         // pipeline.send(request, CONTEXT)
-        // TODO: enable context for HttpPipeline.send ^
         pipeline.send(request, Context.NONE, CancellationToken.NONE, new HttpCallback() {
             @Override
             public void onSuccess(HttpResponse response) {
@@ -289,7 +284,6 @@ public class HttpLoggingPolicyTests {
 //
 //        CountDownLatch latch = new CountDownLatch(1);
 //        // pipeline.send(request, CONTEXT)
-//        // TODO: enable context for HttpPipeline.send ^
 //        pipeline.send(request, new HttpCallback() {
 //            @Override
 //            public void onSuccess(HttpResponse response) {

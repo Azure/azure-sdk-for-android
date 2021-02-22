@@ -3,11 +3,11 @@
 
 package com.azure.android.core.http;
 
+import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.Context;
 
 import java.util.List;
-import java.util.Objects;
 
 /**
  * The HTTP pipeline that HTTP requests and corresponding responses will flow through.
@@ -34,8 +34,8 @@ public final class HttpPipeline {
      * hence changing the original array after the creation of pipeline will not  mutate the pipeline
      */
     HttpPipeline(HttpClient httpClient, List<HttpPipelinePolicy> pipelinePolicies) {
-        Objects.requireNonNull(httpClient, "'httpClient' cannot be null.");
-        Objects.requireNonNull(pipelinePolicies, "'pipelinePolicies' cannot be null.");
+        Util.requireNonNull(httpClient, "'httpClient' cannot be null.");
+        Util.requireNonNull(pipelinePolicies, "'pipelinePolicies' cannot be null.");
         this.httpClient = httpClient;
         this.httpCallDispatcher = this.httpClient.getHttpCallDispatcher();
         this.pipelinePolicies = pipelinePolicies.toArray(new HttpPipelinePolicy[0]);

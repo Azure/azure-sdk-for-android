@@ -1,10 +1,11 @@
-ext.publishName = "Microsoft Azure Android Core Credential Library"
-description = "This package contains core credential types for Azure Android clients."
+ext.publishName = "Microsoft Azure Android Core HTTP Library"
+description = "This package contains core HTTP types for Azure Android clients."
 version = "1.0.0-beta.1"
 ext.versionCode = 1
 
 android {
     defaultConfig {
+        minSdkVersion 15
         versionCode project.versionCode
         versionName project.version
     }
@@ -21,7 +22,6 @@ dependencies {
     // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->
-    testImplementation project (":sdk:core:azure-core-test")
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
     testImplementation ("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation ("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")

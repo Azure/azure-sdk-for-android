@@ -5,15 +5,16 @@ package com.azure.android.core.http.util;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A builder class that is used to create URLs.
  */
 public final class UrlBuilder {
-    private static final Map<String, UrlBuilder> PARSED_URLS = new ConcurrentHashMap<>();
+    private static final Map<String, UrlBuilder> PARSED_URLS = new HashMap<>();
+    private static final Object PARSED_URLS_LOCK = new Object();
 
     private String scheme;
     private String host;
@@ -304,10 +305,15 @@ public final class UrlBuilder {
          * that UrlBuilder is mutable we must return a cloned version of the cached UrlBuilder.
          */
         // ConcurrentHashMap doesn't allow for null keys, coerce it into an empty string.
-        String concurrentSafeUrl = (url == null) ? "" : url;
-
-        return PARSED_URLS.computeIfAbsent(concurrentSafeUrl, u ->
-            new UrlBuilder().with(u, UrlTokenizerState.SCHEME_OR_HOST)).copy();
+        final String safeUrl = (url == null) ? "" : url;
+        synchronized (PARSED_URLS_LOCK) {
+            UrlBuilder urlBuilder = PARSED_URLS.get(safeUrl);
+            if (urlBuilder == null) {
+                urlBuilder = new UrlBuilder().with(safeUrl, UrlTokenizerState.SCHEME_OR_HOST);
+                PARSED_URLS.put(safeUrl, urlBuilder);
+            }
+            return urlBuilder.copy();
+        }
     }
 
     /**

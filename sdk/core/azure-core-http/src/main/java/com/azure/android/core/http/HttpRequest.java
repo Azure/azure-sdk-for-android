@@ -3,15 +3,14 @@
 
 package com.azure.android.core.http;
 
-import android.util.ArrayMap;
-
+import com.azure.android.core.http.implementation.Util;
 import com.azure.android.core.logging.ClientLogger;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 /**
  * The outgoing Http request. It provides ways to construct {@link HttpRequest} with {@link HttpMethod},
@@ -35,15 +34,15 @@ public class HttpRequest {
      */
     public HttpRequest(HttpMethod httpMethod,
                        String url) {
-        this.httpMethod = Objects.requireNonNull(httpMethod, "'httpMethod' is required.");
-        Objects.requireNonNull(url, "'url' is required.");
+        this.httpMethod = Util.requireNonNull(httpMethod, "'httpMethod' is required.");
+        Util.requireNonNull(url, "'url' is required.");
         try {
             this.url = new URL(url);
         } catch (MalformedURLException ex) {
             throw logger.logExceptionAsWarning(new IllegalArgumentException("'url' must be a valid URL", ex));
         }
         this.headers = new HttpHeaders();
-        this.tags = new ArrayMap<>(0);
+        this.tags = new HashMap<>(0);
     }
 
     /**
@@ -59,16 +58,16 @@ public class HttpRequest {
                        String url,
                        HttpHeaders headers,
                        byte[] body) {
-        this.httpMethod = Objects.requireNonNull(httpMethod, "'httpMethod' is required.");
-        Objects.requireNonNull(url, "'url' is required.");
+        this.httpMethod = Util.requireNonNull(httpMethod, "'httpMethod' is required.");
+        Util.requireNonNull(url, "'url' is required.");
         try {
             this.url = new URL(url);
         } catch (MalformedURLException ex) {
             throw logger.logExceptionAsWarning(new IllegalArgumentException("'url' must be a valid URL", ex));
         }
-        this.headers = Objects.requireNonNull(headers, "'headers' is required.");
-        this.body = Objects.requireNonNull(body, "'body' is required.");
-        this.tags = new ArrayMap<>(0);
+        this.headers = Util.requireNonNull(headers, "'headers' is required.");
+        this.body = Util.requireNonNull(body, "'body' is required.");
+        this.tags = new HashMap<>(0);
     }
 
     /**
@@ -165,7 +164,7 @@ public class HttpRequest {
      * @return this HttpRequest
      */
     public HttpRequest setBody(String content) {
-        final byte[] bodyBytes = content.getBytes(StandardCharsets.UTF_8);
+        final byte[] bodyBytes = content.getBytes(Charset.forName("UTF-8"));
         return setBody(bodyBytes);
     }
 
@@ -211,13 +210,8 @@ public class HttpRequest {
             this.url.toString(),
             new HttpHeaders(this.headers),
             this.body);
-
         // shallow-copy the tags.
-        requestCopy.tags = new ArrayMap<>(this.tags.size());
-        for (Map.Entry<Object, Object> entry : this.tags.entrySet()) {
-            requestCopy.tags.put(entry.getKey(), entry.getValue());
-        }
-
+        requestCopy.tags = new HashMap<>(this.tags);
         return requestCopy;
     }
 }

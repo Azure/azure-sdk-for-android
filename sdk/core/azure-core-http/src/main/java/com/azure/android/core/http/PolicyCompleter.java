@@ -3,7 +3,7 @@
 
 package com.azure.android.core.http;
 
-import java.util.Objects;
+import com.azure.android.core.http.implementation.Util;
 
 /**
  * A completer provided to {@code NextPolicyCallback.onSuccess} and {@code NextPolicyCallback.onError}
@@ -19,7 +19,7 @@ public final class PolicyCompleter {
 
     // pkg-private ctr
     PolicyCompleter(HttpPipelinePolicyChain chain) {
-        this.chain = Objects.requireNonNull(chain, "'chain' is required.");
+        this.chain = Util.requireNonNull(chain, "'chain' is required.");
     }
 
     /**

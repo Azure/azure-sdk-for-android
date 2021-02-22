@@ -6,8 +6,8 @@ package com.azure.android.core.http.policy;
 import com.azure.android.core.http.HttpPipelinePolicy;
 import com.azure.android.core.http.HttpPipelinePolicyChain;
 import com.azure.android.core.http.HttpRequest;
+import com.azure.android.core.http.implementation.Util;
 
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -24,8 +24,8 @@ public class RequestIdPolicy implements HttpPipelinePolicy {
      * @param requestIdHeaderName to be used to set in {@link HttpRequest}.
      */
     public RequestIdPolicy(String requestIdHeaderName) {
-        this.requestIdHeaderName = Objects.requireNonNull(requestIdHeaderName,
-            "requestIdHeaderName can not be null.");
+        this.requestIdHeaderName = Util.requireNonNull(requestIdHeaderName,
+            "'requestIdHeaderName' cannot be null.");
     }
 
     /**

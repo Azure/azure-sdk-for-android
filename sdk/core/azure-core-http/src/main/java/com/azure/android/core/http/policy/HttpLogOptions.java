@@ -3,10 +3,11 @@
 
 package com.azure.android.core.http.policy;
 
+import com.azure.android.core.http.implementation.Util;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -111,7 +112,7 @@ public class HttpLogOptions {
      * @throws NullPointerException If {@code allowedHeaderName} is {@code null}.
      */
     public HttpLogOptions addAllowedHeaderName(final String allowedHeaderName) {
-        Objects.requireNonNull(allowedHeaderName);
+        Util.requireNonNull(allowedHeaderName, "'allowedHeaderName' cannot be null.");
         this.allowedHeaderNames.add(allowedHeaderName);
         return this;
     }
