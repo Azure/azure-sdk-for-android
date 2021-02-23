@@ -208,7 +208,7 @@ public final class ChatClient {
     /**
      * Listen to a chat event.
      */
-    public void on(String chatEventId, RealTimeNotificationCallback listener) {
+    public void on(String chatEventId, String listenerId, RealTimeNotificationCallback listener) {
         if (this.signalingClient == null) {
             throw new Error("Signaling client not initialized");
         }
@@ -219,18 +219,18 @@ public final class ChatClient {
             );
         }
 
-        this.signalingClient.on(chatEventId, listener);
+        this.signalingClient.on(chatEventId, listenerId, listener);
     }
 
     /**
      * Stop listening to a chat event.
      */
-    public void off(String chatEventId, RealTimeNotificationCallback listener) {
+    public void off(String chatEventId, String listenerId) {
         if (this.signalingClient == null) {
             throw new Error("Signaling client not initialized");
         }
 
-        this.signalingClient.off(chatEventId, listener);
+        this.signalingClient.off(chatEventId, listenerId);
     }
 
     /**

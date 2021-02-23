@@ -15,9 +15,9 @@ public interface SignalingClient {
     /**
      * Listen to Chat events.
      */
-    void on(String chatEventId, RealTimeNotificationCallback listener);
+    void on(String chatEventId, String listenerId, RealTimeNotificationCallback listener);
     /**
      * Stop listening to Chat events.
      */
-    void off(String chatEventId, RealTimeNotificationCallback listener);
+    void off(String chatEventId, String listenerId);
 }

@@ -16,8 +16,8 @@ import com.microsoft.trouterclient.registration.TrouterSkypetokenAuthHeaderProvi
 import com.microsoft.trouterclient.registration.TrouterUrlRegistrar;
 import com.microsoft.trouterclient.registration.TrouterUrlRegistrationData;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.azure.android.communication.chat.signaling.SignalingConfig.*;
 
@@ -26,7 +26,7 @@ public class CommunicationSignalingClient implements SignalingClient {
     private TrouterClientHost trouterClientHost;
     private ISelfHostedTrouterClient trouter;
     private String userToken;
-    private Set<CommunicationListener> trouterListeners;
+    private Map<String, CommunicationListener> trouterListeners;
 
     public CommunicationSignalingClient(String userToken, Context context) {
         this.logger = ClientLogger.getDefault(this.getClass());
@@ -36,7 +36,7 @@ public class CommunicationSignalingClient implements SignalingClient {
         } catch (Throwable t) {
            logger.error(t.getMessage());
         }
-        trouterListeners = new HashSet<>();
+        trouterListeners = new HashMap<>();
     }
 
     public void start() {
@@ -94,10 +94,10 @@ public class CommunicationSignalingClient implements SignalingClient {
     }
 
     @Override
-    public void on(String chatEventId, RealTimeNotificationCallback listener) {
+    public void on(String chatEventId, String listenerId, RealTimeNotificationCallback listener) {
         CommunicationListener communicationListener = new CommunicationListener(chatEventId, listener);
         String loggingName = CommunicationSignalingClient.class.getName();
-        if (!this.trouterListeners.contains(communicationListener)) {
+        if (!trouterListeners.containsKey(listenerId)) {
             switch (ChatEventId.valueOf(chatEventId)) {
                 case chatMessageReceived:
                     trouter.registerListener(communicationListener, "/chatMessageReceived", loggingName);
@@ -132,16 +132,15 @@ public class CommunicationSignalingClient implements SignalingClient {
                 default:
                     return;
             }
-            this.trouterListeners.add(communicationListener);
+            trouterListeners.put(listenerId, communicationListener);
         }
     }
 
     @Override
-    public void off(String chatEventId, RealTimeNotificationCallback listener) {
-        CommunicationListener trouterListener = new CommunicationListener(chatEventId, listener);
-        if (this.trouterListeners.contains(trouterListener)) {
-            this.trouter.unregisterListener((trouterListener));
-            this.trouterListeners.remove(trouterListener);
+    public void off(String chatEventId, String listenerId) {
+        if (trouterListeners.containsKey(listenerId)) {
+            trouter.unregisterListener(trouterListeners.get(listenerId));
+            trouterListeners.remove(listenerId);
         }
     }
 

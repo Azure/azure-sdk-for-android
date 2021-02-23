@@ -34,12 +34,12 @@ class TrouterUtils {
         put(ChatEventId.participantsRemoved, 261);
     }};
 
-    public static JSONObject toMessageHandler(String chatEventId, ITrouterResponse iTrouterResponse) {
+    public static JSONObject toMessageHandler(String chatEventId, String responseBody) {
         int eventId = 0;
         JSONObject genericPayload = null;
         try {
-            eventId = eventIdsMapping.get(chatEventId);
-            genericPayload = new JSONObject(iTrouterResponse.getBody());
+            eventId = eventIdsMapping.get(ChatEventId.valueOf(chatEventId));
+            genericPayload = new JSONObject(responseBody);
         } catch (Exception e) {
             logger.error(e.getMessage());
         }
