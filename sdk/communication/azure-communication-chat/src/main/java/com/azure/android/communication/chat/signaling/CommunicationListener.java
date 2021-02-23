@@ -39,33 +39,17 @@ class CommunicationListener implements ITrouterListener {
     public void onTrouterRequest(ITrouterRequest iTrouterRequest, ITrouterResponse iTrouterResponse) {
         final String msg = "onTrouterRequest(): #" + Long.toString(iTrouterResponse.getId()) + " " + iTrouterRequest.getMethod() + " " + iTrouterRequest.getUrlPathComponent() + "\n" + iTrouterRequest.getBody();
         logger.info(msg);
+        // convert payload to chat event here
+        JSONObject chatEvent = TrouterUtils.toMessageHandler(chatEventId, iTrouterRequest.getBody());
+        if (chatEvent != null) {
+            listenerFromConsumer.onChatEvent(chatEvent);
+        }
     }
 
     @Override
     public void onTrouterResponseSent(ITrouterResponse iTrouterResponse, boolean isSuccess) {
         final String msg = "onTrouterResponse(): #" + Long.toString(iTrouterResponse.getId()) + " isSuccess=" + Boolean.toString(isSuccess);
         logger.info(msg);
-        if (isSuccess) {
-            // convert payload to chat event here
-            JSONObject chatEvent = TrouterUtils.toMessageHandler(chatEventId, iTrouterResponse);
-            if (chatEvent != null) {
-                listenerFromConsumer.onChatEvent(chatEvent);
-            }
-        }
-    }
-
-
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        CommunicationListener trouterListener = (CommunicationListener) o;
-        return this.chatEventId.equals(trouterListener.chatEventId) &&
-            this.listenerFromConsumer.equals(trouterListener.listenerFromConsumer);
     }
 
 }
