@@ -1,7 +1,15 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.common;
+package com.azure.android.communication.chat;
+
+import com.azure.android.communication.chat.models.CommunicationIdentifierModel;
+import com.azure.android.communication.chat.models.CommunicationUserIdentifierModel;
+import com.azure.android.communication.chat.models.PhoneNumberIdentifierModel;
+import com.azure.android.communication.common.CommunicationIdentifier;
+import com.azure.android.communication.common.CommunicationUserIdentifier;
+import com.azure.android.communication.common.PhoneNumberIdentifier;
+import com.azure.android.communication.common.UnknownIdentifier;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -9,7 +17,6 @@ import org.junit.rules.ExpectedException;
 
 import java.util.Arrays;
 
-import static com.azure.android.communication.common.CommunicationCloudEnvironmentModel.PUBLIC;
 import static junit.framework.TestCase.assertNotNull;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;

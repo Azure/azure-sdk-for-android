@@ -99,7 +99,7 @@ public final class AzureCommunicationChatServiceImpl {
     public AzureCommunicationChatServiceImpl(ServiceClient serviceClient, String endpoint) {
         this.serviceClient = serviceClient;
         this.endpoint = endpoint;
-        this.apiVersion = "2020-11-01-preview3";
+        this.apiVersion = "2021-01-27-preview4";
         this.chatThreads = new ChatThreadsImpl(this);
         this.chats = new ChatsImpl(this);
     }
