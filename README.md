@@ -23,3 +23,13 @@ MD file used to present the journey from v1 (master) to v2 (this branch), and de
 1 | talk 1 | [reference](https://gist.github.com/anuchandy/6d960e29e66d9574e7cf5c9731037cb1)
 
 ![Impressions](https://azure-sdk-impressions.azurewebsites.net/api/impressions/azure-sdk-for-java%2FREADME.png)
+
+
+### Modules (MinAPILevel 15):
+
+The following diagram shows the core modules and their dependencies. 
+
+<img width="1170" alt="Modules" src="https://user-images.githubusercontent.com/1471612/108790251-1882ba80-7531-11eb-8dbc-923ce7c66bcd.png">
+
+> Note: We'll remove `azure-core-serde` and will rename `azure-core-serde-jackson` to `azure-core-jackson`.
+ 
