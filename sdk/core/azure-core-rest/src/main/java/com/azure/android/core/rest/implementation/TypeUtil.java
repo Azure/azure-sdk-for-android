@@ -7,15 +7,16 @@ import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility type exposing methods to deal with {@link Type}.
  */
 public final class TypeUtil {
-    private static final Map<Type, Type> SUPER_TYPE_MAP = new ConcurrentHashMap<>();
+    private static final Map<Type, Type> SUPER_TYPE_MAP = new HashMap<>();
+    private static final Object SUPER_TYPE_MAP_LOCK = new Object();
 
     /**
      * Find all super classes including provided class.
@@ -80,38 +81,43 @@ public final class TypeUtil {
      * @return the direct super type
      */
     public static Type getSuperType(final Type type) {
-        return SUPER_TYPE_MAP.computeIfAbsent(type, _type -> {
-            if (type instanceof ParameterizedType) {
-                final ParameterizedType parameterizedType = (ParameterizedType) type;
-                final Type genericSuperClass = ((Class<?>) parameterizedType.getRawType()).getGenericSuperclass();
+        synchronized (SUPER_TYPE_MAP_LOCK) {
+            Type superType = SUPER_TYPE_MAP.get(type);
+            if (superType == null) {
+                if (type instanceof ParameterizedType) {
+                    final ParameterizedType parameterizedType = (ParameterizedType) type;
+                    final Type genericSuperClass = ((Class<?>) parameterizedType.getRawType()).getGenericSuperclass();
 
-                if (genericSuperClass instanceof ParameterizedType) {
-                    /*
-                     * Find erased generic types for the super class and replace
-                     * with actual type arguments from the parameterized type
-                     */
-                    final Type[] superTypeArguments = getTypeArguments(genericSuperClass);
-                    final Type[] typeParameters =
-                        ((GenericDeclaration) parameterizedType.getRawType()).getTypeParameters();
-                    int k = 0;
+                    if (genericSuperClass instanceof ParameterizedType) {
+                        /*
+                         * Find erased generic types for the super class and replace
+                         * with actual type arguments from the parameterized type
+                         */
+                        final Type[] superTypeArguments = getTypeArguments(genericSuperClass);
+                        final Type[] typeParameters =
+                            ((GenericDeclaration) parameterizedType.getRawType()).getTypeParameters();
+                        int k = 0;
 
-                    for (int i = 0; i < superTypeArguments.length; i++) {
-                        for (int j = 0; j < typeParameters.length; j++) {
-                            if (typeParameters[j].equals(superTypeArguments[i])) {
-                                superTypeArguments[i] = parameterizedType.getActualTypeArguments()[k++];
-                                break;
+                        for (int i = 0; i < superTypeArguments.length; i++) {
+                            for (int j = 0; j < typeParameters.length; j++) {
+                                if (typeParameters[j].equals(superTypeArguments[i])) {
+                                    superTypeArguments[i] = parameterizedType.getActualTypeArguments()[k++];
+                                    break;
+                                }
                             }
                         }
+                        superType = createParameterizedType(((ParameterizedType) genericSuperClass).getRawType(),
+                            superTypeArguments);
+                    } else {
+                        superType = genericSuperClass;
                     }
-                    return createParameterizedType(((ParameterizedType) genericSuperClass).getRawType(),
-                        superTypeArguments);
                 } else {
-                    return genericSuperClass;
+                    superType = ((Class<?>) type).getGenericSuperclass();
                 }
-            } else {
-                return ((Class<?>) type).getGenericSuperclass();
+                SUPER_TYPE_MAP.put(type, superType);
             }
-        });
+            return superType;
+        }
     }
 
     /**

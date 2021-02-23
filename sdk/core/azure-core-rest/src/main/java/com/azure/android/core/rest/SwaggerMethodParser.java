@@ -74,7 +74,7 @@ final class SwaggerMethodParser {
             throw logger.logExceptionAsError(new IllegalStateException(String.format(
                 MISSING_OR_NON_PARAMETERIZED_CALLBACK,
                 this.methodFullName,
-                Callback.class.getTypeName())));
+                Callback.class.getName())));
         }
 
         final Type callbackType = methodLastParamType;
@@ -82,7 +82,7 @@ final class SwaggerMethodParser {
             throw logger.logExceptionAsError(new IllegalStateException(String.format(
                 MISSING_OR_NON_PARAMETERIZED_CALLBACK,
                 this.methodFullName,
-                Callback.class.getTypeName())));
+                Callback.class.getName())));
         }
         return callbackType;
     }

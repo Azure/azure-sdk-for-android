@@ -14,6 +14,7 @@ import com.azure.android.core.rest.annotation.ExpectedResponses;
 import com.azure.android.core.rest.annotation.Get;
 import com.azure.android.core.rest.annotation.ReturnValueWireType;
 import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionType;
+import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionTypes;
 import com.azure.android.core.rest.implementation.TypeUtil;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.util.Base64Url;
@@ -219,12 +220,16 @@ public class HttpResponseMapperTests {
         void noKnownException(Callback<Response<Void>> callback);
 
         @Get("test")
-        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = {400, 404})
+        @UnexpectedResponseExceptionTypes({
+            @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = {400, 404})
+        })
         void knownException(Callback<Response<Void>> callback);
 
         @Get("test")
-        @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = {400, 404})
-        @UnexpectedResponseExceptionType(value = ResourceModifiedException.class)
+        @UnexpectedResponseExceptionTypes({
+            @UnexpectedResponseExceptionType(value = ResourceNotFoundException.class, code = {400, 404}),
+            @UnexpectedResponseExceptionType(value = ResourceModifiedException.class)
+        })
         void knownAndDefaultException(Callback<Response<Void>> callback);
     }
 
@@ -322,7 +327,7 @@ public class HttpResponseMapperTests {
             ex1 = e;
         }
         assertNotNull(ex1);
-        assertTrue(ex1.getMessage().contains("The com.azure.android.core.rest.Response type argument of the com.azure.android.core.rest.Callback parameter"));
+        assertTrue(ex1.getMessage().contains("The interface com.azure.android.core.rest.Response type argument of the com.azure.android.core.rest.Callback parameter"));
 
         IllegalStateException ex2 = null;
         try {
@@ -332,7 +337,7 @@ public class HttpResponseMapperTests {
             ex2 = e;
         }
         assertNotNull(ex2);
-        assertTrue(ex2.getMessage().contains("The com.azure.android.core.rest.ResponseBase type argument of the com.azure.android.core.rest.Callback parameter"));
+        assertTrue(ex2.getMessage().contains("The class com.azure.android.core.rest.ResponseBase type argument of the com.azure.android.core.rest.Callback parameter"));
 
 
         IllegalStateException ex3 = null;
@@ -343,7 +348,7 @@ public class HttpResponseMapperTests {
             ex3 = e;
         }
         assertNotNull(ex3);
-        assertTrue(ex3.getMessage().contains("The com.azure.android.core.rest.ResponseBase type argument of the com.azure.android.core.rest.Callback parameter"));
+        assertTrue(ex3.getMessage().contains("The class com.azure.android.core.rest.ResponseBase type argument of the com.azure.android.core.rest.Callback parameter"));
     }
 
     interface HeadMethods {
@@ -486,7 +491,9 @@ public class HttpResponseMapperTests {
 
     interface KnownErrorMethods {
         @Get("test")
-        @UnexpectedResponseExceptionType(value = Retry409Exception.class, code = 409)
+        @UnexpectedResponseExceptionTypes({
+            @UnexpectedResponseExceptionType(value = Retry409Exception.class, code = 409)
+        })
         void getError409(Callback<Response<Void>> callback);
     }
 

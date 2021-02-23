@@ -14,8 +14,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 
 /**
  * Contains the information needed to generate a exception type to be thrown or returned when a REST API returns
@@ -73,7 +74,7 @@ public class HttpResponseExceptionInfo {
         } else {
             bodyRepresentation = responseContent == null || responseContent.length == 0
                 ? "(empty body)"
-                : "\"" + new String(responseContent, StandardCharsets.UTF_8) + "\"";
+                : "\"" + new String(responseContent, Charset.forName("UTF-8")) + "\"";
         }
 
         Throwable result;
@@ -85,7 +86,25 @@ public class HttpResponseExceptionInfo {
                     + responseStatusCode + ", " + bodyRepresentation,
                 httpResponse,
                 responseDecodedContent);
-        } catch (ReflectiveOperationException e) {
+        } catch (InstantiationException e) {
+            String message = "Status code " + responseStatusCode + ", but an instance of "
+                + this.exceptionType.getCanonicalName() + " cannot be created."
+                + " Response body: " + bodyRepresentation;
+
+            result = new IOException(message, e);
+        } catch (IllegalAccessException e) {
+            String message = "Status code " + responseStatusCode + ", but an instance of "
+                + this.exceptionType.getCanonicalName() + " cannot be created."
+                + " Response body: " + bodyRepresentation;
+
+            result = new IOException(message, e);
+        } catch (InvocationTargetException e) {
+            String message = "Status code " + responseStatusCode + ", but an instance of "
+                + this.exceptionType.getCanonicalName() + " cannot be created."
+                + " Response body: " + bodyRepresentation;
+
+            result = new IOException(message, e);
+        } catch (NoSuchMethodException e) {
             String message = "Status code " + responseStatusCode + ", but an instance of "
                 + this.exceptionType.getCanonicalName() + " cannot be created."
                 + " Response body: " + bodyRepresentation;

@@ -1,10 +1,11 @@
-ext.publishName = "Microsoft Azure Android Core Library"
-description = "This package contains core types for Azure Android clients."
+ext.publishName = "Microsoft Azure Android Core Rest Library"
+description = "This package contains core types to intract with a REST endpoint."
 version = "1.0.0-beta.1"
 ext.versionCode = 1
 
 android {
     defaultConfig {
+        minSdkVersion 15
         versionCode project.versionCode
         versionName project.version
     }
