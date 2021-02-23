@@ -3,7 +3,7 @@
 ## 1.0.0-beta.6 (Unreleased)
 ### Breaking Changes
 - Change remove participant API to /chat/threads/{chatThreadId}/participants/:remove
-- user id in following classes changes from type CommunicationUserIdentifier to type CommunicationIdentifierModel
+- user id in following classes changed from type CommunicationUserIdentifier to type CommunicationIdentifierModel
 - property initiator in ChatMessageContent renamed to initiatorCommunicationIdentifier
 - property senderId in ChatMessage and ChatMessageReadReceipt renamed to senderCommunicationIdentifier
 - property identifier in ChatParticipant renamed to communicationIdentifier
