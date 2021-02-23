@@ -8,6 +8,9 @@ import com.azure.android.core.logging.ClientLogger;
 import java.util.HashSet;
 import java.util.Set;
 
+import static java.lang.Character.MAX_SURROGATE;
+import static java.lang.Character.MIN_SURROGATE;
+
 /**
  * An escaper that escapes URL data through percent encoding.
  */
@@ -227,8 +230,8 @@ final class PercentEscaper {
      * get the correct code point for characters above 0xFFFF.
      */
     private static int getCodePoint(String original, int index, int end, ClientLogger logger) {
-        char char1 = original.charAt(index++);
-        if (!Character.isSurrogate(char1)) {
+        final char char1 = original.charAt(index++);
+        if (!(char1 >= MIN_SURROGATE && char1 < (MAX_SURROGATE + 1))) {
             // Character isn't a surrogate, return it as is.
             return char1;
         } else if (Character.isHighSurrogate(char1)) {

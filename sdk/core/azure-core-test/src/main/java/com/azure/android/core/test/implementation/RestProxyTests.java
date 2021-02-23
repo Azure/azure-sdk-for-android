@@ -34,6 +34,7 @@ import com.azure.android.core.rest.annotation.Put;
 import com.azure.android.core.rest.annotation.QueryParam;
 import com.azure.android.core.rest.annotation.ServiceInterface;
 import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionType;
+import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionTypes;
 import com.azure.android.core.test.MyRestException;
 import com.azure.android.core.test.implementation.entities.HttpBinFormDataJSON;
 import com.azure.android.core.test.implementation.entities.HttpBinHeaders;
@@ -805,7 +806,9 @@ public abstract class RestProxyTests {
 
         @Put("put")
         @ExpectedResponses({200})
-        @UnexpectedResponseExceptionType(MyRestException.class)
+        @UnexpectedResponseExceptionTypes({
+            @UnexpectedResponseExceptionType(MyRestException.class)
+        })
         HttpBinJSON putBodyAndContentLength(@BodyParam("application/octet-stream") byte[] body,
                                             @HeaderParam("Content-Length") long contentLength,
                                             Callback<Response<HttpBinJSON>> callback);
@@ -817,30 +820,38 @@ public abstract class RestProxyTests {
 
         @Put("put")
         @ExpectedResponses({201})
-        @UnexpectedResponseExceptionType(MyRestException.class)
+        @UnexpectedResponseExceptionTypes({
+            @UnexpectedResponseExceptionType(MyRestException.class)
+        })
         HttpBinJSON putWithUnexpectedResponseAndExceptionType(
             @BodyParam("application/octet-stream") String putBody,
             Callback<Response<HttpBinJSON>> callback);
 
         @Put("put")
         @ExpectedResponses({201})
-        @UnexpectedResponseExceptionType(code = {200}, value = MyRestException.class)
-        @UnexpectedResponseExceptionType(HttpResponseException.class)
+        @UnexpectedResponseExceptionTypes({
+            @UnexpectedResponseExceptionType(code = {200}, value = MyRestException.class),
+            @UnexpectedResponseExceptionType(HttpResponseException.class)
+        })
         HttpBinJSON putWithUnexpectedResponseAndDeterminedExceptionType(
             @BodyParam("application/octet-stream") String putBody,
             Callback<Response<HttpBinJSON>> callback);
 
         @Put("put")
         @ExpectedResponses({201})
-        @UnexpectedResponseExceptionType(code = {400}, value = HttpResponseException.class)
-        @UnexpectedResponseExceptionType(MyRestException.class)
+        @UnexpectedResponseExceptionTypes({
+            @UnexpectedResponseExceptionType(code = {400}, value = HttpResponseException.class),
+            @UnexpectedResponseExceptionType(MyRestException.class)
+        })
         HttpBinJSON putWithUnexpectedResponseAndFallthroughExceptionType(
             @BodyParam("application/octet-stream") String putBody,
             Callback<Response<HttpBinJSON>> callback);
 
         @Put("put")
         @ExpectedResponses({201})
-        @UnexpectedResponseExceptionType(code = {400}, value = MyRestException.class)
+        @UnexpectedResponseExceptionTypes({
+            @UnexpectedResponseExceptionType(code = {400}, value = MyRestException.class)
+        })
         HttpBinJSON putWithUnexpectedResponseAndNoFallthroughExceptionType(
             @BodyParam("application/octet-stream") String putBody,
             Callback<Response<HttpBinJSON>> callback);

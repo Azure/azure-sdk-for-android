@@ -10,6 +10,7 @@ import com.azure.android.core.http.HttpMethod;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.exception.HttpResponseException;
+import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionTypes;
 import com.azure.android.core.rest.implementation.HttpResponseExceptionInfo;
 import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.util.Base64Url;
@@ -36,7 +37,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,6 +57,7 @@ final class HttpResponseMapper {
     private final HttpResponseExceptionInfo defaultExceptionInfo;
     private final Map<Integer, HttpResponseExceptionInfo> statusCodeToKnownExceptionInfo;
     private final Constructor<? extends Response<?>> responseCtr;
+    private final int responseCtrParamCount;
 
     HttpResponseMapper(Method swaggerMethod, Type callbackType, ClientLogger logger) {
         this.logger = logger;
@@ -81,6 +82,7 @@ final class HttpResponseMapper {
         this.statusCodeToKnownExceptionInfo = defaultAndKnownExceptions.second;
 
         this.responseCtr = identifyResponseCtr(callbackType);
+        this.responseCtrParamCount = this.responseCtr.getParameterTypes().length;
     }
 
     Response<?> map(HttpResponse httpResponse, SerdeAdapter serdeAdapter) throws Throwable {
@@ -104,6 +106,7 @@ final class HttpResponseMapper {
                 final boolean isSuccess = (httpResponse.getStatusCode() / 100) == 2;
                 httpResponse.close();
                 return instantiateResponse(this.responseCtr,
+                    this.responseCtrParamCount,
                     httpResponse.getRequest(),
                     httpResponse,
                     headerObject,
@@ -111,12 +114,14 @@ final class HttpResponseMapper {
             } else if (TypeUtil.isTypeOrSubTypeOf(this.contentDecodeType, Void.class)) {
                 httpResponse.close();
                 return instantiateResponse(this.responseCtr,
+                    this.responseCtrParamCount,
                     httpResponse.getRequest(),
                     httpResponse,
                     headerObject,
                     null);
             } else if (TypeUtil.isTypeOrSubTypeOf(this.contentDecodeType, InputStream.class)) {
                 return instantiateResponse(this.responseCtr,
+                    this.responseCtrParamCount,
                     httpResponse.getRequest(),
                     httpResponse,
                     headerObject,
@@ -126,12 +131,14 @@ final class HttpResponseMapper {
                     final byte[] encodedContent = httpResponse.getBodyAsByteArray();
                     final byte[] decodedContent = new Base64Url(encodedContent).decodedBytes();
                     return instantiateResponse(this.responseCtr,
+                        this.responseCtrParamCount,
                         httpResponse.getRequest(),
                         httpResponse,
                         headerObject,
                         decodedContent);
                 } else {
                     return instantiateResponse(this.responseCtr,
+                        this.responseCtrParamCount,
                         httpResponse.getRequest(),
                         httpResponse,
                         headerObject,
@@ -142,6 +149,7 @@ final class HttpResponseMapper {
                     httpResponse,
                     this.contentDecodeType);
                 return instantiateResponse(this.responseCtr,
+                    this.responseCtrParamCount,
                     httpResponse.getRequest(),
                     httpResponse,
                     headerObject,
@@ -155,6 +163,7 @@ final class HttpResponseMapper {
 
                     final Object decodedContent = deserializeHttpBody(serdeAdapter, httpResponse, pageType);
                     return instantiateResponse(this.responseCtr,
+                        this.responseCtrParamCount,
                         httpResponse.getRequest(),
                         httpResponse,
                         headerObject,
@@ -169,6 +178,7 @@ final class HttpResponseMapper {
                         this.contentDecodeType);
 
                     return instantiateResponse(this.responseCtr,
+                        this.responseCtrParamCount,
                         httpResponse.getRequest(),
                         httpResponse,
                         headerObject,
@@ -247,12 +257,17 @@ final class HttpResponseMapper {
     private Pair<HttpResponseExceptionInfo, Map<Integer, HttpResponseExceptionInfo>> extractDefaultAndKnownExceptions(
         Method swaggerMethod) {
 
-        final UnexpectedResponseExceptionType[] unexpectedResponseExceptionTypes
-            = swaggerMethod.getAnnotationsByType(UnexpectedResponseExceptionType.class);
+        final UnexpectedResponseExceptionTypes unexpectedResponseExceptionTypesHolder
+            = swaggerMethod.getAnnotation(UnexpectedResponseExceptionTypes.class);
 
-        if (unexpectedResponseExceptionTypes == null || unexpectedResponseExceptionTypes.length == 0) {
+        if (unexpectedResponseExceptionTypesHolder == null
+            || unexpectedResponseExceptionTypesHolder.value() == null
+            || unexpectedResponseExceptionTypesHolder.value().length == 0) {
             return Pair.create(new HttpResponseExceptionInfo(HttpResponseException.class), null);
         }
+
+        final UnexpectedResponseExceptionType[] unexpectedResponseExceptionTypes
+            = unexpectedResponseExceptionTypesHolder.value();
 
         Map<Integer, HttpResponseExceptionInfo> statusCodeToKnownExceptionInfo
             = new HashMap<>(unexpectedResponseExceptionTypes.length);
@@ -317,7 +332,7 @@ final class HttpResponseMapper {
         }
 
         throw logger.logExceptionAsError(new IllegalStateException("The type argument of "
-            + Callback.class.getTypeName()
+            + Callback.class.getName()
             + " in the method " + swaggerMethodName
             + " must either ResponseBase<H, C>, PagedResponseBase<H, C>, PagedResponse<C> or Response<C>"));
     }
@@ -349,8 +364,8 @@ final class HttpResponseMapper {
         if (!(responseTypeItr instanceof ParameterizedType)) {
             throw logger.logExceptionAsError(new IllegalStateException(String.format(
                 NON_PARAMETERIZED_RESPONSE,
-                responseBaseType.getTypeName(), Callback.class.getTypeName(),
-                swaggerMethodName, responseBaseType.getTypeName() + "<FooHeader, Foo>>")));
+                responseBaseType.toString(), Callback.class.getName(),
+                swaggerMethodName, responseBaseType.toString() + "<FooHeader, Foo>>")));
         }
 
         Type headerDecodeType = null;
@@ -403,8 +418,8 @@ final class HttpResponseMapper {
 
         throw logger.logExceptionAsError(new IllegalStateException(String.format(
             NON_PARAMETERIZED_RESPONSE,
-            responseInterfaceType.getTypeName(), Callback.class.getTypeName(),
-            swaggerMethodName, responseInterfaceType .getTypeName() + "<Foo>")));
+            responseInterfaceType.toString(), Callback.class.getName(),
+            swaggerMethodName, responseInterfaceType .toString() + "<Foo>")));
     }
 
     private Type expandContentEncodedType(Type contentEncodedType, Type contentDecodeType) {
@@ -502,9 +517,13 @@ final class HttpResponseMapper {
         }
         Constructor<?>[] constructors = responseCls.getDeclaredConstructors();
         // Sort constructors in the "descending order" of parameter count.
-        Arrays.sort(constructors, Comparator.comparing(Constructor::getParameterCount, (a, b) -> b - a));
+        Arrays.sort(constructors, (ctr1, ctr2) -> {
+            final int paramCount1 = ctr1.getParameterTypes().length;
+            final int paramCount2 = ctr2.getParameterTypes().length;
+            return paramCount2 - paramCount1;
+        });
         for (Constructor<?> constructor : constructors) {
-            final int paramCount = constructor.getParameterCount();
+            final int paramCount = constructor.getParameterTypes().length;
             if (paramCount >= 3 && paramCount <= 5) {
                 try {
                     return (Constructor<? extends Response<?>>) constructor;
@@ -520,6 +539,7 @@ final class HttpResponseMapper {
     }
 
     private Response<?> instantiateResponse(Constructor<? extends Response<?>> responseCtr,
+                                            int responseCtrParamCount,
                                             HttpRequest httpRequest,
                                             HttpResponse httpResponse,
                                             Object headerAsObject,
@@ -527,14 +547,19 @@ final class HttpResponseMapper {
         final int responseStatusCode = httpResponse.getStatusCode();
         final HttpHeaders responseHeaders = httpResponse.getHeaders();
 
-        final int paramCount = responseCtr.getParameterCount();
-        switch (paramCount) {
+        switch (responseCtrParamCount) {
             case 3:
                 try {
                     return responseCtr.newInstance(httpRequest,
                         responseStatusCode,
                         responseHeaders);
-                } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
+                } catch (IllegalAccessException e) {
+                    throw logger.logExceptionAsError(
+                        new RuntimeException("Failed to deserialize 3-parameter response. ", e));
+                } catch (InvocationTargetException e) {
+                    throw logger.logExceptionAsError(
+                        new RuntimeException("Failed to deserialize 3-parameter response. ", e));
+                } catch (InstantiationException e) {
                     throw logger.logExceptionAsError(
                         new RuntimeException("Failed to deserialize 3-parameter response. ", e));
                 }
@@ -544,7 +569,13 @@ final class HttpResponseMapper {
                         responseStatusCode,
                         responseHeaders,
                         bodyAsObject);
-                } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
+                } catch (IllegalAccessException e) {
+                    throw logger.logExceptionAsError(
+                        new RuntimeException("Failed to deserialize 4-parameter response. ", e));
+                } catch (InvocationTargetException e) {
+                    throw logger.logExceptionAsError(
+                        new RuntimeException("Failed to deserialize 4-parameter response. ", e));
+                } catch (InstantiationException e) {
                     throw logger.logExceptionAsError(
                         new RuntimeException("Failed to deserialize 4-parameter response. ", e));
                 }
@@ -555,16 +586,18 @@ final class HttpResponseMapper {
                         responseHeaders,
                         bodyAsObject,
                         headerAsObject);
-                } catch (IllegalAccessException | InvocationTargetException | InstantiationException e) {
-                    if (headerAsObject != null) {
-                        throw logger.logExceptionAsError(
-                            new RuntimeException("Failed to deserialize 5-parameter response"
-                                + " with decoded headers. ", e));
-                    } else {
-                        throw logger.logExceptionAsError(
-                            new RuntimeException("Failed to deserialize 5-parameter response"
-                                + "without decoded headers.", e));
-                    }
+                } catch (IllegalAccessException e) {
+                    String message = String.format("Failed to deserialize 5-parameter response %s decoded headers. ",
+                        headerAsObject != null ? "with" : "without");
+                    throw logger.logExceptionAsError(new RuntimeException(message, e));
+                } catch (InvocationTargetException e) {
+                    String message = String.format("Failed to deserialize 5-parameter response %s decoded headers. ",
+                        headerAsObject != null ? "with" : "without");
+                    throw logger.logExceptionAsError(new RuntimeException(message, e));
+                } catch (InstantiationException e) {
+                    String message = String.format("Failed to deserialize 5-parameter response %s decoded headers. ",
+                        headerAsObject != null ? "with" : "without");
+                    throw logger.logExceptionAsError(new RuntimeException(message, e));
                 }
             default:
                 throw logger.logExceptionAsError(
