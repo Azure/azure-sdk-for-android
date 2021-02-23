@@ -1,6 +1,8 @@
 # Release History
 
 ## 1.0.0-beta.6 (Unreleased)
+### Breaking Changes
+- Removed `CommunicationTokenCredential(Callable<String> tokenRefresher)`, ` CommunicationTokenCredential(Callable<String> tokenRefresher, String initialToken)`, `CommunicationTokenCredential(Callable<String> tokenRefresher, boolean refreshProactively)`, `CommunicationTokenCredential(Callable<String> tokenRefresher, boolean refreshProactively, String initialToken)`, and added `CommunicationTokenCredential(CommunicationTokenRefreshOptions tokenRefreshOptions)`
 
 ## 1.0.0-beta.5 (2021-02-08)
 ### Breaking Changes

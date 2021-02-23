@@ -13,7 +13,7 @@ import java.util.concurrent.Callable;
 public class CommunicationTokenRefreshOptions {
     private final Callable<String> tokenRefresher;
     private final boolean refreshProactively;
-    private final String token;
+    private final String initialToken;
 
     /**
      * Creates a {@link CommunicationTokenRefreshOptions} object
@@ -33,7 +33,7 @@ public class CommunicationTokenRefreshOptions {
         }
         this.tokenRefresher = tokenRefresher;
         this.refreshProactively = refreshProactively;
-        this.token = null;
+        this.initialToken = null;
     }
 
     /**
@@ -49,16 +49,16 @@ public class CommunicationTokenRefreshOptions {
      *                           two minutes
      * @param token the serialized JWT token, cannot be null
      */
-    public CommunicationTokenRefreshOptions(Callable<String> tokenRefresher, boolean refreshProactively, String token) {
+    public CommunicationTokenRefreshOptions(Callable<String> tokenRefresher, boolean refreshProactively, String initialToken) {
         if (tokenRefresher == null) {
             throw new IllegalArgumentException("Missing required parameters 'tokenRefresher'.");
         }
-        if (token == null) {
-            throw new IllegalArgumentException("Missing required parameters 'token'.");
+        if (initialToken == null) {
+            throw new IllegalArgumentException("Missing required parameters 'initialToken'.");
         }
         this.tokenRefresher = tokenRefresher;
         this.refreshProactively = refreshProactively;
-        this.token = token;
+        this.initialToken = initialToken;
     }
 
     /**
@@ -79,6 +79,6 @@ public class CommunicationTokenRefreshOptions {
      * @return the serialized JWT token
      */
     public String getToken() {
-        return token;
+        return initialToken;
     }
 }
