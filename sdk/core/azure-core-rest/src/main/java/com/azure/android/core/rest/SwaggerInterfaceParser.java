@@ -19,7 +19,7 @@ import java.util.Map;
 final class SwaggerInterfaceParser {
     private final String host;
     private final String serviceName;
-    private final JacksonSerder serdeAdapter;
+    private final JacksonSerder jacksonSerder;
     private static final Object METHOD_PARSERS_LOCK = new Object();
     private static final Map<Method, SwaggerMethodParser> METHOD_PARSERS = new HashMap<>();
 
@@ -27,21 +27,21 @@ final class SwaggerInterfaceParser {
      * Create a SwaggerInterfaceParser object with the provided fully qualified interface
      * name.
      * @param swaggerInterface The interface that will be parsed.
-     * @param serdeAdapter The serializer that will be used to serialize non-String header values and query values.
+     * @param jacksonSerder The serializer that will be used to serialize non-String header values and query values.
      */
-    SwaggerInterfaceParser(Class<?> swaggerInterface, JacksonSerder serdeAdapter) {
-        this(swaggerInterface, serdeAdapter, null);
+    SwaggerInterfaceParser(Class<?> swaggerInterface, JacksonSerder jacksonSerder) {
+        this(swaggerInterface, jacksonSerder, null);
     }
 
     /**
      * Create a SwaggerInterfaceParser object with the provided fully qualified interface
      * name.
      * @param swaggerInterface The interface that will be parsed.
-     * @param serdeAdapter The serializer that will be used to serialize non-String header values and query values.
+     * @param jacksonSerder The serializer that will be used to serialize non-String header values and query values.
      * @param host The host of URLs that this Swagger interface targets.
      */
-    SwaggerInterfaceParser(Class<?> swaggerInterface, JacksonSerder serdeAdapter, String host) {
-        this.serdeAdapter = serdeAdapter;
+    SwaggerInterfaceParser(Class<?> swaggerInterface, JacksonSerder jacksonSerder, String host) {
+        this.jacksonSerder = jacksonSerder;
 
         if (host != null && host.length() != 0) {
             this.host = host;
@@ -76,7 +76,7 @@ final class SwaggerInterfaceParser {
         synchronized (METHOD_PARSERS_LOCK) {
             SwaggerMethodParser methodParser = METHOD_PARSERS.get(swaggerMethod);
             if (methodParser == null) {
-                methodParser = new SwaggerMethodParser(this.host, swaggerMethod, this.serdeAdapter, logger);
+                methodParser = new SwaggerMethodParser(this.host, swaggerMethod, this.jacksonSerder, logger);
                 METHOD_PARSERS.put(swaggerMethod, methodParser);
             }
             return methodParser;

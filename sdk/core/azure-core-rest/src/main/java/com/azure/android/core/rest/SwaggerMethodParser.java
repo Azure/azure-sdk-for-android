@@ -24,7 +24,7 @@ final class SwaggerMethodParser {
         + " Callback<PagedResponse<Foo>> or Callback<? PagedResponseBase<FooHdr, Foo>>.";
 
     private final Method swaggerMethod;
-    private final JacksonSerder serdeAdapter;
+    private final JacksonSerder jacksonSerder;
 
     private final String methodFullName;
     private final Type callbackType;
@@ -35,10 +35,10 @@ final class SwaggerMethodParser {
 
     SwaggerMethodParser(String rawHost,
                         Method swaggerMethod,
-                        JacksonSerder serdeAdapter,
+                        JacksonSerder jacksonSerder,
                         ClientLogger logger) {
         this.swaggerMethod = swaggerMethod;
-        this.serdeAdapter = serdeAdapter;
+        this.jacksonSerder = jacksonSerder;
         this.logger = logger;
         this.methodFullName = swaggerMethod.getDeclaringClass().getName() + "." + swaggerMethod.getName();
 
@@ -47,7 +47,7 @@ final class SwaggerMethodParser {
         this.callbackArgIndex = methodParamTypes.length - 1;
         this.cancellationTokenArgIndex = extractCancellationTokenIndex(methodParamTypes);
 
-        this.httpRequestMapper = new HttpRequestMapper(rawHost, swaggerMethod, serdeAdapter);
+        this.httpRequestMapper = new HttpRequestMapper(rawHost, swaggerMethod, jacksonSerder);
     }
 
     String getMethodFullName() {
@@ -62,7 +62,7 @@ final class SwaggerMethodParser {
         if (this.httpResponseMapper == null) {
             this.httpResponseMapper = new HttpResponseMapper(this.swaggerMethod, this.callbackType, this.logger);
         }
-        return this.httpResponseMapper.map(httpResponse, this.serdeAdapter);
+        return this.httpResponseMapper.map(httpResponse, this.jacksonSerder);
     }
 
     private Type extractCallbackType(Type[] methodParamTypes) {
