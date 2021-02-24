@@ -5,6 +5,15 @@
 
 Azure SDK for Android is licensed under the [MIT](https://github.com/Azure/azure-sdk-for-android/blob/master/LICENSE.txt) license.
 
+
+### Modules (MinAPILevel 15):
+
+The following diagram shows the core modules and their dependencies. 
+
+The minSdkVersion of all the modules except `azure-core-http-okhttp` is 15. The `azure-core-http-okhttp` uses minSdkVersion as 21 since `okhttp` is baselined to L21.
+
+<img width="1170" alt="Modules" src="https://user-images.githubusercontent.com/1471612/108896719-21739a80-75ca-11eb-9b9e-3e1df65a56ec.png">
+ 
 ### Design documents:
 
 #n | Topic | Link
@@ -12,7 +21,6 @@ Azure SDK for Android is licensed under the [MIT](https://github.com/Azure/azure
 1 | HttpClient API | [reference](https://gist.github.com/anuchandy/ce2319492824d548b5ed00a0529eb4ba)
 2 | HttpPipeline Chain Design | [reference](https://gist.github.com/anuchandy/f5339a661912d766214fc37570de8c7a)
 3 | RestProxy API | [reference](https://gist.github.com/anuchandy/5aa3c0f3bc164cfc6137b397c0a775ea)
-
 
 ### Presentations:
 
@@ -25,11 +33,3 @@ MD file used to present the journey from v1 (master) to v2 (this branch), and de
 ![Impressions](https://azure-sdk-impressions.azurewebsites.net/api/impressions/azure-sdk-for-java%2FREADME.png)
 
 
-### Modules (MinAPILevel 15):
-
-The following diagram shows the core modules and their dependencies. 
-
-The minSdkVersion of all the modules except `azure-core-http-okhttp` is 15. The `azure-core-http-okhttp` uses minSdkVersion as 21 since `okhttp` is baselined to L21.
-
-<img width="1170" alt="Modules" src="https://user-images.githubusercontent.com/1471612/108896719-21739a80-75ca-11eb-9b9e-3e1df65a56ec.png">
- 
