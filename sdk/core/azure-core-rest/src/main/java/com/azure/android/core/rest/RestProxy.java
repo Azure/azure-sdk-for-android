@@ -9,7 +9,7 @@ import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.exception.HttpResponseException;
-import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.Context;
 import com.azure.android.core.logging.ClientLogger;
@@ -43,7 +43,7 @@ public final class RestProxy implements InvocationHandler {
     @SuppressWarnings("unchecked")
     public static <A> A create(Class<A> swaggerInterface,
                                HttpPipeline httpPipeline,
-                               JacksonSerderAdapter serdeAdapter) {
+                               JacksonSerder serdeAdapter) {
         final SwaggerInterfaceParser interfaceParser = new SwaggerInterfaceParser(swaggerInterface, serdeAdapter);
         final RestProxy restProxy = new RestProxy(httpPipeline, interfaceParser);
         return (A) Proxy.newProxyInstance(swaggerInterface.getClassLoader(),

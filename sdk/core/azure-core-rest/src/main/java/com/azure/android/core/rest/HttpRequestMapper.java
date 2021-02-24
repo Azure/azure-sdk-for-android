@@ -21,7 +21,7 @@ import com.azure.android.core.rest.annotation.Post;
 import com.azure.android.core.rest.annotation.Put;
 import com.azure.android.core.rest.annotation.QueryParam;
 import com.azure.android.core.http.HttpRequest;
-import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.serde.jackson.SerdeEncoding;
 
 import java.io.ByteArrayOutputStream;
@@ -37,7 +37,7 @@ final class HttpRequestMapper {
     private static final Pattern PATTERN_COLON_SLASH_SLASH = Pattern.compile("://");
 
     private final String rawHost;
-    private final JacksonSerderAdapter serdeAdapter;
+    private final JacksonSerder serdeAdapter;
     private final HttpMethod httpMethod;
     private final String relativePath;
     private final List<MethodParameterMapping> hostMappings = new ArrayList<>();
@@ -49,7 +49,7 @@ final class HttpRequestMapper {
     private final String contentType;
     private final HttpHeaders headers = new HttpHeaders();
 
-    HttpRequestMapper(String rawHost, Method swaggerMethod, JacksonSerderAdapter serdeAdapter) {
+    HttpRequestMapper(String rawHost, Method swaggerMethod, JacksonSerder serdeAdapter) {
         this.rawHost = rawHost;
         this.serdeAdapter = serdeAdapter;
 

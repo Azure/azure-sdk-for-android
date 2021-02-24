@@ -34,7 +34,7 @@ public class FlatteningSerializerTests {
         qux.put("bar.b", "uuzz");
         foo.qux(qux);
 
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
 
         // serialization
         String serialized = adapter.serialize(foo, SerdeEncoding.JSON);
@@ -53,7 +53,7 @@ public class FlatteningSerializerTests {
 
     @Test
     public void canSerializeMapKeysWithDotAndSlash() throws Exception {
-        String serialized = new JacksonSerderAdapter().serialize(prepareSchoolModel(), SerdeEncoding.JSON);
+        String serialized = new JacksonSerder().serialize(prepareSchoolModel(), SerdeEncoding.JSON);
         Assertions.assertEquals("{\"teacher\":{\"students\":{\"af.B/D\":{},\"af.B/C\":{}}},\"tags\":{\"foo.aa\":\"bar\",\"x.y\":\"zz\"},\"properties\":{\"name\":\"school1\"}}", serialized);
     }
 
@@ -65,7 +65,7 @@ public class FlatteningSerializerTests {
      */
     @Test
     public void canHandleTypeWithTypeIdContainingDotAndNoProperties() throws IOException {
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
 
         String rabbitSerialized = "{\"@odata.type\":\"#Favourite.Pet.RabbitWithTypeIdContainingDot\"}";
         String shelterSerialized = "{\"properties\":{\"animalsInfo\":[{\"animal\":{\"@odata.type\":\"#Favourite.Pet.RabbitWithTypeIdContainingDot\"}},{\"animal\":{\"@odata.type\":\"#Favourite.Pet.RabbitWithTypeIdContainingDot\"}}]}}";
@@ -95,7 +95,7 @@ public class FlatteningSerializerTests {
      */
     @Test
     public void canHandleTypeWithTypeIdContainingDot0() throws IOException {
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
         // Serialize
         //
         List<String> meals = new ArrayList<>();
@@ -136,7 +136,7 @@ public class FlatteningSerializerTests {
      */
     @Test
     public void canHandleTypeWithTypeIdContainingDot1() throws IOException {
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
         // Serialize
         //
         List<String> meals = new ArrayList<>();
@@ -178,7 +178,7 @@ public class FlatteningSerializerTests {
     @Test
     public void canHandleTypeWithFlattenablePropertyAndTypeIdContainingDot0() throws IOException {
         AnimalWithTypeIdContainingDot animalToSerialize = new DogWithTypeIdContainingDot().withBreed("AKITA").withCuteLevel(10);
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
         // serialization
         String serialized = adapter.serialize(animalToSerialize, SerdeEncoding.JSON);
         String[] results = {
@@ -217,7 +217,7 @@ public class FlatteningSerializerTests {
     @Test
     public void canHandleTypeWithFlattenablePropertyAndTypeIdContainingDot1() throws IOException {
         DogWithTypeIdContainingDot dogToSerialize = new DogWithTypeIdContainingDot().withBreed("AKITA").withCuteLevel(10);
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
         // serialization
         String serialized = adapter.serialize(dogToSerialize, SerdeEncoding.JSON);
         String[] results = {
@@ -253,7 +253,7 @@ public class FlatteningSerializerTests {
      */
     @Test
     public void canHandleArrayOfTypeWithTypeIdContainingDot0() throws IOException {
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
         // Serialize
         //
         List<String> meals = new ArrayList<>();
@@ -311,7 +311,7 @@ public class FlatteningSerializerTests {
      */
     @Test
     public void canHandleArrayOfTypeWithTypeIdContainingDot1() throws IOException {
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
         // Serialize
         //
         List<String> meals = new ArrayList<>();
@@ -367,7 +367,7 @@ public class FlatteningSerializerTests {
      */
     @Test
     public void canHandleComposedTypeWithTypeIdContainingDot0() throws IOException {
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
         // serialization
         //
         List<String> meals = new ArrayList<>();
@@ -411,7 +411,7 @@ public class FlatteningSerializerTests {
 
     @Test
     public void canHandleComposedSpecificPolymorphicTypeWithTypeId() throws IOException {
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
         //
         // -- Validate vector property
         //
@@ -445,7 +445,7 @@ public class FlatteningSerializerTests {
 
     @Test
     public void canHandleComposedSpecificPolymorphicTypeWithoutTypeId() throws IOException {
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
         //
         // -- Validate vector property
         //
@@ -478,7 +478,7 @@ public class FlatteningSerializerTests {
 
     @Test
     public void canHandleComposedSpecificPolymorphicTypeWithAndWithoutTypeId() throws IOException {
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
         //
         // -- Validate vector property
         //
@@ -497,7 +497,7 @@ public class FlatteningSerializerTests {
 
     @Test
     public void canHandleComposedGenericPolymorphicTypeWithTypeId() throws IOException {
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
         //
         // -- Validate vector property
         //
@@ -536,7 +536,7 @@ public class FlatteningSerializerTests {
 
     @Test
     public void canHandleComposedGenericPolymorphicTypeWithoutTypeId() throws IOException {
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
         //
         // -- Validate vector property
         //
@@ -575,7 +575,7 @@ public class FlatteningSerializerTests {
 
     @Test
     public void canHandleComposedGenericPolymorphicTypeWithAndWithoutTypeId() throws IOException {
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
         //
         // -- Validate vector property
         //
@@ -600,7 +600,7 @@ public class FlatteningSerializerTests {
         FlattenedProduct productToSerialize = new FlattenedProduct();
         productToSerialize.withProductName("drink");
         productToSerialize.withPType("chai");
-        JacksonSerderAdapter adapter = new JacksonSerderAdapter();
+        JacksonSerder adapter = new JacksonSerder();
         // serialization
         //
         String serialized = adapter.serialize(productToSerialize,

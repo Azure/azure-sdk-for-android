@@ -27,14 +27,14 @@ public class AdditionalPropertiesSerializerTests {
         foo.additionalProperties().put("a.b", "c.d");
         foo.additionalProperties().put("properties.bar", "barbar");
 
-        String serialized = new JacksonSerderAdapter().serialize(foo, SerdeEncoding.JSON);
+        String serialized = new JacksonSerder().serialize(foo, SerdeEncoding.JSON);
         Assertions.assertEquals("{\"$type\":\"foo\",\"properties\":{\"bar\":\"hello.world\",\"props\":{\"baz\":[\"hello\",\"hello.world\"],\"q\":{\"qux\":{\"hello\":\"world\",\"a.b\":\"c.d\",\"bar.b\":\"uuzz\",\"bar.a\":\"ttyy\"}}}},\"bar\":\"baz\",\"a.b\":\"c.d\",\"properties.bar\":\"barbar\"}", serialized);
     }
 
     @Test
     public void canDeserializeAdditionalProperties() throws Exception {
         String wireValue = "{\"$type\":\"foo\",\"properties\":{\"bar\":\"hello.world\",\"props\":{\"baz\":[\"hello\",\"hello.world\"],\"q\":{\"qux\":{\"hello\":\"world\",\"a.b\":\"c.d\",\"bar.b\":\"uuzz\",\"bar.a\":\"ttyy\"}}}},\"bar\":\"baz\",\"a.b\":\"c.d\",\"properties.bar\":\"barbar\"}";
-        Foo deserialized = new JacksonSerderAdapter().deserialize(wireValue, Foo.class, SerdeEncoding.JSON);
+        Foo deserialized = new JacksonSerder().deserialize(wireValue, Foo.class, SerdeEncoding.JSON);
         Assertions.assertNotNull(deserialized.additionalProperties());
         Assertions.assertEquals("baz", deserialized.additionalProperties().get("bar"));
         Assertions.assertEquals("c.d", deserialized.additionalProperties().get("a.b"));
@@ -58,14 +58,14 @@ public class AdditionalPropertiesSerializerTests {
         foo.additionalProperties().put("a.b", "c.d");
         foo.additionalProperties().put("properties.bar", "barbar");
 
-        String serialized = new JacksonSerderAdapter().serialize(foo, SerdeEncoding.JSON);
+        String serialized = new JacksonSerder().serialize(foo, SerdeEncoding.JSON);
         Assertions.assertEquals("{\"$type\":\"foochild\",\"properties\":{\"bar\":\"hello.world\",\"props\":{\"baz\":[\"hello\",\"hello.world\"],\"q\":{\"qux\":{\"hello\":\"world\",\"a.b\":\"c.d\",\"bar.b\":\"uuzz\",\"bar.a\":\"ttyy\"}}}},\"bar\":\"baz\",\"a.b\":\"c.d\",\"properties.bar\":\"barbar\"}", serialized);
     }
 
     @Test
     public void canDeserializeAdditionalPropertiesThroughInheritance() throws Exception {
         String wireValue = "{\"$type\":\"foochild\",\"properties\":{\"bar\":\"hello.world\",\"props\":{\"baz\":[\"hello\",\"hello.world\"],\"q\":{\"qux\":{\"hello\":\"world\",\"a.b\":\"c.d\",\"bar.b\":\"uuzz\",\"bar.a\":\"ttyy\"}}}},\"bar\":\"baz\",\"a.b\":\"c.d\",\"properties.bar\":\"barbar\"}";
-        Foo deserialized = new JacksonSerderAdapter().deserialize(wireValue, Foo.class, SerdeEncoding.JSON);
+        Foo deserialized = new JacksonSerder().deserialize(wireValue, Foo.class, SerdeEncoding.JSON);
         // Check additional properties are populated
         Assertions.assertNotNull(deserialized.additionalProperties());
         Assertions.assertEquals("baz", deserialized.additionalProperties().get("bar"));
@@ -112,7 +112,7 @@ public class AdditionalPropertiesSerializerTests {
         nestedFoo.additionalProperties().put("name", "Sushi");
         foo.additionalProperties().put("foo", nestedFoo);
 
-        String serialized = new JacksonSerderAdapter().serialize(foo, SerdeEncoding.JSON);
+        String serialized = new JacksonSerder().serialize(foo, SerdeEncoding.JSON);
         Assertions.assertEquals("{\"$type\":\"foo\",\"properties\":{\"bar\":\"hello.world\",\"props\":{\"baz\":[\"hello\",\"hello.world\"],\"q\":{\"qux\":{\"hello\":\"world\",\"a.b\":\"c.d\",\"bar.b\":\"uuzz\",\"bar.a\":\"ttyy\"}}}},\"bar\":\"baz\",\"foo\":{\"properties\":{\"bar\":\"bye.world\"},\"name\":\"Sushi\"},\"a.b\":\"c.d\",\"properties.bar\":\"barbar\"}", serialized);
     }
 }

@@ -35,9 +35,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Implementation of serde adapter for Jackson.
+ * The type exposes APIs for serialization and deserialization using Jackson.
  */
-public class JacksonSerderAdapter {
+public class JacksonSerder {
     private static final Pattern PATTERN = Pattern.compile("^\"*|\"*$");
 
 //    private final ClientLogger logger = new ClientLogger(JacksonAdapter.class);
@@ -59,12 +59,12 @@ public class JacksonSerderAdapter {
     /*
      * The lazily-created serializer for this ServiceClient.
      */
-    private static JacksonSerderAdapter serdeAdapter;
+    private static JacksonSerder serdeAdapter;
 
     /**
      * Creates a new JacksonAdapter instance with default mapper settings.
      */
-    public JacksonSerderAdapter() {
+    public JacksonSerder() {
         simpleMapper = initializeObjectMapper(new ObjectMapper());
 
         xmlMapper = initializeObjectMapper(new XmlMapper())
@@ -101,9 +101,9 @@ public class JacksonSerderAdapter {
      *
      * @return the default serializer
      */
-    public static synchronized JacksonSerderAdapter createDefaultSerdeAdapter() {
+    public static synchronized JacksonSerder createDefaultSerdeAdapter() {
         if (serdeAdapter == null) {
-            serdeAdapter = new JacksonSerderAdapter();
+            serdeAdapter = new JacksonSerder();
         }
         return serdeAdapter;
     }

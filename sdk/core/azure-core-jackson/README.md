@@ -1,8 +1,8 @@
-# Azure Core Serde Jackson library for Android
+# Azure Core Jackson library for Android
 
 [![Build Documentation](https://img.shields.io/badge/documentation-published-blue.svg)](https://azure.github.io/azure-sdk-for-android)
 
-Azure Core Serde implementation for Jackson.
+Azure Core library for serialization and deserialization using Jackson.
 
 ## Getting started
 
@@ -16,7 +16,7 @@ Azure Core Serde implementation for Jackson.
 ```xml
 <dependency>
   <groupId>com.azure</groupId>
-  <artifactId>azure-core-serde-jackson</artifactId>
+  <artifactId>azure-core-jackson</artifactId>
   <version>1.0.0-beta.1</version>
 </dependency>
 ```
@@ -24,7 +24,7 @@ Azure Core Serde implementation for Jackson.
 
 ## Key concepts
 
-The key concepts of Azure Core Serde Jackson include:
+The key concepts of Azure Core Jackson include:
 
 - TODO
 

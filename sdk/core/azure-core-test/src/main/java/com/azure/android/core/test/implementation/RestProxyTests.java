@@ -39,7 +39,7 @@ import com.azure.android.core.test.MyRestException;
 import com.azure.android.core.test.implementation.entities.HttpBinFormDataJSON;
 import com.azure.android.core.test.implementation.entities.HttpBinHeaders;
 import com.azure.android.core.test.implementation.entities.HttpBinJSON;
-import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.jackson.JacksonSerder;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -3824,5 +3824,5 @@ public abstract class RestProxyTests {
         fail("'" + url2 + "' does not match with '" + s1 + "' or '" + s2 + "'.");
     }
 
-    private static final JacksonSerderAdapter SERIALIZER = new JacksonSerderAdapter();
+    private static final JacksonSerder SERIALIZER = new JacksonSerder();
 }

@@ -6,7 +6,7 @@ package com.azure.android.core.rest.implementation;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.serde.jackson.SerdeEncoding;
 import com.azure.android.core.serde.jackson.SerdeParseException;
 
@@ -46,7 +46,7 @@ public class HttpResponseExceptionInfo {
         this.exceptionBodyType = exceptionBodyType;
     }
 
-    public Throwable instantiateException(final JacksonSerderAdapter serdeAdapter,
+    public Throwable instantiateException(final JacksonSerder serdeAdapter,
                                           final HttpResponse httpResponse,
                                           final ClientLogger logger) {
         final byte[] responseContent = httpResponse.getBodyAsByteArray();

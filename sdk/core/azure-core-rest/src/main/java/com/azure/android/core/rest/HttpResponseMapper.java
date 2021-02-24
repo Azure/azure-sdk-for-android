@@ -13,7 +13,7 @@ import com.azure.android.core.http.exception.HttpResponseException;
 import com.azure.android.core.rest.annotation.UnexpectedResponseExceptionTypes;
 import com.azure.android.core.rest.implementation.HttpResponseExceptionInfo;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.serde.jackson.SerdeEncoding;
 import com.azure.android.core.serde.jackson.SerdeParseException;
 import com.azure.android.core.util.Base64Url;
@@ -85,7 +85,7 @@ final class HttpResponseMapper {
         this.responseCtrParamCount = this.responseCtr.getParameterTypes().length;
     }
 
-    Response<?> map(HttpResponse httpResponse, JacksonSerderAdapter serdeAdapter) throws Throwable {
+    Response<?> map(HttpResponse httpResponse, JacksonSerder serdeAdapter) throws Throwable {
         if (!isExpectedStatusCode(httpResponse.getStatusCode())) {
             final HttpResponseExceptionInfo exceptionInfo = getExceptionInfo(httpResponse.getStatusCode());
             throw logger.logThrowableAsError((exceptionInfo.instantiateException(serdeAdapter,
@@ -207,7 +207,7 @@ final class HttpResponseMapper {
             || TypeUtil.isTypeOrSubTypeOf(this.contentDecodeType, Boolean.class));
     }
 
-    private Object deserializeHttpBody(JacksonSerderAdapter serdeAdapter, HttpResponse httpResponse, Type bodyType) {
+    private Object deserializeHttpBody(JacksonSerder serdeAdapter, HttpResponse httpResponse, Type bodyType) {
         try {
             return serdeAdapter.deserialize(httpResponse.getBody(), bodyType,
                 SerdeEncoding.fromHeaders(httpResponse.getHeaders().toMap()));

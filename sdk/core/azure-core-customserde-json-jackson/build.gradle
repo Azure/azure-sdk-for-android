@@ -19,7 +19,7 @@ dependencies {
     // <!-- end: api Dependencies -->
 
     // <!-- begin: implementation Dependencies -->
-    implementation project (":sdk:core:azure-core-serde-jackson")
+    implementation project (':sdk:core:azure-core-jackson')
     implementation project (":sdk:core:azure-core-logging")
     // <!-- end: implementation Dependencies -->
 }

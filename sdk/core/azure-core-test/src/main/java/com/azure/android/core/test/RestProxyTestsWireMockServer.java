@@ -5,7 +5,7 @@ package com.azure.android.core.test;
 
 import com.azure.android.core.serde.jackson.SerdeEncoding;
 import com.azure.android.core.util.DateTimeRfc1123;
-import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.test.implementation.entities.HttpBinFormDataJSON;
 import com.azure.android.core.test.implementation.entities.HttpBinJSON;
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -132,7 +132,7 @@ public final class RestProxyTestsWireMockServer {
 
             return new ResponseDefinitionBuilder().withStatus(200)
                 .withHeaders(toWireMockHeaders(getBaseHttpHeaders()))
-                .withBody(new JacksonSerderAdapter().serialize(responseBody, SerdeEncoding.JSON))
+                .withBody(new JacksonSerder().serialize(responseBody, SerdeEncoding.JSON))
                 .build();
         }
 
@@ -174,7 +174,7 @@ public final class RestProxyTestsWireMockServer {
 
             return new ResponseDefinitionBuilder()
                 .withStatus(200)
-                .withBody(new JacksonSerderAdapter().serialize(formBody, SerdeEncoding.JSON))
+                .withBody(new JacksonSerder().serialize(formBody, SerdeEncoding.JSON))
                 .build();
         }
 

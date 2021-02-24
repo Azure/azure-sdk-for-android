@@ -21,11 +21,11 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class JacksonSerderAdapterTests {
+public class JacksonSerderTests {
     @Test
     public void emptyMap() throws IOException {
         final Map<String, String> map = new HashMap<>();
-        final JacksonSerderAdapter serializer = new JacksonSerderAdapter();
+        final JacksonSerder serializer = new JacksonSerder();
         assertEquals("{}", serializer.serialize(map, SerdeEncoding.JSON));
     }
 
@@ -33,7 +33,7 @@ public class JacksonSerderAdapterTests {
     public void mapWithNullKey() throws IOException {
         final Map<String, String> map = new HashMap<>();
         map.put(null, null);
-        final JacksonSerderAdapter serializer = new JacksonSerderAdapter();
+        final JacksonSerder serializer = new JacksonSerder();
         assertEquals("{}", serializer.serialize(map, SerdeEncoding.JSON));
     }
 
@@ -43,7 +43,7 @@ public class JacksonSerderAdapterTests {
         mapHolder.map(new HashMap<>());
         mapHolder.map().put("", null);
 
-        final JacksonSerderAdapter serializer = new JacksonSerderAdapter();
+        final JacksonSerder serializer = new JacksonSerder();
         assertEquals("{\"map\":{\"\":null}}", serializer.serialize(mapHolder, SerdeEncoding.JSON));
     }
 
@@ -52,7 +52,7 @@ public class JacksonSerderAdapterTests {
         final MapHolder mapHolder = new MapHolder();
         mapHolder.map = new HashMap<>();
         mapHolder.map.put("", "");
-        final JacksonSerderAdapter serializer = new JacksonSerderAdapter();
+        final JacksonSerder serializer = new JacksonSerder();
         assertEquals("{\"map\":{\"\":\"\"}}", serializer.serialize(mapHolder, SerdeEncoding.JSON));
     }
 
@@ -60,7 +60,7 @@ public class JacksonSerderAdapterTests {
     public void mapWithEmptyKeyAndNonEmptyValue() throws IOException {
         final Map<String, String> map = new HashMap<>();
         map.put("", "test");
-        final JacksonSerderAdapter serializer = new JacksonSerderAdapter();
+        final JacksonSerder serializer = new JacksonSerder();
         assertEquals("{\"\":\"test\"}", serializer.serialize(map, SerdeEncoding.JSON));
     }
 
@@ -90,7 +90,7 @@ public class JacksonSerderAdapterTests {
     @ParameterizedTest
     @MethodSource("deserializeJsonSupplier")
     public void deserializeJson(String json, OffsetDateTime expected) throws IOException {
-        DateTimeWrapper wrapper = JacksonSerderAdapter.createDefaultSerdeAdapter()
+        DateTimeWrapper wrapper = JacksonSerder.createDefaultSerdeAdapter()
             .deserialize(json, DateTimeWrapper.class, SerdeEncoding.JSON);
 
         assertEquals(expected, wrapper.getOffsetDateTime());
@@ -112,7 +112,7 @@ public class JacksonSerderAdapterTests {
     @ParameterizedTest
     @MethodSource("deserializeXmlSupplier")
     public void deserializeXml(String xml, OffsetDateTime expected) throws IOException {
-        DateTimeWrapper wrapper = JacksonSerderAdapter.createDefaultSerdeAdapter()
+        DateTimeWrapper wrapper = JacksonSerder.createDefaultSerdeAdapter()
             .deserialize(xml, DateTimeWrapper.class, SerdeEncoding.XML);
 
         assertEquals(expected, wrapper.getOffsetDateTime());

@@ -6,7 +6,7 @@ package com.azure.android.core.rest;
 import com.azure.android.core.rest.annotation.Host;
 import com.azure.android.core.rest.annotation.ServiceInterface;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.jackson.JacksonSerder;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -19,7 +19,7 @@ import java.util.Map;
 final class SwaggerInterfaceParser {
     private final String host;
     private final String serviceName;
-    private final JacksonSerderAdapter serdeAdapter;
+    private final JacksonSerder serdeAdapter;
     private static final Object METHOD_PARSERS_LOCK = new Object();
     private static final Map<Method, SwaggerMethodParser> METHOD_PARSERS = new HashMap<>();
 
@@ -29,7 +29,7 @@ final class SwaggerInterfaceParser {
      * @param swaggerInterface The interface that will be parsed.
      * @param serdeAdapter The serializer that will be used to serialize non-String header values and query values.
      */
-    SwaggerInterfaceParser(Class<?> swaggerInterface, JacksonSerderAdapter serdeAdapter) {
+    SwaggerInterfaceParser(Class<?> swaggerInterface, JacksonSerder serdeAdapter) {
         this(swaggerInterface, serdeAdapter, null);
     }
 
@@ -40,7 +40,7 @@ final class SwaggerInterfaceParser {
      * @param serdeAdapter The serializer that will be used to serialize non-String header values and query values.
      * @param host The host of URLs that this Swagger interface targets.
      */
-    SwaggerInterfaceParser(Class<?> swaggerInterface, JacksonSerderAdapter serdeAdapter, String host) {
+    SwaggerInterfaceParser(Class<?> swaggerInterface, JacksonSerder serdeAdapter, String host) {
         this.serdeAdapter = serdeAdapter;
 
         if (host != null && host.length() != 0) {
