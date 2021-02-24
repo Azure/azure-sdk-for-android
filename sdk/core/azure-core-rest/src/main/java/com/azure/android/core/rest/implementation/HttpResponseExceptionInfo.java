@@ -46,7 +46,7 @@ public class HttpResponseExceptionInfo {
         this.exceptionBodyType = exceptionBodyType;
     }
 
-    public Throwable instantiateException(final JacksonSerder serdeAdapter,
+    public Throwable instantiateException(final JacksonSerder jacksonSerder,
                                           final HttpResponse httpResponse,
                                           final ClientLogger logger) {
         final byte[] responseContent = httpResponse.getBodyAsByteArray();
@@ -56,7 +56,7 @@ public class HttpResponseExceptionInfo {
 
         Object responseDecodedContent = null;
         try {
-            responseDecodedContent = serdeAdapter.deserialize(contentStream,
+            responseDecodedContent = jacksonSerder.deserialize(contentStream,
                 this.exceptionBodyType,
                 SerdeEncoding.fromHeaders(httpResponse.getHeaders().toMap()));
         }  catch (IOException | SerdeParseException ex) {

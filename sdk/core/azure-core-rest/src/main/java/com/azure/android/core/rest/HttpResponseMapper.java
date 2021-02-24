@@ -85,17 +85,17 @@ final class HttpResponseMapper {
         this.responseCtrParamCount = this.responseCtr.getParameterTypes().length;
     }
 
-    Response<?> map(HttpResponse httpResponse, JacksonSerder serdeAdapter) throws Throwable {
+    Response<?> map(HttpResponse httpResponse, JacksonSerder jacksonSerder) throws Throwable {
         if (!isExpectedStatusCode(httpResponse.getStatusCode())) {
             final HttpResponseExceptionInfo exceptionInfo = getExceptionInfo(httpResponse.getStatusCode());
-            throw logger.logThrowableAsError((exceptionInfo.instantiateException(serdeAdapter,
+            throw logger.logThrowableAsError((exceptionInfo.instantiateException(jacksonSerder,
                 httpResponse,
                 logger)));
         } else {
             Object headerObject = null;
             if (this.headerDecodeType != null) {
                 try {
-                    headerObject = serdeAdapter.deserialize(httpResponse.getHeaders().toMap(), headerDecodeType);
+                    headerObject = jacksonSerder.deserialize(httpResponse.getHeaders().toMap(), headerDecodeType);
                 } catch (IOException ioe) {
                     throw logger.logExceptionAsError(
                         new HttpResponseException("HTTP response has malformed headers", httpResponse, ioe));
@@ -145,7 +145,7 @@ final class HttpResponseMapper {
                         httpResponse.getBodyAsByteArray());
                 }
             } else if (this.contentEncodedType == null) {
-                final Object decodedContent = deserializeHttpBody(serdeAdapter,
+                final Object decodedContent = deserializeHttpBody(jacksonSerder,
                     httpResponse,
                     this.contentDecodeType);
                 return instantiateResponse(this.responseCtr,
@@ -161,7 +161,7 @@ final class HttpResponseMapper {
                         ? TypeUtil.createParameterizedType(ItemPage.class, this.contentDecodeType)
                         : this.contentEncodedType;
 
-                    final Object decodedContent = deserializeHttpBody(serdeAdapter, httpResponse, pageType);
+                    final Object decodedContent = deserializeHttpBody(jacksonSerder, httpResponse, pageType);
                     return instantiateResponse(this.responseCtr,
                         this.responseCtrParamCount,
                         httpResponse.getRequest(),
@@ -170,7 +170,7 @@ final class HttpResponseMapper {
                         decodedContent);
                 } else {
                     Objects.requireNonNull(this.expandedContentEncodedType);
-                    final Object encodedContent = deserializeHttpBody(serdeAdapter,
+                    final Object encodedContent = deserializeHttpBody(jacksonSerder,
                         httpResponse,
                         this.expandedContentEncodedType);
                     final Object decodedContent = decodeContent(encodedContent,
@@ -207,9 +207,9 @@ final class HttpResponseMapper {
             || TypeUtil.isTypeOrSubTypeOf(this.contentDecodeType, Boolean.class));
     }
 
-    private Object deserializeHttpBody(JacksonSerder serdeAdapter, HttpResponse httpResponse, Type bodyType) {
+    private Object deserializeHttpBody(JacksonSerder jacksonSerder, HttpResponse httpResponse, Type bodyType) {
         try {
-            return serdeAdapter.deserialize(httpResponse.getBody(), bodyType,
+            return jacksonSerder.deserialize(httpResponse.getBody(), bodyType,
                 SerdeEncoding.fromHeaders(httpResponse.getHeaders().toMap()));
 
         } catch (SerdeParseException e) {

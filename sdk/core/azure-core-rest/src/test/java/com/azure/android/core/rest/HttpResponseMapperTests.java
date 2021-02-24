@@ -474,13 +474,13 @@ public class HttpResponseMapperTests {
         HttpResponseMapper mapper = new HttpResponseMapper(getPersonMethod, extractCallbackType(getPersonMethod), logger);
 
         Person person = new Person("John Doe", 40, OffsetDateTime.parse("1980-01-01T10:00:00Z"));
-        JacksonSerder serdeAdapter = new JacksonSerder();
-        String wirePerson = serdeAdapter.serialize(person, SerdeEncoding.JSON);
+        JacksonSerder jacksonSerder = new JacksonSerder();
+        String wirePerson = jacksonSerder.serialize(person, SerdeEncoding.JSON);
 
         MockHttpResponse httpResponse = new MockHttpResponse(HttpMethod.GET,
             "https://raw.host.com", 200, new HttpHeaders(), wirePerson.getBytes());
 
-        Response<Person> restStreamResponse = (Response<Person>) mapper.map(httpResponse, serdeAdapter);
+        Response<Person> restStreamResponse = (Response<Person>) mapper.map(httpResponse, jacksonSerder);
         Person receivedPerson = restStreamResponse.getValue();
 
         assertEquals(person.getName(), receivedPerson.getName());
@@ -536,15 +536,15 @@ public class HttpResponseMapperTests {
         HttpResponseMapper mapper = new HttpResponseMapper(getError409Method, extractCallbackType(getError409Method), logger);
 
         ErrorData409 errorData409 = new ErrorData409(677, "retry after 10 sec");
-        JacksonSerder serdeAdapter = new JacksonSerder();
-        String wireErrorData409 = serdeAdapter.serialize(errorData409, SerdeEncoding.JSON);
+        JacksonSerder jacksonSerder = new JacksonSerder();
+        String wireErrorData409 = jacksonSerder.serialize(errorData409, SerdeEncoding.JSON);
 
         MockHttpResponse httpResponse = new MockHttpResponse(HttpMethod.GET,
             "https://raw.host.com", 409, new HttpHeaders(), wireErrorData409.getBytes());
 
         Retry409Exception ex = null;
         try {
-            mapper.map(httpResponse, serdeAdapter);
+            mapper.map(httpResponse, jacksonSerder);
         } catch (Retry409Exception e) {
             ex = e;
         }
@@ -602,7 +602,7 @@ public class HttpResponseMapperTests {
 
         Method base64UrlMethod = clazz.getDeclaredMethod("base64Url", Callback.class);
         HttpResponseMapper mapperBase64 = new HttpResponseMapper(base64UrlMethod, extractCallbackType(base64UrlMethod), logger);
-        JacksonSerder serdeAdapter = new JacksonSerder();
+        JacksonSerder jacksonSerder = new JacksonSerder();
 
         final String valueToEncode = "hello azure android";
 
@@ -612,7 +612,7 @@ public class HttpResponseMapperTests {
         MockHttpResponse httpResponseBase64EncodedBytes0 = new MockHttpResponse(HttpMethod.GET,
             "https://raw.host.com", 200, new HttpHeaders(), base64EncodedBytes);
 
-        Response<byte[]> restResponseBase64DecodedBytes0 = (Response<byte[]>)mapperBase64.map(httpResponseBase64EncodedBytes0, serdeAdapter);
+        Response<byte[]> restResponseBase64DecodedBytes0 = (Response<byte[]>)mapperBase64.map(httpResponseBase64EncodedBytes0, jacksonSerder);
         byte[] decodedBytes0 = restResponseBase64DecodedBytes0.getValue();
         assertNotNull(decodedBytes0);
         assertArrayEquals(valueToEncode.getBytes(), decodedBytes0);
@@ -626,7 +626,7 @@ public class HttpResponseMapperTests {
         MockHttpResponse httpResponseBase64EncodedBytes1 = new MockHttpResponse(HttpMethod.GET,
             "https://raw.host.com", 200, new HttpHeaders(), base64EncodedBytesAsJsonString);
 
-        Response<byte[]> restResponseBase64DecodedBytes1 = (Response<byte[]>)mapperBase64.map(httpResponseBase64EncodedBytes1, serdeAdapter);
+        Response<byte[]> restResponseBase64DecodedBytes1 = (Response<byte[]>)mapperBase64.map(httpResponseBase64EncodedBytes1, jacksonSerder);
         byte[] decodedBytes1 = restResponseBase64DecodedBytes1.getValue();
         assertNotNull(decodedBytes1);
         assertArrayEquals(valueToEncode.getBytes(), decodedBytes1);
@@ -638,7 +638,7 @@ public class HttpResponseMapperTests {
 
         Method base64UrlListMethod = clazz.getDeclaredMethod("base64UrlList", Callback.class);
         HttpResponseMapper mapperBase64List = new HttpResponseMapper(base64UrlListMethod, extractCallbackType(base64UrlListMethod), logger);
-        JacksonSerder serdeAdapter = new JacksonSerder();
+        JacksonSerder jacksonSerder = new JacksonSerder();
 
         final String value0ToEncode = "hello azure android";
         final String value1ToEncode = "hello azure android again";
@@ -646,13 +646,13 @@ public class HttpResponseMapperTests {
         List<String> base64EncodedBytesList = new ArrayList<>();
         base64EncodedBytesList.add(Base64Url.encode(value0ToEncode.getBytes()).toString());
         base64EncodedBytesList.add(Base64Url.encode(value1ToEncode.getBytes()).toString());
-        String wireBase64EncodedList = serdeAdapter.serialize(base64EncodedBytesList, SerdeEncoding.JSON);
+        String wireBase64EncodedList = jacksonSerder.serialize(base64EncodedBytesList, SerdeEncoding.JSON);
 
         MockHttpResponse httpResponseBase64EncodedBytesList = new MockHttpResponse(HttpMethod.GET,
             "https://raw.host.com", 200, new HttpHeaders(), wireBase64EncodedList.getBytes());
 
         Response<List<byte[]>> restResponseBase64DecodedBytesList
-            = (Response<List<byte[]>>)mapperBase64List.map(httpResponseBase64EncodedBytesList, serdeAdapter);
+            = (Response<List<byte[]>>)mapperBase64List.map(httpResponseBase64EncodedBytesList, jacksonSerder);
 
         List<byte[]> decodedBytesList = restResponseBase64DecodedBytesList.getValue();
         assertNotNull(decodedBytesList);
@@ -667,7 +667,7 @@ public class HttpResponseMapperTests {
 
         Method base64UrlListMethod = clazz.getDeclaredMethod("base64UrlMap", Callback.class);
         HttpResponseMapper mapperBase64List = new HttpResponseMapper(base64UrlListMethod, extractCallbackType(base64UrlListMethod), logger);
-        JacksonSerder serdeAdapter = new JacksonSerder();
+        JacksonSerder jacksonSerder = new JacksonSerder();
 
         final String value0ToEncode = "hello azure android";
         final String value1ToEncode = "hello azure android again";
@@ -675,13 +675,13 @@ public class HttpResponseMapperTests {
         Map<String, String> base64EncodedBytesMap = new HashMap<>();
         base64EncodedBytesMap.put("v0", Base64Url.encode(value0ToEncode.getBytes()).toString());
         base64EncodedBytesMap.put("v1", Base64Url.encode(value1ToEncode.getBytes()).toString());
-        String wireBase64EncodedList = serdeAdapter.serialize(base64EncodedBytesMap, SerdeEncoding.JSON);
+        String wireBase64EncodedList = jacksonSerder.serialize(base64EncodedBytesMap, SerdeEncoding.JSON);
 
         MockHttpResponse httpResponseBase64DecodedBytesMap = new MockHttpResponse(HttpMethod.GET,
             "https://raw.host.com", 200, new HttpHeaders(), wireBase64EncodedList.getBytes());
 
         Response<Map<String, byte[]>> restResponseBase64DecodedBytesMap
-            = (Response<Map<String, byte[]>>)mapperBase64List.map(httpResponseBase64DecodedBytesMap, serdeAdapter);
+            = (Response<Map<String, byte[]>>)mapperBase64List.map(httpResponseBase64DecodedBytesMap, jacksonSerder);
 
         Map<String, byte[]> decodedBytesList = restResponseBase64DecodedBytesMap.getValue();
         assertNotNull(decodedBytesList);
@@ -710,7 +710,7 @@ public class HttpResponseMapperTests {
 
         Method dateTimeRfc1123Method = clazz.getDeclaredMethod("dateTimeRfc1123", Callback.class);
         HttpResponseMapper mapperDateTimeRfc1123 = new HttpResponseMapper(dateTimeRfc1123Method, extractCallbackType(dateTimeRfc1123Method), logger);
-        JacksonSerder serdeAdapter = new JacksonSerder();
+        JacksonSerder jacksonSerder = new JacksonSerder();
 
         OffsetDateTime offsetDateTime = OffsetDateTime.parse("1980-01-01T10:00:00Z");
         DateTimeRfc1123 dateTimeRfc1123 = new DateTimeRfc1123(offsetDateTime);
@@ -720,7 +720,7 @@ public class HttpResponseMapperTests {
             "https://raw.host.com", 200, new HttpHeaders(), wireDateTimeRfc1123JsonString.getBytes());
 
         Response<OffsetDateTime> restResponseBase64OffsetDataTime
-            = (Response<OffsetDateTime>)mapperDateTimeRfc1123.map(httpResponseDateTimeRfc1123, serdeAdapter);
+            = (Response<OffsetDateTime>)mapperDateTimeRfc1123.map(httpResponseDateTimeRfc1123, jacksonSerder);
 
         OffsetDateTime dateTimeReceived = restResponseBase64OffsetDataTime.getValue();
         assertNotNull(dateTimeReceived);
@@ -734,7 +734,7 @@ public class HttpResponseMapperTests {
         Method dateTimeRfc1123ListMethod = clazz.getDeclaredMethod("dateTimeRfc1123List", Callback.class);
         HttpResponseMapper mapperDateTimeRfc1123
             = new HttpResponseMapper(dateTimeRfc1123ListMethod, extractCallbackType(dateTimeRfc1123ListMethod), logger);
-        JacksonSerder serdeAdapter = new JacksonSerder();
+        JacksonSerder jacksonSerder = new JacksonSerder();
 
         OffsetDateTime offsetDateTime0 = OffsetDateTime.parse("1980-01-01T10:00:00Z");
         OffsetDateTime offsetDateTime1 = OffsetDateTime.parse("1981-01-01T10:00:00Z");
@@ -743,13 +743,13 @@ public class HttpResponseMapperTests {
         wireDateTimeRfc1123List.add(new DateTimeRfc1123(offsetDateTime0).toString());
         wireDateTimeRfc1123List.add(new DateTimeRfc1123(offsetDateTime1).toString());
 
-        String wireDateTimeRfc1123JsonList = serdeAdapter.serialize(wireDateTimeRfc1123List, SerdeEncoding.JSON);
+        String wireDateTimeRfc1123JsonList = jacksonSerder.serialize(wireDateTimeRfc1123List, SerdeEncoding.JSON);
 
         MockHttpResponse httpResponseDateTimeRfc1123 = new MockHttpResponse(HttpMethod.GET,
             "https://raw.host.com", 200, new HttpHeaders(), wireDateTimeRfc1123JsonList.getBytes());
 
         Response<List<OffsetDateTime>> httpResponseOffsetDateTimeList
-            = (Response<List<OffsetDateTime>>)mapperDateTimeRfc1123.map(httpResponseDateTimeRfc1123, serdeAdapter);
+            = (Response<List<OffsetDateTime>>)mapperDateTimeRfc1123.map(httpResponseDateTimeRfc1123, jacksonSerder);
 
         List<OffsetDateTime> dateTimeListReceived = httpResponseOffsetDateTimeList.getValue();
         assertNotNull(dateTimeListReceived);
@@ -766,7 +766,7 @@ public class HttpResponseMapperTests {
         Method dateTimeRfc1123MapMethod = clazz.getDeclaredMethod("dateTimeRfc1123Map", Callback.class);
         HttpResponseMapper mapperDateTimeRfc1123
             = new HttpResponseMapper(dateTimeRfc1123MapMethod, extractCallbackType(dateTimeRfc1123MapMethod), logger);
-        JacksonSerder serdeAdapter = new JacksonSerder();
+        JacksonSerder jacksonSerder = new JacksonSerder();
 
         OffsetDateTime offsetDateTime0 = OffsetDateTime.parse("1980-01-01T10:00:00Z");
         OffsetDateTime offsetDateTime1 = OffsetDateTime.parse("1981-01-01T10:00:00Z");
@@ -775,13 +775,13 @@ public class HttpResponseMapperTests {
         wireDateTimeRfc1123Map.put("v0", new DateTimeRfc1123(offsetDateTime0).toString());
         wireDateTimeRfc1123Map.put("v1", new DateTimeRfc1123(offsetDateTime1).toString());
 
-        String wireDateTimeRfc1123JsonMap = serdeAdapter.serialize(wireDateTimeRfc1123Map, SerdeEncoding.JSON);
+        String wireDateTimeRfc1123JsonMap = jacksonSerder.serialize(wireDateTimeRfc1123Map, SerdeEncoding.JSON);
 
         MockHttpResponse httpResponseOffsetDateTimeMap = new MockHttpResponse(HttpMethod.GET,
             "https://raw.host.com", 200, new HttpHeaders(), wireDateTimeRfc1123JsonMap.getBytes());
 
         Response<Map<String, OffsetDateTime>> restResponseBase64OffsetDataTimeMap
-            = (Response<Map<String, OffsetDateTime>>)mapperDateTimeRfc1123.map(httpResponseOffsetDateTimeMap, serdeAdapter);
+            = (Response<Map<String, OffsetDateTime>>)mapperDateTimeRfc1123.map(httpResponseOffsetDateTimeMap, jacksonSerder);
 
         Map<String, OffsetDateTime> dateTimeMapReceived = restResponseBase64OffsetDataTimeMap.getValue();
         assertNotNull(dateTimeMapReceived);
@@ -811,7 +811,7 @@ public class HttpResponseMapperTests {
 
         Method unixTimeMethod = clazz.getDeclaredMethod("unixTime", Callback.class);
         HttpResponseMapper mapperUnixTime = new HttpResponseMapper(unixTimeMethod, extractCallbackType(unixTimeMethod), logger);
-        JacksonSerder serdeAdapter = new JacksonSerder();
+        JacksonSerder jacksonSerder = new JacksonSerder();
 
         OffsetDateTime offsetDateTime = OffsetDateTime.parse("1980-01-01T10:00:00Z");
         UnixTime unixTime = new UnixTime(offsetDateTime);
@@ -821,7 +821,7 @@ public class HttpResponseMapperTests {
             "https://raw.host.com", 200, new HttpHeaders(), wireUnixTimeJsonNumber.getBytes());
 
         Response<OffsetDateTime> restResponseUnixTime
-            = (Response<OffsetDateTime>)mapperUnixTime.map(httpResponseUnixTime, serdeAdapter);
+            = (Response<OffsetDateTime>)mapperUnixTime.map(httpResponseUnixTime, jacksonSerder);
 
         OffsetDateTime dateTimeReceived = restResponseUnixTime.getValue();
         assertNotNull(dateTimeReceived);
@@ -835,7 +835,7 @@ public class HttpResponseMapperTests {
         Method unixTimeListMethod = clazz.getDeclaredMethod("unixTimeList", Callback.class);
         HttpResponseMapper mapperUnixTime
             = new HttpResponseMapper(unixTimeListMethod, extractCallbackType(unixTimeListMethod), logger);
-        JacksonSerder serdeAdapter = new JacksonSerder();
+        JacksonSerder jacksonSerder = new JacksonSerder();
 
         OffsetDateTime offsetDateTime0 = OffsetDateTime.parse("1980-01-01T10:00:00Z");
         OffsetDateTime offsetDateTime1 = OffsetDateTime.parse("1981-01-01T10:00:00Z");
@@ -844,13 +844,13 @@ public class HttpResponseMapperTests {
         wireUnixTimeList.add(Integer.parseInt(new UnixTime(offsetDateTime0).toString()));
         wireUnixTimeList.add(Integer.parseInt(new UnixTime(offsetDateTime1).toString()));
 
-        String wireUnixTimeJsonList = serdeAdapter.serialize(wireUnixTimeList, SerdeEncoding.JSON);
+        String wireUnixTimeJsonList = jacksonSerder.serialize(wireUnixTimeList, SerdeEncoding.JSON);
 
         MockHttpResponse httpResponseOffsetDateTimeList = new MockHttpResponse(HttpMethod.GET,
             "https://raw.host.com", 200, new HttpHeaders(), wireUnixTimeJsonList.getBytes());
 
         Response<List<OffsetDateTime>> restResponseBase64OffsetDataTimeList
-            = (Response<List<OffsetDateTime>>)mapperUnixTime.map(httpResponseOffsetDateTimeList, serdeAdapter);
+            = (Response<List<OffsetDateTime>>)mapperUnixTime.map(httpResponseOffsetDateTimeList, jacksonSerder);
 
         List<OffsetDateTime> dateTimeListReceived = restResponseBase64OffsetDataTimeList.getValue();
         assertNotNull(dateTimeListReceived);
@@ -867,7 +867,7 @@ public class HttpResponseMapperTests {
         Method unixTimeMapMethod = clazz.getDeclaredMethod("unixTimeMap", Callback.class);
         HttpResponseMapper mapperDateTimeRfc1123
             = new HttpResponseMapper(unixTimeMapMethod, extractCallbackType(unixTimeMapMethod), logger);
-        JacksonSerder serdeAdapter = new JacksonSerder();
+        JacksonSerder jacksonSerder = new JacksonSerder();
 
         OffsetDateTime offsetDateTime0 = OffsetDateTime.parse("1980-01-01T10:00:00Z");
         OffsetDateTime offsetDateTime1 = OffsetDateTime.parse("1981-01-01T10:00:00Z");
@@ -876,13 +876,13 @@ public class HttpResponseMapperTests {
         wireUnixTimeMap.put("v0", Integer.parseInt(new UnixTime(offsetDateTime0).toString()));
         wireUnixTimeMap.put("v1", Integer.parseInt(new UnixTime(offsetDateTime1).toString()));
 
-        String wireDateTimeRfc1123JsonMap = serdeAdapter.serialize(wireUnixTimeMap, SerdeEncoding.JSON);
+        String wireDateTimeRfc1123JsonMap = jacksonSerder.serialize(wireUnixTimeMap, SerdeEncoding.JSON);
 
         MockHttpResponse httpResponseDateTimeOffsetMap = new MockHttpResponse(HttpMethod.GET,
             "https://raw.host.com", 200, new HttpHeaders(), wireDateTimeRfc1123JsonMap.getBytes());
 
         Response<Map<String, OffsetDateTime>> restResponseOffsetDataTimeMap
-            = (Response<Map<String, OffsetDateTime>>)mapperDateTimeRfc1123.map(httpResponseDateTimeOffsetMap, serdeAdapter);
+            = (Response<Map<String, OffsetDateTime>>)mapperDateTimeRfc1123.map(httpResponseDateTimeOffsetMap, jacksonSerder);
 
         Map<String, OffsetDateTime> dateTimeMapReceived = restResponseOffsetDataTimeMap.getValue();
         assertNotNull(dateTimeMapReceived);

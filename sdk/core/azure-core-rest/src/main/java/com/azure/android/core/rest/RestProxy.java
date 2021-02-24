@@ -36,15 +36,15 @@ public final class RestProxy implements InvocationHandler {
      *
      * @param swaggerInterface the Swagger interface to provide a proxy implementation for.
      * @param httpPipeline the HttpPipelinePolicy and HttpClient pipeline that will be used to send Http requests.
-     * @param serdeAdapter the serializer that will be used to convert POJOs to and from request and response bodies
+     * @param jacksonSerder the serializer that will be used to convert POJOs to and from request and response bodies
      * @param <A> the type of the Swagger interface.
      * @return a proxy implementation of the provided Swagger interface.
      */
     @SuppressWarnings("unchecked")
     public static <A> A create(Class<A> swaggerInterface,
                                HttpPipeline httpPipeline,
-                               JacksonSerder serdeAdapter) {
-        final SwaggerInterfaceParser interfaceParser = new SwaggerInterfaceParser(swaggerInterface, serdeAdapter);
+                               JacksonSerder jacksonSerder) {
+        final SwaggerInterfaceParser interfaceParser = new SwaggerInterfaceParser(swaggerInterface, jacksonSerder);
         final RestProxy restProxy = new RestProxy(httpPipeline, interfaceParser);
         return (A) Proxy.newProxyInstance(swaggerInterface.getClassLoader(),
             new Class<?>[]{swaggerInterface},

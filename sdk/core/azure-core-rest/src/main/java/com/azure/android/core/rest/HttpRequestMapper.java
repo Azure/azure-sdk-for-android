@@ -37,7 +37,7 @@ final class HttpRequestMapper {
     private static final Pattern PATTERN_COLON_SLASH_SLASH = Pattern.compile("://");
 
     private final String rawHost;
-    private final JacksonSerder serdeAdapter;
+    private final JacksonSerder jacksonSerder;
     private final HttpMethod httpMethod;
     private final String relativePath;
     private final List<MethodParameterMapping> hostMappings = new ArrayList<>();
@@ -49,9 +49,9 @@ final class HttpRequestMapper {
     private final String contentType;
     private final HttpHeaders headers = new HttpHeaders();
 
-    HttpRequestMapper(String rawHost, Method swaggerMethod, JacksonSerder serdeAdapter) {
+    HttpRequestMapper(String rawHost, Method swaggerMethod, JacksonSerder jacksonSerder) {
         this.rawHost = rawHost;
-        this.serdeAdapter = serdeAdapter;
+        this.jacksonSerder = jacksonSerder;
 
         if (swaggerMethod.isAnnotationPresent(Get.class)) {
             this.httpMethod = HttpMethod.GET;
@@ -197,7 +197,7 @@ final class HttpRequestMapper {
 
                 if (isJson) {
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    this.serdeAdapter.serialize(content, SerdeEncoding.JSON, stream);
+                    this.jacksonSerder.serialize(content, SerdeEncoding.JSON, stream);
                     request.setHeader("Content-Length", String.valueOf(stream.size()));
                     request.setBody(stream.toByteArray());
                 } else if (content instanceof byte[]) {
@@ -207,7 +207,7 @@ final class HttpRequestMapper {
                     request.setBody(contentString);
                 } else {
                     ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                    this.serdeAdapter.serialize(content,
+                    this.jacksonSerder.serialize(content,
                         SerdeEncoding.fromHeaders(request.getHeaders().toMap()),
                         stream);
                     request.setHeader("Content-Length", String.valueOf(stream.size()));
@@ -342,7 +342,7 @@ final class HttpRequestMapper {
             final List<?> listElements = (List<?>) entryValue;
             for (Object element : listElements) {
                 if (element != null) {
-                    String serializedElement = this.serdeAdapter.serializeRaw(element);
+                    String serializedElement = this.jacksonSerder.serializeRaw(element);
                     if (serializedElement != null) {
                         if (shouldEncode) {
                             formDataEntryBuilder.append(encodedEntryKey + "="
@@ -364,7 +364,7 @@ final class HttpRequestMapper {
                 return null;
             }
         } else {
-            final String serializedValue = this.serdeAdapter.serializeRaw(entryValue);
+            final String serializedValue = this.jacksonSerder.serializeRaw(entryValue);
             if (serializedValue != null) {
                 if (shouldEncode) {
                     return encodedEntryKey + "=" + UrlEscapers.FORM_ESCAPER.escape(serializedValue);
@@ -408,7 +408,7 @@ final class HttpRequestMapper {
         } else if (value instanceof String) {
             return (String) value;
         } else {
-            return this.serdeAdapter.serializeRaw(value);
+            return this.jacksonSerder.serializeRaw(value);
         }
     }
 
