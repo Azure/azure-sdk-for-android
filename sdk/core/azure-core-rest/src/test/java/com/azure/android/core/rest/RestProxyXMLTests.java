@@ -10,6 +10,7 @@ import com.azure.android.core.http.HttpHeaders;
 import com.azure.android.core.http.HttpMethod;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.serde.jackson.SerdeEncoding;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.http.HttpPipelineBuilder;
@@ -19,7 +20,6 @@ import com.azure.android.core.rest.annotation.Host;
 import com.azure.android.core.rest.annotation.Put;
 import com.azure.android.core.rest.annotation.ServiceInterface;
 import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
-import com.azure.android.core.serde.SerdeEncoding;
 
 import org.junit.jupiter.api.Test;
 import org.threeten.bp.OffsetDateTime;

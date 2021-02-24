@@ -3,11 +3,9 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.SerdeEncoding;
-import com.azure.android.core.serde.SerdeProperty;
-import com.azure.android.core.serde.SerdeXmlRootElement;
-
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -79,9 +77,9 @@ public class JacksonSerderAdapterTests {
         }
     }
 
-    @SerdeXmlRootElement(localName = "XmlString")
+    @JacksonXmlRootElement(localName = "XmlString")
     private static class XmlString {
-        @SerdeProperty("Value")
+        @JsonProperty("Value")
         private String value;
 
         public String getValue() {
@@ -133,9 +131,9 @@ public class JacksonSerderAdapterTests {
         );
     }
 
-    @SerdeXmlRootElement(localName = "Wrapper")
+    @JacksonXmlRootElement(localName = "Wrapper")
     private static class DateTimeWrapper {
-        @SerdeProperty(value = "OffsetDateTime")
+        @JsonProperty(value = "OffsetDateTime", required = true)
         private OffsetDateTime offsetDateTime;
 
         public DateTimeWrapper setOffsetDateTime(OffsetDateTime offsetDateTime) {

@@ -3,11 +3,10 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.JsonFlatten;
-import com.azure.android.core.serde.SerdeProperty;
-import com.azure.android.core.serde.SerdeSubTypes;
-import com.azure.android.core.serde.SerdeTypeInfo;
-import com.azure.android.core.serde.SerdeTypeName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.List;
 import java.util.Map;
@@ -16,23 +15,23 @@ import java.util.Map;
  * Class for testing serialization.
  */
 @JsonFlatten
-@SerdeTypeInfo(use = SerdeTypeInfo.Id.NAME, include = SerdeTypeInfo.As.PROPERTY, property = "$type")
-@SerdeTypeName("foo")
-@SerdeSubTypes({
-        @SerdeSubTypes.Type(name = "foochild", value = FooChild.class)
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "$type")
+@JsonTypeName("foo")
+@JsonSubTypes({
+    @JsonSubTypes.Type(name = "foochild", value = FooChild.class)
 })
 public class Foo {
-    @SerdeProperty(value = "properties.bar")
+    @JsonProperty(value = "properties.bar")
     private String bar;
-    @SerdeProperty(value = "properties.props.baz")
+    @JsonProperty(value = "properties.props.baz")
     private List<String>  baz;
-    @SerdeProperty(value = "properties.props.q.qux")
+    @JsonProperty(value = "properties.props.q.qux")
     private Map<String, String> qux;
-    @SerdeProperty(value = "properties.more\\.props")
+    @JsonProperty(value = "properties.more\\.props")
     private String moreProps;
-    @SerdeProperty(value = "props.empty")
+    @JsonProperty(value = "props.empty")
     private Integer empty;
-    @SerdeProperty(value = "")
+    @JsonProperty(value = "")
     private Map<String, Object> additionalProperties;
 
     public String bar() {

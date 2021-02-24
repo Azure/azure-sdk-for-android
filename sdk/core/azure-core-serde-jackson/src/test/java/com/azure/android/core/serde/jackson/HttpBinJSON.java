@@ -3,7 +3,7 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.SerdeProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.Map;
 
@@ -11,13 +11,13 @@ import java.util.Map;
  * Maps to the JSON return values from http://httpbin.org.
  */
 public class HttpBinJSON {
-    @SerdeProperty("url")
+    @JsonProperty("url")
     private String url;
 
-    @SerdeProperty("headers")
+    @JsonProperty("headers")
     private Map<String, String> headers;
 
-    @SerdeProperty("data")
+    @JsonProperty("data")
     private Object data;
 
     /**

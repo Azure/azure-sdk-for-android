@@ -3,11 +3,7 @@
 
 package com.azure.android.core.serde.jackson;
 
-
-import com.azure.android.core.serde.JsonFlatten;
-import com.azure.android.core.serde.SerdeEncoding;
-import com.azure.android.core.serde.SerdeProperty;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -634,13 +630,13 @@ public class FlatteningSerializerTests {
 
     @JsonFlatten
     private class School {
-        @SerdeProperty(value = "teacher")
+        @JsonProperty(value = "teacher")
         private Teacher teacher;
 
-        @SerdeProperty(value = "properties.name")
+        @JsonProperty(value = "properties.name")
         private String name;
 
-        @SerdeProperty(value = "tags")
+        @JsonProperty(value = "tags")
         private Map<String, String> tags;
 
         public School withTeacher(Teacher teacher) {
@@ -663,7 +659,7 @@ public class FlatteningSerializerTests {
     }
 
     private class Teacher {
-        @SerdeProperty(value = "students")
+        @JsonProperty(value = "students")
         private Map<String, Student> students;
 
         public Teacher withStudents(Map<String, Student> students) {
@@ -696,10 +692,10 @@ public class FlatteningSerializerTests {
     @JsonFlatten
     public static class FlattenedProduct {
         // Flattened and escaped property
-        @SerdeProperty(value = "properties.p\\.name")
+        @JsonProperty(value = "properties.p\\.name")
         private String productName;
 
-        @SerdeProperty(value = "properties.type")
+        @JsonProperty(value = "properties.type")
         private String productType;
 
         public String productName() {

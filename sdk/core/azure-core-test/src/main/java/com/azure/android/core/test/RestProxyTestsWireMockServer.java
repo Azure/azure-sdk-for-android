@@ -3,8 +3,8 @@
 
 package com.azure.android.core.test;
 
+import com.azure.android.core.serde.jackson.SerdeEncoding;
 import com.azure.android.core.util.DateTimeRfc1123;
-import com.azure.android.core.serde.SerdeEncoding;
 import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
 import com.azure.android.core.test.implementation.entities.HttpBinFormDataJSON;
 import com.azure.android.core.test.implementation.entities.HttpBinJSON;

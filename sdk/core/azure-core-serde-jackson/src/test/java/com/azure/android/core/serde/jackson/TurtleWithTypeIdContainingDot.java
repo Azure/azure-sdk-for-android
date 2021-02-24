@@ -3,17 +3,17 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.SerdeProperty;
-import com.azure.android.core.serde.SerdeTypeInfo;
-import com.azure.android.core.serde.SerdeTypeName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
-@SerdeTypeInfo(use = SerdeTypeInfo.Id.NAME,
-    include = SerdeTypeInfo.As.PROPERTY,
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
     property = "@odata\\.type",
     defaultImpl = TurtleWithTypeIdContainingDot.class)
-@SerdeTypeName("#Favourite.Pet.TurtleWithTypeIdContainingDot")
+@JsonTypeName("#Favourite.Pet.TurtleWithTypeIdContainingDot")
 public class TurtleWithTypeIdContainingDot extends NonEmptyAnimalWithTypeIdContainingDot {
-    @SerdeProperty(value = "size")
+    @JsonProperty(value = "size")
     private Integer size;
 
     public Integer size() {

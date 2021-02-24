@@ -3,24 +3,24 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.SerdeProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
 public class ComposeTurtles {
-    @SerdeProperty(value = "description")
+    @JsonProperty(value = "description")
     private String description;
 
-    @SerdeProperty(value = "turtlesSet1Lead")
+    @JsonProperty(value = "turtlesSet1Lead")
     private TurtleWithTypeIdContainingDot turtlesSet1Lead;
 
-    @SerdeProperty(value = "turtlesSet1")
+    @JsonProperty(value = "turtlesSet1")
     private List<TurtleWithTypeIdContainingDot> turtlesSet1;
 
-    @SerdeProperty(value = "turtlesSet2Lead")
+    @JsonProperty(value = "turtlesSet2Lead")
     private NonEmptyAnimalWithTypeIdContainingDot turtlesSet2Lead;
 
-    @SerdeProperty(value = "turtlesSet2")
+    @JsonProperty(value = "turtlesSet2")
     private List<NonEmptyAnimalWithTypeIdContainingDot> turtlesSet2;
 
     public String description() {

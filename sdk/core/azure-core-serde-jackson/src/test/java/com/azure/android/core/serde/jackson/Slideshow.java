@@ -3,22 +3,22 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.SerdeProperty;
-import com.azure.android.core.serde.SerdeXmlProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 import java.util.Arrays;
 
 public class Slideshow {
-    @SerdeXmlProperty(localName = "title", isAttribute = true)
+    @JacksonXmlProperty(localName = "title", isAttribute = true)
     private String title;
 
-    @SerdeXmlProperty(localName = "date", isAttribute = true)
+    @JacksonXmlProperty(localName = "date", isAttribute = true)
     private String date;
 
-    @SerdeXmlProperty(localName = "author", isAttribute = true)
+    @JacksonXmlProperty(localName = "author", isAttribute = true)
     private String author;
 
-    @SerdeProperty("slide")
+    @JsonProperty("slide")
     private Slide[] slides;
 
     /**

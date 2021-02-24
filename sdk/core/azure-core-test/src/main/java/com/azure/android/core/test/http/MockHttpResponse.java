@@ -6,9 +6,8 @@ package com.azure.android.core.test.http;
 import com.azure.android.core.http.HttpHeaders;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
-import com.azure.android.core.serde.SerdeAdapter;
-import com.azure.android.core.serde.SerdeEncoding;
 import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.jackson.SerdeEncoding;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -25,7 +24,7 @@ import java.util.regex.Pattern;
  * An HTTP response that is created to simulate a HTTP request.
  */
 public class MockHttpResponse extends HttpResponse {
-    private static final SerdeAdapter SERIALIZER = new JacksonSerderAdapter();
+    private static final JacksonSerderAdapter SERIALIZER = new JacksonSerderAdapter();
     private static final Pattern CHARSET_PATTERN
         = Pattern.compile("charset=([\\S]+)\\b", Pattern.CASE_INSENSITIVE);
 

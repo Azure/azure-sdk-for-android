@@ -5,11 +5,6 @@ package com.azure.android.core.serde.jackson;
 
 import android.text.TextUtils;
 
-import com.azure.android.core.serde.HeaderCollection;
-import com.azure.android.core.serde.SerdeAdapter;
-import com.azure.android.core.serde.SerdeCollectionFormat;
-import com.azure.android.core.serde.SerdeEncoding;
-import com.azure.android.core.serde.SerdeParseException;
 import com.azure.android.core.serde.jackson.implementation.threeten.ThreeTenModule;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -40,9 +35,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 /**
- * Implementation of {@link SerdeAdapter} for Jackson.
+ * Implementation of serde adapter for Jackson.
  */
-public class JacksonSerderAdapter implements SerdeAdapter {
+public class JacksonSerderAdapter {
     private static final Pattern PATTERN = Pattern.compile("^\"*|\"*$");
 
 //    private final ClientLogger logger = new ClientLogger(JacksonAdapter.class);
@@ -64,7 +59,7 @@ public class JacksonSerderAdapter implements SerdeAdapter {
     /*
      * The lazily-created serializer for this ServiceClient.
      */
-    private static SerdeAdapter serdeAdapter;
+    private static JacksonSerderAdapter serdeAdapter;
 
     /**
      * Creates a new JacksonAdapter instance with default mapper settings.
@@ -106,7 +101,7 @@ public class JacksonSerderAdapter implements SerdeAdapter {
      *
      * @return the default serializer
      */
-    public static synchronized SerdeAdapter createDefaultSerdeAdapter() {
+    public static synchronized JacksonSerderAdapter createDefaultSerdeAdapter() {
         if (serdeAdapter == null) {
             serdeAdapter = new JacksonSerderAdapter();
         }
@@ -120,7 +115,14 @@ public class JacksonSerderAdapter implements SerdeAdapter {
         return mapper;
     }
 
-    @Override
+    /**
+     * Serializes an object into a string.
+     *
+     * @param object the object to serialize
+     * @param encoding the encoding to use for serialization
+     * @return the serialized string. Null if the object to serialize is null
+     * @throws IOException exception from serialization
+     */
     public String serialize(Object object, SerdeEncoding encoding) throws IOException {
         if (object == null) {
             return null;
@@ -132,7 +134,14 @@ public class JacksonSerderAdapter implements SerdeAdapter {
         return new String(outStream.toByteArray(), 0, outStream.size(), Charset.forName("UTF-8"));
     }
 
-    @Override
+    /**
+     * Serializes an object and writes its output into an {@link OutputStream}.
+     *
+     * @param object The object to serialize.
+     * @param encoding The encoding to use for serialization.
+     * @param outputStream The {@link OutputStream} where the serialized object will be written.
+     * @throws IOException exception from serialization
+     */
     public void serialize(Object object, SerdeEncoding encoding, OutputStream outputStream) throws IOException {
         if (object == null) {
             return;
@@ -145,7 +154,12 @@ public class JacksonSerderAdapter implements SerdeAdapter {
         }
     }
 
-    @Override
+    /**
+     * Serializes an object into a raw string. The leading and trailing quotes will be trimmed.
+     *
+     * @param object the object to serialize
+     * @return the serialized string. Null if the object to serialize is null
+     */
     public String serializeRaw(Object object) {
         if (object == null) {
             return null;
@@ -158,7 +172,14 @@ public class JacksonSerderAdapter implements SerdeAdapter {
         }
     }
 
-    @Override
+    /**
+     * Serializes a list into a string with the delimiter specified with the Swagger collection format joining each
+     * individual serialized items in the list.
+     *
+     * @param list the list to serialize
+     * @param format the Swagger collection format
+     * @return the serialized string
+     */
     public String serializeList(List<?> list, SerdeCollectionFormat format) {
         if (list == null) {
             return null;
@@ -171,7 +192,17 @@ public class JacksonSerderAdapter implements SerdeAdapter {
         return TextUtils.join(format.getDelimiter(), serialized);
     }
 
-    @Override
+    /**
+     * Deserializes a string into a {@code T} object.
+     *
+     * @param value the string value to deserialize
+     * @param <T> the type of the deserialized object
+     * @param type the type to deserialize
+     * @param encoding the encoding used in the serialized value
+     * @return the deserialized object
+     * @throws IOException exception from reading value to deserialize
+     * @throws SerdeParseException exception from deserialization
+     */
     @SuppressWarnings("unchecked")
     public <T> T deserialize(String value, Type type, SerdeEncoding encoding) throws IOException {
         if (value == null || value.length() == 0) {
@@ -191,7 +222,17 @@ public class JacksonSerderAdapter implements SerdeAdapter {
         }
     }
 
-    @Override
+    /**
+     * Deserializes a byte[] into a {@code T} object.
+     *
+     * @param inputStream The {@link InputStream} containing the serialized object data to deserialize.
+     * @param type The type to deserialize.
+     * @param encoding The encoding used to serialize value.
+     * @param <T> The type of the deserialized object.
+     * @return The deserialized object, or null if it cannot be deserialized.
+     * @throws IOException exception from deserialization
+     * @throws SerdeParseException exception from deserialization
+     */
     @SuppressWarnings("unchecked")
     public <T> T deserialize(InputStream inputStream, final Type type, SerdeEncoding encoding)
         throws IOException {
@@ -212,7 +253,25 @@ public class JacksonSerderAdapter implements SerdeAdapter {
         }
     }
 
-    @Override
+    /**
+     * Deserialize the provided headers returned from a REST API to an entity instance declared as the model to hold
+     * 'Matching' headers.
+     *
+     * 'Matching' headers are the REST API returned headers those with:
+     *
+     * <ol>
+     *   <li>header names same as name of a properties in the entity.</li>
+     *   <li>header names start with value of {@link HeaderCollection} annotation applied to
+     *   the properties in the entity.</li>
+     * </ol>
+     *
+     * @param <T> the type of the deserialized object
+     * @param headers the REST API returned headers
+     * @param deserializedHeadersType the type to deserialize
+     * @return instance of header entity type created based on provided {@code headers}, if header entity model does not
+     * not exists then return null
+     * @throws IOException If an I/O error occurs
+     */
     public <T> T deserialize(Map<String, String> headers, Type deserializedHeadersType) throws IOException {
         if (deserializedHeadersType == null) {
             return null;
@@ -301,7 +360,6 @@ public class JacksonSerderAdapter implements SerdeAdapter {
             .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
             .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
             .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE));
-        mapper.setAnnotationIntrospector(new SerdeJacksonAnnotationIntrospector());
         return mapper;
     }
 

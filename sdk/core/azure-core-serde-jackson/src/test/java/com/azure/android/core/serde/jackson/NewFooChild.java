@@ -3,15 +3,14 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.JsonFlatten;
-import com.azure.android.core.serde.SerdeTypeInfo;
-import com.azure.android.core.serde.SerdeTypeName;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 /**
  * Class for testing serialization.
  */
 @JsonFlatten
-@SerdeTypeInfo(use = SerdeTypeInfo.Id.NAME, include = SerdeTypeInfo.As.PROPERTY, property = "$type")
-@SerdeTypeName("newfoochild")
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "$type")
+@JsonTypeName("newfoochild")
 public class NewFooChild extends NewFoo {
 }

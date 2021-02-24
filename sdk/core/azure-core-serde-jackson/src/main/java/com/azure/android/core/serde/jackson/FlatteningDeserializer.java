@@ -3,9 +3,6 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.JsonFlatten;
-import com.azure.android.core.serde.SerdeProperty;
-import com.azure.android.core.serde.SerdeTypeInfo;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonFactory;
@@ -107,18 +104,6 @@ final class FlatteningDeserializer extends StdDeserializer<Object> implements Re
                         ((ObjectNode) currentJsonNode).put(typeId, typeIdValue);
                     }
                 }
-            } else {
-                final SerdeTypeInfo stypeInfo = c.getAnnotation(SerdeTypeInfo.class);
-                if (stypeInfo != null) {
-                    String typeId = stypeInfo.property();
-                    if (containsDot(typeId)) {
-                        final String typeIdOnWire = unescapeEscapedDots(typeId);
-                        JsonNode typeIdValue = ((ObjectNode) currentJsonNode).remove(typeIdOnWire);
-                        if (typeIdValue != null) {
-                            ((ObjectNode) currentJsonNode).put(typeId, typeIdValue);
-                        }
-                    }
-                }
             }
         }
         return tDeserializer.deserializeTypedFromAny(newJsonParserForNode(currentJsonNode), cxt);
@@ -177,23 +162,6 @@ final class FlatteningDeserializer extends StdDeserializer<Object> implements Re
                 // json node that this value resolving to the current level.
                 JsonNode childJsonNode = findNestedNode(jsonNode, jsonPropValue);
                 ((ObjectNode) jsonNode).set(jsonPropValue, childJsonNode);
-            }
-        } else {
-            final SerdeProperty serdeProperty = classField.getAnnotation(SerdeProperty.class);
-            if (serdeProperty != null) {
-                String jsonPropValue = serdeProperty.value();
-                if (jsonNode.has(jsonPropValue)) {
-                    // There is an additional property with it's key conflicting with the
-                    // JsonProperty value, escape this additional property's key.
-                    final String escapedJsonPropValue = jsonPropValue.replace(".", "\\.");
-                    ((ObjectNode) jsonNode).set(escapedJsonPropValue, jsonNode.get(jsonPropValue));
-                }
-                if (containsFlatteningDots(jsonPropValue)) {
-                    // The jsonProperty value contains flattening dots, uplift the nested
-                    // json node that this value resolving to the current level.
-                    JsonNode childJsonNode = findNestedNode(jsonNode, jsonPropValue);
-                    ((ObjectNode) jsonNode).set(jsonPropValue, childJsonNode);
-                }
             }
         }
     }

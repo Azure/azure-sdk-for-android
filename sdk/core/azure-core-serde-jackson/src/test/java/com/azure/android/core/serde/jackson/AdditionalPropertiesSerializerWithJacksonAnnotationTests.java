@@ -3,9 +3,6 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.SerdeEncoding;
-
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

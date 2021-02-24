@@ -12,16 +12,11 @@ android {
 
 dependencies {
     // <!-- begin: api Dependencies -->
-    api project (":sdk:core:azure-core-serde")
-
     compileOnly project (":sdk:core:azure-core") // provided scope
+    api ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
+    api ("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
+    api ("javax.xml.stream:stax-api:$staxApiVersion") // https://stackoverflow.com/a/47371517/1473510
     // <!-- end: api Dependencies -->
-
-    // <!-- begin: implementation Dependencies -->
-    implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonVersion")
-    implementation ("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
-    implementation ("javax.xml.stream:stax-api:$staxApiVersion") // https://stackoverflow.com/a/47371517/1473510
-    // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->
     testImplementation project (":sdk:core:azure-core-http")

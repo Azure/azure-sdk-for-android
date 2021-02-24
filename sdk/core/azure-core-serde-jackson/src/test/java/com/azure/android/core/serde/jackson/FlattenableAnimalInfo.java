@@ -3,13 +3,13 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.SerdeProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class FlattenableAnimalInfo {
-    @SerdeProperty(value = "home")
+    @JsonProperty(value = "home")
     private String home;
 
-    @SerdeProperty(value = "animal")
+    @JsonProperty(value = "animal", required = true)
     private AnimalWithTypeIdContainingDot animal;
 
     public String home() {

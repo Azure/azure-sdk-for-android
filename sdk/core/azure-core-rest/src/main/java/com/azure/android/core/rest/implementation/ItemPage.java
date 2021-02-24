@@ -4,7 +4,7 @@
 package com.azure.android.core.rest.implementation;
 
 import com.azure.android.core.rest.Page;
-import com.azure.android.core.serde.SerdePropertyAlias;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,10 +24,10 @@ import java.util.List;
  * @param <T> The type of the object stored within the {@link ItemPage} instance
  */
 public class ItemPage<T> implements Page<T> {
-    @SerdePropertyAlias({"items", "value"})
+    @JsonAlias({"items", "value"})
     private List<T> items;
 
-    @SerdePropertyAlias({"nextLink", "nextPageLink"})
+    @JsonAlias({"nextLink", "nextPageLink"})
     private String continuationToken;
 
     @Override

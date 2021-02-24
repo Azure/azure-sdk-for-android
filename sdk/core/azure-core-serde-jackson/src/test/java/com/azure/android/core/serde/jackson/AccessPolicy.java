@@ -3,7 +3,7 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.SerdeProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import org.threeten.bp.OffsetDateTime;
 
@@ -14,19 +14,19 @@ public class AccessPolicy {
     /**
      * the date-time the policy is active.
      */
-    @SerdeProperty(value = "Start")
+    @JsonProperty(value = "Start")
     private OffsetDateTime start;
 
     /**
      * the date-time the policy expires.
      */
-    @SerdeProperty(value = "Expiry")
+    @JsonProperty(value = "Expiry")
     private OffsetDateTime expiry;
 
     /**
      * the permissions for the acl policy.
      */
-    @SerdeProperty(value = "Permission")
+    @JsonProperty(value = "Permission")
     private String permission;
 
     /**

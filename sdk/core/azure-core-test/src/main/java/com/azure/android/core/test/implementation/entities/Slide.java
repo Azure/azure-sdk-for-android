@@ -3,19 +3,19 @@
 
 package com.azure.android.core.test.implementation.entities;
 
-import com.azure.android.core.serde.SerdeProperty;
-import com.azure.android.core.serde.SerdeXmlProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
 
 import java.util.Arrays;
 
 public class Slide {
-    @SerdeXmlProperty(localName = "type", isAttribute = true)
+    @JacksonXmlProperty(localName = "type", isAttribute = true)
     private String type;
 
-    @SerdeProperty("title")
+    @JsonProperty("title")
     private String title;
 
-    @SerdeProperty("item")
+    @JsonProperty("item")
     private String[] items;
 
     /**

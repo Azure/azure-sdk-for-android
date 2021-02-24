@@ -3,24 +3,23 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.JsonFlatten;
-import com.azure.android.core.serde.SerdeProperty;
-import com.azure.android.core.serde.SerdeTypeInfo;
-import com.azure.android.core.serde.SerdeTypeName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 import java.util.List;
 
 @JsonFlatten
-@SerdeTypeInfo(use = SerdeTypeInfo.Id.NAME,
-    include = SerdeTypeInfo.As.PROPERTY,
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
     property = "@odata\\.type",
     defaultImpl = RabbitWithTypeIdContainingDot.class)
-@SerdeTypeName("#Favourite.Pet.RabbitWithTypeIdContainingDot")
+@JsonTypeName("#Favourite.Pet.RabbitWithTypeIdContainingDot")
 public class RabbitWithTypeIdContainingDot extends AnimalWithTypeIdContainingDot {
-    @SerdeProperty(value = "tailLength")
+    @JsonProperty(value = "tailLength")
     private Integer tailLength;
 
-    @SerdeProperty(value = "meals")
+    @JsonProperty(value = "meals")
     private List<String> meals;
 
     public Integer filters() {

@@ -3,17 +3,16 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.JsonFlatten;
-import com.azure.android.core.serde.SerdeProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 
 @JsonFlatten
 public class AnimalShelter {
-    @SerdeProperty(value = "properties.description")
+    @JsonProperty(value = "properties.description")
     private String description;
 
-    @SerdeProperty(value = "properties.animalsInfo")
+    @JsonProperty(value = "properties.animalsInfo", required = true)
     private List<FlattenableAnimalInfo> animalsInfo;
 
     public String description() {

@@ -3,16 +3,16 @@
 
 package com.azure.android.core.rest;
 
-import com.azure.android.core.serde.SerdeProperty;
-import com.azure.android.core.serde.SerdeToPojo;
-import com.azure.android.core.serde.SerdeXmlProperty;
-import com.azure.android.core.serde.SerdeXmlRootElement;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty;
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
 
 import java.util.List;
 
-@SerdeXmlRootElement(localName = "SignedIdentifiers")
+@JacksonXmlRootElement(localName = "SignedIdentifiers")
 public class SignedIdentifiersWrapper {
-    @SerdeXmlProperty(localName = "SignedIdentifier")
+    @JacksonXmlProperty(localName = "SignedIdentifier")
     private final List<SignedIdentifierInner> signedIdentifiers;
 
     /**
@@ -20,8 +20,8 @@ public class SignedIdentifiersWrapper {
      *
      * @param signedIdentifiers Identifiers to wrap.
      */
-    @SerdeToPojo
-    public SignedIdentifiersWrapper(@SerdeProperty("signedIdentifiers") List<SignedIdentifierInner> signedIdentifiers) {
+    @JsonCreator
+    public SignedIdentifiersWrapper(@JsonProperty("signedIdentifiers") List<SignedIdentifierInner> signedIdentifiers) {
         this.signedIdentifiers = signedIdentifiers;
     }
 

@@ -3,23 +3,22 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.JsonFlatten;
-import com.azure.android.core.serde.SerdeProperty;
-import com.azure.android.core.serde.SerdeSubTypes;
-import com.azure.android.core.serde.SerdeTypeInfo;
-import com.azure.android.core.serde.SerdeTypeName;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonFlatten
-@SerdeTypeInfo(use = SerdeTypeInfo.Id.NAME, include = SerdeTypeInfo.As.PROPERTY,
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY,
     property = "@odata\\.type",
     defaultImpl = NonEmptyAnimalWithTypeIdContainingDot.class)
-@SerdeTypeName("NonEmptyAnimalWithTypeIdContainingDot")
-@SerdeSubTypes({
-    @SerdeSubTypes.Type(name = "#Favourite.Pet.TurtleWithTypeIdContainingDot",
+@JsonTypeName("NonEmptyAnimalWithTypeIdContainingDot")
+@JsonSubTypes({
+    @JsonSubTypes.Type(name = "#Favourite.Pet.TurtleWithTypeIdContainingDot",
         value = TurtleWithTypeIdContainingDot.class)
 })
 public class NonEmptyAnimalWithTypeIdContainingDot {
-    @SerdeProperty(value = "age")
+    @JsonProperty(value = "age")
     private Integer age;
 
     public Integer age() {

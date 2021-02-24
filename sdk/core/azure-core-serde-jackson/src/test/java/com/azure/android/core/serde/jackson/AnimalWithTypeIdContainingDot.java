@@ -3,23 +3,22 @@
 
 package com.azure.android.core.serde.jackson;
 
-import com.azure.android.core.serde.JsonFlatten;
-import com.azure.android.core.serde.SerdeSubTypes;
-import com.azure.android.core.serde.SerdeTypeInfo;
-import com.azure.android.core.serde.SerdeTypeName;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeName;
 
 @JsonFlatten
-@SerdeTypeInfo(use = SerdeTypeInfo.Id.NAME,
-    include = SerdeTypeInfo.As.PROPERTY,
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME,
+    include = JsonTypeInfo.As.PROPERTY,
     property = "@odata\\.type",
     defaultImpl = AnimalWithTypeIdContainingDot.class)
-@SerdeTypeName("AnimalWithTypeIdContainingDot")
-@SerdeSubTypes({
-    @SerdeSubTypes.Type(name = "#Favourite.Pet.DogWithTypeIdContainingDot",
+@JsonTypeName("AnimalWithTypeIdContainingDot")
+@JsonSubTypes({
+    @JsonSubTypes.Type(name = "#Favourite.Pet.DogWithTypeIdContainingDot",
         value = DogWithTypeIdContainingDot.class),
-    @SerdeSubTypes.Type(name = "#Favourite.Pet.CatWithTypeIdContainingDot",
+    @JsonSubTypes.Type(name = "#Favourite.Pet.CatWithTypeIdContainingDot",
         value = CatWithTypeIdContainingDot.class),
-    @SerdeSubTypes.Type(name = "#Favourite.Pet.RabbitWithTypeIdContainingDot",
+    @JsonSubTypes.Type(name = "#Favourite.Pet.RabbitWithTypeIdContainingDot",
         value = RabbitWithTypeIdContainingDot.class)
 })
 public class AnimalWithTypeIdContainingDot {
