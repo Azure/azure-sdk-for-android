@@ -1,7 +1,6 @@
 include ":sdk:core:azure-core-logging"
-include ":sdk:core:azure-core-serde"
 include ":sdk:core:azure-core-customserde"
-include ":sdk:core:azure-core-serde-jackson"
+include ':sdk:core:azure-core-jackson'
 include ":sdk:core:azure-core-customserde-json-jackson"
 include ":sdk:core:azure-core"
 include ":sdk:core:azure-core-credential"

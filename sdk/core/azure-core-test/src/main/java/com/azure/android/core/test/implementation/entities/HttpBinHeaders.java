@@ -4,25 +4,25 @@
 package com.azure.android.core.test.implementation.entities;
 
 import com.azure.android.core.util.DateTimeRfc1123;
-import com.azure.android.core.serde.SerdeProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
  * Defines headers for httpbin.org operations.
  */
 public class HttpBinHeaders {
-    @SerdeProperty(value = "Date")
+    @JsonProperty(value = "Date")
     private DateTimeRfc1123 date;
 
-    @SerdeProperty(value = "Via")
+    @JsonProperty(value = "Via")
     private String via;
 
-    @SerdeProperty(value = "Connection")
+    @JsonProperty(value = "Connection")
     private String connection;
 
-    @SerdeProperty(value = "X-Processed-Time")
+    @JsonProperty(value = "X-Processed-Time")
     private double xProcessedTime;
 
-    @SerdeProperty(value = "Access-Control-Allow-Credentials")
+    @JsonProperty(value = "Access-Control-Allow-Credentials")
     private boolean accessControlAllowCredentials;
 
     /**

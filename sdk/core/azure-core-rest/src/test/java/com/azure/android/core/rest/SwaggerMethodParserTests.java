@@ -9,7 +9,7 @@ import com.azure.android.core.rest.annotation.Get;
 import com.azure.android.core.rest.annotation.Host;
 import com.azure.android.core.rest.annotation.ServiceInterface;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.jackson.JacksonSerder;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ public class SwaggerMethodParserTests {
         try {
             new SwaggerMethodParser("https://raw.host.com",
                 missingCallbackParamMethod,
-                new JacksonSerderAdapter(),
+                new JacksonSerder(),
                 this.logger);
         } catch (IllegalStateException e) {
             ex0 = e;
@@ -55,7 +55,7 @@ public class SwaggerMethodParserTests {
         try {
             new SwaggerMethodParser("https://raw.host.com",
                 callbackMissingTypeArgMethod,
-                new JacksonSerderAdapter(),
+                new JacksonSerder(),
                 this.logger);
         } catch (IllegalStateException e) {
             ex1 = e;
@@ -90,7 +90,7 @@ public class SwaggerMethodParserTests {
 
         SwaggerMethodParser methodParser0 = new SwaggerMethodParser("https://raw.host.com",
             cancellationTokenCorrectIndexMethod,
-            new JacksonSerderAdapter(),
+            new JacksonSerder(),
             this.logger);
 
         Assertions.assertEquals(1, methodParser0.cancellationTokenArgIndex);
@@ -100,7 +100,7 @@ public class SwaggerMethodParserTests {
 
         SwaggerMethodParser methodParser1 = new SwaggerMethodParser("https://raw.host.com",
             cancellationTokenIncorrectIndexMethod,
-            new JacksonSerderAdapter(),
+            new JacksonSerder(),
             this.logger);
 
         // CancellationToken when present must be second last arg, its the contract, presence of

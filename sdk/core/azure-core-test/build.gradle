@@ -14,7 +14,7 @@ android {
 dependencies {
     // <!-- begin: api Dependencies -->
     api project (":sdk:core:azure-core")
-    api project (":sdk:core:azure-core-serde-jackson")
+    api project (':sdk:core:azure-core-jackson')
     api project (":sdk:core:azure-core-rest")
     // <!-- end: api Dependencies -->
 

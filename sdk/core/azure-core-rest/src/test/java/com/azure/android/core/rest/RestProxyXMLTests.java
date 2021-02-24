@@ -10,6 +10,7 @@ import com.azure.android.core.http.HttpHeaders;
 import com.azure.android.core.http.HttpMethod;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.serde.jackson.SerdeEncoding;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.http.HttpPipelineBuilder;
@@ -18,8 +19,7 @@ import com.azure.android.core.rest.annotation.Get;
 import com.azure.android.core.rest.annotation.Host;
 import com.azure.android.core.rest.annotation.Put;
 import com.azure.android.core.rest.annotation.ServiceInterface;
-import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
-import com.azure.android.core.serde.SerdeEncoding;
+import com.azure.android.core.serde.jackson.JacksonSerder;
 
 import org.junit.jupiter.api.Test;
 import org.threeten.bp.OffsetDateTime;
@@ -96,7 +96,7 @@ public class RestProxyXMLTests {
 
         MyXMLService myXMLService = RestProxy.create(MyXMLService.class,
             pipeline,
-            new JacksonSerderAdapter());
+            new JacksonSerder());
 
         final SignedIdentifiersWrapperOrError wrapperOrError = new SignedIdentifiersWrapperOrError();
 
@@ -147,7 +147,7 @@ public class RestProxyXMLTests {
 
     @Test
     public void canDeserializeXMLWithAttributes() throws Exception {
-        JacksonSerderAdapter serializer = new JacksonSerderAdapter();
+        JacksonSerder serializer = new JacksonSerder();
 
         final HttpPipeline pipeline = new HttpPipelineBuilder()
             .httpClient(new MockXMLHTTPClient())
@@ -247,7 +247,7 @@ public class RestProxyXMLTests {
         si.withAccessPolicy(ap);
         List<SignedIdentifierInner> expectedAcls = Collections.singletonList(si);
 
-        JacksonSerderAdapter serderAdapter = new JacksonSerderAdapter();
+        JacksonSerder serderAdapter = new JacksonSerder();
         MockXMLReceiverClient httpClient = new MockXMLReceiverClient();
 
         final HttpPipeline pipeline = new HttpPipelineBuilder()

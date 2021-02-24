@@ -9,10 +9,10 @@ import com.azure.android.core.http.HttpPipeline;
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
 import com.azure.android.core.http.exception.HttpResponseException;
+import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.util.Context;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.serde.SerdeAdapter;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
@@ -41,7 +41,9 @@ public final class RestProxy implements InvocationHandler {
      * @return a proxy implementation of the provided Swagger interface.
      */
     @SuppressWarnings("unchecked")
-    public static <A> A create(Class<A> swaggerInterface, HttpPipeline httpPipeline, SerdeAdapter serdeAdapter) {
+    public static <A> A create(Class<A> swaggerInterface,
+                               HttpPipeline httpPipeline,
+                               JacksonSerder serdeAdapter) {
         final SwaggerInterfaceParser interfaceParser = new SwaggerInterfaceParser(swaggerInterface, serdeAdapter);
         final RestProxy restProxy = new RestProxy(httpPipeline, interfaceParser);
         return (A) Proxy.newProxyInstance(swaggerInterface.getClassLoader(),

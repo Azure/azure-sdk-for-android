@@ -117,11 +117,11 @@
       files="com.azure.android.core.serde.jackson.FlatteningSerializer.java"/>
 
   <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
-      files="com.azure.android.core.serde.jackson.JacksonSerderAdapter.java"/>
+      files="com.azure.android.core.serde.jackson.JacksonSerder.java"/>
 
   <!-- Its legit to have Jackson ObjectMapper in public API -->
   <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"
-      files="com.azure.android.core.serde.jackson.JacksonSerderAdapter"/>
+      files="com.azure.android.core.serde.jackson.JacksonSerder"/>
 
   <!-- 310bp DateTime types are allowed to be exposed in public API -->
   <suppress checks="com.azure.tools.checkstyle.checks.ExternalDependencyExposedCheck"

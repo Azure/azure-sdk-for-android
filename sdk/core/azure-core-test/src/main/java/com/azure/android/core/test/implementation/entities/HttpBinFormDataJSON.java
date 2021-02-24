@@ -3,7 +3,7 @@
 
 package com.azure.android.core.test.implementation.entities;
 
-import com.azure.android.core.serde.SerdeProperty;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
 import java.util.Map;
@@ -12,11 +12,11 @@ import java.util.Map;
  * Maps to the JSON return values from http://httpbin.org.
  */
 public class HttpBinFormDataJSON {
-    @SerdeProperty("url")
+    @JsonProperty
     private String url;
-    @SerdeProperty("headers")
+    @JsonProperty
     private Map<String, String> headers;
-    @SerdeProperty("form")
+    @JsonProperty
     private Form form;
 
     public String url() {
@@ -53,19 +53,19 @@ public class HttpBinFormDataJSON {
     }
 
     public static class Form {
-        @SerdeProperty("custname")
+        @JsonProperty("custname")
         private String customerName;
 
-        @SerdeProperty("custtel")
+        @JsonProperty("custtel")
         private String customerTelephone;
 
-        @SerdeProperty("custemail")
+        @JsonProperty("custemail")
         private String customerEmail;
 
-        @SerdeProperty("size")
+        @JsonProperty("size")
         private PizzaSize pizzaSize;
 
-        @SerdeProperty("toppings")
+        @JsonProperty("toppings")
         private List<String> toppings;
 
         public String customerName() {
@@ -109,4 +109,3 @@ public class HttpBinFormDataJSON {
         }
     }
 }
-

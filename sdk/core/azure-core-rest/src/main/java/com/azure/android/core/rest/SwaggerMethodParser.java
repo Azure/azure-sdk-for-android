@@ -5,10 +5,10 @@ package com.azure.android.core.rest;
 
 import com.azure.android.core.http.HttpRequest;
 import com.azure.android.core.http.HttpResponse;
+import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.azure.android.core.util.CancellationToken;
 import com.azure.android.core.rest.implementation.TypeUtil;
 import com.azure.android.core.logging.ClientLogger;
-import com.azure.android.core.serde.SerdeAdapter;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
@@ -24,7 +24,7 @@ final class SwaggerMethodParser {
         + " Callback<PagedResponse<Foo>> or Callback<? PagedResponseBase<FooHdr, Foo>>.";
 
     private final Method swaggerMethod;
-    private final SerdeAdapter serdeAdapter;
+    private final JacksonSerder serdeAdapter;
 
     private final String methodFullName;
     private final Type callbackType;
@@ -35,7 +35,7 @@ final class SwaggerMethodParser {
 
     SwaggerMethodParser(String rawHost,
                         Method swaggerMethod,
-                        SerdeAdapter serdeAdapter,
+                        JacksonSerder serdeAdapter,
                         ClientLogger logger) {
         this.swaggerMethod = swaggerMethod;
         this.serdeAdapter = serdeAdapter;

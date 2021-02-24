@@ -3,7 +3,7 @@
 
 package com.azure.core.customserde.json.jackson;
 
-import com.azure.android.core.serde.jackson.JacksonSerderAdapter;
+import com.azure.android.core.serde.jackson.JacksonSerder;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +17,7 @@ public final class JacksonJsonSerializerBuilder {
      * Jackson uses. This configuration is reset here by mutating the inclusion scope and null handling to use the
      * default Jackson values so that JacksonJsonSerializer has less friction when this default is used.
      */
-    private static final ObjectMapper DEFAULT_MAPPER = new JacksonSerderAdapter().serializer()
+    private static final ObjectMapper DEFAULT_MAPPER = new JacksonSerder().serializer()
         .setSerializationInclusion(JsonInclude.Include.USE_DEFAULTS)
         .setDefaultVisibility(JsonAutoDetect.Value.defaultVisibility());
 
@@ -37,7 +37,7 @@ public final class JacksonJsonSerializerBuilder {
     /**
      * Sets the {@link ObjectMapper} that will be used during serialization.
      * <p>
-     * If this is set to {@code null} {@link JacksonSerderAdapter#serializer()} with default visibility and non-null
+     * If this is set to {@code null} {@link JacksonSerder#serializer()} with default visibility and non-null
      * inclusion will be used as the default.
      *
      * @param objectMapper {@link ObjectMapper} that will be used during serialization.
