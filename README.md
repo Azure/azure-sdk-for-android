@@ -31,7 +31,5 @@ The following diagram shows the core modules and their dependencies.
 
 The minSdkVersion of all the modules except `azure-core-http-okhttp` is 15. The `azure-core-http-okhttp` uses minSdkVersion as 21 since `okhttp` is baselined to L21.
 
-<img width="1170" alt="Modules" src="https://user-images.githubusercontent.com/1471612/108790251-1882ba80-7531-11eb-8dbc-923ce7c66bcd.png">
-
-> Note: We'll remove `azure-core-serde` and will rename `azure-core-serde-jackson` to `azure-core-jackson`.
+<img width="1170" alt="Modules" src="https://user-images.githubusercontent.com/1471612/108896719-21739a80-75ca-11eb-9b9e-3e1df65a56ec.png">
  
