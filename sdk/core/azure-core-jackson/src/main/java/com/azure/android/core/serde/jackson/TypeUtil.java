@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * Utility type exposing methods to deal with {@link Type}.
  */
-public final class TypeUtil {
+final class TypeUtil {
     /**
      * Find all super classes including provided class.
      *

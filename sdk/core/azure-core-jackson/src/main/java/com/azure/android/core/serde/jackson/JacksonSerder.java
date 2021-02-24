@@ -5,6 +5,7 @@ package com.azure.android.core.serde.jackson;
 
 import android.text.TextUtils;
 
+import com.azure.android.core.logging.ClientLogger;
 import com.azure.android.core.serde.jackson.implementation.threeten.ThreeTenModule;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -37,75 +38,58 @@ import java.util.regex.Pattern;
 /**
  * The type exposes APIs for serialization and deserialization using Jackson.
  */
-public class JacksonSerder {
+public final class JacksonSerder {
     private static final Pattern PATTERN = Pattern.compile("^\"*|\"*$");
 
-//    private final ClientLogger logger = new ClientLogger(JacksonAdapter.class);
+    private final ClientLogger logger = new ClientLogger(JacksonSerder.class);
 
-    /**
-     * An instance of {@link ObjectMapper} to serialize/deserialize objects.
-     */
     private final ObjectMapper mapper;
-
-    /**
-     * An instance of {@link ObjectMapper} that does not do flattening.
-     */
-    private final ObjectMapper simpleMapper;
-
-    private final ObjectMapper xmlMapper;
 
     private final ObjectMapper headerMapper;
 
-    /*
-     * The lazily-created serializer for this ServiceClient.
-     */
-    private static JacksonSerder serdeAdapter;
+    private final ObjectMapper xmlMapper;
 
-    /**
-     * Creates a new JacksonAdapter instance with default mapper settings.
-     */
-    public JacksonSerder() {
-        simpleMapper = initializeObjectMapper(new ObjectMapper());
-
-        xmlMapper = initializeObjectMapper(new XmlMapper())
-            .setDefaultUseWrapper(false)
-            .configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true);
-
-        ObjectMapper flatteningMapper = initializeObjectMapper(new ObjectMapper())
-            .registerModule(FlatteningSerializer.getModule(simpleMapper()))
-            .registerModule(FlatteningDeserializer.getModule(simpleMapper()));
-
-        mapper = initializeObjectMapper(new ObjectMapper())
-            // Order matters: must register in reverse order of hierarchy
-            .registerModule(AdditionalPropertiesSerializer.getModule(flatteningMapper))
-            .registerModule(AdditionalPropertiesDeserializer.getModule(flatteningMapper))
-            .registerModule(FlatteningSerializer.getModule(simpleMapper()))
-            .registerModule(FlatteningDeserializer.getModule(simpleMapper()));
-
-        headerMapper = simpleMapper
-            .copy()
-            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
-    }
-
-    /**
-     * Gets a static instance of {@link ObjectMapper} that doesn't handle flattening.
-     *
-     * @return an instance of {@link ObjectMapper}.
-     */
-    private ObjectMapper simpleMapper() {
-        return simpleMapper;
-    }
+    private static JacksonSerder jacksonSerder;
 
     /**
      * maintain singleton instance of the default serializer adapter.
      *
      * @return the default serializer
      */
-    public static synchronized JacksonSerder createDefaultSerdeAdapter() {
-        if (serdeAdapter == null) {
-            serdeAdapter = new JacksonSerder();
+    public static synchronized JacksonSerder createDefault() {
+        if (jacksonSerder == null) {
+            jacksonSerder = new JacksonSerder();
         }
-        return serdeAdapter;
+        return jacksonSerder;
+    }
+
+    /**
+     * Creates a new JacksonAdapter instance with default mapper settings.
+     */
+    public JacksonSerder() {
+        final ObjectMapper simpleMapper = initializeObjectMapper(new ObjectMapper());
+
+        final ObjectMapper flatteningMapper = simpleMapper
+            .copy()
+            .registerModule(FlatteningSerializer.getModule(simpleMapper))
+            .registerModule(FlatteningDeserializer.getModule(simpleMapper));
+
+        this.mapper = simpleMapper
+            .copy()
+            // Order matters: must register in reverse order of hierarchy
+            .registerModule(AdditionalPropertiesSerializer.getModule(flatteningMapper))
+            .registerModule(AdditionalPropertiesDeserializer.getModule(flatteningMapper))
+            .registerModule(FlatteningSerializer.getModule(simpleMapper))
+            .registerModule(FlatteningDeserializer.getModule(simpleMapper));
+
+        this.headerMapper = simpleMapper
+            .copy()
+            .configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, true);
+
+        this.xmlMapper = new XmlMapper.Builder(initializeObjectMapper(new XmlMapper()))
+            .defaultUseWrapper(false)
+            .configure(ToXmlGenerator.Feature.WRITE_XML_DECLARATION, true)
+            .build();
     }
 
     /**
@@ -167,7 +151,7 @@ public class JacksonSerder {
         try {
             return PATTERN.matcher(serialize(object, SerdeEncoding.JSON)).replaceAll("");
         } catch (IOException ex) {
-//            logger.warning("Failed to serialize {} to JSON.", object.getClass(), ex);
+            logger.warning("Failed to serialize {} to JSON.", object.getClass(), ex);
             return null;
         }
     }
@@ -217,8 +201,7 @@ public class JacksonSerder {
                 return (T) serializer().readValue(value, javaType);
             }
         } catch (JsonParseException jpe) {
-            throw new SerdeParseException(jpe.getMessage(), jpe);
-//            throw logger.logExceptionAsError(new MalformedValueException(jpe.getMessage(), jpe));
+            throw logger.logExceptionAsError(new SerdeParseException(jpe.getMessage(), jpe));
         }
     }
 
@@ -248,8 +231,7 @@ public class JacksonSerder {
                 return (T) serializer().readValue(inputStream, javaType);
             }
         } catch (JsonParseException jpe) {
-            throw new SerdeParseException(jpe.getMessage(), jpe);
-//            throw logger.logExceptionAsError(new MalformedValueException(jpe.getMessage(), jpe));
+            throw logger.logExceptionAsError(new SerdeParseException(jpe.getMessage(), jpe));
         }
     }
 
@@ -355,11 +337,13 @@ public class JacksonSerder {
             .registerModule(DateTimeRfc1123Serializer.getModule())
             .registerModule(DurationSerializer.getModule())
             .registerModule(UnixTimeSerializer.getModule());
+
         mapper.setVisibility(mapper.getSerializationConfig().getDefaultVisibilityChecker()
             .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
             .withSetterVisibility(JsonAutoDetect.Visibility.NONE)
             .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
             .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE));
+
         return mapper;
     }
 

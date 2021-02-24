@@ -90,7 +90,7 @@ public class JacksonSerderTests {
     @ParameterizedTest
     @MethodSource("deserializeJsonSupplier")
     public void deserializeJson(String json, OffsetDateTime expected) throws IOException {
-        DateTimeWrapper wrapper = JacksonSerder.createDefaultSerdeAdapter()
+        DateTimeWrapper wrapper = JacksonSerder.createDefault()
             .deserialize(json, DateTimeWrapper.class, SerdeEncoding.JSON);
 
         assertEquals(expected, wrapper.getOffsetDateTime());
@@ -112,7 +112,7 @@ public class JacksonSerderTests {
     @ParameterizedTest
     @MethodSource("deserializeXmlSupplier")
     public void deserializeXml(String xml, OffsetDateTime expected) throws IOException {
-        DateTimeWrapper wrapper = JacksonSerder.createDefaultSerdeAdapter()
+        DateTimeWrapper wrapper = JacksonSerder.createDefault()
             .deserialize(xml, DateTimeWrapper.class, SerdeEncoding.XML);
 
         assertEquals(expected, wrapper.getOffsetDateTime());

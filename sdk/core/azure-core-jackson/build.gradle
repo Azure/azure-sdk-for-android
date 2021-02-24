@@ -18,6 +18,10 @@ dependencies {
     api ("javax.xml.stream:stax-api:$staxApiVersion") // https://stackoverflow.com/a/47371517/1473510
     // <!-- end: api Dependencies -->
 
+    // <!-- begin: implementation Dependencies -->
+    implementation project (":sdk:core:azure-core-logging")
+    // <!-- end: implementation Dependencies -->
+
     // <!-- begin: test Dependencies -->
     testImplementation project (":sdk:core:azure-core-http")
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
