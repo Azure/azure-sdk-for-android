@@ -4,7 +4,6 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -60,10 +59,13 @@ public final class ChatMessage {
     private OffsetDateTime createdOn;
 
     /*
-     * The id of the chat message sender.
+     * Identifies a participant in Azure Communication services. A participant
+     * is, for example, a phone number or an Azure communication user. This
+     * model must be interpreted as a union: Apart from rawId, at most one
+     * further property may be set.
      */
-    @JsonProperty(value = "senderId")
-    private CommunicationUserIdentifier senderId;
+    @JsonProperty(value = "senderCommunicationIdentifier")
+    private CommunicationIdentifierModel senderCommunicationIdentifier;
 
     /*
      * The timestamp (if applicable) when the message was deleted. The
@@ -82,7 +84,7 @@ public final class ChatMessage {
     /**
      * Get the id property: The id of the chat message. This id is server
      * generated.
-     *
+     * 
      * @return the id value.
      */
     public String getId() {
@@ -92,7 +94,7 @@ public final class ChatMessage {
     /**
      * Set the id property: The id of the chat message. This id is server
      * generated.
-     *
+     * 
      * @param id the id value to set.
      * @return the ChatMessage object itself.
      */
@@ -103,7 +105,7 @@ public final class ChatMessage {
 
     /**
      * Get the type property: The chat message type.
-     *
+     * 
      * @return the type value.
      */
     public ChatMessageType getType() {
@@ -112,7 +114,7 @@ public final class ChatMessage {
 
     /**
      * Set the type property: The chat message type.
-     *
+     * 
      * @param type the type value to set.
      * @return the ChatMessage object itself.
      */
@@ -124,7 +126,7 @@ public final class ChatMessage {
     /**
      * Get the sequenceId property: Sequence of the chat message in the
      * conversation.
-     *
+     * 
      * @return the sequenceId value.
      */
     public String getSequenceId() {
@@ -134,7 +136,7 @@ public final class ChatMessage {
     /**
      * Set the sequenceId property: Sequence of the chat message in the
      * conversation.
-     *
+     * 
      * @param sequenceId the sequenceId value to set.
      * @return the ChatMessage object itself.
      */
@@ -145,7 +147,7 @@ public final class ChatMessage {
 
     /**
      * Get the version property: Version of the chat message.
-     *
+     * 
      * @return the version value.
      */
     public String getVersion() {
@@ -154,7 +156,7 @@ public final class ChatMessage {
 
     /**
      * Set the version property: Version of the chat message.
-     *
+     * 
      * @param version the version value to set.
      * @return the ChatMessage object itself.
      */
@@ -165,7 +167,7 @@ public final class ChatMessage {
 
     /**
      * Get the content property: Content of a chat message.
-     *
+     * 
      * @return the content value.
      */
     public ChatMessageContent getContent() {
@@ -174,7 +176,7 @@ public final class ChatMessage {
 
     /**
      * Set the content property: Content of a chat message.
-     *
+     * 
      * @param content the content value to set.
      * @return the ChatMessage object itself.
      */
@@ -187,7 +189,7 @@ public final class ChatMessage {
      * Get the senderDisplayName property: The display name of the chat message
      * sender. This property is used to populate sender name for push
      * notifications.
-     *
+     * 
      * @return the senderDisplayName value.
      */
     public String getSenderDisplayName() {
@@ -198,7 +200,7 @@ public final class ChatMessage {
      * Set the senderDisplayName property: The display name of the chat message
      * sender. This property is used to populate sender name for push
      * notifications.
-     *
+     * 
      * @param senderDisplayName the senderDisplayName value to set.
      * @return the ChatMessage object itself.
      */
@@ -211,7 +213,7 @@ public final class ChatMessage {
      * Get the createdOn property: The timestamp when the chat message arrived
      * at the server. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * 
      * @return the createdOn value.
      */
     public OffsetDateTime getCreatedOn() {
@@ -222,7 +224,7 @@ public final class ChatMessage {
      * Set the createdOn property: The timestamp when the chat message arrived
      * at the server. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * 
      * @param createdOn the createdOn value to set.
      * @return the ChatMessage object itself.
      */
@@ -232,22 +234,29 @@ public final class ChatMessage {
     }
 
     /**
-     * Get the senderId property: The id of the chat message sender.
-     *
-     * @return the senderId value.
+     * Get the senderCommunicationIdentifier property: Identifies a participant
+     * in Azure Communication services. A participant is, for example, a phone
+     * number or an Azure communication user. This model must be interpreted as
+     * a union: Apart from rawId, at most one further property may be set.
+     * 
+     * @return the senderCommunicationIdentifier value.
      */
-    public CommunicationUserIdentifier getSenderId() {
-        return this.senderId;
+    public CommunicationIdentifierModel getSenderCommunicationIdentifier() {
+        return this.senderCommunicationIdentifier;
     }
 
     /**
-     * Set the senderId property: The id of the chat message sender.
-     *
-     * @param senderId the senderId value to set.
+     * Set the senderCommunicationIdentifier property: Identifies a participant
+     * in Azure Communication services. A participant is, for example, a phone
+     * number or an Azure communication user. This model must be interpreted as
+     * a union: Apart from rawId, at most one further property may be set.
+     * 
+     * @param senderCommunicationIdentifier the senderCommunicationIdentifier
+     * value to set.
      * @return the ChatMessage object itself.
      */
-    public ChatMessage setSenderId(CommunicationUserIdentifier senderId) {
-        this.senderId = senderId;
+    public ChatMessage setSenderCommunicationIdentifier(CommunicationIdentifierModel senderCommunicationIdentifier) {
+        this.senderCommunicationIdentifier = senderCommunicationIdentifier;
         return this;
     }
 
@@ -255,7 +264,7 @@ public final class ChatMessage {
      * Get the deletedOn property: The timestamp (if applicable) when the
      * message was deleted. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * 
      * @return the deletedOn value.
      */
     public OffsetDateTime getDeletedOn() {
@@ -266,7 +275,7 @@ public final class ChatMessage {
      * Set the deletedOn property: The timestamp (if applicable) when the
      * message was deleted. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * 
      * @param deletedOn the deletedOn value to set.
      * @return the ChatMessage object itself.
      */
@@ -279,7 +288,7 @@ public final class ChatMessage {
      * Get the editedOn property: The last timestamp (if applicable) when the
      * message was edited. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * 
      * @return the editedOn value.
      */
     public OffsetDateTime getEditedOn() {
@@ -290,7 +299,7 @@ public final class ChatMessage {
      * Set the editedOn property: The last timestamp (if applicable) when the
      * message was edited. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * 
      * @param editedOn the editedOn value to set.
      * @return the ChatMessage object itself.
      */
