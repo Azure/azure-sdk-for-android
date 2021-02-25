@@ -4,11 +4,9 @@
 
 package com.azure.android.communication.common;
 
-import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /** The MicrosoftTeamsUserIdentifierModel model. */
-@Fluent
 public final class MicrosoftTeamsUserIdentifierModel {
     /*
      * The Id of the Microsoft Teams user. If not anonymous, this is the AAD

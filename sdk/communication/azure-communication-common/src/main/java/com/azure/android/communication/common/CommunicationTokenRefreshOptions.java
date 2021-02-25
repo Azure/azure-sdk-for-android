@@ -47,7 +47,7 @@ public class CommunicationTokenRefreshOptions {
      *                           tokenRefresher before token expiry by minutes set
      *                           with setCallbackOffsetMinutes or default value of
      *                           two minutes
-     * @param token the serialized JWT token, cannot be null
+     * @param initialToken the serialized JWT token, cannot be null
      */
     public CommunicationTokenRefreshOptions(Callable<String> tokenRefresher, boolean refreshProactively, String initialToken) {
         if (tokenRefresher == null) {

@@ -4,7 +4,7 @@
 package com.azure.android.communication.common;
 
 import com.azure.android.core.credential.AccessToken;
-import com.azure.android.core.util.logging.ClientLogger;
+import com.azure.android.core.logging.ClientLogger;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -17,7 +17,7 @@ class AutoRefreshUserCredential extends UserCredential {
     private static final int ON_DEMAND_REFRESH_BUFFER_SECS = 120;
     private static final int PROACTIVE_REFRESH_BUFFER_SECS = 600;
 
-    private final ClientLogger logger = ClientLogger.getDefault(AutoRefreshUserCredential.class);
+    private final ClientLogger logger = new ClientLogger(AutoRefreshUserCredential.class);
 
     private Callable<String> tokenRefresher;
     private Callable<AccessToken> accessTokenCallable;

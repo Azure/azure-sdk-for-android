@@ -11,9 +11,19 @@ android {
 }
 
 dependencies {
-    api "com.azure.android:azure-core:1.0.0-beta.3"
+    // <!-- begin: api Dependencies -->
+    api project(":sdk:core:azure-core")
+    api project(":sdk:core:azure-core-logging")
+    api project(":sdk:core:azure-core-credential")
+    // <!-- end: api Dependencies -->
+
+    // <!-- begin: implementation Dependencies -->
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
+    // <!-- end: implementation Dependencies -->
+
+    // <!-- begin: test Dependencies -->
     testImplementation "junit:junit:$jUnitVersion"
     testImplementation "org.threeten:threetenbp:$threeTenBpVersion"
+    // <!-- end: test Dependencies -->
 }

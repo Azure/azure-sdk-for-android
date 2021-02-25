@@ -4,11 +4,9 @@
 
 package com.azure.android.communication.common;
 
-import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /** The CommunicationIdentifierModel model. */
-@Fluent
 public final class CommunicationIdentifierModel {
     /*
      * Raw Id of the identifier. Optional in requests, required in responses.

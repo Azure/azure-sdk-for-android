@@ -1,3 +1,4 @@
+include ':sdk:communication:azure-communication-common'
 include ":sdk:core:azure-core-logging"
 include ':sdk:core:azure-core-jackson'
 include ":sdk:core:azure-core"
@@ -8,4 +9,3 @@ include ":sdk:core:azure-core-http-httpurlconnection"
 include ":sdk:core:azure-core-rest"
 include ":sdk:core:azure-core-test"
 include ":eng:code-quality-reports"
-include ':sdk:communication:azure-communication-common'

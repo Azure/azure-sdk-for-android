@@ -15,7 +15,9 @@ class CommunicationIdentifierSerializer {
      * @return deserialized CommunicationIdentifier
      */
     public static CommunicationIdentifier deserialize(CommunicationIdentifierModel identifier) {
-        Objects.requireNonNull(identifier, "'identifier' cannot be null");
+        if (identifier == null) {
+            throw new NullPointerException("'identifier' cannot be null");
+        }
         assertSingleType(identifier);
         String rawId = identifier.getRawId();
 
@@ -26,8 +28,12 @@ class CommunicationIdentifierSerializer {
 
         if (identifier.getPhoneNumber() != null) {
             PhoneNumberIdentifierModel phoneNumberModel = identifier.getPhoneNumber();
-            Objects.requireNonNull(phoneNumberModel.getValue(), "'phoneNumber.value' cannot be null");
-            Objects.requireNonNull(rawId, "'rawId' cannot be null");
+            if (phoneNumberModel.getValue() == null) {
+                throw new NullPointerException("'phoneNumber.value' cannot be null");
+            }
+            if (rawId == null) {
+                throw new NullPointerException("'rawId' cannot be null");
+            }
             return new PhoneNumberIdentifier(phoneNumberModel.getValue()).setRawId(rawId);
         }
 

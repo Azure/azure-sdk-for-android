@@ -5,8 +5,7 @@ package com.azure.android.communication.common;
 
 import android.util.Base64;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import java.nio.charset.Charset;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -35,11 +34,13 @@ final class TokenParser {
      */
     static AccessToken createAccessToken(String tokenStr) {
         try {
-            Objects.requireNonNull(tokenStr, "'tokenStr' cannot be null.");
+            if (tokenStr == null) {
+                throw new NullPointerException("'tokenStr' cannot be null.");
+            }
             String[] tokenParts = tokenStr.split("\\.");
             String tokenPayload = tokenParts[1];
             byte[] decodedBytes = Base64.decode(tokenPayload, Base64.DEFAULT);
-            String decodedPayloadJson = new String(decodedBytes, StandardCharsets.UTF_8);
+            String decodedPayloadJson = new String(decodedBytes, Charset.forName("UTF-8"));
 
             ObjectNode payloadObj = jsonMapper.readValue(decodedPayloadJson, ObjectNode.class);
             long expire = payloadObj.get("exp").longValue();
