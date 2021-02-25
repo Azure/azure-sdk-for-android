@@ -40,16 +40,14 @@ import java.util.regex.Pattern;
  */
 public final class JacksonSerder {
     private static final Pattern PATTERN = Pattern.compile("^\"*|\"*$");
+    private static JacksonSerder jacksonSerder;
 
     private final ClientLogger logger = new ClientLogger(JacksonSerder.class);
 
     private final ObjectMapper mapper;
-
     private final ObjectMapper headerMapper;
-
     private final ObjectMapper xmlMapper;
 
-    private static JacksonSerder jacksonSerder;
 
     /**
      * maintain singleton instance of the default serializer adapter.
@@ -93,13 +91,6 @@ public final class JacksonSerder {
     }
 
     /**
-     * @return the original serializer type
-     */
-    public ObjectMapper serializer() {
-        return mapper;
-    }
-
-    /**
      * Serializes an object into a string.
      *
      * @param object the object to serialize
@@ -132,9 +123,9 @@ public final class JacksonSerder {
         }
 
         if ((encoding == SerdeEncoding.XML)) {
-            xmlMapper.writeValue(outputStream, object);
+            this.xmlMapper.writeValue(outputStream, object);
         } else {
-            serializer().writeValue(outputStream, object);
+            this.mapper.writeValue(outputStream, object);
         }
     }
 
@@ -196,9 +187,9 @@ public final class JacksonSerder {
         final JavaType javaType = createJavaType(type);
         try {
             if (encoding == SerdeEncoding.XML) {
-                return (T) xmlMapper.readValue(value, javaType);
+                return (T) this.xmlMapper.readValue(value, javaType);
             } else {
-                return (T) serializer().readValue(value, javaType);
+                return (T) this.mapper.readValue(value, javaType);
             }
         } catch (JsonParseException jpe) {
             throw logger.logExceptionAsError(new SerdeParseException(jpe.getMessage(), jpe));
@@ -226,9 +217,9 @@ public final class JacksonSerder {
         final JavaType javaType = createJavaType(type);
         try {
             if (encoding == SerdeEncoding.XML) {
-                return (T) xmlMapper.readValue(inputStream, javaType);
+                return (T) this.xmlMapper.readValue(inputStream, javaType);
             } else {
-                return (T) serializer().readValue(inputStream, javaType);
+                return (T) this.mapper.readValue(inputStream, javaType);
             }
         } catch (JsonParseException jpe) {
             throw logger.logExceptionAsError(new SerdeParseException(jpe.getMessage(), jpe));
@@ -259,9 +250,9 @@ public final class JacksonSerder {
             return null;
         }
 
-        final String headersJsonString = headerMapper.writeValueAsString(headers);
+        final String headersJsonString = this.headerMapper.writeValueAsString(headers);
         T deserializedHeaders =
-            headerMapper.readValue(headersJsonString, createJavaType(deserializedHeadersType));
+            this.headerMapper.readValue(headersJsonString, createJavaType(deserializedHeadersType));
 
         final Class<?> deserializedHeadersClass = TypeUtil.getRawClass(deserializedHeadersType);
         final Field[] declaredFields = deserializedHeadersClass.getDeclaredFields();
@@ -360,10 +351,11 @@ public final class JacksonSerder {
             for (int i = 0; i != actualTypeArguments.length; i++) {
                 javaTypeArguments[i] = createJavaType(actualTypeArguments[i]);
             }
-            result = mapper
-                .getTypeFactory().constructParametricType((Class<?>) parameterizedType.getRawType(), javaTypeArguments);
+            result = this.mapper
+                .getTypeFactory()
+                .constructParametricType((Class<?>) parameterizedType.getRawType(), javaTypeArguments);
         } else {
-            result = mapper
+            result = this.mapper
                 .getTypeFactory().constructType(type);
         }
         return result;
