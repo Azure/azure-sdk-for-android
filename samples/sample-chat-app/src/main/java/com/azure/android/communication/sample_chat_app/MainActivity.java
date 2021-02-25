@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     private final String userAccessToken = "<userToken>";
     private final String endpoint = "https://chat-sdktester-e2e.int.communication.azure.net";
     private final String listenerId = "testListener";
-    private final String sdkVersion = "1.0.0-beta.5";
+    private final String sdkVersion = "1.0.0-beta.6";
     private static final String SDK_NAME = "azure-communication-com.azure.android.communication.signaling.signaling";
     private static final String TAG = "--------------Chat Signaling Test Demo-----------";
 
