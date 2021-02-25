@@ -12,6 +12,7 @@ import com.azure.android.communication.chat.models.ChatMessage;
 import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
 import com.azure.android.communication.chat.models.ChatParticipant;
 import com.azure.android.communication.chat.models.CommunicationErrorResponseException;
+import com.azure.android.communication.chat.models.CommunicationIdentifierModel;
 import com.azure.android.communication.chat.models.SendChatMessageRequest;
 import com.azure.android.communication.chat.models.SendChatMessageResult;
 import com.azure.android.communication.chat.models.SendReadReceiptRequest;
@@ -271,14 +272,14 @@ public final class ChatThreadAsyncClient {
      * Remove a participant from a thread.
      *
      * @param chatThreadId Thread id to remove the participant from.
-     * @param chatParticipantId Id of the thread participant to remove from the thread.
+     * @param participantCommunicationIdentifier Identifies a participant in Azure Communication services. A participant is, for example, a phone number or an Azure communication user. This model must be interpreted as a union: Apart from rawId, at most one further property may be set.
      * @param callback the Callback that receives the response.
      * @throws IllegalArgumentException thrown if parameters fail the validation.
      * @throws CommunicationErrorResponseException thrown if the request is rejected by server.
      * @throws RuntimeException all other wrapped checked exceptions if the request fails to be sent.
      */
-    public void removeChatParticipant(String chatThreadId, String chatParticipantId, final Callback<Void> callback) {
-        this.serviceClient.removeChatParticipant(chatThreadId, chatParticipantId, callback);
+    public void removeChatParticipant(String chatThreadId, CommunicationIdentifierModel participantCommunicationIdentifier, final Callback<Void> callback) {
+        this.serviceClient.removeChatParticipant(chatThreadId, participantCommunicationIdentifier, callback);
     }
 
     /**

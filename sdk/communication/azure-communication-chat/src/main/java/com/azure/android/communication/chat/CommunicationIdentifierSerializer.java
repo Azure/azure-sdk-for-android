@@ -1,9 +1,21 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.android.communication.common;
+package com.azure.android.communication.chat;
 
 import android.text.TextUtils;
+
+import com.azure.android.communication.chat.models.CommunicationCloudEnvironmentModel;
+import com.azure.android.communication.chat.models.CommunicationIdentifierModel;
+import com.azure.android.communication.chat.models.CommunicationUserIdentifierModel;
+import com.azure.android.communication.chat.models.MicrosoftTeamsUserIdentifierModel;
+import com.azure.android.communication.chat.models.PhoneNumberIdentifierModel;
+import com.azure.android.communication.common.CommunicationCloudEnvironment;
+import com.azure.android.communication.common.CommunicationIdentifier;
+import com.azure.android.communication.common.CommunicationUserIdentifier;
+import com.azure.android.communication.common.MicrosoftTeamsUserIdentifier;
+import com.azure.android.communication.common.PhoneNumberIdentifier;
+import com.azure.android.communication.common.UnknownIdentifier;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -39,7 +51,7 @@ class CommunicationIdentifierSerializer {
             return new MicrosoftTeamsUserIdentifier(teamsUserIdentifierModel.getUserId(),
                 teamsUserIdentifierModel.isAnonymous())
                 .setRawId(rawId)
-                .setCloudEnvironment(CommunicationCloudEnvironment.fromModel(teamsUserIdentifierModel.getCloud()));
+                .setCloudEnvironment(new CommunicationCloudEnvironment(teamsUserIdentifierModel.getCloud().toString()));
         }
 
         Objects.requireNonNull(rawId);
