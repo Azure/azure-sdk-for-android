@@ -138,7 +138,47 @@ Once you initialize an `ChatClient` class, you can perform the following chat op
 
 ## Examples
 
-For specific examples, please go to [Quickstart](https://docs.microsoft.com/en-us/azure/communication-services/quickstarts/chat/get-started?pivots=programming-language-android) doc.
+#### Create a thread
+
+Use the `create` method to create a thread.
+
+```java
+//  The list of ChatParticipant to be added to the thread.
+List<ChatParticipant> participants = new ArrayList<>();
+// The display name for the thread participant.
+String displayName = "initial participant";
+participants.add(new ChatParticipant()
+        .setId(id)
+        .setDisplayName(displayName)
+);
+
+
+// The topic for the thread.
+final String topic = "General";
+// The model to pass to the create method.
+CreateChatThreadRequest thread = new CreateChatThreadRequest()
+        .setTopic(topic)
+        .setParticipants(participants);
+
+// optional, set a repeat request ID
+final String repeatabilityRequestID = "";
+
+client.createChatThread(thread, repeatabilityRequestID, new Callback<CreateChatThreadResult>() {
+    public void onSuccess(CreateChatThreadResult result, okhttp3.Response response) {
+        ChatThread chatThread = result.getChatThread();
+        threadId = chatThread.getId();
+        // take further action
+        Log.i(TAG, "threadId: " + threadId);
+    }
+
+    public void onFailure(Throwable throwable, okhttp3.Response response) {
+        // Handle error.
+        Log.e(TAG, throwable.getMessage());
+    }
+});
+```
+
+For more examples, please go to [Quickstart](https://docs.microsoft.com/azure/communication-services/quickstarts/chat/get-started?pivots=programming-language-android) doc.
 
 ## Troubleshooting
 
