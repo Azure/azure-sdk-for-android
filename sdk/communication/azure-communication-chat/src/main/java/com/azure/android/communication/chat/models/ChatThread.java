@@ -4,7 +4,6 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -38,7 +37,7 @@ public final class ChatThread {
      * Id of the chat thread owner.
      */
     @JsonProperty(value = "createdBy", required = true)
-    private CommunicationUserIdentifier createdBy;
+    private String createdBy;
 
     /*
      * The timestamp when the chat thread was deleted. The timestamp is in
@@ -114,7 +113,7 @@ public final class ChatThread {
      *
      * @return the createdBy value.
      */
-    public CommunicationUserIdentifier getCreatedBy() {
+    public String getCreatedBy() {
         return this.createdBy;
     }
 
@@ -124,7 +123,7 @@ public final class ChatThread {
      * @param createdBy the createdBy value to set.
      * @return the ChatThread object itself.
      */
-    public ChatThread setCreatedBy(CommunicationUserIdentifier createdBy) {
+    public ChatThread setCreatedBy(String createdBy) {
         this.createdBy = createdBy;
         return this;
     }

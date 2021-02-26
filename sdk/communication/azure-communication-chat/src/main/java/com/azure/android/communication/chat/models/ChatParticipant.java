@@ -4,7 +4,6 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -19,7 +18,7 @@ public final class ChatParticipant {
      * The id of the chat participant.
      */
     @JsonProperty(value = "id", required = true)
-    private CommunicationUserIdentifier id;
+    private String id;
 
     /*
      * Display name for the chat participant.
@@ -39,7 +38,7 @@ public final class ChatParticipant {
      *
      * @return the id value.
      */
-    public CommunicationUserIdentifier getId() {
+    public String getId() {
         return this.id;
     }
 
@@ -49,7 +48,7 @@ public final class ChatParticipant {
      * @param id the id value to set.
      * @return the ChatParticipant object itself.
      */
-    public ChatParticipant setId(CommunicationUserIdentifier id) {
+    public ChatParticipant setId(String id) {
         this.id = id;
         return this;
     }

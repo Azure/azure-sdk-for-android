@@ -1,6 +1,8 @@
 # Release History
 
-## 1.0.0-beta.6 (Unreleased)
+## 1.0.0-beta.6 (2021-02-26)
+### Fix
+- Fix the serialization and deserialization on user id in ChatParticipant, ChatThread, ChatMessage, ChatMessageContent and ChangeMessageReadReceipt.
 
 ## 1.0.0-beta.5 (2021-02-08)
 ### Added
