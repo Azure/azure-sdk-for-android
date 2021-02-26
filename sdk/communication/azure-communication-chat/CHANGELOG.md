@@ -1,6 +1,12 @@
 # Release History
 
-## 1.0.0-beta.6 (Unreleased)
+## 1.0.0-beta.6 (2021-02-26)
+### Breaking Changes
+- Change ChatParticipant id type from CommunicationUserIdentifier to String
+- Change ChatThread createdBy type from CommunicationUserIdentifier to String
+- Change ChatMessage senderId type from CommunicationUserIdentifier to String
+- Change ChatMessageContent initiator type from CommunicationUserIdentifier to String
+- Change ChangeMessageReadReceipt senderId type from CommunicationUserIdentifier to String
 
 ## 1.0.0-beta.5 (2021-02-08)
 ### Added

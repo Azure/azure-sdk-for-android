@@ -17,7 +17,7 @@ This package contains the Chat client library for Azure Communication Services.
 ### Versions available
 The current Azure Communication Chat Service Version is **2020-11-01-preview3**.
 
-The current Azure Communication Chat SDK Version is **1.0.0-beta.5**.
+The current Azure Communication Chat SDK Version is **1.0.0-beta.6**.
 
 > Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
@@ -35,13 +35,13 @@ Add an `implementation` configuration to the `dependencies` block of your app's 
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-communication-chat:1.0.0-beta.5"
+    implementation "com.azure.android:azure-communication-chat:1.0.0-beta.6"
 }
 
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-communication-chat:1.0.0-beta.5")
+    implementation("com.azure.android:azure-communication-chat:1.0.0-beta.6")
 }
 ```
 
@@ -52,7 +52,7 @@ To import the library into your project using the [Maven](https://maven.apache.o
 <dependency>
   <groupId>com.azure.android</groupId>
   <artifactId>azure-communication-chat</artifactId>
-  <version>1.0.0-beta.5</version>
+  <version>1.0.0-beta.6</version>
 </dependency>
 ```
 
@@ -68,22 +68,27 @@ final String endpoint = "https://<resource>.communication.azure.com";
 final String userAccessToken = "<user_access_token>";
 
 ChatAsyncClient client = new ChatAsyncClient.Builder()
-    .endpoint(endpoint)
-    .credentialInterceptor(chain -> chain.proceed(chain.request()
-        .newBuilder()
-        .header(HttpHeader.AUTHORIZATION, userAccessToken)
-        .build());
+        .endpoint(endpoint)
+        .credentialInterceptor(chain -> chain.proceed(chain.request()
+                .newBuilder()
+                .header(HttpHeader.AUTHORIZATION, "Bearer " + userAccessToken)
+                .build()))
+        .build();
 ```
 
-### Create the ChatThreadClient
+### Create the threadClient
 
-Now that we've created a Chat thread we'll obtain a `ChatThreadClient` to perform operations within the thread.
+Now that we've created a Chat thread we'll obtain a `threadClient` to perform operations within the thread.
 
-```
-ChatThreadClient chatThreadClient =
-        new ChatThreadClient.Builder()
-            .endpoint(<endpoint>))
-            .build();
+```java
+ChatThreadAsyncClient threadClient =
+        new ChatThreadAsyncClient.Builder()
+                .endpoint(endpoint)
+                .credentialInterceptor(chain -> chain.proceed(chain.request()
+                        .newBuilder()
+                        .header(HttpHeader.AUTHORIZATION, "Bearer " + userAccessToken)
+                        .build()))
+                .build();
 ```
 Replace `<endpoint>` with your Communication Services endpoint.
 
@@ -101,7 +106,7 @@ A chat conversation is represented by a chat thread. Each user in the thread is 
 
 ### Chat operations
 
-Once you initialize an `AzureCommunicationChatClient` class, you can perform the following chat operations:
+Once you initialize an `ChatClient` class, you can perform the following chat operations:
 
 #### Thread Operations
 
@@ -133,8 +138,6 @@ Once you initialize an `AzureCommunicationChatClient` class, you can perform the
 
 ## Examples
 
-### Thread Operations
-
 #### Create a thread
 
 Use the `create` method to create a thread.
@@ -142,566 +145,40 @@ Use the `create` method to create a thread.
 ```java
 //  The list of ChatParticipant to be added to the thread.
 List<ChatParticipant> participants = new ArrayList<>();
-// The communication user ID you created before, required.
-final String id = "<user_id>";
 // The display name for the thread participant.
-final String displayName = "initial participant";
+String displayName = "initial participant";
 participants.add(new ChatParticipant()
-    .setId(id)
-    .setDisplayName(displayName));
+        .setId(id)
+        .setDisplayName(displayName)
+);
+
 
 // The topic for the thread.
 final String topic = "General";
 // The model to pass to the create method.
 CreateChatThreadRequest thread = new CreateChatThreadRequest()
-    .setTopic(topic)
-    .setParticipants(participants);
+        .setTopic(topic)
+        .setParticipants(participants);
 
-// optional, set a repeat request ID 
-final String repeatabilityRequestID = '123';
+// optional, set a repeat request ID
+final String repeatabilityRequestID = "";
 
 client.createChatThread(thread, repeatabilityRequestID, new Callback<CreateChatThreadResult>() {
     public void onSuccess(CreateChatThreadResult result, okhttp3.Response response) {
-        // MultiStatusResponse is the result returned from creating a thread.
-        // It has a 'multipleStatus' property which represents a list of IndividualStatusResponse.
-        String threadId;
-        List<IndividualStatusResponse> statusList = result.getMultipleStatus();
-        for (IndividualStatusResponse status : statusList) {
-            if (status.getId().endsWith("@thread.v2")
-                && status.getType().contentEquals("Thread")) {
-                threadId = status.getId();
-                break;
-            }
-        }
-        // Take further action.
+        ChatThread chatThread = result.getChatThread();
+        threadId = chatThread.getId();
+        // take further action
+        Log.i(TAG, "threadId: " + threadId);
     }
 
     public void onFailure(Throwable throwable, okhttp3.Response response) {
         // Handle error.
+        Log.e(TAG, throwable.getMessage());
     }
 });
 ```
 
-#### Get a thread
-
-Use the `getChatThread` method to retrieve a thread.
-
-```java
-// The unique ID of the thread.
-final String threadId = "<thread_id>";
-client.getChatThread(threadId, new Callback<ChatThread>() {
-    @Override
-    public void onSuccess(ChatThread thread, Response response) {
-        // Take further action.
-    }
-
-    @Override
-    public void onFailure(Throwable throwable, Response response) {
-        // Handle error.
-    }
-});
-```
-
-#### List threads
-
-Use the `listChatThreads` method to retrieve a list of threads.
-
-```java
-// The maximum number of messages to be returned per page, optional.
-final int maxPageSize = 10;
-// The thread start time to consider in the query, optional.
-final OffsetDateTime startTime = OffsetDateTime.parse("2020-09-08T00:00:00Z");
-client.listChatThreadsPages(maxPageSize, startTime,
-    new Callback<AsyncPagedDataCollection<ChatThreadInfo, Page<ChatThreadInfo>>>() {
-    @Override
-    public void onSuccess(AsyncPagedDataCollection<ChatThreadInfo,
-        Page<ChatThreadInfo>> pageCollection,
-        Response response) {
-        // pageCollection enables enumerating a list of threads.
-        pageCollection.getFirstPage(new Callback<Page<ChatThreadInfo>>() {
-            @Override
-            public void onSuccess(Page<ChatThreadInfo> firstPage, Response response) {
-                for (ChatThreadInfo thread : firstPage.getItems()) {
-                    // Take further action.
-                }
-                retrieveNextThreadPages(firstPage.getPageId(), pageCollection);
-            }
-
-            @Override
-            public void onFailure(Throwable throwable, Response response) {
-                // Handle error.
-            }
-        });
-    }
-
-    @Override
-    public void onFailure(Throwable throwable, Response response) {
-        // Handle error.
-    }
-});
-
-void listChatThreadsNext(String nextLink,
-    AsyncPagedDataCollection<Page<ChatThreadInfo>> pageCollection) {
-        @Override
-        public void onSuccess(Page<ChatThreadInfo> nextPage, Response response) {
-            for (ChatThreadInfo thread : nextPage.getItems()) {
-                // Take further action.
-            }
-            if (nextPage.getPageId() != null) {
-                retrieveNextThreadPages(nextPage.getPageId(), pageCollection);
-            }
-        }
-
-        @Override
-        public void onFailure(Throwable throwable, Response response) {
-            // Handle error.
-        }
-}
-```
-
-#### Update a thread
-
-Use the `update` method to update a thread's properties.
-
-```java
-// The new topic for the thread.
-final String topic = "updated topic";
-// The model to pass to the update method.
-UpdateTopicRequest thread = new UpdateTopicRequest()
-    .setTopic(topic);
-
-// The unique ID of the thread.
-final String threadId = "<thread_id>";
-client.updateTopic(threadId, thread, new Callback<Void>() {
-    @Override
-    public void onSuccess(Void result, Response response) {
-        // Take further action.
-    }
-
-    @Override
-    public void onFailure(Throwable throwable, Response response) {
-        // Handle error.
-    }
-});
-```
-
-#### Delete a thread
-
-Use the `deleteChatThread` method to delete a thread.
-
-```java
-// The unique ID of the thread.
-final String threadId = "<thread_id>";
-client.deleteChatThread(threadId, new Callback<Void>() {
-    @Override
-    public void onSuccess(Void result, Response response) {
-        // Take further action.
-    }
-
-    @Override
-    public void onFailure(Throwable throwable, Response response) {
-        // Handle error.
-    }
-});
-```
-
-### Message Operations
-
-#### Send a message
-
-Use the `send` method to send a message to a thread.
-```java
-// The chat message content, required.
-final String content = "Test message 1";
-// The display name of the sender, if null (i.e. not specified), an empty name will be set.
-final String senderDisplayName = "An important person";
-SendChatMessageRequest message = new SendChatMessageRequest()
-    .setType(ChatMessageType.TEXT)
-    .setContent(content)
-    .setSenderDisplayName(senderDisplayName);
-
-// The unique ID of the thread.
-final String threadId = "<thread_id>";
-chatThreadClient.sendChatMessage(threadId, message, new Callback<String>() {
-    @Override
-    public void onSuccess(String messageId, Response response) {
-        // A string is the response returned from sending a message, it is an id, 
-        // which is the unique ID of the message.
-        final String chatMessageId = messageId;
-        // Take further action.
-    }
-
-    @Override
-    public void onFailure(Throwable throwable, Response response) {
-        // Handle error.
-    }
-});
-```
-
-#### Get a message
-
-Use the `getChatMessage` method to retrieve a message in a thread.
-
-```java
-// The unique ID of the thread.
-final String threadId = "<thread_id>";
-// The unique ID of the message.
-final String chatMessageId = "<message_id>";
-
-chatThreadClient.getChatMessage(threadId, chatMessageId, new Callback<ChatMessage>() {
-    @Override
-    public void onSuccess(ChatMessage chatMessage, Response response) {
-        // `ChatMessage` is the response returned from getting a message.
-        final ChatMessageContent content = result.getContent();
-        // Take further action.
-    }
-
-    @Override
-    public void onFailure(Throwable throwable, Response response) {
-        // Handle error.
-    }
-});
-```
-
-#### List messages
-
-Use the `listChatMessages` method to retrieve messages in a thread.
-
-```java
-// The maximum number of messages to be returned per page, optional.
-final int maxPageSize = 10;
-// The thread start time to consider in the query, optional.
-final OffsetDateTime startTime = OffsetDateTime.parse("2020-09-08T00:00:00Z");
-// The unique ID of the thread.
-final String threadId = "<thread_id>";
-        
-chatThreadClient.listChatMessagesPages(threadId,
-    maxPageSize,
-    startTime,
-    new Callback<AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>>() {
-        @Override
-        public void onSuccess(AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>> pageCollection,
-            Response response) {
-            // pageCollection enables enumerating list of messages.
-            pageCollection.getFirstPage(new Callback<Page<ChatMessage>>() {
-                @Override
-                public void onSuccess(Page<ChatMessage> firstPage, Response response) {
-                    for (ChatMessage message : firstPage.getItems()) {
-                        // Take further action.
-                    }
-                    retrieveNextMessagePages(firstPage.getPageId(), pageCollection);
-                }
-
-                @Override
-                public void onFailure(Throwable throwable, Response response) {
-                    // Handle error.
-                }
-            });
-        }
-
-        @Override
-        public void onFailure(Throwable throwable, Response response) {
-            // Handle error.
-        }
-});
-
-void listChatMessagesNext(String nextLink,
-    AsyncPagedDataCollection<Page<ChatMessage>> pageCollection) {
-        @Override
-        public void onSuccess(Page<ChatMessage> nextPage, Response response) {
-            for (ChatMessage thread : nextPage.getItems()) {
-                // Take further action.
-            }
-            if (nextPage.getPageId() != null) {
-                retrieveNextMessagePages(nextPage.getPageId(), pageCollection);
-            }
-        }
-
-        @Override
-        public void onFailure(Throwable throwable, Response response) {
-            // Handle error.
-        }
-}
-```
-
-#### Update a message
-
-Use the `update` method to update a message in a thread.
-
-```java
-// The message content to be updated.
-final String content = "updated message";
-//  The model to pass to the update method.
-UpdateChatMessageRequest message = new UpdateChatMessageRequest()
-    .setContent(content)
-
-// The unique ID of the thread.
-final String threadId = "<thread_id>";
-// The unique ID of the message.
-final String messageId = "<message_id>";
-chatThreadClient.updateChatMessage(threadId, messageId, message, new Callback<Void>() {
-    @Override
-    public void onSuccess(Void result, Response response) {
-        // Take further action.
-    }
-
-    @Override
-    public void onFailure(Throwable throwable, Response response) {
-        // Handle error.
-    }
-});
-```
-
-#### Delete a message
-
-Use the `deleteChatMessage` method to delete a message in a thread.
-
-```java
-// The unique ID of the thread.
-final String threadId = "<thread_id>";
-// The unique ID of the message.
-final String messageId = "<message_id>";
-chatThreadClient.deleteChatMessage(threadId, messageId, new Callback<Void>() {
-    @Override
-    public void onSuccess(Void result, Response response) {
-        // Take further action.
-    }
-
-    @Override
-    public void onFailure(Throwable throwable, Response response) {
-        // Handle error.
-    }
-});
-```
-
-### Thread Participant Operations
-
-#### Get thread participants
-
-Use the `listChatParticipants` method to retrieve the participants participating in a thread.
-
-```java
-// The unique ID of the thread.
-final String threadId = "<thread_id>";
-
-// The maximum number of participants to be returned per page, optional.
-final int maxPageSize = 10;
-
-// Skips participants up to a specified position in response.
-final int skip = 0;
-
-chatThreadClient.listChatParticipantsPages(threadId,
-    maxPageSize,
-    skip,
-    new Callback<AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>>>() {
-    @Override
-    public void onSuccess(AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>> firstPage,
-        Response response) {
-        // pageCollection enables enumerating list of chat participants.
-        pageCollection.getFirstPage(new Callback<Page<ChatParticipant>>() {
-            @Override
-            public void onSuccess(Page<ChatParticipant> firstPage, Response response) {
-                for (ChatParticipant participant : firstPage.getItems()) {
-                    // Take further action.
-                }
-                retrieveNextParticipantsPages(firstPage.getPageId(), pageCollection);
-            }
-
-            @Override
-            public void onFailure(Throwable throwable, Response response) {
-                // Handle error.
-            }
-         }
-    }
-
-    @Override
-    public void onFailure(Throwable throwable, Response response) {
-        // Handle error.
-    }
-});
-
-void listChatParticipantsNext(String nextLink,
-    AsyncPagedDataCollection<Page<ChatParticipant>> pageCollection) {
-        @Override
-        public void onSuccess(Page<ChatParticipant> nextPage, Response response) {
-            for (ChatParticipant participant : nextPage.getItems()) {
-                // Take further action.
-            }
-            if (nextPage.getPageId() != null) {
-                retrieveNextParticipantsPages(nextPage.getPageId(), pageCollection);
-            }
-        }
-
-        @Override
-        public void onFailure(Throwable throwable, Response response) {
-            // Handle error.
-        }
-}
-```
-
-#### Add thread participants
-
-Use the `add` method to add participants to a thread.
-
-```java
-//  The list of ChatParticipant to be added to the thread.
-List<ChatParticipant> participants = new ArrayList<>();
-// The CommunicationUser.identifier you created before, required.
-final String id = "<user_id>";
-// The display name for the thread participant.
-final String displayName = "a new participant";
-participants.add(new ChatParticipant().setId(id).setDisplayName(displayName));
-// The model to pass to the add method.
-AddChatParticipantsRequest participants = new AddChatParticipantsRequest()
-    .setParticipants(participants);
-
-// The unique ID of the thread.
-final String threadId = "<thread_id>";
-chatThreadClient.addChatParticipants(threadId, participants, new Callback<Void>() {
-    @Override
-    public void onSuccess(Void result, Response response) {
-        // Take further action.
-    }
-
-    @Override
-    public void onFailure(Throwable throwable, Response response) {
-        // Handle error.
-    }
-});
-```
-
-#### Remove a thread participant
-
-Use the `removeChatParticipant` method to remove a participant from a thread.
-
-```java
-// The unique ID of the thread.
-final String threadId = "<thread_id>";
-// The unique ID of the participant.
-final String participantId = "<participant_id>";
-chatThreadClient.removeChatParticipant(threadId, participantId, new Callback<Void>() {
-    @Override
-    public void onSuccess(Void result, Response response) {
-        // Take further action.
-    }
-
-    @Override
-    public void onFailure(Throwable throwable, Response response) {
-        // Handle error.
-    }
-});
-```
-
-### Events Operations
-
-#### Send a typing notification
-
-Use the `sendTypingNotification` method to post a typing notification event to a thread, on behalf of a user.
-
-```java
-// The unique ID of the thread.
-final String threadId = "<thread_id>";
-chatThreadClient.sendTypingNotification(threadId, new Callback<Void>() {
-    @Override
-    public void onSuccess(Void result, Response response) {
-        // Take further action.
-    }
-
-    @Override
-    public void onFailure(Throwable throwable, Response response) {
-        // Handle error.
-    }
-});
-```
-
-#### Send read receipt
-
-Use the `send` method to post a read receipt event to a thread, on behalf of a user.
-
-```java
-// The unique ID of the participant.
-final String messageId = "<message_id>";
-// The model to be passed to the send method.
-SendReadReceiptRequest readReceipt = new SendReadReceiptRequest()
-    .setChatMessageId(messageId);
-
-// The unique ID of the thread.
-final String threadId = "<thread_id>";
-chatThreadClient.sendChatReadReceipt(threadId, readReceipt, new Callback<Void>() {
-    @Override
-    public void onSuccess(Void result, Response response) {
-        // Take further action.
-    }
-
-    @Override
-    public void onFailure(Throwable throwable, Response response) {
-        // Handle error.
-    }
-});
-```
-
-#### Get read receipts
-
-Use the `listChatReadReceipts` method to retrieve read receipts for a thread.
-
-```java
-// The unique ID of the thread.
-final String threadId = "<thread_id>";
-
-// The maximum number of participants to be returned per page, optional.
-final int maxPageSize = 10;
-
-// Skips participants up to a specified position in response.
-final int skip = 0;
-
-chatThreadClient.listChatReadReceiptsPages(threadId,
-    maxPageSize,
-    skip,
-    new Callback<AsyncPagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>>>() {
-    @Override
-    public void onSuccess(AsyncPagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>> result,
-        Response response) {
-        // pageCollection enables enumerating list of chat participants.
-        pageCollection.getFirstPage(new Callback<Page<ChatMessageReadReceipt>>() {
-            @Override
-            public void onSuccess(Page<ChatMessageReadReceipt> firstPage, Response response) {
-                for (ReadReceipt receipt : firstPage.getItems()) {
-                    // Take further action.
-                }
-                retrieveNextReceiptsPages(firstPage.getPageId(), pageCollection);
-            }
-
-            @Override
-            public void onFailure(Throwable throwable, Response response) {
-                // Handle error.
-            }
-         }
-    }
-
-    @Override
-    public void onFailure(Throwable throwable, Response response) {
-        // Handle error.
-    }
-});
-
-void listChatReadReceiptsNext(String nextLink,
-    AsyncPagedDataCollection<Page<ChatMessageReadReceipt>> pageCollection) {
-        @Override
-        public void onSuccess(Page<ChatMessageReadReceipt> nextPage, Response response) {
-            for (ReadReceipt receipt : nextPage.getItems()) {
-                // Take further action.
-            }
-            if (nextPage.getPageId() != null) {
-                retrieveNextReceiptsPages(nextPage.getPageId(), pageCollection);
-            }
-        }
-
-        @Override
-        public void onFailure(Throwable throwable, Response response) {
-            // Handle error.
-        }
-}
-```
+For more examples, please go to [Quickstart](https://docs.microsoft.com/azure/communication-services/quickstarts/chat/get-started?pivots=programming-language-android) doc.
 
 ## Troubleshooting
 
@@ -717,7 +194,7 @@ client.createChatThread(thread, new Callback<CreateChatThreadResult>() {
 
 ## Next steps
 
-More sample code should go here, along with links out to the appropriate code samples.
+Check the code examples in quickstart doc, create an Android app to test it out.
 
 ## Contributing
 This project welcomes contributions and suggestions. Most contributions require you to agree to a Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us the rights to use your contribution. For details, visit https://cla.microsoft.com.

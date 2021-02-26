@@ -4,7 +4,6 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -63,7 +62,7 @@ public final class ChatMessage {
      * The id of the chat message sender.
      */
     @JsonProperty(value = "senderId")
-    private CommunicationUserIdentifier senderId;
+    private String senderId;
 
     /*
      * The timestamp (if applicable) when the message was deleted. The
@@ -236,7 +235,7 @@ public final class ChatMessage {
      *
      * @return the senderId value.
      */
-    public CommunicationUserIdentifier getSenderId() {
+    public String getSenderId() {
         return this.senderId;
     }
 
@@ -246,7 +245,7 @@ public final class ChatMessage {
      * @param senderId the senderId value to set.
      * @return the ChatMessage object itself.
      */
-    public ChatMessage setSenderId(CommunicationUserIdentifier senderId) {
+    public ChatMessage setSenderId(String senderId) {
         this.senderId = senderId;
         return this;
     }

@@ -4,7 +4,6 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -39,7 +38,7 @@ public final class ChatMessageContent {
      * participantRemoved.
      */
     @JsonProperty(value = "initiator")
-    private CommunicationUserIdentifier initiator;
+    private String initiator;
 
     /**
      * Get the message property: Chat message content for messages of types
@@ -113,7 +112,7 @@ public final class ChatMessageContent {
      *
      * @return the initiator value.
      */
-    public CommunicationUserIdentifier getInitiator() {
+    public String getInitiator() {
         return this.initiator;
     }
 
@@ -124,7 +123,7 @@ public final class ChatMessageContent {
      * @param initiator the initiator value to set.
      * @return the ChatMessageContent object itself.
      */
-    public ChatMessageContent setInitiator(CommunicationUserIdentifier initiator) {
+    public ChatMessageContent setInitiator(String initiator) {
         this.initiator = initiator;
         return this;
     }
