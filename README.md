@@ -27,7 +27,7 @@ The following libraries are currently in **beta**:
 #### Azure Communication Services
 - [azure-communication-calling](https://search.maven.org/artifact/com.azure.android/azure-communication-calling): 1.0.0-beta.2
 - [azure-communication-chat](https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/communication/azure-communication-chat): 1.0.0-beta.6
-- [azure-communication-common](https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/communication/azure-communication-common): 1.0.0-beta.5
+- [azure-communication-common](https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/communication/azure-communication-common): 1.0.0-beta.6
 
 > Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
