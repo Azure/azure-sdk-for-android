@@ -1,4 +1,9 @@
-package com.azure.android.communication.common;
+package com.azure.android.communication.chat;
+
+import com.azure.android.communication.chat.models.CommunicationIdentifierModel;
+import com.azure.android.communication.chat.models.CommunicationUserIdentifierModel;
+import com.azure.android.communication.chat.models.MicrosoftTeamsUserIdentifierModel;
+import com.azure.android.communication.chat.models.PhoneNumberIdentifierModel;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -9,7 +14,7 @@ import org.junit.runners.Parameterized;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.azure.android.communication.common.CommunicationCloudEnvironmentModel.PUBLIC;
+import static com.azure.android.communication.chat.models.CommunicationCloudEnvironmentModel.PUBLIC;
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsInstanceOf.instanceOf;
 
@@ -30,6 +35,7 @@ public class IdentifierDeserializationExceptionTests {
 
     @Parameterized.Parameters
     public static List<CommunicationIdentifierModel> cases() {
+
         return Arrays.asList(new CommunicationIdentifierModel()
                 .setRawId(rawId)
                 .setCommunicationUser(new CommunicationUserIdentifierModel()
