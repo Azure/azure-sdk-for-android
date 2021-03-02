@@ -3,8 +3,6 @@
 
 package com.azure.android.communication.common;
 
-import com.azure.android.core.credential.AccessToken;
-
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.Future;
@@ -95,21 +93,22 @@ public class CommunicationTokenCredential {
 
 
     /**
-     * Get Azure core access token from credential
+     * Get communication access token from credential
      * <p>
-     * This method returns an asynchronous {@link java.util.concurrent.Future} with the AccessToken.
+     * This method returns an asynchronous {@link java.util.concurrent.Future} with the CommunicationAccessToken.
      * When the {@link CommunicationTokenCredential} is constructed with a <code>tokenRefresher</code> {@link java.util.concurrent.Callable},
-     * the AccessToken will automatically be updated as part of the {@link java.util.concurrent.Future} if the cached token exceeds the expiry threshold.
+     * the CommunicationAccessToken will automatically be updated as part of the {@link java.util.concurrent.Future} if the cached token exceeds the expiry threshold.
      * <p>
      * If this method is called after {@link #dispose()} has been invoked, a cancelled {@link java.util.concurrent.Future} will be returned.
      *
-     * @return Asynchronous {@link java.util.concurrent.Future} with the AccessToken
+     * @return Asynchronous {@link java.util.concurrent.Future} with the CommunicationAccessToken
      */
-    public Future<AccessToken> getToken() {
+    public Future<CommunicationAccessToken> getToken() {
         if (this.userCredential.isDisposed()) {
             return new CancelledTokenFuture();
         }
-        return this.userCredential.getToken();
+
+        return  this.userCredential.getToken();
     }
 
     /**
@@ -119,7 +118,7 @@ public class CommunicationTokenCredential {
         this.userCredential.dispose();
     }
 
-    private final class CancelledTokenFuture implements Future<AccessToken> {
+    private final class CancelledTokenFuture implements Future<CommunicationAccessToken> {
         @Override
         public boolean cancel(boolean mayInterruptIfRunning) {
             return false;
@@ -136,12 +135,12 @@ public class CommunicationTokenCredential {
         }
 
         @Override
-        public AccessToken get() {
+        public CommunicationAccessToken get() {
             throw new CancellationException();
         }
 
         @Override
-        public AccessToken get(long timeout, TimeUnit unit) {
+        public CommunicationAccessToken get(long timeout, TimeUnit unit) {
             throw new CancellationException();
         }
     }

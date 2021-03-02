@@ -14,7 +14,6 @@ import org.threeten.bp.Instant;
 import org.threeten.bp.OffsetDateTime;
 import org.threeten.bp.ZoneId;
 
-import com.azure.android.core.credential.AccessToken;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 /**
@@ -28,12 +27,12 @@ final class TokenParser {
     }
 
     /**
-     * Create AccessToken object from Token string
+     * Create CommunicationAccessToken object from Token string
      *
      * @param tokenStr token string
      * @return AccessToken instance
      */
-    static AccessToken createAccessToken(String tokenStr) {
+    static CommunicationAccessToken createAccessToken(String tokenStr) {
         try {
             Objects.requireNonNull(tokenStr, "'tokenStr' cannot be null.");
             String[] tokenParts = tokenStr.split("\\.");
@@ -45,7 +44,7 @@ final class TokenParser {
             long expire = payloadObj.get("exp").longValue();
             OffsetDateTime offsetExpiry = OffsetDateTime.ofInstant(Instant.ofEpochMilli(expire * 1000), ZoneId.of("UTC"));
 
-            return new AccessToken(tokenStr, offsetExpiry);
+            return new CommunicationAccessToken(tokenStr, offsetExpiry);
         } catch (Exception e) {
             throw new IllegalArgumentException("'tokenStr' is not a valid token string", e);
         }
