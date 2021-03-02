@@ -3,6 +3,8 @@
 
 package com.azure.android.communication.common;
 
+import android.util.Log;
+
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
@@ -138,7 +140,7 @@ class AutoRefreshUserCredential extends UserCredential {
         try {
             this.timer.schedule(scheduledTask, 0);
         } catch (IllegalStateException e) {
-//            logger.warning("AutoRefreshUserCredential has been disposed. Unable to schedule token refresh.", e);
+            Log.w("Communication", "AutoRefreshUserCredential has been disposed. Unable to schedule token refresh.");
         }
     }
 
