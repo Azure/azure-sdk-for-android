@@ -1,6 +1,8 @@
 # Release History
 
-## 1.0.0-beta.6 (Unreleased)
+## 1.0.0-beta.7 (Unreleased)
+
+## 1.0.0-beta.6 (2021-02-26)
 ### Breaking Changes
 - Change remove participant API to /chat/threads/{chatThreadId}/participants/:remove
 - user id in following classes changed from type CommunicationUserIdentifier to type CommunicationIdentifierModel
