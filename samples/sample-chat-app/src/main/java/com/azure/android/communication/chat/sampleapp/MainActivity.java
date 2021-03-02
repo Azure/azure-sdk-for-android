@@ -43,15 +43,15 @@ public class MainActivity extends AppCompatActivity {
     private int eventHandlerCalled;
     private JSONObject eventPayload;
 
-    // Replace <userToken> with your valid communication service token
-    private final String userAccessToken = "eyJhbGciOiJSUzI1NiIsImtpZCI6IjEwMl9pbnQiLCJ4NXQiOiJnMTROVjRoSzJKUklPYk15YUUyOUxFU1FKRk0iLCJ0eXAiOiJKV1QifQ.eyJza3lwZWlkIjoiYWNzOjQ2ODQ5NTM0LWViMDgtNGFiNy1iZGU3LWMzNjkyOGNkMTU0N18wMDAwMDAwOC03YjVhLThiNzgtMTY1NS0zNzNhMGQwMDliYTEiLCJzY3AiOjE3OTIsImNzaSI6IjE2MTQyOTQ5MzYiLCJpYXQiOjE2MTQyOTQ5MzYsImV4cCI6MTYxNDM4MTMzNiwiYWNzU2NvcGUiOiJjaGF0IiwicmVzb3VyY2VJZCI6IjQ2ODQ5NTM0LWViMDgtNGFiNy1iZGU3LWMzNjkyOGNkMTU0NyJ9.e03hLzcAoXWYW_lyMmK8ixf5s4K7k3gIccOs7Ykm5JUvA57CgrZx8SD19uM4NI2dq8O2Yhuf_p1RX7UyT1VJmuS6_zqLKtJfq2eqNTErFcb9d2UjjL8rJPr_TJMX3CZBxi65FgSrIUu1dHGFjkR4EVsViGo64zbKl3XDfMdFlgessg6jAfHCsBsD6XUMhl54w3GYmLtKydpyAaHzaqRBjSpLaZZeFucPAvs86COX_bqhYzg93bLel5iDKWmAI1bl0sFFqcDdPYwpiypWn2xKq5XXwHc9a7gpwiAldEAzQDC7O6e32AtoDfYWppaB5bTDg4PyiP35y_yiM3WH-y_QvQ";
+    // Replace <user_token> with your valid communication service token
+    private final String userAccessToken = "<user_token>";
     private String id = "8:acs:46849534-eb08-4ab7-bde7-c36928cd1547_00000008-7b5a-8b78-1655-373a0d009ba1";
     private String second_user_id = "8:acs:46849534-eb08-4ab7-bde7-c36928cd1547_00000008-7b73-cf66-dbb7-3a3a0d009c9f";
-    private String threadId = "<be updated below>";
-    private final String endpoint = "https://<your-acs-instance>.communication.azure.net";
+    private String threadId = "<to_be_updated_below>";
+    private final String endpoint = "https://<your_acs_instance>.communication.azure.net";
     private final String listenerId = "testListener";
     private final String sdkVersion = "1.0.0-beta.6";
-    private static final String SDK_NAME = "azure-communication-com.azure.android.communication.signaling.signaling";
+    private static final String SDK_NAME = "azure-communication-com.azure.android.communication.chat";
     private static final String TAG = "[Chat Test App]";
 
 
