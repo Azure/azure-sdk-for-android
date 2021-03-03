@@ -41,6 +41,7 @@ buildscript {
 // Configure all client library projects with the standard Android build / publish template
 configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 3 }) {
     apply plugin: "com.android.library"
+    apply plugin: "de.mannodermaus.android-junit5"
     // https://github.com/KeepSafe/dexcount-gradle-plugin/issues/222#issuecomment-604247658
     // apply plugin: 'com.getkeepsafe.dexcount'
     apply plugin: "com.vanniktech.android.junit.jacoco"
