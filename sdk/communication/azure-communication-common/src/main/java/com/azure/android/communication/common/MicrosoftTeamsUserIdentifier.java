@@ -40,7 +40,7 @@ public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
      * @throws IllegalArgumentException thrown if userId parameter fail the validation.
     */
     public MicrosoftTeamsUserIdentifier(String userId, boolean isAnonymous) {
-        if (userId != null && !userId.trim().isEmpty()) {
+        if (userId == null && !userId.trim().isEmpty()) {
             throw new IllegalArgumentException("The initialization parameter [userId] cannot be null or empty.");
         }
         this.userId = userId;
