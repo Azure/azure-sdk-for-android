@@ -18,4 +18,11 @@ dependencies {
     // <!-- begin: implementation Dependencies -->
     implementation project (":sdk:core:azure-core-logging")
     // <!-- end: implementation Dependencies -->
+
+    // <!-- begin: test Dependencies -->
+    testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
+    testImplementation ("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
+    testImplementation ("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
+    testImplementation ("org.mockito:mockito-core:$mockitoVersion")
+    // <!-- end: test Dependencies -->
 }
