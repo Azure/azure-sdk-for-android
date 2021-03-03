@@ -1,7 +1,7 @@
 ext.publishName = "Microsoft Azure Android Client Library for Communication Chat Service"
 description = "This package contains the Android client API code for Microsoft Azure Communication Chat Service.\n" +
     "    For this release, see notes - https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/communication/azure-communication-chat/README.md and https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/communication/azure-communication-chat/CHANGELOG.md."
-version = "1.0.0-beta.6"
+version = "1.0.0-beta.7"
 ext.versionCode = 1
 
 android {
@@ -13,6 +13,7 @@ android {
 
 dependencies {
     api "com.azure.android:azure-core:1.0.0-beta.3"
+    implementation 'com.microsoft.trouter:client-android:0.0.1'
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"

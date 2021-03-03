@@ -1,11 +1,15 @@
 # Release History
 
-## 1.0.0-beta.6 (Unreleased)
+## 1.0.0-beta.7 (Unreleased)
 ### Breaking Changes
 - Credential `getToken` returns the newly added `CommunicationAccessToken` object instead of `AccessToken`.
 
 ### New Features
 - Introduce new class `CommunicationAccessToken`.
+
+## 1.0.0-beta.6 (2021-02-26)
+### Breaking Changes
+- Removed `CommunicationTokenCredential(Callable<String> tokenRefresher)`, ` CommunicationTokenCredential(Callable<String> tokenRefresher, String initialToken)`, `CommunicationTokenCredential(Callable<String> tokenRefresher, boolean refreshProactively)`, `CommunicationTokenCredential(Callable<String> tokenRefresher, boolean refreshProactively, String initialToken)`, and added `CommunicationTokenCredential(CommunicationTokenRefreshOptions tokenRefreshOptions)`
 
 ## 1.0.0-beta.5 (2021-02-08)
 ### Breaking Changes

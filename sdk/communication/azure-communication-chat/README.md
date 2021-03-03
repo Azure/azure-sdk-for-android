@@ -15,9 +15,9 @@ This package contains the Chat client library for Azure Communication Services.
 * The library is written in Java 8. Your application must be built with Android Gradle plugin 3.0.0 or later, and must be configured to [enable Java 8 language desugaring](https://developer.android.com/studio/write/java8-support.html#supported_features) to use this library. Java 8 language features that require a target API level > 21 are not used, nor are any Java 8+ APIs that would require the Java 8+ API desugaring provided by Android Gradle plugin 4.0.0.
 
 ### Versions available
-The current Azure Communication Chat Service Version is **2020-11-01-preview3**.
+The current Azure Communication Chat Service Version is **2021-01-27-preview4**.
 
-The current Azure Communication Chat SDK Version is **1.0.0-beta.5**.
+The current Azure Communication Chat SDK Version is **1.0.0-beta.6**.
 
 > Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
@@ -35,13 +35,13 @@ Add an `implementation` configuration to the `dependencies` block of your app's 
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-communication-chat:1.0.0-beta.5"
+    implementation "com.azure.android:azure-communication-chat:1.0.0-beta.6"
 }
 
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-communication-chat:1.0.0-beta.5")
+    implementation("com.azure.android:azure-communication-chat:1.0.0-beta.6")
 }
 ```
 
@@ -52,28 +52,40 @@ To import the library into your project using the [Maven](https://maven.apache.o
 <dependency>
   <groupId>com.azure.android</groupId>
   <artifactId>azure-communication-chat</artifactId>
-  <version>1.0.0-beta.5</version>
+  <version>1.0.0-beta.6</version>
 </dependency>
 ```
 
-### Create the AzureCommunicationChatClient
+### Create the ChatClient
 
-Use the `AzureCommunicationChatServiceAsyncClient.Builder` to configure and create an instance of `AzureCommunicationChatClient`.
+Use the `ChatAsyncClient.Builder` to configure and create an instance of `ChatAsyncClient`.
 
 ```java
-import com.azure.android.communication.chat.AzureCommunicationChatServiceAsyncClient;
+import com.azure.android.communication.chat.ChatAsyncClient;
 import com.azure.android.core.http.HttpHeader;
 
 final String endpoint = "https://<resource>.communication.azure.com";
 final String userAccessToken = "<user_access_token>";
 
-AzureCommunicationChatServiceAsyncClient client = new AzureCommunicationChatServiceAsyncClient.Builder()
+ChatAsyncClient client = new ChatAsyncClient.Builder()
     .endpoint(endpoint)
     .credentialInterceptor(chain -> chain.proceed(chain.request()
         .newBuilder()
         .header(HttpHeader.AUTHORIZATION, userAccessToken)
         .build());
 ```
+
+### Create the ChatThreadClient
+
+Now that we've created a Chat thread we'll obtain a `ChatThreadClient` to perform operations within the thread.
+
+```
+ChatThreadClient chatThreadClient =
+        new ChatThreadClient.Builder()
+            .endpoint(<endpoint>))
+            .build();
+```
+Replace `<endpoint>` with your Communication Services endpoint.
 
 ## Key concepts
 
@@ -310,7 +322,7 @@ SendChatMessageRequest message = new SendChatMessageRequest()
 
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-client.sendChatMessage(threadId, message, new Callback<String>() {
+chatThreadClient.sendChatMessage(threadId, message, new Callback<String>() {
     @Override
     public void onSuccess(String messageId, Response response) {
         // A string is the response returned from sending a message, it is an id, 
@@ -336,7 +348,7 @@ final String threadId = "<thread_id>";
 // The unique ID of the message.
 final String chatMessageId = "<message_id>";
 
-client.getChatMessage(threadId, chatMessageId, new Callback<ChatMessage>() {
+chatThreadClient.getChatMessage(threadId, chatMessageId, new Callback<ChatMessage>() {
     @Override
     public void onSuccess(ChatMessage chatMessage, Response response) {
         // `ChatMessage` is the response returned from getting a message.
@@ -363,7 +375,7 @@ final OffsetDateTime startTime = OffsetDateTime.parse("2020-09-08T00:00:00Z");
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
         
-client.listChatMessagesPages(threadId,
+chatThreadClient.listChatMessagesPages(threadId,
     maxPageSize,
     startTime,
     new Callback<AsyncPagedDataCollection<ChatMessage, Page<ChatMessage>>>() {
@@ -427,7 +439,7 @@ UpdateChatMessageRequest message = new UpdateChatMessageRequest()
 final String threadId = "<thread_id>";
 // The unique ID of the message.
 final String messageId = "<message_id>";
-client.updateChatMessage(threadId, messageId, message, new Callback<Void>() {
+chatThreadClient.updateChatMessage(threadId, messageId, message, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
@@ -449,7 +461,7 @@ Use the `deleteChatMessage` method to delete a message in a thread.
 final String threadId = "<thread_id>";
 // The unique ID of the message.
 final String messageId = "<message_id>";
-client.deleteChatMessage(threadId, messageId, new Callback<Void>() {
+chatThreadClient.deleteChatMessage(threadId, messageId, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
@@ -478,7 +490,7 @@ final int maxPageSize = 10;
 // Skips participants up to a specified position in response.
 final int skip = 0;
 
-client.listChatParticipantsPages(threadId,
+chatThreadClient.listChatParticipantsPages(threadId,
     maxPageSize,
     skip,
     new Callback<AsyncPagedDataCollection<ChatParticipant, Page<ChatParticipant>>>() {
@@ -545,7 +557,7 @@ AddChatParticipantsRequest participants = new AddChatParticipantsRequest()
 
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-client.addChatParticipants(threadId, participants, new Callback<Void>() {
+chatThreadClient.addChatParticipants(threadId, participants, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
@@ -565,9 +577,19 @@ Use the `removeChatParticipant` method to remove a participant from a thread.
 ```java
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-// The unique ID of the participant.
-final String participantId = "<participant_id>";
-client.removeChatParticipant(threadId, participantId, new Callback<Void>() {
+final CommunicationUserIdentifierModel userIdentifier = new CommunicationUserIdentifierModel().setId(<participant_id>);
+final PhoneNumberIdentifierModel phoneIdentifier = new PhoneNumberIdentifierModel();
+final MicrosoftTeamsUserIdentifierModel teamsUserIdentifier = new MicrosoftTeamsUserIdentifierModel();
+final CommunicationIdentifierModel participantIdentifier = new CommunicationIdentifierModel()
+    .setRawId("string")
+    // optional
+    .setCommunicationUser(userIdentifier)
+    // optional
+    .setPhoneNumber(phoneIdentifier)
+    // optional
+    setMicrosoftTeamsUser(teamsUserIdentifier)
+    
+chatThreadClient.removeChatParticipant(threadId, userIdentifier, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
@@ -589,7 +611,7 @@ Use the `sendTypingNotification` method to post a typing notification event to a
 ```java
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-client.sendTypingNotification(threadId, new Callback<Void>() {
+chatThreadClient.sendTypingNotification(threadId, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
@@ -615,7 +637,7 @@ SendReadReceiptRequest readReceipt = new SendReadReceiptRequest()
 
 // The unique ID of the thread.
 final String threadId = "<thread_id>";
-client.sendChatReadReceipt(threadId, readReceipt, new Callback<Void>() {
+chatThreadClient.sendChatReadReceipt(threadId, readReceipt, new Callback<Void>() {
     @Override
     public void onSuccess(Void result, Response response) {
         // Take further action.
@@ -642,7 +664,7 @@ final int maxPageSize = 10;
 // Skips participants up to a specified position in response.
 final int skip = 0;
 
-client.listChatReadReceiptsPages(threadId,
+chatThreadClient.listChatReadReceiptsPages(threadId,
     maxPageSize,
     skip,
     new Callback<AsyncPagedDataCollection<ChatMessageReadReceipt, Page<ChatMessageReadReceipt>>>() {

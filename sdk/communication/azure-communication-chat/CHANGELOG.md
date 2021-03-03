@@ -1,6 +1,17 @@
 # Release History
 
-## 1.0.0-beta.6 (Unreleased)
+## 1.0.0-beta.7 (Unreleased)
+
+## 1.0.0-beta.6 (2021-02-26)
+### Breaking Changes
+- Change remove participant API to /chat/threads/{chatThreadId}/participants/:remove
+- user id in following classes changed from type CommunicationUserIdentifier to type CommunicationIdentifierModel
+- property initiator in ChatMessageContent renamed to initiatorCommunicationIdentifier
+- property senderId in ChatMessage and ChatMessageReadReceipt renamed to senderCommunicationIdentifier
+- property identifier in ChatParticipant renamed to communicationIdentifier
+- property createdBy in ChatThread renamed to createdByCommunicationIdentifier
+- repeatability-Request-ID in header renamed to repeatability-Request-Id
+
 
 ## 1.0.0-beta.5 (2021-02-08)
 ### Added

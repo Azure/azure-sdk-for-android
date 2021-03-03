@@ -35,7 +35,6 @@ public class IdentifierDeserializationExceptionTests {
 
     @Parameterized.Parameters
     public static List<CommunicationIdentifierModel> cases() {
-
         return Arrays.asList(new CommunicationIdentifierModel()
                 .setRawId(rawId)
                 .setCommunicationUser(new CommunicationUserIdentifierModel()

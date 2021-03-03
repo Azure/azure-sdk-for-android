@@ -3,6 +3,12 @@
 
 package com.azure.android.communication.chat;
 
+import com.azure.android.communication.chat.models.CommunicationCloudEnvironmentModel;
+import com.azure.android.communication.chat.models.CommunicationIdentifierModel;
+import com.azure.android.communication.chat.models.CommunicationUserIdentifierModel;
+import com.azure.android.communication.chat.models.MicrosoftTeamsUserIdentifierModel;
+import com.azure.android.communication.chat.models.PhoneNumberIdentifierModel;
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -11,12 +17,6 @@ import org.junit.runners.Parameterized;
 
 import java.util.Arrays;
 import java.util.List;
-
-import com.azure.android.communication.chat.models.CommunicationCloudEnvironmentModel;
-import com.azure.android.communication.chat.models.CommunicationIdentifierModel;
-import com.azure.android.communication.chat.models.CommunicationUserIdentifierModel;
-import com.azure.android.communication.chat.models.MicrosoftTeamsUserIdentifierModel;
-import com.azure.android.communication.chat.models.PhoneNumberIdentifierModel;
 
 import static com.azure.android.communication.chat.models.CommunicationCloudEnvironmentModel.PUBLIC;
 import static org.hamcrest.core.Is.is;

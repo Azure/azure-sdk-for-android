@@ -4,7 +4,6 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -16,10 +15,13 @@ import org.threeten.bp.OffsetDateTime;
 @Fluent
 public final class ChatParticipant {
     /*
-     * The id of the chat participant.
+     * Identifies a participant in Azure Communication services. A participant
+     * is, for example, a phone number or an Azure communication user. This
+     * model must be interpreted as a union: Apart from rawId, at most one
+     * further property may be set.
      */
-    @JsonProperty(value = "id", required = true)
-    private CommunicationUserIdentifier id;
+    @JsonProperty(value = "communicationIdentifier", required = true)
+    private CommunicationIdentifierModel communicationIdentifier;
 
     /*
      * Identifies a participant in Azure Communication services. A participant
@@ -44,22 +46,28 @@ public final class ChatParticipant {
     private OffsetDateTime shareHistoryTime;
 
     /**
-     * Get the id property: The id of the chat participant.
-     *
-     * @return the id value.
+     * Get the communicationIdentifier property: Identifies a participant in
+     * Azure Communication services. A participant is, for example, a phone
+     * number or an Azure communication user. This model must be interpreted as
+     * a union: Apart from rawId, at most one further property may be set.
+     * 
+     * @return the communicationIdentifier value.
      */
-    public CommunicationUserIdentifier getId() {
-        return this.id;
+    public CommunicationIdentifierModel getCommunicationIdentifier() {
+        return this.communicationIdentifier;
     }
 
     /**
-     * Set the id property: The id of the chat participant.
-     *
-     * @param id the id value to set.
+     * Set the communicationIdentifier property: Identifies a participant in
+     * Azure Communication services. A participant is, for example, a phone
+     * number or an Azure communication user. This model must be interpreted as
+     * a union: Apart from rawId, at most one further property may be set.
+     * 
+     * @param communicationIdentifier the communicationIdentifier value to set.
      * @return the ChatParticipant object itself.
      */
-    public ChatParticipant setId(CommunicationUserIdentifier id) {
-        this.id = id;
+    public ChatParticipant setCommunicationIdentifier(CommunicationIdentifierModel communicationIdentifier) {
+        this.communicationIdentifier = communicationIdentifier;
         return this;
     }
 
@@ -91,7 +99,7 @@ public final class ChatParticipant {
 
     /**
      * Get the displayName property: Display name for the chat participant.
-     *
+     * 
      * @return the displayName value.
      */
     public String getDisplayName() {
@@ -100,7 +108,7 @@ public final class ChatParticipant {
 
     /**
      * Set the displayName property: Display name for the chat participant.
-     *
+     * 
      * @param displayName the displayName value to set.
      * @return the ChatParticipant object itself.
      */
@@ -113,7 +121,7 @@ public final class ChatParticipant {
      * Get the shareHistoryTime property: Time from which the chat history is
      * shared with the participant. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * 
      * @return the shareHistoryTime value.
      */
     public OffsetDateTime getShareHistoryTime() {
@@ -124,7 +132,7 @@ public final class ChatParticipant {
      * Set the shareHistoryTime property: Time from which the chat history is
      * shared with the participant. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     *
+     * 
      * @param shareHistoryTime the shareHistoryTime value to set.
      * @return the ChatParticipant object itself.
      */
