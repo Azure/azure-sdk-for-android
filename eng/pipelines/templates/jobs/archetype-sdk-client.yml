@@ -1,0 +1,109 @@
+parameters:
+  ServiceDirectory: not-specified # Set a default that breaks in obvious ways.
+  Artifacts: []
+
+jobs:
+  - job: 'Build'
+
+    variables:
+      - template: ../variables/globals.yml
+
+    pool:
+      name: $(Pool)
+      vmImage: $(OSVmImage)
+
+    steps:
+      - script: |
+          ./gradlew sdk:${{parameters.ServiceDirectory}}:publish
+        displayName: Build and publish
+
+      - ${{ each artifact in parameters.Artifacts }}:
+        - pwsh: |
+            $artifactsToStage = Get-ChildItem sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/repo/**/${{artifact.name}}* -Recurse | Where-Object -FilterScript { $_.Name -match "(jar|pom|aar|module)$" }
+            $stagingLocation = New-Item -Type Directory -Path $(Build.ArtifactStagingDirectory) -Name ${{artifact.safeName}}
+            $artifactsToStage | Copy-Item -Destination $stagingLocation
+          displayName: Stage ${{artifact.name}} for upload
+
+      - publish: $(Build.ArtifactStagingDirectory)
+        artifact: packages
+        displayName: Publish packages
+
+  - job: 'Analyze'
+
+    variables:
+      - template: ../variables/globals.yml
+
+    pool:
+      name: $(Pool)
+      vmImage: $(OSVmImage)
+
+    steps:
+
+      - template: ../../../common/pipelines/templates/steps/verify-links.yml
+        parameters:
+          Directory: ''
+          CheckLinkGuidance: $true
+
+      - script: |
+          ./gradlew sdk:${{parameters.ServiceDirectory}}:lintDebug
+        displayName: Lint sources
+
+      - task: Gradle@2
+        inputs:
+          tasks: 'sdk:${{parameters.ServiceDirectory}}:assembleDebug'
+          publishJUnitResults: false
+          checkStyleRunAnalysis: true
+          findBugsRunAnalysis: false
+          pmdRunAnalysis: true
+        displayName: Build and analyze
+
+      - ${{ each artifact in parameters.Artifacts }}:
+        - script: |
+            mkdir -p $(Build.ArtifactStagingDirectory)/lint
+            cp sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/reports/lint-results-debug.html \
+               $(Build.ArtifactStagingDirectory)/lint/${{artifact.name}}-results-debug.html
+          displayName: Stage reports for ${{artifact.name}}
+
+      - publish: $(Build.ArtifactStagingDirectory)
+        artifact: reports
+        displayName: Publish reports
+
+      - template: /eng/common/pipelines/templates/steps/eng-common-workflow-enforcer.yml
+
+  - job: 'UnitTest'
+
+    variables:
+      - template: ../variables/globals.yml
+
+    pool:
+      name: $(Pool)
+      vmImage: $(OSVmImage)
+
+    steps:
+      - template: /eng/common/pipelines/templates/steps/verify-agent-os.yml
+        parameters:
+          AgentImage: $(OSVmImage)
+
+      - script: |
+          ./gradlew sdk:${{parameters.ServiceDirectory}}:jacocoTestReportDebug
+        displayName: Build and test
+
+      - ${{ each artifact in parameters.Artifacts }}:
+        - script: |
+            cp sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/test-results/testDebugUnitTest/*.xml \
+               $(Build.ArtifactStagingDirectory)/
+          displayName: Stage test results for ${{artifact.name}}
+
+        - task: PublishCodeCoverageResults@1
+          inputs:
+            codeCoverageTool: 'JaCoCo'
+            summaryFileLocation: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/build/reports/jacoco/debug/jacoco.xml'
+            pathToSources: 'sdk/${{parameters.ServiceDirectory}}/${{artifact.name}}/src/main/java/'
+          displayName: Publish code coverage for ${{artifact.name}}
+
+      - task: PublishTestResults@2
+        inputs:
+          searchFolder: '$(Build.ArtifactStagingDirectory)'
+          testResultsFiles: '*.xml'
+          testRunTitle: 'Unit Tests'
+        displayName: 'Publish unit test results'
