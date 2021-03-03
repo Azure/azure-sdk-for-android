@@ -5,12 +5,10 @@ package com.azure.android.communication.common;
 
 import java.util.concurrent.Future;
 
-import com.azure.android.core.credential.AccessToken;
-
 abstract class UserCredential {
     private boolean isDisposed = false;
 
-    abstract Future<AccessToken> getToken();
+    abstract Future<CommunicationAccessToken> getToken();
 
     void dispose() {
         this.isDisposed = true;
