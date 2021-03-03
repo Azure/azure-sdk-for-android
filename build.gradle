@@ -126,7 +126,7 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
 
     tasks.withType(Test) {
         junitJacoco.includeNoLocationClasses = true
-        junitJacoco.excludes = ['jdk.internal.*']
+        junitJacoco.excludes += ['jdk.internal.*', 'jdk/internal/**']
     }
 
     // Add dependency to the module containing azure custom checkstyle.
