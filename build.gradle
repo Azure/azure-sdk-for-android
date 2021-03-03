@@ -38,13 +38,14 @@ buildscript {
     }
 }
 
+apply plugin: "com.vanniktech.android.junit.jacoco"
+
 // Configure all client library projects with the standard Android build / publish template
 configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':') == 3 }) {
     apply plugin: "com.android.library"
     apply plugin: "de.mannodermaus.android-junit5"
     // https://github.com/KeepSafe/dexcount-gradle-plugin/issues/222#issuecomment-604247658
     // apply plugin: 'com.getkeepsafe.dexcount'
-    apply plugin: "com.vanniktech.android.junit.jacoco"
     apply plugin: 'checkstyle'
     apply plugin: 'com.github.spotbugs'
     apply plugin: "maven-publish"
@@ -111,6 +112,20 @@ configure(subprojects.findAll { it.path.startsWith(':sdk:') && it.path.count(':'
 
     junitJacoco {
         jacocoVersion = "$jacocoVersion"
+    }
+
+    task jacocoTestReport(type: JacocoReport) {
+        group = "Reporting"
+        description = "Generate Jacoco coverage reports"
+        reports {
+            xml.enabled = true
+            html.enabled = false
+            csv.enabled = false
+        }
+    }
+
+    tasks.withType(Test) {
+        junitJacoco.includeNoLocationClasses = true
     }
 
     // Add dependency to the module containing azure custom checkstyle.
