@@ -5,7 +5,7 @@
 - Credential `getToken` returns the new `CommunicationAccessToken` instead of `AccessToken`.
 
 ### New Features
-- Introduce new `CommunicationAccessToken`.
+- Introduce new class `CommunicationAccessToken`.
 
 ## 1.0.0-beta.5 (2021-02-08)
 ### Breaking Changes
