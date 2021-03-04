@@ -1,7 +1,7 @@
 ext.publishName = "Microsoft Azure Android Client Library for Communication Chat Service"
 description = "This package contains the Android client API code for Microsoft Azure Communication Chat Service.\n" +
     "    For this release, see notes - https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/communication/azure-communication-chat/README.md and https://github.com/Azure/azure-sdk-for-android/blob/master/sdk/communication/azure-communication-chat/CHANGELOG.md."
-version = "1.0.0-beta.7"
+version = "1.0.1"
 ext.versionCode = 1
 
 android {

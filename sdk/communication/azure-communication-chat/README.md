@@ -17,7 +17,7 @@ This package contains the Chat client library for Azure Communication Services.
 ### Versions available
 The current Azure Communication Chat Service Version is **2021-01-27-preview4**.
 
-The current Azure Communication Chat SDK Version is **1.0.0-beta.6**.
+The current Azure Communication Chat SDK Version is **1.0.1**.
 
 > Note: The SDK is currently in **beta**. The API surface and feature sets are subject to change at any time before they become generally available. We do not currently recommend them for production use.
 
@@ -35,13 +35,13 @@ Add an `implementation` configuration to the `dependencies` block of your app's 
 // build.gradle
 dependencies {
     ...
-    implementation "com.azure.android:azure-communication-chat:1.0.0-beta.6"
+    implementation "com.azure.android:azure-communication-chat:1.0.1"
 }
 
 // build.gradle.kts
 dependencies {
     ...
-    implementation("com.azure.android:azure-communication-chat:1.0.0-beta.6")
+    implementation("com.azure.android:azure-communication-chat:1.0.1")
 }
 ```
 
@@ -52,7 +52,7 @@ To import the library into your project using the [Maven](https://maven.apache.o
 <dependency>
   <groupId>com.azure.android</groupId>
   <artifactId>azure-communication-chat</artifactId>
-  <version>1.0.0-beta.6</version>
+  <version>1.0.1</version>
 </dependency>
 ```
 
@@ -148,9 +148,8 @@ List<ChatParticipant> participants = new ArrayList<>();
 // The display name for the thread participant.
 String displayName = "initial participant";
 participants.add(new ChatParticipant()
-        .setId(id)
-        .setDisplayName(displayName)
-);
+        .setCommunicationIdentifier(new CommunicationIdentifierModel().setCommunicationUser(new CommunicationUserIdentifierModel().setId(id)))
+        .setDisplayName(displayName));
 
 
 // The topic for the thread.

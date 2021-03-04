@@ -1,6 +1,6 @@
 # Release History
 
-## 1.0.0-beta.7 (Unreleased)
+## 1.0.1 (Unreleased)
 ### Breaking Changes
 - Credential `getToken` returns the newly added `CommunicationAccessToken` object instead of `AccessToken`.
 
