@@ -1,20 +1,20 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.communication.chat;
+package com.azure.android.communication.chat;
 
-import com.azure.communication.chat.models.AddChatParticipantsOptions;
-import com.azure.communication.chat.models.ChatMessage;
+import com.azure.android.communication.chat.models.AddChatParticipantsOptions;
+import com.azure.android.communication.chat.models.ChatMessage;
 
-import com.azure.communication.chat.models.ChatThread;
-import com.azure.communication.chat.models.ChatParticipant;
-import com.azure.communication.chat.models.ChatMessageReadReceipt;
-import com.azure.communication.chat.models.CreateChatThreadOptions;
-import com.azure.communication.chat.models.CreateChatThreadResult;
-import com.azure.communication.chat.models.SendChatMessageOptions;
-import com.azure.communication.chat.models.UpdateChatMessageOptions;
-import com.azure.communication.common.CommunicationUserIdentifier;
-import com.azure.communication.common.CommunicationTokenCredential;
+import com.azure.android.communication.chat.models.ChatThread;
+import com.azure.android.communication.chat.models.ChatParticipant;
+import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
+import com.azure.android.communication.chat.models.CreateChatThreadOptions;
+import com.azure.android.communication.chat.models.CreateChatThreadResult;
+import com.azure.android.communication.chat.models.SendChatMessageOptions;
+import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
+import com.azure.android.communication.common.CommunicationUserIdentifier;
+import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.netty.NettyAsyncHttpClientBuilder;
 import com.azure.core.http.rest.PagedIterable;

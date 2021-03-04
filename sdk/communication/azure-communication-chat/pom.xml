@@ -137,7 +137,8 @@
             <version>3.0.0-M3</version> <!-- {x-version-update;org.apache.maven.plugins:maven-surefire-plugin;external_dependency} -->
             <configuration>
               <argLine>
-                --add-opens com.azure.communication.common/com.azure.communication.common.implementation=ALL-UNNAMED
+                  --add-opens
+                  com.azure.android.communication.common/com.azure.android.communication.common.implementation=ALL-UNNAMED
               </argLine>
             </configuration>
           </plugin>
