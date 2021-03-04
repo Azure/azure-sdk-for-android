@@ -37,7 +37,6 @@ android {
 }
 
 dependencies {
-    // TODO. replace with project from Maven
     implementation project(path: ':sdk:communication:azure-communication-chat')
     implementation "androidx.appcompat:appcompat:1.2.0"
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
