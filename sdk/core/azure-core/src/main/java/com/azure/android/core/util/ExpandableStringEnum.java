@@ -44,9 +44,9 @@ public abstract class ExpandableStringEnum<T extends ExpandableStringEnum<T>> {
     /**
      * Creates an instance of the specific expandable string enum from a String.
      *
-     * @param name  The value to create the instance from.
+     * @param name The value to create the instance from.
      * @param clazz The class of the expandable string enum.
-     * @param <T>   The class of the expandable string enum.
+     * @param <T> The class of the expandable string enum.
      * @return The expandable string enum instance.
      */
     @SuppressWarnings("unchecked")
@@ -75,7 +75,7 @@ public abstract class ExpandableStringEnum<T extends ExpandableStringEnum<T>> {
      * Gets a collection of all known values to an expandable string enum type.
      *
      * @param clazz The class of the expandable string enum.
-     * @param <T>   The class of the expandable string enum.
+     * @param <T> The class of the expandable string enum.
      * @return A collection of all known values for the given {@code clazz}.
      */
     @SuppressWarnings("unchecked")
