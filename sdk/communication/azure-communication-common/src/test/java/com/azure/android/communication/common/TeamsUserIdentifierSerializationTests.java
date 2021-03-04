@@ -3,36 +3,26 @@
 
 package com.azure.android.communication.common;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
-import org.junit.runners.Parameterized.Parameters;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.stream.Stream;
 
-import static junit.framework.TestCase.assertNotNull;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@RunWith(Parameterized.class)
 public class TeamsUserIdentifierSerializationTests {
     final String someId = "some id";
     final String teamsUserId = "Teams user id";
     final String rawId = "some lengthy id string";
 
-    private final boolean isAnonymous;
-
-    public TeamsUserIdentifierSerializationTests(boolean isAnonymous) {
-        this.isAnonymous = isAnonymous;
+    private static Stream<Boolean> isAnonymousSupplier() {
+        return Stream.of(true, false);
     }
 
-    @Parameters
-    public static List<Boolean> cases() {
-        return Arrays.asList(true, false);
-    }
-
-    @Test
-    public void serializeMicrosoftTeamsUser() {
+    @ParameterizedTest
+    @MethodSource("isAnonymousSupplier")
+    public void serializeMicrosoftTeamsUser(boolean isAnonymous) {
         CommunicationIdentifierModel model = CommunicationIdentifierSerializer.serialize(
             new MicrosoftTeamsUserIdentifier(teamsUserId, isAnonymous)
                 .setRawId(rawId)
@@ -45,8 +35,9 @@ public class TeamsUserIdentifierSerializationTests {
         assertEquals(isAnonymous, model.getMicrosoftTeamsUser().isAnonymous());
     }
 
-    @Test
-    public void deserializeMicrosoftTeamsUser() {
+    @ParameterizedTest
+    @MethodSource("isAnonymousSupplier")
+    public void deserializeMicrosoftTeamsUser(boolean isAnonymous) {
         MicrosoftTeamsUserIdentifier identifier = (MicrosoftTeamsUserIdentifier) CommunicationIdentifierSerializer.deserialize(
             new CommunicationIdentifierModel()
                 .setRawId(rawId)

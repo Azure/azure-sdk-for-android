@@ -3,18 +3,11 @@
 
 package com.azure.android.communication.common;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
-
-import static com.azure.android.communication.common.CommunicationCloudEnvironmentModel.PUBLIC;
-import static junit.framework.TestCase.assertNotNull;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CommunicationIdentifierSerializerTests {
 

@@ -3,35 +3,20 @@
 
 package com.azure.android.communication.common;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.stream.Stream;
 
 import static com.azure.android.communication.common.CommunicationCloudEnvironmentModel.PUBLIC;
-import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsInstanceOf.instanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-@RunWith(Parameterized.class)
 public class IdentifierSerialzationExceptionTests {
     static final String teamsUserId = "Teams user id";
     static final String rawId = "some lengthy id string";
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    private final CommunicationIdentifierModel identifierModel;
-    public IdentifierSerialzationExceptionTests(CommunicationIdentifierModel identifierModel) {
-        this.identifierModel = identifierModel;
-    }
-
-    @Parameterized.Parameters
-    public static List<CommunicationIdentifierModel> cases() {
-        return Arrays.asList(
+    private static Stream<CommunicationIdentifierModel> CommunicationIdentifierModelSupplier() {
+        return Stream.of(
             new CommunicationIdentifierModel(), // Missing RawId
             new CommunicationIdentifierModel().setRawId(rawId).setCommunicationUser(new CommunicationUserIdentifierModel()), // Missing Id
             new CommunicationIdentifierModel().setRawId(rawId).setPhoneNumber(new PhoneNumberIdentifierModel()), // Missing PhoneNumber
@@ -40,13 +25,15 @@ public class IdentifierSerialzationExceptionTests {
             new CommunicationIdentifierModel().setRawId(rawId).setMicrosoftTeamsUser(
                 new MicrosoftTeamsUserIdentifierModel().setIsAnonymous(true).setCloud(CommunicationCloudEnvironmentModel.DOD)), // Missing UserId
             new CommunicationIdentifierModel().setRawId(rawId).setMicrosoftTeamsUser(
-                new MicrosoftTeamsUserIdentifierModel().setUserId(teamsUserId).setIsAnonymous(true))
-        );
+                new MicrosoftTeamsUserIdentifierModel().setUserId(teamsUserId).setIsAnonymous(true)));
     }
 
-    @Test
-    public void throwsOnMissingProperty() {
-        expectedException.expect(is(instanceOf(NullPointerException.class)));
-        CommunicationIdentifierSerializer.deserialize(identifierModel);
+    @ParameterizedTest
+    @MethodSource("CommunicationIdentifierModelSupplier")
+    public void throwsOnMissingProperty(CommunicationIdentifierModel identifierModel) {
+        assertThrows(NullPointerException.class,
+            () -> {
+                CommunicationIdentifierSerializer.deserialize(identifierModel);
+            });
     }
 }
