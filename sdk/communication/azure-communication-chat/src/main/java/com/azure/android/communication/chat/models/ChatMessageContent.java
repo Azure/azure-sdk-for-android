@@ -45,7 +45,7 @@ public final class ChatMessageContent {
     /**
      * Get the message property: Chat message content for messages of types
      * text or html.
-     * 
+     *
      * @return the message value.
      */
     public String getMessage() {
@@ -55,7 +55,7 @@ public final class ChatMessageContent {
     /**
      * Set the message property: Chat message content for messages of types
      * text or html.
-     * 
+     *
      * @param message the message value to set.
      * @return the ChatMessageContent object itself.
      */
@@ -67,7 +67,7 @@ public final class ChatMessageContent {
     /**
      * Get the topic property: Chat message content for messages of type
      * topicUpdated.
-     * 
+     *
      * @return the topic value.
      */
     public String getTopic() {
@@ -77,7 +77,7 @@ public final class ChatMessageContent {
     /**
      * Set the topic property: Chat message content for messages of type
      * topicUpdated.
-     * 
+     *
      * @param topic the topic value to set.
      * @return the ChatMessageContent object itself.
      */
@@ -89,7 +89,7 @@ public final class ChatMessageContent {
     /**
      * Get the participants property: Chat message content for messages of
      * types participantAdded or participantRemoved.
-     * 
+     *
      * @return the participants value.
      */
     public List<ChatParticipant> getParticipants() {
@@ -99,7 +99,7 @@ public final class ChatMessageContent {
     /**
      * Set the participants property: Chat message content for messages of
      * types participantAdded or participantRemoved.
-     * 
+     *
      * @param participants the participants value to set.
      * @return the ChatMessageContent object itself.
      */
@@ -114,7 +114,7 @@ public final class ChatMessageContent {
      * example, a phone number or an Azure communication user. This model must
      * be interpreted as a union: Apart from rawId, at most one further
      * property may be set.
-     * 
+     *
      * @return the initiatorCommunicationIdentifier value.
      */
     public CommunicationIdentifierModel getInitiatorCommunicationIdentifier() {
@@ -127,7 +127,7 @@ public final class ChatMessageContent {
      * example, a phone number or an Azure communication user. This model must
      * be interpreted as a union: Apart from rawId, at most one further
      * property may be set.
-     * 
+     *
      * @param initiatorCommunicationIdentifier the
      * initiatorCommunicationIdentifier value to set.
      * @return the ChatMessageContent object itself.

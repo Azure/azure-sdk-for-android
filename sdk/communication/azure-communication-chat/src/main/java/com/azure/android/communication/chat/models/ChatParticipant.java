@@ -50,7 +50,7 @@ public final class ChatParticipant {
      * Azure Communication services. A participant is, for example, a phone
      * number or an Azure communication user. This model must be interpreted as
      * a union: Apart from rawId, at most one further property may be set.
-     * 
+     *
      * @return the communicationIdentifier value.
      */
     public CommunicationIdentifierModel getCommunicationIdentifier() {
@@ -62,7 +62,7 @@ public final class ChatParticipant {
      * Azure Communication services. A participant is, for example, a phone
      * number or an Azure communication user. This model must be interpreted as
      * a union: Apart from rawId, at most one further property may be set.
-     * 
+     *
      * @param communicationIdentifier the communicationIdentifier value to set.
      * @return the ChatParticipant object itself.
      */
@@ -76,7 +76,7 @@ public final class ChatParticipant {
      * Communication services. A participant is, for example, a phone number or
      * an Azure communication user. This model must be interpreted as a union:
      * Apart from rawId, at most one further property may be set.
-     * 
+     *
      * @return the identifier value.
      */
     public CommunicationIdentifierModel getIdentifier() {
@@ -88,7 +88,7 @@ public final class ChatParticipant {
      * Communication services. A participant is, for example, a phone number or
      * an Azure communication user. This model must be interpreted as a union:
      * Apart from rawId, at most one further property may be set.
-     * 
+     *
      * @param identifier the identifier value to set.
      * @return the ChatParticipant object itself.
      */
@@ -99,7 +99,7 @@ public final class ChatParticipant {
 
     /**
      * Get the displayName property: Display name for the chat participant.
-     * 
+     *
      * @return the displayName value.
      */
     public String getDisplayName() {
@@ -108,7 +108,7 @@ public final class ChatParticipant {
 
     /**
      * Set the displayName property: Display name for the chat participant.
-     * 
+     *
      * @param displayName the displayName value to set.
      * @return the ChatParticipant object itself.
      */
@@ -121,7 +121,7 @@ public final class ChatParticipant {
      * Get the shareHistoryTime property: Time from which the chat history is
      * shared with the participant. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     * 
+     *
      * @return the shareHistoryTime value.
      */
     public OffsetDateTime getShareHistoryTime() {
@@ -132,7 +132,7 @@ public final class ChatParticipant {
      * Set the shareHistoryTime property: Time from which the chat history is
      * shared with the participant. The timestamp is in RFC3339 format:
      * `yyyy-MM-ddTHH:mm:ssZ`.
-     * 
+     *
      * @param shareHistoryTime the shareHistoryTime value to set.
      * @return the ChatParticipant object itself.
      */

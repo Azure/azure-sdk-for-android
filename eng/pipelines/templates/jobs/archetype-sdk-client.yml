@@ -68,6 +68,8 @@ jobs:
         artifact: reports
         displayName: Publish reports
 
+      - template: /eng/common/pipelines/templates/steps/eng-common-workflow-enforcer.yml
+
   - job: 'UnitTest'
 
     variables:
