@@ -1,6 +1,14 @@
 # Release History
 
-## 1.0.1 (Unreleased)
+## 1.0.0-beta.7 (Unreleased)
+### Added
+- Support real time notifications with new methods in ChatClient/ChatAsyncClient: 
+    - startRealtimeNotifications
+    - stopRealtimeNotifications
+    - on(chatEventId, listenerId, listener) 
+    - off(chatEventId, listenerId) 
+- Add a sample chat app under folder samples for testing and playing around chat functionality purpose
+- Add signaling folder and classes to support real time notification
 
 ## 1.0.0-beta.6 (2021-02-26)
 ### Breaking Changes
