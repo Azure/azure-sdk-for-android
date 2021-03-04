@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 class StaticUserCredential extends UserCredential {
 
-    private Future<AccessToken> tokenFuture;
+    private final Future<AccessToken> tokenFuture;
 
     StaticUserCredential(String userToken) {
         AccessToken accessToken = TokenParser.createAccessToken(userToken);
@@ -22,7 +22,7 @@ class StaticUserCredential extends UserCredential {
         return this.tokenFuture;
     }
 
-    private final class CompletedTokenFuture implements Future<AccessToken> {
+    private static final class CompletedTokenFuture implements Future<AccessToken> {
         private final AccessToken accessToken;
 
         CompletedTokenFuture(AccessToken accessToken) {

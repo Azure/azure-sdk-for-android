@@ -20,9 +20,9 @@ class AutoRefreshUserCredential extends UserCredential {
     private final ClientLogger logger = new ClientLogger(AutoRefreshUserCredential.class);
 
     private Callable<String> tokenRefresher;
-    private Callable<AccessToken> accessTokenCallable;
+    private final Callable<AccessToken> accessTokenCallable;
     private FutureTask<AccessToken> tokenFuture;
-    private Timer timer;
+    private final Timer timer;
     private TimerTask proactiveRefreshTask;
 
     AutoRefreshUserCredential(Callable<String> tokenRefresher) {
@@ -168,8 +168,8 @@ class AutoRefreshUserCredential extends UserCredential {
         this.timer.schedule(this.proactiveRefreshTask, delayMs);
     }
 
-    private final class ScheduledTask extends TimerTask {
-        private Runnable runnable;
+    private static final class ScheduledTask extends TimerTask {
+        private final Runnable runnable;
 
         ScheduledTask(Runnable runnable) {
             this.runnable = runnable;

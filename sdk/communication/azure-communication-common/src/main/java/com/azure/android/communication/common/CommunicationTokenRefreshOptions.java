@@ -2,6 +2,8 @@
 // Licensed under the MIT License.
 package com.azure.android.communication.common;
 
+import com.azure.android.core.logging.ClientLogger;
+
 import java.util.concurrent.Callable;
 
 /**
@@ -11,6 +13,7 @@ import java.util.concurrent.Callable;
  * </p>
  */
 public class CommunicationTokenRefreshOptions {
+    private final ClientLogger logger = new ClientLogger(CommunicationTokenRefreshOptions.class);
     private final Callable<String> tokenRefresher;
     private final boolean refreshProactively;
     private final String initialToken;
@@ -29,7 +32,8 @@ public class CommunicationTokenRefreshOptions {
      */
     public CommunicationTokenRefreshOptions(Callable<String> tokenRefresher, boolean refreshProactively) {
         if (tokenRefresher == null) {
-            throw new IllegalArgumentException("Missing required parameters 'tokenRefresher'.");
+            throw logger
+                .logExceptionAsError(new IllegalArgumentException("Missing required parameters 'tokenRefresher'."));
         }
         this.tokenRefresher = tokenRefresher;
         this.refreshProactively = refreshProactively;
@@ -48,13 +52,17 @@ public class CommunicationTokenRefreshOptions {
      *                           with setCallbackOffsetMinutes or default value of
      *                           two minutes
      * @param initialToken the serialized JWT token, cannot be null
+     * @throws IllegalArgumentException if the parameter tokenRefresher or initialToken is null.
      */
-    public CommunicationTokenRefreshOptions(Callable<String> tokenRefresher, boolean refreshProactively, String initialToken) {
+    public CommunicationTokenRefreshOptions(Callable<String> tokenRefresher, boolean refreshProactively,
+                                            String initialToken) {
         if (tokenRefresher == null) {
-            throw new IllegalArgumentException("Missing required parameters 'tokenRefresher'.");
+            throw logger
+                .logExceptionAsError(new IllegalArgumentException("Missing required parameters 'tokenRefresher'."));
         }
         if (initialToken == null) {
-            throw new IllegalArgumentException("Missing required parameters 'initialToken'.");
+            throw logger
+                .logExceptionAsError(new IllegalArgumentException("Missing required parameters 'initialToken'."));
         }
         this.tokenRefresher = tokenRefresher;
         this.refreshProactively = refreshProactively;

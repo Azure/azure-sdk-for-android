@@ -20,7 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
  * Utility for Handling Access Tokens.
  */
 final class TokenParser {
-    private static final ObjectMapper jsonMapper = new ObjectMapper();
+    private static final ObjectMapper JSON_MAPPER = new ObjectMapper();
 
     private TokenParser() {
         // Empty constructor to prevent instantiation of this class.
@@ -42,9 +42,10 @@ final class TokenParser {
             byte[] decodedBytes = Base64.decode(tokenPayload, Base64.DEFAULT);
             String decodedPayloadJson = new String(decodedBytes, Charset.forName("UTF-8"));
 
-            ObjectNode payloadObj = jsonMapper.readValue(decodedPayloadJson, ObjectNode.class);
+            ObjectNode payloadObj = JSON_MAPPER.readValue(decodedPayloadJson, ObjectNode.class);
             long expire = payloadObj.get("exp").longValue();
-            OffsetDateTime offsetExpiry = OffsetDateTime.ofInstant(Instant.ofEpochMilli(expire * 1000), ZoneId.of("UTC"));
+            OffsetDateTime offsetExpiry = OffsetDateTime.ofInstant(Instant.ofEpochMilli(expire * 1000),
+                ZoneId.of("UTC"));
 
             return new AccessToken(tokenStr, offsetExpiry);
         } catch (Exception e) {

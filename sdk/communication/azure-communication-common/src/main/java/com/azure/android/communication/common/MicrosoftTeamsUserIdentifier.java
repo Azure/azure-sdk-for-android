@@ -10,7 +10,6 @@ import java.util.Objects;
  * Communication identifier for Microsoft Teams User
  */
 public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
-
     private final String userId;
     private final boolean isAnonymous;
     private CommunicationCloudEnvironment cloudEnvironment = CommunicationCloudEnvironment.PUBLIC;
@@ -20,13 +19,15 @@ public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
     /**
      * Creates a MicrosoftTeamsUserIdentifier object
      *
-     * @param userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object id of the user.
+     * @param userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object
+     *              id of the user.
      * @param isAnonymous set this to true if the user is anonymous,
      *                    for example when joining a meeting with a share link
      * @param cloudEnvironment the cloud environment in which this identifier is created
      * @throws IllegalArgumentException thrown if userId parameter fail the validation.
      */
-    public MicrosoftTeamsUserIdentifier(String userId, boolean isAnonymous, CommunicationCloudEnvironment cloudEnvironment) {
+    public MicrosoftTeamsUserIdentifier(String userId, boolean isAnonymous,
+                                        CommunicationCloudEnvironment cloudEnvironment) {
         this(userId, isAnonymous);
         Objects.requireNonNull(cloudEnvironment);
         this.cloudEnvironment = cloudEnvironment;
@@ -35,7 +36,8 @@ public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
     /**
      * Creates a MicrosoftTeamsUserIdentifier object
      *
-     * @param userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object id of the user.
+     * @param userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object
+     *              id of the user.
      * @param isAnonymous set this to true if the user is anonymous,
      *                    for example when joining a meeting with a share link
      * @throws IllegalArgumentException thrown if userId parameter fail the validation.
@@ -51,7 +53,8 @@ public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
     /**
      * Creates a MicrosoftTeamsUserIdentifier object
      *
-     * @param userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object id of the user.
+     * @param userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object
+     *              id of the user.
      * @throws IllegalArgumentException thrown if userId parameter fail the validation.
     */
     public MicrosoftTeamsUserIdentifier(String userId) {
@@ -60,7 +63,8 @@ public class MicrosoftTeamsUserIdentifier extends CommunicationIdentifier {
 
     /**
      * Get Teams User Id
-     * @return userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object id of the user.
+     * @return userId Id of the Microsoft Teams user. If the user isn't anonymous, the id is the AAD object
+     * id of the user.
      */
     public String getUserId() {
         return this.userId;

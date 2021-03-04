@@ -118,5 +118,10 @@
                  RC_REF_COMPARISON_BAD_PRACTICE_BOOLEAN"/>
   </Match>
 
+  <Match>
+    <Class name="com.azure.android.communication.common.TokenParser"/>
+    <Bug pattern="REC_CATCH_EXCEPTION"/>
+  </Match>
+
 </FindBugsFilter>
 

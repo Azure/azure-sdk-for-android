@@ -13,6 +13,7 @@ class CommunicationIdentifierSerializer {
      * Deserialize CommunicationIdentifierModel into CommunicationIdentifier
      * @param identifier CommunicationIdentifierModel to be deserialized
      * @return deserialized CommunicationIdentifier
+     * @throws NullPointerException if the identifier or identifier.rawId is null.
      */
     public static CommunicationIdentifier deserialize(CommunicationIdentifierModel identifier) {
         if (identifier == null) {
@@ -32,7 +33,7 @@ class CommunicationIdentifierSerializer {
                 throw new NullPointerException("'phoneNumber.value' cannot be null");
             }
             if (rawId == null) {
-                throw new NullPointerException("'rawId' cannot be null");
+                throw new NullPointerException("'identifier.rawId' cannot be null");
             }
             return new PhoneNumberIdentifier(phoneNumberModel.getValue()).setRawId(rawId);
         }
@@ -69,8 +70,9 @@ class CommunicationIdentifierSerializer {
         }
 
         if (presentProperties.size() > 1) {
-            throw new IllegalArgumentException(String.format("Only one of the identifier models in %s should be present.",
-                TextUtils.join(", ", presentProperties)));
+            throw
+                new IllegalArgumentException(String.format("Only one of the identifier models in %s should be present.",
+                    TextUtils.join(", ", presentProperties)));
         }
     }
 
@@ -113,6 +115,7 @@ class CommunicationIdentifierSerializer {
                 .setRawId(((UnknownIdentifier) identifier).getId());
         }
 
-        throw new IllegalArgumentException(String.format("Unknown identifier class '%s'", identifier.getClass().getName()));
+        throw new IllegalArgumentException(String.format("Unknown identifier class '%s'",
+            identifier.getClass().getName()));
     }
 }
