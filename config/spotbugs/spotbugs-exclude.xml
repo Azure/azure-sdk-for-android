@@ -123,5 +123,13 @@
     <Bug pattern="REC_CATCH_EXCEPTION"/>
   </Match>
 
+  <!-- Known issue in autorest where it will generate a variable with a value of null.-->
+  <Match>
+    <Or>
+      <Class name="~com\.azure\.(.+)Impl"/>
+    </Or>
+    <Bug pattern="NP_LOAD_OF_KNOWN_NULL_VALUE"/>
+  </Match>
+
 </FindBugsFilter>
 

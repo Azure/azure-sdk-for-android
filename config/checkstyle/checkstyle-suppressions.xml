@@ -158,4 +158,7 @@
   <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
       files="com.azure.android.core.http.httpurlconnection.HttpUrlConnectionAsyncHttpClientBuilder.java"/>
 
+  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientCheck" files="com.azure.android.communication.chat.ChatThreadAsyncClient.java"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientCheck" files="com.azure.android.communication.chat.ChatThreadClient.java"/>
+  <suppress checks="LineLength" files=".*[/\\]com[/\\]azure[/\\]android[/\\]communication[/\\]chat[/\\]implementation[/\\].*"/>
 </suppressions>

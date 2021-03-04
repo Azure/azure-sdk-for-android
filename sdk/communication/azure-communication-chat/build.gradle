@@ -5,6 +5,7 @@ ext.versionCode = 1
 
 android {
     defaultConfig {
+        minSdkVersion 29
         versionCode project.versionCode
         versionName project.version
     }
@@ -12,21 +13,28 @@ android {
 
 dependencies {
     // <!-- begin: api Dependencies -->
-    api project(":sdk:core:azure-core")
-    api project(":sdk:core:azure-core-logging")
-    api project(":sdk:core:azure-core-credential")
+//    api project(":sdk:core:azure-core")
+//    api project(":sdk:core:azure-core-logging")
+//    api project(":sdk:core:azure-core-credential")
+      api("com.azure:azure-core:1.13.0")
+      api("com.azure:azure-communication-common:1.0.0-beta.5")
     // <!-- end: api Dependencies -->
 
     // <!-- begin: implementation Dependencies -->
-    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
-    implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
+//    implementation "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
+//    implementation "com.jakewharton.threetenabp:threetenabp:$threeTenAbpVersion"
     // <!-- end: implementation Dependencies -->
 
     // <!-- begin: test Dependencies -->
+
+    testImplementation ("com.azure:azure-core-test:1.5.3")
+    testImplementation ("com.azure:azure-communication-identity:1.0.0-beta.5")
+    testImplementation ("com.nimbusds:nimbus-jose-jwt:8.19")
+
     testRuntimeOnly ("org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion")
     testImplementation ("org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion")
     testImplementation ("org.junit.jupiter:junit-jupiter-params:$junitJupiterVersion")
     testImplementation ("org.mockito:mockito-core:$mockitoVersion")
-    testImplementation "org.threeten:threetenbp:$threeTenBpVersion"
+//    testImplementation "org.threeten:threetenbp:$threeTenBpVersion"
     // <!-- end: test Dependencies -->
 }

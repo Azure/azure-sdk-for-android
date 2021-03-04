@@ -12,7 +12,7 @@ import com.azure.android.communication.chat.models.ListParticipantsOptions;
 import com.azure.android.communication.chat.models.ListReadReceiptOptions;
 import com.azure.android.communication.chat.models.SendChatMessageOptions;
 import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
-import com.azure.android.communication.common.CommunicationIdentifier;
+import com.azure.communication.common.CommunicationIdentifier;
 import com.azure.core.annotation.ReturnType;
 import com.azure.core.annotation.ServiceClient;
 import com.azure.core.annotation.ServiceMethod;

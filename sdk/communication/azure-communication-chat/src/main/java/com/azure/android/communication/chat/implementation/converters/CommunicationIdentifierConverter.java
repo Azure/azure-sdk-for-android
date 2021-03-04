@@ -9,12 +9,12 @@ import com.azure.android.communication.chat.implementation.models.CommunicationI
 import com.azure.android.communication.chat.implementation.models.CommunicationUserIdentifierModel;
 import com.azure.android.communication.chat.implementation.models.MicrosoftTeamsUserIdentifierModel;
 
-import com.azure.android.communication.common.CommunicationCloudEnvironment;
-import com.azure.android.communication.common.CommunicationIdentifier;
-import com.azure.android.communication.common.CommunicationUserIdentifier;
-import com.azure.android.communication.common.MicrosoftTeamsUserIdentifier;
-import com.azure.android.communication.common.PhoneNumberIdentifier;
-import com.azure.android.communication.common.UnknownIdentifier;
+import com.azure.communication.common.CommunicationCloudEnvironment;
+import com.azure.communication.common.CommunicationIdentifier;
+import com.azure.communication.common.CommunicationUserIdentifier;
+import com.azure.communication.common.MicrosoftTeamsUserIdentifier;
+import com.azure.communication.common.PhoneNumberIdentifier;
+import com.azure.communication.common.UnknownIdentifier;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -49,7 +49,7 @@ public class CommunicationIdentifierConverter {
             return new MicrosoftTeamsUserIdentifier(teamsUserIdentifierModel.getUserId(),
                 teamsUserIdentifierModel.isAnonymous())
                 .setRawId(rawId)
-                .setCloudEnvironment(new CommunicationCloudEnvironment().fromString(teamsUserIdentifierModel.getCloud().toString()));
+                .setCloudEnvironment(new CommunicationCloudEnvironment(teamsUserIdentifierModel.getCloud().toString()));
         }
 
         Objects.requireNonNull(rawId);

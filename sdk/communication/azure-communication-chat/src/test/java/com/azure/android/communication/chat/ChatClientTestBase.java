@@ -3,11 +3,11 @@
 
 package com.azure.android.communication.chat;
 
-import com.azure.android.communication.common.CommunicationUserIdentifier;
-import com.azure.android.communication.identity.CommunicationIdentityClientBuilder;
+import com.azure.communication.common.CommunicationUserIdentifier;
+import com.azure.communication.identity.CommunicationIdentityClientBuilder;
 import com.azure.android.communication.chat.models.ErrorException;
 import com.azure.android.communication.chat.models.*;
-import com.azure.android.communication.common.CommunicationTokenCredential;
+import com.azure.communication.common.CommunicationTokenCredential;
 import com.azure.core.credential.AzureKeyCredential;
 import com.azure.core.exception.HttpResponseException;
 import com.azure.core.http.HttpClient;
@@ -32,11 +32,14 @@ import com.nimbusds.jwt.PlainJWT;
 import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 
+import org.junit.jupiter.api.Disabled;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Abstract base class for all Chat tests
  */
+@Disabled
 public class ChatClientTestBase extends TestBase {
 
     protected static final TestMode TEST_MODE = initializeTestMode();

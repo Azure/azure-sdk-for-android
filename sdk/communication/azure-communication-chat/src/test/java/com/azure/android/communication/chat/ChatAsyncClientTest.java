@@ -4,14 +4,16 @@
 package com.azure.android.communication.chat;
 
 import com.azure.core.http.rest.Response;
+
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import reactor.test.StepVerifier;
 
-import com.azure.android.communication.identity.CommunicationIdentityClient;
-import com.azure.android.communication.identity.models.CommunicationTokenScope;
-import com.azure.android.communication.common.CommunicationUserIdentifier;
+import com.azure.communication.identity.CommunicationIdentityClient;
+import com.azure.communication.identity.models.CommunicationTokenScope;
+import com.azure.communication.common.CommunicationUserIdentifier;
 import com.azure.android.communication.chat.implementation.ChatOptionsProvider;
 import com.azure.android.communication.chat.models.*;
 import com.azure.core.credential.AccessToken;
@@ -32,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Set the AZURE_TEST_MODE environment variable to either PLAYBACK or RECORD to determine if tests are playback or
  * live. By default, tests are run in playback mode.
  */
+@Disabled
 public class ChatAsyncClientTest extends ChatClientTestBase {
 
     private ClientLogger logger = new ClientLogger(ChatClientTest.class);

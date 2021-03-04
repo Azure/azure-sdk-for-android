@@ -6,7 +6,7 @@ package com.azure.android.communication.chat;
 import com.azure.android.communication.chat.implementation.AzureCommunicationChatServiceImplBuilder;
 import com.azure.android.communication.chat.implementation.CommunicationBearerTokenCredential;
 
-import com.azure.android.communication.common.CommunicationTokenCredential;
+import com.azure.communication.common.CommunicationTokenCredential;
 
 import java.util.ArrayList;
 import java.util.Map;

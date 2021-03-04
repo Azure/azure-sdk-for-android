@@ -3,7 +3,7 @@
 package com.azure.android.communication.chat.implementation;
 
 import com.azure.android.communication.chat.models.*;
-import com.azure.android.communication.common.CommunicationUserIdentifier;
+import com.azure.communication.common.CommunicationUserIdentifier;
 
 import java.util.*;
 

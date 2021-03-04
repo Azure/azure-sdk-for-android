@@ -3,10 +3,12 @@
 
 package com.azure.android.communication.chat.implementation;
 
-import com.azure.android.communication.common.CommunicationTokenCredential;
+import com.azure.communication.common.CommunicationTokenCredential;
 import com.azure.core.credential.AccessToken;
 import com.azure.core.credential.TokenCredential;
 import com.azure.core.credential.TokenRequestContext;
+
+import java.util.concurrent.ExecutionException;
 
 import reactor.core.publisher.Mono;
 
@@ -29,6 +31,12 @@ public class CommunicationBearerTokenCredential implements TokenCredential {
 
     @Override
     public Mono<AccessToken> getToken(TokenRequestContext request) {
-        return credential.getToken();
+        try {
+            return credential.getToken();
+        } catch (InterruptedException e) {
+            return Mono.error(e);
+        } catch (ExecutionException e) {
+            return Mono.error(e);
+        }
     }
 }

@@ -3,7 +3,7 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.android.communication.common.CommunicationIdentifier;
+import com.azure.communication.common.CommunicationIdentifier;
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.OffsetDateTime;
@@ -53,7 +53,8 @@ public final class ChatMessageReadReceipt {
      * @param senderCommunicationIdentifier the senderCommunicationIdentifier value to set.
      * @return the ChatMessageReadReceipt object itself.
      */
-    public ChatMessageReadReceipt setSenderCommunicationIdentifier(CommunicationIdentifier senderCommunicationIdentifier) {
+    public ChatMessageReadReceipt setSenderCommunicationIdentifier(CommunicationIdentifier
+                                                                       senderCommunicationIdentifier) {
         this.senderCommunicationIdentifier = senderCommunicationIdentifier;
         return this;
     }
