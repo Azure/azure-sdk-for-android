@@ -9,6 +9,19 @@ android {
         versionCode project.versionCode
         versionName project.version
     }
+    // TODO: anuchan Below exclusion is only for dev wip, sourceSets entry will be removed once work done.
+    sourceSets {
+        main {
+            java {
+                exclude 'com/azure/android/communication/chat/handwritten/**'
+            }
+        }
+        test {
+            java {
+                exclude 'com/azure/android/communication/chat/handwritten/**'
+            }
+        }
+    }
 }
 
 dependencies {
