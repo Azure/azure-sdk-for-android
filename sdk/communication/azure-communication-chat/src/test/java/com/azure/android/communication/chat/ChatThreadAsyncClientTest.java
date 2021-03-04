@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.communication.chat;
+package com.azure.android.communication.chat;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -14,11 +14,11 @@ import org.junit.jupiter.params.provider.MethodSource;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import com.azure.communication.identity.CommunicationIdentityClient;
-import com.azure.communication.identity.models.CommunicationTokenScope;
-import com.azure.communication.common.CommunicationUserIdentifier;
-import com.azure.communication.chat.implementation.ChatOptionsProvider;
-import com.azure.communication.chat.models.*;
+import com.azure.android.communication.identity.CommunicationIdentityClient;
+import com.azure.android.communication.identity.models.CommunicationTokenScope;
+import com.azure.android.communication.common.CommunicationUserIdentifier;
+import com.azure.android.communication.chat.implementation.ChatOptionsProvider;
+import com.azure.android.communication.chat.models.*;
 import com.azure.core.credential.AccessToken;
 import com.azure.core.http.HttpClient;
 import com.azure.core.http.HttpRequest;

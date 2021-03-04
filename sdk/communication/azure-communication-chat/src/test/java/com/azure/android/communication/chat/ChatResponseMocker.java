@@ -1,7 +1,7 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-package com.azure.communication.chat;
+package com.azure.android.communication.chat;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
