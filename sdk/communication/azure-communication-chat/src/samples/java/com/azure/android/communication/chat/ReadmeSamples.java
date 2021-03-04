@@ -3,16 +3,16 @@
 
 package com.azure.android.communication.chat;
 
-import com.azure.android.communication.chat.models.AddChatParticipantsOptions;
-import com.azure.android.communication.chat.models.ChatMessage;
+import com.azure.android.communication.chat.handwritten.models.AddChatParticipantsOptions;
+import com.azure.android.communication.chat.handwritten.models.ChatMessage;
 
-import com.azure.android.communication.chat.models.ChatThread;
-import com.azure.android.communication.chat.models.ChatParticipant;
-import com.azure.android.communication.chat.models.ChatMessageReadReceipt;
-import com.azure.android.communication.chat.models.CreateChatThreadOptions;
-import com.azure.android.communication.chat.models.CreateChatThreadResult;
-import com.azure.android.communication.chat.models.SendChatMessageOptions;
-import com.azure.android.communication.chat.models.UpdateChatMessageOptions;
+import com.azure.android.communication.chat.handwritten.models.ChatThread;
+import com.azure.android.communication.chat.handwritten.models.ChatParticipant;
+import com.azure.android.communication.chat.handwritten.models.ChatMessageReadReceipt;
+import com.azure.android.communication.chat.handwritten.models.CreateChatThreadOptions;
+import com.azure.android.communication.chat.handwritten.models.CreateChatThreadResult;
+import com.azure.android.communication.chat.handwritten.models.SendChatMessageOptions;
+import com.azure.android.communication.chat.handwritten.models.UpdateChatMessageOptions;
 import com.azure.android.communication.common.CommunicationUserIdentifier;
 import com.azure.android.communication.common.CommunicationTokenCredential;
 import com.azure.core.http.HttpClient;

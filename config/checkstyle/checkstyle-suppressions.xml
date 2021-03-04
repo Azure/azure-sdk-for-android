@@ -158,7 +158,12 @@
   <suppress checks="com.azure.tools.checkstyle.checks.ThrowFromClientLogger"
       files="com.azure.android.core.http.httpurlconnection.HttpUrlConnectionAsyncHttpClientBuilder.java"/>
 
-  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientCheck" files="com.azure.android.communication.chat.ChatThreadAsyncClient.java"/>
-  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientCheck" files="com.azure.android.communication.chat.ChatThreadClient.java"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientCheck" files="com.azure.android.communication.chat.handwritten.ChatThreadAsyncClient.java"/>
+  <suppress checks="com.azure.tools.checkstyle.checks.ServiceClientCheck" files="com.azure.android.communication.chat.handwritten.ChatThreadClient.java"/>
   <suppress checks="LineLength" files=".*[/\\]com[/\\]azure[/\\]android[/\\]communication[/\\]chat[/\\]implementation[/\\].*"/>
+  <suppress checks="LineLength" files=".*[/\\]com[/\\]azure[/\\]android[/\\]communication[/\\]chat[/\\]handwritten[/\\]implementation[/\\].*"/>
+  <!-- This is temporary suppression during development, must be removed -->
+  <suppress checks="com.azure.tools.checkstyle.checks.NoImplInPublicAPI" files="com.azure.android.communication.chat.models.ChatMessageContent.java"/>
+  <!-- This is temporary suppression during development, must be removed -->
+  <suppress checks="com.azure.tools.checkstyle.checks.NoImplInPublicAPI" files="com.azure.android.communication.chat.models.ChatMessageContent.java"/>
 </suppressions>

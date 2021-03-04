@@ -4,7 +4,8 @@
 
 package com.azure.android.communication.chat.models;
 
-import com.azure.communication.common.CommunicationIdentifier;
+import com.azure.android.communication.chat.implementation.models.ChatParticipant;
+import com.azure.android.communication.chat.implementation.models.CommunicationIdentifierModel;
 import com.azure.core.annotation.Fluent;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -26,7 +27,7 @@ public final class ChatMessageContent {
     private List<ChatParticipant> participants;
 
     @JsonProperty(value = "initiatorCommunicationIdentifier")
-    private CommunicationIdentifier initiatorCommunicationIdentifier;
+    private CommunicationIdentifierModel initiatorCommunicationIdentifier;
 
     /**
      * Get the message property: Chat message content for messages of types text or html.
@@ -93,7 +94,7 @@ public final class ChatMessageContent {
      *
      * @return the initiator value.
      */
-    public CommunicationIdentifier getInitiatorCommunicationIdentifier() {
+    public CommunicationIdentifierModel getInitiatorCommunicationIdentifier() {
         return this.initiatorCommunicationIdentifier;
     }
 
@@ -104,7 +105,7 @@ public final class ChatMessageContent {
      * @return the ChatMessageContent object itself.
      */
     public ChatMessageContent setInitiatorCommunicationIdentifier(
-        CommunicationIdentifier initiatorCommunicationIdentifier) {
+        CommunicationIdentifierModel initiatorCommunicationIdentifier) {
         this.initiatorCommunicationIdentifier = initiatorCommunicationIdentifier;
         return this;
     }
