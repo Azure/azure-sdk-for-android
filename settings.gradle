@@ -1,4 +1,5 @@
 include ':sdk:communication:azure-communication-common'
+include ':sdk:communication:azure-communication-chat'
 include ":sdk:core:azure-core-logging"
 include ':sdk:core:azure-core-jackson'
 include ":sdk:core:azure-core"
