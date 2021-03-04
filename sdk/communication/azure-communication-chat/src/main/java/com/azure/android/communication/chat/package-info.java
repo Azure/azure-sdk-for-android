@@ -4,6 +4,5 @@
 
 /**
  * Package containing the classes for AzureCommunicationChatService.
- * Azure Communication Chat Service.
  */
 package com.azure.android.communication.chat;
