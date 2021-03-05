@@ -32,8 +32,9 @@ import com.azure.android.core.rest.RestProxy;
 import com.azure.android.core.util.Context;
 import com.azure.android.core.rest.Callback;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutionException;
+
+import java9.util.concurrent.CompletableFuture;
 
 /** An instance of this class provides access to all the operations defined in Chats. */
 public final class ChatImpl {
@@ -142,10 +143,11 @@ public final class ChatImpl {
      * @return result of the create chat thread operation.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void createChatThreadWithResponseAsync(
-        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId,
-        Callback<Response<CreateChatThreadResult>> callback) {
+    public CompletableFuture<Response<CreateChatThreadResult>> createChatThreadWithResponseAsync(
+        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId) {
         final String accept = "application/json";
+        CompletableFuture<Response<CreateChatThreadResult>> completableFuture = new CompletableFuture<>();
+
         service.createChatThread(
             this.client.getEndpoint(),
             repeatabilityRequestId,
@@ -156,14 +158,16 @@ public final class ChatImpl {
             new Callback<Response<CreateChatThreadResult>>() {
                 @Override
                 public void onSuccess(Response<CreateChatThreadResult> response) {
-                    callback.onSuccess(response);
+                    completableFuture.complete(response);
                 }
 
                 @Override
                 public void onFailure(Throwable error) {
-                    callback.onFailure(error);
+                    completableFuture.completeExceptionally(error);
                 }
             });
+
+        return completableFuture;
     }
 
     /**
@@ -182,10 +186,11 @@ public final class ChatImpl {
      * @return result of the create chat thread operation.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void createChatThreadWithResponseAsync(
-        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, Context context,
-        Callback<Response<CreateChatThreadResult>> callback) {
+    public CompletableFuture<Response<CreateChatThreadResult>> createChatThreadWithResponseAsync(
+        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, Context context) {
         final String accept = "application/json";
+        CompletableFuture<Response<CreateChatThreadResult>> completableFuture = new CompletableFuture<>();
+
         service.createChatThread(
             this.client.getEndpoint(),
             repeatabilityRequestId,
@@ -196,14 +201,16 @@ public final class ChatImpl {
             new Callback<Response<CreateChatThreadResult>>() {
                 @Override
                 public void onSuccess(Response<CreateChatThreadResult> response) {
-                    callback.onSuccess(response);
+                    completableFuture.complete(response);
                 }
 
                 @Override
                 public void onFailure(Throwable error) {
-                    callback.onFailure(error);
+                    completableFuture.completeExceptionally(error);
                 }
             });
+
+        return completableFuture;
     }
 
     /**
@@ -221,21 +228,10 @@ public final class ChatImpl {
      * @return result of the create chat thread operation.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void createChatThreadAsync(
-        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId,
-        Callback<CreateChatThreadResult> callback) {
-        createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId,
-            new Callback<Response<CreateChatThreadResult>>() {
-                @Override
-                public void onSuccess(Response<CreateChatThreadResult> response) {
-                    callback.onSuccess(response.getValue());
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    callback.onFailure(error);
-                }
-            });
+    public CompletableFuture<CreateChatThreadResult> createChatThreadAsync(
+        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId) {
+        return createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId)
+            .thenApply(response -> response.getValue());
     }
 
     /**
@@ -248,21 +244,11 @@ public final class ChatImpl {
      * @return result of the create chat thread operation.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void createChatThreadAsync(CreateChatThreadOptions createChatThreadRequest,
-                                      Callback<CreateChatThreadResult> callback) {
+    public CompletableFuture<CreateChatThreadResult> createChatThreadAsync(
+        CreateChatThreadOptions createChatThreadRequest) {
         final String repeatabilityRequestId = null;
-        createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId,
-            new Callback<Response<CreateChatThreadResult>>() {
-                @Override
-                public void onSuccess(Response<CreateChatThreadResult> response) {
-                    callback.onSuccess(response.getValue());
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    callback.onFailure(error);
-                }
-            });
+        return createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId)
+            .thenApply(response -> response.getValue());
     }
 
     /**
@@ -281,22 +267,10 @@ public final class ChatImpl {
      * @return result of the create chat thread operation.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void createChatThreadAsync(
-        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, Context context,
-        Callback<CreateChatThreadResult> callback) {
-
-        createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId, context,
-            new Callback<Response<CreateChatThreadResult>>() {
-                @Override
-                public void onSuccess(Response<CreateChatThreadResult> response) {
-                    callback.onSuccess(response.getValue());
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    callback.onFailure(error);
-                }
-            });
+    public CompletableFuture<CreateChatThreadResult> createChatThreadAsync(
+        CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, Context context) {
+        return createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId, context)
+            .thenApply(response -> response.getValue());
     }
 
     /**
@@ -316,27 +290,13 @@ public final class ChatImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CreateChatThreadResult createChatThread(
         CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId) {
-        CountDownLatch latch = new CountDownLatch(1);
-        final CreateChatThreadResult success[] = new CreateChatThreadResult[1];
-        final Throwable failure[] = new Throwable[1];
-        createChatThreadAsync(createChatThreadRequest, repeatabilityRequestId, new Callback<CreateChatThreadResult>() {
-            @Override
-            public void onSuccess(CreateChatThreadResult response) {
-                success[0] = response;
-                latch.countDown();
-            }
-
-            @Override
-            public void onFailure(Throwable error) {
-                failure[0] = error;
-                latch.countDown();
-            }
-        });
-
-        if (failure[0] != null) {
-            throw new RuntimeException(failure[0]);
+        try {
+            return createChatThreadAsync(createChatThreadRequest, repeatabilityRequestId).get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
         }
-        return success[0];
     }
 
     /**
@@ -351,27 +311,13 @@ public final class ChatImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public CreateChatThreadResult createChatThread(CreateChatThreadOptions createChatThreadRequest) {
         final String repeatabilityRequestId = null;
-        CountDownLatch latch = new CountDownLatch(1);
-        final CreateChatThreadResult success[] = new CreateChatThreadResult[1];
-        final Throwable failure[] = new Throwable[1];
-        createChatThreadAsync(createChatThreadRequest, repeatabilityRequestId, new Callback<CreateChatThreadResult>() {
-            @Override
-            public void onSuccess(CreateChatThreadResult response) {
-                success[0] = response;
-                latch.countDown();
-            }
-
-            @Override
-            public void onFailure(Throwable error) {
-                failure[0] = error;
-                latch.countDown();
-            }
-        });
-
-        if (failure[0] != null) {
-            throw new RuntimeException(failure[0]);
+        try {
+            return createChatThreadAsync(createChatThreadRequest, repeatabilityRequestId).get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
         }
-        return success[0];
     }
 
     /**
@@ -392,27 +338,13 @@ public final class ChatImpl {
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<CreateChatThreadResult> createChatThreadWithResponse(
         CreateChatThreadOptions createChatThreadRequest, String repeatabilityRequestId, Context context) {
-        CountDownLatch latch = new CountDownLatch(1);
-        final ArrayList<Response<CreateChatThreadResult>> success = new ArrayList<>(1);
-        final Throwable failure[] = new Throwable[1];
-        createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId, context,
-            new Callback<Response<CreateChatThreadResult>>() {
-                @Override
-                public void onSuccess(Response<CreateChatThreadResult> response) {
-                    success.add(response);
-                    latch.countDown();
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    failure[0] = error;
-                    latch.countDown();
-                }
-            });
-        if (failure[0] != null) {
-            throw new RuntimeException(failure[0]);
+        try {
+            return createChatThreadWithResponseAsync(createChatThreadRequest, repeatabilityRequestId, context).get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
         }
-        return success.get(0);
     }
 
     /**
@@ -427,10 +359,11 @@ public final class ChatImpl {
      * @return the list of chat threads of a user.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void listChatThreadsSinglePageAsync(
-        Integer maxPageSize, OffsetDateTime startTime,
-        Callback<PagedResponse<ChatThreadInfo>> callback) {
+    public CompletableFuture<PagedResponse<ChatThreadInfo>> listChatThreadsSinglePageAsync(
+        Integer maxPageSize, OffsetDateTime startTime) {
         final String accept = "application/json";
+        CompletableFuture<PagedResponse<ChatThreadInfo>> completableFuture = new CompletableFuture<>();
+
         service.listChatThreads(
             this.client.getEndpoint(),
             maxPageSize,
@@ -441,7 +374,7 @@ public final class ChatImpl {
             new Callback<Response<ChatThreadsInfoCollection>>() {
                 @Override
                 public void onSuccess(Response<ChatThreadsInfoCollection> response) {
-                    callback.onSuccess(new PagedResponseBase<>(
+                    completableFuture.complete(new PagedResponseBase<>(
                         response.getRequest(),
                         response.getStatusCode(),
                         response.getHeaders(),
@@ -452,9 +385,11 @@ public final class ChatImpl {
 
                 @Override
                 public void onFailure(Throwable error) {
-                    callback.onFailure(error);
+                    completableFuture.completeExceptionally(error);
                 }
             });
+
+        return completableFuture;
     }
 
     /**
@@ -470,16 +405,17 @@ public final class ChatImpl {
      * @return the list of chat threads of a user.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void listChatThreadsSinglePageAsync(
-        Integer maxPageSize, OffsetDateTime startTime, Context context,
-        Callback<PagedResponse<ChatThreadInfo>> callback) {
+    public CompletableFuture<PagedResponse<ChatThreadInfo>> listChatThreadsSinglePageAsync(
+        Integer maxPageSize, OffsetDateTime startTime, Context context) {
         final String accept = "application/json";
+        CompletableFuture<PagedResponse<ChatThreadInfo>> completableFuture = new CompletableFuture<>();
+
         service.listChatThreads(
             this.client.getEndpoint(), maxPageSize, startTime, this.client.getApiVersion(), accept, context,
             new Callback<Response<ChatThreadsInfoCollection>>() {
                 @Override
                 public void onSuccess(Response<ChatThreadsInfoCollection> response) {
-                    callback.onSuccess(new PagedResponseBase<>(
+                    completableFuture.complete(new PagedResponseBase<>(
                         response.getRequest(),
                         response.getStatusCode(),
                         response.getHeaders(),
@@ -490,9 +426,11 @@ public final class ChatImpl {
 
                 @Override
                 public void onFailure(Throwable error) {
-                    callback.onFailure(error);
+                    completableFuture.completeExceptionally(error);
                 }
             });
+
+        return completableFuture;
     }
 
 //    /**
@@ -607,22 +545,25 @@ public final class ChatImpl {
      * @return a chat thread.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void getChatThreadWithResponseAsync(String chatThreadId,
-                                               Callback<Response<ChatThread>> callback) {
+    public CompletableFuture<Response<ChatThread>> getChatThreadWithResponseAsync(String chatThreadId) {
         final String accept = "application/json";
+        CompletableFuture<Response<ChatThread>> completableFuture = new CompletableFuture<>();
+
         service.getChatThread(
             this.client.getEndpoint(), chatThreadId, this.client.getApiVersion(), accept, Context.NONE,
             new Callback<Response<ChatThread>>() {
                 @Override
                 public void onSuccess(Response<ChatThread> response) {
-                    callback.onSuccess(response);
+                    completableFuture.complete(response);
                 }
 
                 @Override
                 public void onFailure(Throwable error) {
-                    callback.onFailure(error);
+                    completableFuture.completeExceptionally(error);
                 }
             });
+
+        return completableFuture;
     }
 
     /**
@@ -636,22 +577,26 @@ public final class ChatImpl {
      * @return a chat thread.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void getChatThreadWithResponseAsync(String chatThreadId, Context context,
-                                               Callback<Response<ChatThread>> callback) {
+    public CompletableFuture<Response<ChatThread>> getChatThreadWithResponseAsync(String chatThreadId,
+                                                                                  Context context) {
         final String accept = "application/json";
+        CompletableFuture<Response<ChatThread>> completableFuture = new CompletableFuture<>();
+
         service.getChatThread(
             this.client.getEndpoint(), chatThreadId, this.client.getApiVersion(), accept, context,
             new Callback<Response<ChatThread>>() {
                 @Override
                 public void onSuccess(Response<ChatThread> response) {
-                    callback.onSuccess(response);
+                    completableFuture.complete(response);
                 }
 
                 @Override
                 public void onFailure(Throwable error) {
-                    callback.onFailure(error);
+                    completableFuture.completeExceptionally(error);
                 }
             });
+
+        return completableFuture;
     }
 
     /**
@@ -664,18 +609,9 @@ public final class ChatImpl {
      * @return a chat thread.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void getChatThreadAsync(String chatThreadId, Callback<ChatThread> callback) {
-        getChatThreadWithResponseAsync(chatThreadId, new Callback<Response<ChatThread>>() {
-            @Override
-            public void onSuccess(Response<ChatThread> response) {
-                callback.onSuccess(response.getValue());
-            }
-
-            @Override
-            public void onFailure(Throwable error) {
-                callback.onFailure(error);
-            }
-        });
+    public CompletableFuture<ChatThread> getChatThreadAsync(String chatThreadId) {
+        return getChatThreadWithResponseAsync(chatThreadId)
+            .thenApply(response -> response.getValue());
     }
 
     /**
@@ -689,18 +625,9 @@ public final class ChatImpl {
      * @return a chat thread.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void getChatThreadAsync(String chatThreadId, Context context, Callback<ChatThread> callback) {
-        getChatThreadWithResponseAsync(chatThreadId, context, new Callback<Response<ChatThread>>() {
-            @Override
-            public void onSuccess(Response<ChatThread> response) {
-                callback.onSuccess(response.getValue());
-            }
-
-            @Override
-            public void onFailure(Throwable error) {
-                callback.onFailure(error);
-            }
-        });
+    public CompletableFuture<ChatThread> getChatThreadAsync(String chatThreadId, Context context) {
+        return getChatThreadWithResponseAsync(chatThreadId, context)
+        .thenApply(response -> response.getValue());
     }
 
     /**
@@ -714,27 +641,13 @@ public final class ChatImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public ChatThread getChatThread(String chatThreadId) {
-        CountDownLatch latch = new CountDownLatch(1);
-        final ChatThread success[] = new ChatThread[1];
-        final Throwable failure[] = new Throwable[1];
-        getChatThreadAsync(chatThreadId, new Callback<ChatThread>() {
-            @Override
-            public void onSuccess(ChatThread response) {
-                success[0] = response;
-                latch.countDown();
-            }
-
-            @Override
-            public void onFailure(Throwable error) {
-                failure[0] = error;
-                latch.countDown();
-            }
-        });
-
-        if (failure[0] != null) {
-            throw new RuntimeException(failure[0]);
+        try {
+            return getChatThreadAsync(chatThreadId).get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
         }
-        return success[0];
     }
 
     /**
@@ -749,27 +662,13 @@ public final class ChatImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<ChatThread> getChatThreadWithResponse(String chatThreadId, Context context) {
-        CountDownLatch latch = new CountDownLatch(1);
-        final ArrayList<Response<ChatThread>> success = new ArrayList<>(1);
-        final Throwable failure[] = new Throwable[1];
-        getChatThreadWithResponseAsync(chatThreadId, context, new Callback<Response<ChatThread>>() {
-            @Override
-            public void onSuccess(Response<ChatThread> response) {
-                success.add(response);
-                latch.countDown();
-            }
-
-            @Override
-            public void onFailure(Throwable error) {
-                failure[0] = error;
-                latch.countDown();
-            }
-        });
-
-        if (failure[0] != null) {
-            throw new RuntimeException(failure[0]);
+        try {
+            return getChatThreadWithResponseAsync(chatThreadId, context).get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
         }
-        return success.get(0);
     }
 
     /**
@@ -782,22 +681,25 @@ public final class ChatImpl {
      * @return the completion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void deleteChatThreadWithResponseAsync(String chatThreadId,
-                                                  Callback<Response<Void>> callback) {
+    public CompletableFuture<Response<Void>> deleteChatThreadWithResponseAsync(String chatThreadId) {
         final String accept = "application/json";
+        CompletableFuture<Response<Void>> completableFuture = new CompletableFuture<>();
+
         service.deleteChatThread(
             this.client.getEndpoint(), chatThreadId, this.client.getApiVersion(), accept, Context.NONE,
             new Callback<Response<Void>>() {
                 @Override
                 public void onSuccess(Response<Void> response) {
-                    callback.onSuccess(response);
+                    completableFuture.complete(response);
                 }
 
                 @Override
                 public void onFailure(Throwable error) {
-                    callback.onFailure(error);
+                    completableFuture.completeExceptionally(error);
                 }
             });
+
+        return completableFuture;
     }
 
     /**
@@ -811,22 +713,25 @@ public final class ChatImpl {
      * @return the completion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void deleteChatThreadWithResponseAsync(String chatThreadId, Context context,
-                                                  Callback<Response<Void>> callback) {
+    public CompletableFuture<Response<Void>> deleteChatThreadWithResponseAsync(String chatThreadId, Context context) {
         final String accept = "application/json";
+        CompletableFuture<Response<Void>> completableFuture = new CompletableFuture<>();
+
         service.deleteChatThread(
             this.client.getEndpoint(), chatThreadId, this.client.getApiVersion(), accept, context,
             new Callback<Response<Void>>() {
                 @Override
                 public void onSuccess(Response<Void> response) {
-                    callback.onSuccess(response);
+                    completableFuture.complete(response);
                 }
 
                 @Override
                 public void onFailure(Throwable error) {
-                    callback.onFailure(error);
+                    completableFuture.completeExceptionally(error);
                 }
             });
+
+        return completableFuture;
     }
 
     /**
@@ -839,18 +744,9 @@ public final class ChatImpl {
      * @return the completion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void deleteChatThreadAsync(String chatThreadId, Callback<Void> callback) {
-        deleteChatThreadWithResponseAsync(chatThreadId, new Callback<Response<Void>>() {
-            @Override
-            public void onSuccess(Response<Void> response) {
-                callback.onSuccess(response.getValue());
-            }
-
-            @Override
-            public void onFailure(Throwable error) {
-                callback.onFailure(error);
-            }
-        });
+    public CompletableFuture<Void> deleteChatThreadAsync(String chatThreadId) {
+        return deleteChatThreadWithResponseAsync(chatThreadId)
+            .thenApply(response -> response.getValue());
     }
 
     /**
@@ -864,18 +760,9 @@ public final class ChatImpl {
      * @return the completion.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void deleteChatThreadAsync(String chatThreadId, Context context, Callback<Void> callback) {
-        deleteChatThreadWithResponseAsync(chatThreadId, context, new Callback<Response<Void>>() {
-            @Override
-            public void onSuccess(Response<Void> response) {
-                callback.onSuccess(response.getValue());
-            }
-
-            @Override
-            public void onFailure(Throwable error) {
-                callback.onFailure(error);
-            }
-        });
+    public CompletableFuture<Void> deleteChatThreadAsync(String chatThreadId, Context context) {
+        return deleteChatThreadWithResponseAsync(chatThreadId, context)
+            .thenApply(response -> response.getValue());
     }
 
     /**
@@ -888,23 +775,12 @@ public final class ChatImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public void deleteChatThread(String chatThreadId) {
-        CountDownLatch latch = new CountDownLatch(1);
-        Throwable failure[] = new Throwable[1];
-        deleteChatThreadAsync(chatThreadId, new Callback<Void>() {
-            @Override
-            public void onSuccess(Void response) {
-                latch.countDown();
-            }
-
-            @Override
-            public void onFailure(Throwable error) {
-                failure[0] = error;
-                latch.countDown();
-            }
-        });
-
-        if (failure[0] != null) {
-            throw new RuntimeException(failure[0]);
+        try {
+            deleteChatThreadAsync(chatThreadId).get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -920,28 +796,13 @@ public final class ChatImpl {
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
     public Response<Void> deleteChatThreadWithResponse(String chatThreadId, Context context) {
-        CountDownLatch latch = new CountDownLatch(1);
-        final ArrayList<Response<Void>> success = new ArrayList<>(1);
-        final Throwable failure[] = new Throwable[1];
-        deleteChatThreadWithResponseAsync(chatThreadId, context,
-            new Callback<Response<Void>>() {
-                @Override
-                public void onSuccess(Response<Void> response) {
-                    success.add(response);
-                    latch.countDown();
-                }
-
-                @Override
-                public void onFailure(Throwable error) {
-                    failure[0] = error;
-                    latch.countDown();
-                }
-            });
-
-        if (failure[0] != null) {
-            throw new RuntimeException(failure[0]);
+        try {
+            return deleteChatThreadWithResponseAsync(chatThreadId, context).get();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
         }
-        return success.get(0);
     }
 
     /**
@@ -954,13 +815,15 @@ public final class ChatImpl {
      * @return collection of chat threads.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void listChatThreadsNextSinglePageAsync(String nextLink, Callback<PagedResponse<ChatThreadInfo>> callback) {
+    public CompletableFuture<PagedResponse<ChatThreadInfo>> listChatThreadsNextSinglePageAsync(String nextLink) {
         final String accept = "application/json";
+        CompletableFuture<PagedResponse<ChatThreadInfo>> completableFuture = new CompletableFuture<>();
+
         service.listChatThreadsNext(nextLink, this.client.getEndpoint(), accept, Context.NONE,
             new Callback<Response<ChatThreadsInfoCollection>>() {
                 @Override
                 public void onSuccess(Response<ChatThreadsInfoCollection> response) {
-                    callback.onSuccess(new PagedResponseBase<>(
+                    completableFuture.complete(new PagedResponseBase<>(
                         response.getRequest(),
                         response.getStatusCode(),
                         response.getHeaders(),
@@ -971,9 +834,11 @@ public final class ChatImpl {
 
                 @Override
                 public void onFailure(Throwable error) {
-                    callback.onFailure(error);
+                    completableFuture.completeExceptionally(error);
                 }
             });
+
+        return completableFuture;
     }
 
     /**
@@ -987,14 +852,16 @@ public final class ChatImpl {
      * @return collection of chat threads.
      */
     @ServiceMethod(returns = ReturnType.SINGLE)
-    public void listChatThreadsNextSinglePageAsync(String nextLink, Context context,
-                                                   Callback<PagedResponse<ChatThreadInfo>> callback) {
+    public CompletableFuture<PagedResponse<ChatThreadInfo>> listChatThreadsNextSinglePageAsync(String nextLink,
+                                                                                               Context context) {
         final String accept = "application/json";
+        CompletableFuture<PagedResponse<ChatThreadInfo>> completableFuture = new CompletableFuture<>();
+
         service.listChatThreadsNext(nextLink, this.client.getEndpoint(), accept, context,
             new Callback<Response<ChatThreadsInfoCollection>>() {
                 @Override
                 public void onSuccess(Response<ChatThreadsInfoCollection> response) {
-                    callback.onSuccess(new PagedResponseBase<>(
+                    completableFuture.complete(new PagedResponseBase<>(
                         response.getRequest(),
                         response.getStatusCode(),
                         response.getHeaders(),
@@ -1005,8 +872,10 @@ public final class ChatImpl {
 
                 @Override
                 public void onFailure(Throwable error) {
-                    callback.onFailure(error);
+                    completableFuture.completeExceptionally(error);
                 }
             });
+
+        return completableFuture;
     }
 }
